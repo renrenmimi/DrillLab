@@ -631,6 +631,7 @@ const cabBooking: Exam = {
               code: [
                 real("jsx", SRC_TESTS, {
                   filename: "src/test/App.test.jsx（判分的全部依据）",
+                  filenameEn: "src/test/App.test.jsx (the whole basis of the grade)",
                   sourceFile: "cab-booking-context/src/test/App.test.jsx",
                   collapsible: true,
                 }),
@@ -851,7 +852,14 @@ const cabBooking: Exam = {
               kind: "recognition",
               level: 1,
               title: "哪个断言决定了「分组顺序」不能自己定？",
+              titleEn: "Which assertion makes the group order fixed?",
               prompt: <>测试 2 里有一行让「Sedan / SUV / Luxury 的顺序」变成硬要求。是哪一行？</>,
+              promptEn: (
+                <>
+                  One line in test 2 turns the order of Sedan / SUV / Luxury into a hard
+                  requirement. Which line?
+                </>
+              ),
               options: [
                 { id: "a", label: "expect(screen.getByTestId(\"all-cabs-section\")).toBeInTheDocument()" },
                 {
@@ -874,16 +882,37 @@ const cabBooking: Exam = {
                   <strong>反而是「我来排个序」会把它弄坏。</strong>
                 </>
               ),
+              explainEn: (
+                <>
+                  <code>toEqual</code> compares an <strong>ordered array</strong>. Take
+                  the text of the three <code>car-type-heading</code> nodes in DOM order
+                  and it has to be exactly{" "}
+                  <code>[&quot;Sedan&quot;, &quot;SUV&quot;, &quot;Luxury&quot;]</code>.
+                  <br />
+                  The good news is you do not have to arrange this — it is the key order
+                  of <code>data.json</code>, so plain{" "}
+                  <code>Object.keys(cabData).map(...)</code> is right.{" "}
+                  <strong>It is sorting it yourself that breaks it.</strong>
+                </>
+              ),
             },
             {
               id: "cb-testid-fill",
               kind: "fill-blank",
               level: 2,
               title: "补齐 RideHistory 的两个 testid 和互斥逻辑",
+              titleEn: "Fill in the two testids of RideHistory and the either-or logic",
               prompt: (
                 <>
                   空的时候只能出现 <code>no-ride-title</code>，
                   有记录的时候只能出现 <code>history-cabs</code>。把三个空填上。
+                </>
+              ),
+              promptEn: (
+                <>
+                  When it is empty only <code>no-ride-title</code> may appear; when there
+                  are records only <code>history-cabs</code> may appear. Fill in the
+                  three blanks.
                 </>
               ),
               language: "jsx",
@@ -918,6 +947,7 @@ const cabBooking: Exam = {
                   n: 1,
                   accept: ["history-cabs"],
                   hint: "测试用 getAllByTestId 数它的条数",
+                  hintEn: "The tests count these with getAllByTestId.",
                   why: (
                     <>
                       测试 3 和测试 4 都用 <code>history-cabs</code> 找历史条目，
@@ -927,11 +957,22 @@ const cabBooking: Exam = {
                       挂错地方会变成只有 1 个，测试 4 直接红。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      Tests 3 and 4 both use <code>history-cabs</code> to find the
+                      history entries, and test 4 counts them with{" "}
+                      <code>toHaveLength(3)</code>. So it has to sit on{" "}
+                      <strong>every <code>&lt;li&gt;</code></strong>, not on the outer{" "}
+                      <code>&lt;ul&gt;</code> — put it in the wrong place and there is
+                      only 1 of them, and test 4 fails.
+                    </>
+                  ),
                 },
                 {
                   n: 2,
                   accept: ["no-ride-title"],
                   hint: "测试 1 用它断言空状态",
+                  hintEn: "Test 1 uses it to assert the empty state.",
                   why: (
                     <>
                       测试 1：<code>getByTestId(&quot;no-ride-title&quot;)</code>。
@@ -941,17 +982,35 @@ const cabBooking: Exam = {
                       不能把空状态那段一直渲染着。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      Test 1: <code>getByTestId(&quot;no-ride-title&quot;)</code>. Note
+                      that it and <code>history-cabs</code>{" "}
+                      <strong>can never exist at the same moment</strong>, so these have
+                      to be the two branches of one conditional. You cannot leave the
+                      empty-state block rendered all the time.
+                    </>
+                  ),
                 },
                 {
                   n: 3,
                   accept: ["No ride history yet.", "No ride history yet"],
                   hint: "测试 1 用 toHaveTextContent 比这句话",
+                  hintEn: "Test 1 compares this sentence with toHaveTextContent.",
                   why: (
                     <>
                       <code>toHaveTextContent(&quot;No ride history yet.&quot;)</code> ——
                       文字必须对得上。<strong>这类「文案即断言」的地方
                       千万别自己改写</strong>，
                       「暂无记录」或者 &ldquo;No rides yet&rdquo; 都会红。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>toHaveTextContent(&quot;No ride history yet.&quot;)</code> —
+                      the text has to match. <strong>Never rewrite wording that an
+                      assertion compares</strong>; anything else, including
+                      &ldquo;No rides yet&rdquo;, fails.
                     </>
                   ),
                 },
