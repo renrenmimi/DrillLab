@@ -41,7 +41,7 @@ export const ivBackend: Module = {
       whyForAssessment:
         "这四道直接对应 Federation 那门课里 Task 2 写的六个 Spring 端点 —— 那道题的评分点就是「方法对不对、状态码对不对、参数从哪来」。Node 事件循环那道会和浏览器的对比着问。",
       whyForAssessmentEn:
-        "These four map straight onto the six Spring endpoints written in Task 2 of the Federation course, where the marks go to the right method, the right status code, and the right place to read each parameter from. The Node.js event loop question is usually asked side by side with the browser one.",
+        "These four map straight onto the six Spring endpoints written in Task 2 of the Federation exam, where the marks go to the right method, the right status code, and the right place to read each parameter from. The Node.js event loop question is usually asked side by side with the browser one.",
       concepts: [
         {
           id: "q313",

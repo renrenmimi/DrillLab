@@ -461,10 +461,15 @@ export { createReviewerLoader, createReviewLoader };`;
 const reviewsMock: MockExam = {
   id: "book-reviews",
   title: "模拟考 B · Book Reviews Subgraph",
+  titleEn: "Mock exam B · Book Reviews Subgraph",
   mirrors:
     "与真实 Task 1 相同的考点：entity 与 @key、__resolveReference、字段 resolver 的 parent、schema 可空性决定的兜底策略、DataLoader 防 N+1 及其长度/顺序契约、结构化错误与 correlation id、以及「catch 不要吞掉已结构化错误」。新增三个考点：复合 @key、可空标量字段（null 与 0 的区别）、以及一处「batch 函数用了 filter」的埋雷。",
+  mirrorsEn:
+    "The same points as the real Task 1: entity and @key, __resolveReference, the parent argument of a field resolver, the fallback the schema nullability forces on you, DataLoader against N+1 and its length and order contract, structured errors with a correlation id, and not letting a catch swallow an already structured error. Three points are new: a composite @key, a nullable scalar field (where null and 0 differ), and one planted bug where the batch function uses filter.",
   scenario:
     "图书评论 subgraph。它既不拥有 Author 也不拥有 Book —— 两者都由 Catalog subgraph 提供，本服务只往它们身上挂 reviews 和 averageRating。Book 用的是复合 key（isbn + edition），这是真实项目里很常见、但比单字段 key 更容易写错的情况。",
+  scenarioEn:
+    "A book reviews subgraph. It owns neither Author nor Book — both come from the Catalog subgraph, and this service only attaches reviews and averageRating to them. Book uses a composite key (isbn plus edition), which is common in real projects and easier to get wrong than a single-field key.",
   minutes: 90,
 
   // 【这一段的数字全是实测的，别改】
