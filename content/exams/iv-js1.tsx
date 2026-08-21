@@ -2899,7 +2899,31 @@ function f() {
 }
 f();              // [3, 3, 3]  —— 三个闭包共享同一个 i
                   // 把 var 换成 let 就是 [0, 1, 2]`,
-              { filename: "闭包的两道必考题" },
+              {
+                filename: "闭包的两道必考题",
+                filenameEn: "Two closure questions that always come up",
+                codeEn: `// Private state: the outside cannot reach count, only the methods change it
+function createCounter() {
+  let count = 0;                     // not reachable from outside
+  return {
+    inc: () => ++count,
+    get: () => count,
+  };
+}
+const c = createCounter();
+c.inc(); c.inc();
+c.get();          // 2
+c.count;          // undefined ← genuinely private
+
+// A classic interview question: what does this print?
+function f() {
+  const fns = [];
+  for (var i = 0; i < 3; i++) fns.push(() => i);
+  return fns.map((fn) => fn());
+}
+f();              // [3, 3, 3]  —— the three closures share one i
+                  // change var to let and you get [0, 1, 2]`,
+              },
             ),
           ],
         },
