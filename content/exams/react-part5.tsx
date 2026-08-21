@@ -4896,12 +4896,20 @@ export function addReply(
           kind: "debug",
           id: "r-var-tree-debug",
           title: "Debug Lab · 回复加进去了，界面不动",
+          titleEn: "Debug Lab · the reply went in and the screen never moved",
           level: 3,
           generated: true,
           prompt: (
             <p>
               给深层评论加回复，<code>console.log</code> 打出来的树里
               新回复确实在，但界面没变化。控制台干净。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You add a reply to a deep comment. The tree printed by{" "}
+              <code>console.log</code> really does contain the new reply, but the
+              screen does not change. The console is clean.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -4935,24 +4943,51 @@ const handleReply = (parentId: number, text: string) => {
   const reply = { id: Date.now(), author: "我", body: text, replies: [] };
   setComments(addReply(comments, parentId, reply));
 };`,
-            { filename: "src/components/CommentTree/index.tsx", highlight: [4, 15] },
+            {
+              filename: "src/components/CommentTree/index.tsx",
+              codeEn: `function addReply(nodes: Comment[], parentId: number, reply: Comment) {
+  for (const node of nodes) {
+    if (node.id === parentId) {
+      node.replies.push(reply);          // found it, so push it in
+      return nodes;
+    }
+    addReply(node.replies, parentId, reply);
+  }
+  return nodes;
+}
+
+const handleReply = (parentId: number, text: string) => {
+  const reply = { id: Date.now(), author: "我", body: text, replies: [] };
+  setComments(addReply(comments, parentId, reply));
+};`,
+              highlight: [4, 15],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "递归写错了 —— 没有终止条件" },
-              { id: "b", label: "状态更新错误 —— 直接改了原树，setComments 收到的还是同一个引用" },
-              { id: "c", label: "key 用了 index" },
-              { id: "d", label: "过期闭包 —— comments 是旧值" },
+              { id: "a", label: "递归写错了 —— 没有终止条件", labelEn: "The recursion is wrong — there is no stopping condition" },
+              {
+                id: "b",
+                label: "状态更新错误 —— 直接改了原树，setComments 收到的还是同一个引用",
+                labelEn: "A state update error — the original tree was changed, so setComments receives the very same reference",
+              },
+              { id: "c", label: "key 用了 index", labelEn: "The key uses the index" },
+              { id: "d", label: "过期闭包 —— comments 是旧值", labelEn: "A stale closure — comments is an old value" },
             ],
             answer: "b",
           },
           locate: {
             question: "根本问题是哪一句？",
+            questionEn: "Which line is the real problem?",
             options: [
-              { id: "a", label: "node.replies.push(reply) —— 应该用 map + 展开造新对象" },
-              { id: "b", label: "return nodes —— 应该 return [...nodes]" },
-              { id: "c", label: "for...of 应该换成 forEach" },
-              { id: "d", label: "reply 的 id 应该用 Math.random()" },
+              {
+                id: "a",
+                label: "node.replies.push(reply) —— 应该用 map + 展开造新对象",
+                labelEn: "node.replies.push(reply) — it should build new objects with map plus a spread",
+              },
+              { id: "b", label: "return nodes —— 应该 return [...nodes]", labelEn: "return nodes — it should be return [...nodes]" },
+              { id: "c", label: "for...of 应该换成 forEach", labelEn: "for...of should be forEach" },
+              { id: "d", label: "reply 的 id 应该用 Math.random()", labelEn: "The id of reply should use Math.random()" },
             ],
             answer: "a",
           },
@@ -4972,7 +5007,24 @@ const handleReply = (parentId: number, text: string) => {
   const reply: Comment = { id: Date.now(), author: "我", body: text, replies: [] };
   setComments((prev) => addReply(prev, parentId, reply));
 };`,
-            { filename: "改对之后（7/7 通过）" },
+            {
+              filename: "改对之后（7/7 通过）",
+              filenameEn: "After the fix (7 of 7 pass)",
+              codeEn: `export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
+  return nodes.map((node) => {
+    if (node.id === parentId) {
+      return { ...node, replies: [...node.replies, reply] };
+    }
+    return { ...node, replies: addReply(node.replies, parentId, reply) };
+  });
+}
+
+// The call site becomes a functional update too
+const handleReply = (parentId: number, text: string) => {
+  const reply: Comment = { id: Date.now(), author: "我", body: text, replies: [] };
+  setComments((prev) => addReply(prev, parentId, reply));
+};`,
+            },
           ),
           rootCause: (
             <>
@@ -5004,8 +5056,46 @@ const handleReply = (parentId: number, text: string) => {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>push</code> changes{" "}
+                <strong>the original replies array</strong>, and then{" "}
+                <code>return nodes</code> hands back{" "}
+                <strong>the original root array</strong>. The reference{" "}
+                <code>setComments</code> receives is identical to the current state,
+                React reads that as no change, and skips the re-render.
+              </p>
+              <p>
+                This is <strong>the same illness</strong> as the{" "}
+                <code>notes.push()</code> bug in Q1, only on a tree, which makes it
+                harder to see: the illusion is stronger, because the new data really
+                is there in <code>console.log</code>.
+              </p>
+              <p>
+                <strong>
+                  Why is option B, <code>return [...nodes]</code>, not enough?
+                </strong>{" "}
+                It does change the reference of the root array, so the screen updates
+                once — <strong>but the original data is already spoiled</strong>. The
+                consequences: the earlier state of the tree is destroyed, so you cannot
+                undo; if the same data is referenced elsewhere it changes there too;
+                and the references of the deep nodes never changed, so any subtree
+                under <code>React.memo</code> still does not re-render.{" "}
+                <strong>That makes the symptom go away instead of fixing it.</strong>
+              </p>
+              <p>
+                <strong>The fixed signature of this whole family of bugs:</strong> no
+                error, plus correct data in <code>console.log</code>, plus a screen
+                that does not move, means an original object was changed. Arrays,
+                objects and trees all behave the same way here.
+              </p>
+            </>
+          ),
           verify:
             "npx vitest run src/CommentTree.test.tsx   # 7 passed，含深冻结那条",
+          verifyEn:
+            "npx vitest run src/CommentTree.test.tsx   # 7 passed, including the frozen-tree one",
         },
       ],
       mistakes: [
