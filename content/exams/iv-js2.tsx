@@ -1290,7 +1290,30 @@ try {
 Promise.resolve(1).finally(() => 99).then(console.log);   // 1，不是 99
 // 但抛错会覆盖
 Promise.resolve(1).finally(() => { throw new Error("x"); }).catch(e => console.log(e.message)); // "x"`,
-              { filename: "finally 的三个性质" },
+              {
+                filename: "finally 的三个性质",
+                filenameEn: "Three properties of finally",
+                codeEn: `fetch(url)
+  .then((r) => r.json())
+  .then(setData)
+  .catch(setError)
+  .finally(() => setLoading(false));   // turn loading off whether it worked or not
+
+// The same thing written with async
+try {
+  const r = await fetch(url);
+  setData(await r.json());
+} catch (e) {
+  setError(e.message);
+} finally {
+  setLoading(false);         // ← put it here, not only at the end of try
+}
+
+// finally passes the value through; its return value is ignored
+Promise.resolve(1).finally(() => 99).then(console.log);   // 1, not 99
+// But throwing does replace it
+Promise.resolve(1).finally(() => { throw new Error("x"); }).catch(e => console.log(e.message)); // "x"`,
+              },
             ),
           ],
         },
