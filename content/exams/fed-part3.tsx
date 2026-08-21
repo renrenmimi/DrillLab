@@ -2622,6 +2622,7 @@ export const fedWritten: Module = {
       title: "两道书面题：延迟传播与生产配置",
       titleEn: "The two written questions: how delay spreads, and production configuration",
       blurb: "写代码的题有测试兜底，这两道题只有你自己。给你一套可复用的答题结构。",
+      blurbEn: "The coding tasks have tests to fall back on. These two questions have only you. Here is an answer structure you can reuse.",
       minutes: 22,
       objectives: [
         "解释联邦图里某个 subgraph 高延迟为什么会拖慢整体",
@@ -2629,8 +2630,16 @@ export const fedWritten: Module = {
         "从一段 application.properties 里指出三个以上生产隐患",
         "掌握一个「风险 → 后果 → 修正 → 理由」的答题结构",
       ],
+      objectivesEn: [
+        "Explain why one slow subgraph in a federated graph slows the whole request down",
+        "Name at least one caching strategy, and state how it is invalidated and what it costs",
+        "Point out three or more production risks in a block of application.properties",
+        "Learn one answer structure: risk, then consequence, then fix, then reason",
+      ],
       whyForAssessment:
         "这两道题占的分不小，而且完全没有测试。很多人在这里写两句话就交了 —— 而它恰恰是最容易通过「结构化表达」拿分的地方。",
+      whyForAssessmentEn:
+        "These two questions are worth real points, and no test checks them. Many people write two sentences and submit. This is the easiest place in the exam to earn points just by organising what you say.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/QUESTIONS.md",
@@ -2646,7 +2655,9 @@ export const fedWritten: Module = {
         {
           id: "answer-structure",
           heading: "先说答题结构",
+          headingEn: "Start with the answer structure",
           lede: "这两道题都能套同一个模板。",
+          ledeEn: "The same template fits both questions.",
           body: (
             <>
               <p>
@@ -2749,6 +2760,7 @@ export const fedWritten: Module = {
         {
           id: "q1-restate",
           heading: "第 1 题 · 题面与要点拆解",
+          headingEn: "Question 1 · the text, broken into the points it asks for",
           body: (
             <>
               <p>原文：</p>
@@ -2830,7 +2842,9 @@ Orders subgraph 即使自己只要 10ms，也要等到 500ms 之后才被调用
         {
           id: "q1-answer",
           heading: "第 1 题 · 一份可以照着写的答案",
+          headingEn: "Question 1 · an answer you can follow",
           lede: "这是 DrillLab 写的参考答案，不是官方标准答案。",
+          ledeEn: "This is a reference answer written by DrillLab, not an official one.",
           body: (
             <>
               <p>
@@ -2916,6 +2930,7 @@ User.orders）的前置步骤，这两步必须串行。因此任何涉及 User 
         {
           id: "q2-restate",
           heading: "第 2 题 · 题面与那段配置",
+          headingEn: "Question 2 · the text and the configuration block",
           body: (
             <>
               <p>
@@ -2995,7 +3010,9 @@ management.endpoints.web.exposure.include=*`,
         {
           id: "q2-checklist",
           heading: "第 2 题 · 找问题的清单",
+          headingEn: "Question 2 · a checklist for finding the problems",
           lede: "按这几个面扫一遍，三个问题很容易凑够，而且不会漏掉重要的。",
+          ledeEn: "Scan these areas in turn. Three problems are easy to reach, and you will not miss the important ones.",
           body: (
             <>
               <ol>
@@ -3074,6 +3091,7 @@ management.endpoints.web.exposure.include=*`,
         {
           id: "q2-answer",
           heading: "第 2 题 · 一份可以照着写的答案",
+          headingEn: "Question 2 · an answer you can follow",
           body: (
             <>
               <p>
@@ -3209,6 +3227,7 @@ spring.lifecycle.timeout-per-shutdown-phase=20s
         {
           id: "how-to-write",
           heading: "写这两道题时的几条实操建议",
+          headingEn: "A few practical tips for writing these two answers",
           body: (
             <>
               <ul>
@@ -3455,12 +3474,12 @@ spring.lifecycle.timeout-per-shutdown-phase=20s`,
         },
       ],
       transfer: [
-        { signal: "「某个服务慢了会怎样」", reachFor: "先找串行依赖，再讲资源放大" },
-        { signal: "「给一种缓存策略」", reachFor: "缓存键 + TTL + 失效策略 + 一致性代价，四件套" },
-        { signal: "审查配置", reachFor: "六个面：暴露 / 凭据 / 传输 / 资源韧性 / 可观测 / 配置管理" },
-        { signal: "看到 include=*", reachFor: "白名单代替通配符，默认拒绝" },
-        { signal: "看到 0.0.0.0 就想报警", reachFor: "容器里这是必须的，别当成问题" },
-        { signal: "书面题要求 justification", reachFor: "每条都写理由，只给配置会丢分" },
+        { signal: "「某个服务慢了会怎样」", signalEn: "A question like: what happens when one service gets slow", reachFor: "先找串行依赖，再讲资源放大", reachForEn: "Find the serial dependency first, then explain how resource use grows" },
+        { signal: "「给一种缓存策略」", signalEn: "A question like: propose a caching strategy", reachFor: "缓存键 + TTL + 失效策略 + 一致性代价，四件套", reachForEn: "Four parts: cache key, TTL, how it is invalidated, and the consistency cost" },
+        { signal: "审查配置", signalEn: "You are asked to review configuration", reachFor: "六个面：暴露 / 凭据 / 传输 / 资源韧性 / 可观测 / 配置管理", reachForEn: "Six areas: what is exposed, credentials, transport, resource resilience, observability, config management" },
+        { signal: "看到 include=*", signalEn: "You see include=*", reachFor: "白名单代替通配符，默认拒绝", reachForEn: "Replace the wildcard with an allow list; deny by default" },
+        { signal: "看到 0.0.0.0 就想报警", signalEn: "You are about to report 0.0.0.0 as a problem", reachFor: "容器里这是必须的，别当成问题", reachForEn: "Inside a container it is required; it is not a problem" },
+        { signal: "书面题要求 justification", signalEn: "A written question asks for justification", reachFor: "每条都写理由，只给配置会丢分", reachForEn: "Give a reason for every item; configuration alone loses points" },
       ],
       recap: [
         "答题结构：结论 → 机制 → 方案 → 代价与边界。最后一段最能区分水平。",
@@ -3468,6 +3487,13 @@ spring.lifecycle.timeout-per-shutdown-phase=20s`,
         "缓存答案要包含四件事：缓存键、TTL、主动失效、一致性代价。",
         "第 2 题按六个面扫：暴露面 / 凭据 / 传输 / 资源韧性 / 可观测性 / 配置管理。",
         "actuator 全开是最严重的（/actuator/env 直接泄漏口令）；server.address=0.0.0.0 在容器里不是问题。",
+      ],
+      recapEn: [
+        "Answer structure: conclusion, then mechanism, then solution, then cost and limits. The last part separates good answers from average ones.",
+        "The core of Question 1: in the Router query plan the @key step must finish first, so the calls run one after another.",
+        "A caching answer needs four things: the cache key, the TTL, active invalidation, and the consistency cost.",
+        "For Question 2, scan six areas: what is exposed, credentials, transport, resource resilience, observability, config management.",
+        "Leaving all of actuator open is the worst problem, because /actuator/env prints the password. server.address=0.0.0.0 is not a problem inside a container.",
       ],
     },
   ],
