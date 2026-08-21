@@ -105,6 +105,10 @@ const normalize = (l) =>
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/.*$/, "")
     .replace(/#(?![0-9a-fA-F]{3,8}\b).*$/, "")
+    // JSX 的字面文本子节点也是内容，不是结构 —— <button>点我</button> 里的
+    // 「点我」是给读者看的标签，该译。只挖**不含花括号**的那种：
+    // <dt>{r.term}</dt> 里的 {r.term} 是代码，必须继续参与比对。
+    .replace(/>([^<>{}]+)</g, ">·<")
     .trimEnd();
 
 let checked = 0;
