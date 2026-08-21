@@ -997,7 +997,10 @@ _entities User.orders: {"_entities":[{"id":"123","orders":[
 Mutation.createOrder: {"createOrder":{"id":"order-1785737900978","totalAmount":299.98,
   "items":[{"productId":"prod-789","quantity":2,"price":149.99}]}} | errors: []
 createOrder empty items code: [ 'INVALID_INPUT' ]`,
-              { filename: "审计时的真实输出" },
+              {
+                filename: "审计时的真实输出",
+                filenameEn: "The real output from the audit",
+              },
             ),
           ],
         },
@@ -1007,12 +1010,21 @@ createOrder empty items code: [ 'INVALID_INPUT' ]`,
           kind: "debug",
           id: "g-lab-resolver-name",
           title: "故障 1 · resolver 写了，字段还是 null",
+          titleEn: "Fault 1 · the resolver is written, the field is still null",
           level: 3,
           prompt: (
             <p>
               你确信写了 <code>shippingInfo</code> 的实现，
               测试也不报错，但查询返回的 <code>shippingInfo</code> 是
               <code>null</code>。控制台里连你加的 log 都没打印。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You are sure you wrote an implementation for{" "}
+              <code>shippingInfo</code>, and no test reports anything, but the
+              query returns <code>shippingInfo</code> as <code>null</code>. Not
+              even the log line you added prints on the console.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -1041,24 +1053,43 @@ errors: []
 //   ...
 //   shippingInfo: ShippingInfo
 // }`,
-            { filename: "src/resolvers/orderResolvers.js", highlight: [3] },
+            {
+              filename: "src/resolvers/orderResolvers.js",
+              highlight: [3],
+              codeEn: `export const resolvers = {
+  Order: {
+    async shipping(parent, _, { loaders }) {          // ← the name
+      console.log('>>> shippingInfo called');
+      return loaders.shippingInfoLoader.load(parent.id);
+    }
+  },
+  ...
+};
+
+// For reference, schema.graphql says:
+// type Order {
+//   ...
+//   shippingInfo: ShippingInfo
+// }`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "非空违约 —— 忘了兜底" },
-              { id: "b", label: "名字不匹配 —— resolver 的键名和 schema 字段名不一致，这个 resolver 从未被调用" },
-              { id: "c", label: "DataLoader 用法错误" },
-              { id: "d", label: "context 键名错误" },
+              { id: "a", label: "非空违约 —— 忘了兜底", labelEn: "A non-null violation — the fallback is missing" },
+              { id: "b", label: "名字不匹配 —— resolver 的键名和 schema 字段名不一致，这个 resolver 从未被调用", labelEn: "A name mismatch — the resolver key does not match the schema field name, so this resolver is never called" },
+              { id: "c", label: "DataLoader 用法错误", labelEn: "Wrong DataLoader usage" },
+              { id: "d", label: "context 键名错误", labelEn: "A wrong key name in context" },
             ],
             answer: "b",
           },
           locate: {
             question: "该改哪里？",
+            questionEn: "What should be changed?",
             options: [
-              { id: "a", label: "把 resolver 的键名从 shipping 改成 shippingInfo" },
-              { id: "b", label: "把 schema 里的字段名改成 shipping" },
-              { id: "c", label: "在 resolver 里加 return null 兜底" },
-              { id: "d", label: "把它挪到 resolvers.Query 下面" },
+              { id: "a", label: "把 resolver 的键名从 shipping 改成 shippingInfo", labelEn: "Rename the resolver key from shipping to shippingInfo" },
+              { id: "b", label: "把 schema 里的字段名改成 shipping", labelEn: "Rename the schema field to shipping" },
+              { id: "c", label: "在 resolver 里加 return null 兜底", labelEn: "Add a return null fallback inside the resolver" },
+              { id: "d", label: "把它挪到 resolvers.Query 下面", labelEn: "Move it under resolvers.Query" },
             ],
             answer: "a",
           },
@@ -1070,7 +1101,10 @@ errors: []
     return shippingInfo ?? null;
   }
 },`,
-            { filename: "改对之后" },
+            {
+              filename: "改对之后",
+              filenameEn: "After the fix",
+            },
           ),
           rootCause: (
             <>
@@ -1102,7 +1136,46 @@ errors: []
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <strong>A resolver is just a key on an ordinary object.</strong>{" "}
+                When the executor resolves <code>Order.shippingInfo</code> it
+                looks for <code>resolvers.Order.shippingInfo</code>, does not
+                find it (you wrote <code>shipping</code>), and falls back to the{" "}
+                <strong>default resolver</strong>, which reads{" "}
+                <code>parent.shippingInfo</code>.
+              </p>
+              <p>
+                And the order object the data source returns{" "}
+                <strong>has no</strong> <code>shippingInfo</code> property,
+                because shipping lives in another service. So the value is{" "}
+                <code>undefined</code>, which serializes as <code>null</code>.{" "}
+                <strong>The field is nullable, so nothing reports an
+                error.</strong>
+              </p>
+              <p>
+                <strong>
+                  &ldquo;The log never printed&rdquo; is the decisive clue.
+                </strong>{" "}
+                It says the function was never called, which rules out a logic
+                mistake and points straight at a wrong name or wrong place.{" "}
+                <strong>
+                  When a field is silently null, the first thing to do is put a
+                  log on the first line of the resolver and confirm whether it
+                  runs at all.
+                </strong>
+              </p>
+              <p>
+                <strong>Why is option B, editing the schema, not allowed?</strong>{" "}
+                <code>schema.graphql</code> is PROVIDED, and renaming the field
+                would break the client contract and the tests.
+              </p>
+            </>
+          ),
           verify: "node verify-schema.mjs   # shippingInfo 应该有值，且日志出现 Batching",
+          verifyEn:
+            "node verify-schema.mjs   # shippingInfo should have a value, and the log should show Batching",
         },
         {
           kind: "debug",
