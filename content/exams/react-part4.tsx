@@ -2990,12 +2990,21 @@ console.log("after:", notes);
           kind: "from-scratch",
           id: "r-rebuild-q1",
           title: "从零重建 Q1 · Notes Manager",
+          titleEn: "Rebuild Q1 · Notes Manager",
           level: 4,
           prompt: (
             <p>
               空目录开始，建出一个 React + TypeScript + Vite 项目，
               实现 Notes Manager 的增删改，让下面那四个测试全过。
               <strong>不要打开 react-notes-app 参考。</strong>
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Starting from an empty directory, build a React + TypeScript +
+              Vite project. Implement add, delete and edit in Notes Manager, and
+              make all four tests below pass.{" "}
+              <strong>Do not open react-notes-app to look.</strong>
             </p>
           ),
           requirements: [
@@ -3011,29 +3020,46 @@ console.log("after:", notes);
             "行内按钮的文字必须正好是 Edit 和 Delete",
             "Note 的类型是 { id: number; title: string; content: string }",
           ],
+          requirementsEn: [
+            "The form sits at the top of the page: a Title input, a Content textarea, and one submit button",
+            "The table sits below: the header is Title / Content / Edit / Delete, with one row per note",
+            "Both inputs must be controlled (value + onChange)",
+            "When the title or the content is empty (including only spaces), the submit button is disabled",
+            "Task 1 Add: after submit the new note appears at the end of the table, and every existing note is still there",
+            "Task 2 Delete: clicking Delete on a row removes that row by id (with notes of the same name, only the right one goes)",
+            "Task 3 Edit: clicking Edit on a row fills its content back into the form, and the button text becomes Update",
+            "Task 3 after submit: the note is updated in place (the order does not change), and edit mode ends (the form clears, the button goes back to Add)",
+            "These data-testid values are required: note-manager / note-form / form-input / form-textarea / form-submit-button / notes-list",
+            "The text on the row buttons must be exactly Edit and Delete",
+            "The type of Note is { id: number; title: string; content: string }",
+          ],
           fileList: [
-            { path: "package.json", role: "自己写 scripts 与依赖（react / react-dom / vite / @vitejs/plugin-react / typescript / vitest / jsdom / @testing-library/*）" },
-            { path: "index.html", role: "一个 <div id=\"root\"> 加一行 module script" },
-            { path: "tsconfig.json", role: "strict、jsx: react-jsx、moduleResolution: bundler" },
-            { path: "vite.config.ts", role: "React 插件 + 内联 vitest 配置（environment: jsdom、globals、setupFiles）" },
+            { path: "package.json", role: "自己写 scripts 与依赖（react / react-dom / vite / @vitejs/plugin-react / typescript / vitest / jsdom / @testing-library/*）", roleEn: "You write the scripts and dependencies (react / react-dom / vite / @vitejs/plugin-react / typescript / vitest / jsdom / @testing-library/*)" },
+            { path: "index.html", role: "一个 <div id=\"root\"> 加一行 module script", roleEn: "One <div id=\"root\"> plus one module script line" },
+            { path: "tsconfig.json", role: "strict、jsx: react-jsx、moduleResolution: bundler", roleEn: "strict, jsx: react-jsx, moduleResolution: bundler" },
+            { path: "vite.config.ts", role: "React 插件 + 内联 vitest 配置（environment: jsdom、globals、setupFiles）", roleEn: "The React plugin plus an inline vitest config (environment: jsdom, globals, setupFiles)" },
             { path: "vitest.setup.ts", role: "import \"@testing-library/jest-dom\"" },
             { path: "src/main.tsx", role: "createRoot().render(<App />)" },
-            { path: "src/App.tsx", role: "渲染顶层组件" },
-            { path: "src/types/Note.ts", role: "Note 类型" },
-            { path: "src/components/NoteManager/index.tsx", role: "★ 状态所有者：notes + noteToEdit + 三个 handler" },
-            { path: "src/components/NoteForm/index.tsx", role: "★ 受控表单、编辑回填、Add/Update 切换、提交时 id 的取舍" },
-            { path: "src/components/NoteTable/index.tsx", role: "表格骨架 + map + notes-list 的 testid" },
-            { path: "src/components/NoteItem/index.tsx", role: "单行 + Edit / Delete 按钮" },
-            { path: "src/NoteManager.test.tsx", role: "把四个测试抄进来当判卷器（见下方参考答案区）" },
+            { path: "src/App.tsx", role: "渲染顶层组件", roleEn: "Renders the top-level component" },
+            { path: "src/types/Note.ts", role: "Note 类型", roleEn: "The Note type" },
+            { path: "src/components/NoteManager/index.tsx", role: "★ 状态所有者：notes + noteToEdit + 三个 handler", roleEn: "★ The state owner: notes + noteToEdit + three handlers" },
+            { path: "src/components/NoteForm/index.tsx", role: "★ 受控表单、编辑回填、Add/Update 切换、提交时 id 的取舍", roleEn: "★ The controlled form, filling values back for an edit, switching Add and Update, and choosing the id on submit" },
+            { path: "src/components/NoteTable/index.tsx", role: "表格骨架 + map + notes-list 的 testid", roleEn: "The table skeleton, the map, and the notes-list data-testid" },
+            { path: "src/components/NoteItem/index.tsx", role: "单行 + Edit / Delete 按钮", roleEn: "One row plus the Edit and Delete buttons" },
+            { path: "src/NoteManager.test.tsx", role: "把四个测试抄进来当判卷器（见下方参考答案区）", roleEn: "Copy the four tests in and let them grade you (see the reference answer area below)" },
           ],
           commands: [
             {
               cmd: "npm install",
               expect: "装完依赖，node_modules 与 package-lock.json 出现",
+              expectEn:
+                "The dependencies install, and node_modules and package-lock.json appear",
             },
             {
               cmd: "npm run dev",
               expect: "打开提示的 localhost 地址，能看到表单和空表格",
+              expectEn:
+                "Open the localhost address it prints, and you see the form and an empty table",
             },
             {
               cmd: "npx vitest run",
@@ -3043,6 +3069,8 @@ console.log("after:", notes);
               cmd: "npm run dev",
               expect:
                 "手动验证三件事：① 加三条同名笔记，删中间那条，只消失一条 ② 编辑中间那条，它还在第二行 ③ 更新完按钮回到 Add、表单清空",
+              expectEn:
+                "Check three things by hand: \u2460 add three notes with the same name, delete the middle one, and only one disappears \u2461 edit the middle one and it is still on the second row \u2462 after the update the button goes back to Add and the form clears",
             },
           ],
           hints: [
@@ -3086,6 +3114,49 @@ const handleEdit = (note: Note) => setNoteToEdit(note);
 
 // NoteForm 里最关键的两处
 useEffect(() => { /* 有就填，没有就清 */ }, [noteToEdit]);
+const newNote = { id: noteToEdit ? noteToEdit.id : Date.now(), ... };`,
+          ],
+          hintsEn: [
+            "Work out who holds the data first. The form and the table are siblings and both touch the same list of notes, so that list can only live in the parent they share. Draw that structure before you write anything.",
+            "Four components, two pieces of state (notes, and which one is being edited), and three handlers (submit, delete, start editing). The form also needs two pieces of state of its own for the input values. To fill values back for an edit, use useEffect watching the change of which note is being edited. On submit, adding and updating need different id strategies.",
+            `NoteManager:
+  notes: Note[] = []
+  noteToEdit: Note | null = null
+  handleSubmit(note):
+    if editing → replace in place by id with map → then set noteToEdit back to null
+    otherwise → append to the end with the spread syntax
+  handleDelete(id): keep the ones whose id is not equal, with filter
+  handleEdit(note): set noteToEdit to this one
+
+NoteForm:
+  two pieces of state: title, content
+  useEffect(dependencies = [noteToEdit]):
+    noteToEdit exists → fill in its title/content
+    it does not → clear both
+  isFormInvalid = either one is empty after trim
+  handleSubmit(e):
+    e.preventDefault()
+    return if invalid
+    build the note, id = editing ? reuse the old id : Date.now()
+    report it upward, then clear both inputs`,
+            `// The three handlers of NoteManager (this is the core of Q1; the rest is skeleton)
+const handleSubmitNote = (submittedNote: Note) => {
+  if (noteToEdit) {
+    setNotes((prev) =>
+      prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),
+    );
+    setNoteToEdit(null);
+  } else {
+    setNotes((prev) => [...prev, submittedNote]);
+  }
+};
+const handleDelete = (id: number) => {
+  setNotes((prev) => prev.filter((note) => note.id !== id));
+};
+const handleEdit = (note: Note) => setNoteToEdit(note);
+
+// The two most important places in NoteForm
+useEffect(() => { /* fill it in if there is one, clear it if there is not */ }, [noteToEdit]);
 const newNote = { id: noteToEdit ? noteToEdit.id : Date.now(), ... };`,
           ],
           solution: [
@@ -3138,6 +3209,7 @@ test("edits a note in place", async () => {
 });`,
               {
                 filename: "src/NoteManager.test.tsx（判卷器，先抄这个）",
+                filenameEn: "src/NoteManager.test.tsx (this grades you; copy it in first)",
                 sourceFile: "react-notes-app/src/NoteManager.test.tsx",
                 collapsible: true,
               },
@@ -3221,6 +3293,7 @@ const NoteForm: React.FC<NoteFormProps> = ({ onSubmit, noteToEdit }) => {
 export default NoteForm;`,
               {
                 filename: "src/components/NoteForm/index.tsx（去掉了排版类名）",
+                filenameEn: "src/components/NoteForm/index.tsx (the layout class names are removed)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 collapsible: true,
               },
@@ -3256,8 +3329,11 @@ export default NoteForm;`,
 }`,
               {
                 filename: "package.json（比源项目多了一条 test script）",
+                filenameEn: "package.json (one test script more than the source project)",
                 explanation:
                   "源项目没有 test script，这里加上是合理的 —— 这是你自己的项目。但在真实考试里别擅自改配置。",
+                explanationEn:
+                  "The source project has no test script, and adding one here is reasonable because this is your own project. But in a real exam, do not change the configuration on your own.",
               },
             ),
           ],
