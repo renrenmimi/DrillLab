@@ -3230,12 +3230,21 @@ const handleEdit = (note: Note) => {
           kind: "debug",
           id: "r-debug-new-id",
           title: "Debug Lab · 点 Update 之后毫无反应",
+          titleEn: "Debug Lab · nothing happens after you click Update",
           level: 3,
           prompt: (
             <p>
               点 Edit，输入框正常回填，按钮变成 Update。
               改完内容点 Update —— <strong>列表一点变化都没有</strong>，
               表单也没清空。控制台干净。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Click Edit and the inputs prefill correctly, and the button becomes
+              Update. Change the content and click Update —{" "}
+              <strong>the list does not change at all</strong>, and the form does
+              not clear either. The console is clean.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -3266,24 +3275,37 @@ const handleEdit = (note: Note) => {
     setNotes((prev) => [...prev, note]);
   }
 };`,
-            { filename: "有问题的 handleSubmitNote", highlight: [2, 6] },
+            {
+              filename: "有问题的 handleSubmitNote",
+              filenameEn: "The handleSubmitNote with the bug",
+              highlight: [2, 6],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "useEffect 依赖错误 —— 回填没生效" },
-              { id: "b", label: "数据标识错误 —— 重新生成了 id，导致 map 匹配不上任何一条" },
-              { id: "c", label: "状态更新错误 —— 改了原数组" },
-              { id: "d", label: "事件处理器错误 —— onSubmit 没接上" },
+              { id: "a", label: "useEffect 依赖错误 —— 回填没生效", labelEn: "A useEffect dependency error — the prefill never ran" },
+              {
+                id: "b",
+                label: "数据标识错误 —— 重新生成了 id，导致 map 匹配不上任何一条",
+                labelEn: "An identity error — a new id was generated, so map matches nothing",
+              },
+              { id: "c", label: "状态更新错误 —— 改了原数组", labelEn: "A state update error — the original array was changed" },
+              { id: "d", label: "事件处理器错误 —— onSubmit 没接上", labelEn: "An event handler error — onSubmit was never wired up" },
             ],
             answer: "b",
           },
           locate: {
             question: "病灶在哪一行？",
+            questionEn: "Which line holds the bug?",
             options: [
-              { id: "a", label: "第 2 行：{ ...submittedNote, id: Date.now() } 覆盖了复用的旧 id" },
-              { id: "b", label: "第 6 行：应该用 !== 而不是 ===" },
-              { id: "c", label: "第 8 行：setNoteToEdit(null) 位置不对" },
-              { id: "d", label: "第 10 行：新增分支应该用 unshift" },
+              {
+                id: "a",
+                label: "第 2 行：{ ...submittedNote, id: Date.now() } 覆盖了复用的旧 id",
+                labelEn: "Line 2: { ...submittedNote, id: Date.now() } overwrites the reused old id",
+              },
+              { id: "b", label: "第 6 行：应该用 !== 而不是 ===", labelEn: "Line 6: it should be !== instead of ===" },
+              { id: "c", label: "第 8 行：setNoteToEdit(null) 位置不对", labelEn: "Line 8: setNoteToEdit(null) is in the wrong place" },
+              { id: "d", label: "第 10 行：新增分支应该用 unshift", labelEn: "Line 10: the add branch should use unshift" },
             ],
             answer: "a",
           },
@@ -3303,6 +3325,7 @@ const handleEdit = (note: Note) => {
 };`,
             {
               filename: "改对之后：删掉那行多余的 id 生成",
+              filenameEn: "After the fix: the extra id line is gone",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -3336,7 +3359,45 @@ const handleEdit = (note: Note) => {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                When editing, <code>NoteForm</code>{" "}
+                <strong>reuses the old id on purpose</strong> (
+                <code>id: noteToEdit ? noteToEdit.id : Date.now()</code>), so that
+                the map downstream can find the target. Line 2 and its{" "}
+                <code>id: Date.now()</code> throw that away.
+              </p>
+              <p>
+                So map walks the whole array comparing against a brand new id and{" "}
+                <strong>matches nothing</strong>. It returns a new array with the
+                same content. React does re-render, because the array is new, but
+                the content is unchanged, so nothing moves on screen.
+              </p>
+              <p>
+                <strong>And why does the form not clear?</strong>{" "}
+                <code>setNoteToEdit(null)</code> is clearly called. Look at the
+                order of events: the form actually{" "}
+                <strong>does</strong> clear here. If you see a form that does not
+                clear, then that line is missing too. The two bugs often show up
+                together.
+              </p>
+              <p>
+                <strong>
+                  The part most worth remembering: this bug only breaks Task 3.
+                  Task 1 works fine,
+                </strong>{" "}
+                because adding a note needs a new id anyway.{" "}
+                <strong>
+                  Two tasks share one function, and one harmless-looking extra
+                  line spreads from one task to the other.
+                </strong>{" "}
+                When you change shared code, think through every branch.
+              </p>
+            </>
+          ),
           verify: "npx vitest run   # 4 个测试应该全过",
+          verifyEn: "npx vitest run   # all 4 tests should pass",
         },
       ],
       mistakes: [
@@ -3348,6 +3409,13 @@ const handleEdit = (note: Note) => {
   setNoteToEdit(note);
   setNotes((prev) => prev.filter((n) => n.id !== note.id));   // 先把它删掉？
 };`,
+            {
+              codeEn: `// ✗ handleEdit starts changing the list already
+const handleEdit = (note: Note) => {
+  setNoteToEdit(note);
+  setNotes((prev) => prev.filter((n) => n.id !== note.id));   // remove it first?
+};`,
+            },
           ),
           why: (
             <>
@@ -3374,6 +3442,13 @@ if (noteToEdit) {
   setNotes((prev) => prev.map((n) => (n.id === submittedNote.id ? submittedNote : n)));
   // 少了 setNoteToEdit(null);
 }`,
+            {
+              codeEn: `// ✗ Forgetting to leave edit mode
+if (noteToEdit) {
+  setNotes((prev) => prev.map((n) => (n.id === submittedNote.id ? submittedNote : n)));
+  // setNoteToEdit(null); is missing
+}`,
+            },
           ),
           why: (
             <>
