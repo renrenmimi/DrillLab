@@ -920,7 +920,7 @@ onSubmit(newNote);
 
 Check the render method of \`NoteTable\`. See https://react.dev/link/warning-keys
 for more information.`,
-              { filename: "缺 key 的警告" },
+              { filename: "缺 key 的警告", filenameEn: "The warning about a missing key" },
             ),
           ],
         },
@@ -997,7 +997,7 @@ for more information.`,
   渲染①    [A(key=101), B(key=102), C(key=103)]
   渲染②    [A(key=101), C(key=103)]
            → React 认为「102 消失了」→ 精确删掉 B，A 和 C 原样不动 ✓`,
-              { filename: "两种 key 的差别" },
+              { filename: "两种 key 的差别", filenameEn: "The difference between the two keys" },
             ),
           ],
         },
@@ -1059,12 +1059,20 @@ for more information.`,
           kind: "recognition",
           id: "r-key-choice",
           title: "这个列表该用什么当 key",
+          titleEn: "What should this list use as its key",
           level: 1,
           prompt: (
             <p>
               <code>notes</code> 里每条是{" "}
               <code>{"{ id: number; title: string; content: string }"}</code>，
               用户可以删除任意一条。下面哪个是最合适的 key?
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Each item in <code>notes</code> is{" "}
+              <code>{"{ id: number; title: string; content: string }"}</code>, and the
+              user can delete any of them. Which of these is the best key?
             </p>
           ),
           options: [
@@ -1086,18 +1094,39 @@ for more information.`,
               <strong>全部销毁重建</strong>，性能差且所有内部 state 丢失。
             </>
           ),
+          explainEn: (
+            <>
+              <code>note.id</code> is unique and travels with the data, so it is the
+              answer.
+              <br />
+              A mismatches component instances once the list allows deletion.
+              <br />
+              C is not guaranteed to be unique — two notes can share a title.
+              <br />
+              D is the worst: every render produces new keys, so React{" "}
+              <strong>destroys and rebuilds the whole list</strong>. It is slow and
+              every piece of inner state is lost.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-map-return",
           title: "哪一段什么都不会渲染",
+          titleEn: "Which one renders nothing at all",
           level: 1,
           prompt: <p>下面哪一段会导致表格里一行都不出现（而且不报错）？</p>,
+          promptEn: (
+            <p>
+              Which of these makes the table show no rows at all, without reporting an
+              error?
+            </p>
+          ),
           options: [
             { id: "a", label: "{notes.map((note) => (<NoteItem key={note.id} note={note} ... />))}" },
             { id: "b", label: "{notes.map((note) => { <NoteItem key={note.id} note={note} ... /> })}" },
             { id: "c", label: "{notes.map((note) => { return <NoteItem key={note.id} note={note} ... />; })}" },
-            { id: "d", label: "A 和 C 都能正常渲染" },
+            { id: "d", label: "A 和 C 都能正常渲染", labelEn: "A and C both render correctly" },
           ],
           answer: ["b"],
           explain: (
@@ -1111,6 +1140,21 @@ for more information.`,
               <br />
               这是「箭头函数两种写法」最常见的翻车点：
               <strong>看到「列表空白但数据有值」，先去数括号。</strong>
+            </>
+          ),
+          explainEn: (
+            <>
+              B uses a curly-brace function body with <strong>no return</strong>, so
+              every callback returns <code>undefined</code>. The map produces a row of
+              undefined values and React renders nothing —{" "}
+              <strong>and reports no error</strong>.
+              <br />
+              A uses parentheses, which return implicitly. C uses curly braces plus an
+              explicit return. The two are equivalent.
+              <br />
+              This is the most common slip between the two arrow-function forms:{" "}
+              <strong>when the list is blank but the data is there, count the
+              brackets first.</strong>
             </>
           ),
         },
