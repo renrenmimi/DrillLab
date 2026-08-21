@@ -1018,7 +1018,28 @@ let b = 1;
 const o = { n: 1 };
 o.n = 2;          // ✓ 可以
 o = { n: 3 };     // ✗ TypeError: Assignment to constant variable`,
-              { filename: "三个必背的例子" },
+              {
+                filename: "三个必背的例子",
+                filenameEn: "Three examples worth memorising",
+                codeEn: `// The classic loop question
+for (var i = 0; i < 3; i++) setTimeout(() => console.log(i));
+// 3 3 3 —— there is only one i, and by the time the callbacks run it is 3
+
+for (let j = 0; j < 3; j++) setTimeout(() => console.log(j));
+// 0 1 2 —— every iteration gets a new j
+
+// TDZ
+console.log(a);   // undefined      var is hoisted as undefined
+var a = 1;
+
+console.log(b);   // ReferenceError: Cannot access 'b' before initialization
+let b = 1;
+
+// const locks the binding, not the contents
+const o = { n: 1 };
+o.n = 2;          // ✓ allowed
+o = { n: 3 };     // ✗ TypeError: Assignment to constant variable`,
+              },
             ),
           ],
         },
