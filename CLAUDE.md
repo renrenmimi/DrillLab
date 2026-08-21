@@ -1,0 +1,523 @@
+# CLAUDE.md — DrillLab
+
+新会话先读完这份文件再动手。产品说明见 [README.md](README.md)。
+
+## 这是什么
+
+一个**刷题 App**，四条主线：
+
+```
+/drill    八股题库      105 道问答，题库模式 + 抽认卡
+/code     Coding 题     25 道，题面 + 讲解 + 门后答案；21 道能在浏览器里跑测试
+/arena    考场          空文件夹、计时、无提示、答案锁死到交卷；**故意不给运行环境**
+/mock     模拟考        2 套，换壳验收
+/path     课程归档      75 节课文 —— 「题目背后的讲解」，不是主线
+```
+
+**课文一行不删。** 它是资产（`content/exams/**` 约 3.8 万行，全部本机实测过），
+只是从主入口降级成归档：题目详情页里「展开讲解」通过 id 引用对应的
+`ConceptSection` / `Lesson`，不复制粘贴。
+
+题目层全部**从现有内容派生**（`content/drills.ts` / `coding.ts` / `arena.ts`），
+不另存一份 —— 抄一份出来就有两份真相，改了一边忘了另一边最难查。
+每张表都有断言：数量对不上、编号有缺口、来源练习找不到，**直接构建失败**。
+
+三个参考项目是 `/code` 和 `/arena` 里大题的落地形态：
+`react-notes-app`（React + hooks 的增删改查）、
+`graphql-federation-practice`（Apollo Federation + Node subgraph + Spring Boot 服务）、
+`cab-booking-context`（用 Context 管全局状态的一个小应用）。
+三者的完整文件都快照在 `content/source-files.ts` 里，题目详情页按路径引用，
+不在课文里重复粘贴。改动参考项目后跑 `npm run gen:src` 重新快照。
+
+目标受众下限：**刚开始接触 npm、React、GraphQL 的人**。所以：
+
+- 从「`npm install` 做了什么」讲起，不假设任何前置知识；
+- 每个术语第一次出现时解释，中英双写（如「实体（entity）」）；
+- 每个结论都要给「为什么」，不许只给结论；
+- 一节课一次只引入一个核心概念。
+
+最终验收不是「看懂答案」，而是**在空文件夹里、没有答案的情况下写出来**。
+所以每门考试都有「从零重写」和一套换了场景的模拟考。
+
+## 内容真实性（最重要的规矩）
+
+1. **优先用两个源项目里的真实代码。** 引用时必须填 `sourceFile`。
+2. **三档可信度**（`content/helpers.tsx`）：
+   - `real()` + `sourceFile` → 页面显示「源项目」（原样来自真实文件）
+   - `real()` 无 sourceFile、或 `tested()` → 「已跑通」（本机真实跑过并通过测试）
+   - `demo()` → 「示意」（教学示意 / 故意写错的反例 / 没跑过的片段）
+   - **不许拿没跑过的东西标前两档。**
+3. **DrillLab 自出的题**（模拟考、自写测试）必须带 `generated: true`
+   或在 UI 上标注「DrillLab 自出」。
+4. **不要编造 assessment 要求**，不要改动原题语义。
+5. **绝不修改四个源项目。** 需要验证时复制到 scratchpad 再改。
+   `graphql-federation-practice/node-subgraph/package-lock.json`
+   是审计时 `npm install` 生成的（原本缺失，不装就跑不了测试），
+   这是唯一的例外，且不涉及任何源文件。
+
+## 已实测的事实基准（引用这些数字时不要改）
+
+| 对象 | 结果 |
+| --- | --- |
+| react-notes-app `npx vitest run` | 4 / 4 通过（磁盘上已是完成版，TODO 都填好了） |
+| react-notes-app `npm test` | ❌ `Missing script: "test"` —— 这个项目没有 test script |
+| react-notes-app `npx tsc --noEmit` | ❌ 10 个错误，全在 `NoteManager.test.tsx`（缺 vitest 全局类型）→ 所以 `npm run build` 原生失败 |
+| react-notes-app `npm run q2` | ✅ 并发从未超 2、顺序与输入一致、task 3 为 `rejected` |
+| node-subgraph 基线 | 6 failed / 4 passed（4 个通过里 **3 个是「空实现恰好满足断言」的假通过**） |
+| node-subgraph 参考解法 | 10 / 10；`_service` SDL 与 `_entities` 进程内验证通过 |
+| java-service 基线 | 5 run / 2 failures —— **六个端点全 `return null` 也过了 3 个** |
+| java-service 参考解法 | 5 / 5，BUILD SUCCESS |
+| React 模拟考 | starter 基线 **5 failed / 5 total**（RTL 报 `Unable to find an element by: [data-testid="ticket-subject"]`）；参考解法 5 / 5 |
+| Federation 模拟考参考解法 | 14 / 14（starter 基线 10 failed / 4 passed） |
+| 五道变式题参考解法（`react-part5`，DrillLab 自出） | 36 / 36；删掉 `clearInterval` 后 4 failed / 4 passed（`00:04` 实收 `00:10`）；删掉 Context 的 `useMemo` 后 1 failed / 7 passed（功能测试全绿） |
+| 面试八股补的 7 道 coding 题（`iv-coding`） | 其中 6 道共用一个测试文件：24 / 24；第 7 道（Redux Toolkit）单独一个项目：见下一行 |
+| Redux Toolkit 版 Todo | 8 / 8（要单独装 `@reduxjs/toolkit`，不能复用 react-notes-app 的 node_modules） |
+| `/code` 浏览器沙箱 21 / 25 道 | 每道都验两头（起始态必须红、参考实现必须绿）：kanban 3F1P→4P、run-tasks 6F→6P、comment-tree 8F→8P、tabs 9F→9P、todo-list 8F→8P、theme-context **6F2P**→8P、star-rating 9F→9P、use-local-storage **4F3P**→7P、dropdown 7F1P→8P、timer 4F3P→7P、rtk-todo **9F1P**→10P、cab-booking-app **9F1P**→10P、notes-manager 8F→8P、手写题 8 道（debounce 3F1P→4P、throttle 2F2P→4P、deepClone 5F1P→6P、flatten 4F2P→6P、curry 3F→3P、promise-all 5F1P→6P、event-emitter 6F→6P、lru 5F→5P）——起始态是「半成品恰好满足断言」的假通过，故意留着 |
+| Sandpack 沙箱跑不通的两道 | fetch-user 与 player。要 stub `fetch` / `HTMLMediaElement.prototype` 才能测，而**测试文件里的猴子补丁拦不到这两个** （`JSON.parse`、`globalThis`+`window` 上的 `setInterval`、`document.addEventListener` 能拦到；`Storage.prototype`、任何 handle 上的 `fetch`、媒体元素原型拦不到）。两道在 scratchpad 用 vitest 都跑通（9/9、7/7），是环境不行 |
+| Sandpack 测试的时间行为 | 没有 fake timer；每个 `setTimeout` 多花几百毫秒（`wait(1000)` 让 1 秒的 interval 跳了两次）；**每个 test 有 5000ms 硬上限且不可调**，超时还会连带弄坏后面的 test。所以计时类断言要按真实时钟轮询，一个 test 最多等两次 |
+| Sandpack 里的 `@testing-library/react` | 可用。但 `@testing-library/dom` 是它的 peerDependency，Sandpack 不自动装，必须显式写进 dependencies，否则报 `Could not find dependency` |
+| Sandpack 失败输出里的代码片段 | **按 Latin-1 解码** —— 测试文件里任何非 ASCII 字节都变乱码。所以十一份测试文件的测试名与注释一律英文，中文要求写在起始文件头注释里 |
+| `/arena/[id]/run` 答案隔离 | grep 参考答案特征字符串（`setNotes` / `handleSubmit` / `data-testid="note-` / `createReviewLoader` / `reviewsByBook`）**0 命中**。`__resolveReference` 有 2 处命中，但都在**需求文本**里 —— 题目本来就该告诉你要实现它 |
+| cab-booking `npx vitest run`（原样） | ❌ **0 个测试跑起来** —— `CabContext.js:19:27`，`Failed to parse source for import analysis`（`.js` 里写了 JSX） |
+| cab-booking 改名 `.jsx` 之后 | 4 / 4 通过。所有 import 都无扩展名，改名不用动任何 import |
+| cab-booking 删掉组件实现 | 4 failed / 4 total，四条全是 `Unable to find an element by: [data-testid=...]` |
+| Sandpack 里 1000ms 的 setTimeout | 实测落在 **~1900ms**（本机 vitest ~1110ms）。所以「等一次 1 秒」安全，「等四次」必定超 5000ms 预算 |
+| notes-manager 的 `Date.now()` id | **同一毫秒连加两条会撞 id**，`map(note.id === ...)` 一次替换掉两行。浏览器 Sandpack 实测 `["a","b renamed","b renamed"]`（7P1F），本机 vitest 毫秒错开反而 8/8 —— **同一份代码同一份测试，两个环境两个结果**。源项目自己那 4 个测试只加一条就编辑，抓不到。不改源码，改成测试里 `tick()` 空转到时钟跳一格 |
+| 考场计时 | 把 `startedAt` 倒推 5 分 07 秒，页面显示 `05:32`，真实经过 333 秒 —— 现算不累加，刷新不重置 |
+| 文件树「展开看原文」 | 课程页 87 行文件树 **87 行都能展开**（41 个真实文件 + 7 棵目录树，快照共 61 KB，服务端 only）；跳过 53 个「从零重写要自己建」的裸相对路径；7 个 `/arena/*/run` 的 `ft-item` 计数全是 0 |
+| 代码块横滚条（修之前） | `.codewin-body` 写着 `overflow-x: auto` 但**从来没生效**：390px 下 `scrollWidth 330 === clientWidth 330`，长行被静默切掉。加 `.cl-wrap` 后 `651 > 330`，能滚到底 |
+| 390px 横向溢出回归扫描 | 20 个页面，页面级溢出 **0 处**（修前 `.opt-label` 超 116px、`<strong>` 超 58px、目录树深层路径超 256px） |
+| WCAG AA 对比度扫描 | 20 页 × {1440, 390} × {浅, 深} = 80 个组合，**0 处不达标**。修之前浅色 33 类、深色 9 类，绝大多数是 `--ink-3` 用在 10–13px 的计数和编号上（3.35:1） |
+| 六种练习「做错能不能重来」 | 逐个真点一遍（故意选错 → 提交 → 找重来入口 → 确认状态真的复位）。改之前 **Debug 是唯一没有出口的**，只能刷新整页；现在 6/6 都有 |
+| 内容层面「问在给之前」扫描 | 50 个 recognition 题干提到「下面/这段/这行」却没有代码块的 **0 个**；26 个 debug 都有 `errorOutput` + `broken`；31 个 fill-blank 的 `hint` / `why` 全齐 |
+| 全站交互可逆性 | 语言 / 主题 / 抽认卡回上一张 / 八股标记 / 提示面板收起 / coding 打勾 / 模拟考改分 / 考场三段（开考 → 交卷 → 勾验收 → 记下 → 再考一次）**全部可逆，无死路** |
+| 难度 × 题型 的实际分布 | L1 = recognition + ordering，L2 = fill-blank + debug，L3 = code-completion，L4 = from-scratch。**所以难度标签不能写题型名** |
+| `styles/coding.css` | 修之前是**空文件**（48 字节，只有一行注释）。`.cd-*`（9 个）和 `.sbx-*`（12 个）全无样式 —— `/code` 列表页是个裸 `<ol>`，四个标签和「未开始」连成一串 |
+| 类名覆盖扫描 | 组件里用到 457 个 className，CSS 里都有定义（修前缺 21 个） |
+| 窄屏 Ladder | 390px 下竖排四格实测 **900px**，第一道题要滑过两屏。改 2×2 后 **291px**，四格对比一个字没少 |
+| Sandpack 编辑器高度 | `.sp-stack` 上有**内联** `height: 300px`，CSS 压不过。只能走 `<SandpackCodeEditor style={{height}}>` —— `SandpackProvider` 的 options 是 `SandpackInternalOptions`，**没有** `editorHeight`（types.d.ts 里那个 `SandpackOptions.editorHeight` 是给 `<Sandpack />` 预设的，写进 provider 报 TS2353） |
+
+三处人为埋雷（`orderResolvers.js`）：
+`createOrderLoader` 调不存在的 `getOrderById`（真名 `getOrder`）；
+`createOrder` 用不存在的 `dataSources.orderAPI`、签名错、且漏了先查 `price`；
+`catch` 把自己抛的 `INVALID_INPUT` 重新包成 `SERVICE_ERROR`。
+
+贯穿全站的三条主线（都来自实测，不是编的）：
+**① 测试通过 ≠ 做对了；② 先读清 schema/类型再写代码；③ 脚手架本身也会有问题。**
+
+## 文案风格
+
+- **基调：教科书 / 技术文档式的清晰陈述。通俗 ≠ 口语化。**
+  面向零基础讲得明白是目标，但语气必须专业、正式、简洁。
+- **禁止**：网络用语与流行梗（「说白了」「翻车」「离谱」「一把梭」「香」「没毛病」）、
+  卖萌语气词、插科打诨式自问自答（「你猜怎么着」「好问题」「其实吧」）、拿读者开玩笑；
+  **「值得注意的是」「综上所述」「让我们深入探讨」「赋能」这类 AI 腔同样禁止出现**。
+- **保留并鼓励**：面向零基础的通俗解释与恰当类比 —— 类比本身是好东西，
+  问题只出在表达轻佻。比喻要讲得平实。
+- 句子可以短，但必须完整、准确。感叹号克制使用，强调靠加粗和措辞。
+- **全站中文标点用全角**（`，。：；？！（）`）。
+  scratchpad 里有 `fix-punct.mjs` 可以批量修；
+  它已加了「跳过 HTML 实体」的守卫，但改完仍要 `grep '&lt；'` 复查一次。
+  **还有两个坑，这轮真踩了：**
+  ① 它会把**紧贴中文的 JS 运算符**也转掉 —— `filter（!==）` 里那个 `!`
+     被转成了 `！`（因为它紧跟在 `（` 后面）。改完要 `grep '！=' `。
+  ② 转换是逐字符判断「是否紧贴中文」的，所以会造出
+     **一头全角一头半角的括号**（`（jsdom)`）。改完要扫
+     `（[^）]*\)` 和 `\([^(]*）` 两种。
+- 表情符号只在极少数地方用（✓ / ✕ / → / ★），不做 emoji 装饰。
+- **JSX 会把「换行 + 缩进」那段空白整个吃掉。** 所以
+  `<strong>…like.</strong>` 换行 `The business nouns` 渲染出来是
+  `like.The business nouns` —— 两个英文词粘在一起。
+  中文语境无所谓（中文本来不加词间空格），**英文接英文必须补 `{" "}`**。
+  这轮实测扫出并修了 169 处（`</tag>` 后面 56 处、`<tag>` 前面 113 处）。
+  检查脚本两个方向都要跑：
+  `([A-Za-z0-9,.;:)'"’”])</(strong|code|em)>[ \t]*\n\s*([A-Za-z(])`
+  和 `([A-Za-z0-9,.;:)'"’”])[ \t]*\n\s*<(strong|code|em)>([A-Za-z(])`，
+  并且**跳过模板字面量**（代码块里插 `{" "}` 会把代码写坏）。
+
+## 技术约定
+
+- Next.js 15 App Router + React 19 + TypeScript + **纯 CSS**。
+  不要引入 Tailwind、UI 库、Shiki/Prism、markdown 解析器。
+
+  **唯一的破例：`@codesandbox/sandpack-react`。**
+  只为「在 app 里真的把 coding 题跑起来」—— 正则判分没法验证一道题写对没写对，
+  而这个站的验收标准是「跑通测试」。条件三条，都是硬的：
+  ① **只在 coding 题详情页出现**，用 `next/dynamic` + `ssr: false`
+     **并且要等用户点了「打开工作区」才加载**（实测 `/code/[id]` 首屏
+     119 kB，那个 368 KB 的 sandpack chunk 是独立异步 chunk，没泄漏）。
+     **模拟考页和考场页不许出现 —— 见下面那条。**
+  ② 它的打包器和 npm 依赖都在 CodeSandbox 的远程服务上，
+     **UI 上必须明说「需要联网」**（自托管评估见
+     [docs/sandpack-evaluation.md](docs/sandpack-evaluation.md)：
+     `bundlerURL` 可配，但完全离线还要再镜像一个包服务，本站不值那个成本）；
+  ③ 其余禁令继续有效 —— 不许趁机引入 Tailwind、UI 库、markdown 解析器。
+
+  两个实测踩到的坑：Sandpack v2 的 `editorHeight` / `showLineNumbers` /
+  `showInlineErrors` / `showTabs` **是 `<SandpackCodeEditor>` 的 props，
+  不是 `SandpackProvider` 的 options**（写错报 `TS2353`）；
+  页面刷新后测试面板是 idle 的，要先点它自己的「Run sandbox」再点「跑测试」。
+
+- `app/**/page.tsx` 是**薄壳**：只做 `params` 解析、`generateStaticParams`、
+  `generateMetadata`，然后渲染 `components/` 下的组件。
+
+### 【重要】模拟考页和考场页**不给页面内的运行环境**
+
+这条被问过一次：「模拟考页接沙箱是不是根本就无法实现？」
+
+**不是做不到。** React 模拟考就是一个组件加五个 RTL 测试，形状和 `/code` 里那
+11 道跑绿的沙箱一模一样，接上去一定能跑（Federation 那套是 Node 项目，
+Sandpack 在浏览器 iframe 里没有 Node，那套确实跑不了）。
+
+**不接是设计决定：接了会把最高那一档删掉。** 四档的区别是「给你多少东西」——
+说得出 → 认得出 → 写得对 → 空手做。模拟考就是最右边那一档
+（它本来就是考场 6 道里的 2 道）。给它配一个连好依赖和测试的编辑器，
+就降成「写得对」（那一档已有 11 道）；改成页面上填空，就降成「认得出」
+（那一档已有 123 个练习）。两种改法结果一样：**站里再没有东西对准真实考试。**
+而这个站自己写的验收下限是「在空文件夹里、没有答案的情况下写出来」。
+
+顺带：`ArenaChallenge.blankSandbox` 已删除 —— 它一处没用过，是这个念头的残留。
+
+**代价是说明必须够硬**，所以 `MockExam.setup`（`MockSetup`）是**必填**：
+从零起项目的命令、完整文件树、以及**起始态和做对之后各该看到什么的实测输出**。
+两个页面共用 `components/local-setup.tsx`：模拟考页用完整版 `<LocalSetup>`，
+考场 run 页用 `<NoRunnerNote compact>`（计时已经在跑，不该再塞设计说明）。
+说明不到位，「自己搭环境」就从考点变成了劝退。
+
+去哪跑：本机 VS Code 是首选；装不了 Node 的推荐 **StackBlitz** ——
+它的 WebContainers 把 Node 编译进了浏览器，所以连 Federation 那套要
+`npm test` 的服务端项目也能跑，这一点比 Sandpack 强。
+
+### 【重要】栅格居中：`margin-inline: auto` 必须配 `width: 100%`
+
+`.content` 是 grid item。**单独写 `margin-inline: auto` 会让它从「拉伸填满栅格列」
+变成「按内容宽度」** —— 窄屏下 `max-width: 84ch` 比视口还宽，整页横向溢出。
+实测在 375px 视口上溢出 395px。
+
+正确写法：`width: 100%` 占满列 → `max-width` 收口 → `auto` 边距居中。
+两处都要（`.main[data-rail="off"] > .content` 和 ≤1180px 那条 media query）。
+
+顺带记住布局的两种情况：
+- **有右栏**：两栏作为整体居中（`.main:not([data-rail="off"])` 上写
+  `justify-content: center` + `minmax(0, var(--measure-wide)) var(--rail-w)`）。
+- **无右栏**：栅格塌成一列，内容自己居中。
+  15 个 `data-rail="off"` 的组件走这一条 —— 改之前 1280px 下首页右侧空 454px。
+
+### 【重要】进度写入：必须等 ready，且只走 update(prev => …)
+
+`lib/progress.tsx` 里有两条铁律，是修过两个真 bug 之后立的：
+
+1. **没从 localStorage 读回来之前，一个字都不许写盘。**
+   effect 的执行顺序是**子先父后** —— 课程页里 `LessonVisit` 的 mount effect
+   比 `ProgressProvider` 的「读回数据」effect 先跑。老代码在那时用 `EMPTY`
+   调了 `setItem`，**把用户全部进度冲掉**。实测（dev 与 `next start` 都复现）：
+   造 3 课 / 5 练习 / 1 八股 / 1 coding，硬加载任一课程页 → 全部归零。
+   现在 `update()` 里有 `dataReady` 守卫，`LessonVisit` 也把 `ready` 放进了依赖数组。
+   **任何在 effect 里写进度的新代码，都必须先 `if (!ready) return`。**
+
+2. **写入一律 `update((prev) => next)`，不许 `persist({ ...data })`。**
+   老写法读的是渲染快照，同一 tick 内连写多次会互相覆盖。
+   A/B 实测（scratchpad/ab.mjs 把两版逻辑原样搬出来跑）：
+   同 tick 调三次 `setDrillMark`，旧版最后只剩 1 条，新版 3 条都在。
+   `update` 的 `prev` 来自 ref，永远是「上一次写完的结果」。
+
+### 【重要】只给搜索用的字段不许进 content/nav.ts
+
+`nav.ts` 是**每个客户端页面都要下载**的。曾经它上面挂着八个只有
+`search.tsx` 用的重字段（objectives / whyForAssessment / conceptHeadings /
+conceptLedes / exerciseTitles / sourcePaths / recap / transfer，共 130 KB 出头），
+于是 11 个路由白下 **59 kB**（gzip 后，约占那些页面首屏 JS 的 30%）——
+而搜索要按 ⌘K 才打开。
+
+现在它们在 `content/search-index.ts`（也是生成物，模板 `scripts/search-index-template.txt`），
+`search.tsx` 用 `await import()` 在第一次打开搜索时才拉（实测 60 kB，
+只在真的点开搜索时出现在 Network 里）。索引没加载完时搜索照常可用，
+只是暂时只匹配标题和一句话简介。
+
+实测收益：`/drill` 首屏 199 kB → **141 kB**；11 个路由平均每页省 59 kB。
+
+**所以加字段之前先问一句「客户端首屏真的需要它吗」。** 只给搜索用的，
+加到 `search-index` 那边去 —— 那边随便加，它是懒加载的。
+
+### 【重要】课文断言必须能当场核对，但不能顺手泄答案
+
+课文里到处写着「react-notes-app 的 package.json 只有 dev / build / q2 三个 script」。
+用户的原话：**「你是不是先得展示一下这个 package.json 原文是什么呀？我就很懵逼啊。」**
+实测当时 50 节声明了 `sourceFiles` 的课里，文件树 87 行**一行都展不开**。
+
+现在 `FileExplorer` 的每一行都是 `<details>`，展开就是那个文件的原文
+（`content/source-files.ts`，`npm run gen:src` 从磁盘读，不是手抄）。
+路径以 `/` 结尾或是项目根绝对路径的，收成一棵 tree(1) 风格的目录树
+（`kind: "tree"`，只有文件名，`node_modules` / `dist` / `target` 不进树）。
+87 行现在 87 行都能展开。
+
+**两道闸，都不许拆：**
+
+1. **生成器只收「第一段是三个源项目之一」的路径。** 从零重写练习的
+   `sourceFiles` 写的是裸相对路径（`src/App.tsx`、`package.json`），
+   那是**要你自己建的文件** —— 而它们在源项目磁盘上恰好是做完的版本。
+   收进来就是把答案贴在题面上。实测跳过 53 个。
+2. **`FileExplorer` 的 `showContent` 默认 `false`。** 考场 run 页和模拟考页
+   共用这个组件展示「文件清单」，那一份永远不给展开
+   （实测 7 个 `/arena/*/run` 的 `ft-item` 计数全是 0）。
+   只有 `lesson-body` 和 `exam-overview` 传了 `showContent`。
+
+`edit: true` 的行（react-notes-app / cab-booking 那些「要你改的文件」）展开前
+会先印一句「源项目在磁盘上是做完的版本，下面就是答案，想自己写就现在关上」——
+默认收起 + 展开前说清楚，比偷偷展示或者干脆不给看都好。
+
+### 【重要】代码块的横滚条曾经是**摆设**（`.cl-wrap`）
+
+`.codewin-body` 写着 `overflow-x: auto`，但一直没生效：`.cl` 是块级 flex 容器，
+宽度被压成外框宽；`.cl-c` 是 `white-space: pre` 的 flex item，超出部分只是
+「可见地溢出」，**并不撑大 `.cl`**，于是 `.codewin-body` 的 `scrollWidth` 永远
+等于 `clientWidth` —— 滚动条不出现，长代码行被 `.codewin { overflow: hidden }`
+直接切掉，而且没有任何提示。实测 390px 下 `scrollWidth 330 === clientWidth 330`，
+`"test": "NODE_OPTIONS=--experimental-vm-modules …"` 那一行直接消失。
+
+修法是加一层 `.cl-wrap`（`width: max-content; min-width: 100%`），
+每行的 `min-width: 100%` 相对它算，所以 `.cl.hl` 的高亮背景也能铺到最长那行末尾。
+修完 `scrollWidth 651 > 330`，能滚到底。
+**另外 macOS 默认隐藏滚动条**，所以 `.codewin-body` 上补了
+`scrollbar-width: thin` + `::-webkit-scrollbar`（`--code-scroll`）让它常驻。
+
+同一类坑还有两处，都是「长东西没处放」：
+- `.ft-path` 曾是 `white-space: pre` + `overflow-x: auto` —— 同样因为 macOS
+  隐藏滚动条，长路径看着就是被切掉且没有可拖的提示。改成
+  `white-space: normal; overflow-wrap: anywhere`（**文件路径是要读全的东西，让它换行**）。
+- `.opt-label` 在 `display: flex` 的 `.opt` 里，flex item 的 `min-width` 默认 `auto`，
+  一条长路径压不下去，实测 390px 撑出去 116px。补 `min-width: 0` + `overflow-wrap: anywhere`。
+- `.prose` 补了 `overflow-wrap: break-word`（`InventoryDataSource.getInventoryStatus()`
+  这种不带空格的长标识符会把整页顶出去）。
+
+**回归检查**：20 个页面 × 390px 视口扫「右边界超出 clientWidth 且祖先没有横滚容器」
+的元素，现在页面级溢出 **0 处**。
+
+### 【重要】颜色三档必须过 WCAG AA，`--ink-3` 尤其
+
+`--ink-3` 用在**最小的字上**（10–13px 的计数、编号、眉题、面包屑）——
+而老配色恰好反着来：它对 `--paper` 只有 3.35:1、对 `--sunken` 3.14:1。
+字越小越需要对比度。实测 11 个页面上 33 类文字不达标，绝大多数是它。
+
+现在三档是：`--ink` 13.9:1 / `--ink-2` 6.90:1 / `--ink-3` 5.06:1（最差一档 4.74:1）。
+另外四处也栽在同一类问题上，都改了：
+
+- `--accent`（`#5c7f6c` → `#547563`）：它是**主按钮 / CTA / 当前页 chip 的底色**，
+  上面压白字，老值对白字 4.46:1。三处失败全是它。
+- `--warn` 在 `--warn-wash` 上 4.42 → 4.84。
+- `--code-line-n`、`--tk-com`、`.codewin-lang`：代码窗里的行号、注释、语言标签
+  也是要读的字，不是装饰。**高亮行的行号单独再提一档**（`.cl.hl .cl-n`）——
+  高亮行的底被提亮，行号反而掉到 3.90。
+- `.crumb-sep` 曾用 `--rule-strong`（画线的颜色）当文字，浅色下 **1.49:1**。
+
+**加颜色或改颜色之前先算一遍。** 扫描脚本要沿祖先链做 **alpha 合成**：
+`.cl.hl` 的底是 `rgba(255,255,255,0.055)`，直接当纯白算会把整行代码判成不达标（假阳性）。
+
+### 【重要】主题跟随系统，`color-scheme` 要一起写
+
+`THEME_BOOTSTRAP` 曾经在没有 localStorage 值时**硬写 `"light"`**，
+系统开着深色的人打开会被一整屏米白闪一下。现在：有存过就用存的，
+没存过就问 `matchMedia("(prefers-color-scheme: dark)")`。
+
+切换时除了 `data-theme` 还要写 `documentElement.style.colorScheme` ——
+滚动条、输入框、date picker 这些原生控件只认它，不认 CSS 变量。
+
+### 【重要】样式文件可能是空的 —— 加类名之后要扫一遍
+
+`styles/coding.css` 曾经只有一行注释（48 字节），而 `coding-list.tsx` /
+`coding-detail.tsx` / `coding-sandpack.tsx` / `sandbox.tsx` 一共用了 **21 个类名**：
+`.cd-list` / `.cd-row` / `.cd-badge` / `.cd-fold` / `.cd-hidden` 和整族 `.sbx-*`。
+结果 `/code`（四条主线之一的入口页）的题目列表就是个裸 `<ol>`：
+标题、四个标签、「8 条验收标准」、「未开始」全挤成一行。
+它在首屏以下，所以一直没人看见。
+
+**回归脚本**（每次加类名之后跑一次）：把 `styles/*.css` 里所有 `.foo` 收成集合，
+再扫 `components/**` 和 `app/**` 里所有 `className="..."`，求差集。
+现在是 457 个类名，**0 个没有定义**。
+注意跳过模板字面量里的 `${}`（`tk-${tok.t}` 会被当成 `.tk-`）。
+
+### 【重要】Debug Lab：判类型之前必须先给代码；选错必须能重来
+
+用户的原话：**「Step 2 这道题状态更新错误，你告诉我代码是哪啊？是什么样？
+你只告诉我 length 没变化，我他妈哪知道什么问题？」**
+
+老实现里 `ex.broken` **只在第 3 步渲染**，而第 2 步就要你判断「这是什么类型的
+错误」。对于「没有报错，只有症状」那一类（`push` 完 `setState`，界面不动），
+`errorOutput` 里根本没有代码 —— 等于让人凭空猜。
+
+现在第 1 步就是**现场**：症状 + 出错的代码，一起给。第 3 步不再原样贴第二遍，
+放一份 `collapsible: true` 的（第 1 步的代码可能已经滚出屏幕，要对照时点一下就有）。
+
+**第二条：选错了必须能重来。** 老实现里 `step` 一往前推就把选项 `disabled`，
+再也回不去 —— 只能刷新整页，而刷新会把这一页**所有**练习的作答一起清掉。
+用户原话：「我只能刷新整个页面把所有的题重新做一遍」。
+
+现在每一步答错都给「这一步重做」，看完答案还有「整题重做」。
+`redoFrom(n)` 把那一步及之后的选择清空 —— 清空之后 `data-state` 只剩
+`"picked"`，**刚才泄露的正确答案高亮也跟着消失**，重做才是真的重做。
+`markExercise` 的判定点在「提交第 3 步」那一刻，所以重做之后再对上也能记上。
+
+**六种练习类型的重试，改之前只有 Debug 缺**（Recognition「再来一次」、
+Ordering「继续调整」、FillBlank / CodeCompletion「重置」都有）。
+加交互之前先问一句：**做错了怎么回来？**
+
+第 3 步那份对照用的代码**只在 `broken` 超过 14 行时才给**：短代码第 1 步就在
+正上方，重复贴一遍是噪音；而且 `collapsible` 只是 `max-height: 300px`，
+内容不到那么高就会出现一个「展开全部 4 行」却什么也没折叠的按钮，看着像坏了。
+26 道里 6 道会给，19 道不给。
+
+### 【重要】难度是难度，题型是题型，标签别混
+
+题头的难度徽章曾经写成 `L2 · 填空 / Fill the blanks`。但 **L2 里既有填空
+也有 Debug Lab**（L1 里既有 recognition 也有 ordering）—— 于是一道 Debug Lab
+的题头上明晃晃写着「填空」，标题自己和自己打架。
+
+现在左边只说刻度（`L2`，`title` 上挂一句含义），右边单独一个题型徽章
+（`Debug Lab`）。两套标签在 **`lib/exercise-labels.ts`，全站唯一一份** ——
+`practice-page.tsx` 的筛选器原来抄了第二份，改一边忘一边就会出现
+「筛选器叫「写整块」、题头叫别的」。那个文件是纯数据没有 JSX，
+服务端和客户端组件都能 import。
+
+### 【重要】谁能 import 内容
+
+课程内容里带 JSX。**只有服务端组件可以 import `content/registry` 或
+`content/exams/*`。** 客户端组件（`"use client"`）一律读 `content/nav.ts`。
+
+为什么：客户端组件 import 内容会把全部课程的正文打进同一个 chunk。
+这个坑踩过一次 —— 实测单 chunk 784 KB、每页都下载、课程页首屏 338 kB。
+拆开之后课程页 117 kB。
+
+- 服务端渲染正文：`lesson-body` / `mock-detail` / `practice-page` / `lesson-kit`
+  （`lesson-kit` 里一个 hook 都没有，**别给它加 "use client"**）
+- 客户端小岛：`lesson-islands`（记录位置 / 打勾 / 目录 spy）、`mock-score`、
+  `practice-progress`、`exercise`、`code`、`data-flow`、`app-shell`、`search`
+- **加了新内容字段又要在侧栏/首页/搜索里用 → 先加到 nav 的 dump 里，
+  再 `npm run gen:nav`**，不要为了省事把 registry 拉进客户端组件。
+
+`content/nav.ts` 是生成物，不要手改。生成器是 `scripts/gen-nav.mjs`
+（临时起 dev server 打一个 route 取 JSON，所以它是内容的派生物而非第二份真相）。
+
+### 其他
+
+- 语法高亮在 `lib/highlight.ts`，零依赖。加语言就在 `Lang` 联合类型、
+  `KEYWORDS`、`RE` 三处补，并在 `styles/code.css` 里确认 token 颜色。
+- 代码块可信度三档，用 `content/helpers.tsx` 里的三个函数：
+  `real()`（有 sourceFile → 显示「源项目」，没有 → 「已跑通」）、
+  `tested()`（本机跑通但不在源项目里，如模拟考答案）、`demo()`（示意/反例）。
+  **不许把没跑过的东西标成前两档。**
+- 别用 `requestAnimationFrame` 做节流：标签页在后台时 rAF 不触发，
+  节流标志永远解不开。`lib/use-active-heading.ts` 就是因为这个卡死过。
+- 进度键：`drilllab-progress-v1`；主题键：`drilllab-theme`。
+  改结构要考虑向后兼容（`load()` 里已有字段兜底）。
+
+## 「面试八股」这一门的特殊规矩
+
+`content/exams/interview.tsx` + `iv-*.tsx` 是第四门课，**它不对应任何源项目**：
+题目来自作者做过的题目（编号 `#269` ~ `#387`），答案是 DrillLab 写的。所以
+
+- 讲解里的代码块**一律 `demo()`**（「示意」），不许出现「源项目」标记；
+- 每道题的格式固定：`heading` 中文问题 / `lede` 英文原题 + 题库编号 /
+  `body` 一句话 → 展开 → 会追问什么。**`lede` 会进搜索索引**
+  （`conceptLedes`），面试官念的是英文，所以这个必须能搜到；
+- `iv-coding.tsx` 里补进来的 7 道 coding 题**参考解法都在 scratchpad 跑过测试**，
+  才标 `tested()`。
+- **senior 补强（2026-08 加）**：`iv-hand.tsx` 是 8 道手写题（debounce /
+  Promise.all / EventEmitter 这类，concept id 用 `hd-` 前缀，不进八股题库），
+  全部带沙箱且两头实测；`iv-ts.tsx` 是 6 道 TS 深度八股（concept id `ts1`–`ts6`，
+  **DrillLab 自出、没有题库编号**，`drills.ts` 按 `ts\d+` 识别、bank 为空、
+  UI 上显示「DrillLab 自出」徽标）。八股断言现在是 **105 = 99 + 6**。
+  改 `DRILL_TRACK_LABEL` 这类 track 相关的东西要改**三处**：
+  `drills.ts`、`scripts/nav-template.txt`、以及已生成的 `content/nav.ts`
+  （或者停掉 dev server 重跑 gen:nav）—— 这轮只改了服务端那份，
+  客户端 crash 在 `track.zh`。其中 Redux Toolkit 那道要单独建项目装依赖 ——
+  **不能往 react-notes-app 的 node_modules 里装东西**。
+
+## 加一门新考试
+
+只做三件事：
+
+1. `content/exams/<id>.tsx`，`export default` 一个 `Exam`。
+2. 在 `content/registry.ts` 的 `EXAMS` 数组里 import。
+3. `npm run gen:nav`。
+
+**不要为新考试改页面、导航或组件。** 如果发现必须改，说明数据模型缺了字段 ——
+优先扩展 `content/types.ts`，而不是在页面里做特例。
+
+`module.stage` 是**分组标签 + 组内序号**，格式固定为「<考试名> · 第 N 部分」。
+
+**不要再用全局线性的 "Stage 0"–"Stage 11"。** 那一版实测 12 个 Stage 里有
+7 个挂着多个模块（Stage 4 挂了三个），既不是顺序也不是分组 ——
+根子上的原因是「面试八股」本来就是并行轨道，不是「走完 8 个阶段之后」。
+`components/learning-path.tsx` 现在按 `exam.id` 分组、用 `NAV` 的数组顺序排，
+不再解析数字（那会让四门课的「第 1 部分」全挤在一起）。
+原来的 `STAGE_NOTE` 已删除 —— `module.summary` 本来就说清了每个模块干什么。
+
+## 每节课的结构（`Lesson` 类型）
+
+```text
+title / blurb / minutes
+objectives[]           学完这节你会
+whyForAssessment       这在考试里考什么  ← 没有考点的课不该存在
+sourceFiles[]          涉及的真实文件（edit: true 会高亮成「要你改的」）
+concepts[]             编号讲解段：id / heading / lede / body / code[]
+callouts[]             note | why | warn | trap | transfer
+exercises[]            六种练习
+mistakes[]             常见错误：wrong 代码 + why
+transfer[]             「看到这种信号 → 伸手拿这个解法」
+recap[]                要点回顾
+```
+
+写新课时，`concepts` 里建议保留这个节奏：
+**这一问在要求什么 → 真正考什么 → 先想再写 → 分步实现 → 完整答案 →
+为什么成立 → 对应的测试 / 怎么验证**。
+
+## 练习设计规矩
+
+- **填空只挖真正的知识点**，不挖标点。每个空必须有 `hint` 和 `why`。
+- `accept` 数组的第一个是展示用的标准答案，其余是等价写法。
+- L3 的 `checks` 用正则匹配**去掉注释后**的代码（`stripNoise`），
+  所以「把答案写在注释里」不算通过。既要有 `must` 也要有 `mustNot`
+  （挡住 `push` / `splice` / `filter` 之类的错法）。
+- Debug Lab 必须给**真实报错文本**（或真实的「没有报错 + 症状描述」），
+  五步走完：读报错 → 判类型 → 定位 → 看修复 → 跑验证命令，最后给根因。
+- 从零重写的 `hints` 是**四级递进**：方向 → 该动哪里/用什么 → 伪代码 → 局部代码。
+  **不要在提示里直接给完整答案**，那是 `solution` 的事，而且在门后面。
+
+## 验证清单（改完必须全过）
+
+```bash
+npm run typecheck
+npm run lint
+npm run build          # 应预渲染 251 个页面
+                       # 课程页 / /code/[id] / /drill/[id] 首屏 JS 应在 120 kB 左右
+                       # —— 若 /code/[id] 涨到 300 kB+，说明 Sandpack 泄漏进首屏了
+```
+
+改完内容记得 `npm run gen:nav`，否则侧栏/搜索里的计数会和实际不符。
+**动过任何 `sourceFiles` 还要 `npm run gen:src`** —— 那是文件树里「展开看原文」
+用的快照（`content/source-files.ts`，生成物）。
+
+**别在 `next dev` 运行时动 `.next`。** 三种都会把正在跑的 dev server 弄坏：
+`npm run build`（清掉 `.next`）、`rm -rf .next`、以及
+**`npm run gen:nav`**（它会在同一个项目目录再起一个 dev server）。
+症状是页面变成没有样式的裸 HTML（CSS 404），或者直接 500。
+遇到就重启 dev server，别去查内容有没有写错 —— 这三个坑都踩过。
+
+浏览器侧：首页 / 八股题库 / 抽认卡 / Coding 详情 / 考场三段 / 模拟考 / 一节课
+各看一遍，
+切一次深色，缩到 390px 宽确认没有横向溢出，控制台无报错与 hydration 警告。
+
+**改过样式还要跑这三个扫描**（scratchpad 里有 playwright-core 驱动的脚本，
+用本机已下载的 `chrome-headless-shell`，不往项目里装依赖）：
+
+1. **类名覆盖** —— `styles/*.css` 定义的类 vs 组件里用的 `className`，差集应为 0。
+2. **WCAG AA 对比度** —— 20 页 × {1440, 390} × {浅, 深}，不达标元素应为 0。
+   `bgOf()` 必须沿祖先链做 alpha 合成，否则半透明底会造出假阳性。
+3. **390px 横向溢出** —— `documentElement.scrollWidth > clientWidth` 的页面应为 0。
+
+注意 Browser pane 的两个坑：**它不派发 scroll 事件**（`scrollY` 会变但监听器收不到），
+所以验证 scroll-spy 要手动 `window.dispatchEvent(new Event("scroll"))`；
+JS 滚动之后截图也常常和实际位置不同步，深层内容用 DOM 断言验证而不是截图。
+
+如果动了参考答案，**必须在 scratchpad 复制一份源项目跑一遍测试**，
+不要凭记忆改数字。
