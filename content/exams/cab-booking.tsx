@@ -438,6 +438,8 @@ const cabBooking: Exam = {
           title: "先读四个测试：它们到底要什么",
           titleEn: "Read the four tests first: what exactly they ask for",
           blurb: "四个测试全靠 data-testid 找元素。先抄一张 testid 表出来，再动手。",
+          blurbEn:
+            "All four tests find elements by data-testid. Copy out the list of testids first, then start writing.",
           minutes: 14,
           objectives: [
             "读出四个测试各自查的是什么",
@@ -445,8 +447,16 @@ const cabBooking: Exam = {
             "说清为什么测试 4 是这道题真正的分水岭",
             "知道 `vi.useFakeTimers()` 让 Loading 的 1 秒变成可控的",
           ],
+          objectivesEn: [
+            "Say what each of the four tests checks",
+            "Copy out all 13 data-testid values, and know which tests fail if you rename one",
+            "Explain why test 4 is the real dividing line in this task",
+            "Know that `vi.useFakeTimers()` puts the 1 second in Loading under your control",
+          ],
           whyForAssessment:
             "这道题的判分完全由 data-testid 驱动 —— 页面长得对但 testid 错一个，那一片全红。先读测试再写代码，能省掉一半的返工。测试 4「只留最新三条」是分水岭：slice 方向写反、忘了 reverse、或者原地改了 state，都会挂在这一条。",
+          whyForAssessmentEn:
+            "Scoring here is driven entirely by data-testid. The page can look right, and one wrong testid still fails every check around it. Reading the tests before writing code saves half of the rework. Test 4, which keeps only the three newest rides, is the dividing line: a slice in the wrong direction, a missing reverse, or changing the state array in place all fail on that one test.",
           sourceFiles: [
             { path: "cab-booking-context/src/test/App.test.jsx", role: "四个测试，判分的全部依据" },
             { path: "cab-booking-context/src/data/data.json", role: "三组六辆车，分组顺序来自这里的键顺序" },
@@ -455,7 +465,10 @@ const cabBooking: Exam = {
             {
               id: "cb-four-tests",
               heading: "四个测试各查什么",
+              headingEn: "What each of the four tests checks",
               lede: "读完这张表，你就知道要写哪些东西",
+              ledeEn:
+                "Read this table and you know everything you have to build",
               body: (
                 <>
                   <p>
@@ -626,7 +639,10 @@ const cabBooking: Exam = {
             {
               id: "cb-testid-contract",
               heading: "13 个 data-testid 就是契约",
+              headingEn: "The 13 data-testid values are the contract",
               lede: "改一个名字，红一片。所以先抄表",
+              ledeEn:
+                "Rename one and a whole group of tests fails. So copy the list out first",
               body: (
                 <>
                   <p>
@@ -969,6 +985,19 @@ const cabBooking: Exam = {
                   源项目用的是 <code>{"`${ride.id}-${index}`"}</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  Test 4 is <code>expect(rides).toHaveLength(3)</code>. Here{" "}
+                  <code>history-cabs</code> sits on the <code>&lt;ul&gt;</code>, so{" "}
+                  <code>getAllByTestId</code> finds only <strong>1</strong> element and the
+                  assertion for 3 fails.
+                  <br />
+                  <strong>A second mistake in the same snippet:</strong>{" "}
+                  <code>key={"{ride.id}"}</code> is not safe here — the same cab can be booked
+                  twice, so the id repeats. The source project uses{" "}
+                  <code>{"`${ride.id}-${index}`"}</code>.
+                </>
+              ),
             },
           ],
           transfer: [
@@ -983,6 +1012,13 @@ const cabBooking: Exam = {
             "测试 2 的 toEqual 是有序断言，分组顺序来自 data.json 的键顺序，别自己排。",
             "断言「不存在」只能用 queryBy —— getBy 找不到会抛错。",
             "原样跑是 0 个测试跑起来：把 CabContext.js 改名成 .jsx 才能开始。",
+          ],
+          recapEn: [
+            "The four tests are one complete user journey: home page, pick a cab, loading, confirmation, history.",
+            "The 13 data-testid values are the only contract; a renamed one or one on the wrong element fails a whole group of tests.",
+            "The toEqual in test 2 is an ordered assertion. The group order comes from the key order in data.json, so do not sort them yourself.",
+            "To assert that something is absent you have to use queryBy. getBy throws an error when it finds nothing.",
+            "Run the project as it comes and 0 tests start: rename CabContext.js to .jsx before anything else.",
           ],
         },
         {
