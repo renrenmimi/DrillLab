@@ -4446,6 +4446,7 @@ export function countComments(nodes: Comment[]): number {
           code: [
             tested("ts", TREE_HELPERS, {
               filename: "src/components/CommentTree/index.tsx（两个纯函数）",
+              filenameEn: "src/components/CommentTree/index.tsx (the two pure functions)",
             }),
             demo(
               "ts",
@@ -4460,7 +4461,21 @@ function addReplyBad(nodes: Comment[], parentId: number, reply: Comment) {
 // ✗ 深拷贝整棵树 —— 结果对，但所有节点引用都变了，
 //   React.memo 全部失效，大树上会明显卡
 const next = JSON.parse(JSON.stringify(comments));`,
-              { filename: "两种错法" },
+              {
+                filename: "两种错法",
+                filenameEn: "Two ways to get it wrong",
+                codeEn: `// ✗ push once you find it — this changes the original tree, and the screen does not update
+function addReplyBad(nodes: Comment[], parentId: number, reply: Comment) {
+  for (const n of nodes) {
+    if (n.id === parentId) { n.replies.push(reply); return; }
+    addReplyBad(n.replies, parentId, reply);
+  }
+}
+
+// ✗ Deep-copy the whole tree — the result is right, but every node reference changes,
+//   React.memo stops helping at all, and a large tree feels slow
+const next = JSON.parse(JSON.stringify(comments));`,
+              },
             ),
           ],
         },
@@ -4566,9 +4581,11 @@ const next = JSON.parse(JSON.stringify(comments));`,
           code: [
             tested("bash", "npx vitest run src/CommentTree.test.tsx   # 7 passed", {
               filename: "验证命令",
+              filenameEn: "The command that verifies it",
             }),
             tested("tsx", TREE_TEST, {
               filename: "src/CommentTree.test.tsx（DrillLab 自出，本机跑过）",
+              filenameEn: "src/CommentTree.test.tsx (written for DrillLab, run here)",
               collapsible: true,
             }),
           ],
@@ -4579,11 +4596,18 @@ const next = JSON.parse(JSON.stringify(comments));`,
           kind: "fill-blank",
           id: "r-var-tree-blank",
           title: "补全递归统计与递归渲染",
+          titleEn: "Fill in the recursive count and the recursive render",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 2 个是递归调用本身，第 4 个是「往下一层」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The second is the recursive call itself, and the fourth
+              is one level further down.
             </p>
           ),
           language: "tsx",
@@ -4611,6 +4635,7 @@ export function countComments(nodes: Comment[]): number {
               n: 1,
               accept: ["1"],
               hint: "每个节点先把自己算进去。",
+              hintEn: "Every node counts itself first.",
               why: (
                 <>
                   <code>1</code> —— 当前这个节点自己。
@@ -4619,12 +4644,23 @@ export function countComments(nodes: Comment[]): number {
                   漏了这个 1，最后会数出 0（因为叶子都只贡献子树的 0）。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>1</code>, meaning this node itself.
+                  <br />
+                  The general reading of a recursive count is{" "}
+                  <strong>myself plus my subtree</strong>. Leave out that 1 and the
+                  answer comes out 0, because every leaf only contributes the 0 of
+                  its subtree.
+                </>
+              ),
               width: 4,
             },
             {
               n: 2,
               accept: ["countComments"],
               hint: "函数在自己的函数体里调自己。",
+              hintEn: "The function calls itself from inside its own body.",
               why: (
                 <>
                   <code>countComments</code>。这就是递归。
@@ -4634,12 +4670,22 @@ export function countComments(nodes: Comment[]): number {
                   直接返回初始值 <code>0</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>countComments</code>. That is the recursion.
+                  <br />
+                  There is no need for an <code>if</code> to stop it: when{" "}
+                  <code>replies</code> is empty, <code>reduce</code> simply returns
+                  the initial value <code>0</code>.
+                </>
+              ),
               width: 15,
             },
             {
               n: 3,
               accept: ["CommentNode"],
               hint: "组件在自己的 JSX 里渲染自己。",
+              hintEn: "The component renders itself inside its own JSX.",
               why: (
                 <>
                   <code>CommentNode</code> —— 组件递归渲染自身。
@@ -4648,12 +4694,21 @@ export function countComments(nodes: Comment[]): number {
                   你只写了一层，剩下的靠递归展开。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>CommentNode</code>: the component renders itself.
+                  <br />
+                  That is why a reply to a reply to a reply can nest without limit.
+                  You only wrote one level, and the recursion unfolds the rest.
+                </>
+              ),
               width: 13,
             },
             {
               n: 4,
               accept: ["depth + 1", "depth+1"],
               hint: "子节点比自己深一层。",
+              hintEn: "A child sits one level deeper than its parent.",
               why: (
                 <>
                   <code>depth + 1</code>。深度靠参数往下传，
@@ -4662,6 +4717,17 @@ export function countComments(nodes: Comment[]): number {
                   <strong>不要把 depth 存进数据</strong>——
                   它是「节点在树里的位置」，是渲染时算的；
                   存进去就得在移动节点时维护，很容易和实际结构不一致。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>depth + 1</code>. The depth is passed down as a parameter and
+                  used for the indent and for <code>data-depth</code>.
+                  <br />
+                  <strong>Do not store depth in the data.</strong> It describes where
+                  a node sits in the tree and is worked out while rendering. Store it
+                  and you have to maintain it whenever a node moves, and it drifts
+                  out of step with the real structure very easily.
                 </>
               ),
               width: 11,
@@ -4745,8 +4811,20 @@ export function addReply(
 }`,
             {
               filename: "参考答案（实测通过，含原树深冻结检查）",
+              filenameEn: "Reference answer (verified by running it, with the frozen-tree check)",
+              codeEn: `export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
+  return nodes.map((node) => {
+    if (node.id === parentId) {
+      return { ...node, replies: [...node.replies, reply] };
+    }
+    // the target may be deeper down, so keep looking
+    return { ...node, replies: addReply(node.replies, parentId, reply) };
+  });
+}`,
               explanation:
                 "测试用 Object.freeze 深冻结原树后调用它 —— 如果实现里有任何一处直接改原对象，严格模式下会立刻抛错。这是验证「真的不可变」最省事的办法。",
+              explanationEn:
+                "The test deep-freezes the original tree with Object.freeze before calling it. If the implementation changes an original object anywhere, strict mode throws right away. That is the cheapest way to check that it really is immutable.",
             },
           ),
         },
