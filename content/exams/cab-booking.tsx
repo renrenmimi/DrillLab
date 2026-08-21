@@ -2914,10 +2914,30 @@ const CabCard = ({ cab, onSelectCab }) => {
             },
           ],
           transfer: [
-            { signal: "数据是「分组名 → 数组」的对象", reachFor: "Object.keys 外层、值数组内层，两层 map" },
-            { signal: "断言用 toEqual 比分组顺序", reachFor: "别自己 sort —— 键的插入顺序就是答案" },
-            { signal: "列表里可能出现重复的业务 id", reachFor: "key 用 `${id}-${index}`，或给每条记录一个自己的 id" },
-            { signal: "onClick 需要带自己的参数", reachFor: "() => fn(arg)；直接传 fn 会收到事件对象" },
+            {
+              signal: "数据是「分组名 → 数组」的对象",
+              signalEn: "The data is an object of group name to array",
+              reachFor: "Object.keys 外层、值数组内层，两层 map",
+              reachForEn: "Object.keys on the outside, the value array on the inside: two maps",
+            },
+            {
+              signal: "断言用 toEqual 比分组顺序",
+              signalEn: "A toEqual check compares the group order",
+              reachFor: "别自己 sort —— 键的插入顺序就是答案",
+              reachForEn: "Do not sort it yourself; the order the keys were written in is the answer",
+            },
+            {
+              signal: "列表里可能出现重复的业务 id",
+              signalEn: "The same business id can appear twice in a list",
+              reachFor: "key 用 `${id}-${index}`，或给每条记录一个自己的 id",
+              reachForEn: "Use `${id}-${index}` as the key, or give every entry an id of its own",
+            },
+            {
+              signal: "onClick 需要带自己的参数",
+              signalEn: "onClick has to carry an argument of your own",
+              reachFor: "() => fn(arg)；直接传 fn 会收到事件对象",
+              reachForEn: "() => fn(arg); passing fn directly hands you the event object",
+            },
           ],
           recap: [
             "3 个类型 × 2 辆车 = 6 张卡，五个 toHaveLength(6) 就是这么来的。",
@@ -3617,10 +3637,29 @@ useEffect(() => {
             },
           ],
           transfer: [
-            { signal: "组件里要开定时器 / 订阅 / 加监听", reachFor: "放进 useEffect，并在 return 里成对清掉" },
-            { signal: "「本该自动跳转但一直不跳」", reachFor: "先看 effect 的依赖数组 —— 漏了就每次渲染都重置" },
-            { signal: "测试要控制一段延迟", reachFor: "vi.useFakeTimers() + act(() => vi.advanceTimersByTime(n))" },
-            { signal: "afterEach 里要不要清定时器", reachFor: "要 —— runOnlyPendingTimers 再 useRealTimers，否则漏到下个测试" },
+            {
+              signal: "组件里要开定时器 / 订阅 / 加监听",
+              signalEn: "A component starts a timer, a subscription or a listener",
+              reachFor: "放进 useEffect，并在 return 里成对清掉",
+              reachForEn: "Put it in useEffect and clear it in the return, one for one",
+            },
+            {
+              signal: "「本该自动跳转但一直不跳」",
+              signalEn: "\"It should move on by itself, but it never does\"",
+              reachFor: "先看 effect 的依赖数组 —— 漏了就每次渲染都重置",
+              reachForEn: "Look at the dependency array of the effect first; without it every render starts over",
+            },
+            {
+              signal: "测试要控制一段延迟",
+              signalEn: "A test needs to control a delay",
+              reachFor: "vi.useFakeTimers() + act(() => vi.advanceTimersByTime(n))",
+            },
+            {
+              signal: "afterEach 里要不要清定时器",
+              signalEn: "Whether afterEach has to clear the timers",
+              reachFor: "要 —— runOnlyPendingTimers 再 useRealTimers，否则漏到下个测试",
+              reachForEn: "Yes: runOnlyPendingTimers and then useRealTimers, or they leak into the next test",
+            },
           ],
           recap: [
             "setTimeout 是副作用，必须在 useEffect 里；写组件体里每渲染一次开一个。",
