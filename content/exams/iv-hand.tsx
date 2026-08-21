@@ -190,11 +190,38 @@ const REF_PALL = `export function promiseAll<T>(items: (T | Promise<T>)[]): Prom
   });
 }`;
 
+const REF_PALL_EN = `export function promiseAll<T>(items: (T | Promise<T>)[]): Promise<T[]> {
+  return new Promise((resolve, reject) => {
+    const results: T[] = new Array(items.length);
+    let remaining = items.length;
+    if (remaining === 0) {
+      resolve(results);               // Empty input: finish now, or the counter waits for a zero that never arrives
+      return;
+    }
+    items.forEach((item, i) => {
+      Promise.resolve(item).then((value) => {
+        results[i] = value;           // Write by index — the input decides the order, not who finished first
+        remaining -= 1;
+        if (remaining === 0) resolve(results);
+      }, reject);                     // If any one of them fails, the whole thing fails right away
+    });
+  });
+}`;
+
 const REF_EMITTER_CORE = `emit(event: string, ...args: unknown[]): boolean {
   const list = this.listeners.get(event);
   if (!list || list.length === 0) return false;
   // 拷贝一份再遍历 —— once 触发时会 off 自己，
   // 直接遍历原数组会让它旁边的监听器被跳过
+  for (const fn of [...list]) fn(...args);
+  return true;
+}`;
+
+const REF_EMITTER_CORE_EN = `emit(event: string, ...args: unknown[]): boolean {
+  const list = this.listeners.get(event);
+  if (!list || list.length === 0) return false;
+  // Copy the array before walking it — a once listener removes itself while it runs,
+  // and walking the original array would then skip the listener next to it
   for (const fn of [...list]) fn(...args);
   return true;
 }`;
@@ -239,6 +266,32 @@ const REF_LRU = `export class LRUCache<K, V> {
     this.map.set(key, value);
     if (this.map.size > this.capacity) {
       // Map 按插入序遍历 —— 迭代器的第一个键就是最久没被碰过的
+      const oldest = this.map.keys().next().value as K;
+      this.map.delete(oldest);
+    }
+  }
+}`;
+
+const REF_LRU_EN = `export class LRUCache<K, V> {
+  private map = new Map<K, V>();
+
+  constructor(private capacity: number) {
+    if (capacity < 1) throw new Error("capacity must be at least 1");
+  }
+
+  get(key: K): V | undefined {
+    if (!this.map.has(key)) return undefined;
+    const value = this.map.get(key) as V;
+    this.map.delete(key);       // Delete then re-insert = move it to the newest end
+    this.map.set(key, value);
+    return value;
+  }
+
+  put(key: K, value: V): void {
+    if (this.map.has(key)) this.map.delete(key);
+    this.map.set(key, value);
+    if (this.map.size > this.capacity) {
+      // A Map iterates in insertion order — the first key is the one untouched for longest
       const oldest = this.map.keys().next().value as K;
       this.map.delete(oldest);
     }
@@ -1366,6 +1419,9 @@ const clone = JSON.parse(JSON.stringify(source));
           code: [
             tested("ts", REF_PALL, {
               filename: "promiseAll.ts（参考解法 —— scratchpad vitest 6 / 6，含 allSettled）",
+              filenameEn:
+                "promiseAll.ts (reference solution — scratchpad vitest 6 / 6, allSettled included)",
+              codeEn: REF_PALL_EN,
             }),
           ],
         },
@@ -1434,6 +1490,8 @@ const clone = JSON.parse(JSON.stringify(source));
           code: [
             tested("ts", REF_EMITTER_CORE, {
               filename: "emitter.ts（emit 的关键 —— 完整版 6 / 6）",
+              filenameEn: "emitter.ts (the key part of emit — the full version scores 6 / 6)",
+              codeEn: REF_EMITTER_CORE_EN,
             }),
           ],
         },
@@ -1494,6 +1552,8 @@ const clone = JSON.parse(JSON.stringify(source));
           code: [
             tested("ts", REF_LRU, {
               filename: "lru.ts（参考解法 —— scratchpad vitest 5 / 5）",
+              filenameEn: "lru.ts (reference solution — scratchpad vitest 5 / 5)",
+              codeEn: REF_LRU_EN,
             }),
           ],
         },
@@ -1549,6 +1609,8 @@ export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled
           ],
           solution: tested("ts", REF_PALL, {
             filename: "promiseAll.ts（vitest 6 / 6，allSettled 在完整版里）",
+            filenameEn: "promiseAll.ts (vitest 6 / 6; allSettled is in the full version)",
+            codeEn: REF_PALL_EN,
           }),
         },
         {
@@ -1707,6 +1769,8 @@ export class EventEmitter {
           ],
           solution: tested("ts", REF_LRU, {
             filename: "lru.ts（scratchpad vitest 5 / 5）",
+            filenameEn: "lru.ts (scratchpad vitest 5 / 5)",
+            codeEn: REF_LRU_EN,
           }),
         },
       ],
