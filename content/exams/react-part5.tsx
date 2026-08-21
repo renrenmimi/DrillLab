@@ -4193,6 +4193,8 @@ setComments(next);`,
       title: "变式五 · 主题切换：Context 怎么用",
       titleEn: "Variation 5 · theme switching: how to use Context",
       blurb: "createContext 三行就写完了。真正会挂的地方是「value 每次都是新对象」和「忘了套 Provider」。",
+      blurbEn:
+        "createContext takes three lines. What actually breaks is a value that is a new object every render, and a missing Provider.",
       minutes: 20,
       objectives: [
         "说清什么时候该上 Context、什么时候不该",
@@ -4200,13 +4202,23 @@ setComments(next);`,
         "解释 context value 为什么必须 useMemo、toggleTheme 为什么要 useCallback",
         "看懂「忘了套 Provider」的真实报错，并知道怎么让它报得更清楚",
       ],
+      objectivesEn: [
+        "Say when Context is the right tool and when it is not",
+        "Write the createContext + Provider + useContext set, and wrap it in a custom hook",
+        "Explain why the context value needs useMemo and why toggleTheme needs useCallback",
+        "Read the real error you get when the Provider is missing, and know how to make that error clearer",
+      ],
       whyForAssessment:
         "主题切换是 Context 最常见的考法，同一套骨架换个壳就是「当前登录用户」「语言」「购物车」。源项目里一个 Context 都没有，所以前面没讲。这道题除了考 API 会不会写，更考两个细节：value 有没有记忆化、忘了 Provider 时错误信息够不够清楚 —— 这两点是区分「抄过教程」和「真写过」的地方。",
+      whyForAssessmentEn:
+        "Theme switching is the most common way exams test Context. The same skeleton with a different label becomes the current user, the language, or the shopping cart. The source projects contain no Context at all, so no earlier lesson covered it. Beyond writing the API correctly, this question tests two details: whether the value is memoized, and whether the error is clear when the Provider is missing. Those two separate someone who copied a tutorial from someone who has really written this.",
       concepts: [
         {
           id: "why",
           heading: "为什么要 Context：props 传不动了",
+          headingEn: "Why Context exists: props cannot carry the value that far",
           lede: "Context 解决的是「跨很多层传同一个值」，不是「状态管理」。",
+          ledeEn: "Context solves one problem: passing the same value through many levels. It is not state management.",
           body: (
             <>
               <p>
@@ -4301,7 +4313,9 @@ setComments(next);`,
         {
           id: "three-parts",
           heading: "Context 只有三个动作，加一个自定义 hook",
+          headingEn: "Context has only three moves, plus a custom hook",
           lede: "createContext 造管道、Provider 灌值、useContext 取值。第四步是自己包一层。",
+          ledeEn: "createContext builds the pipe, Provider puts a value into it, useContext takes the value out. The fourth step is a wrapper you write yourself.",
           body: (
             <>
               <p>
@@ -4462,7 +4476,9 @@ export function useTheme(): ThemeContextValue {
         {
           id: "toggle",
           heading: "toggleTheme：又是函数式更新",
+          headingEn: "toggleTheme: the updater function form again",
           lede: "和计时器那道题同一个道理，只是这次藏在 context 里。",
+          ledeEn: "The same reason as in the timer question, only this time it is hidden inside the context.",
           body: (
             <>
               <p>
@@ -4542,7 +4558,9 @@ onClick={() => { toggleTheme(); toggleTheme(); }}
         {
           id: "memo",
           heading: "最容易漏的一步：value 必须记忆化",
+          headingEn: "The step people miss most: the value has to be memoized",
           lede: "这行代码看着无害，会让整棵子树每次都重渲染。",
+          ledeEn: "This line looks harmless, and it makes the whole subtree re-render every time.",
           body: (
             <>
               <p>
@@ -4640,7 +4658,9 @@ $ npx vitest run src/Theme.test.tsx
         {
           id: "consumers",
           heading: "两个消费者",
+          headingEn: "The two consumers",
           lede: "按钮和卡片都只做一件事：取值、用值。",
+          ledeEn: "The button and the card each do one thing: read the value, then use it.",
           body: (
             <>
               <p>
@@ -4708,7 +4728,9 @@ $ npx vitest run src/Theme.test.tsx
         {
           id: "full",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "8 个测试全过。",
+          ledeEn: "All 8 tests pass.",
           body: (
             <>
               <p>
@@ -4751,7 +4773,9 @@ $ npx vitest run src/Theme.test.tsx
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           lede: "Context 怎么测？测的是「消费者看到了什么」，不是 context 本身。",
+          ledeEn: "How do you test Context? You test what a consumer sees, not the context itself.",
           body: (
             <>
               <p>
@@ -5169,6 +5193,16 @@ const ThemeApp: React.FC = () => (
               而且功能测试不会红，只有专门测引用的那条会红。
             </>
           ),
+          whyEn: (
+            <>
+              Every render builds a new object. Context compares by reference, decides the
+              value changed, and every consumer re-renders — even when the theme did not
+              move.
+              <br />
+              <strong>Use <code>useMemo</code>.</strong> Note that the behaviour tests
+              stay green; only a test written to check the reference turns red.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -5183,6 +5217,16 @@ const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });`,
               <br />
               这是最难查的一类 bug ——
               <strong>宁可炸，也别静默地对。</strong>
+            </>
+          ),
+          whyEn: (
+            <>
+              With the Provider missing there is <strong>no error at all</strong>: the page
+              shows the light theme as usual, the button calls that empty function, and
+              nothing happens.
+              <br />
+              This is the hardest kind of bug to track down.{" "}
+              <strong>Better to fail loudly than to look correct in silence.</strong>
             </>
           ),
         },
@@ -5204,6 +5248,16 @@ export function ThemeProvider({ children }) {
               的变量就行 —— 它就在手边。
             </>
           ),
+          whyEn: (
+            <>
+              <code>useContext</code> looks for a Provider among its{" "}
+              <strong>ancestors</strong>. The <code>ThemeProvider</code> component is not
+              its own ancestor.
+              <br />
+              If you need the theme inside the Provider, just use the{" "}
+              <code>useState</code> variable. It is right there.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -5220,16 +5274,60 @@ export function ThemeProvider({ children }) {
               而 assessment 里这种分丢得最不值。
             </>
           ),
+          whyEn: (
+            <>
+              The task asks for <strong>where it will switch to</strong>: when the current
+              theme is light, show <code>Switch to Dark</code>.
+              <br />
+              Nothing technical is involved here. It is purely{" "}
+              <strong>reading the task</strong>, and in an exam these are the cheapest
+              points to lose.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「整棵树都要读同一个值」", reachFor: "Context：createContext + Provider + useContext" },
-        { signal: "「当前登录用户 / 语言 / 购物车」", reachFor: "和主题同一套骨架，换个类型" },
-        { signal: "写 Provider", reachFor: "value 一律 useMemo，函数一律 useCallback" },
-        { signal: "Cannot destructure property … of undefined", reachFor: "消费者不在 Provider 子树里" },
-        { signal: "「一部分组件正常、一部分拿到 undefined」", reachFor: "Provider 范围不够大，往上提" },
-        { signal: "「切换毫无反应但也不报错」", reachFor: "createContext 给了假默认值，把它换成 undefined + 守卫" },
-        { signal: "值每秒都在变（鼠标位置、播放进度）", reachFor: "别放 Context，或拆成两个 Context" },
+        {
+          signal: "「整棵树都要读同一个值」",
+          signalEn: "The whole tree has to read the same value",
+          reachFor: "Context：createContext + Provider + useContext",
+          reachForEn: "Context: createContext + Provider + useContext",
+        },
+        {
+          signal: "「当前登录用户 / 语言 / 购物车」",
+          signalEn: "Current user / language / shopping cart",
+          reachFor: "和主题同一套骨架，换个类型",
+          reachForEn: "The same skeleton as the theme, with a different type",
+        },
+        {
+          signal: "写 Provider",
+          signalEn: "Writing a Provider",
+          reachFor: "value 一律 useMemo，函数一律 useCallback",
+          reachForEn: "Always useMemo the value, always useCallback the functions",
+        },
+        {
+          signal: "Cannot destructure property … of undefined",
+          reachFor: "消费者不在 Provider 子树里",
+          reachForEn: "The consumer is not inside the Provider subtree",
+        },
+        {
+          signal: "「一部分组件正常、一部分拿到 undefined」",
+          signalEn: "Some components work, others get undefined",
+          reachFor: "Provider 范围不够大，往上提",
+          reachForEn: "The Provider does not cover enough of the tree; move it up",
+        },
+        {
+          signal: "「切换毫无反应但也不报错」",
+          signalEn: "Switching does nothing, and there is no error either",
+          reachFor: "createContext 给了假默认值，把它换成 undefined + 守卫",
+          reachForEn: "createContext was given a fake default value. Replace it with undefined plus a guard",
+        },
+        {
+          signal: "值每秒都在变（鼠标位置、播放进度）",
+          signalEn: "The value changes every second, like a mouse position or playback progress",
+          reachFor: "别放 Context，或拆成两个 Context",
+          reachForEn: "Keep it out of Context, or split it into two Contexts",
+        },
       ],
       recap: [
         "Context 解决跨层传值，适合「整棵树都读、又不常变」的东西；它不是状态管理器。",
@@ -5238,6 +5336,14 @@ export function ThemeProvider({ children }) {
         "toggleTheme 用函数式更新 + useCallback([])；一次事件连调两次也能正确翻回来。",
         "value 必须 useMemo，否则所有消费者每次都重渲染，而功能测试全绿查不出来。",
         "按钮文字是「要切到哪」，不是「现在是哪」—— 这是读题分。",
+      ],
+      recapEn: [
+        "Context solves passing a value across layers. It fits things the whole tree reads and that rarely change. It is not a state manager.",
+        "Three moves: createContext builds the pipe, Provider puts a value in, useContext takes it out. The fourth step is your own hook with a guard in it.",
+        "Pass undefined as the default and throw inside the hook. That is better than a fake default value: fail loudly rather than look correct in silence.",
+        "toggleTheme uses the updater function form plus useCallback with an empty dependency list, so two calls in one event still flip back correctly.",
+        "The value must go through useMemo, or every consumer re-renders every time, and the behaviour tests stay green so nothing catches it.",
+        "The button text says where it will switch to, not what it is now. These are points for reading the task.",
       ],
     },
   ],
