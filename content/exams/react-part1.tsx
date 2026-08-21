@@ -1286,6 +1286,20 @@ const NoteManager = () => {
   const [notes, setNotes] = useState<Note[]>([]);   // 初始值只在第一次生效
   ...
 };`,
+              {
+                codeEn: `// ✗ A plain variable: reset on every render
+const NoteManager = () => {
+  let notes: Note[] = [];          // an empty array on every render
+  const add = (n: Note) => { notes.push(n); };   // it goes in, and the next render loses it
+  ...
+};
+
+// ✓ useState: React remembers it for you
+const NoteManager = () => {
+  const [notes, setNotes] = useState<Note[]>([]);   // the initial value only counts the first time
+  ...
+};`,
+              },
             ),
           ],
         },
@@ -1429,6 +1443,15 @@ setNotes([...notes, b]);   // notes 还是旧的 → 结果 [b]，a 丢了
 // 函数式更新
 setNotes((prev) => [...prev, a]);   // prev = []      → [a]
 setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
+              {
+                codeEn: `// Say you want to add two notes at once
+setNotes([...notes, a]);   // notes is the old value → result [a]
+setNotes([...notes, b]);   // notes is still old     → result [b], a is gone
+
+// Functional update
+setNotes((prev) => [...prev, a]);   // prev = []      → [a]
+setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
+              },
             ),
           ],
         },
