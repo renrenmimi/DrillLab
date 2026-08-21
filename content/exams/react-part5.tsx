@@ -3474,12 +3474,20 @@ return () => {
           kind: "code-completion",
           id: "r-var-fetch-write",
           title: "自己写出带竞态防护的取数 effect",
+          titleEn: "Write the fetching effect with race protection yourself",
           level: 3,
           generated: true,
           prompt: (
             <p>
               三个 state 已给好。写出 effect 和三个提前返回。
               检查器会查 <code>res.ok</code>、清理函数、竞态防护和 AbortError 过滤。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The three states are given. Write the effect and the three early
+              returns. The checker looks for <code>res.ok</code>, the cleanup
+              function, the race protection and the AbortError filter.
             </p>
           ),
           language: "tsx",
@@ -3501,6 +3509,23 @@ return () => {
     </article>
   );
 };`,
+          starterEn: `const UserCard: React.FC<{ userId: number }> = ({ userId }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 1. effect: fetch by userId, handle loading / error,
+  //    and make sure a fast switch does not let an old response overwrite new data
+
+  // 2. the three early returns (mind the order)
+
+  return (
+    <article data-testid="user">
+      <h2 data-testid="user-name">{user.name}</h2>
+      <p data-testid="user-email">{user.email}</p>
+    </article>
+  );
+};`,
           requirements: [
             "从 /api/users/{userId} 取数",
             "非 2xx 响应要当成错误处理，错误信息形如 HTTP 404",
@@ -3509,18 +3534,50 @@ return () => {
             "渲染顺序：loading → error → 空数据 → 正常数据",
             "effect 本身不能是 async 函数",
           ],
+          requirementsEn: [
+            "Fetch from /api/users/{userId}",
+            "Treat any non-2xx response as an error, with a message like HTTP 404",
+            "Refetch when userId changes, and void the previous result (race protection)",
+            "Use AbortController to cut off the request in flight, but never show AbortError to the user",
+            "Render order: loading, then error, then no data, then the data",
+            "The effect itself must not be an async function",
+          ],
           checks: [
-            { label: "调用了 fetch 并带上 userId", must: "fetch\\s*\\(\\s*[`\"'][^`\"']*\\$\\{userId\\}" },
-            { label: "检查了 res.ok", must: "!\\s*\\w+\\.ok" },
-            { label: "有 ignore（或同义）的作废标志", must: "let\\s+(ignore|cancelled|canceled|stale)\\s*=\\s*false" },
-            { label: "写 state 前判断了标志", must: "if\\s*\\(\\s*!\\s*(ignore|cancelled|canceled|stale)\\s*\\)" },
-            { label: "清理函数把标志置 true", must: "return\\s*\\(\\s*\\)\\s*=>[\\s\\S]{0,120}(ignore|cancelled|canceled|stale)\\s*=\\s*true" },
-            { label: "用了 AbortController", must: "new AbortController" },
-            { label: "把 signal 传给了 fetch", must: "signal" },
-            { label: "过滤掉了 AbortError", must: "AbortError" },
-            { label: "依赖数组里有 userId", must: "\\}\\s*,\\s*\\[[^\\]]*userId[^\\]]*\\]" },
-            { label: "effect 本身不是 async", mustNot: "useEffect\\s*\\(\\s*async" },
-            { label: "loading 判断在 error 之前", must: "if\\s*\\(\\s*loading\\s*\\)[\\s\\S]{0,200}if\\s*\\(\\s*error\\s*\\)" },
+            {
+              label: "调用了 fetch 并带上 userId",
+              labelEn: "fetch is called with userId in the URL",
+              must: "fetch\\s*\\(\\s*[`\"'][^`\"']*\\$\\{userId\\}",
+            },
+            { label: "检查了 res.ok", labelEn: "res.ok is checked", must: "!\\s*\\w+\\.ok" },
+            {
+              label: "有 ignore（或同义）的作废标志",
+              labelEn: "There is an ignore flag (or an equivalent name)",
+              must: "let\\s+(ignore|cancelled|canceled|stale)\\s*=\\s*false",
+            },
+            {
+              label: "写 state 前判断了标志",
+              labelEn: "The flag is checked before any state is written",
+              must: "if\\s*\\(\\s*!\\s*(ignore|cancelled|canceled|stale)\\s*\\)",
+            },
+            {
+              label: "清理函数把标志置 true",
+              labelEn: "The cleanup sets the flag to true",
+              must: "return\\s*\\(\\s*\\)\\s*=>[\\s\\S]{0,120}(ignore|cancelled|canceled|stale)\\s*=\\s*true",
+            },
+            { label: "用了 AbortController", labelEn: "AbortController is used", must: "new AbortController" },
+            { label: "把 signal 传给了 fetch", labelEn: "The signal is passed to fetch", must: "signal" },
+            { label: "过滤掉了 AbortError", labelEn: "AbortError is filtered out", must: "AbortError" },
+            {
+              label: "依赖数组里有 userId",
+              labelEn: "The dependency array holds userId",
+              must: "\\}\\s*,\\s*\\[[^\\]]*userId[^\\]]*\\]",
+            },
+            { label: "effect 本身不是 async", labelEn: "The effect itself is not async", mustNot: "useEffect\\s*\\(\\s*async" },
+            {
+              label: "loading 判断在 error 之前",
+              labelEn: "loading is checked before error",
+              must: "if\\s*\\(\\s*loading\\s*\\)[\\s\\S]{0,200}if\\s*\\(\\s*error\\s*\\)",
+            },
           ],
           hints: [
             "先想一个具体场景：用户点了 1，还没回来又点了 2，而 1 比 2 慢。最后屏幕上该显示谁？你怎么让「1 的响应」知道自己已经过期了？",
@@ -3564,8 +3621,51 @@ setLoading(true); setError(null); setUser(null);
 
 return () => { ignore = true; controller.abort(); };`,
           ],
+          hintsEn: [
+            "Picture one concrete case: the user clicks 1, and before it comes back clicks 2, and 1 is slower than 2. Who should be on screen at the end? How do you let the response for 1 know that it is out of date?",
+            "The answer lives in the cleanup. Every run of the effect declares its own let ignore = false, and the cleanup sets it to true; check that flag before every setState. Also, fetch does not reject on a 404, so check res.ok yourself. And the effect cannot be async, because its return value has to be the cleanup, so put the async logic in an immediately invoked async arrow function.",
+            `useEffect(() => {
+  let ignore = false
+  const controller = new AbortController()
+  reset loading / error / user
+  ;(async () => {
+    try {
+      const res = await fetch(url, { signal: controller.signal })
+      if (!res.ok) throw new Error(\`HTTP \${res.status}\`)
+      const data = await res.json()
+      if (!ignore) setUser(data)
+    } catch (e) {
+      if (!ignore && e.name !== "AbortError") setError(e.message)
+    } finally {
+      if (!ignore) setLoading(false)
+    }
+  })()
+  return () => { ignore = true; controller.abort() }
+}, [userId])`,
+            `let ignore = false;
+const controller = new AbortController();
+
+setLoading(true); setError(null); setUser(null);
+
+(async () => {
+  try {
+    const res = await fetch(\`/api/users/\${userId}\`, { signal: controller.signal });
+    if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+    const data: User = await res.json();
+    if (!ignore) setUser(data);
+  } catch (e) {
+    const err = e as Error;
+    if (!ignore && err.name !== "AbortError") setError(err.message);
+  } finally {
+    if (!ignore) setLoading(false);
+  }
+})();
+
+return () => { ignore = true; controller.abort(); };`,
+          ],
           solution: tested("tsx", FETCH_SOLUTION, {
             filename: "参考答案（实测 6/6 通过，含竞态与 abort 两条）",
+            filenameEn: "Reference answer (6 of 6 pass here, including the race and the abort)",
             collapsible: true,
           }),
         },
