@@ -2968,6 +2968,8 @@ task 6 DONE    (running now: 0)`,
           titleEn: "ESM: import / export, and the errors that look strange at first",
           blurb:
             "为什么 subgraph 里 import 要写 .js 后缀，为什么 jest 要加一个实验性参数。",
+          blurbEn:
+            "Why an import in the subgraph needs the .js ending, and why jest needs an experimental flag.",
           minutes: 10,
           objectives: [
             "分清 default export 和 named export，以及各自怎么 import",
@@ -2975,12 +2977,21 @@ task 6 DONE    (running now: 0)`,
             "看懂 import type 是干什么的",
             "认出「模块系统不匹配」这一类报错",
           ],
+          objectivesEn: [
+            "Tell a default export from a named export, and import each one correctly",
+            "Know that a relative path in ESM must include the file ending",
+            "Understand what import type is for",
+            "Recognise the errors that mean two module systems do not match",
+          ],
           whyForAssessment:
             "两个项目都是 ESM。subgraph 的 import 少一个 .js 就跑不起来；React 项目里 import type 用错会让构建失败。这类错误的报错信息通常很不友好。",
+          whyForAssessmentEn:
+            "Both projects use ESM. One missing .js in a subgraph import and nothing runs. In the React project, a wrong import type makes the build fail. The messages these errors print are usually hard to read.",
           concepts: [
             {
               id: "default-vs-named",
               heading: "default 和 named：一个模块只能有一个 default",
+              headingEn: "default and named: a module can have only one default",
               body: (
                 <>
                   <p>
@@ -3052,7 +3063,10 @@ import {
             {
               id: "js-extension",
               heading: "ESM 里相对路径必须带 .js —— 哪怕源文件是 .ts",
+              headingEn: "In ESM a relative path must end in .js, even when the source file is .ts",
               lede: "这是 Node 原生 ESM 的硬规定，不是可选风格。",
+              ledeEn:
+                "This is a fixed rule of native ESM in Node, not a matter of style.",
               body: (
                 <>
                   <p>
@@ -3121,6 +3135,7 @@ Did you mean to import "./resolvers/orderResolvers.js"?`,
             {
               id: "import-type",
               heading: "import type：只要类型，不要运行时代码",
+              headingEn: "import type: take the type only, not any code that runs",
               body: (
                 <>
                   <p>
@@ -3176,6 +3191,7 @@ import type { Note } from "../../types/Note";        // 只要类型`,
             {
               id: "esm-jest",
               heading: "为什么 subgraph 的 test script 那么长",
+              headingEn: "Why the test script of the subgraph is so long",
               body: (
                 <>
                   <p>回头看那条 script:</p>
@@ -3317,10 +3333,30 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             },
           ],
           transfer: [
-            { signal: "ERR_MODULE_NOT_FOUND", reachFor: "相对路径漏了 .js 扩展名" },
-            { signal: "Cannot use import statement outside a module", reachFor: "缺 \"type\":\"module\" 或缺 --experimental-vm-modules" },
-            { signal: "jest 说 No tests found", reachFor: "对照 testMatch，看文件位置和命名" },
-            { signal: "只用到某个类型", reachFor: "写 import type，编译后整行消失" },
+            {
+              signal: "ERR_MODULE_NOT_FOUND",
+              signalEn: "ERR_MODULE_NOT_FOUND",
+              reachFor: "相对路径漏了 .js 扩展名",
+              reachForEn: "A relative path is missing the .js ending",
+            },
+            {
+              signal: "Cannot use import statement outside a module",
+              signalEn: "Cannot use import statement outside a module",
+              reachFor: "缺 \"type\":\"module\" 或缺 --experimental-vm-modules",
+              reachForEn: "Either \"type\":\"module\" is missing, or --experimental-vm-modules is",
+            },
+            {
+              signal: "jest 说 No tests found",
+              signalEn: "jest says No tests found",
+              reachFor: "对照 testMatch，看文件位置和命名",
+              reachForEn: "Compare with testMatch: check where the file sits and what it is called",
+            },
+            {
+              signal: "只用到某个类型",
+              signalEn: "You only use something as a type",
+              reachFor: "写 import type，编译后整行消失",
+              reachForEn: "Write import type. The whole line disappears after compiling",
+            },
           ],
           recap: [
             "default 导出一个文件只能有一个，import 时名字随意、不加花括号。",
@@ -3328,6 +3364,13 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             "原生 ESM 里相对路径必须带 .js；走 Vite 这类打包器时可以省。",
             "import type 只借类型，编译后整行消失。",
             "subgraph 那条长 test script 是为了让 jest 能跑 ESM，不需要改但要认得。",
+          ],
+          recapEn: [
+            "A file can have only one default export. When you import it you may pick any name, and you use no curly braces.",
+            "A file can have many named exports. When you import one, the name must match, and you use curly braces.",
+            "In native ESM a relative path must end in .js. With a bundler such as Vite you may leave it out.",
+            "import type borrows the type only. The whole line disappears after compiling.",
+            "That long test script in the subgraph is there so jest can run ESM. You do not need to change it, but you should recognise it.",
           ],
         },
       ],
