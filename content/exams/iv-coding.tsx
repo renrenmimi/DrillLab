@@ -2811,7 +2811,25 @@ test("点 Play 调 audio.play()，再点调 pause()", async () => {
   await userEvent.click(screen.getByTestId("toggle"));
   expect(pause).toHaveBeenCalledTimes(1);
 });`,
-              { filename: "怎么测一个播放器" },
+              {
+                filename: "怎么测一个播放器",
+                filenameEn: "How to test a player",
+                codeEn: `// jsdom does not implement media playback, so it has to be stubbed
+beforeEach(() => {
+  play = vi.spyOn(HTMLMediaElement.prototype, "play")
+           .mockImplementation(() => Promise.resolve());
+  pause = vi.spyOn(HTMLMediaElement.prototype, "pause")
+            .mockImplementation(() => {});
+});
+
+test("clicking Play calls audio.play(), clicking again calls pause()", async () => {
+  render(<Player src="/a.mp3" />);
+  await userEvent.click(screen.getByTestId("toggle"));
+  expect(play).toHaveBeenCalledTimes(1);
+  await userEvent.click(screen.getByTestId("toggle"));
+  expect(pause).toHaveBeenCalledTimes(1);
+});`,
+              },
             ),
           ],
         },
@@ -2933,7 +2951,18 @@ const [v, setV] = useState(() => JSON.parse(localStorage.getItem(key)!));
 
 // ✗ 返回普通数组，类型是 (T | Setter)[]，解构后类型全错
 return [value, setValue];        // 少了 as const`,
-              { filename: "三个常见错法" },
+              {
+                filename: "三个常见错法",
+                filenameEn: "Three common wrong versions",
+                codeEn: `// ✗ reads localStorage on every render
+const [v, setV] = useState(JSON.parse(localStorage.getItem(key)!));
+
+// ✗ no fallback: private mode or bad data leaves a blank screen
+const [v, setV] = useState(() => JSON.parse(localStorage.getItem(key)!));
+
+// ✗ returns a plain array, so the type is (T | Setter)[] and destructuring types are all wrong
+return [value, setValue];        // as const is missing`,
+              },
             ),
           ],
         },
