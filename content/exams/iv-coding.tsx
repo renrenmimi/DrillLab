@@ -4504,6 +4504,12 @@ $ npx vitest run
 added(state, action: PayloadAction<string>) {
   state.items.push({ id: nanoid(), text: action.payload, done: false });
 }`,
+            {
+              codeEn: `// ✗ building the id inside the reducer
+added(state, action: PayloadAction<string>) {
+  state.items.push({ id: nanoid(), text: action.payload, done: false });
+}`,
+            },
           ),
           why: (
             <>
@@ -4538,6 +4544,13 @@ const { visible, remaining } = useSelector((s) => ({
   visible: selectVisible(s),
   remaining: selectRemaining(s),
 }));`,
+            {
+              codeEn: `// ✗ the selector returns a new object
+const { visible, remaining } = useSelector((s) => ({
+  visible: selectVisible(s),
+  remaining: selectRemaining(s),
+}));`,
+            },
           ),
           why: (
             <>
@@ -4574,6 +4587,13 @@ export function addTodo(state: TodosState, todo: Todo) {
   state.items.push(todo);          // 这里没有草稿代理，是真的改了原对象
   return state;
 }`,
+            {
+              codeEn: `// ✗ carrying the Immer privilege outside createSlice
+export function addTodo(state: TodosState, todo: Todo) {
+  state.items.push(todo);          // there is no draft proxy here; this really changes the original object
+  return state;
+}`,
+            },
           ),
           why: (
             <>
