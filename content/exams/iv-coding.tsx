@@ -940,19 +940,30 @@ export const ivCoding: Module = {
       title: "16 道题逐题对照",
       titleEn: "The 16 problems, compared one by one",
       blurb: "哪些已经写过、哪些是缺口、缺的那道到底在考什么。",
+      blurbEn:
+        "Which ones you have already written, which ones are gaps, and what the missing ones actually test.",
       minutes: 12,
       objectives: [
         "知道这 16 道题分别对应本站哪一节课",
         "识别出「换了个业务壳但考点相同」的题",
         "说清 7 道缺口题各自新增的是什么考点",
       ],
+      objectivesEn: [
+        "Know which lesson on this site each of the 16 problems maps to",
+        "Recognise problems that only change the story around them and test the same thing",
+        "Say what each of the 7 gap problems adds that the others do not test",
+      ],
       whyForAssessment:
         "coding 题的名字千变万化，考点其实很少。把 16 道题归成几类之后你会发现：能独立写出 Q1 的 CRUD、变式三的 fetch 三态、变式五的 Context，题库里一半的题就自动会了。这一节的用处是让你不要重复刷同类题。",
+      whyForAssessmentEn:
+        "Coding problems come with endless different names, but they test very few things. Once you sort the 16 into groups you can see it: if you can write the CRUD of Q1, the three fetch states of variant three and the Context of variant five on your own, half the question bank is already answered. This lesson is here so you do not practise the same problem over and over.",
       concepts: [
         {
           id: "map",
           heading: "覆盖对照表",
+          headingEn: "The coverage table",
           lede: "9 道已覆盖，7 道补进来。",
+          ledeEn: "9 are already covered; 7 are added here.",
           body: (
             <>
               <p>
@@ -1235,7 +1246,9 @@ export const ivCoding: Module = {
         {
           id: "classes",
           heading: "16 道题其实只有五类考点",
+          headingEn: "The 16 problems really test only five things",
           lede: "认出类别，就不用一道道刷。",
+          ledeEn: "Once you can name the group, you do not have to practise them one by one.",
           body: (
             <>
               <ol>
@@ -1392,6 +1405,12 @@ export const ivCoding: Module = {
         "五类考点：受控输入+CRUD（七道）、异步三态、跨层共享、组件内交互状态机、useRef 命令式。",
         "最大的缺口是第四类「组件内部交互状态机」—— Dropdown / Tabs / 星级评分。",
         "Kanban 是 CRUD 的升级版：一次操作同时改两个数组，要写成一个纯函数。",
+      ],
+      recapEn: [
+        "9 of the 16 problems are already covered by Q1, Q2, the five variant tasks and the two mock exams — do not practise them again.",
+        "Five things are tested: controlled inputs plus CRUD (seven problems), the three async states, sharing state across levels, interaction state inside one component, and useRef for direct DOM calls.",
+        "The largest gap is the fourth one, interaction state inside a single component — Dropdown, Tabs and star rating.",
+        "Kanban is CRUD one step up: one action changes two arrays at the same time, and it should be written as one pure function.",
       ],
     },
 
