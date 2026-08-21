@@ -913,6 +913,8 @@ npm install
           titleEn: "npm scripts: what the command actually runs",
           blurb:
             "npm test 和 npm run test 有什么区别，以及 react-notes-app 为什么根本跑不了 npm test。",
+          blurbEn:
+            "How npm test differs from npm run test, and why npm test cannot run at all in react-notes-app.",
           minutes: 13,
           objectives: [
             "看懂 scripts 里每条命令实际调用了什么程序",
@@ -920,8 +922,16 @@ npm install
             "知道项目里没有 test script 时该怎么跑测试",
             "拿到报错时知道先看哪一层",
           ],
+          objectivesEn: [
+            "Read a line in scripts and say which program it really calls",
+            "Explain how npm test differs from npm run test, and why some commands do not need run",
+            "Know how to run the tests when the project has no test script",
+            "Know which layer to look at first when you get an error",
+          ],
           whyForAssessment:
             "react-notes-app 的 package.json 里没有 test script —— 直接跑 npm test 会报 Missing script。判卷靠的却正是那四个测试。跑不起来测试，等于蒙着眼睛答题。",
+          whyForAssessmentEn:
+            "The package.json of react-notes-app has no test script, so npm test reports Missing script. Yet your work is graded by exactly those four tests. If you cannot run them, you are answering without being able to check anything.",
           sourceFiles: [
             { path: "react-notes-app/package.json", role: "只有 dev / build / q2 三个 script" },
             { path: "graphql-federation-practice/node-subgraph/package.json", role: "有 start / test / test:watch" },
@@ -930,7 +940,10 @@ npm install
             {
               id: "what-run-does",
               heading: "npm run 做的事情比你想的简单",
+              headingEn: "npm run does less than you might think",
               lede: "它就是在 node_modules/.bin 加进 PATH 之后，执行你写的那行字符串。",
+              ledeEn:
+                "It adds node_modules/.bin to PATH, then runs the line of text you wrote.",
               body: (
                 <>
                   <p>
@@ -979,6 +992,7 @@ npm run q2      # → tsx q2/demo.ts        用 tsx 直接跑 TypeScript 文件`
             {
               id: "test-vs-run-test",
               heading: "npm test 和 npm run test：为什么有的能省掉 run",
+              headingEn: "npm test and npm run test: why run can be left out for some names",
               body: (
                 <>
                   <p>
@@ -1026,7 +1040,10 @@ npm run q2      # → tsx q2/demo.ts        用 tsx 直接跑 TypeScript 文件`
             {
               id: "no-test-script",
               heading: "实测：react-notes-app 跑不了 npm test",
+              headingEn: "Tried for real: npm test does not work in react-notes-app",
               lede: "这不是你的错，是这个项目的 scripts 里真的没有 test。",
+              ledeEn:
+                "This is not your mistake. The scripts of this project really have no test entry.",
               body: (
                 <>
                   <p>
@@ -1100,6 +1117,7 @@ $ npx vitest run
             {
               id: "read-errors",
               heading: "script 报错了，先看哪一层",
+              headingEn: "A script failed: which layer to check first",
               body: (
                 <>
                   <p>
@@ -1241,10 +1259,30 @@ $ npx vitest run
             },
           ],
           transfer: [
-            { signal: "Missing script: \"test\"", reachFor: "npx <工具> 或先跑 npm run 看清单" },
-            { signal: "command not found: vite", reachFor: "先 npm install，再确认目录" },
-            { signal: "npm build 报 Unknown command", reachFor: "只有 test/start/stop/restart 能省 run，其余都要写 npm run <名字>" },
-            { signal: "build 失败但 dev 正常", reachFor: "大概是类型检查（tsc）那一步，不是打包" },
+            {
+              signal: "Missing script: \"test\"",
+              signalEn: "Missing script: \"test\"",
+              reachFor: "npx <工具> 或先跑 npm run 看清单",
+              reachForEn: "Run npx <tool>, or run npm run first to list the scripts",
+            },
+            {
+              signal: "command not found: vite",
+              signalEn: "command not found: vite",
+              reachFor: "先 npm install，再确认目录",
+              reachForEn: "Run npm install, then check you are in the right directory",
+            },
+            {
+              signal: "npm build 报 Unknown command",
+              signalEn: "npm build says Unknown command",
+              reachFor: "只有 test/start/stop/restart 能省 run，其余都要写 npm run <名字>",
+              reachForEn: "Only test, start, stop and restart may drop run. Everything else needs npm run <name>",
+            },
+            {
+              signal: "build 失败但 dev 正常",
+              signalEn: "build fails but dev works",
+              reachFor: "大概是类型检查（tsc）那一步，不是打包",
+              reachForEn: "Probably the type-checking step (tsc), not the bundling step",
+            },
           ],
           recap: [
             "npm run <名字> = 把 node_modules/.bin 加进 PATH 后执行那行字符串。",
@@ -1252,6 +1290,13 @@ $ npx vitest run
             "跑 npm run 不带名字，会列出这个项目所有可用命令。",
             "react-notes-app 没有 test script，要用 npx vitest run。",
             "报错先分层：npm 层 → 工具层 → 代码层。别一看红字就改业务代码。",
+          ],
+          recapEn: [
+            "npm run <name> adds node_modules/.bin to PATH, then runs that line of text.",
+            "Only test, start, stop and restart can drop run. Everything else needs npm run.",
+            "Running npm run with no name lists every command this project offers.",
+            "react-notes-app has no test script. Use npx vitest run instead.",
+            "Sort an error into a layer first: npm, then the tool, then your code. Do not edit your own code the moment you see red text.",
           ],
         },
 
