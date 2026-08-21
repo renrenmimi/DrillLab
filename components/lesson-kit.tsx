@@ -72,14 +72,37 @@ export function LessonHeader({
   );
 }
 
+/**
+ * 一对平行的中英文数组，逐项渲染成双语列表项。
+ *
+ * 【为什么长度不等就整段回落中文】
+ * 对齐靠的是下标，不是内容。少一条英文，从那一条起后面全部错位 ——
+ * 第 3 条中文配第 4 条的英文，看起来还挺像那么回事，但说的是别的事。
+ * 这种错比缺英文难发现得多，所以宁可全中文。
+ */
+export function BilingualList({ zh, en }: { zh: string[]; en?: string[] }) {
+  const paired = en && en.length === zh.length ? en : undefined;
+  return (
+    <>
+      {zh.map((item, i) => (
+        <li key={i}>{paired ? <T zh={item} en={paired[i]} /> : item}</li>
+      ))}
+    </>
+  );
+}
+
 /* ---------- 学习目标 + 考点 ---------- */
 
 export function LearningObjective({
   objectives,
+  objectivesEn,
   whyForAssessment,
+  whyForAssessmentEn,
 }: {
   objectives: string[];
+  objectivesEn?: string[];
   whyForAssessment: string;
+  whyForAssessmentEn?: string;
 }) {
   return (
     <div className="objectives">
@@ -88,16 +111,16 @@ export function LearningObjective({
           <T en="After this lesson you can" zh="学完这节你会" />
         </div>
         <ul className="obj-list">
-          {objectives.map((o, i) => (
-            <li key={i}>{o}</li>
-          ))}
+          <BilingualList zh={objectives} en={objectivesEn} />
         </ul>
       </div>
       <div className="obj-block" data-kind="assessment">
         <div className="obj-head">
           <T en="What the exam does with this" zh="这在考试里考什么" />
         </div>
-        <p>{whyForAssessment}</p>
+        <p>
+          <T zh={whyForAssessment} en={whyForAssessmentEn} />
+        </p>
       </div>
     </div>
   );
@@ -172,7 +195,8 @@ export function Section({
 }: {
   id: string;
   n: string;
-  title: string;
+  /** 收 ReactNode 是为了能直接塞 <T zh en /> —— 段标题现在是双语的 */
+  title: ReactNode;
   lede?: ReactNode;
   children: ReactNode;
 }) {
@@ -241,7 +265,9 @@ export function FileExplorer({
   files,
   showContent = false,
 }: {
-  title: string;
+  // 收 ReactNode，好塞 <T zh en /> —— 原来是硬编码的「中文 / English」，
+  // 在已经全英文的界面里显得像没做完
+  title: ReactNode;
   /** role 可以是普通字符串（两种语言都用它），也可以是 L(zh, en) */
   files: { path: string; role: LocalizedString; edit?: boolean }[];
   /**
@@ -412,14 +438,16 @@ export function LayerMap({
 export function MistakeList({
   items,
 }: {
-  items: { wrong: CodeExample; why: ReactNode }[];
+  items: { wrong: CodeExample; why: ReactNode; whyEn?: ReactNode }[];
 }) {
   return (
     <>
       {items.map((m, i) => (
         <div key={i} className="mistake">
           <CodeBlock ex={m.wrong} />
-          <div className="mistake-why">{m.why}</div>
+          <div className="mistake-why">
+            <T zh={m.why} en={m.whyEn} />
+          </div>
         </div>
       ))}
     </>
@@ -431,17 +459,26 @@ export function MistakeList({
 export function TransferTable({
   rows,
 }: {
-  rows: { signal: string; reachFor: string }[];
+  rows: {
+    signal: string;
+    reachFor: string;
+    signalEn?: string;
+    reachForEn?: string;
+  }[];
 }) {
   return (
     <div>
       {rows.map((r, i) => (
         <div key={i} className="transfer-row">
-          <div className="transfer-sig">{r.signal}</div>
+          <div className="transfer-sig">
+            <T zh={r.signal} en={r.signalEn} />
+          </div>
           <div className="transfer-arrow" aria-hidden>
             →
           </div>
-          <div className="transfer-do">{r.reachFor}</div>
+          <div className="transfer-do">
+            <T zh={r.reachFor} en={r.reachForEn} />
+          </div>
         </div>
       ))}
     </div>
@@ -450,16 +487,14 @@ export function TransferTable({
 
 /* ---------- 要点回顾 ---------- */
 
-export function Recap({ items }: { items: string[] }) {
+export function Recap({ items, itemsEn }: { items: string[]; itemsEn?: string[] }) {
   return (
     <div className="recap">
       <div className="recap-head">
         <T en="What to take away" zh="这节的要点" />
       </div>
       <ol>
-        {items.map((it, i) => (
-          <li key={i}>{it}</li>
-        ))}
+        <BilingualList zh={items} en={itemsEn} />
       </ol>
     </div>
   );

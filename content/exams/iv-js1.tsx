@@ -23,6 +23,8 @@ export const ivJsCore: Module = {
       title: "引擎与类型十问",
       titleEn: "10 questions on the engine and types",
       blurb: "引擎、REPL、原始值 vs 引用值、类型转换、== vs ===、短路、var/let/const、传值传引用、Set、Map。",
+      blurbEn:
+        "The engine, REPL, primitive vs reference values, type conversion, == vs ===, short-circuiting, var/let/const, passing values and references, Set, Map.",
       minutes: 22,
       objectives: [
         "说清原始值和引用值在内存里的差别，并解释它怎么导致「改一个另一个也变」",
@@ -30,12 +32,21 @@ export const ivJsCore: Module = {
         "分清 var / let / const 在作用域、提升、重复声明三个维度上的差别",
         "在 Set vs Array、Map vs Object 之间给出选型理由",
       ],
+      objectivesEn: [
+        "Explain how primitive values and reference values differ in memory, and why changing one variable can change another",
+        "State the rules for implicit conversion, and say why you should not use ==",
+        "Tell var / let / const apart on three points: scope, hoisting, and redeclaring",
+        "Give a reason for choosing Set over Array, and Map over Object",
+      ],
       whyForAssessment:
         "类型和内存这一组是所有「诡异行为」的根源：为什么 [] == false 是 true、为什么函数里改了对象外面也变、为什么循环里的 var 拿到的都是最后一个值。答不清这些，后面闭包和异步的题也会答不稳。",
+      whyForAssessmentEn:
+        "Types and memory are the source of every surprising result: why [] == false is true, why changing an object inside a function also changes it outside, and why a var in a loop ends up holding the last value. If you cannot answer these clearly, the closure and async questions later will not hold up either.",
       concepts: [
         {
           id: "q276",
           heading: "什么是 JavaScript 引擎",
+          headingEn: "What is a JavaScript engine?",
           lede: "#276 What is the JavaScript engine",
           body: (
             <>
@@ -111,6 +122,7 @@ export const ivJsCore: Module = {
         {
           id: "q277",
           heading: "什么是 REPL",
+          headingEn: "What is a REPL?",
           lede: "#277 What is REPL",
           body: (
             <>
@@ -163,6 +175,7 @@ export const ivJsCore: Module = {
         {
           id: "q278",
           heading: "原始值 vs 引用值",
+          headingEn: "Primitive values vs reference values",
           lede: "#278 Primitive data types vs Reference data types",
           body: (
             <>
@@ -294,7 +307,9 @@ console.log(Array.isArray([]));  // true  ← 判断数组要用这个`,
         {
           id: "q279",
           heading: "隐式转换 vs 显式转换",
+          headingEn: "Type coercion vs type conversion",
           lede: "#279 Type coercion vs Type conversion（题库里 #386 是同一题）",
+          ledeEn: "#279 Type coercion vs Type conversion (#386 in the question bank is the same question)",
           body: (
             <>
               <p>
@@ -494,6 +509,7 @@ Number(" ")      // 0   ← 空白也是 0，校验输入要小心`,
         {
           id: "q280",
           heading: "== 和 === 的区别",
+          headingEn: "What is the difference between == and ===?",
           lede: "#280 What is the difference between == and ===",
           body: (
             <>
@@ -629,6 +645,7 @@ Object.is(NaN, NaN) // true  ← React 用它判断 state 变没变`,
         {
           id: "q281",
           heading: "什么是短路求值",
+          headingEn: "What is short-circuit evaluation?",
           lede: "#281 What is short-circuit evaluation",
           body: (
             <>
@@ -749,6 +766,7 @@ count ?? 10                 // 0   ✓
         {
           id: "q282",
           heading: "var、let、const 的区别",
+          headingEn: "What is the difference between var, let and const?",
           lede: "#282 What is the difference between var, let and const",
           body: (
             <>
@@ -939,6 +957,7 @@ o = { n: 3 };     // ✗ TypeError: Assignment to constant variable`,
         {
           id: "q284",
           heading: "传值 vs 传引用",
+          headingEn: "Pass by value vs pass by reference",
           lede: "#284 Pass by Value vs Pass by Reference",
           body: (
             <>
@@ -1417,13 +1436,48 @@ JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
         },
       ],
       transfer: [
-        { signal: "「改了对象外面也变」", reachFor: "引用值只复制地址；先浅拷贝或 structuredClone" },
-        { signal: "「界面不更新但 log 是对的」", reachFor: "React 比引用，必须造新对象" },
-        { signal: "看到 [] == false 这类怪题", reachFor: "+ 看字符串、其他看数字、六个假值" },
-        { signal: "「count 是 0 却拿到了默认值」", reachFor: "把 || 换成 ??" },
-        { signal: "循环里 setTimeout 拿到最后一个值", reachFor: "var 只有一个绑定，换 let" },
-        { signal: "循环里反复 includes", reachFor: "换 Set.has，O(n²) 变 O(n)" },
-        { signal: "拿对象当字典且键来自用户输入", reachFor: "用 Map，避免原型污染" },
+        {
+          signal: "「改了对象外面也变」",
+          signalEn: "Changing an object inside a function also changes it outside",
+          reachFor: "引用值只复制地址；先浅拷贝或 structuredClone",
+          reachForEn: "A reference value copies only the address; make a shallow copy first, or use structuredClone",
+        },
+        {
+          signal: "「界面不更新但 log 是对的」",
+          signalEn: "The screen does not update, but the log shows the right value",
+          reachFor: "React 比引用，必须造新对象",
+          reachForEn: "React compares references, so you have to build a new object",
+        },
+        {
+          signal: "看到 [] == false 这类怪题",
+          signalEn: "A puzzle question such as [] == false",
+          reachFor: "+ 看字符串、其他看数字、六个假值",
+          reachForEn: "With +, one string makes it concatenation; every other operator converts to number; six values are falsy",
+        },
+        {
+          signal: "「count 是 0 却拿到了默认值」",
+          signalEn: "count is 0 but you still get the default value",
+          reachFor: "把 || 换成 ??",
+          reachForEn: "Replace || with ??",
+        },
+        {
+          signal: "循环里 setTimeout 拿到最后一个值",
+          signalEn: "A setTimeout inside a loop sees the last value",
+          reachFor: "var 只有一个绑定，换 let",
+          reachForEn: "var has only one binding; use let",
+        },
+        {
+          signal: "循环里反复 includes",
+          signalEn: "includes is called again and again inside a loop",
+          reachFor: "换 Set.has，O(n²) 变 O(n)",
+          reachForEn: "Use Set.has: O(n²) becomes O(n)",
+        },
+        {
+          signal: "拿对象当字典且键来自用户输入",
+          signalEn: "An object used as a dictionary, with keys that come from user input",
+          reachFor: "用 Map，避免原型污染",
+          reachForEn: "Use Map; it avoids prototype pollution",
+        },
       ],
       recap: [
         "七种原始类型存值，其余存地址；typeof null 是 \"object\"（历史 bug），判数组用 Array.isArray。",
@@ -1433,6 +1487,15 @@ JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
         "var 函数作用域会提升成 undefined，let/const 块作用域有 TDZ；const 锁绑定不锁内容。",
         "JS 永远传值，对象传的是地址值 —— 所以改属性外面变、换指向外面不变。",
         "Set 查找 O(1) 但去不掉重复对象；Map 键可任意类型、保序、无原型污染，但不能直接 JSON。",
+      ],
+      recapEn: [
+        "The seven primitive types hold the value itself, everything else holds an address; typeof null is \"object\", which is an old bug, so test for an array with Array.isArray.",
+        "Two rules for implicit conversion: with + one string makes it concatenation, every other operator converts to number; the six falsy values are false/0/\"\"/null/undefined/NaN.",
+        "Always use ===, with x == null as the only exception; NaN is not equal to itself, and React compares with Object.is.",
+        "&& and || return one of the operands, not a boolean; for a default value use ??, and for conditional rendering in React write length > 0 &&.",
+        "var is function scoped and is hoisted as undefined; let and const are block scoped and have a temporal dead zone; const locks the binding, not the contents.",
+        "JavaScript always passes a value, and for an object that value is an address — so changing a property is visible outside, but reassigning the parameter is not.",
+        "A Set looks up in O(1) but will not remove duplicate objects; a Map takes any type as a key, keeps insertion order and has no prototype pollution, but cannot go straight into JSON.",
       ],
     },
 
@@ -1444,6 +1507,8 @@ JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
       title: "函数与作用域十二问",
       titleEn: "12 questions on functions and scope",
       blurb: "定义方式、一等/一阶/高阶函数、纯函数、use strict、作用域、hoisting、作用域链、闭包、柯里化、IIFE。",
+      blurbEn:
+        "Ways to define a function, first class / first order / higher order functions, pure functions, use strict, scope, hoisting, the scope chain, closure, currying, IIFE.",
       minutes: 26,
       objectives: [
         "说清闭包是什么、为什么会「记住」外层变量，并举出两个真实用途",
@@ -1451,12 +1516,21 @@ JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
         "区分函数声明和函数表达式在提升上的差别",
         "说明纯函数的两个条件，并解释它为什么让代码好测",
       ],
+      objectivesEn: [
+        "Explain what a closure is, why it keeps the outer variables, and give two real uses",
+        "Draw the scope chain for a piece of code",
+        "Tell a function declaration from a function expression by the way each one is hoisted",
+        "State the two conditions for a pure function, and explain why it makes code easy to test",
+      ],
       whyForAssessment:
         "闭包是 JS 面试出现频率第一的题，而且它不是背概念就能过 —— 会让你解释循环里的 setTimeout、或者写一个计数器。hoisting 和作用域链是它的前置知识。纯函数那道会直接连到 React（为什么组件要写成纯的、为什么不能改 props）。",
+      whyForAssessmentEn:
+        "Closure is the most frequent question in a JavaScript interview, and reciting the definition is not enough — you will be asked to explain a setTimeout inside a loop, or to write a counter. hoisting and the scope chain come before it. The pure function question leads straight into React: why a component has to be pure, and why you must not change props.",
       concepts: [
         {
           id: "q285",
           heading: "有几种定义函数的方式",
+          headingEn: "How many ways are there to define a function?",
           lede: "#285 How many ways to define a function",
           body: (
             <>
@@ -1615,6 +1689,7 @@ const obj = {
         {
           id: "q290",
           heading: "什么是一等函数",
+          headingEn: "What is a first class function?",
           lede: "#290 What is a first class function",
           body: (
             <>
@@ -1678,6 +1753,7 @@ const obj = {
         {
           id: "q291",
           heading: "什么是一阶函数",
+          headingEn: "What is a first order function?",
           lede: "#291 What is a first order function",
           body: (
             <>
@@ -1726,6 +1802,7 @@ const obj = {
         {
           id: "q292",
           heading: "什么是高阶函数",
+          headingEn: "What is a higher order function?",
           lede: "#292 What is a higher order function",
           body: (
             <>
@@ -1819,6 +1896,7 @@ const withLogger = (Comp) => (props) => {
         {
           id: "q293",
           heading: "什么是纯函数",
+          headingEn: "What is a pure function?",
           lede: "#293 What is a pure function",
           body: (
             <>
@@ -1944,6 +2022,7 @@ const tax = (n, rate) => n * rate;`,
         {
           id: "q294",
           heading: '"use strict" 是干什么的',
+          headingEn: "What does \"use strict\" do?",
           lede: '#294 What is "use strict"',
           body: (
             <>
@@ -2017,8 +2096,8 @@ const tax = (n, rate) => n * rate;`,
                   <strong>
                     <code>this</code> inside a plain function is <code>undefined</code>
                   </strong>{" "}
-                  instead of <code>window</code> — so a forgotten bind blows up on the
-                  spot.
+                  instead of <code>window</code> — so a forgotten bind throws right
+                  there.
                 </li>
                 <li>
                   Assigning to a read-only property, or deleting one that cannot be
@@ -2050,6 +2129,7 @@ const tax = (n, rate) => n * rate;`,
         {
           id: "q295",
           heading: "作用域有哪几种",
+          headingEn: "What kinds of scope are there?",
           lede: "#295 What are the different type of scopes",
           body: (
             <>
@@ -2153,6 +2233,7 @@ const tax = (n, rate) => n * rate;`,
         {
           id: "q296",
           heading: "什么是变量提升",
+          headingEn: "What is hoisting?",
           lede: "#296 What is hoisting",
           body: (
             <>
@@ -2299,6 +2380,7 @@ let bar = function () {};`,
         {
           id: "q297",
           heading: "什么是作用域链",
+          headingEn: "What is the scope chain?",
           lede: "#297 What is the scope chain?",
           body: (
             <>
@@ -2413,6 +2495,7 @@ run();`,
         {
           id: "q298",
           heading: "什么是闭包",
+          headingEn: "What is a closure?",
           lede: "#298 What is a closure",
           body: (
             <>
@@ -2565,6 +2648,7 @@ f();              // [3, 3, 3]  —— 三个闭包共享同一个 i
         {
           id: "q299",
           heading: "什么是柯里化",
+          headingEn: "What is currying?",
           lede: "#299 What is currying",
           body: (
             <>
@@ -2691,6 +2775,7 @@ warn("磁盘快满了");     // [WARN] 磁盘快满了`,
         {
           id: "q300",
           heading: "什么是 IIFE",
+          headingEn: "What is an IIFE?",
           lede: "#300 What is an IIFE",
           body: (
             <>
@@ -2802,14 +2887,54 @@ void function () {}();// ✓`,
         },
       ],
       transfer: [
-        { signal: "问「解释一下闭包」", reachFor: "函数记住定义时的作用域 + 举私有状态和防抖两个用途" },
-        { signal: "循环里的回调都拿到最后一个值", reachFor: "闭包共享同一个 var 绑定，换 let" },
-        { signal: "「React 里数值卡住不动」", reachFor: "过期闭包 —— 闭包捕获的是那次渲染的值" },
-        { signal: "要手写防抖/节流", reachFor: "返回函数 + 闭包存 timer + function 转发 this" },
-        { signal: "声明前调用报 TypeError", reachFor: "函数表达式，只提升了变量名" },
-        { signal: "声明前调用报 ReferenceError", reachFor: "let/const/class 的 TDZ" },
-        { signal: "问纯函数有什么用", reachFor: "好测、可缓存、可并发；接到 React 渲染和 reducer" },
-        { signal: "对象方法里 this 是 undefined", reachFor: "别用箭头函数写方法" },
+        {
+          signal: "问「解释一下闭包」",
+          signalEn: "Asked to explain closure",
+          reachFor: "函数记住定义时的作用域 + 举私有状态和防抖两个用途",
+          reachForEn: "A function keeps the scope it was defined in; give two uses, private state and debounce",
+        },
+        {
+          signal: "循环里的回调都拿到最后一个值",
+          signalEn: "Every callback in a loop sees the last value",
+          reachFor: "闭包共享同一个 var 绑定，换 let",
+          reachForEn: "The closures share one var binding; use let",
+        },
+        {
+          signal: "「React 里数值卡住不动」",
+          signalEn: "A value in React never changes",
+          reachFor: "过期闭包 —— 闭包捕获的是那次渲染的值",
+          reachForEn: "A stale closure — it captured the value from that one render",
+        },
+        {
+          signal: "要手写防抖/节流",
+          signalEn: "Asked to write debounce or throttle by hand",
+          reachFor: "返回函数 + 闭包存 timer + function 转发 this",
+          reachForEn: "Return a function, keep the timer in the closure, and use a function expression so this is forwarded",
+        },
+        {
+          signal: "声明前调用报 TypeError",
+          signalEn: "Calling it before the declaration gives a TypeError",
+          reachFor: "函数表达式，只提升了变量名",
+          reachForEn: "It is a function expression; only the variable name was hoisted",
+        },
+        {
+          signal: "声明前调用报 ReferenceError",
+          signalEn: "Using it before the declaration gives a ReferenceError",
+          reachFor: "let/const/class 的 TDZ",
+          reachForEn: "The temporal dead zone of let, const and class",
+        },
+        {
+          signal: "问纯函数有什么用",
+          signalEn: "Asked what a pure function is good for",
+          reachFor: "好测、可缓存、可并发；接到 React 渲染和 reducer",
+          reachForEn: "Easy to test, safe to cache, safe to run in parallel; connect it to React rendering and to a reducer",
+        },
+        {
+          signal: "对象方法里 this 是 undefined",
+          signalEn: "this is undefined inside an object method",
+          reachFor: "别用箭头函数写方法",
+          reachForEn: "Do not write a method as an arrow function",
+        },
       ],
       recap: [
         "函数声明整体提升，函数表达式只提升变量名；箭头函数没有自己的 this、arguments，不能 new。",
@@ -2821,6 +2946,17 @@ void function () {}();// ✓`,
         "作用域链由内到外，且在定义时确定（词法作用域）；this 相反，是调用时确定。",
         "闭包 = 函数记住定义时的作用域；用途是私有状态、防抖、柯里化，以及 React Hooks 的全部基础。",
         "IIFE 当年是唯一的隔离手段，现在只剩「需要异步作用域」这一个真实场合。",
+      ],
+      recapEn: [
+        "A function declaration is hoisted whole; for a function expression only the variable name is hoisted; an arrow function has no this and no arguments of its own, and cannot be called with new.",
+        "First class (a function can be a value) → first order (does not touch functions) → higher order (takes or returns a function): these three questions belong together.",
+        "A pure function has two conditions: the same input gives the same output, and there are no side effects; a React render function and a Redux reducer both have to be pure.",
+        "The main value of strict mode is that it forbids accidental globals; ES modules and class bodies are already strict, so you do not write it there.",
+        "There are four scopes: global, function, block and module; block scope only applies to let, const and class.",
+        "let is hoisted too, it just sits in the temporal dead zone where reading it throws — saying that let is not hoisted is wrong.",
+        "The scope chain goes from inside out and is fixed where the function is written (lexical scope); this is the opposite, it is decided when the function is called.",
+        "A closure is a function that keeps the scope it was defined in; it is used for private state, debounce and currying, and it is the basis of every React hook.",
+        "An IIFE used to be the only way to isolate variables; today the one real use left is when you need an async scope.",
       ],
     },
   ],

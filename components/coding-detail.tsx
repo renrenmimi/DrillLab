@@ -134,9 +134,14 @@ export function CodingDetail({ id }: { id: string }) {
         {/* ---------- §01 题面 ---------- */}
         <Section
           id="brief"
-          lede="先把要求读完，再动手。 / Read every requirement before you start."
+          lede={
+            <T
+              zh="先把要求读完，再动手。"
+              en="Read every requirement before you start."
+            />
+          }
           n="01"
-          title="题面 / The problem"
+          title={<T zh="题面" en="The problem" />}
         >
           <div className="cd-brief">{problem.brief}</div>
 

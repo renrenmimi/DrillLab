@@ -21,41 +21,55 @@ import type { ArenaChallenge, CodeExample, FromScratchExercise, MockExam } from 
 import { EXAMS } from "./exam-list";
 
 /** 每道考场题的时限与场景 —— 时限按源题的实际规模诚实估，不往短了写 */
-const META: Record<string, { minutes: number; scenario: string }> = {
+const META: Record<string, { minutes: number; scenario: string; scenarioEn: string }> = {
   "r-rebuild-q1": {
     minutes: 75,
     scenario:
       "空文件夹。自己起一个 Vite + React + TS 项目，自己装依赖，把 Notes Manager 的增删改写出来并让四个测试全过。测试文件的 data-testid 一个都不能改。",
+    scenarioEn:
+      "An empty folder. Start a Vite + React + TS project yourself, install the dependencies yourself, and write the Notes Manager add, edit and delete so all four tests pass. Do not change a single data-testid in the test file.",
   },
   "r-rebuild-q2": {
     minutes: 45,
     scenario:
       "空文件夹。实现一个带并发上限的异步任务调度器：并发数不得超过上限、结果顺序与输入一致、失败的任务以 rejected 出现而不是让整批崩掉。",
+    scenarioEn:
+      "An empty folder. Implement an async task scheduler with a concurrency limit: never run more than the limit at once, keep results in input order, and report a failed task as rejected instead of letting the whole batch fail.",
   },
   "g-rebuild-subgraph": {
     minutes: 90,
     scenario:
       "空文件夹。自己搭一个 Apollo Federation subgraph：写 schema、写四个 resolver、用 DataLoader 防 N+1、错误带上 extensions.code，并让十个测试全过。",
+    scenarioEn:
+      "An empty folder. Build an Apollo Federation subgraph yourself: write the schema, write the four resolvers, use DataLoader to avoid N+1, put extensions.code on errors, and make all ten tests pass.",
   },
   "g-rebuild-controller": {
     minutes: 75,
     scenario:
       "空文件夹（或一个空的 Spring Initializr 骨架）。把六个 REST 端点写出来：方法、路径、状态码、参数来源、校验、异常处理，五个测试全过。",
+    scenarioEn:
+      "An empty folder, or an empty Spring Initializr skeleton. Write the six REST endpoints: method, path, status code, where each parameter comes from, validation, and exception handling, with all five tests passing.",
   },
   "cb-from-scratch": {
     minutes: 60,
     scenario:
       "空文件夹。只有四个测试和一份数据文件：搭一个 Cab Booking 应用 —— Context 存「当前预订」和「行程历史」，四个页面用一个状态机切换，历史只留最新三条且最新在最上。四个测试全过。",
+    scenarioEn:
+      "An empty folder. You get four tests and one data file. Build a Cab Booking app: Context holds the current booking and the ride history, four pages switch through one state machine, and the history keeps only the three most recent with the newest first. All four tests pass.",
   },
   "support-tickets": {
     minutes: 60,
     scenario:
       "换了业务场景的 React 考试：Support Ticket Board。考点和 Q1 一致，但题面是新的 —— 不许回头看 Q1 的答案。",
+    scenarioEn:
+      "The React exam in a different business setting: Support Ticket Board. It tests the same things as Q1, but the problem is new — do not look back at your Q1 answer.",
   },
   "book-reviews": {
     minutes: 90,
     scenario:
       "换了业务场景的 Federation 考试：Book Reviews。subgraph 加 entity 缝合，考点和 Task 1 一致，题面是新的。",
+    scenarioEn:
+      "The Federation exam in a different business setting: Book Reviews. A subgraph stitched together with an entity; it tests the same things as Task 1, and the problem is new.",
   },
 };
 
@@ -92,6 +106,7 @@ function build(): ArenaChallenge[] {
             id: fs.id,
             title: fs.title,
             scenario: meta.scenario,
+            scenarioEn: meta.scenarioEn,
             minutes: meta.minutes,
             requirements: fs.requirements,
             fileList: fs.fileList,
@@ -115,7 +130,9 @@ function build(): ArenaChallenge[] {
       out.push({
         id: mock.id,
         title: mock.title,
+        titleEn: mock.titleEn,
         scenario: meta.scenario,
+        scenarioEn: meta.scenarioEn,
         minutes: meta.minutes,
         // 把每个任务的需求平铺，前面加上任务标题
         requirements: mock.tasks.flatMap((t) => [

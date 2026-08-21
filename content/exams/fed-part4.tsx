@@ -253,6 +253,8 @@ export const fedMastery: Module = {
       title: "Debug Lab · Federation 十种典型故障",
       titleEn: "Debug Lab · ten common Federation failures",
       blurb: "从「resolver 写了但返回 null」到「composition 失败」，每一种都给真实报错。",
+      blurbEn:
+        "From a resolver that runs but returns null, to a composition failure. Every case comes with the real error text.",
       minutes: 22,
       objectives: [
         "看到 GraphQL 报错能先归类，再决定去哪个文件找",
@@ -260,8 +262,16 @@ export const fedMastery: Module = {
         "掌握 composition 失败的排查顺序",
         "把错误信息和根因建立稳定的对应关系",
       ],
+      objectivesEn: [
+        "Sort a GraphQL error into a category first, then decide which file to open",
+        "Recognize the hardest failure type: nothing is reported, but the field comes back null",
+        "Know the order in which to check a composition failure",
+        "Build a reliable mapping from each error message to its root cause",
+      ],
       whyForAssessment:
         "这门考试有一半时间花在「为什么测试还是红的」。GraphQL 的报错比 React 更隐蔽 —— 很多错误表现为「静默返回 null」而不是抛异常。",
+      whyForAssessmentEn:
+        "Half of the time in this exam goes to one question: why is the test still failing? GraphQL errors are harder to spot than React errors. Many of them show up as a null value with no message, not as a thrown exception.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/",
@@ -272,6 +282,7 @@ export const fedMastery: Module = {
         {
           id: "triage",
           heading: "先分诊：GraphQL 故障的六类",
+          headingEn: "Triage first: six categories of GraphQL failure",
           body: (
             <>
               <div className="table-wrap">
@@ -431,7 +442,10 @@ export const fedMastery: Module = {
         {
           id: "silent-null",
           heading: "「静默返回 null」的三种成因",
+          headingEn: "Three causes of a silent null",
           lede: "看到某个字段是 null 而你确信写了 resolver，按这三条查。",
+          ledeEn:
+            "When a field comes back null and you are sure you wrote the resolver, check these three things.",
           body: (
             <>
               <ol>
@@ -508,7 +522,10 @@ export const fedMastery: Module = {
         {
           id: "composition",
           heading: "composition 失败怎么排",
+          headingEn: "How to debug a composition failure",
           lede: "本仓库没有 Router，但这类问题值得知道 —— 而且 _service 能测出一半。",
+          ledeEn:
+            "This repository has no Router, but the failure is still worth knowing. A test on _service already catches half of these cases.",
           body: (
             <>
               <p>
@@ -655,7 +672,7 @@ export const fedMastery: Module = {
               </div>
               <p>
                 <strong>You can catch half of these locally:</strong> three of
-                the first four blow up right at{" "}
+                the first four fail right at{" "}
                 <code>buildSubgraphSchema</code> (the service will not start), or
                 make <code>{"{ _service { sdl } }"}</code> throw. So{" "}
                 <strong>
@@ -674,7 +691,10 @@ export const fedMastery: Module = {
         {
           id: "the-verify-script",
           heading: "一个脚本把该验的全验一遍",
+          headingEn: "One script that checks every item at once",
           lede: "做完 Task 1 之后，跑这个比反复 npm test 有用。",
+          ledeEn:
+            "After you finish Task 1, running this tells you more than running npm test again and again.",
           body: (
             <>
               <p>
@@ -1165,12 +1185,42 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
         },
       ],
       transfer: [
-        { signal: "字段静默返回 null", reachFor: "在 resolver 第一行 log，确认它有没有被调用" },
-        { signal: "Cannot return null for non-nullable field", reachFor: "?? [] 兜底，别改 schema" },
-        { signal: "数据串了但不报错", reachFor: "查 DataLoader batch 函数有没有 filter 或改顺序" },
-        { signal: "xxx is not a function", reachFor: "核对方法名与 context 键名" },
-        { signal: "Unknown directive", reachFor: "@link 的 import 列表里漏了它" },
-        { signal: "客户端输入问题返回 500", reachFor: "在最靠近的地方转成 400，别加 catch-all" },
+        {
+          signal: "字段静默返回 null",
+          signalEn: "A field returns null and nothing is reported",
+          reachFor: "在 resolver 第一行 log，确认它有没有被调用",
+          reachForEn: "Log on the first line of the resolver to see whether it runs at all",
+        },
+        {
+          signal: "Cannot return null for non-nullable field",
+          signalEn: "Cannot return null for non-nullable field",
+          reachFor: "?? [] 兜底，别改 schema",
+          reachForEn: "Add a ?? [] fallback; do not change the schema",
+        },
+        {
+          signal: "数据串了但不报错",
+          signalEn: "Values land on the wrong records, with no error",
+          reachFor: "查 DataLoader batch 函数有没有 filter 或改顺序",
+          reachForEn: "Check whether the DataLoader batch function filters or reorders the results",
+        },
+        {
+          signal: "xxx is not a function",
+          signalEn: "xxx is not a function",
+          reachFor: "核对方法名与 context 键名",
+          reachForEn: "Compare the method name and the context key name",
+        },
+        {
+          signal: "Unknown directive",
+          signalEn: "Unknown directive",
+          reachFor: "@link 的 import 列表里漏了它",
+          reachForEn: "It is missing from the import list of @link",
+        },
+        {
+          signal: "客户端输入问题返回 500",
+          signalEn: "Bad client input returns 500",
+          reachFor: "在最靠近的地方转成 400，别加 catch-all",
+          reachForEn: "Turn it into a 400 at the closest point to the cause; do not add a catch-all handler",
+        },
       ],
       recap: [
         "GraphQL 故障六类：schema 校验 / 非空违约 / 跨模块契约 / 名字不匹配 / 错误语义 / composition。",
@@ -1178,6 +1228,13 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
         "排查静默 null 的第一步：在 resolver 第一行 log，看它有没有被调用。",
         "DataLoader 的 batch 函数永远不要 filter —— 长度和顺序都是硬契约。",
         "「服务能起来 + _service 查得出 SDL」已经排除了大部分 composition 问题。",
+      ],
+      recapEn: [
+        "Six categories of GraphQL failure: schema validation, non-null violation, cross-module contract, name mismatch, error semantics, composition.",
+        "A name mismatch is the silent failure that is specific to GraphQL: a wrong resolver key means the resolver does not exist at all.",
+        "First step for a silent null: log on the first line of the resolver and check whether it is called.",
+        "Never filter inside a DataLoader batch function. Both the length and the order are a strict contract.",
+        "If the service starts and _service returns the SDL, most composition problems are already ruled out.",
       ],
     },
 
@@ -1187,6 +1244,8 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
       title: "从零重写：空目录到 10 个测试全过",
       titleEn: "Rewrite it: from an empty directory to all 10 tests passing",
       blurb: "不给答案。给 schema、给数据源、给测试、给四级提示。这一关是分界线。",
+      blurbEn:
+        "No answer key. You get the schema, the data source, the tests, and four levels of hints. This stage is the dividing line.",
       minutes: 90,
       objectives: [
         "在没有参考代码的情况下从空目录搭出一个 federation subgraph",
@@ -1194,8 +1253,16 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
         "独立实现六个 Spring 端点并选对状态码",
         "用测试 + verify 脚本 + curl 三种方式验证自己的实现",
       ],
+      objectivesEn: [
+        "Build a federation subgraph from an empty directory, with no reference code",
+        "Write the four resolvers on your own and find the three hidden problems yourself",
+        "Write the six Spring endpoints on your own and pick the right status code for each",
+        "Check your own work in three ways: the tests, the verify script, and curl",
+      ],
       whyForAssessment:
         "填空和跟写只证明你看懂了。真正的考试是打开一个空编辑器。这一关比真实考试更难 —— 连脚手架都要你自己搭。",
+      whyForAssessmentEn:
+        "Filling in blanks and typing along only prove that you followed the text. The real exam starts with an empty editor. This stage is harder than the real exam, because even the project setup is yours to write.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/",
@@ -1206,6 +1273,7 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
         {
           id: "why",
           heading: "为什么必须做这一关",
+          headingEn: "Why this stage is required",
           body: (
             <>
               <p>
@@ -1258,6 +1326,7 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
         {
           id: "how",
           heading: "建议的做法",
+          headingEn: "A suggested order of work",
           body: (
             <>
               <ol>
@@ -1787,10 +1856,30 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         },
       ],
       transfer: [
-        { signal: "拿到空目录", reachFor: "先让空服务能起来，再写业务" },
-        { signal: "有测试文件", reachFor: "先抄进来当判卷器，一条一条攻" },
-        { signal: "跨模块调用", reachFor: "先抄一张方法名 + 签名对照表" },
-        { signal: "写完了", reachFor: "测试 + verify 脚本 + curl，三层都过才算完" },
+        {
+          signal: "拿到空目录",
+          signalEn: "You are handed an empty directory",
+          reachFor: "先让空服务能起来，再写业务",
+          reachForEn: "Get an empty service to start first, then write the logic",
+        },
+        {
+          signal: "有测试文件",
+          signalEn: "A test file is provided",
+          reachFor: "先抄进来当判卷器，一条一条攻",
+          reachForEn: "Copy it in and let it grade you; fix one test at a time",
+        },
+        {
+          signal: "跨模块调用",
+          signalEn: "A call that crosses module boundaries",
+          reachFor: "先抄一张方法名 + 签名对照表",
+          reachForEn: "Write down a table of method names and signatures before you start",
+        },
+        {
+          signal: "写完了",
+          signalEn: "You think the code is finished",
+          reachFor: "测试 + verify 脚本 + curl，三层都过才算完",
+          reachForEn: "Tests, the verify script, and curl: it is done only when all three pass",
+        },
       ],
       recap: [
         "起手式：先让空服务器能起来（能看到 ready 日志），再写业务逻辑。",
@@ -1798,6 +1887,13 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         "写跨模块调用之前先抄方法名与签名表 —— 这能挡掉 starter 里那两处埋雷同类的错误。",
         "10 个测试全绿只是及格线，还要用 verify 脚本验 _service 和 _entities。",
         "Java 那半和 subgraph 无代码关联，可以完全独立做。",
+      ],
+      recapEn: [
+        "First step: get an empty server to start, so you can see the ready log. Only then write the logic.",
+        "The schema, the data source and the tests are the question, so copying them in just sets up the exam. The resolvers and index.js are the answer, so write those yourself.",
+        "Before you write a call across modules, write down the method names and signatures. That stops the same kind of error as the two hidden problems in the starter code.",
+        "All 10 tests passing is only the minimum. You still need the verify script to check _service and _entities.",
+        "The Java half shares no code with the subgraph, so you can do it completely on its own.",
       ],
     },
   ],

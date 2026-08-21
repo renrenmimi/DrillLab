@@ -111,6 +111,8 @@ const foundations: Exam = {
           titleEn: "Node.js, npm, node_modules and the lockfile",
           blurb:
             "为什么装个 React 项目会多出几万个文件，以及为什么那个 lock 文件不能随便删。",
+          blurbEn:
+            "Why installing a React project adds tens of thousands of files, and why you must not delete that lock file.",
           minutes: 12,
           objectives: [
             "说清 Node.js 和浏览器里的 JavaScript 是什么关系",
@@ -118,8 +120,16 @@ const foundations: Exam = {
             "知道 lockfile 是什么、为什么不能随便删或换成别的包管理器",
             "知道 dependencies 和 devDependencies 的区别在哪里体现",
           ],
+          objectivesEn: [
+            "Explain how Node.js relates to the JavaScript that runs in a browser",
+            "Know what npm install actually does, and where node_modules comes from",
+            "Know what a lockfile is, and why you should not delete it or switch to another package manager",
+            "Know where the difference between dependencies and devDependencies shows up",
+          ],
           whyForAssessment:
             "两个 assessment 的第一步都是 npm install。装不上、装错版本、或者手滑生成了第二个 lockfile，后面全都跑不起来 —— 这时候不是你 React 写得不好，是根本没进考场。",
+          whyForAssessmentEn:
+            "The first step of both exams is npm install. If it fails, installs the wrong versions, or accidentally creates a second lockfile, nothing after it will run. The problem then is not your React code. You have not started the exam at all.",
           sourceFiles: [
             { path: "react-notes-app/package.json", role: "React 考试的依赖清单" },
             { path: "react-notes-app/package-lock.json", role: "锁定确切版本（139 KB）" },
@@ -129,7 +139,10 @@ const foundations: Exam = {
             {
               id: "node",
               heading: "Node.js：让 JavaScript 离开浏览器",
+              headingEn: "Node.js: running JavaScript outside the browser",
               lede: "JavaScript 最早只能在网页里跑。Node.js 把它搬到了你的终端里。",
+              ledeEn:
+                "At first JavaScript could only run inside a web page. Node.js lets it run in your terminal.",
               body: (
                 <>
                   <p>
@@ -184,7 +197,10 @@ node -e "console.log(1 + 1)"
             {
               id: "npm",
               heading: "npm：替你去把别人写好的代码搬回来",
+              headingEn: "npm: it fetches the code other people already wrote",
               lede: "npm 是 package manager（包管理器）。它管的是「这个项目需要哪些别人写的代码」。",
+              ledeEn:
+                "npm is a package manager. It keeps track of which code written by other people this project needs.",
               body: (
                 <>
                   <p>
@@ -247,7 +263,10 @@ npm install
             {
               id: "lockfile",
               heading: "lockfile：把「大概哪个版本」钉成「就是这个版本」",
+              headingEn: "The lockfile: it turns a version range into one exact version",
               lede: "package.json 写的是范围，lockfile 记的是事实。",
+              ledeEn:
+                "package.json states a range. The lockfile records what was actually installed.",
               body: (
                 <>
                   <p>
@@ -326,6 +345,7 @@ npm install
             {
               id: "dep-vs-dev",
               heading: "dependencies 和 devDependencies 差在哪",
+              headingEn: "Where dependencies and devDependencies differ",
               body: (
                 <>
                   <p>
@@ -442,9 +462,24 @@ npm install
           ],
           mistakes: [],
           transfer: [
-            { signal: "拿到一个新项目，不知道从哪开始", reachFor: "先看 package.json，再 npm install" },
-            { signal: "「我这里跑得过，他那里跑不过」", reachFor: "先比 Node 版本和 lockfile" },
-            { signal: "看到 node_modules 很大", reachFor: "正常，它是下载产物，不进版本库" },
+            {
+              signal: "拿到一个新项目，不知道从哪开始",
+              signalEn: "A new project, and you do not know where to start",
+              reachFor: "先看 package.json，再 npm install",
+              reachForEn: "Read package.json first, then run npm install",
+            },
+            {
+              signal: "「我这里跑得过，他那里跑不过」",
+              signalEn: "It runs on my machine but not on theirs",
+              reachFor: "先比 Node 版本和 lockfile",
+              reachForEn: "Compare the Node version and the lockfile first",
+            },
+            {
+              signal: "看到 node_modules 很大",
+              signalEn: "node_modules is very large",
+              reachFor: "正常，它是下载产物，不进版本库",
+              reachForEn: "Normal. It is downloaded output, and is not committed",
+            },
           ],
           recap: [
             "Node.js = 能在终端里跑 JavaScript 的运行时；npm 一般随它一起装。",
@@ -452,6 +487,13 @@ npm install
             "package.json 里的 ^18.3.1 是范围，lockfile 才是「实际装了哪个版本」的事实。",
             "别删 lockfile，别在有 package-lock.json 的项目里跑 pnpm/yarn。",
             "dependencies = 产品运行时要用；devDependencies = 只在开发/构建/测试时用。",
+          ],
+          recapEn: [
+            "Node.js is the runtime that runs JavaScript in a terminal. npm is usually installed with it.",
+            "npm install reads package.json and downloads the dependencies, and their dependencies, into node_modules.",
+            "In package.json, ^18.3.1 is a range. Only the lockfile records which version was actually installed.",
+            "Do not delete the lockfile, and do not run pnpm or yarn in a project that has a package-lock.json.",
+            "dependencies are needed while the product runs. devDependencies are needed only for development, building and testing.",
           ],
         },
 
@@ -461,6 +503,8 @@ npm install
           title: "package.json 逐字段读一遍",
           titleEn: "package.json, field by field",
           blurb: "拿两个真实 assessment 的 package.json，一个字段一个字段地读懂。",
+          blurbEn:
+            "Take the package.json of both real exam projects and read them one field at a time.",
           minutes: 14,
           objectives: [
             "认得 name / version / private / type / main / scripts 各是干什么的",
@@ -468,8 +512,16 @@ npm install
             "能从一个陌生的 package.json 判断出这个项目怎么跑、用什么测试",
             "知道配置也可以内嵌在 package.json 里（subgraph 的 jest 配置就是）",
           ],
+          objectivesEn: [
+            "Recognise what name, version, private, type, main and scripts each control",
+            "Know how \"type\": \"module\" changes the way you write import",
+            "Work out from an unfamiliar package.json how the project runs and which test tool it uses",
+            "Know that configuration can also sit inside package.json, as the jest config of the subgraph does",
+          ],
           whyForAssessment:
             "考场上没人会告诉你「这个项目怎么跑」。package.json 就是答案本身。看懂它，等于拿到了考场地图。",
+          whyForAssessmentEn:
+            "In an exam nobody tells you how to run the project. package.json is the answer itself. Read it and you have the map of the exam.",
           sourceFiles: [
             { path: "react-notes-app/package.json", role: "React 考试" },
             { path: "graphql-federation-practice/node-subgraph/package.json", role: "Federation 考试的 Node 部分" },
@@ -478,7 +530,9 @@ npm install
             {
               id: "react-pkg",
               heading: "先读 React 考试的这一份",
+              headingEn: "Start with the one from the React exam",
               lede: "整个文件只有 7 个顶层字段。逐个看。",
+              ledeEn: "The whole file has only 7 top-level fields. Go through them one by one.",
               body: (
                 <>
                   <p>下面这份是<strong>原样</strong>从项目里拿出来的，一个字都没改：</p>
@@ -503,6 +557,7 @@ npm install
             {
               id: "fields",
               heading: "字段逐条解释",
+              headingEn: "Every field, one by one",
               body: (
                 <>
                   <div className="table-wrap">
@@ -626,7 +681,10 @@ npm install
             {
               id: "subgraph-pkg",
               heading: "再读 Federation 考试那一份",
+              headingEn: "Now the one from the Federation exam",
               lede: "同样的读法，但多了两个新东西：main 和内嵌配置。",
+              ledeEn:
+                "Read it the same way. Two things are new here: main, and configuration kept inside the file.",
               body: (
                 <>
                   <p>
@@ -669,6 +727,7 @@ npm install
             {
               id: "read-it-fast",
               heading: "拿到陌生 package.json 的三步读法",
+              headingEn: "Three steps for reading a package.json you have never seen",
               body: (
                 <>
                   <ol>
@@ -806,10 +865,30 @@ npm install
             },
           ],
           transfer: [
-            { signal: "不知道项目怎么跑", reachFor: "读 package.json 的 scripts" },
-            { signal: "不知道这题要考什么", reachFor: "读 dependencies，特殊的包就是考点" },
-            { signal: "找不到 jest / eslint 配置文件", reachFor: "看 package.json 里有没有同名内嵌字段" },
-            { signal: "import 报 Cannot use import statement", reachFor: "检查 \"type\": \"module\"" },
+            {
+              signal: "不知道项目怎么跑",
+              signalEn: "You do not know how to run the project",
+              reachFor: "读 package.json 的 scripts",
+              reachForEn: "Read the scripts field in package.json",
+            },
+            {
+              signal: "不知道这题要考什么",
+              signalEn: "You do not know what a question is testing",
+              reachFor: "读 dependencies，特殊的包就是考点",
+              reachForEn: "Read dependencies. An unusual package is the topic",
+            },
+            {
+              signal: "找不到 jest / eslint 配置文件",
+              signalEn: "You cannot find a jest or eslint config file",
+              reachFor: "看 package.json 里有没有同名内嵌字段",
+              reachForEn: "Check package.json for a field with the same name",
+            },
+            {
+              signal: "import 报 Cannot use import statement",
+              signalEn: "import fails with Cannot use import statement",
+              reachFor: "检查 \"type\": \"module\"",
+              reachForEn: "Check \"type\": \"module\"",
+            },
           ],
           recap: [
             "package.json 的 scripts 决定你能跑什么命令，是拿到项目第一个要读的字段。",
@@ -817,6 +896,13 @@ npm install
             "private: true 只是防止误发布，与能不能跑无关。",
             "配置可以内嵌：subgraph 的 jest 配置就在 package.json 里，不在单独文件。",
             "dependencies 里出现 dataloader 这种特征包，基本等于告诉你考点在哪。",
+          ],
+          recapEn: [
+            "The scripts in package.json decide which commands you can run. It is the first field to read.",
+            "\"type\": \"module\" decides whether the source uses ESM or CommonJS, so it decides whether you can write import.",
+            "private: true only stops the package from being published by mistake. It has nothing to do with running it.",
+            "Configuration can live inside package.json. The jest config of the subgraph is there, not in a separate file.",
+            "A telling package such as dataloader in dependencies almost always shows you what the exam will test.",
           ],
         },
 
@@ -827,6 +913,8 @@ npm install
           titleEn: "npm scripts: what the command actually runs",
           blurb:
             "npm test 和 npm run test 有什么区别，以及 react-notes-app 为什么根本跑不了 npm test。",
+          blurbEn:
+            "How npm test differs from npm run test, and why npm test cannot run at all in react-notes-app.",
           minutes: 13,
           objectives: [
             "看懂 scripts 里每条命令实际调用了什么程序",
@@ -834,8 +922,16 @@ npm install
             "知道项目里没有 test script 时该怎么跑测试",
             "拿到报错时知道先看哪一层",
           ],
+          objectivesEn: [
+            "Read a line in scripts and say which program it really calls",
+            "Explain how npm test differs from npm run test, and why some commands do not need run",
+            "Know how to run the tests when the project has no test script",
+            "Know which layer to look at first when you get an error",
+          ],
           whyForAssessment:
             "react-notes-app 的 package.json 里没有 test script —— 直接跑 npm test 会报 Missing script。判卷靠的却正是那四个测试。跑不起来测试，等于蒙着眼睛答题。",
+          whyForAssessmentEn:
+            "The package.json of react-notes-app has no test script, so npm test reports Missing script. Yet your work is graded by exactly those four tests. If you cannot run them, you are answering without being able to check anything.",
           sourceFiles: [
             { path: "react-notes-app/package.json", role: "只有 dev / build / q2 三个 script" },
             { path: "graphql-federation-practice/node-subgraph/package.json", role: "有 start / test / test:watch" },
@@ -844,7 +940,10 @@ npm install
             {
               id: "what-run-does",
               heading: "npm run 做的事情比你想的简单",
+              headingEn: "npm run does less than you might think",
               lede: "它就是在 node_modules/.bin 加进 PATH 之后，执行你写的那行字符串。",
+              ledeEn:
+                "It adds node_modules/.bin to PATH, then runs the line of text you wrote.",
               body: (
                 <>
                   <p>
@@ -893,6 +992,7 @@ npm run q2      # → tsx q2/demo.ts        用 tsx 直接跑 TypeScript 文件`
             {
               id: "test-vs-run-test",
               heading: "npm test 和 npm run test：为什么有的能省掉 run",
+              headingEn: "npm test and npm run test: why run can be left out for some names",
               body: (
                 <>
                   <p>
@@ -940,7 +1040,10 @@ npm run q2      # → tsx q2/demo.ts        用 tsx 直接跑 TypeScript 文件`
             {
               id: "no-test-script",
               heading: "实测：react-notes-app 跑不了 npm test",
+              headingEn: "Tried for real: npm test does not work in react-notes-app",
               lede: "这不是你的错，是这个项目的 scripts 里真的没有 test。",
+              ledeEn:
+                "This is not your mistake. The scripts of this project really have no test entry.",
               body: (
                 <>
                   <p>
@@ -1014,6 +1117,7 @@ $ npx vitest run
             {
               id: "read-errors",
               heading: "script 报错了，先看哪一层",
+              headingEn: "A script failed: which layer to check first",
               body: (
                 <>
                   <p>
@@ -1155,10 +1259,30 @@ $ npx vitest run
             },
           ],
           transfer: [
-            { signal: "Missing script: \"test\"", reachFor: "npx <工具> 或先跑 npm run 看清单" },
-            { signal: "command not found: vite", reachFor: "先 npm install，再确认目录" },
-            { signal: "npm build 报 Unknown command", reachFor: "只有 test/start/stop/restart 能省 run，其余都要写 npm run <名字>" },
-            { signal: "build 失败但 dev 正常", reachFor: "大概是类型检查（tsc）那一步，不是打包" },
+            {
+              signal: "Missing script: \"test\"",
+              signalEn: "Missing script: \"test\"",
+              reachFor: "npx <工具> 或先跑 npm run 看清单",
+              reachForEn: "Run npx <tool>, or run npm run first to list the scripts",
+            },
+            {
+              signal: "command not found: vite",
+              signalEn: "command not found: vite",
+              reachFor: "先 npm install，再确认目录",
+              reachForEn: "Run npm install, then check you are in the right directory",
+            },
+            {
+              signal: "npm build 报 Unknown command",
+              signalEn: "npm build says Unknown command",
+              reachFor: "只有 test/start/stop/restart 能省 run，其余都要写 npm run <名字>",
+              reachForEn: "Only test, start, stop and restart may drop run. Everything else needs npm run <name>",
+            },
+            {
+              signal: "build 失败但 dev 正常",
+              signalEn: "build fails but dev works",
+              reachFor: "大概是类型检查（tsc）那一步，不是打包",
+              reachForEn: "Probably the type-checking step (tsc), not the bundling step",
+            },
           ],
           recap: [
             "npm run <名字> = 把 node_modules/.bin 加进 PATH 后执行那行字符串。",
@@ -1166,6 +1290,13 @@ $ npx vitest run
             "跑 npm run 不带名字，会列出这个项目所有可用命令。",
             "react-notes-app 没有 test script，要用 npx vitest run。",
             "报错先分层：npm 层 → 工具层 → 代码层。别一看红字就改业务代码。",
+          ],
+          recapEn: [
+            "npm run <name> adds node_modules/.bin to PATH, then runs that line of text.",
+            "Only test, start, stop and restart can drop run. Everything else needs npm run.",
+            "Running npm run with no name lists every command this project offers.",
+            "react-notes-app has no test script. Use npx vitest run instead.",
+            "Sort an error into a layer first: npm, then the tool, then your code. Do not edit your own code the moment you see red text.",
           ],
         },
 
@@ -1175,6 +1306,8 @@ $ npx vitest run
           title: "两个考试项目的目录，逐个说明",
           titleEn: "The directory layout of both exam projects",
           blurb: "哪些文件是你要改的，哪些是给好的，哪些是干扰项。",
+          blurbEn:
+            "Which files you are meant to edit, which are already done for you, and which are there to distract you.",
           minutes: 12,
           objectives: [
             "看懂两个 assessment 的完整目录结构",
@@ -1182,8 +1315,16 @@ $ npx vitest run
             "知道 index.html → main.tsx → App.tsx → 组件 这条前端启动链",
             "认出项目里的干扰项",
           ],
+          objectivesEn: [
+            "Read the full directory layout of both exam projects",
+            "Tell apart where the entry files, the config files, the source and the tests each sit",
+            "Know the front-end start-up chain: index.html to main.tsx to App.tsx to the components",
+            "Spot the files in the project that are only there to distract you",
+          ],
           whyForAssessment:
             "两个考试都明确标了「EDIT THIS」和「PROVIDED」。改错文件不加分；而找不到该改的文件会直接丢分。",
+          whyForAssessmentEn:
+            "Both exams mark files as EDIT THIS or PROVIDED. Editing the wrong file earns nothing, and failing to find the file you were meant to edit loses points directly.",
           sourceFiles: [
             { path: "react-notes-app/", role: "Q1 在 src/,Q2 在 q2/" },
             { path: "graphql-federation-practice/", role: "node-subgraph/ 和 java-service/ 两个服务" },
@@ -1192,6 +1333,7 @@ $ npx vitest run
             {
               id: "react-tree",
               heading: "react-notes-app 的完整结构",
+              headingEn: "The full layout of react-notes-app",
               body: (
                 <>
                   <p>
@@ -1250,7 +1392,10 @@ $ npx vitest run
             {
               id: "startup-chain",
               heading: "前端项目的启动链：谁调用谁",
+              headingEn: "The start-up chain of a front-end project: what calls what",
               lede: "浏览器打开一个空 div，最后长出整个界面 —— 中间这几跳要看清。",
+              ledeEn:
+                "The browser opens an empty div and ends up with the whole interface. Follow each step in between.",
               body: (
                 <>
                   <p>
@@ -1344,6 +1489,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             {
               id: "fed-tree",
               heading: "Federation 项目：两个服务，两个语言",
+              headingEn: "The Federation project: two services, two languages",
               body: (
                 <>
                   <p>
@@ -1395,7 +1541,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             {
               id: "distractors",
               heading: "认出干扰项",
+              headingEn: "Spotting the distractors",
               lede: "考试项目里经常有「看起来很重要但其实没用」的东西。",
+              ledeEn:
+                "Exam projects often contain things that look important but are never used.",
               body: (
                 <>
                   <ul>
@@ -1516,9 +1665,24 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             },
           ],
           transfer: [
-            { signal: "两个兄弟组件要共享数据", reachFor: "把 state 提升到共同父组件" },
-            { signal: "不确定某文件要不要改", reachFor: "看 README 的 EDIT THIS / PROVIDED 标注" },
-            { signal: "看到一个可疑的资源文件", reachFor: "搜一下有没有代码引用它，没有就是干扰项" },
+            {
+              signal: "两个兄弟组件要共享数据",
+              signalEn: "Two sibling components need to share data",
+              reachFor: "把 state 提升到共同父组件",
+              reachForEn: "Move the state up into the parent they share",
+            },
+            {
+              signal: "不确定某文件要不要改",
+              signalEn: "You are not sure whether a file should be edited",
+              reachFor: "看 README 的 EDIT THIS / PROVIDED 标注",
+              reachForEn: "Check the EDIT THIS / PROVIDED labels in the README",
+            },
+            {
+              signal: "看到一个可疑的资源文件",
+              signalEn: "You find a file that looks suspicious",
+              reachFor: "搜一下有没有代码引用它，没有就是干扰项",
+              reachForEn: "Search for code that references it. If nothing does, it is a distractor",
+            },
           ],
           recap: [
             "react-notes-app 有两道独立的题：src/ 是 React 的 Q1,q2/ 是纯 TS 的 Q2。",
@@ -1526,6 +1690,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             "兄弟组件不能直接通话，所以共享数据必须放在共同父组件里。",
             "Federation 项目只有两个文件要改：orderResolvers.js 和 OrderController.java。",
             "orders.db、@shareable、getInventoryStatus、MetricsConfig 都是干扰项。",
+          ],
+          recapEn: [
+            "react-notes-app holds two separate questions: src/ is the React Q1, q2/ is the plain TypeScript Q2.",
+            "The front-end start-up chain: index.html, main.tsx, App.tsx, NoteManager, then the child components.",
+            "Sibling components cannot talk to each other directly, so shared data has to sit in the parent they share.",
+            "The Federation project has only two files to edit: orderResolvers.js and OrderController.java.",
+            "orders.db, @shareable, getInventoryStatus and MetricsConfig are all distractors.",
           ],
         },
       ],
@@ -1551,6 +1722,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           titleEn: "Arrays and objects: three ways to update without changing the original",
           blurb:
             "增、删、改一个列表，在 React 里为什么必须「造新的」而不是「改旧的」。",
+          blurbEn:
+            "Adding to, deleting from and editing a list: why React needs a new array instead of a changed one.",
           minutes: 14,
           objectives: [
             "熟练用展开语法新增、filter 删除、map 就地替换",
@@ -1558,8 +1731,16 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             "会用解构从对象里取值、给组件 props 取值",
             "看到一段列表操作，能判断它改的是原数组还是新数组",
           ],
+          objectivesEn: [
+            "Use spread syntax to add, filter to delete, and map to replace an item in place",
+            "Explain what it means to update without changing the original, and why React needs it",
+            "Use destructuring to read values out of an object and out of component props",
+            "Look at some list code and say whether it changes the original array or builds a new one",
+          ],
           whyForAssessment:
             "Q1 的三道题，本质就是这三个操作各一次：Add 用展开、Delete 用 filter、Edit 用 map。GraphQL 那边的 createOrder 也要用 map 给每个 item 补价格。学会这一节，两门考试的数据操作部分就都通了。",
+          whyForAssessmentEn:
+            "The three parts of Q1 are one of each operation: Add uses spread, Delete uses filter, Edit uses map. On the GraphQL side, createOrder also uses map to add a price to every item. Learn this lesson and the data handling of both exams is covered.",
           sourceFiles: [
             { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "三个操作的真实用法都在这里" },
           ],
@@ -1567,7 +1748,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             {
               id: "why-immutable",
               heading: "为什么不能直接改",
+              headingEn: "Why you cannot change the original directly",
               lede: "React 判断「要不要重新渲染」的方法，是比较「新旧是不是同一个东西」。",
+              ledeEn:
+                "React decides whether to render again by checking whether the new value is the same object as the old one.",
               body: (
                 <>
                   <p>
@@ -1633,7 +1817,9 @@ setNotes([...notes, newNote]);`,
             {
               id: "three-ops",
               heading: "三件套：新增 / 删除 / 就地替换",
+              headingEn: "The three operations: add, delete, replace in place",
               lede: "Q1 的三道题就是这三行。",
+              ledeEn: "The three parts of Q1 are these three lines.",
               body: (
                 <>
                   <p>
@@ -1718,6 +1904,7 @@ setNotes((prev) =>
             {
               id: "map-filter-find",
               heading: "map / filter / find：三个都返回什么",
+              headingEn: "map / filter / find: what each one returns",
               body: (
                 <>
                   <p>
@@ -1835,6 +2022,7 @@ async getOrdersByUserId(userId) {
             {
               id: "spread-objects",
               heading: "对象展开：改一个字段，其他原样",
+              headingEn: "Object spread: change one field, keep the rest",
               body: (
                 <>
                   <p>
@@ -1885,6 +2073,7 @@ const pricedItems = await Promise.all(
             {
               id: "destructuring",
               heading: "解构：从对象里一次取好几个值",
+              headingEn: "Destructuring: take several values out of an object at once",
               body: (
                 <>
                   <p>
@@ -2101,6 +2290,16 @@ setNotes((prev) => [
                   <strong>测试过了不等于做对了</strong> —— 这是这两个 assessment 反复出现的主题。
                 </>
               ),
+              whyEn: (
+                <>
+                  This passes the tests, because the test has only one item and the order is not
+                  visible. But it breaks what the question asks for:{" "}
+                  <strong>update the item where it already is</strong>. With two or more items,
+                  the edited one jumps to the last row.{" "}
+                  <strong>Passing the tests is not the same as getting it right</strong> — that
+                  point comes back again and again in both exams.
+                </>
+              ),
             },
             {
               wrong: demo(
@@ -2115,14 +2314,47 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
                   <code>!==</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  This keeps only the item you wanted to remove, and drops all the others.{" "}
+                  <code>filter</code> keeps the elements whose callback returns{" "}
+                  <code>true</code>, so the condition for deleting has to be{" "}
+                  <code>!==</code>.
+                </>
+              ),
             },
           ],
           transfer: [
-            { signal: "「新增一条到列表」", reachFor: "[...prev, item]" },
-            { signal: "「删除某一条」", reachFor: "prev.filter(x => x.id !== id)" },
-            { signal: "「更新某一条，位置不变」", reachFor: "prev.map(x => x.id === id ? next : x)" },
-            { signal: "「给每一项补上一个字段」", reachFor: "map + 对象展开（异步就再套 Promise.all）" },
-            { signal: "数据变了但界面不动", reachFor: "查是不是 push / splice / 直接赋值改了原对象" },
+            {
+              signal: "「新增一条到列表」",
+              signalEn: "Add one item to a list",
+              reachFor: "[...prev, item]",
+              reachForEn: "[...prev, item]",
+            },
+            {
+              signal: "「删除某一条」",
+              signalEn: "Delete one item",
+              reachFor: "prev.filter(x => x.id !== id)",
+              reachForEn: "prev.filter(x => x.id !== id)",
+            },
+            {
+              signal: "「更新某一条，位置不变」",
+              signalEn: "Update one item and keep its position",
+              reachFor: "prev.map(x => x.id === id ? next : x)",
+              reachForEn: "prev.map(x => x.id === id ? next : x)",
+            },
+            {
+              signal: "「给每一项补上一个字段」",
+              signalEn: "Add one field to every item",
+              reachFor: "map + 对象展开（异步就再套 Promise.all）",
+              reachForEn: "map plus object spread, wrapped in Promise.all if the work is async",
+            },
+            {
+              signal: "数据变了但界面不动",
+              signalEn: "The data changed but the interface did not",
+              reachFor: "查是不是 push / splice / 直接赋值改了原对象",
+              reachForEn: "Check whether push, splice or a direct assignment changed the original",
+            },
           ],
           recap: [
             "React 靠「是不是同一个对象」判断变化，所以必须造新的、不改旧的。",
@@ -2130,6 +2362,13 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
             "map 长度不变、filter 可能变短、find 返回单个或 undefined。",
             "map 里用 async，外面一定要套 Promise.all。",
             "「数据对但界面不动」是改了原对象的典型症状，而且不会报错。",
+          ],
+          recapEn: [
+            "React looks at whether it is the same object to decide that something changed, so build a new one and leave the old one alone.",
+            "Add with spread [...prev, x], delete with filter and !==, edit with map and a conditional.",
+            "map keeps the length, filter can make it shorter, find returns one item or undefined.",
+            "If you use async inside map, you must wrap the result in Promise.all.",
+            "Right data with a frozen interface is the usual sign that you changed the original object, and nothing reports an error.",
           ],
         },
 
@@ -2140,6 +2379,8 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
           titleEn: "Async: Promise, await, all and allSettled",
           blurb:
             "Q2 整道题就是异步，GraphQL resolver 每一个都是 async。这一节把它们讲透。",
+          blurbEn:
+            "All of Q2 is async work, and every GraphQL resolver is async. This lesson covers all of it.",
           minutes: 15,
           objectives: [
             "说清 Promise 的三种状态，以及 await 到底在等什么",
@@ -2147,8 +2388,16 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
             "知道「函数」和「函数的返回值」在异步里为什么必须分清",
             "会用 try/catch 包住 await",
           ],
+          objectivesEn: [
+            "Explain the three states of a Promise, and what await is actually waiting for",
+            "Tell apart how Promise.all and Promise.allSettled behave",
+            "Know why a function and the value a function returns must be kept apart in async code",
+            "Wrap an await in try/catch",
+          ],
           whyForAssessment:
             "Q2 要你手写一个「allSettled + 并发上限」；Federation 的每个 resolver 都是 async 且要求 try/catch。这一节是两道题共同的地基。",
+          whyForAssessmentEn:
+            "Q2 asks you to write allSettled behaviour with a limit on how many run at once. In Federation, every resolver is async and has to use try/catch. This lesson is the base both questions stand on.",
           sourceFiles: [
             { path: "react-notes-app/q2/taskRunner.ts", role: "Q2 的题面与要求都在文件顶部注释里" },
             { path: "react-notes-app/q2/demo.ts", role: "验证台：打印实时并发数" },
@@ -2157,7 +2406,9 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
             {
               id: "promise-basics",
               heading: "Promise：一张「以后会给你结果」的凭据",
+              headingEn: "A Promise is a receipt for a result that arrives later",
               lede: "它有三种状态，而且只会变一次。",
+              ledeEn: "It has three states, and it settles only once.",
               body: (
                 <>
                   <p>
@@ -2224,7 +2475,9 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
             {
               id: "fn-vs-result",
               heading: "最关键的一个区分：函数，还是函数的返回值",
+              headingEn: "The key distinction: a function, or the value the function returns",
               lede: "Q2 整道题都建立在这个区分上。",
+              ledeEn: "The whole of Q2 rests on this distinction.",
               body: (
                 <>
                   <p>看 Q2 的类型定义：</p>
@@ -2292,6 +2545,8 @@ await task();    // ✓ 对：先调用，再等它的返回值`,
             {
               id: "all-vs-allsettled",
               heading: "Promise.all 和 Promise.allSettled：差别在「一个失败了怎么办」",
+              headingEn:
+                "Promise.all and Promise.allSettled: they differ in what happens when one fails",
               body: (
                 <>
                   <div className="table-wrap">
@@ -2405,7 +2660,10 @@ await task();    // ✓ 对：先调用，再等它的返回值`,
             {
               id: "worker-pool",
               heading: "并发上限的实现思路：共享一个游标的 worker",
+              headingEn: "How to limit how many run at once: workers sharing one cursor",
               lede: "别想复杂了。就是「开 limit 个工人，一起从同一个待办队列里抢活」。",
+              ledeEn:
+                "It is simpler than it sounds. Start limit workers, and let them all take the next job from the same queue.",
               body: (
                 <>
                   <p>
@@ -2499,6 +2757,7 @@ task 6 DONE    (running now: 0)`,
             {
               id: "try-catch-await",
               heading: "try/catch 包住 await",
+              headingEn: "Wrapping await in try/catch",
               body: (
                 <>
                   <p>
@@ -2661,10 +2920,30 @@ task 6 DONE    (running now: 0)`,
             },
           ],
           transfer: [
-            { signal: "「不管有没有失败都要拿到全部结果」", reachFor: "Promise.allSettled 的语义" },
-            { signal: "「限制同时进行的数量」", reachFor: "传函数数组 + worker pool 共享游标" },
-            { signal: "「一批 id 换一批数据」", reachFor: "map + Promise.all，长度与顺序不变" },
-            { signal: "「proper error handling」出现在 TODO 里", reachFor: "try { await ... } catch" },
+            {
+              signal: "「不管有没有失败都要拿到全部结果」",
+              signalEn: "You need every result, whether some failed or not",
+              reachFor: "Promise.allSettled 的语义",
+              reachForEn: "That is what Promise.allSettled does",
+            },
+            {
+              signal: "「限制同时进行的数量」",
+              signalEn: "You must limit how many run at the same time",
+              reachFor: "传函数数组 + worker pool 共享游标",
+              reachForEn: "Pass an array of functions, and have a pool of workers share one cursor",
+            },
+            {
+              signal: "「一批 id 换一批数据」",
+              signalEn: "Turn a list of ids into a list of records",
+              reachFor: "map + Promise.all，长度与顺序不变",
+              reachForEn: "map plus Promise.all. The length and the order stay the same",
+            },
+            {
+              signal: "「proper error handling」出现在 TODO 里",
+              signalEn: "A TODO comment asks for proper error handling",
+              reachFor: "try { await ... } catch",
+              reachForEn: "try { await ... } catch",
+            },
           ],
           recap: [
             "Promise 三态，只定一次；await 成功给值、失败抛异常。",
@@ -2672,6 +2951,13 @@ task 6 DONE    (running now: 0)`,
             "all 一个失败就整体失败；allSettled 全等完再汇总。两者都保证顺序。",
             "并发上限 = 开 limit 个 worker 抢同一个游标，结果按下标写回自动保序。",
             "await 要用 try/catch 接；catch 之后循环继续，才叫「不抛错」。",
+          ],
+          recapEn: [
+            "A Promise has three states and settles only once. await gives you the value on success and throws on failure.",
+            "() => Promise<T> is a function. Promise<T> is work that has already started. Only the first form lets you control how many run at once.",
+            "all fails as a whole as soon as one fails. allSettled waits for all of them and then reports. Both keep the order.",
+            "To cap how many run at once, start limit workers that share one cursor, and write each result back at its own index so the order is kept.",
+            "Catch an await with try/catch. Only if the loop carries on after the catch does the function really not throw.",
           ],
         },
 
@@ -2682,6 +2968,8 @@ task 6 DONE    (running now: 0)`,
           titleEn: "ESM: import / export, and the errors that look strange at first",
           blurb:
             "为什么 subgraph 里 import 要写 .js 后缀，为什么 jest 要加一个实验性参数。",
+          blurbEn:
+            "Why an import in the subgraph needs the .js ending, and why jest needs an experimental flag.",
           minutes: 10,
           objectives: [
             "分清 default export 和 named export，以及各自怎么 import",
@@ -2689,12 +2977,21 @@ task 6 DONE    (running now: 0)`,
             "看懂 import type 是干什么的",
             "认出「模块系统不匹配」这一类报错",
           ],
+          objectivesEn: [
+            "Tell a default export from a named export, and import each one correctly",
+            "Know that a relative path in ESM must include the file ending",
+            "Understand what import type is for",
+            "Recognise the errors that mean two module systems do not match",
+          ],
           whyForAssessment:
             "两个项目都是 ESM。subgraph 的 import 少一个 .js 就跑不起来；React 项目里 import type 用错会让构建失败。这类错误的报错信息通常很不友好。",
+          whyForAssessmentEn:
+            "Both projects use ESM. One missing .js in a subgraph import and nothing runs. In the React project, a wrong import type makes the build fail. The messages these errors print are usually hard to read.",
           concepts: [
             {
               id: "default-vs-named",
               heading: "default 和 named：一个模块只能有一个 default",
+              headingEn: "default and named: a module can have only one default",
               body: (
                 <>
                   <p>
@@ -2766,7 +3063,10 @@ import {
             {
               id: "js-extension",
               heading: "ESM 里相对路径必须带 .js —— 哪怕源文件是 .ts",
+              headingEn: "In ESM a relative path must end in .js, even when the source file is .ts",
               lede: "这是 Node 原生 ESM 的硬规定，不是可选风格。",
+              ledeEn:
+                "This is a fixed rule of native ESM in Node, not a matter of style.",
               body: (
                 <>
                   <p>
@@ -2835,6 +3135,7 @@ Did you mean to import "./resolvers/orderResolvers.js"?`,
             {
               id: "import-type",
               heading: "import type：只要类型，不要运行时代码",
+              headingEn: "import type: take the type only, not any code that runs",
               body: (
                 <>
                   <p>
@@ -2890,6 +3191,7 @@ import type { Note } from "../../types/Note";        // 只要类型`,
             {
               id: "esm-jest",
               heading: "为什么 subgraph 的 test script 那么长",
+              headingEn: "Why the test script of the subgraph is so long",
               body: (
                 <>
                   <p>回头看那条 script:</p>
@@ -3031,10 +3333,30 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             },
           ],
           transfer: [
-            { signal: "ERR_MODULE_NOT_FOUND", reachFor: "相对路径漏了 .js 扩展名" },
-            { signal: "Cannot use import statement outside a module", reachFor: "缺 \"type\":\"module\" 或缺 --experimental-vm-modules" },
-            { signal: "jest 说 No tests found", reachFor: "对照 testMatch，看文件位置和命名" },
-            { signal: "只用到某个类型", reachFor: "写 import type，编译后整行消失" },
+            {
+              signal: "ERR_MODULE_NOT_FOUND",
+              signalEn: "ERR_MODULE_NOT_FOUND",
+              reachFor: "相对路径漏了 .js 扩展名",
+              reachForEn: "A relative path is missing the .js ending",
+            },
+            {
+              signal: "Cannot use import statement outside a module",
+              signalEn: "Cannot use import statement outside a module",
+              reachFor: "缺 \"type\":\"module\" 或缺 --experimental-vm-modules",
+              reachForEn: "Either \"type\":\"module\" is missing, or --experimental-vm-modules is",
+            },
+            {
+              signal: "jest 说 No tests found",
+              signalEn: "jest says No tests found",
+              reachFor: "对照 testMatch，看文件位置和命名",
+              reachForEn: "Compare with testMatch: check where the file sits and what it is called",
+            },
+            {
+              signal: "只用到某个类型",
+              signalEn: "You only use something as a type",
+              reachFor: "写 import type，编译后整行消失",
+              reachForEn: "Write import type. The whole line disappears after compiling",
+            },
           ],
           recap: [
             "default 导出一个文件只能有一个，import 时名字随意、不加花括号。",
@@ -3042,6 +3364,13 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             "原生 ESM 里相对路径必须带 .js；走 Vite 这类打包器时可以省。",
             "import type 只借类型，编译后整行消失。",
             "subgraph 那条长 test script 是为了让 jest 能跑 ESM，不需要改但要认得。",
+          ],
+          recapEn: [
+            "A file can have only one default export. When you import it you may pick any name, and you use no curly braces.",
+            "A file can have many named exports. When you import one, the name must match, and you use curly braces.",
+            "In native ESM a relative path must end in .js. With a bundler such as Vite you may leave it out.",
+            "import type borrows the type only. The whole line disappears after compiling.",
+            "That long test script in the subgraph is there so jest can run ESM. You do not need to change it, but you should recognise it.",
           ],
         },
       ],
@@ -3066,6 +3395,8 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
           title: "类型、type 与 interface",
           titleEn: "Types, type and interface",
           blurb: "Note 和 NoteFormProps 这两个真实类型，把该讲的都讲全了。",
+          blurbEn:
+            "Two real types from the project, Note and NoteFormProps, cover everything you need here.",
           minutes: 12,
           objectives: [
             "会给变量、函数参数、返回值标类型",
@@ -3073,8 +3404,16 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             "会写可选字段、联合类型、函数类型",
             "知道 strict: true 意味着什么",
           ],
+          objectivesEn: [
+            "Give a type to a variable, to a function parameter and to a return value",
+            "Know when type fits and when interface fits, and why this project uses both",
+            "Write an optional field, a union type and a function type",
+            "Know what strict: true means",
+          ],
           whyForAssessment:
             "react-notes-app 是 strict 模式的 TypeScript 项目。props 类型写错、少写一个字段，构建就过不去。而两个考试的核心数据结构（Note、Order）都是从类型定义读起的。",
+          whyForAssessmentEn:
+            "react-notes-app is a TypeScript project in strict mode. Get a props type wrong, or leave out one field, and the build fails. And in both exams the main data shapes, Note and Order, are read from their type definitions first.",
           sourceFiles: [
             { path: "react-notes-app/src/types/Note.ts", role: "整个 Q1 的数据形状" },
             { path: "react-notes-app/src/components/NoteForm/index.tsx", role: "props 类型的真实写法" },
@@ -3084,7 +3423,9 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             {
               id: "the-note-type",
               heading: "从这个项目最重要的 3 行代码开始",
+              headingEn: "Start with the 3 most important lines in this project",
               lede: "整个 Q1 的数据结构就这么多。",
+              ledeEn: "That is the whole data shape of Q1.",
               body: (
                 <>
                   <p>
@@ -3150,6 +3491,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             {
               id: "type-vs-interface",
               heading: "type 和 interface：这个项目里两个都用了",
+              headingEn: "type and interface: this project uses both",
               body: (
                 <>
                   <p>
@@ -3278,6 +3620,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             {
               id: "strict",
               heading: "strict: true 意味着什么",
+              headingEn: "What strict: true means",
               body: (
                 <>
                   <p>
@@ -3419,10 +3762,30 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             },
           ],
           transfer: [
-            { signal: "读一个陌生项目", reachFor: "先找 types/ 或 *.d.ts，类型比 README 准" },
-            { signal: "「要么是 X 要么没有」", reachFor: "X | null，用之前先 if 判断" },
-            { signal: "需要联合类型", reachFor: "只能用 type,interface 做不到" },
-            { signal: "Object is possibly 'null'", reachFor: "先判断，或者确实安全时用 !" },
+            {
+              signal: "读一个陌生项目",
+              signalEn: "Reading a project you have never seen",
+              reachFor: "先找 types/ 或 *.d.ts，类型比 README 准",
+              reachForEn: "Look for types/ or *.d.ts first. The types are more accurate than the README",
+            },
+            {
+              signal: "「要么是 X 要么没有」",
+              signalEn: "Either an X, or nothing",
+              reachFor: "X | null，用之前先 if 判断",
+              reachForEn: "X | null, with an if check before you use it",
+            },
+            {
+              signal: "需要联合类型",
+              signalEn: "You need a union type",
+              reachFor: "只能用 type,interface 做不到",
+              reachForEn: "Only type can do this. interface cannot",
+            },
+            {
+              signal: "Object is possibly 'null'",
+              signalEn: "Object is possibly 'null'",
+              reachFor: "先判断，或者确实安全时用 !",
+              reachForEn: "Check it first, or use ! when you are sure it is safe",
+            },
           ],
           recap: [
             "读项目先读类型定义：Note 的 3 行决定了 Q1 全部的数据操作。",
@@ -3430,6 +3793,13 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             "(note: Note) => void 是函数类型；Note | null 是联合类型。",
             "strict: true 打开后，null 必须显式处理、参数必须有类型。",
             "! 是非空断言，是你在替编译器担保，用错了运行时才炸。",
+          ],
+          recapEn: [
+            "Read the type definitions first. The 3 lines of Note decide every data operation in Q1.",
+            "type and interface are interchangeable most of the time. Only type can express a union.",
+            "(note: Note) => void is a function type. Note | null is a union type.",
+            "With strict: true, null has to be handled explicitly and every parameter needs a type.",
+            "! is a non-null assertion. With it you tell the compiler that the value is not null, so it stops checking. If you are wrong, the failure appears only when the code runs.",
           ],
         },
 
@@ -3440,6 +3810,8 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
           titleEn: "Generic parameters, and how to read a tsc error",
           blurb:
             "useState<Note[]> 那对尖括号在说什么，和 react-notes-app 那 10 个构建错误的真相。",
+          blurbEn:
+            "What the angle brackets in useState<Note[]> say, and the real cause of the 10 build errors in react-notes-app.",
           minutes: 12,
           objectives: [
             "看懂 useState<Note[]>([]) 和 Task<T> 里的尖括号",
@@ -3447,8 +3819,16 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             "能分辨「我的代码错了」和「项目配置本身有问题」",
             "知道常见错误码 TS2304 / TS2582 / TS2345 各是什么意思",
           ],
+          objectivesEn: [
+            "Read the angle brackets in useState<Note[]>([]) and in Task<T>",
+            "Read the four parts of a tsc error: file, position, error code, explanation",
+            "Tell the difference between a mistake in your code and a problem in the project setup",
+            "Know what the common codes TS2304, TS2582 and TS2345 each mean",
+          ],
           whyForAssessment:
             "react-notes-app 的 npm run build 在原始状态下就是失败的 —— 10 个 tsc 错误，全部来自测试文件的类型配置缺失。能不能认出「这不是我的问题」，直接决定你会不会浪费半小时。",
+          whyForAssessmentEn:
+            "In react-notes-app, npm run build fails as delivered. All 10 tsc errors come from missing type settings for the test files. Recognising that the fault is not yours is what decides whether you lose half an hour.",
           sourceFiles: [
             { path: "react-notes-app/tsconfig.json", role: "include 了 src，但没配 vitest 全局类型" },
             { path: "react-notes-app/src/NoteManager.test.tsx", role: "报错就出在这个文件" },
@@ -3457,7 +3837,10 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             {
               id: "generics",
               heading: "尖括号：告诉泛型「这次装的是什么」",
+              headingEn: "Angle brackets: telling a generic what it holds this time",
               lede: "泛型（generic）就是一个「留了洞的类型」，调用的人负责填。",
+              ledeEn:
+                "A generic is a type with a hole left in it. Whoever calls it fills the hole.",
               body: (
                 <>
                   <p>
@@ -3535,6 +3918,7 @@ export async function runTasks<T>(
             {
               id: "read-tsc-error",
               heading: "tsc 报错的四个部分",
+              headingEn: "The four parts of a tsc error",
               body: (
                 <>
                   <p>拿一条真实的报错拆开看：</p>
@@ -3585,7 +3969,10 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
             {
               id: "not-your-fault",
               heading: "实测：这 10 个错误不是你写的代码的问题",
+              headingEn: "Tried for real: these 10 errors are not caused by the code you wrote",
               lede: "这是 react-notes-app 自带的配置缺陷。认出它，别去改业务代码。",
+              ledeEn:
+                "It is a setup defect that ships with react-notes-app. Recognise it, and leave your own code alone.",
               body: (
                 <>
                   <p>
@@ -3695,6 +4082,7 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
             {
               id: "common-codes",
               heading: "几个会真的遇到的错误码",
+              headingEn: "The error codes you will actually meet",
               body: (
                 <>
                   <div className="table-wrap">
@@ -3883,10 +4271,30 @@ export type Task<T> = () => ___3___<T>;`,
             },
           ],
           transfer: [
-            { signal: "useState 初始值是 [] 或 null", reachFor: "显式写泛型参数" },
-            { signal: "一堆 tsc 报错", reachFor: "只看第一条，后面可能是连锁" },
-            { signal: "报错全在测试文件、说全局名字找不到", reachFor: "缺测试框架类型，不是你的逻辑问题" },
-            { signal: "TS2345 参数类型不匹配", reachFor: "回去看类型定义，通常是 id 的 number/string 搞混" },
+            {
+              signal: "useState 初始值是 [] 或 null",
+              signalEn: "The starting value of useState is [] or null",
+              reachFor: "显式写泛型参数",
+              reachForEn: "Write the generic parameter yourself",
+            },
+            {
+              signal: "一堆 tsc 报错",
+              signalEn: "A long list of tsc errors",
+              reachFor: "只看第一条，后面可能是连锁",
+              reachForEn: "Read only the first one. The rest may follow from it",
+            },
+            {
+              signal: "报错全在测试文件、说全局名字找不到",
+              signalEn: "Every error is in a test file and says a global name cannot be found",
+              reachFor: "缺测试框架类型，不是你的逻辑问题",
+              reachForEn: "The types of the test framework are missing. Your logic is not the problem",
+            },
+            {
+              signal: "TS2345 参数类型不匹配",
+              signalEn: "TS2345, an argument type does not match",
+              reachFor: "回去看类型定义，通常是 id 的 number/string 搞混",
+              reachForEn: "Go back to the type definition. Usually an id is a number where a string was expected, or the other way round",
+            },
           ],
           recap: [
             "泛型是「留洞的类型」，尖括号是你在填洞。",
@@ -3894,6 +4302,13 @@ export type Task<T> = () => ___3___<T>;`,
             "tsc 报错四件套：文件、行列、错误码、说明。永远先看第一条。",
             "react-notes-app 的 npm run build 原生失败，10 个错全在测试文件，与你的实现无关。",
             "分辨「我的错」和「项目的错」：看报错位置、报的是谁的名字、测试跑不跑得过。",
+          ],
+          recapEn: [
+            "A generic is a type with a hole in it. The angle brackets are you filling the hole.",
+            "When the starting value shows no type, as with an empty array or null, write the generic parameter yourself.",
+            "A tsc error has four parts: file, line and column, error code, explanation. Always read the first error first.",
+            "npm run build fails in react-notes-app as delivered. All 10 errors are in test files and have nothing to do with your work.",
+            "To tell your own mistake from a project defect, look at where the error points, whose name it complains about, and whether the tests still pass.",
           ],
         },
       ],

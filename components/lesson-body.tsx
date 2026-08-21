@@ -55,11 +55,24 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
   const tocItems = [
     ...lesson.concepts.map((c, i) => ({
       id: c.id,
-      label: `${String(i + 1).padStart(2, "0")} ${c.heading}`,
+      label: (
+        <>
+          {String(i + 1).padStart(2, "0")} <T zh={c.heading} en={c.headingEn} />
+        </>
+      ),
     })),
-    ...(lesson.exercises?.length ? [{ id: "exercises", label: "练习 · 动手做 / Practice" }] : []),
-    ...(lesson.mistakes?.length ? [{ id: "mistakes", label: "常见错误 / Common mistakes" }] : []),
-    ...(lesson.transfer?.length ? [{ id: "transfer", label: "迁移模式 / Transfer" }] : []),
+    // 这三条原来是硬编码的「中文 / English」斜杠格式。段标题双语化之后，
+    // 目录里其余每一条在英文模式下都是纯英文，只有这三条还带着中文 ——
+    // 一列干净的英文里夹三条中英并排，看起来像没做完。改成 <T>。
+    ...(lesson.exercises?.length
+      ? [{ id: "exercises", label: <T zh="练习 · 动手做" en="Practice" /> }]
+      : []),
+    ...(lesson.mistakes?.length
+      ? [{ id: "mistakes", label: <T zh="常见错误" en="Common mistakes" /> }]
+      : []),
+    ...(lesson.transfer?.length
+      ? [{ id: "transfer", label: <T zh="迁移模式" en="Transfer" /> }]
+      : []),
   ];
 
   return (
@@ -69,7 +82,7 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
       <div className="content">
         <LessonHeader
           crumbs={[
-            { label: "路线图 / Roadmap", href: "/path" },
+            { label: <T zh="路线图" en="Roadmap" />, href: "/path" },
             {
               label: <T zh={exam.shortTitle} en={exam.shortTitleEn} />,
               href: examPath(exam.id),
@@ -79,7 +92,7 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
           index={index}
           total={total}
           title={<T zh={lesson.title} en={lesson.titleEn} />}
-          blurb={lesson.blurb}
+          blurb={<T zh={lesson.blurb} en={lesson.blurbEn} />}
           minutes={lesson.minutes}
           tags={
             <>
@@ -102,14 +115,21 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
 
         <LearningObjective
           objectives={lesson.objectives}
+          objectivesEn={lesson.objectivesEn}
           whyForAssessment={lesson.whyForAssessment}
+          whyForAssessmentEn={lesson.whyForAssessmentEn}
         />
 
         {lesson.sourceFiles && lesson.sourceFiles.length > 0 && (
           <FileExplorer
             files={lesson.sourceFiles}
             showContent
-            title="这节课要看的真实文件 / Real files this lesson looks at"
+            title={
+              <T
+                zh="这节课要看的真实文件"
+                en="Real files this lesson looks at"
+              />
+            }
           />
         )}
 
@@ -118,8 +138,8 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
             key={c.id}
             id={c.id}
             n={String(i + 1).padStart(2, "0")}
-            title={c.heading}
-            lede={c.lede}
+            title={<T zh={c.heading} en={c.headingEn} />}
+            lede={c.lede ? <T zh={c.lede} en={c.ledeEn} /> : undefined}
           >
             {c.bodyEn ? (
               <AnswerTabs id={c.id} zh={c.body} en={c.bodyEn} />
@@ -198,7 +218,9 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
           </section>
         )}
 
-        {lesson.recap && lesson.recap.length > 0 && <Recap items={lesson.recap} />}
+        {lesson.recap && lesson.recap.length > 0 && (
+          <Recap items={lesson.recap} itemsEn={lesson.recapEn} />
+        )}
 
         <LessonDoneBar examId={examId} lessonId={lessonId} />
 

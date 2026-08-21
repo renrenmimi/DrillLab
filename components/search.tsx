@@ -151,8 +151,8 @@ function buildIndex(deepText: (examId: string, lessonId: string) => string): Hit
           }`,
         },
         title: loc(l.title, l.titleEn),
-        sub: l.blurb,
-        haystack: [l.title, l.titleEn, l.blurb, deepText(exam.id, l.id)]
+        sub: loc(l.blurb, l.blurbEn),
+        haystack: [l.title, l.titleEn, l.blurb, l.blurbEn, deepText(exam.id, l.id)]
           .filter(Boolean)
           .join(" "),
       });

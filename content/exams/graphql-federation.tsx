@@ -461,10 +461,15 @@ export { createReviewerLoader, createReviewLoader };`;
 const reviewsMock: MockExam = {
   id: "book-reviews",
   title: "模拟考 B · Book Reviews Subgraph",
+  titleEn: "Mock exam B · Book Reviews Subgraph",
   mirrors:
     "与真实 Task 1 相同的考点：entity 与 @key、__resolveReference、字段 resolver 的 parent、schema 可空性决定的兜底策略、DataLoader 防 N+1 及其长度/顺序契约、结构化错误与 correlation id、以及「catch 不要吞掉已结构化错误」。新增三个考点：复合 @key、可空标量字段（null 与 0 的区别）、以及一处「batch 函数用了 filter」的埋雷。",
+  mirrorsEn:
+    "The same points as the real Task 1: entity and @key, __resolveReference, the parent argument of a field resolver, the fallback the schema nullability forces on you, DataLoader against N+1 and its length and order contract, structured errors with a correlation id, and not letting a catch swallow an already structured error. Three points are new: a composite @key, a nullable scalar field (where null and 0 differ), and one planted bug where the batch function uses filter.",
   scenario:
     "图书评论 subgraph。它既不拥有 Author 也不拥有 Book —— 两者都由 Catalog subgraph 提供，本服务只往它们身上挂 reviews 和 averageRating。Book 用的是复合 key（isbn + edition），这是真实项目里很常见、但比单字段 key 更容易写错的情况。",
+  scenarioEn:
+    "A book reviews subgraph. It owns neither Author nor Book — both come from the Catalog subgraph, and this service only attaches reviews and averageRating to them. Book uses a composite key (isbn plus edition), which is common in real projects and easier to get wrong than a single-field key.",
   minutes: 90,
 
   // 【这一段的数字全是实测的，别改】
@@ -652,6 +657,7 @@ const reviewsMock: MockExam = {
     {
       id: "m-diff",
       heading: "和真实 Task 1 的对应关系",
+      headingEn: "How this maps to the real Task 1",
       body: (
         <>
           <div className="table-wrap">
@@ -822,7 +828,9 @@ const reviewsMock: MockExam = {
     {
       id: "m-composite-key",
       heading: "新考点 1 · 复合 @key",
+      headingEn: "New topic 1 · Composite @key",
       lede: "只保留一个 key 字段是最常见的错法。",
+      ledeEn: "Keeping only one key field is the most common mistake here.",
       body: (
         <>
           <p>
@@ -904,6 +912,7 @@ __resolveReference(book) {
     {
       id: "m-nullable-scalar",
       heading: "新考点 2 · 可空标量：null 和 0 不是一回事",
+      headingEn: "New topic 2 · Nullable scalars: null and 0 mean different things",
       body: (
         <>
           <p>
@@ -983,6 +992,7 @@ return avg || null;`,
     {
       id: "m-loader-contract",
       heading: "新考点 3 · batch 函数里的 filter",
+      headingEn: "New topic 3 · A filter inside the batch function",
       body: (
         <>
           <p>
@@ -1050,7 +1060,7 @@ return avg || null;`,
           </p>
           <p>
             <strong>
-              So this one does not cross the data silently, it blows up the whole batch
+              So this one does not mix the data up silently, it fails the whole batch
             </strong>{" "}
             — that test fails on the TypeError, not on some field not lining up.{" "}
             <strong>
@@ -1092,6 +1102,7 @@ function createReviewerLoader(reviewerDataSource) {
     {
       id: "m-mutation",
       heading: "Mutation 的四处问题，其中一处最隐蔽",
+      headingEn: "Four problems in the Mutation, and one is hard to see",
       body: (
         <>
           <p>
@@ -1178,6 +1189,7 @@ function createReviewerLoader(reviewerDataSource) {
     {
       id: "m-checklist",
       heading: "交卷前自检清单",
+      headingEn: "Checklist before you submit",
       body: (
         <>
           <ol>

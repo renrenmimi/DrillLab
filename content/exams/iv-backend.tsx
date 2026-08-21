@@ -23,6 +23,8 @@ export const ivBackend: Module = {
       title: "Node 与 Express 四问",
       titleEn: "4 questions on Node and Express",
       blurb: "Node 的事件循环、请求响应周期、查询参数 vs 路径参数、CRUD。",
+      blurbEn:
+        "The Node.js event loop, the request and response cycle, query parameters vs path parameters, CRUD.",
       minutes: 18,
       objectives: [
         "说出 Node 事件循环的几个阶段以及 nextTick 的特殊位置",
@@ -30,12 +32,21 @@ export const ivBackend: Module = {
         "在路径参数和查询参数之间做出正确设计选择",
         "把 CRUD 映射到 HTTP 方法和状态码",
       ],
+      objectivesEn: [
+        "Name the phases of the Node.js event loop, and where nextTick sits apart from them",
+        "Describe, in order, what happens to a request from arrival to response",
+        "Choose correctly between a path parameter and a query parameter",
+        "Map CRUD onto HTTP methods and status codes",
+      ],
       whyForAssessment:
         "这四道直接对应 Federation 那门课里 Task 2 写的六个 Spring 端点 —— 那道题的评分点就是「方法对不对、状态码对不对、参数从哪来」。Node 事件循环那道会和浏览器的对比着问。",
+      whyForAssessmentEn:
+        "These four map straight onto the six Spring endpoints written in Task 2 of the Federation exam, where the marks go to the right method, the right status code, and the right place to read each parameter from. The Node.js event loop question is usually asked side by side with the browser one.",
       concepts: [
         {
           id: "q313",
           heading: "Node.js 的事件循环是怎么工作的",
+          headingEn: "How does the Node.js event loop work?",
           lede: "#313 How does the event loop work in Node.js",
           body: (
             <>
@@ -214,6 +225,7 @@ console.log("6 同步");
         {
           id: "q314",
           heading: "请求 - 响应周期是怎样的",
+          headingEn: "What does the request and response cycle look like?",
           lede: "#314 Explain the request & response cycle",
           body: (
             <>
@@ -417,6 +429,7 @@ app.use((err, req, res, next) => {
         {
           id: "q315",
           heading: "查询参数 vs 路径参数",
+          headingEn: "Query parameters vs path parameters",
           lede: "#315 Query parameters vs Path parameters",
           body: (
             <>
@@ -581,6 +594,7 @@ app.use((err, req, res, next) => {
         {
           id: "q316",
           heading: "什么是 CRUD",
+          headingEn: "What is CRUD?",
           lede: "#316 What is CRUD",
           body: (
             <>
@@ -838,12 +852,42 @@ app.use((err, req, res, next) => {
         },
       ],
       transfer: [
-        { signal: "问 nextTick 和 Promise 谁先", reachFor: "nextTick 有独立队列，比所有 Promise 微任务优先" },
-        { signal: "「req.body 是 undefined」", reachFor: "漏了 express.json()" },
-        { signal: "请求一直转圈不返回", reachFor: "中间件忘了调 next()，或响应后没 return" },
-        { signal: "错误处理中间件不生效", reachFor: "必须四个参数 (err, req, res, next)" },
-        { signal: "设计接口纠结参数放哪", reachFor: "「去掉它还是同一个资源吗」" },
-        { signal: "创建资源返回什么码", reachFor: "201；删除用 204" },
+        {
+          signal: "问 nextTick 和 Promise 谁先",
+          signalEn: "Asked whether nextTick or a Promise runs first",
+          reachFor: "nextTick 有独立队列，比所有 Promise 微任务优先",
+          reachForEn: "nextTick has its own queue, which runs before every Promise microtask",
+        },
+        {
+          signal: "「req.body 是 undefined」",
+          signalEn: "req.body is undefined",
+          reachFor: "漏了 express.json()",
+          reachForEn: "express.json() is missing",
+        },
+        {
+          signal: "请求一直转圈不返回",
+          signalEn: "The request never comes back",
+          reachFor: "中间件忘了调 next()，或响应后没 return",
+          reachForEn: "A middleware forgot to call next(), or the code did not return after sending the response",
+        },
+        {
+          signal: "错误处理中间件不生效",
+          signalEn: "The error-handling middleware never runs",
+          reachFor: "必须四个参数 (err, req, res, next)",
+          reachForEn: "It has to take four parameters: (err, req, res, next)",
+        },
+        {
+          signal: "设计接口纠结参数放哪",
+          signalEn: "Unsure where a parameter belongs when designing an endpoint",
+          reachFor: "「去掉它还是同一个资源吗」",
+          reachForEn: "Ask: if you remove it, is it still the same resource?",
+        },
+        {
+          signal: "创建资源返回什么码",
+          signalEn: "Which status code to return after creating a resource",
+          reachFor: "201；删除用 204",
+          reachForEn: "201; use 204 for a delete",
+        },
       ],
       recap: [
         "Node 六个阶段：timers → pending → idle → poll → check → close；每阶段之间清微任务，nextTick 最优先。",
@@ -853,6 +897,15 @@ app.use((err, req, res, next) => {
         "路径参数标识资源、查询参数描述怎么取；敏感数据永远不放 URL。",
         "CRUD 映射：POST 201、GET 200/404、PUT 整体替换、PATCH 局部、DELETE 204。",
         "GET/PUT/DELETE 幂等，POST 不幂等 —— 防重复下单要用幂等键。",
+      ],
+      recapEn: [
+        "Six phases in Node.js: timers, pending, idle, poll, check, close. Microtasks are drained between phases, and nextTick goes first of all.",
+        "In the main module the order of setTimeout(0) and setImmediate is not guaranteed; inside an I/O callback setImmediate always runs first.",
+        "The Express request path: parse, then general middleware, then authentication, then routing, then your handler, then the response, with a 404 and an error handler at the end.",
+        "Middleware runs in the order you register it and must call next(); one request can be answered only once; an error handler must take four parameters.",
+        "A path parameter identifies a resource, a query parameter says how to fetch it; never put sensitive data in a URL.",
+        "CRUD mapping: POST returns 201, GET returns 200 or 404, PUT replaces the whole resource, PATCH changes part of it, DELETE returns 204.",
+        "GET, PUT and DELETE are idempotent, POST is not, so use an idempotency key to stop a duplicate order.",
       ],
     },
 
@@ -864,18 +917,27 @@ app.use((err, req, res, next) => {
       title: "数据库两问",
       titleEn: "2 questions on databases",
       blurb: "关系型 vs 非关系型、主键与外键。",
+      blurbEn: "Relational vs non-relational databases, primary keys and foreign keys.",
       minutes: 12,
       objectives: [
         "在关系型和文档型之间给出选型理由，而不是背优缺点",
         "说清主键和外键各自保证什么",
         "解释外键约束在删除时的几种行为",
       ],
+      objectivesEn: [
+        "Give a reason for choosing relational or document storage, instead of reciting pros and cons",
+        "Say exactly what a primary key guarantees and what a foreign key guarantees",
+        "Explain the ways a foreign key constraint can behave on a delete",
+      ],
       whyForAssessment:
         "这两道是全栈岗的入门筛选题。选型那道答「看数据形状和访问模式」比列表格好；主键外键那道会追问到索引和级联删除。",
+      whyForAssessmentEn:
+        "These two are screening questions for any full-stack role. For the choice of database, answering \"it depends on the shape of the data and how it is read\" beats reciting a comparison table. The keys question leads on to indexes and cascading deletes.",
       concepts: [
         {
           id: "q317",
           heading: "关系型数据库 vs 非关系型数据库",
+          headingEn: "Relational databases vs non-relational databases",
           lede: "#317 Relational database vs Non-relational database",
           body: (
             <>
@@ -1092,6 +1154,7 @@ app.use((err, req, res, next) => {
         {
           id: "q318",
           heading: "主键 vs 外键",
+          headingEn: "Primary key vs foreign key",
           lede: "#318 Primary key vs Foreign key",
           body: (
             <>
@@ -1335,16 +1398,42 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`,
         },
       ],
       transfer: [
-        { signal: "问数据库选型", reachFor: "看数据形状和访问模式，别背优缺点表" },
-        { signal: "JOIN 很慢", reachFor: "外键列可能没索引（PostgreSQL 不自动建）" },
-        { signal: "问删除时子记录怎么办", reachFor: "RESTRICT / CASCADE / SET NULL 三选一" },
-        { signal: "问自增 id 还是 UUID", reachFor: "提 ULID / UUIDv7 折中" },
+        {
+          signal: "问数据库选型",
+          signalEn: "Asked how to choose a database",
+          reachFor: "看数据形状和访问模式，别背优缺点表",
+          reachForEn: "Look at the shape of the data and how it is read; do not recite a comparison table",
+        },
+        {
+          signal: "JOIN 很慢",
+          signalEn: "A JOIN is slow",
+          reachFor: "外键列可能没索引（PostgreSQL 不自动建）",
+          reachForEn: "The foreign key column may have no index, because PostgreSQL does not create one for you",
+        },
+        {
+          signal: "问删除时子记录怎么办",
+          signalEn: "Asked what happens to child rows on a delete",
+          reachFor: "RESTRICT / CASCADE / SET NULL 三选一",
+          reachForEn: "Pick one of RESTRICT, CASCADE or SET NULL",
+        },
+        {
+          signal: "问自增 id 还是 UUID",
+          signalEn: "Asked whether to use an auto-increment id or a UUID",
+          reachFor: "提 ULID / UUIDv7 折中",
+          reachForEn: "Mention ULID or UUIDv7 as a middle ground",
+        },
       ],
       recap: [
         "关系型强在关联和事务，文档型强在灵活和横向扩展；选型看数据形状和访问模式。",
         "Postgres 的 jsonb 让界限变模糊，「先上 Postgres 需要时用 jsonb」是常见现实选择。",
         "主键唯一非空自动建索引；外键可重复可为空，且 PostgreSQL 不会自动给它建索引。",
         "外键的价值是引用完整性；删除行为 RESTRICT / CASCADE / SET NULL 要按业务选。",
+      ],
+      recapEn: [
+        "Relational storage is strong on relationships and transactions, document storage on flexibility and scaling out; choose by the shape of the data and how it is read.",
+        "jsonb in Postgres blurs the line, and \"start with Postgres and use jsonb when you need it\" is a common real-world choice.",
+        "A primary key is unique, cannot be null, and is indexed for you; a foreign key can repeat and can be null, and PostgreSQL does not index it for you.",
+        "What a foreign key gives you is referential integrity; choose RESTRICT, CASCADE or SET NULL on delete based on what the product needs.",
       ],
     },
 
@@ -1356,6 +1445,8 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`,
       title: "网络、安全与测试 · 六问",
       titleEn: "6 questions on networking, security and testing",
       blurb: "测试的种类、HTTPS vs HTTP、JWT、CORS、session vs cookie、HTTP 状态码。",
+      blurbEn:
+        "Kinds of tests, HTTPS vs HTTP, JWT, CORS, session vs cookie, HTTP status codes.",
       minutes: 24,
       objectives: [
         "说清 CORS 是谁在拦、预检请求什么时候发、以及为什么前端改不了",
@@ -1363,12 +1454,21 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`,
         "分清测试金字塔的三层各测什么",
         "按类别说出常用状态码及其语义",
       ],
+      objectivesEn: [
+        "Explain who blocks a request under CORS, when the preflight request is sent, and why the front end cannot fix it",
+        "Compare JWT and session on the two points that matter: where the data is stored, and whether you can revoke it",
+        "Say what each of the three levels of the testing pyramid tests",
+        "Name the common status codes by group, and what each one means",
+      ],
       whyForAssessment:
         "CORS 那道几乎人人遇到过，但能说清「是浏览器在拦、不是服务器拒绝、所以前端改不了」的人不多 —— 这是最有区分度的一道。JWT vs session 会追问「怎么让 JWT 提前失效」，答不出说明只是背过概念。",
+      whyForAssessmentEn:
+        "Almost everyone has hit a CORS error, but few can say clearly that the browser is the one blocking it, that the server did not refuse the request, and that the front end therefore cannot fix it. That makes it the question that separates people most. On JWT vs session the follow-up is how to revoke a JWT early, and not having an answer shows you only memorised the definition.",
       concepts: [
         {
           id: "q360",
           heading: "什么是 CORS，怎么解决 CORS 错误",
+          headingEn: "What is CORS, and how do you fix a CORS error?",
           lede: "#360 What is CORS and how to solve the CORS error",
           body: (
             <>
@@ -1699,6 +1799,7 @@ server: {
         {
           id: "q359",
           heading: "什么是 JWT",
+          headingEn: "What is a JWT?",
           lede: "#359 What is JWT",
           body: (
             <>
@@ -2095,6 +2196,7 @@ server: {
         {
           id: "q362",
           heading: "常见的 HTTP 状态码",
+          headingEn: "What are the common HTTP status codes?",
           lede: "#362 Give some HTTP response status codes",
           body: (
             <>
@@ -2316,7 +2418,7 @@ server: {
                       <td>
                         <strong>500</strong>
                       </td>
-                      <td>Server blew up</td>
+                      <td>Server failed</td>
                       <td>An uncaught error</td>
                     </tr>
                     <tr>
@@ -2356,6 +2458,7 @@ server: {
         {
           id: "q357",
           heading: "测试有哪几种",
+          headingEn: "What kinds of tests are there?",
           lede: "#357 What are the different kinds of tests",
           body: (
             <>
@@ -2498,13 +2601,48 @@ server: {
         },
       ],
       transfer: [
-        { signal: "CORS 报错", reachFor: "浏览器在拦，前端改不了；服务端加头或走代理" },
-        { signal: "「配了 cors 还是不行」", reachFor: "带 cookie 时 Allow-Origin 不能是 *" },
-        { signal: "「POST 前多了一个 OPTIONS」", reachFor: "application/json 触发了预检" },
-        { signal: "问怎么让 JWT 提前失效", reachFor: "短过期 + refresh token；黑名单会变回有状态" },
-        { signal: "「刷新一下就掉登录」", reachFor: "多实例下 session 存内存了，改存 Redis" },
-        { signal: "分不清 401 和 403", reachFor: "401 没认证，403 认证了没授权" },
-        { signal: "问覆盖率要多少", reachFor: "别给数字；说覆盖率不代表断言强，举「空实现也能过」的例子" },
+        {
+          signal: "CORS 报错",
+          signalEn: "A CORS error",
+          reachFor: "浏览器在拦，前端改不了；服务端加头或走代理",
+          reachForEn: "The browser is blocking it and the front end cannot fix it; add the header on the server, or go through a proxy",
+        },
+        {
+          signal: "「配了 cors 还是不行」",
+          signalEn: "CORS is configured and it still fails",
+          reachFor: "带 cookie 时 Allow-Origin 不能是 *",
+          reachForEn: "When the request carries a cookie, Allow-Origin cannot be *",
+        },
+        {
+          signal: "「POST 前多了一个 OPTIONS」",
+          signalEn: "An extra OPTIONS request appears before the POST",
+          reachFor: "application/json 触发了预检",
+          reachForEn: "application/json triggered the preflight request",
+        },
+        {
+          signal: "问怎么让 JWT 提前失效",
+          signalEn: "Asked how to revoke a JWT before it expires",
+          reachFor: "短过期 + refresh token；黑名单会变回有状态",
+          reachForEn: "A short expiry plus a refresh token; a blocklist makes the server stateful again",
+        },
+        {
+          signal: "「刷新一下就掉登录」",
+          signalEn: "A reload logs the user out",
+          reachFor: "多实例下 session 存内存了，改存 Redis",
+          reachForEn: "With several server instances the session is kept in memory; store it in Redis instead",
+        },
+        {
+          signal: "分不清 401 和 403",
+          signalEn: "Mixing up 401 and 403",
+          reachFor: "401 没认证，403 认证了没授权",
+          reachForEn: "401 means not signed in, 403 means signed in but not allowed",
+        },
+        {
+          signal: "问覆盖率要多少",
+          signalEn: "Asked what test coverage number to aim for",
+          reachFor: "别给数字；说覆盖率不代表断言强，举「空实现也能过」的例子",
+          reachForEn: "Do not give a number; say that coverage does not measure how strong the assertions are, and give the example of an empty function that still passes",
+        },
       ],
       recap: [
         "CORS 是浏览器在拦，请求可能已经执行了；前端无解，靠服务端加头或代理。",
@@ -2514,6 +2652,15 @@ server: {
         "cookie 是浏览器存储机制，session 是服务端状态方案，后者靠前者传 id；四个安全属性要会。",
         "401 没认证、403 没授权；201 创建、204 删除；GraphQL 一律 200 把错误放 errors。",
         "测试金字塔单元→集成→E2E；覆盖率不代表断言强 ——「空实现恰好通过」是实测过的。",
+      ],
+      recapEn: [
+        "CORS is the browser blocking the response, and the request may already have run. The front end cannot fix it; the server has to send the header, or you use a proxy.",
+        "application/json triggers an OPTIONS preflight; when a cookie is sent, Allow-Origin has to name the exact origin.",
+        "HTTPS gives you three things: encryption, proof of identity, and integrity. Keys are exchanged with asymmetric cryptography, then data is sent with symmetric.",
+        "The payload of a JWT is only Base64, not encrypted. Its biggest weakness is that you cannot revoke it, and the standard answer is a short expiry plus a refresh token.",
+        "A cookie is browser storage, a session is a server-side approach to state, and the session uses the cookie to carry its id. Know the four security attributes.",
+        "401 means not signed in, 403 means signed in but not allowed; 201 for created, 204 for deleted; GraphQL always returns 200 and puts problems in errors.",
+        "The testing pyramid goes unit, then integration, then end-to-end. Coverage does not measure how strong the assertions are: an empty function passing the test has really happened.",
       ],
     },
   ],

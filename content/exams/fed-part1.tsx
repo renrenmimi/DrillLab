@@ -309,6 +309,7 @@ export const gqlBasics: Module = {
       title: "GraphQL 是什么：一份 schema 加一堆 resolver",
       titleEn: "What GraphQL is: one schema plus a set of resolvers",
       blurb: "读真实的 schema.graphql，把 type / field / Query / Mutation 一次讲清。",
+      blurbEn: "Read the real schema.graphql and cover type / field / Query / Mutation in one pass.",
       minutes: 15,
       objectives: [
         "说清 schema 在 GraphQL 里的地位",
@@ -316,8 +317,16 @@ export const gqlBasics: Module = {
         "分清 Query 和 Mutation",
         "知道「客户端决定返回形状」意味着什么",
       ],
+      objectivesEn: [
+        "Explain what role the schema plays in GraphQL",
+        "Read a schema and say what type / field / scalar / enum / input each mean",
+        "Tell Query and Mutation apart",
+        "Know what it means that the client decides the shape of the response",
+      ],
       whyForAssessment:
         "这份 schema 决定了你的 resolver 必须返回什么形状。审计发现有两处细节（双重非空、input 里没有 price）直接决定实现对错 —— 不读 schema 就写 resolver，必错。",
+      whyForAssessmentEn:
+        "The schema decides what shape each resolver must return. Two details in it (a doubly non-null type, and an input with no price field) decide whether your code is right or wrong. If you write resolvers without reading the schema, you will get them wrong.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/schema.graphql",
@@ -328,7 +337,9 @@ export const gqlBasics: Module = {
         {
           id: "two-halves",
           heading: "GraphQL 服务只有两半",
+          headingEn: "A GraphQL service has only two halves",
           lede: "一半是「有什么」，一半是「怎么拿到」。",
+          ledeEn: "One half says what exists. The other half says how to fetch it.",
           body: (
             <>
               <p>
@@ -380,7 +391,9 @@ export const gqlBasics: Module = {
         {
           id: "read-schema",
           heading: "读真实的 schema.graphql",
+          headingEn: "Reading the real schema.graphql",
           lede: "先整体看一遍，再逐块拆。",
+          ledeEn: "Read it once as a whole, then take it apart block by block.",
           body: (
             <>
               <p>
@@ -413,6 +426,7 @@ export const gqlBasics: Module = {
         {
           id: "types-and-fields",
           heading: "type 和 field",
+          headingEn: "type and field",
           body: (
             <>
               <p>
@@ -509,6 +523,7 @@ export const gqlBasics: Module = {
         {
           id: "query-mutation",
           heading: "Query 和 Mutation：两个特殊的入口类型",
+          headingEn: "Query and Mutation: the two special entry types",
           body: (
             <>
               <p>
@@ -591,7 +606,9 @@ export const gqlBasics: Module = {
         {
           id: "client-decides",
           heading: "客户端决定返回形状",
+          headingEn: "The client decides the shape of the response",
           lede: "这是 GraphQL 和 REST 最本质的区别。",
+          ledeEn: "This is the deepest difference between GraphQL and REST.",
           body: (
             <>
               <p>
@@ -676,6 +693,7 @@ export const gqlBasics: Module = {
         {
           id: "execution-flow",
           heading: "一次查询的完整执行流程",
+          headingEn: "The full execution flow of one query",
           body: (
             <>
               <p>
@@ -862,10 +880,10 @@ ___3___ OrderItemInput {
         },
       ],
       transfer: [
-        { signal: "拿到一个 GraphQL 项目", reachFor: "先读 schema，它是唯一的契约" },
-        { signal: "「这个字段能为空吗」", reachFor: "看有没有 !，这决定 resolver 能不能返回 null" },
-        { signal: "resolver 写了但返回 null", reachFor: "查名字和 schema 字段名是否一字不差" },
-        { signal: "看到 enum", reachFor: "返回值必须是列出来的那几个之一，大小写敏感" },
+        { signal: "拿到一个 GraphQL 项目", signalEn: "You are handed a GraphQL project", reachFor: "先读 schema，它是唯一的契约", reachForEn: "Read the schema first; it is the only contract" },
+        { signal: "「这个字段能为空吗」", signalEn: "Asking whether a field can be null", reachFor: "看有没有 !，这决定 resolver 能不能返回 null", reachForEn: "Look for !; it decides whether the resolver may return null" },
+        { signal: "resolver 写了但返回 null", signalEn: "A resolver is written but the field comes back null", reachFor: "查名字和 schema 字段名是否一字不差", reachForEn: "Check that the resolver name matches the schema field name exactly" },
+        { signal: "看到 enum", signalEn: "You see an enum", reachFor: "返回值必须是列出来的那几个之一，大小写敏感", reachForEn: "The value must be one of the listed ones; case sensitive" },
       ],
       recap: [
         "GraphQL = schema（有什么）+ resolver（怎么拿到），两半必须对得上。",
@@ -873,6 +891,13 @@ ___3___ OrderItemInput {
         "Query 是读入口（字段并行），Mutation 是写入口（字段串行）。",
         "input 只能当参数，不能有 resolver —— 而这个项目的 OrderItemInput 里没有 price。",
         "客户端决定返回形状，所以 resolver 是按需调用的，也因此产生 N+1 问题。",
+      ],
+      recapEn: [
+        "GraphQL = schema (what exists) + resolver (how to fetch it). The two halves must match.",
+        "Field types are scalar, object or enum. ID is serialized as a string, so do not treat it as a number.",
+        "Query is the read entry point (its fields run in parallel). Mutation is the write entry point (its fields run one after another).",
+        "An input can only be used as an argument and cannot have resolvers. In this project OrderItemInput has no price.",
+        "The client decides the shape of the response, so resolvers are called only when needed. That is also where the N+1 problem comes from.",
       ],
     },
 
@@ -882,6 +907,7 @@ ___3___ OrderItemInput {
       title: "resolver 的四个参数",
       titleEn: "The four arguments of a resolver",
       blurb: "(parent, args, context, info) —— 这四个东西是整门考试的操作台。",
+      blurbEn: "(parent, args, context, info) — you use these four in every task of this exam.",
       minutes: 14,
       objectives: [
         "说清四个参数各是什么，什么时候用哪个",
@@ -889,8 +915,16 @@ ___3___ OrderItemInput {
         "从真实 index.js 里读出 context 的确切结构",
         "知道字段没有 resolver 时会发生什么",
       ],
+      objectivesEn: [
+        "Explain what each of the four arguments is and when to use which",
+        "Explain where parent comes from",
+        "Read the exact shape of context out of the real index.js",
+        "Know what happens when a field has no resolver",
+      ],
       whyForAssessment:
         "你要写的四个 TODO，全部是「从 context 里取数据源、用 parent 或 args 里的 id 去取数」。context 的键名写错（orderAPI vs orderDataSource）是这个项目里真实存在的埋雷之一。",
+      whyForAssessmentEn:
+        "All four TODOs you have to write do the same thing: take a data source from context, then fetch data using an id from parent or args. Getting a key name in context wrong (orderAPI instead of orderDataSource) is one of the bugs actually planted in this project.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/index.js",
@@ -906,6 +940,7 @@ ___3___ OrderItemInput {
         {
           id: "four-args",
           heading: "四个参数",
+          headingEn: "The four arguments",
           body: (
             <>
               <div className="table-wrap">
@@ -1048,7 +1083,9 @@ ___3___ OrderItemInput {
         {
           id: "parent-chain",
           heading: "parent 是怎么来的",
+          headingEn: "Where parent comes from",
           lede: "上一层返回什么，下一层的 parent 就是什么。",
+          ledeEn: "Whatever the level above returns becomes the parent of the level below.",
           body: (
             <>
               <p>
@@ -1158,7 +1195,9 @@ ___3___ OrderItemInput {
         {
           id: "the-context",
           heading: "context：读 index.js 拿到确切的键名",
+          headingEn: "context: read index.js to get the exact key names",
           lede: "这一段是全门考试最该抄在纸上的东西。",
+          ledeEn: "This is the part of the exam most worth copying onto paper.",
           body: (
             <>
               <p>
@@ -1264,6 +1303,7 @@ ___3___ OrderItemInput {
         {
           id: "correlation-id",
           heading: "correlationId：为什么每个 TODO 都提到它",
+          headingEn: "correlationId: why every TODO mentions it",
           body: (
             <>
               <p>
@@ -1434,11 +1474,11 @@ ___3___ OrderItemInput {
         },
       ],
       transfer: [
-        { signal: "字段 resolver 需要「是哪一个」", reachFor: "用 parent" },
-        { signal: "查询传了参数", reachFor: "用 args，通常直接解构" },
-        { signal: "需要数据源 / loader / 请求级信息", reachFor: "用 context，键名以 index.js 为准" },
-        { signal: "数据源上已经有同名属性", reachFor: "不用写 resolver，默认 resolver 会取" },
-        { signal: "TODO 里提到 correlation id", reachFor: "日志和 error extensions 里都带上它" },
+        { signal: "字段 resolver 需要「是哪一个」", signalEn: "A field resolver needs to know which object it is on", reachFor: "用 parent", reachForEn: "Use parent" },
+        { signal: "查询传了参数", signalEn: "The query passes arguments", reachFor: "用 args，通常直接解构", reachForEn: "Use args, usually destructured directly" },
+        { signal: "需要数据源 / loader / 请求级信息", signalEn: "You need a data source, a loader, or per-request information", reachFor: "用 context，键名以 index.js 为准", reachForEn: "Use context; index.js is the source of truth for key names" },
+        { signal: "数据源上已经有同名属性", signalEn: "The data source already has a property with the same name", reachFor: "不用写 resolver，默认 resolver 会取", reachForEn: "No resolver needed; the default resolver reads it" },
+        { signal: "TODO 里提到 correlation id", signalEn: "A TODO mentions correlation id", reachFor: "日志和 error extensions 里都带上它", reachForEn: "Put it in the log line and in the error extensions" },
       ],
       recap: [
         "四个参数：parent（上一层返回值）、args（查询参数）、context（请求级袋子）、info（这个项目没用）。",
@@ -1446,6 +1486,13 @@ ___3___ OrderItemInput {
         "context 的确切键名：dataSources.{orderDataSource, inventoryDataSource, shippingDataSource}、loaders.{shippingInfoLoader, orderLoader}、correlationId。",
         "数据源上有同名属性的字段不用写 resolver；shippingInfo 没有，所以必须写。",
         "DataLoader 必须每请求新建，否则缓存跨请求泄漏。",
+      ],
+      recapEn: [
+        "The four arguments: parent (what the level above returned), args (the query arguments), context (per-request shared data), info (not used in this project).",
+        "On top-level Query and Mutation the parent means nothing, so write it as _. On a field resolver the parent matters a lot.",
+        "The exact keys in context: dataSources.{orderDataSource, inventoryDataSource, shippingDataSource}, loaders.{shippingInfoLoader, orderLoader}, correlationId.",
+        "A field whose name already exists on the data source needs no resolver. shippingInfo is not there, so you must write one.",
+        "A DataLoader must be created once per request, otherwise its cache leaks from one request into the next.",
       ],
     },
 
@@ -1455,6 +1502,7 @@ ___3___ OrderItemInput {
       title: "非空、列表，和那个没有 price 的 input",
       titleEn: "Non-null, lists, and the input that has no price",
       blurb: "schema 里两处细节，直接决定四个 TODO 里三个的对错。",
+      blurbEn: "Two details in the schema decide whether three of the four TODOs are right.",
       minutes: 13,
       objectives: [
         "读懂 ! 和 [] 的四种组合各是什么意思",
@@ -1462,8 +1510,16 @@ ___3___ OrderItemInput {
         "看出 OrderItemInput 少了 price 会导致什么",
         "知道非空字段返回 null 时错误会怎样向上冒泡",
       ],
+      objectivesEn: [
+        "Read the four combinations of ! and [] and say what each means",
+        "Explain why a resolver for [Order!]! must end with ?? []",
+        "See what goes wrong because OrderItemInput has no price",
+        "Know how the error moves upward when a non-null field returns null",
+      ],
       whyForAssessment:
         "这一节讲的两处细节，是这门考试最典型的「不读 schema 就必错」的地方。审计时实测确认：createOrder 不补 price，测试直接失败。",
+      whyForAssessmentEn:
+        "The two details in this lesson are the clearest case of what you get wrong by not reading the schema. Measured during the audit: if createOrder does not fill in price, the test fails.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/schema.graphql",
@@ -1478,7 +1534,9 @@ ___3___ OrderItemInput {
         {
           id: "bang-and-brackets",
           heading: "! 和 [] 的四种组合",
+          headingEn: "The four combinations of ! and []",
           lede: "默认可空，加 ! 才不可空。列表和元素各有自己的可空性。",
+          ledeEn: "Fields are nullable by default; ! makes them non-null. The list and its elements each have their own nullability.",
           body: (
             <>
               <p>
@@ -1641,7 +1699,9 @@ type Order {
         {
           id: "null-bubbling",
           heading: "非空字段返回 null 会怎样：错误向上冒泡",
+          headingEn: "What happens when a non-null field returns null: the error moves upward",
           lede: "不是「那个字段变成 null」，是整块数据被丢掉。",
+          ledeEn: "The field does not just become null. The whole block of data is dropped.",
           body: (
             <>
               <p>
@@ -1720,7 +1780,9 @@ type Order {
         {
           id: "the-missing-price",
           heading: "OrderItemInput 少了 price —— 这是个陷阱",
+          headingEn: "OrderItemInput has no price — this is a trap",
           lede: "两个文件放在一起看，才能发现问题。",
+          ledeEn: "You only see the problem when you read the two files side by side.",
           body: (
             <>
               <p>
@@ -2033,10 +2095,10 @@ async order(_, { id }, { loaders, correlationId }) {
         },
       ],
       transfer: [
-        { signal: "字段类型是 [T!]!", reachFor: "resolver 必须 ?? [] 兜底，绝不返回 null" },
-        { signal: "字段类型没有 !", reachFor: "返回 null 是合法的，但要显式写 ?? null" },
-        { signal: "input 里少了某个字段但下游需要它", reachFor: "resolver 负责补齐，去对应数据源查" },
-        { signal: "整个 data 变成了 null", reachFor: "某个非空字段返回了 null，往上冒泡了" },
+        { signal: "字段类型是 [T!]!", signalEn: "The field type is [T!]!", reachFor: "resolver 必须 ?? [] 兜底，绝不返回 null", reachForEn: "The resolver must fall back with ?? [] and never return null" },
+        { signal: "字段类型没有 !", signalEn: "The field type has no !", reachFor: "返回 null 是合法的，但要显式写 ?? null", reachForEn: "Returning null is allowed, but write ?? null explicitly" },
+        { signal: "input 里少了某个字段但下游需要它", signalEn: "An input is missing a field that later code needs", reachFor: "resolver 负责补齐，去对应数据源查", reachForEn: "The resolver fills it in by asking the right data source" },
+        { signal: "整个 data 变成了 null", signalEn: "The whole data object came back null", reachFor: "某个非空字段返回了 null，往上冒泡了", reachForEn: "Some non-null field returned null and the error moved upward" },
       ],
       recap: [
         "GraphQL 默认可空，加上 ! 才不可空；列表和元素各有自己的可空性。",
@@ -2044,6 +2106,13 @@ async order(_, { id }, { loaders, correlationId }) {
         "非空字段返回 null 会向上冒泡，可能让整个 data 变成 null。",
         "shippingInfo 可空，测试断言 toBeNull —— 所以要显式 ?? null，别让 undefined 漏出去。",
         "OrderItemInput 没有 price，而数据源要用它算总价 → resolver 必须先查 getProductPrice。",
+      ],
+      recapEn: [
+        "GraphQL fields are nullable by default; ! makes them non-null. The list and its elements each have their own nullability.",
+        "A resolver for [Order!]! must use ?? []. Here an empty array is how you say there is nothing.",
+        "When a non-null field returns null the error moves upward and can turn the whole data object into null.",
+        "shippingInfo is nullable and the test asserts toBeNull, so write ?? null explicitly and do not let undefined through.",
+        "OrderItemInput has no price, but the data source needs it to compute the total, so the resolver must call getProductPrice first.",
       ],
     },
   ],
@@ -2065,6 +2134,7 @@ export const fedMentalModel: Module = {
       title: "为什么会有 Federation",
       titleEn: "Why Federation exists",
       blurb: "一张大 schema 拆成几个服务，代价是什么，换来什么。",
+      blurbEn: "One big schema split across several services: what it costs and what you get.",
       minutes: 11,
       objectives: [
         "说清单体 GraphQL 在大团队里的具体痛点",
@@ -2072,13 +2142,23 @@ export const fedMentalModel: Module = {
         "说清 Federation 相比「客户端自己拼」好在哪",
         "认出本项目里那个不在仓库里的第三方 subgraph",
       ],
+      objectivesEn: [
+        "Explain the concrete problems one single GraphQL service causes in a large team",
+        "Use the standard Users / Products / Reviews example to explain the split",
+        "Explain why Federation is better than letting the client join the data itself",
+        "Identify the subgraph this project refers to but does not contain",
+      ],
       whyForAssessment:
         "书面题 1 直接问「User subgraph 高延迟时如何影响依赖它的 subgraph」。答这道题的前提是理解 Router 的查询计划是串行的。",
+      whyForAssessmentEn:
+        "Written question 1 asks directly how high latency in the User subgraph affects the subgraphs that depend on it. To answer it you need to know that the Router runs parts of its query plan one after another.",
       concepts: [
         {
           id: "the-pain",
           heading: "单体 GraphQL 的痛点",
+          headingEn: "The problems with one single GraphQL service",
           lede: "不是技术问题，是组织问题。",
+          ledeEn: "This is not a technical problem. It is an organizational one.",
           body: (
             <>
               <p>
@@ -2155,6 +2235,7 @@ export const fedMentalModel: Module = {
         {
           id: "classic-example",
           heading: "经典例子：Users / Products / Reviews",
+          headingEn: "The standard example: Users / Products / Reviews",
           body: (
             <>
               <p>
@@ -2244,6 +2325,7 @@ type Review { id body author: User product: Product }`,
         {
           id: "vs-client-side",
           heading: "为什么不让客户端自己拼",
+          headingEn: "Why not let the client join the data itself",
           body: (
             <>
               <p>
@@ -2320,7 +2402,9 @@ type Review { id body author: User product: Product }`,
         {
           id: "not-in-repo",
           heading: "本项目里哪些东西不在仓库里",
+          headingEn: "What this project refers to but does not contain",
           lede: "这一点必须诚实说清楚，否则你会花时间找不存在的文件。",
+          ledeEn: "This has to be said plainly, or you will spend time looking for files that do not exist.",
           body: (
             <>
               <p>审计确认的事实：</p>
@@ -2505,10 +2589,10 @@ type Review { id body author: User product: Product }`,
         },
       ],
       transfer: [
-        { signal: "「多团队共享一个 API」", reachFor: "Federation：各自 subgraph + Router 组合" },
-        { signal: "「我这个服务要引用别人的类型」", reachFor: "声明一个只有 @key 字段的类型，标 @external" },
-        { signal: "找不到某个「应该存在」的文件", reachFor: "先确认它是不是本来就不在仓库里" },
-        { signal: "书面题问「某个 subgraph 慢了会怎样」", reachFor: "从「查询计划可能串行」入手" },
+        { signal: "「多团队共享一个 API」", signalEn: "Several teams share one API", reachFor: "Federation：各自 subgraph + Router 组合", reachForEn: "Federation: one subgraph per team, combined by a Router" },
+        { signal: "「我这个服务要引用别人的类型」", signalEn: "Your service needs to refer to a type owned by another service", reachFor: "声明一个只有 @key 字段的类型，标 @external", reachForEn: "Declare that type with only its @key field and mark the field @external" },
+        { signal: "找不到某个「应该存在」的文件", signalEn: "You cannot find a file that seems like it should exist", reachFor: "先确认它是不是本来就不在仓库里", reachForEn: "First check whether it was ever in the repository" },
+        { signal: "书面题问「某个 subgraph 慢了会怎样」", signalEn: "A written question asks what happens when one subgraph is slow", reachFor: "从「查询计划可能串行」入手", reachForEn: "Start from the fact that the query plan may run steps one after another" },
       ],
       recap: [
         "Federation 首先解决的是 schema 所有权的组织问题，不是性能问题。",
@@ -2516,6 +2600,13 @@ type Review { id body author: User product: Product }`,
         "本仓库只有 Orders subgraph；Accounts subgraph 和 Router 都不在。",
         "java-service 是纯 REST，不是 subgraph，也不被 subgraph 调用。",
         "本地验证 Federation 的两个办法：{ _service { sdl } } 和 _entities 查询。",
+      ],
+      recapEn: [
+        "Federation first solves an organizational problem about who owns which part of the schema, not a performance problem.",
+        "Each subgraph deploys on its own and can use a different language. The Router combines them into one supergraph.",
+        "This repository contains only the Orders subgraph. The Accounts subgraph and the Router are not here.",
+        "java-service is plain REST. It is not a subgraph, and no subgraph calls it.",
+        "Two ways to check Federation locally: the { _service { sdl } } query and the _entities query.",
       ],
     },
 
@@ -2525,6 +2616,7 @@ type Review { id body author: User product: Product }`,
       title: "subgraph 是怎么跑起来的",
       titleEn: "How a subgraph starts up",
       blurb: "buildSubgraphSchema 做了什么，为什么它会凭空多出两个字段。",
+      blurbEn: "What buildSubgraphSchema does, and why two fields appear that you never wrote.",
       minutes: 13,
       objectives: [
         "读懂 index.js 的启动流程",
@@ -2532,8 +2624,16 @@ type Review { id body author: User product: Product }`,
         "知道 _service 和 _entities 这两个字段从哪来",
         "会用进程内方式验证 subgraph（不需要起服务器）",
       ],
+      objectivesEn: [
+        "Read the startup flow in index.js",
+        "Explain the difference between buildSubgraphSchema and plain makeExecutableSchema",
+        "Know where the two fields _service and _entities come from",
+        "Check a subgraph from inside the same process, with no server running",
+      ],
       whyForAssessment:
         "启动流程决定了 context 长什么样（你的 resolver 全靠它）。而 _service / _entities 是本地唯一能验证 federation 部分的手段。",
+      whyForAssessmentEn:
+        "The startup flow decides what context looks like, and every resolver you write depends on it. _service and _entities are the only way to check the Federation part locally.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/index.js",
@@ -2548,6 +2648,7 @@ type Review { id body author: User product: Product }`,
         {
           id: "boot-sequence",
           heading: "启动的五步",
+          headingEn: "The five startup steps",
           body: (
             <>
               <ol>
@@ -2631,7 +2732,9 @@ type Review { id body author: User product: Product }`,
         {
           id: "build-subgraph-schema",
           heading: "buildSubgraphSchema 凭空加了两个字段",
+          headingEn: "buildSubgraphSchema adds two fields you never wrote",
           lede: "这是 subgraph 和普通 GraphQL 服务唯一的技术差别。",
+          ledeEn: "This is the only technical difference between a subgraph and a plain GraphQL service.",
           body: (
             <>
               <p>
@@ -2716,7 +2819,9 @@ const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);`,
         {
           id: "verify-locally",
           heading: "本地验证：两种办法",
+          headingEn: "Checking it locally: two ways",
           lede: "审计时端口 4000 被占，所以我用了第二种 —— 它其实更好用。",
+          ledeEn: "During the audit port 4000 was taken, so I used the second way. It turns out to be the more useful one.",
           body: (
             <>
               <p>
@@ -2857,6 +2962,7 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
         {
           id: "esm-details",
           heading: "两个 ESM 细节",
+          headingEn: "Two ESM details",
           body: (
             <>
               <ul>
@@ -2973,10 +3079,10 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
         },
       ],
       transfer: [
-        { signal: "写 subgraph", reachFor: "用 buildSubgraphSchema，不是 makeExecutableSchema" },
-        { signal: "想在本地验 federation 但没有 Router", reachFor: "进程内执行 _service 和 _entities 查询" },
-        { signal: "context 里的键名不确定", reachFor: "读 index.js 的 context 函数" },
-        { signal: "ESM 项目里 import 报 MODULE_NOT_FOUND", reachFor: "补 .js 扩展名" },
+        { signal: "写 subgraph", signalEn: "You are writing a subgraph", reachFor: "用 buildSubgraphSchema，不是 makeExecutableSchema", reachForEn: "Use buildSubgraphSchema, not makeExecutableSchema" },
+        { signal: "想在本地验 federation 但没有 Router", signalEn: "You want to check Federation locally but have no Router", reachFor: "进程内执行 _service 和 _entities 查询", reachForEn: "Run the _service and _entities queries inside the same process" },
+        { signal: "context 里的键名不确定", signalEn: "You are not sure of a key name in context", reachFor: "读 index.js 的 context 函数", reachForEn: "Read the context function in index.js" },
+        { signal: "ESM 项目里 import 报 MODULE_NOT_FOUND", signalEn: "An import throws MODULE_NOT_FOUND in an ESM project", reachFor: "补 .js 扩展名", reachForEn: "Add the .js extension" },
       ],
       recap: [
         "启动五步：读 schema → buildSubgraphSchema → 建 server → 监听 → 每请求造 context。",
@@ -2984,6 +3090,13 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
         "formatError 原样返回错误，所以你放进 extensions 的东西客户端能看到。",
         "本地验证优选「进程内执行」：不占端口，能一次跑一串查询，包括 _entities。",
         "原生 ESM：import 带 .js，顶层 await 可用，jest 需要 --experimental-vm-modules。",
+      ],
+      recapEn: [
+        "Five startup steps: read the schema, call buildSubgraphSchema, create the server, listen, then build a context for each request.",
+        "buildSubgraphSchema understands the Federation directives and adds the two fields _service and _entities for you.",
+        "formatError returns errors unchanged, so whatever you put in extensions reaches the client.",
+        "Prefer running queries inside the process: it needs no port and lets you run several queries in a row, including _entities.",
+        "Native ESM: imports need the .js extension, top-level await works, and jest needs --experimental-vm-modules.",
       ],
     },
 
@@ -2993,6 +3106,7 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
       title: "entity、@key 与 __resolveReference",
       titleEn: "entity, @key and __resolveReference",
       blurb: "「另一个服务要用哪个字段找到这个对象？」—— 想清这一句，这三个概念全通。",
+      blurbEn: "Which field does another service use to find this object? Answer that one question and all three ideas become clear.",
       minutes: 16,
       objectives: [
         "用一句话解释 @key 在声明什么",
@@ -3000,8 +3114,16 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
         "读懂 __resolveReference 的输入和输出",
         "画出 Router 做实体解析的完整链路",
       ],
+      objectivesEn: [
+        "Explain in one sentence what @key declares",
+        "Say when a field should be marked @external",
+        "Read what goes into __resolveReference and what comes out",
+        "Draw the full path the Router takes to resolve an entity",
+      ],
       whyForAssessment:
         "User.orders 这个 TODO 就长在这套机制上。不理解 __resolveReference 的返回值会流向哪里，就不知道自己的 orders resolver 里 user.id 从何而来。",
+      whyForAssessmentEn:
+        "The User.orders TODO sits on top of this mechanism. If you do not know where the return value of __resolveReference goes, you will not know where user.id inside your orders resolver comes from.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/schema.graphql",
@@ -3017,7 +3139,9 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
         {
           id: "what-is-entity",
           heading: "entity：可以被多个服务共同描述的类型",
+          headingEn: "entity: a type that several services can describe together",
           lede: "不是所有类型都是 entity。判据是「别的服务需不需要引用它」。",
+          ledeEn: "Not every type is an entity. The test is whether another service needs to refer to it.",
           body: (
             <>
               <p>
@@ -3112,6 +3236,7 @@ type Order {                     # ← 不是 entity：没有 @key
         {
           id: "external",
           heading: "@external：这个字段不是我的",
+          headingEn: "@external: this field is not mine",
           body: (
             <>
               <p>
@@ -3175,7 +3300,9 @@ type Order {                     # ← 不是 entity：没有 @key
         {
           id: "resolve-reference",
           heading: "__resolveReference：把「引用」变成「本地对象」",
+          headingEn: "__resolveReference: turning a reference into a local object",
           lede: "它是 entity 解析的入口，也是 User.orders 的上游。",
+          ledeEn: "It is the entry point for entity resolution, and it runs right before User.orders.",
           body: (
             <>
               <p>
@@ -3301,6 +3428,7 @@ type Order {                     # ← 不是 entity：没有 @key
         {
           id: "the-full-chain",
           heading: "完整链路：从客户端一句话到两个服务",
+          headingEn: "The full path: one client query, two services",
           body: (
             <>
               <p>
@@ -3468,10 +3596,10 @@ type User ___1___(fields: "id") {
         },
       ],
       transfer: [
-        { signal: "看到 @key", reachFor: "先问「别的服务用哪个字段找到这个对象」" },
-        { signal: "「我要给别人的类型加字段」", reachFor: "声明 @key + 把借来的字段标 @external" },
-        { signal: "字段 resolver 拿不到某个属性", reachFor: "看 __resolveReference 返回了什么" },
-        { signal: "想验证 entity 解析", reachFor: "查 _entities，representation 要带 __typename" },
+        { signal: "看到 @key", signalEn: "You see @key", reachFor: "先问「别的服务用哪个字段找到这个对象」", reachForEn: "First ask which field another service uses to find this object" },
+        { signal: "「我要给别人的类型加字段」", signalEn: "You want to add a field to a type owned by another service", reachFor: "声明 @key + 把借来的字段标 @external", reachForEn: "Declare @key and mark the borrowed field @external" },
+        { signal: "字段 resolver 拿不到某个属性", signalEn: "A field resolver cannot see a property it expected", reachFor: "看 __resolveReference 返回了什么", reachForEn: "Check what __resolveReference returned" },
+        { signal: "想验证 entity 解析", signalEn: "You want to check entity resolution", reachFor: "查 _entities，representation 要带 __typename", reachForEn: "Query _entities; each representation must carry __typename" },
       ],
       recap: [
         "entity = 多个 subgraph 共同描述的类型；@key 声明「靠哪个字段跨服务认人」。",
@@ -3479,6 +3607,13 @@ type User ___1___(fields: "id") {
         "@external 表示「这个字段是别人的，我只借来做身份识别」。",
         "__resolveReference 把 representation 变成本地对象，它的返回值就是下游 parent。",
         "本项目的 __resolveReference 只返回 { id }，所以 User.orders 里只有 user.id 可用。",
+      ],
+      recapEn: [
+        "An entity is a type that several subgraphs describe together. @key declares which field identifies it across services.",
+        "@key has nothing to do with a database primary key. It can cover several fields, and one type can have more than one.",
+        "@external means the field belongs to another service and you only borrow it to identify the object.",
+        "__resolveReference turns a representation into a local object, and its return value becomes the parent for the fields below.",
+        "In this project __resolveReference returns only { id }, so inside User.orders the only value you can use is user.id.",
       ],
     },
 
@@ -3488,6 +3623,7 @@ type User ___1___(fields: "id") {
       title: "N+1 问题与 DataLoader",
       titleEn: "The N+1 problem and DataLoader",
       blurb: "客户端一句话，后端 100 次请求 —— 以及一个 30 行的解药。",
+      blurbEn: "One client query, 100 backend requests — and a 30-line fix.",
       minutes: 14,
       objectives: [
         "解释 N+1 问题在 GraphQL 里为什么天然会发生",
@@ -3495,8 +3631,16 @@ type User ___1___(fields: "id") {
         "知道 batch 函数的两条硬约束（长度与顺序）",
         "解释为什么 loader 必须每请求新建",
       ],
+      objectivesEn: [
+        "Explain why the N+1 problem happens naturally in GraphQL",
+        "Explain how DataLoader merges N calls into one",
+        "Know the two hard rules for a batch function: length and order",
+        "Explain why a loader must be created once per request",
+      ],
       whyForAssessment:
         "Order.shippingInfo 那个 TODO 原文就写着「using DataLoader to prevent N+1 queries」。绕过 loader 直接调数据源能过测试，但答不到考点。",
+      whyForAssessmentEn:
+        "The Order.shippingInfo TODO says it in the task text: using DataLoader to prevent N+1 queries. Calling the data source directly and skipping the loader still passes the tests, but it misses what the task is testing.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
@@ -3512,7 +3656,9 @@ type User ___1___(fields: "id") {
         {
           id: "the-n-plus-1",
           heading: "N+1 是怎么产生的",
+          headingEn: "How N+1 happens",
           lede: "不是谁写错了。是 GraphQL 的执行模型天然如此。",
+          ledeEn: "Nobody wrote anything wrong. This is how the GraphQL execution model works.",
           body: (
             <>
               <p>
@@ -3583,7 +3729,9 @@ async shippingInfo(parent, _, { dataSources }) {
         {
           id: "how-dataloader-works",
           heading: "DataLoader 靠什么合并",
+          headingEn: "How DataLoader merges calls",
           lede: "靠 JavaScript 事件循环的一个特性：同一个 tick 里的调用可以攒起来。",
+          ledeEn: "It uses one property of the JavaScript event loop: calls made in the same tick can be collected together.",
           body: (
             <>
               <p>
@@ -3683,7 +3831,9 @@ async shippingInfo(parent, _, { dataSources }) {
         {
           id: "two-hard-rules",
           heading: "batch 函数的两条硬约束",
+          headingEn: "The two hard rules for a batch function",
           lede: "违反了会出现「A 拿到 B 的数据」这种最难查的 bug。",
+          ledeEn: "Break them and you get the hardest kind of bug to find: A receives B's data.",
           body: (
             <>
               <ol>
@@ -3739,7 +3889,8 @@ async shippingInfo(parent, _, { dataSources }) {
                 <strong>never use <code>filter</code></strong> (that shortens the
                 array) and must <strong>never reorder</strong>.{" "}
                 <code>keys.map(...)</code> plus <code>Promise.all</code> is the
-                safest shape — it keeps length and order right for free.
+                safest shape: it keeps the length and the order correct without any extra
+                work.
               </p>
               <p>
                 <strong>What about &ldquo;not found&rdquo;?</strong> Put a{" "}
@@ -3780,6 +3931,7 @@ new DataLoader(async ids => {
         {
           id: "per-request",
           heading: "为什么 loader 必须每请求新建",
+          headingEn: "Why a loader must be created once per request",
           body: (
             <>
               <p>
@@ -3880,7 +4032,9 @@ export const resolvers = {
         {
           id: "the-planted-bug",
           heading: "顺带说：另一个 loader 里有个埋雷",
+          headingEn: "One more thing: another loader has a planted bug",
           lede: "现在你已经有能力看出来了。",
+          ledeEn: "You can now spot it yourself.",
           body: (
             <>
               <p>
@@ -4206,11 +4360,11 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
         },
       ],
       transfer: [
-        { signal: "「一个列表里每项都要查关联数据」", reachFor: "N+1 风险，上 DataLoader" },
-        { signal: "TODO 里出现「prevent N+1」", reachFor: "必须走 loader.load()，不能直接调数据源" },
-        { signal: "写 batch 函数", reachFor: "keys.map + Promise.all；长度和顺序必须对齐，缺失填 null" },
-        { signal: "「数据不刷新」或「看到了别人的数据」", reachFor: "查 loader 是不是建在了模块顶层" },
-        { signal: "xxx is not a function", reachFor: "去被调对象的定义里核对方法名" },
+        { signal: "「一个列表里每项都要查关联数据」", signalEn: "Every item in a list needs related data fetched", reachFor: "N+1 风险，上 DataLoader", reachForEn: "N+1 risk; use a DataLoader" },
+        { signal: "TODO 里出现「prevent N+1」", signalEn: "A TODO says prevent N+1", reachFor: "必须走 loader.load()，不能直接调数据源", reachForEn: "Go through loader.load(); do not call the data source directly" },
+        { signal: "写 batch 函数", signalEn: "You are writing a batch function", reachFor: "keys.map + Promise.all；长度和顺序必须对齐，缺失填 null", reachForEn: "keys.map plus Promise.all; keep length and order aligned, fill missing entries with null" },
+        { signal: "「数据不刷新」或「看到了别人的数据」", signalEn: "Data does not refresh, or one user sees another user's data", reachFor: "查 loader 是不是建在了模块顶层", reachForEn: "Check whether the loader was created at module top level" },
+        { signal: "xxx is not a function", signalEn: "xxx is not a function", reachFor: "去被调对象的定义里核对方法名", reachForEn: "Open the definition of the object you called and check the method name" },
       ],
       recap: [
         "N+1 是 GraphQL 执行模型的天然产物：1 次列表查询 + N 次字段 resolver。",
@@ -4218,6 +4372,13 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
         "batch 函数的两条硬约束：返回长度等于 keys 长度、顺序一一对应，缺失填 null。",
         "loader 必须每请求新建 —— 否则数据不刷新，还可能跨用户泄漏。",
         "createOrderLoader 里的 getOrderById 是埋雷，真实方法名是 getOrder。",
+      ],
+      recapEn: [
+        "N+1 comes out of the GraphQL execution model: one list query plus N field resolver calls.",
+        "DataLoader collects every load() made in the same tick and calls the batch function once when the tick ends.",
+        "The two hard rules for a batch function: return as many items as there are keys, in the same order, and use null where an item is missing.",
+        "A loader must be created once per request. Otherwise data goes stale and can leak between users.",
+        "getOrderById inside createOrderLoader is a planted bug. The real method name is getOrder.",
       ],
     },
   ],

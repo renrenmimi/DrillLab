@@ -126,6 +126,7 @@ export const fedTask1: Module = {
       title: "先读题：四个 TODO、三处埋雷、十个测试",
       titleEn: "Read the task first: four TODOs, three planted bugs, ten tests",
       blurb: "在写第一行 resolver 之前，把要改什么、别人给了什么、判卷标准是什么全摸清。",
+      blurbEn: "Before writing the first line of a resolver, find out what to change, what is already given, and how it will be graded.",
       minutes: 15,
       objectives: [
         "复述四个 TODO 各自的要求",
@@ -133,8 +134,16 @@ export const fedTask1: Module = {
         "跑出基线测试并读懂那 6 个失败",
         "认出「4 个通过里有 3 个是假通过」这件事",
       ],
+      objectivesEn: [
+        "Restate what each of the four TODOs asks for",
+        "Copy out one reference table of data source method names and context key names",
+        "Run the baseline tests and read the 6 failures",
+        "See that 3 of the 4 passing tests are not real passes",
+      ],
       whyForAssessment:
         "这一节本身就是考点。README 有一句「The starter code also contains related TODOs and integration issues that may need attention」—— 那三处埋雷不会有人告诉你在哪，只能靠核对。",
+      whyForAssessmentEn:
+        "This lesson is itself part of the exam. The README says: The starter code also contains related TODOs and integration issues that may need attention. Nobody tells you where the three planted bugs are; you find them by checking names one by one.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/README.md",
@@ -154,6 +163,7 @@ export const fedTask1: Module = {
         {
           id: "the-brief",
           heading: "题面原文",
+          headingEn: "The task text, as given",
           body: (
             <>
               <p>README 里 Task 1 的部分，一个字没改：</p>
@@ -198,7 +208,9 @@ that may need attention.`,
         {
           id: "four-todos",
           heading: "四个 TODO：README 只列了三个，代码里有四个",
+          headingEn: "Four TODOs: the README lists three, the code has four",
           lede: "这是第一个需要自己发现的地方。",
+          ledeEn: "This is the first thing you have to notice on your own.",
           body: (
             <>
               <p>
@@ -323,7 +335,9 @@ that may need attention.`,
         {
           id: "the-cheat-sheet",
           heading: "写代码前先抄这张表",
+          headingEn: "Copy this table before you write code",
           lede: "三个埋雷里有两个就是「名字对不上」。抄一遍表，两个都能避掉。",
+          ledeEn: "Two of the three planted bugs are just names that do not match. Copy the table once and you avoid both.",
           body: (
             <>
               <p>
@@ -386,7 +400,9 @@ that may need attention.`,
         {
           id: "baseline",
           heading: "跑基线：6 failed / 4 passed",
+          headingEn: "Run the baseline: 6 failed / 4 passed",
           lede: "改代码之前先知道起点。而且这个起点本身就在教你东西。",
+          ledeEn: "Know your starting point before you change anything. The starting point already teaches you something.",
           body: (
             <>
               <p>
@@ -426,7 +442,9 @@ Tests:       6 failed, 4 passed, 10 total`,
         {
           id: "fake-passes",
           heading: "4 个通过里有 3 个是假通过",
+          headingEn: "3 of the 4 passing tests are not real passes",
           lede: "这是这门考试最重要的一课。",
+          ledeEn: "This is the most important lesson in this exam.",
           body: (
             <>
               <p>逐条对照那 10 个测试：</p>
@@ -603,6 +621,7 @@ Tests:       6 failed, 4 passed, 10 total`,
         {
           id: "what-to-touch",
           heading: "只改一个文件",
+          headingEn: "Change one file only",
           body: (
             <>
               <p>
@@ -779,10 +798,10 @@ Tests:       6 failed, 4 passed, 10 total`,
         },
       ],
       transfer: [
-        { signal: "README 说有「integration issues」", reachFor: "逐个核对方法名、键名、签名" },
-        { signal: "看到 EDIT THIS / PROVIDED 标注", reachFor: "只改 EDIT THIS 的文件" },
-        { signal: "基线里有测试是绿的", reachFor: "判断是真通过还是「空实现恰好满足」" },
-        { signal: "代码里的 TODO 比 README 多", reachFor: "以代码为准，README 可能不全" },
+        { signal: "README 说有「integration issues」", signalEn: "The README mentions integration issues", reachFor: "逐个核对方法名、键名、签名", reachForEn: "Check method names, key names and signatures one by one" },
+        { signal: "看到 EDIT THIS / PROVIDED 标注", signalEn: "You see EDIT THIS / PROVIDED markers", reachFor: "只改 EDIT THIS 的文件", reachForEn: "Only change the files marked EDIT THIS" },
+        { signal: "基线里有测试是绿的", signalEn: "Some tests are already green in the baseline", reachFor: "判断是真通过还是「空实现恰好满足」", reachForEn: "Decide whether it really passes, or an empty implementation happens to satisfy it" },
+        { signal: "代码里的 TODO 比 README 多", signalEn: "The code has more TODOs than the README", reachFor: "以代码为准，README 可能不全", reachForEn: "Trust the code; the README may be incomplete" },
       ],
       recap: [
         "四个 TODO，README 只列了三个 —— Query.order 既没被提到也没有测试，但代码里要求实现。",
@@ -790,6 +809,13 @@ Tests:       6 failed, 4 passed, 10 total`,
         "基线是 6 failed / 4 passed，其中 3 个通过是「空实现恰好满足断言」的假通过。",
         "只改 orderResolvers.js；其余文件 PROVIDED，判卷时可能被换回原版。",
         "先修埋雷再写 TODO，否则埋雷的报错会干扰你判断自己的代码对不对。",
+      ],
+      recapEn: [
+        "There are four TODOs but the README lists three. Query.order is neither mentioned nor tested, yet the code asks you to implement it.",
+        "Before you start writing, copy two tables: the key names in context, and the method names on the three data sources.",
+        "The baseline is 6 failed / 4 passed, and 3 of those passes only happen because an empty implementation satisfies the assertion.",
+        "Change only orderResolvers.js. The other files are marked PROVIDED and may be replaced with the originals during grading.",
+        "Fix the planted bugs before writing the TODOs, otherwise their errors make it hard to tell whether your own code is right.",
       ],
     },
 
@@ -799,6 +825,7 @@ Tests:       6 failed, 4 passed, 10 total`,
       title: "TODO 1 · User.orders",
       titleEn: "TODO 1 · User.orders",
       blurb: "Federation 链路的终点。三行代码，但每一行都有理由。",
+      blurbEn: "The last step of the Federation path. Three lines of code, and every line has a reason.",
       minutes: 13,
       objectives: [
         "独立写出 User.orders",
@@ -806,8 +833,16 @@ Tests:       6 failed, 4 passed, 10 total`,
         "说清为什么必须 ?? [] 兜底",
         "写出符合 TODO 要求的错误处理和 correlation id 日志",
       ],
+      objectivesEn: [
+        "Write User.orders without help",
+        "Explain where user.id comes from",
+        "Explain why ?? [] is required as a fallback",
+        "Write the error handling and correlation id logging the TODO asks for",
+      ],
       whyForAssessment:
         "这是 Federation 那部分唯一一个要你写的 entity 字段。它的正确性直接决定「Router 能不能把用户和订单缝起来」。两个测试查它。",
+      whyForAssessmentEn:
+        "This is the only entity field the Federation part asks you to write. Whether it is correct decides whether the Router can join users to their orders. Two tests check it.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
@@ -819,6 +854,7 @@ Tests:       6 failed, 4 passed, 10 total`,
         {
           id: "what-asked",
           heading: "这一问在要求什么",
+          headingEn: "What this task asks for",
           body: (
             <>
               <p>
@@ -879,6 +915,7 @@ Tests:       6 failed, 4 passed, 10 total`,
         {
           id: "tests-what",
           heading: "这一问真正考什么",
+          headingEn: "What this task actually tests",
           body: (
             <>
               <ul>
@@ -936,6 +973,7 @@ Tests:       6 failed, 4 passed, 10 total`,
         {
           id: "think-first",
           heading: "先想再写",
+          headingEn: "Think before you write",
           body: (
             <>
               <ThinkFirst questions={[
@@ -962,6 +1000,7 @@ Tests:       6 failed, 4 passed, 10 total`,
         {
           id: "step-by-step",
           heading: "分步实现",
+          headingEn: "Building it step by step",
           body: (
             <>
               <p>
@@ -1046,7 +1085,9 @@ async orders(user, _, { dataSources, correlationId }) {
         {
           id: "rethrow-graphql-error",
           heading: "catch 里为什么要先判断 instanceof GraphQLError",
+          headingEn: "Why the catch block must check instanceof GraphQLError first",
           lede: "这是本门考试贯穿三处的一个模式，值得单独理解。",
+          ledeEn: "This pattern shows up in three places in this exam, so it is worth learning on its own.",
           body: (
             <>
               <p>
@@ -1155,7 +1196,9 @@ try {
         {
           id: "final",
           heading: "完整答案",
+          headingEn: "The full answer",
           lede: "审计时实测：这样写之后两个相关测试通过。",
+          ledeEn: "Measured during the audit: with this code the two related tests pass.",
           body: (
             <>
               <p>
@@ -1207,6 +1250,7 @@ try {
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           body: (
             <>
               <p>
@@ -1498,6 +1542,17 @@ async orders(user, _, { loaders }) {
               这里该用 <code>orderDataSource.getOrdersByUserId</code>。
             </>
           ),
+          whyEn: (
+            <>
+              <code>orderLoader</code> fetches <strong>one order by order id</strong>. It
+              does not fetch a list by user id. Passing <code>&quot;123&quot;</code> makes
+              it look for the order whose <code>id === &quot;123&quot;</code> — there is
+              none, so it returns undefined.
+              <br />
+              <strong>A loader only does what its batch function does.</strong> Here you
+              need <code>orderDataSource.getOrdersByUserId</code>.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1518,14 +1573,29 @@ async orders(user, _, { dataSources }) {
               <strong>按 schema 的契约写，不按数据源的当前行为写。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The data source in this project uses <code>filter</code>, so a miss returns
+              <code>[]</code>. <strong>By luck, nothing breaks.</strong>
+              <br />
+              But you should not rely on that detail. The schema says{" "}
+              <code>[Order!]!</code>, and the data source could become an HTTP call at any
+              time — then a miss might return <code>undefined</code> or{" "}
+              <code>null</code>.{" "}
+              <strong>
+                Write to the contract in the schema, not to how the data source behaves
+                today.
+              </strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "entity 上的字段 resolver", reachFor: "数据来自 parent 里 @key 声明的那个字段" },
-        { signal: "TODO 说 proper error handling", reachFor: "try/catch + GraphQLError + extensions.code" },
-        { signal: "TODO 说 correlation ID tracing", reachFor: "日志和 error extensions 都带上它" },
-        { signal: "字段是 [T!]!", reachFor: "?? [] 兜底，按 schema 契约而非数据源行为" },
-        { signal: "catch 里要重新包装错误", reachFor: "先 if (error instanceof GraphQLError) throw error" },
+        { signal: "entity 上的字段 resolver", signalEn: "A field resolver on an entity", reachFor: "数据来自 parent 里 @key 声明的那个字段", reachForEn: "The data comes from the field named in @key, read off parent" },
+        { signal: "TODO 说 proper error handling", signalEn: "A TODO says proper error handling", reachFor: "try/catch + GraphQLError + extensions.code", reachForEn: "try/catch plus GraphQLError plus extensions.code" },
+        { signal: "TODO 说 correlation ID tracing", signalEn: "A TODO says correlation ID tracing", reachFor: "日志和 error extensions 都带上它", reachForEn: "Put it in the log line and in the error extensions" },
+        { signal: "字段是 [T!]!", signalEn: "The field is [T!]!", reachFor: "?? [] 兜底，按 schema 契约而非数据源行为", reachForEn: "Fall back with ?? []; follow the schema contract, not the data source behaviour" },
+        { signal: "catch 里要重新包装错误", signalEn: "The catch block wraps errors into a new one", reachFor: "先 if (error instanceof GraphQLError) throw error", reachForEn: "Start with if (error instanceof GraphQLError) throw error" },
       ],
       recap: [
         "user.id 来自 __resolveReference 的返回值，parent 上只有这一个属性。",
@@ -1533,6 +1603,13 @@ async orders(user, _, { dataSources }) {
         "[Order!]! 决定必须 ?? [] 兜底，按 schema 契约写而不是按数据源当前行为。",
         "catch 第一行先放行已结构化的 GraphQLError，否则会把业务错误降级成系统错误。",
         "单元测试直接调 resolver；想验 federation 链路要用 _entities 查询。",
+      ],
+      recapEn: [
+        "user.id comes from what __resolveReference returned; it is the only property on parent.",
+        "The method name is getOrdersByUserId. Check it against the data source instead of guessing.",
+        "[Order!]! means you must fall back with ?? []. Write to the schema contract, not to how the data source behaves today.",
+        "The first line of catch must let an existing GraphQLError through, otherwise a business error is turned into a system error.",
+        "Unit tests call the resolver directly. To check the Federation path, use the _entities query.",
       ],
     },
 
@@ -1542,6 +1619,7 @@ async orders(user, _, { dataSources }) {
       title: "TODO 2 · Order.shippingInfo",
       titleEn: "TODO 2 · Order.shippingInfo",
       blurb: "两行代码，但选错一行就答不到 N+1 这个考点。",
+      blurbEn: "Two lines of code. Pick the wrong one and you miss the N+1 point entirely.",
       minutes: 11,
       objectives: [
         "独立写出 Order.shippingInfo",
@@ -1549,8 +1627,16 @@ async orders(user, _, { dataSources }) {
         "说清为什么这里要 ?? null 而不是 ?? []",
         "知道测试为什么抓不到「绕过 loader」这个错",
       ],
+      objectivesEn: [
+        "Write Order.shippingInfo without help",
+        "Explain why you must go through the loader instead of calling the data source",
+        "Explain why this one needs ?? null and not ?? []",
+        "Know why the tests do not catch a solution that skips the loader",
+      ],
       whyForAssessment:
         "TODO 原文点名了 DataLoader。这是全项目唯一明确指定实现手段的一处 —— 说明出题人就是要看你会不会用它。",
+      whyForAssessmentEn:
+        "The TODO names DataLoader directly. It is the only place in the project that says how to implement something, which means the exam wants to see whether you can use it.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
@@ -1562,6 +1648,7 @@ async orders(user, _, { dataSources }) {
         {
           id: "what-asked",
           heading: "这一问在要求什么",
+          headingEn: "What this task asks for",
           body: (
             <>
               <p>
@@ -1608,6 +1695,7 @@ async orders(user, _, { dataSources }) {
         {
           id: "think-first",
           heading: "先想再写",
+          headingEn: "Think before you write",
           body: (
             <>
               <ThinkFirst questions={[
@@ -1634,7 +1722,9 @@ async orders(user, _, { dataSources }) {
         {
           id: "loader-vs-datasource",
           heading: "两种写法都能过测试，但只有一种答对了",
+          headingEn: "Both versions pass the tests, but only one answers the question",
           lede: "这是本项目最典型的「测试抓不到」的地方。",
+          ledeEn: "This is the clearest case in this project of something the tests cannot catch.",
           body: (
             <>
               <p>对比这两种写法：</p>
@@ -1727,7 +1817,9 @@ it('should return null for order without shipping info', async () => {
         {
           id: "null-not-undefined",
           heading: "为什么必须显式 ?? null",
+          headingEn: "Why you must write ?? null explicitly",
           lede: "第二个测试用的是 toBeNull()，不是 toBeUndefined()。",
+          ledeEn: "The second test uses toBeNull(), not toBeUndefined().",
           body: (
             <>
               <p>
@@ -1798,6 +1890,7 @@ it('should return null for order without shipping info', async () => {
         {
           id: "final",
           heading: "完整答案",
+          headingEn: "The full answer",
           body: (
             <>
               <p>
@@ -1848,6 +1941,7 @@ it('should return null for order without shipping info', async () => {
         {
           id: "verify-batching",
           heading: "验证合并真的发生了",
+          headingEn: "Checking that the calls really were merged",
           body: (
             <>
               <p>
@@ -2048,6 +2142,17 @@ async shippingInfo(parent, _, { loaders }) {
               <strong>合并没了，但测试还是过的。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              DataLoader merges calls by collecting every <code>load()</code> made in the
+              same tick. An extra <code>await</code> in between pushes each order&apos;s{" "}
+              <code>load()</code> into <strong>a different tick</strong>, so you get N
+              batches of one instead of one batch of N.
+              <br />
+              What you see: several <code>Batching 1 ... requests</code> lines in the log.
+              <strong>The merging is gone, but the tests still pass.</strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2070,13 +2175,25 @@ async shippingInfo(parent, _, { loaders }) {
               <strong>context 里有两个 loader，看清名字。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              <code>orderLoader</code> returns an order, not shipping information. You get
+              the order object back, and GraphQL then reads it as a{" "}
+              <code>ShippingInfo</code>: <code>status</code> happens to exist (its value is
+              SHIPPED, not IN_TRANSIT) and <code>trackingNumber</code> is undefined.
+              <br />
+              The first test fails on{" "}
+              <code>toHaveProperty(&apos;trackingNumber&apos;)</code>.
+              <strong>There are two loaders in context. Read the names carefully.</strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "TODO 指定了实现手段", reachFor: "那个手段本身就是考点，别用别的方式绕过" },
-        { signal: "列表里每项都要查关联数据", reachFor: "loader.load(parent.id)" },
-        { signal: "可空字段", reachFor: "?? null，别让 undefined 漏出去" },
-        { signal: "想确认 DataLoader 生效", reachFor: "数日志里 Batching 的行数和 N" },
+        { signal: "TODO 指定了实现手段", signalEn: "A TODO names the way to implement it", reachFor: "那个手段本身就是考点，别用别的方式绕过", reachForEn: "That way is the point being tested; do not work around it" },
+        { signal: "列表里每项都要查关联数据", signalEn: "Every item in a list needs related data fetched", reachFor: "loader.load(parent.id)", reachForEn: "loader.load(parent.id)" },
+        { signal: "可空字段", signalEn: "A nullable field", reachFor: "?? null，别让 undefined 漏出去", reachForEn: "?? null, so undefined never gets through" },
+        { signal: "想确认 DataLoader 生效", signalEn: "You want to confirm DataLoader is working", reachFor: "数日志里 Batching 的行数和 N", reachForEn: "Count the Batching lines in the log against N" },
       ],
       recap: [
         "TODO 点名了 DataLoader —— 这是四个 TODO 里唯一指定实现手段的，考点就在这。",
@@ -2084,6 +2201,13 @@ async shippingInfo(parent, _, { loaders }) {
         "两种写法都能过测试，因为测试一次只调一个 order —— 抓不到合并与否。",
         "可空字段要显式 ?? null，因为测试断言的是 toBeNull()，undefined 会挂。",
         "resolver 里别插多余的 await，会把 load() 推到不同 tick，合并失效。",
+      ],
+      recapEn: [
+        "The TODO names DataLoader. It is the only one of the four TODOs that says how to implement it, and that is the point being tested.",
+        "Use loaders.shippingInfoLoader.load(parent.id), not dataSources.shippingDataSource.",
+        "Both versions pass, because each test calls only one order, so the tests cannot tell whether the calls were merged.",
+        "A nullable field needs an explicit ?? null, because the test asserts toBeNull() and undefined fails it.",
+        "Do not add an extra await in the resolver. It pushes load() into a different tick and the merging stops working.",
       ],
     },
 
@@ -2093,6 +2217,7 @@ async shippingInfo(parent, _, { loaders }) {
       title: "TODO 3 & 4 · Query.order 与 Query.orders",
       titleEn: "TODO 3 & 4 · Query.order and Query.orders",
       blurb: "一个用 loader、一个用数据源；一个可空、一个非空。放一起讲差别最清楚。",
+      blurbEn: "One uses the loader, one uses the data source; one is nullable, one is not. Side by side the difference is clearest.",
       minutes: 14,
       objectives: [
         "独立写出两个 Query resolver",
@@ -2100,8 +2225,16 @@ async shippingInfo(parent, _, { loaders }) {
         "写出「找不到」时的结构化错误",
         "知道 Query.order 没有测试意味着什么",
       ],
+      objectivesEn: [
+        "Write both Query resolvers without help",
+        "Explain why one uses the loader and the other uses the data source",
+        "Write a structured error for the not-found case",
+        "Know what it means that Query.order has no test",
+      ],
       whyForAssessment:
         "Query.orders 有两条测试。Query.order 一条测试都没有，但 TODO 明确要求实现 —— 这种「没测试但有要求」的地方最能区分认真读题的人。",
+      whyForAssessmentEn:
+        "Query.orders has two tests. Query.order has none, yet the TODO clearly asks for it. A required part with no test is what separates the people who read the task carefully.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
@@ -2113,6 +2246,7 @@ async shippingInfo(parent, _, { loaders }) {
         {
           id: "two-todos",
           heading: "两个 TODO 的要求对比",
+          headingEn: "The two TODOs side by side",
           body: (
             <>
               <div className="table-wrap">
@@ -2276,6 +2410,7 @@ async shippingInfo(parent, _, { loaders }) {
         {
           id: "query-order",
           heading: "Query.order：用 loader + 找不到要抛错",
+          headingEn: "Query.order: use the loader, and throw when nothing is found",
           body: (
             <>
               <p>
@@ -2388,7 +2523,9 @@ async shippingInfo(parent, _, { loaders }) {
         {
           id: "why-rethrow-here",
           heading: "这里最能看出 instanceof 检查为什么必要",
+          headingEn: "This is where the instanceof check clearly matters",
           lede: "同一个 try 块里既抛业务错误又要接系统错误 —— 不判断就必然出错。",
+          ledeEn: "The same try block both throws a business error and catches system errors. Without the check it will always go wrong.",
           body: (
             <>
               <p>
@@ -2454,6 +2591,7 @@ async shippingInfo(parent, _, { loaders }) {
         {
           id: "query-orders",
           heading: "Query.orders：用数据源 + 校验参数",
+          headingEn: "Query.orders: use the data source and validate the argument",
           body: (
             <>
               <p>
@@ -2548,6 +2686,7 @@ async shippingInfo(parent, _, { loaders }) {
         {
           id: "no-test-means",
           heading: "Query.order 没有测试意味着什么",
+          headingEn: "What it means that Query.order has no test",
           body: (
             <>
               <p>
@@ -2911,6 +3050,22 @@ async orders(_, { userId }, { loaders }) {
               <code>orders</code> 签名<strong>没有解构 loaders</strong>。
             </>
           ),
+          whyEn: (
+            <>
+              The key of <code>orderLoader</code> is an <strong>order id</strong>, not a
+              user id. Passing <code>&quot;123&quot;</code> makes it look for the order
+              whose <code>id === &quot;123&quot;</code> — the ids in the data source look
+              like <code>order-456</code>, so nothing matches and it returns{" "}
+              <code>undefined</code>.
+              <br />
+              It also returns a single object instead of an array, which breaks{" "}
+              <code>[Order!]!</code>.
+              <br />
+              <strong>The hint is in the argument list</strong>: the{" "}
+              <code>orders</code> signature in the starter code{" "}
+              <strong>does not destructure loaders</strong>.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2929,14 +3084,26 @@ return order ?? null;`,
               <strong>给好但没用上的常量，就是没做完的信号。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              This <strong>does not break the schema</strong> (<code>order</code> is
+              nullable), and no test fails.
+              <br />
+              But the TODO asks for <em>structured error handling</em>, and{" "}
+              <code>ErrorCodes.ORDER_NOT_FOUND</code> is clearly there for this spot.{" "}
+              <strong>
+                A constant that is given but never used means the work is not finished.
+              </strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "参数签名里没有解构某个东西", reachFor: "那是提示：这个字段不需要它" },
-        { signal: "starter 给了没用上的常量", reachFor: "找它对应的场景，那里大概有个 TODO" },
-        { signal: "同一个 try 里既抛业务错又要接系统错", reachFor: "catch 第一行 instanceof 判断" },
-        { signal: "字段可空 vs 非空列表", reachFor: "前者可以抛错/返 null，后者必须 ?? []" },
-        { signal: "某个 TODO 没有测试", reachFor: "照样实现 —— 人工 review 会看" },
+        { signal: "参数签名里没有解构某个东西", signalEn: "The argument list does not destructure something", reachFor: "那是提示：这个字段不需要它", reachForEn: "That is a hint: this field does not need it" },
+        { signal: "starter 给了没用上的常量", signalEn: "The starter code defines a constant nothing uses", reachFor: "找它对应的场景，那里大概有个 TODO", reachForEn: "Find the case it belongs to; there is probably a TODO there" },
+        { signal: "同一个 try 里既抛业务错又要接系统错", signalEn: "One try block both throws a business error and catches system errors", reachFor: "catch 第一行 instanceof 判断", reachForEn: "Put an instanceof check on the first line of catch" },
+        { signal: "字段可空 vs 非空列表", signalEn: "A nullable field versus a non-null list", reachFor: "前者可以抛错/返 null，后者必须 ?? []", reachForEn: "The first may throw or return null; the second must use ?? []" },
+        { signal: "某个 TODO 没有测试", signalEn: "A TODO has no test", reachFor: "照样实现 —— 人工 review 会看", reachForEn: "Implement it anyway; a person will read the code" },
       ],
       recap: [
         "Query.order 用 orderLoader（TODO 点名了），Query.orders 用数据源（signature 里没给 loaders）。",
@@ -2944,6 +3111,13 @@ return order ?? null;`,
         "同一个 userId，在 User.orders 里来自 parent，在 Query.orders 里来自 args。",
         "catch 第一行的 instanceof 判断在 Query.order 里最关键 —— 同一个 try 里既抛业务错又接系统错。",
         "Query.order 没有测试但 TODO 明确要求 —— 实现它，这是拉开差距的地方。",
+      ],
+      recapEn: [
+        "Query.order uses orderLoader (the TODO names it). Query.orders uses the data source (its signature does not receive loaders).",
+        "Query.order is nullable, so throw ORDER_NOT_FOUND when nothing is found. Query.orders is non-null at both levels, so fall back to [].",
+        "The same userId comes from parent inside User.orders and from args inside Query.orders.",
+        "The instanceof check on the first line of catch matters most in Query.order, where one try block both throws a business error and catches system errors.",
+        "Query.order has no test but the TODO clearly asks for it. Implement it; this is where answers differ.",
       ],
     },
 
@@ -2953,6 +3127,7 @@ return order ?? null;`,
       title: "三处埋雷：怎么系统地找出来",
       titleEn: "The three planted bugs: how to find them systematically",
       blurb: "README 只说「有 integration issues」。这一节教你怎么把它们挖出来。",
+      blurbEn: "The README only says there are integration issues. This lesson shows you how to find them.",
       minutes: 16,
       objectives: [
         "掌握一套「核对而非猜测」的排查流程",
@@ -2960,8 +3135,16 @@ return order ?? null;`,
         "把 Mutation.createOrder 改到测试通过",
         "解释为什么这三个错误都「看起来很合理」",
       ],
+      objectivesEn: [
+        "Learn a debugging routine based on checking, not guessing",
+        "Find and fix the three planted bugs on your own",
+        "Get Mutation.createOrder to pass its tests",
+        "Explain why all three bugs look reasonable at first",
+      ],
       whyForAssessment:
         "三处埋雷各挂一个测试。而且它们的错法很典型 —— 名字对不上、签名对不上、错误被吞掉。这三类问题在任何后端代码里都会遇到。",
+      whyForAssessmentEn:
+        "Each planted bug fails one test. All three are common kinds of mistake: a name that does not match, a signature that does not match, and an error that gets swallowed. You meet these three in any backend code.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
@@ -2977,7 +3160,9 @@ return order ?? null;`,
         {
           id: "the-method",
           heading: "排查方法：三张对照表",
+          headingEn: "The method: three reference tables",
           lede: "不要靠读代码「感觉哪里怪」。逐项核对。",
+          ledeEn: "Do not read the code looking for something that feels off. Check item by item.",
           body: (
             <>
               <p>
@@ -3052,6 +3237,7 @@ return order ?? null;`,
         {
           id: "bug-1",
           heading: "埋雷 1 · getOrderById 不存在",
+          headingEn: "Planted bug 1 · getOrderById does not exist",
           body: (
             <>
               <p>
@@ -3121,7 +3307,9 @@ orderIds.map(id => orderDataSource.getOrder(id))`,
         {
           id: "bug-2",
           heading: "埋雷 2 · orderAPI 不存在，而且签名也错了",
+          headingEn: "Planted bug 2 · orderAPI does not exist, and the signature is wrong too",
           lede: "这一处其实是三个错叠在一起。",
+          ledeEn: "This one is really three mistakes stacked on top of each other.",
           body: (
             <>
               <p>
@@ -3249,7 +3437,9 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
         {
           id: "bug-3",
           heading: "埋雷 3 · catch 把 INVALID_INPUT 吞成了 SERVICE_ERROR",
+          headingEn: "Planted bug 3 · catch turns INVALID_INPUT into SERVICE_ERROR",
           lede: "这一处不报错，只是错误码不对。",
+          ledeEn: "Nothing crashes here. Only the error code is wrong.",
           body: (
             <>
               <p>
@@ -3348,7 +3538,9 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
         {
           id: "final-mutation",
           heading: "Mutation.createOrder 的完整修复版",
+          headingEn: "The fully fixed Mutation.createOrder",
           lede: "三处埋雷有两处在这个函数里。",
+          ledeEn: "Two of the three planted bugs are inside this one function.",
           body: (
             <>
               <p>
@@ -3460,6 +3652,7 @@ Tests:       10 passed, 10 total`,
         {
           id: "why-plausible",
           heading: "为什么这三个错都「看起来很合理」",
+          headingEn: "Why all three bugs look reasonable",
           body: (
             <>
               <p>
@@ -3761,11 +3954,11 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
         },
       ],
       transfer: [
-        { signal: "README 说有「integration issues」", reachFor: "核对三张表：context 键名、方法名与签名、throw/catch 配对" },
-        { signal: "xxx is not a function", reachFor: "去被调对象的定义里核对方法名" },
-        { signal: "Cannot read properties of undefined", reachFor: "上一级路径写错了，逐段核对" },
-        { signal: "自己包装的错误掩盖了真实原因", reachFor: "往上翻原始 message；包装时保留 originalError" },
-        { signal: "catch 里统一包装错误", reachFor: "第一行先 if (error instanceof XxxError) throw error" },
+        { signal: "README 说有「integration issues」", signalEn: "The README mentions integration issues", reachFor: "核对三张表：context 键名、方法名与签名、throw/catch 配对", reachForEn: "Check three tables: context key names, method names and signatures, and how throw pairs with catch" },
+        { signal: "xxx is not a function", signalEn: "xxx is not a function", reachFor: "去被调对象的定义里核对方法名", reachForEn: "Open the definition of the object you called and check the method name" },
+        { signal: "Cannot read properties of undefined", signalEn: "Cannot read properties of undefined", reachFor: "上一级路径写错了，逐段核对", reachForEn: "One step earlier in the path is wrong; check each part" },
+        { signal: "自己包装的错误掩盖了真实原因", signalEn: "Your own wrapper hides the real cause", reachFor: "往上翻原始 message；包装时保留 originalError", reachForEn: "Look further up for the original message; keep originalError when wrapping" },
+        { signal: "catch 里统一包装错误", signalEn: "A catch block wraps every error the same way", reachFor: "第一行先 if (error instanceof XxxError) throw error", reachForEn: "First line: if (error instanceof XxxError) throw error" },
       ],
       recap: [
         "三处埋雷：getOrderById 不存在、orderAPI 不存在且签名错且缺 price、catch 吞掉 INVALID_INPUT。",
@@ -3773,6 +3966,13 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
         "只改 EDIT THIS 的文件；给数据源加方法是错的修法。",
         "自己包装错误时保留 originalError，否则真实原因彻底丢失。",
         "catch 里统一包装错误时，第一行必须先放行已结构化的错误。",
+      ],
+      recapEn: [
+        "The three planted bugs: getOrderById does not exist; orderAPI does not exist, its signature is wrong and price is missing; catch swallows INVALID_INPUT.",
+        "Find them by checking the three tables, not by reading once and looking for something odd. All three look reasonable.",
+        "Only change files marked EDIT THIS. Adding a method to the data source is the wrong fix.",
+        "Keep originalError when you wrap an error, otherwise the real cause is lost for good.",
+        "When a catch block wraps every error, its first line must let already structured errors through.",
       ],
     },
   ],

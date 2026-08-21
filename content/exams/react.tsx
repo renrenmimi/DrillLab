@@ -136,10 +136,15 @@ interface TicketFormProps {
 const ticketMock: MockExam = {
   id: "support-tickets",
   title: "模拟考 A · Support Ticket Board",
+  titleEn: "Mock exam A · Support Ticket Board",
   mirrors:
     "与真实 Q1 完全相同的考点：受控输入、列表渲染与 key、useState 的三种不可变更新（增 / 删 / 就地替换）、useEffect 同步外部 prop、派生数据、状态提升、双模式按钮与 id 复用。额外增加一个「筛选」考点 —— 这是这类题最常见的变式方向。",
+  mirrorsEn:
+    "Exactly the same points as the real Q1: controlled inputs, list rendering and key, the three ways useState updates without changing the original (add, remove, replace in place), useEffect syncing an outside prop, derived data, lifting state up, and a two-mode button reusing an id. One point is added: filtering, which is the most common way this kind of task is varied.",
   scenario:
     "IT 支持工单看板。可以新建工单（标题 + 优先级）、关闭工单、改派（编辑）工单，还能按优先级筛选。业务场景换了，数据结构多了一个枚举字段和一个筛选状态，但底层要你会的东西和 Notes Manager 一模一样。",
+  scenarioEn:
+    "An IT support ticket board. You can create a ticket (title plus priority), close one, reassign (edit) one, and filter by priority. The business setting is different and the data has one extra enum field and one filter state, but what you need to know underneath is the same as in Notes Manager.",
   minutes: 75,
 
   // 【这一段的数字全是实测的，别改】
@@ -290,7 +295,9 @@ const ticketMock: MockExam = {
     {
       id: "m-diff",
       heading: "和真实 Q1 的对应关系",
+      headingEn: "How this maps to the real Q1",
       lede: "先看清哪些是原样搬过来的，哪些是新增的。",
+      ledeEn: "First see which parts are copied over unchanged, and which parts are new.",
       body: (
         <>
           <div className="table-wrap">
@@ -429,6 +436,7 @@ const ticketMock: MockExam = {
     {
       id: "m-select",
       heading: "唯一的新东西：受控的 select",
+      headingEn: "The only new piece: a controlled select",
       body: (
         <>
           <p>
@@ -504,7 +512,9 @@ const ticketMock: MockExam = {
     {
       id: "m-filter",
       heading: "筛选：一个 state + 一个派生数组",
+      headingEn: "Filtering: one state plus one derived array",
       lede: "这是本题唯一的新考点，也是这类题最常见的变式。",
+      ledeEn: "This is the only new topic in this question, and the most common variant of this question type.",
       body: (
         <>
           <p>
@@ -591,6 +601,7 @@ const handleClose = (id: number) => {
     {
       id: "m-checklist",
       heading: "交卷前自检清单",
+      headingEn: "Checklist before you submit",
       body: (
         <>
           <ol>

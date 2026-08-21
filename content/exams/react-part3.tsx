@@ -150,6 +150,7 @@ export const reactQ1: Module = {
       title: "先读题：三个任务、一条硬约束、四个测试",
       titleEn: "Read the question first: three tasks, one rule you must not break, four tests",
       blurb: "在写第一行代码之前，把题目、约束和判卷标准全部摸清。",
+      blurbEn: "Before writing a single line of code, get clear on the task, the constraints, and how it is graded.",
       minutes: 13,
       objectives: [
         "用自己的话复述三个 Task 的验收标准",
@@ -157,8 +158,16 @@ export const reactQ1: Module = {
         "会跑测试，并且知道跑的是哪四条",
         "认出题目里没写但测试在查的那一条",
       ],
+      objectivesEn: [
+        "Restate the acceptance criteria of the three tasks in your own words",
+        "Know exactly what you may not touch when the task says do not change any data-testid",
+        "Run the tests, and know which four tests are running",
+        "Spot the one requirement the task text leaves out but the tests still check",
+      ],
       whyForAssessment:
         "这一节本身就是考点。考场上最贵的错误不是写错代码，是「没读清题就开始写」——比如把删除写成按 title 删、把更新写成删了再加。",
+      whyForAssessmentEn:
+        "This lesson is itself part of the exam. The most expensive mistake is not bad code, it is starting to write before you have read the task properly: deleting by title instead of by id, or updating an item by removing it and adding it again.",
       sourceFiles: [
         { path: "react-notes-app/README.md", role: "三个 Task 的原文与约束" },
         { path: "react-notes-app/src/NoteManager.test.tsx", role: "四个判卷测试" },
@@ -168,7 +177,9 @@ export const reactQ1: Module = {
         {
           id: "the-brief",
           heading: "题目原文",
+          headingEn: "The task text as it is given",
           lede: "先看没有加工过的版本。",
+          ledeEn: "Read the version that has not been reworded yet.",
           body: (
             <>
               <p>
@@ -203,7 +214,9 @@ export const reactQ1: Module = {
         {
           id: "restate",
           heading: "用初学者能看懂的话重写一遍",
+          headingEn: "The same task written in plainer words",
           lede: "题目里每个词都是要求。挑出来逐条对应。",
+          ledeEn: "Every word in the task is a requirement. Pull them out one at a time.",
           body: (
             <>
               <div className="table-wrap">
@@ -328,7 +341,9 @@ export const reactQ1: Module = {
         {
           id: "testid-constraint",
           heading: "「不得修改任何 data-testid」具体是什么意思",
+          headingEn: "What do not change any data-testid actually means",
           lede: "不只是「别改那串字符」，还包括「别让那个元素消失」。",
+          ledeEn: "It is not only do not change that string. It also means do not let that element disappear.",
           body: (
             <>
               <p>
@@ -484,7 +499,9 @@ export const reactQ1: Module = {
         {
           id: "run-the-tests",
           heading: "先跑一遍测试，拿到基线",
+          headingEn: "Run the tests first, to get a baseline",
           lede: "改代码之前先知道现在是什么状态 —— 这个习惯值几十分。",
+          ledeEn: "Know where you stand before you change any code. This habit is worth a lot of points.",
           body: (
             <>
               <p>
@@ -542,7 +559,9 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         {
           id: "the-landing-spots",
           heading: "三道题的落点：一个文件，三个函数",
+          headingEn: "Where the three tasks land: one file, three functions",
           lede: "先把要改的地方框出来，再动手。",
+          ledeEn: "Mark the places you have to change, then start writing.",
           body: (
             <>
               <p>
@@ -705,10 +724,30 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         },
       ],
       transfer: [
-        { signal: "题目里出现「按 X」", reachFor: "比较依据必须是 X，别用别的字段凑" },
-        { signal: "题目里出现「原位置」「顺序不变」", reachFor: "用 map 替换，不能删了再加" },
-        { signal: "看到 data-testid", reachFor: "字符串和元素存在性都不能动" },
-        { signal: "拿到新项目", reachFor: "先跑基线测试，再读题，再读类型" },
+        {
+          signal: "题目里出现「按 X」",
+          signalEn: "The task says by X",
+          reachFor: "比较依据必须是 X，别用别的字段凑",
+          reachForEn: "The comparison has to use X, not some other field that happens to work",
+        },
+        {
+          signal: "题目里出现「原位置」「顺序不变」",
+          signalEn: "The task says in place or the order stays the same",
+          reachFor: "用 map 替换，不能删了再加",
+          reachForEn: "Replace with map. Do not remove the item and add it again",
+        },
+        {
+          signal: "看到 data-testid",
+          signalEn: "You see a data-testid",
+          reachFor: "字符串和元素存在性都不能动",
+          reachForEn: "Neither the string nor the presence of the element may change",
+        },
+        {
+          signal: "拿到新项目",
+          signalEn: "You are handed a new project",
+          reachFor: "先跑基线测试，再读题，再读类型",
+          reachForEn: "Run the tests for a baseline, then read the task, then read the types",
+        },
       ],
       recap: [
         "三个 Task 的分水岭是「按 id」和「原位置」两个词。",
@@ -716,6 +755,13 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         "行内按钮文字 Delete / Edit / Update 是测试依赖的隐性契约。",
         "第 2 个测试查的 disabled 是 README 没写的要求 —— 测试也是题面。",
         "三道题全部落在 NoteManager 的三个 handler 上，其余三个组件不用改。",
+      ],
+      recapEn: [
+        "The two phrases that separate the three tasks are by id and in place.",
+        "You may not change a data-testid string, and you may not let that element disappear under some condition.",
+        "The row button labels Delete, Edit, and Update are an unwritten contract the tests depend on.",
+        "The disabled check in the second test is a requirement the README never states. The tests are part of the task too.",
+        "All three tasks land on three handlers in NoteManager. The other three components need no changes.",
       ],
     },
 
@@ -725,6 +771,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
       title: "Task 1 · Add：提交表单，新笔记进入表格",
       titleEn: "Task 1 · Add: submit the form and the new note appears in the table",
       blurb: "三道题里最简单的一道，但它建立了后两道题的全部结构。",
+      blurbEn: "The easiest of the three tasks, but it sets up the whole structure the other two use.",
       minutes: 12,
       objectives: [
         "独立写出 handleSubmitNote 的新增分支",
@@ -732,8 +779,16 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         "解释为什么这里必须造新数组",
         "知道对应的测试在断言什么",
       ],
+      objectivesEn: [
+        "Write the add branch of handleSubmitNote on your own",
+        "Say where the note object is built and where its id comes from",
+        "Explain why a new array is required here",
+        "Know what the matching test asserts",
+      ],
       whyForAssessment:
         "第 1 个测试直接查它。而且它确立了「子组件 onSubmit 上报 → 父组件改 notes」这条链 —— Task 3 的后半复用同一个函数。",
+      whyForAssessmentEn:
+        "The first test checks it directly. It also sets up the chain where the child reports through onSubmit and the parent changes notes. The second half of Task 3 reuses the same function.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleSubmitNote 的 else 分支", edit: true },
         { path: "react-notes-app/src/components/NoteForm/index.tsx", role: "note 在这里被构造并上报" },
@@ -742,6 +797,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         {
           id: "what-asked",
           heading: "这一问在要求什么",
+          headingEn: "What this task asks for",
           body: (
             <>
               <p>
@@ -779,6 +835,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         {
           id: "tests-what",
           heading: "这一问真正考什么",
+          headingEn: "What this task is really testing",
           body: (
             <>
               <p>
@@ -828,7 +885,9 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         {
           id: "existing-code",
           heading: "先看现有代码：note 是谁造的",
+          headingEn: "Look at the existing code first: who builds the note",
           lede: "NoteForm 已经把整条 note 造好了，包括 id。",
+          ledeEn: "NoteForm already builds the whole note, id included.",
           body: (
             <>
               <p>
@@ -911,7 +970,9 @@ onSubmit(newNote);`,
         {
           id: "think-first",
           heading: "先想再写",
+          headingEn: "Think it through before you write",
           lede: "下面五个问题都能答上来，代码自然就出来了。",
+          ledeEn: "Once you can answer these five questions, the code follows.",
           body: (
             <>
               <ThinkFirst questions={[
@@ -949,6 +1010,7 @@ onSubmit(newNote);`,
         {
           id: "step-by-step",
           heading: "分步实现",
+          headingEn: "Build it step by step",
           body: (
             <>
               <p>
@@ -1020,6 +1082,7 @@ const handleSubmitNote = (submittedNote: Note) => {
         {
           id: "why-works",
           heading: "为什么这样就成立了",
+          headingEn: "Why this works",
           body: (
             <>
               <p>逐段看这一行 <code>setNotes((prev) =&gt; [...prev, submittedNote])</code>：</p>
@@ -1081,6 +1144,7 @@ const handleSubmitNote = (submittedNote: Note) => {
         {
           id: "the-test",
           heading: "对应的测试",
+          headingEn: "The matching test",
           body: (
             <>
               <p>
@@ -1265,6 +1329,14 @@ const NoteForm = ({ onSubmit }) => {
               <strong>数据只能放在共同祖先。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              <code>NoteTable</code> cannot reach state that lives inside
+              <code>NoteForm</code> — they are siblings. This <code>myNotes</code>
+              is stored for nothing. <strong>The data can only live in a shared
+              parent.</strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1278,6 +1350,14 @@ setNotes((prev) => [prev, submittedNote]);`,
               TypeScript 会报
               <code>Type &apos;Note[]&apos; is not assignable to type &apos;Note&apos;</code>。
               好在这个错编译期就被抓到了。
+            </>
+          ),
+          whyEn: (
+            <>
+              This builds <code>[[...old array], new note]</code>, an array inside
+              an array. TypeScript reports
+              <code>Type &apos;Note[]&apos; is not assignable to type &apos;Note&apos;</code>.
+              At least this mistake is caught at compile time.
             </>
           ),
         },
@@ -1298,13 +1378,42 @@ const handleSubmitNote = (submittedNote: Note) => {
               更新静默失败（列表毫无变化）。
             </>
           ),
+          whyEn: (
+            <>
+              <code>NoteForm</code> already set the id, so building another one
+              here is pointless. Worse, <strong>it breaks Task 3</strong>: on an
+              edit submit <code>NoteForm</code> deliberately reuses the old id, and
+              this line overwrites it with a new one. Then <code>map</code> finds no
+              match and the update fails silently, with no change in the list.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「新增一条到列表」", reachFor: "setX(prev => [...prev, item])" },
-        { signal: "「加在最前面」", reachFor: "setX(prev => [item, ...prev])" },
-        { signal: "子组件已经把数据造好了", reachFor: "父组件别再加工，直接存" },
-        { signal: "表单提交后要影响别处", reachFor: "onSubmit 上报到共同祖先" },
+        {
+          signal: "「新增一条到列表」",
+          signalEn: "Add one item to a list",
+          reachFor: "setX(prev => [...prev, item])",
+          reachForEn: "setX(prev => [...prev, item])",
+        },
+        {
+          signal: "「加在最前面」",
+          signalEn: "Add it at the front",
+          reachFor: "setX(prev => [item, ...prev])",
+          reachForEn: "setX(prev => [item, ...prev])",
+        },
+        {
+          signal: "子组件已经把数据造好了",
+          signalEn: "The child already built the data",
+          reachFor: "父组件别再加工，直接存",
+          reachForEn: "The parent should store it as it is, not rebuild it",
+        },
+        {
+          signal: "表单提交后要影响别处",
+          signalEn: "A form submit has to change something elsewhere",
+          reachFor: "onSubmit 上报到共同祖先",
+          reachForEn: "Report it up to the shared parent through onSubmit",
+        },
       ],
       recap: [
         "note 由 NoteForm 构造（含 id 和 trim），NoteManager 只负责存。",
@@ -1312,6 +1421,13 @@ const handleSubmitNote = (submittedNote: Note) => {
         "setNotes(prev => [...prev, note]) 是标准写法：新数组、旧的全留、新的在末尾。",
         "不要在 handleSubmitNote 里重新生成 id，那会毁掉 Task 3。",
         "第 1 个测试只查文字出现，比题目要求宽松 —— 别因此偷懒。",
+      ],
+      recapEn: [
+        "NoteForm builds the note, including the id and the trim. NoteManager only stores it.",
+        "The onSubmit prop receives handleSubmitNote. Follow the props and you find the call chain.",
+        "setNotes(prev => [...prev, note]) is the standard form: a new array, every old item kept, the new one at the end.",
+        "Do not generate a new id inside handleSubmitNote. That breaks Task 3.",
+        "The first test only checks that the text appears, which is looser than the task requires. Do not do less because of that.",
       ],
     },
 
@@ -1321,6 +1437,7 @@ const handleSubmitNote = (submittedNote: Note) => {
       title: "Task 2 · Delete：点 Delete，该行按 id 被移除",
       titleEn: "Task 2 · Delete: click Delete and that one row is removed by id",
       blurb: "一行 filter。但「按 id」这三个字是有分量的。",
+      blurbEn: "One line of filter. But the words by id carry weight.",
       minutes: 11,
       objectives: [
         "独立写出 handleDelete",
@@ -1328,8 +1445,16 @@ const handleSubmitNote = (submittedNote: Note) => {
         "说清 filter 的条件为什么是 !== 而不是 ===",
         "知道这个测试为什么测不出「按 id」这个要求",
       ],
+      objectivesEn: [
+        "Write handleDelete on your own",
+        "Explain why the comparison must use the id and not the title or the index",
+        "Say why the filter condition is !== and not ===",
+        "Know why this test cannot catch the by id requirement",
+      ],
       whyForAssessment:
         "第 3 个测试查它。但那个测试只有一条数据，用 title 比较也能过 —— 这是本项目「测试过了不等于做对了」的第一个实例。",
+      whyForAssessmentEn:
+        "The third test checks it. But that test has only one note, so comparing by title passes as well. This is the first case in this project where passing tests do not mean the code is correct.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleDelete", edit: true },
         { path: "react-notes-app/src/components/NoteItem/index.tsx", role: "Delete 按钮在这里上报 id" },
@@ -1338,6 +1463,7 @@ const handleSubmitNote = (submittedNote: Note) => {
         {
           id: "what-asked",
           heading: "这一问在要求什么",
+          headingEn: "What this task asks for",
           body: (
             <>
               <p>
@@ -1411,6 +1537,7 @@ onDelete: (id: number) => void;`,
         {
           id: "think-first",
           heading: "先想再写",
+          headingEn: "Think it through before you write",
           body: (
             <>
               <ThinkFirst questions={[
@@ -1449,6 +1576,7 @@ onDelete: (id: number) => void;`,
         {
           id: "implement",
           heading: "实现",
+          headingEn: "The implementation",
           body: (
             <>
               <p>一行就够：</p>
@@ -1482,8 +1610,8 @@ onDelete: (id: number) => void;`,
                 <li>
                   <code>prev.filter(...)</code> —
                   <code>filter</code> always returns a <strong>new array</strong> and
-                  leaves the original alone. So the immutable update comes for free;
-                  no extra spread needed.
+                  leaves the original alone. So the update does not change the original
+                  array, and no extra spread is needed.
                 </li>
                 <li>
                   <code>(note) =&gt; note.id !== id</code> —
@@ -1515,7 +1643,9 @@ onDelete: (id: number) => void;`,
         {
           id: "test-blind-spot",
           heading: "测试的盲区：为什么它测不出「按 id」",
+          headingEn: "The blind spot in the test: why it cannot catch by id",
           lede: "这是这个项目最值得记住的一课。",
+          ledeEn: "This is the one lesson from this project most worth remembering.",
           body: (
             <>
               <p>看第 3 个测试：</p>
@@ -1600,6 +1730,7 @@ onDelete: (id: number) => void;`,
         {
           id: "manual-verify",
           heading: "怎么自己验证「按 id」真的做对了",
+          headingEn: "How to check for yourself that by id really works",
           body: (
             <>
               <p>
@@ -1842,10 +1973,30 @@ const handleDelete = (id: number) => {
         },
       ],
       transfer: [
-        { signal: "「删除某一条」", reachFor: "filter + 保留不匹配的（！==）" },
-        { signal: "题目强调「按 X」", reachFor: "比较依据只能是 X" },
-        { signal: "回调参数只给了 id", reachFor: "说明设计上就要求你按 id 操作" },
-        { signal: "测试过了但心里没底", reachFor: "手动造一个测试覆盖不到的场景（同名、多条、空列表）" },
+        {
+          signal: "「删除某一条」",
+          signalEn: "Delete one item",
+          reachFor: "filter + 保留不匹配的（！==）",
+          reachForEn: "filter, keeping the items that do not match (!==)",
+        },
+        {
+          signal: "题目强调「按 X」",
+          signalEn: "The task stresses by X",
+          reachFor: "比较依据只能是 X",
+          reachForEn: "X is the only thing you may compare on",
+        },
+        {
+          signal: "回调参数只给了 id",
+          signalEn: "The callback only receives an id",
+          reachFor: "说明设计上就要求你按 id 操作",
+          reachForEn: "That means the design expects you to work by id",
+        },
+        {
+          signal: "测试过了但心里没底",
+          signalEn: "The tests pass but you are not sure",
+          reachFor: "手动造一个测试覆盖不到的场景（同名、多条、空列表）",
+          reachForEn: "Build a case the tests do not cover: same title, several items, an empty list",
+        },
       ],
       recap: [
         "handleDelete 就一行：setNotes(prev => prev.filter(n => n.id !== id))。",
@@ -1853,6 +2004,13 @@ const handleDelete = (id: number) => {
         "必须按 id 比较：title 不唯一，下标会变，splice 还会改原数组。",
         "第 3 个测试只有一条数据，硬编码甚至清空列表都能过 —— 测试不是正确性证明。",
         "验证「按 id」的办法是手动加三条同名笔记，删中间那条。",
+      ],
+      recapEn: [
+        "handleDelete is one line: setNotes(prev => prev.filter(n => n.id !== id)).",
+        "filter means keep, so deleting uses the not-equal operator.",
+        "Compare on the id: titles are not unique, indexes shift, and splice changes the original array.",
+        "The third test has only one note, so even hard-coding or emptying the list passes. A passing test is not a proof of correctness.",
+        "To check by id, add three notes with the same title by hand and delete the middle one.",
       ],
     },
 
@@ -1862,6 +2020,7 @@ const handleDelete = (id: number) => {
       title: "Task 3 · Edit：回填、改文字、就地更新、退出编辑",
       titleEn: "Task 3 · Edit: refill the form, change the button text, update the row where it is, leave edit mode",
       blurb: "四个要求串成一条链。这是整道 Q1 的压轴题。",
+      blurbEn: "Four requirements linked into one chain. This is the hardest part of Q1.",
       minutes: 18,
       objectives: [
         "独立写出 handleEdit 和 handleSubmitNote 的编辑分支",
@@ -1869,8 +2028,16 @@ const handleDelete = (id: number) => {
         "解释为什么必须复用旧 id，以及不复用会发生什么",
         "解释为什么必须用 map 而不能「先删再加」",
       ],
+      objectivesEn: [
+        "Write handleEdit and the edit branch of handleSubmitNote on your own",
+        "Say which four things the single noteToEdit state controls",
+        "Explain why the old id has to be reused, and what happens if it is not",
+        "Explain why map is required and why removing the item then adding it is not allowed",
+      ],
       whyForAssessment:
         "第 4 个测试查它，而且是四个测试里最长的一条。它同时验证「按钮文字变 Update」和「新内容替换旧内容」。「原位置」这个要求测试查不到，但它是题面明写的。",
+      whyForAssessmentEn:
+        "The fourth test checks it, and it is the longest of the four. It verifies both that the button text becomes Update and that the new content replaces the old one. No test covers the in place requirement, but the task text states it clearly.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleEdit + handleSubmitNote 的 if 分支", edit: true },
         { path: "react-notes-app/src/components/NoteForm/index.tsx", role: "useEffect 回填 + id 复用 + 按钮文字（已给好）" },
@@ -1879,6 +2046,7 @@ const handleDelete = (id: number) => {
         {
           id: "what-asked",
           heading: "这一问在要求什么",
+          headingEn: "What this task asks for",
           body: (
             <>
               <p>
@@ -1999,7 +2167,9 @@ const handleDelete = (id: number) => {
         {
           id: "one-state-four-jobs",
           heading: "noteToEdit 这一个 state，同时干了四件事",
+          headingEn: "One state, noteToEdit, does four jobs at the same time",
           lede: "这是这道题设计上最漂亮的地方。",
+          ledeEn: "This is the neatest part of how the task is designed.",
           body: (
             <>
               <p>
@@ -2076,7 +2246,9 @@ const handleDelete = (id: number) => {
         {
           id: "the-flow",
           heading: "把整条链走一遍",
+          headingEn: "Walk the whole chain once",
           lede: "六步。每一步都点开看。",
+          ledeEn: "Six steps. Open each one and read it.",
           body: (
             <>
               <p>
@@ -2102,7 +2274,9 @@ const handleDelete = (id: number) => {
         {
           id: "why-reuse-id",
           heading: "为什么必须复用旧 id",
+          headingEn: "Why the old id has to be reused",
           lede: "这一行是整道题的枢纽。",
+          ledeEn: "This one line is the center of the whole task.",
           body: (
             <>
               <p>
@@ -2167,6 +2341,7 @@ const handleDelete = (id: number) => {
         {
           id: "why-map",
           heading: "为什么必须用 map，不能「先删再加」",
+          headingEn: "Why map is required, and why removing the item then adding it is not",
           body: (
             <>
               <p>
@@ -2241,6 +2416,7 @@ const handleDelete = (id: number) => {
         {
           id: "final-code",
           heading: "完整答案",
+          headingEn: "The complete answer",
           body: (
             <>
               <p>
@@ -2296,6 +2472,7 @@ const handleEdit = (note: Note) => {
         {
           id: "the-test",
           heading: "对应的测试，逐行读",
+          headingEn: "The matching test, read line by line",
           body: (
             <>
               <p>
@@ -2688,6 +2865,14 @@ const handleEdit = (note: Note) => {
               <strong>handleEdit 唯一的职责是 setNoteToEdit。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              Clicking Edit only enters edit mode. The user has not submitted
+              anything yet, and may give up halfway. Removing the note here means
+              that clicking Edit loses data.
+              <strong>The only job of handleEdit is setNoteToEdit.</strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2706,6 +2891,17 @@ if (noteToEdit) {
               再点一次提交还是在更新同一条。
               <br />
               题目原文有「退出编辑模式」四个字，这是明确要求。
+            </>
+          ),
+          whyEn: (
+            <>
+              <strong>The fourth test still passes</strong>, because after the
+              submit it only checks the list contents, not the form and not the
+              button. But the behavior is wrong: the form still holds the previous
+              text, the button still says Update, and submitting again updates the
+              same note.
+              <br />
+              The task text says to leave edit mode. That is a stated requirement.
             </>
           ),
         },
@@ -2729,14 +2925,49 @@ if (noteToEdit) {
               验证方法：手动加三条，编辑中间那条，看它是否还在第二行。
             </>
           ),
+          whyEn: (
+            <>
+              The test passes, because there is only one note, but the edited note
+              <strong>moves to the end of the list</strong>, which breaks the in
+              place requirement stated in the task.
+              <br />
+              How to check: add three notes by hand, edit the middle one, and see
+              whether it is still on the second row.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「更新某一条，位置不变」", reachFor: "map + 三元，用 === 匹配" },
-        { signal: "「进入编辑态 / 选中某一项」", reachFor: "一个 selected: T | null 的 state" },
-        { signal: "「点了更新但毫无反应」", reachFor: "查匹配用的 id 是不是被改过" },
-        { signal: "「更新完要恢复初始态」", reachFor: "把那个 T | null 的 state 设回 null" },
-        { signal: "一个函数服务两种模式", reachFor: "改动前把所有分支都想一遍" },
+        {
+          signal: "「更新某一条，位置不变」",
+          signalEn: "Update one item without moving it",
+          reachFor: "map + 三元，用 === 匹配",
+          reachForEn: "map plus a ternary, matching with ===",
+        },
+        {
+          signal: "「进入编辑态 / 选中某一项」",
+          signalEn: "Enter edit mode, or select one item",
+          reachFor: "一个 selected: T | null 的 state",
+          reachForEn: "One state of type selected: T | null",
+        },
+        {
+          signal: "「点了更新但毫无反应」",
+          signalEn: "Update was clicked and nothing happened",
+          reachFor: "查匹配用的 id 是不是被改过",
+          reachForEn: "Check whether the id used for matching was changed",
+        },
+        {
+          signal: "「更新完要恢复初始态」",
+          signalEn: "Go back to the starting state after the update",
+          reachFor: "把那个 T | null 的 state 设回 null",
+          reachForEn: "Set that T | null state back to null",
+        },
+        {
+          signal: "一个函数服务两种模式",
+          signalEn: "One function serves two modes",
+          reachFor: "改动前把所有分支都想一遍",
+          reachForEn: "Think through every branch before you change it",
+        },
       ],
       recap: [
         "noteToEdit 一个 state 控制四件事：回填、按钮文字、提交时的 id、提交走哪个分支。",
@@ -2744,6 +2975,13 @@ if (noteToEdit) {
         "编辑分支用 map + === 就地替换，长度和顺序都不变。",
         "必须复用旧 id，否则 map 匹配不上，更新静默失败。",
         "setNoteToEdit(null) 不能漏 —— 测试查不到，但题目明写了「退出编辑模式」。",
+      ],
+      recapEn: [
+        "The single noteToEdit state controls four things: filling the form, the button text, the id used on submit, and which branch the submit takes.",
+        "handleEdit only calls setNoteToEdit(note). It never touches notes.",
+        "The edit branch uses map and === to replace the item in place, so the length and the order stay the same.",
+        "The old id has to be reused, or map finds no match and the update fails without any message.",
+        "Do not forget setNoteToEdit(null). No test checks it, but the task text does say to leave edit mode.",
       ],
     },
 
@@ -2753,6 +2991,7 @@ if (noteToEdit) {
       title: "四个测试逐条读，以及它们的盲区",
       titleEn: "The four tests read line by line, and what they fail to catch",
       blurb: "判卷器长什么样，它查什么，它查不到什么。",
+      blurbEn: "What the grader looks like, what it checks, and what it cannot check.",
       minutes: 12,
       objectives: [
         "读懂 Testing Library 的三件套：render / screen / userEvent",
@@ -2760,8 +2999,16 @@ if (noteToEdit) {
         "知道为什么每个 userEvent 前面都有 await",
         "列出这四个测试的三个盲区，以及怎么自己补上",
       ],
+      objectivesEn: [
+        "Read the three main pieces of Testing Library: render, screen, and userEvent",
+        "Say when to use getByTestId and when to use getByRole",
+        "Know why every userEvent call has await in front of it",
+        "List the three blind spots of these four tests, and how to cover them yourself",
+      ],
       whyForAssessment:
         "测试就是判卷器。看懂它 = 知道及格线在哪。而看懂它的盲区 = 知道题目要求里哪些是测试之外还得自己保证的。",
+      whyForAssessmentEn:
+        "The tests are the grader. Reading them tells you where the pass line is. Reading their blind spots tells you which requirements you still have to guarantee yourself.",
       sourceFiles: [
         { path: "react-notes-app/src/NoteManager.test.tsx", role: "四个判卷测试" },
         { path: "react-notes-app/vite.config.ts", role: "vitest 配置内联在这里" },
@@ -2771,7 +3018,9 @@ if (noteToEdit) {
         {
           id: "the-setup",
           heading: "测试环境是怎么搭起来的",
+          headingEn: "How the test setup is put together",
           lede: "三个文件，各管一段。",
+          ledeEn: "Three files, each responsible for one part.",
           body: (
             <>
               <p>
@@ -2858,6 +3107,7 @@ export default defineConfig({
         {
           id: "three-tools",
           heading: "Testing Library 三件套",
+          headingEn: "The three main pieces of Testing Library",
           body: (
             <>
               <div className="table-wrap">
@@ -2942,6 +3192,7 @@ export default defineConfig({
         {
           id: "get-strategies",
           heading: "getByTestId 和 getByRole：为什么两种都用",
+          headingEn: "getByTestId and getByRole: why both are used",
           body: (
             <>
               <p>
@@ -3012,6 +3263,7 @@ export default defineConfig({
         {
           id: "why-await",
           heading: "为什么每个 userEvent 都要 await",
+          headingEn: "Why every userEvent call needs await",
           body: (
             <>
               <p>
@@ -3078,7 +3330,9 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
         {
           id: "blind-spots",
           heading: "三个盲区，以及怎么自己补",
+          headingEn: "Three blind spots, and how to cover them yourself",
           lede: "这一段是本节的重点。",
+          ledeEn: "This section is the most important part of the lesson.",
           body: (
             <>
               <p>
@@ -3339,10 +3593,30 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
         },
       ],
       transfer: [
-        { signal: "测试说找不到元素/文字，但代码看着没错", reachFor: "先数 await" },
-        { signal: "getByRole 报「找到多个」", reachFor: "换 getAllByRole + 下标" },
-        { signal: "toBeDisabled is not a function", reachFor: "缺 jest-dom 的 setupFiles" },
-        { signal: "测试全过但心里没底", reachFor: "找测试的盲区，手动造场景补上" },
+        {
+          signal: "测试说找不到元素/文字，但代码看着没错",
+          signalEn: "The test cannot find an element or some text, but the code looks right",
+          reachFor: "先数 await",
+          reachForEn: "Count the await keywords first",
+        },
+        {
+          signal: "getByRole 报「找到多个」",
+          signalEn: "getByRole reports that it found more than one",
+          reachFor: "换 getAllByRole + 下标",
+          reachForEn: "Switch to getAllByRole and an index",
+        },
+        {
+          signal: "toBeDisabled is not a function",
+          signalEn: "toBeDisabled is not a function",
+          reachFor: "缺 jest-dom 的 setupFiles",
+          reachForEn: "The setupFiles entry for jest-dom is missing",
+        },
+        {
+          signal: "测试全过但心里没底",
+          signalEn: "Every test passes but you are still not sure",
+          reachFor: "找测试的盲区，手动造场景补上",
+          reachForEn: "Look for the blind spots and build those cases by hand",
+        },
       ],
       recap: [
         "vitest 配置内联在 vite.config.ts 里；jest-dom 的断言靠 vitest.setup.ts 引入。",
@@ -3350,6 +3624,13 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
         "testid 用于无文字的表单元素，role + name 用于行内按钮 —— 两者都是契约。",
         "userEvent 都要 await，否则断言跑在重新渲染之前。",
         "三个盲区：按 id 删、原位置更新、退出编辑模式。都得手动验证。",
+      ],
+      recapEn: [
+        "The Vitest config sits inside vite.config.ts, and the jest-dom assertions are loaded by vitest.setup.ts.",
+        "All four tests render the top-level NoteManager, so a break anywhere in the chain shows up as the same failure.",
+        "data-testid is for form elements with no text, and role plus name is for the row buttons. Both are a contract.",
+        "Every userEvent call needs await, or the assertion runs before the re-render.",
+        "Three blind spots: deleting by id, updating in place, and leaving edit mode. Check all three by hand.",
       ],
     },
   ],

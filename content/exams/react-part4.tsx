@@ -121,6 +121,7 @@ export const reactQ2: Module = {
       title: "读题：三条要求，每一条都在指定一种写法",
       titleEn: "Reading the question: three requirements, and each one decides how you write it",
       blurb: "题面就写在 taskRunner.ts 的文件头注释里。逐条翻译。",
+      blurbEn: "The question is written in the header comment of taskRunner.ts. Take it one requirement at a time.",
       minutes: 12,
       objectives: [
         "复述三条要求，并说清每条排除了哪种实现",
@@ -128,8 +129,16 @@ export const reactQ2: Module = {
         "看懂 SettledResult 这个可辨识联合类型",
         "知道怎么跑 demo.ts 以及怎么读它的输出",
       ],
+      objectivesEn: [
+        "Restate the three requirements, and say which implementation each one rules out",
+        "Explain why the parameter is an array of functions and not an array of Promise values",
+        "Read the SettledResult type and see that it is a discriminated union",
+        "Know how to run demo.ts and how to read its output",
+      ],
       whyForAssessment:
         "这道题没有断言测试，只有一个打印实时并发数的 demo.ts。也就是说：验收全靠你自己会不会读那段输出。读不懂输出，就不知道自己做对没有。",
+      whyForAssessmentEn:
+        "This question has no assertion tests. It has one demo.ts that prints how many tasks are running at each moment. So the only check is whether you can read that output. If you cannot read it, you do not know whether your answer is right.",
       sourceFiles: [
         { path: "react-notes-app/q2/taskRunner.ts", role: "题面 + 类型 + 要实现的函数", edit: true },
         { path: "react-notes-app/q2/demo.ts", role: "验证台，打印实时并发数与最终结果" },
@@ -138,7 +147,9 @@ export const reactQ2: Module = {
         {
           id: "the-brief",
           heading: "题面原文",
+          headingEn: "The question, word for word",
           lede: "注意它是英文的，而且每一条都很精确。",
+          ledeEn: "Note that it is written in English, and every line is precise.",
           body: (
             <>
               <p>
@@ -169,6 +180,7 @@ export const reactQ2: Module = {
         {
           id: "translate",
           heading: "三条要求逐条翻译",
+          headingEn: "The three requirements, one at a time",
           body: (
             <>
               <div className="table-wrap">
@@ -279,8 +291,8 @@ export const reactQ2: Module = {
                         the result array must be in the same order as the input
                       </td>
                       <td>
-                        Rules out <code>Promise.all</code> (one failure blows up
-                        everything), and also &ldquo;push whoever finishes first&rdquo;
+                        Rules out <code>Promise.all</code> (one failure fails the whole
+                        batch), and also &ldquo;push whoever finishes first&rdquo;
                         (the order scrambles)
                       </td>
                     </tr>
@@ -300,7 +312,9 @@ export const reactQ2: Module = {
         {
           id: "fn-not-promise",
           heading: "为什么是函数数组：这是整道题的支点",
+          headingEn: "Why it is an array of functions: this is what the whole question turns on",
           lede: "如果传进来的是 Promise，这道题根本无解。",
+          ledeEn: "If you were handed Promise values, this question would have no answer at all.",
           body: (
             <>
               <p>
@@ -390,6 +404,7 @@ const tasks = [
         {
           id: "settled-result",
           heading: "SettledResult：一个可辨识联合",
+          headingEn: "SettledResult: a discriminated union",
           body: (
             <>
               <p>
@@ -467,7 +482,9 @@ for (const r of results) {
         {
           id: "the-harness",
           heading: "验证台 demo.ts 怎么读",
+          headingEn: "How to read demo.ts, the check harness",
           lede: "这道题没有断言测试。会读输出，等于会判卷。",
+          ledeEn: "This question has no assertion tests. Reading the output is the grading.",
           body: (
             <>
               <p>
@@ -647,10 +664,10 @@ runTasks(tasks, 2).then((results) => {
         },
       ],
       transfer: [
-        { signal: "「限制同时进行的数量」", reachFor: "参数必须是工厂函数数组，不能是已启动的 Promise" },
-        { signal: "「不管失败都要拿到全部结果」", reachFor: "allSettled 的语义：try/catch 每一个，都记下来" },
-        { signal: "「结果顺序与输入一致」", reachFor: "按下标写回预分配的数组，别用 push" },
-        { signal: "看到 status: \"a\" | \"b\" 这种字段", reachFor: "可辨识联合，if 之后类型自动收窄" },
+        { signal: "「限制同时进行的数量」", signalEn: "The wording: limit how many run at the same time", reachFor: "参数必须是工厂函数数组，不能是已启动的 Promise", reachForEn: "The parameter must be an array of functions that create the work, not Promise values that already started" },
+        { signal: "「不管失败都要拿到全部结果」", signalEn: "The wording: collect every result even when some fail", reachFor: "allSettled 的语义：try/catch 每一个，都记下来", reachForEn: "This is what allSettled means: wrap each one in try/catch and record what happened" },
+        { signal: "「结果顺序与输入一致」", signalEn: "The wording: results must be in the same order as the input", reachFor: "按下标写回预分配的数组，别用 push", reachForEn: "Write into an array you created up front, at the matching index; do not use push" },
+        { signal: "看到 status: \"a\" | \"b\" 这种字段", signalEn: "You see a field like status: \"a\" | \"b\"", reachFor: "可辨识联合，if 之后类型自动收窄", reachForEn: "A discriminated union: inside the if, the type narrows on its own" },
       ],
       recap: [
         "三条要求：函数数组、并发上限 limit、绝不抛错且保序。",
@@ -658,6 +675,13 @@ runTasks(tasks, 2).then((results) => {
         "Promise.allSettled(tasks.map(t => t())) 满足两条但违反并发上限 —— 难点全在节流。",
         "SettledResult 是可辨识联合，靠 status 字段收窄类型，必须用 type 不能用 interface。",
         "这道题没有断言测试，验收靠读 demo.ts 的三条输出特征。",
+      ],
+      recapEn: [
+        "Three requirements: an array of functions, a concurrency limit called limit, and never throwing while keeping the order.",
+        "The parameter is () => Promise<T> and not Promise<T>, because once a Promise exists you cannot pause it.",
+        "Promise.allSettled(tasks.map(t => t())) meets two requirements but breaks the concurrency limit. All the difficulty is in the throttling.",
+        "SettledResult is a discriminated union: the status field narrows the type, and it must be declared with type, not interface.",
+        "This question has no assertion tests. You check it by reading three things in the demo.ts output.",
       ],
     },
 
@@ -667,6 +691,7 @@ runTasks(tasks, 2).then((results) => {
       title: "实现：worker pool（工人池）",
       titleEn: "Building it: a worker pool, meaning a fixed number of workers sharing one queue",
       blurb: "别想复杂了。就是「开 limit 个工人，一起从同一个待办队列里抢活」。",
+      blurbEn: "Do not overthink it. You start limit workers, and they all take jobs from the same to-do queue.",
       minutes: 16,
       objectives: [
         "独立实现 runTasks，并解释每一行为什么这么写",
@@ -674,8 +699,16 @@ runTasks(tasks, 2).then((results) => {
         "说清「按下标写回」为什么天然保证了顺序",
         "会读 npm run q2 的输出并判断实现是否正确",
       ],
+      objectivesEn: [
+        "Implement runTasks without help, and explain why each line is written that way",
+        "Explain why one shared cursor already guarantees the concurrency limit",
+        "Explain why writing results back by index already guarantees the order",
+        "Read the output of npm run q2 and decide whether the implementation is correct",
+      ],
       whyForAssessment:
         "这是 Q2 的完整答案。而且 worker pool 是一个可迁移的模式 —— 任何「限制并发」的题都是这个骨架。",
+      whyForAssessmentEn:
+        "This is the full answer to Q2. The worker pool is also a pattern you can carry to other problems: every question about limiting concurrency has this same skeleton.",
       sourceFiles: [
         { path: "react-notes-app/q2/taskRunner.ts", role: "要实现的 runTasks", edit: true },
       ],
@@ -683,7 +716,9 @@ runTasks(tasks, 2).then((results) => {
         {
           id: "wrong-idea",
           heading: "先排除一个直觉上的错解：分批",
+          headingEn: "First rule out the answer that feels obvious: fixed batches",
           lede: "「6 个任务、上限 2，那就切成 3 批」—— 这个想法能跑，但不对。",
+          ledeEn: "Six tasks, a limit of 2, so cut them into 3 batches. That idea runs, but it is wrong.",
           body: (
             <>
               <p>
@@ -758,7 +793,9 @@ runTasks(tasks, 2).then((results) => {
         {
           id: "the-idea",
           heading: "worker pool 的四个零件",
+          headingEn: "The four parts of a worker pool",
           lede: "拆开看，一共只有四样东西。",
+          ledeEn: "Taken apart, there are only four things.",
           body: (
             <>
               <ol>
@@ -838,7 +875,9 @@ runTasks(tasks, 2).then((results) => {
         {
           id: "why-safe",
           heading: "游标不会被抢乱吗",
+          headingEn: "Can two workers grab the same cursor value?",
           lede: "不会。JavaScript 是单线程的。",
+          ledeEn: "No. JavaScript runs on one thread.",
           body: (
             <>
               <p>
@@ -898,6 +937,7 @@ nextIndex++;           // 立刻把游标推进，别人抢不到同一个
         {
           id: "step-by-step",
           heading: "分步写出来",
+          headingEn: "Writing it one step at a time",
           body: (
             <>
               <p><strong>第一步：结果数组和游标。</strong></p>
@@ -993,7 +1033,9 @@ return results;`,
         {
           id: "full-solution",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "这就是项目里的实现，已实测跑通。",
+          ledeEn: "This is the implementation in the project, and it has been run and checked.",
           body: (
             <>
               <p>
@@ -1022,6 +1064,7 @@ return results;`,
         {
           id: "verify",
           heading: "验证：读懂这段输出",
+          headingEn: "Checking your work: how to read this output",
           body: (
             <>
               <p>本机实测的完整输出。三条验收标准逐条对照：</p>
@@ -1442,6 +1485,18 @@ try {
               <strong>正解是预分配数组 + 按原始下标 <code>results[i]</code> 写回。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              <code>push</code> appends in <strong>finish order</strong>. Task 2 (100ms)
+              lands before task 1 (300ms), so <code>#1</code> holds the result of task 2.
+              That breaks the requirement to return results IN THE SAME ORDER as tasks.
+              <br />
+              <strong>
+                The right answer: create the array up front and write each result to its
+                original index, <code>results[i]</code>.
+              </strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1466,6 +1521,18 @@ try {
               <strong>catch 里只记录，不中断循环。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              After task 3 fails, that worker exits. The remaining tasks are left to the
+              other worker alone, so the real concurrency drops to 1. And if both workers
+              hit a failure, the later tasks never run at all, which leaves{" "}
+              <code>undefined</code> holes in <code>results</code>.
+              <br />
+              <strong>
+                In the catch block, record what happened and let the loop continue.
+              </strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1486,14 +1553,27 @@ const worker = async () => {
               靠闭包被所有 worker 共享。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              With the cursor declared inside the worker, every worker gets{" "}
+              <strong>its own copy</strong>, so every worker starts at 0 and runs all the
+              tasks. With limit=2 each task runs twice, and the number running at once is
+              double what it should be.
+              <br />
+              <strong>
+                Declare the cursor outside the worker, so the closure shares one cursor
+                between all workers.
+              </strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「限制并发数」「连接池」「批量上传限速」", reachFor: "worker pool：共享游标 + limit 个 worker" },
-        { signal: "「结果顺序必须与输入一致」", reachFor: "预分配数组 + results[i] 写回，别用 push" },
-        { signal: "「失败也要继续」", reachFor: "try/catch 在循环体内，catch 里不 return" },
-        { signal: "结果里出现 [Function] 或 Promise {}", reachFor: "括号写少了或写多了" },
-        { signal: "任务被重复执行", reachFor: "游标是不是被声明在了 worker 内部" },
+        { signal: "「限制并发数」「连接池」「批量上传限速」", signalEn: "Wording like: limit concurrency, a connection pool, rate-limited bulk upload", reachFor: "worker pool：共享游标 + limit 个 worker", reachForEn: "A worker pool: one shared cursor plus limit workers" },
+        { signal: "「结果顺序必须与输入一致」", signalEn: "The wording: results must be in the same order as the input", reachFor: "预分配数组 + results[i] 写回，别用 push", reachForEn: "Create the array up front and write results[i]; do not use push" },
+        { signal: "「失败也要继续」", signalEn: "The wording: keep going even when one fails", reachFor: "try/catch 在循环体内，catch 里不 return", reachForEn: "Put try/catch inside the loop body, and do not return from the catch" },
+        { signal: "结果里出现 [Function] 或 Promise {}", signalEn: "A result prints as [Function] or as Promise {}", reachFor: "括号写少了或写多了", reachForEn: "You left out a pair of call parentheses, or added an extra pair" },
+        { signal: "任务被重复执行", signalEn: "A task runs more than once", reachFor: "游标是不是被声明在了 worker 内部", reachForEn: "Check whether the cursor was declared inside the worker" },
       ],
       recap: [
         "worker pool 四个零件：预分配结果数组、共享游标、循环抢活的 worker、limit 个 worker + Promise.all。",
@@ -1501,6 +1581,13 @@ const worker = async () => {
         "JavaScript 单线程，游标那两行之间没有 await，所以不需要加锁。",
         "await tasks[i]() 的括号是关键；少了它任务根本不会被执行，而且不报错。",
         "catch 里只记录不中断，这才叫「NEVER throws」。",
+      ],
+      recapEn: [
+        "The four parts of a worker pool: a result array created up front, one shared cursor, a worker that loops and takes the next job, and limit workers run with Promise.all.",
+        "The concurrency limit comes from how many workers you start. The order comes from writing each result to its original index. Neither needs extra code.",
+        "JavaScript runs on one thread, and there is no await between the two cursor lines, so no lock is needed.",
+        "The parentheses in await tasks[i]() matter. Without them the task never runs, and nothing reports an error.",
+        "The catch block records and keeps going. That is what NEVER throws means.",
       ],
     },
   ],
@@ -1526,6 +1613,7 @@ export const reactMastery: Module = {
       title: "Debug Lab · React 十种典型故障",
       titleEn: "Debug Lab · ten typical React failures",
       blurb: "每一种都给真实报错（或真实的「没有报错」），你来判断、定位、修复、验证。",
+      blurbEn: "Each failure comes with the real error message, or with the real silence. You decide what it is, find it, fix it, and check the fix.",
       minutes: 20,
       objectives: [
         "看到报错能先判断类型，再决定去哪个文件找",
@@ -1533,8 +1621,16 @@ export const reactMastery: Module = {
         "养成「改完必须跑一遍验证」的习惯",
         "把错误信息和根因建立稳定的对应关系",
       ],
+      objectivesEn: [
+        "See an error and first decide its type, then decide which file to open",
+        "Recognise the symptoms of the bugs that report no error at all",
+        "Build the habit of running a check after every fix",
+        "Build a reliable link between an error message and its root cause",
+      ],
       whyForAssessment:
         "考场上大部分时间不是在写新代码，是在查为什么不对。会读报错的人和不会读的人，同样的知识水平能差出一倍速度。",
+      whyForAssessmentEn:
+        "During the exam most of your time is not spent writing new code. It is spent finding out why the code is wrong. With the same knowledge, someone who reads error messages well works about twice as fast as someone who does not.",
       sourceFiles: [
         { path: "react-notes-app/src/", role: "所有故障都基于这个项目的真实代码" },
       ],
@@ -1542,7 +1638,9 @@ export const reactMastery: Module = {
         {
           id: "triage",
           heading: "先分诊：这个报错属于哪一类",
+          headingEn: "Sort it first: which kind of error is this?",
           lede: "拿到报错的第一件事不是改代码，是归类。",
+          ledeEn: "The first thing to do with an error is not to change code. It is to put the error in a category.",
           body: (
             <>
               <p>React 项目的故障基本就这五类。归对类，排查范围立刻缩小：</p>
@@ -1645,6 +1743,7 @@ export const reactMastery: Module = {
         {
           id: "no-error-bugs",
           heading: "「不报错」的四种 bug，记住它们的症状",
+          headingEn: "Four bugs that report no error: learn their symptoms",
           body: (
             <>
               <div className="table-wrap">
@@ -1721,6 +1820,7 @@ export const reactMastery: Module = {
         {
           id: "verify-habit",
           heading: "改完必须验证 —— 而且要验证到题面要求那一层",
+          headingEn: "Always check a fix, and check it against what the question asked for",
           body: (
             <>
               <p>
@@ -2141,11 +2241,11 @@ console.log("after:", notes);
         },
       ],
       transfer: [
-        { signal: "Failed to resolve import", reachFor: "路径拼写 / 大小写 / 文件是否存在" },
-        { signal: "TS2322 Property 'x' is missing", reachFor: "props 名字两边对不上，改调用方" },
-        { signal: "Unable to find an element by [data-testid=…]", reachFor: "在报错打印的 DOM 里搜相似 testid" },
-        { signal: "没报错 + 日志对 + 屏幕不动", reachFor: "改了原对象：push / splice / arr[i]= / obj.x=" },
-        { signal: "Maximum update depth exceeded", reachFor: "useEffect 依赖，或 onClick 写成了 fn()" },
+        { signal: "Failed to resolve import", reachFor: "路径拼写 / 大小写 / 文件是否存在", reachForEn: "Check the spelling of the path, the upper and lower case, and whether the file exists" },
+        { signal: "TS2322 Property 'x' is missing", reachFor: "props 名字两边对不上，改调用方", reachForEn: "The prop names do not match on the two sides; fix the caller" },
+        { signal: "Unable to find an element by [data-testid=…]", reachFor: "在报错打印的 DOM 里搜相似 testid", reachForEn: "Search the DOM printed with the error for a similar data-testid" },
+        { signal: "没报错 + 日志对 + 屏幕不动", signalEn: "No error, the logs look right, and the screen does not change", reachFor: "改了原对象：push / splice / arr[i]= / obj.x=", reachForEn: "You changed the original object: push / splice / arr[i]= / obj.x=" },
+        { signal: "Maximum update depth exceeded", reachFor: "useEffect 依赖，或 onClick 写成了 fn()", reachForEn: "Look at the useEffect dependencies, or an onClick written as fn()" },
       ],
       recap: [
         "先分诊后动手：模块路径 / 类型 / 渲染循环 / 状态更新 / 测试查询。",
@@ -2153,6 +2253,13 @@ console.log("after:", notes);
         "Testing Library 失败时会打印整个 DOM —— 在里面搜你期望的 testid。",
         "编译期报错比运行时报错更精确，先修编译期的。",
         "验证要到题面那一层：测试过 ≠ 做对，还得手动跑三个场景。",
+      ],
+      recapEn: [
+        "Sort the error before you touch anything: module path, type, render loop, state update, or test query.",
+        "Bugs with no error message are found by their symptoms, and the most common one is changing the original object.",
+        "When Testing Library fails it prints the whole DOM. Search that output for the data-testid you expected.",
+        "A compile-time error is more precise than a runtime one, so fix the compile-time errors first.",
+        "Check your work against the question, not against the tests: passing tests do not mean it is right, so run the three cases by hand.",
       ],
     },
 
@@ -2162,6 +2269,7 @@ console.log("after:", notes);
       title: "从零重写：空文件夹到 4 个测试全过",
       titleEn: "Write it again yourself: from an empty folder to 4 passing tests",
       blurb: "不给答案。给需求、文件清单、验证命令和四级提示。这一关是分界线。",
+      blurbEn: "No answer is given. You get the requirements, the file list, the commands to check your work, and hints in four levels. This lesson is the dividing line.",
       minutes: 60,
       objectives: [
         "在没有参考代码的情况下从空文件建出整个项目",
@@ -2169,8 +2277,16 @@ console.log("after:", notes);
         "独立实现 Q1 三个任务和 Q2 调度器",
         "用测试和手动场景验证自己的实现",
       ],
+      objectivesEn: [
+        "Build the whole project from empty files, with no code to copy from",
+        "Set up the build and test configuration of a React project yourself",
+        "Implement the three Q1 tasks and the Q2 task runner without help",
+        "Check your implementation with the tests and by trying it by hand",
+      ],
       whyForAssessment:
         "填空和跟写只能证明你「看懂了」。真正的考试是打开一个空编辑器。这一关就是模拟那个时刻 —— 而且它比真实考试更难，因为连脚手架都要你自己搭。",
+      whyForAssessmentEn:
+        "Filling in blanks and copying along only proves you followed the explanation. The real exam starts with an empty editor. This lesson recreates that moment, and it is harder than the real exam, because here you also set up the project yourself.",
       sourceFiles: [
         { path: "react-notes-app/", role: "参考项目 —— 做完之后再对照，不要提前看" },
       ],
@@ -2178,7 +2294,9 @@ console.log("after:", notes);
         {
           id: "why-rebuild",
           heading: "为什么必须做这一关",
+          headingEn: "Why you have to do this lesson",
           lede: "读代码用的是识别能力，写代码用的是生成能力。两者不是一回事。",
+          ledeEn: "Reading code means recognising it. Writing code means producing it. These are two different abilities.",
           body: (
             <>
               <p>
@@ -2227,6 +2345,7 @@ console.log("after:", notes);
         {
           id: "how-to",
           heading: "建议的做法",
+          headingEn: "A suggested way to work through it",
           body: (
             <>
               <ol>
@@ -2704,10 +2823,10 @@ runTasks(tasks, 2).then((results) => {
         },
       ],
       transfer: [
-        { signal: "拿到空目录", reachFor: "先让空架子能跑起来，再写业务" },
-        { signal: "有测试文件", reachFor: "先抄进来当判卷器，一个一个攻" },
-        { signal: "不知道 state 放哪", reachFor: "画组件树，找需要它的组件的共同祖先" },
-        { signal: "写完了", reachFor: "跑测试 + 手动跑测试覆盖不到的场景" },
+        { signal: "拿到空目录", signalEn: "You are handed an empty folder", reachFor: "先让空架子能跑起来，再写业务", reachForEn: "Get the empty project running first, then write the features" },
+        { signal: "有测试文件", signalEn: "There is a test file", reachFor: "先抄进来当判卷器，一个一个攻", reachForEn: "Copy it in first and use it as your grader, then take one test at a time" },
+        { signal: "不知道 state 放哪", signalEn: "You do not know where to put the state", reachFor: "画组件树，找需要它的组件的共同祖先", reachForEn: "Draw the component tree and find the closest shared parent of the components that need it" },
+        { signal: "写完了", signalEn: "You think you are finished", reachFor: "跑测试 + 手动跑测试覆盖不到的场景", reachForEn: "Run the tests, then try the cases the tests do not cover by hand" },
       ],
       recap: [
         "识别能力和生成能力是两回事 —— 只有从空文件写过，才算真会。",
@@ -2715,6 +2834,13 @@ runTasks(tasks, 2).then((results) => {
         "有测试就先抄进来，它是你唯一客观的进度条。",
         "卡住 15 分钟再看提示，提示是四级递进的。",
         "最后一定要手动验证「按 id」「原位置」「退出编辑模式」这三条。",
+      ],
+      recapEn: [
+        "Recognising code and producing code are two different abilities. You only really know it once you have written it from empty files.",
+        "Opening move: get the empty project running first, so you can see Hello on screen, then write the features.",
+        "If there is a test, copy it in first. It is your only objective progress bar.",
+        "Stay stuck for 15 minutes before opening a hint. The hints go in four levels, each one more specific.",
+        "At the end, check three things by hand: it edits by id, the note stays in place, and edit mode closes.",
       ],
     },
   ],

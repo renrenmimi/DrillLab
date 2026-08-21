@@ -438,6 +438,8 @@ const cabBooking: Exam = {
           title: "先读四个测试：它们到底要什么",
           titleEn: "Read the four tests first: what exactly they ask for",
           blurb: "四个测试全靠 data-testid 找元素。先抄一张 testid 表出来，再动手。",
+          blurbEn:
+            "All four tests find elements by data-testid. Copy out the list of testids first, then start writing.",
           minutes: 14,
           objectives: [
             "读出四个测试各自查的是什么",
@@ -445,8 +447,16 @@ const cabBooking: Exam = {
             "说清为什么测试 4 是这道题真正的分水岭",
             "知道 `vi.useFakeTimers()` 让 Loading 的 1 秒变成可控的",
           ],
+          objectivesEn: [
+            "Say what each of the four tests checks",
+            "Copy out all 13 data-testid values, and know which tests fail if you rename one",
+            "Explain why test 4 is the real dividing line in this task",
+            "Know that `vi.useFakeTimers()` puts the 1 second in Loading under your control",
+          ],
           whyForAssessment:
             "这道题的判分完全由 data-testid 驱动 —— 页面长得对但 testid 错一个，那一片全红。先读测试再写代码，能省掉一半的返工。测试 4「只留最新三条」是分水岭：slice 方向写反、忘了 reverse、或者原地改了 state，都会挂在这一条。",
+          whyForAssessmentEn:
+            "Scoring here is driven entirely by data-testid. The page can look right, and one wrong testid still fails every check around it. Reading the tests before writing code saves half of the rework. Test 4, which keeps only the three newest rides, is the dividing line: a slice in the wrong direction, a missing reverse, or changing the state array in place all fail on that one test.",
           sourceFiles: [
             { path: "cab-booking-context/src/test/App.test.jsx", role: "四个测试，判分的全部依据" },
             { path: "cab-booking-context/src/data/data.json", role: "三组六辆车，分组顺序来自这里的键顺序" },
@@ -455,7 +465,10 @@ const cabBooking: Exam = {
             {
               id: "cb-four-tests",
               heading: "四个测试各查什么",
+              headingEn: "What each of the four tests checks",
               lede: "读完这张表，你就知道要写哪些东西",
+              ledeEn:
+                "Read this table and you know everything you have to build",
               body: (
                 <>
                   <p>
@@ -626,7 +639,10 @@ const cabBooking: Exam = {
             {
               id: "cb-testid-contract",
               heading: "13 个 data-testid 就是契约",
+              headingEn: "The 13 data-testid values are the contract",
               lede: "改一个名字，红一片。所以先抄表",
+              ledeEn:
+                "Rename one and a whole group of tests fails. So copy the list out first",
               body: (
                 <>
                   <p>
@@ -969,13 +985,46 @@ const cabBooking: Exam = {
                   源项目用的是 <code>{"`${ride.id}-${index}`"}</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  Test 4 is <code>expect(rides).toHaveLength(3)</code>. Here{" "}
+                  <code>history-cabs</code> sits on the <code>&lt;ul&gt;</code>, so{" "}
+                  <code>getAllByTestId</code> finds only <strong>1</strong> element and the
+                  assertion for 3 fails.
+                  <br />
+                  <strong>A second mistake in the same snippet:</strong>{" "}
+                  <code>key={"{ride.id}"}</code> is not safe here — the same cab can be booked
+                  twice, so the id repeats. The source project uses{" "}
+                  <code>{"`${ride.id}-${index}`"}</code>.
+                </>
+              ),
             },
           ],
           transfer: [
-            { signal: "测试全靠 data-testid 找元素", reachFor: "先抄一张 testid 表，标清每个几个、挂在哪一层" },
-            { signal: "要断言「某个东西不存在」", reachFor: "queryBy 而不是 getBy —— getBy 找不到会抛错" },
-            { signal: "空状态和列表两个 testid", reachFor: "它们互斥，用三元表达式，别两个都渲染" },
-            { signal: "toEqual 比一个数组", reachFor: "那是有序断言，顺序错了就红" },
+            {
+              signal: "测试全靠 data-testid 找元素",
+              signalEn: "The tests find every element by data-testid",
+              reachFor: "先抄一张 testid 表，标清每个几个、挂在哪一层",
+              reachForEn: "Copy out a testid table first: how many of each, and which element it sits on",
+            },
+            {
+              signal: "要断言「某个东西不存在」",
+              signalEn: "You have to assert that something is not there",
+              reachFor: "queryBy 而不是 getBy —— getBy 找不到会抛错",
+              reachForEn: "queryBy, not getBy; getBy throws when it finds nothing",
+            },
+            {
+              signal: "空状态和列表两个 testid",
+              signalEn: "One testid for the empty state and one for the list",
+              reachFor: "它们互斥，用三元表达式，别两个都渲染",
+              reachForEn: "They exclude each other: use a ternary, do not render both",
+            },
+            {
+              signal: "toEqual 比一个数组",
+              signalEn: "toEqual compares a whole array",
+              reachFor: "那是有序断言，顺序错了就红",
+              reachForEn: "That is an ordered check; a wrong order fails",
+            },
           ],
           recap: [
             "四个测试是一次完整用户流程：首页 → 选车 → 加载 → 确认 → 历史。",
@@ -984,12 +1033,21 @@ const cabBooking: Exam = {
             "断言「不存在」只能用 queryBy —— getBy 找不到会抛错。",
             "原样跑是 0 个测试跑起来：把 CabContext.js 改名成 .jsx 才能开始。",
           ],
+          recapEn: [
+            "The four tests are one complete user journey: home page, pick a cab, loading, confirmation, history.",
+            "The 13 data-testid values are the only contract; a renamed one or one on the wrong element fails a whole group of tests.",
+            "The toEqual in test 2 is an ordered assertion. The group order comes from the key order in data.json, so do not sort them yourself.",
+            "To assert that something is absent you have to use queryBy. getBy throws an error when it finds nothing.",
+            "Run the project as it comes and 0 tests start: rename CabContext.js to .jsx before anything else.",
+          ],
         },
         {
           id: "cb-provider-layer",
           title: "Context 放在哪一层 —— 这道题最容易死的地方",
           titleEn: "Which level the Context goes on — the most common way to fail this task",
           blurb: "Provider 必须包在 App 外面。包在里面，App 自己就用不了 Context。",
+          blurbEn:
+            "The Provider has to wrap App from the outside. Put it inside App and App itself cannot read the Context.",
           minutes: 16,
           objectives: [
             "写出 Context 三件套：createContext / Provider / 自定义 hook",
@@ -997,8 +1055,16 @@ const cabBooking: Exam = {
             "知道自定义 hook 里那个 throw 守卫在防什么",
             "看懂测试为什么也要自己包一层 CabProvider",
           ],
+          objectivesEn: [
+            "Write the three parts of Context: createContext, the Provider, and a custom hook",
+            "Explain why the Provider must sit outside App and not inside it",
+            "Know what the throw guard in the custom hook protects you from",
+            "See why the test file also wraps its own CabProvider",
+          ],
           whyForAssessment:
             "这是这道题最容易一次死透的地方。App 里的 handleSelectCab 要调 updateBookedCabDetails，所以 App 本身就是一个消费者 —— 如果你把 Provider 写在 App 的 return 里，App 自己拿不到 context，那个 throw 守卫会立刻炸，四个测试全红。",
+          whyForAssessmentEn:
+            "This is the fastest way to fail the whole task. handleSelectCab lives in App and calls updateBookedCabDetails, so App itself is a reader of the Context. If you write the Provider inside the return of App, App cannot reach the context, the throw guard fires at once, and all four tests fail.",
           sourceFiles: [
             { path: "cab-booking-context/src/context/CabContext.js", role: "Context 三件套。注意扩展名是 .js 而里面有 JSX", edit: true },
             { path: "cab-booking-context/src/index.jsx", role: "Provider 包在 App 外面的那一层" },
@@ -1007,7 +1073,10 @@ const cabBooking: Exam = {
             {
               id: "cb-three-parts",
               heading: "Context 三件套",
+              headingEn: "The three parts of Context",
               lede: "createContext 造管道、Provider 灌数据、自定义 hook 取数据",
+              ledeEn:
+                "createContext makes the channel, the Provider fills it with data, and a custom hook reads the data",
               body: (
                 <>
                   <p>
@@ -1127,7 +1196,10 @@ const cabBooking: Exam = {
             {
               id: "cb-where-provider",
               heading: "Provider 必须在 App 外面",
+              headingEn: "The Provider must sit outside App",
               lede: "因为 App 自己就是一个消费者",
+              ledeEn:
+                "Because App itself is one of the readers",
               body: (
                 <>
                   <p>
@@ -1244,7 +1316,10 @@ const App = () => {
             {
               id: "cb-two-states",
               heading: "一个 action 同时改两个 state",
+              headingEn: "One action changes two pieces of state",
               lede: "选一辆车 = 设为当前 + 追加进历史",
+              ledeEn:
+                "Picking a cab means two things: set it as the current booking, and add it to the history",
               body: (
                 <>
                   <p>
@@ -1586,6 +1661,21 @@ const updateBookedCabDetails = (details) => {
                   <strong>必须造新数组：<code>[...rideHistory, details]</code>。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>push</code> changes <strong>the same array object</strong>, so the
+                  reference given to <code>setRideHistory(rideHistory)</code> has not changed.
+                  React compares old and new state with <code>Object.is</code> and{" "}
+                  <strong>skips the re-render when they are equal</strong>.
+                  <br />
+                  The symptom is confusing: the data really did change, but the screen does not
+                  update. Then some other state change causes a re-render and several history rows
+                  appear at once.{" "}
+                  <strong>
+                    You have to build a new array: <code>[...rideHistory, details]</code>.
+                  </strong>
+                </>
+              ),
             },
             {
               wrong: demo(
@@ -1610,13 +1700,49 @@ const useCabContext = () => {
                   那道题也考同一个点。
                 </>
               ),
+              whyEn: (
+                <>
+                  With this version, forgetting the Provider produces no error. The page{" "}
+                  <strong>quietly shows &ldquo;no ride history&rdquo;</strong>. You will go and look
+                  at why <code>RideHistory</code> shows no data, while the real cause is in{" "}
+                  <code>index.jsx</code>.
+                  <br />
+                  <strong>
+                    The whole point of the guard is to make a setup mistake fail at once, instead of
+                    looking like a bug in a feature.
+                  </strong>{" "}
+                  Interviewers ask about this often, and the{" "}
+                  <strong>Theme switch (Context plus a memoised value)</strong> task on
+                  this site tests the same point.
+                </>
+              ),
             },
           ],
           transfer: [
-            { signal: "组件读不到自己提供的 Context", reachFor: "useContext 往上找 —— Provider 必须在消费者之上" },
-            { signal: "测试文件自己包了一层 Provider", reachFor: "那是在告诉你 Provider 该在哪一层" },
-            { signal: "「Cannot destructure property of undefined」", reachFor: "十有八九是忘了套 Provider" },
-            { signal: "一个业务动作要改两个 state", reachFor: "包成 Context 里的一个函数，别让调用方调两次" },
+            {
+              signal: "组件读不到自己提供的 Context",
+              signalEn: "A component cannot read the Context it provides itself",
+              reachFor: "useContext 往上找 —— Provider 必须在消费者之上",
+              reachForEn: "useContext looks upwards: the Provider has to sit above the reader",
+            },
+            {
+              signal: "测试文件自己包了一层 Provider",
+              signalEn: "The test file wraps a Provider of its own",
+              reachFor: "那是在告诉你 Provider 该在哪一层",
+              reachForEn: "That tells you which level the Provider belongs on",
+            },
+            {
+              signal: "「Cannot destructure property of undefined」",
+              signalEn: "\"Cannot destructure property of undefined\"",
+              reachFor: "十有八九是忘了套 Provider",
+              reachForEn: "Almost always a missing Provider",
+            },
+            {
+              signal: "一个业务动作要改两个 state",
+              signalEn: "One user action has to change two pieces of state",
+              reachFor: "包成 Context 里的一个函数，别让调用方调两次",
+              reachForEn: "Wrap it in one function inside the Context; do not make the caller call twice",
+            },
           ],
           recap: [
             "Context 三件套：createContext 造管道、Provider 灌值、自定义 hook 取值 + 守卫。",
@@ -1624,6 +1750,13 @@ const useCabContext = () => {
             "createContext 不给默认值 + 守卫抛错，是为了让「忘套 Provider」立刻暴露。",
             "updateBookedCabDetails 一次改两个 state，业务规则集中在一处。",
             "追加历史必须造新数组，push 会让 React 跳过重渲染。",
+          ],
+          recapEn: [
+            "The three parts of Context: createContext makes the channel, the Provider supplies the value, and the custom hook reads it and guards against a missing Provider.",
+            "The Provider must sit outside App, because App is a reader itself: handleSelectCab writes to the Context.",
+            "Calling createContext with no default value, plus a guard that throws, makes a forgotten Provider show up immediately.",
+            "updateBookedCabDetails changes two pieces of state in one call, which keeps the rule in one place.",
+            "Adding to the history has to build a new array; push makes React skip the re-render.",
           ],
         },
       ],
@@ -1646,6 +1779,8 @@ const useCabContext = () => {
           title: "用一个 state 管四个页面",
           titleEn: "Controlling four pages with one piece of state",
           blurb: "没有 react-router。currentPage 是个字符串状态机，四个 && 决定谁显示。",
+          blurbEn:
+            "There is no react-router. currentPage is a string state machine, and four && checks decide which page shows.",
           minutes: 15,
           objectives: [
             "用一个 currentPage state 管四个页面",
@@ -1653,8 +1788,16 @@ const useCabContext = () => {
             "知道为什么 handleSelectCab 必须写在 App 里，而不是 CabCard 里",
             "看懂四个页面之间的转移图",
           ],
+          objectivesEn: [
+            "Control four pages with a single currentPage state",
+            "Explain the difference between && and a ternary in conditional rendering, and why && fits here",
+            "Know why handleSelectCab has to live in App and not in CabCard",
+            "Read the transition diagram between the four pages",
+          ],
           whyForAssessment:
             "题目没给路由，所以你得自己决定「页面」怎么表示。写成四个 boolean（isHome / isLoading …）能跑，但两个同时为 true 时会同时渲染两个页面，测试 3 的 getByTestId 会因为找到多个而抛错。一个字符串 state 从根上排除了这种状态。",
+          whyForAssessmentEn:
+            "The task gives you no router, so you have to decide how a page is represented. Four booleans (isHome, isLoading and so on) can work, but when two of them are true at the same time two pages render together, and the getByTestId in test 3 throws because it finds more than one match. A single string state rules that situation out from the start.",
           sourceFiles: [
             { path: "cab-booking-context/src/App.jsx", role: "状态机本体，四个页面的开关都在这里", edit: true },
             { path: "cab-booking-context/src/components/Home/Home.jsx", role: "首页，把 onBookClick 往上抛" },
@@ -1663,7 +1806,10 @@ const useCabContext = () => {
             {
               id: "cb-state-machine",
               heading: "四个页面 = 一个字符串 state",
+              headingEn: "Four pages, one string state",
               lede: "转移图画出来，代码就是照抄",
+              ledeEn:
+                "Draw the transition diagram and the code just copies it",
               body: (
                 <>
                   <p>
@@ -1817,7 +1963,10 @@ const useCabContext = () => {
             {
               id: "cb-lift-handler",
               heading: "为什么 handleSelectCab 在 App 里",
+              headingEn: "Why handleSelectCab lives in App",
               lede: "因为它要同时干两件事，而其中一件只有 App 知道",
+              ledeEn:
+                "Because it has to do two things at once, and only App can do one of them",
               body: (
                 <>
                   <p>
@@ -2146,13 +2295,45 @@ const handleSelectCab = (cab) => {
                   这不是「写法更漂亮」，是把一整类 bug 从可能变成不可能。
                 </>
               ),
+              whyEn: (
+                <>
+                  Four booleans have <strong>16 combinations</strong>, and only 4 of them are
+                  valid. On every page change you have to remember to turn one on and one off, and{" "}
+                  <strong>if you forget one, two pages are on the screen at the same time</strong>.
+                  <br />
+                  A single string state has only 4 possible values, so{" "}
+                  <code>setCurrentPage(&quot;loading&quot;)</code>{" "}
+                  <strong>turns the other pages off by itself</strong>. This is not about code that
+                  reads better. It moves a whole class of bug from possible to impossible.
+                </>
+              ),
             },
           ],
           transfer: [
-            { signal: "几个界面互斥地出现", reachFor: "一个字符串 state + 若干 &&，别用多个 boolean" },
-            { signal: "一个动作要改状态又要切界面", reachFor: "把两件事包进同一个 handler，放在拥有界面状态的那一层" },
-            { signal: "子组件需要触发父组件的状态变化", reachFor: "父组件传回调下去，子组件不碰父的 state" },
-            { signal: "onClick 里想传参数", reachFor: "() => fn(arg)；参数不变就直接传 fn，别多包一层" },
+            {
+              signal: "几个界面互斥地出现",
+              signalEn: "Several screens that must never show at the same time",
+              reachFor: "一个字符串 state + 若干 &&，别用多个 boolean",
+              reachForEn: "One string state plus a few && checks, not several booleans",
+            },
+            {
+              signal: "一个动作要改状态又要切界面",
+              signalEn: "One action changes data and switches the screen",
+              reachFor: "把两件事包进同一个 handler，放在拥有界面状态的那一层",
+              reachForEn: "Put both jobs in one handler, at the level that owns the screen state",
+            },
+            {
+              signal: "子组件需要触发父组件的状态变化",
+              signalEn: "A child component needs to change the parent's state",
+              reachFor: "父组件传回调下去，子组件不碰父的 state",
+              reachForEn: "The parent passes a callback down; the child never touches the parent's state",
+            },
+            {
+              signal: "onClick 里想传参数",
+              signalEn: "You want to pass an argument from onClick",
+              reachFor: "() => fn(arg)；参数不变就直接传 fn，别多包一层",
+              reachForEn: "() => fn(arg); with no argument pass fn itself and add no wrapper",
+            },
           ],
           recap: [
             "四个页面用一个 currentPage 字符串管，四个 && 各判一次。",
@@ -2161,12 +2342,21 @@ const handleSelectCab = (cab) => {
             "onSelectCab={handleSelectCab} 不能加括号 —— 加了会在渲染时执行并无限重渲染。",
             "RideHistory 挂在首页里，所以点完确认回首页就能看到新记录。",
           ],
+          recapEn: [
+            "One currentPage string controls the four pages, with one && check for each.",
+            "Draw the transition table first: the four transitions become four callbacks, and the code follows the table.",
+            "handleSelectCab goes in App, because only App can change the page.",
+            "onSelectCab={handleSelectCab} must have no parentheses. With them the function runs during render and the component re-renders without end.",
+            "RideHistory sits on the home page, so when you confirm and come back home the new entry is there.",
+          ],
         },
         {
           id: "cb-options-grid",
           title: "按类型分组渲染六张卡",
           titleEn: "Rendering the six cards grouped by type",
           blurb: "两层 map：外层 Object.keys 出三个类型，内层出每组的车。key 有个坑。",
+          blurbEn:
+            "Two nested maps: Object.keys gives the three types on the outside, the cabs of each group on the inside. The key needs care.",
           minutes: 13,
           objectives: [
             "用 Object.keys + 两层 map 把分组数据渲染出来",
@@ -2174,8 +2364,16 @@ const handleSelectCab = (cab) => {
             "写出 CabCard 的五个 data-testid",
             "知道为什么 ride.id 单独做 key 在历史列表里不安全",
           ],
+          objectivesEn: [
+            "Render grouped data with Object.keys and two nested maps",
+            "Explain why you do not have to sort the group order yourself",
+            "Write the five data-testid values of CabCard",
+            "Know why ride.id on its own is not a safe key in the history list",
+          ],
           whyForAssessment:
             "测试 2 一次查九个断言：一个容器、三个分组标题（有序）、五种卡片字段各 6 个。这一节把这九个断言一次性满足。分组顺序是送分题 —— 老实用 Object.keys 就对了，自己排序反而会错。",
+          whyForAssessmentEn:
+            "Test 2 checks nine things at once: one container, three group headings in order, and 6 of each of the five card fields. This lesson satisfies all nine together. The group order is a free point: use Object.keys as it comes and you are right, while sorting it yourself makes it wrong.",
           sourceFiles: [
             { path: "cab-booking-context/src/data/data.json", role: "三组六辆车，键顺序 Sedan → SUV → Luxury" },
             { path: "cab-booking-context/src/components/CabOptions/CabOptions.jsx", role: "外层分组", edit: true },
@@ -2185,7 +2383,10 @@ const handleSelectCab = (cab) => {
             {
               id: "cb-group-map",
               heading: "Object.keys 加两层 map",
+              headingEn: "Object.keys plus two nested maps",
               lede: "数据长什么样，代码就长什么样",
+              ledeEn:
+                "The shape of the code follows the shape of the data",
               body: (
                 <>
                   <p>
@@ -2359,7 +2560,10 @@ const handleSelectCab = (cab) => {
             {
               id: "cb-card-fields",
               heading: "五个字段，和 key 的那个坑",
+              headingEn: "The five fields, and the problem with the key",
               lede: "卡片里每个字段都有 testid；历史列表的 key 不能只用 id",
+              ledeEn:
+                "Every field in the card has its own testid; the key in the history list cannot be the id alone",
               body: (
                 <>
                   <p>
@@ -2640,6 +2844,24 @@ const CabCard = ({ cab, onSelectCab }) => {
                   但直接 <code>someStateArray.sort()</code> 就会改到 state。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>sort()</code> compares as strings by default, and capital letters come
+                  first, so the result is <code>Luxury → SUV → Sedan</code>.
+                  <br />
+                  <strong>
+                    The key order in <code>data.json</code> was already correct.
+                  </strong>{" "}
+                  The mistake follows a very common pattern:{" "}
+                  <strong>you see a list and wonder whether it should be sorted</strong>. When the
+                  data source already states the order, any extra step breaks it.
+                  <br />
+                  One more point: <code>sort()</code> also{" "}
+                  <strong>changes the array in place</strong>. Here it runs on the new array
+                  returned by <code>Object.keys()</code>, so it does no harm, but{" "}
+                  <code>someStateArray.sort()</code> would change the state itself.
+                </>
+              ),
             },
             {
               wrong: demo(
@@ -2673,13 +2895,50 @@ const CabCard = ({ cab, onSelectCab }) => {
                   <code>onClick={"{() => onSelectCab(cab)}"}</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  A DOM event handler{" "}
+                  <strong>always receives the event object as its first argument</strong>. So{" "}
+                  <code>onClick={"{onSelectCab}"}</code> means <code>onSelectCab(clickEvent)</code>,
+                  and <code>cab</code> is never passed at all.
+                  <br />
+                  <strong>The symptom is confusing: no error, and the flow still works</strong> —
+                  the page moves to loading and then to the confirmation page, only the cab name is
+                  blank (because <code>?.name</code> is <code>undefined</code>, and React renders
+                  nothing for it). Test 3 fails on{" "}
+                  <code>toHaveTextContent(&quot;Ford Fusion is on the way…&quot;)</code>.
+                  <br />
+                  <strong>To pass an argument of your own, wrap it:</strong>{" "}
+                  <code>onClick={"{() => onSelectCab(cab)}"}</code>.
+                </>
+              ),
             },
           ],
           transfer: [
-            { signal: "数据是「分组名 → 数组」的对象", reachFor: "Object.keys 外层、值数组内层，两层 map" },
-            { signal: "断言用 toEqual 比分组顺序", reachFor: "别自己 sort —— 键的插入顺序就是答案" },
-            { signal: "列表里可能出现重复的业务 id", reachFor: "key 用 `${id}-${index}`，或给每条记录一个自己的 id" },
-            { signal: "onClick 需要带自己的参数", reachFor: "() => fn(arg)；直接传 fn 会收到事件对象" },
+            {
+              signal: "数据是「分组名 → 数组」的对象",
+              signalEn: "The data is an object of group name to array",
+              reachFor: "Object.keys 外层、值数组内层，两层 map",
+              reachForEn: "Object.keys on the outside, the value array on the inside: two maps",
+            },
+            {
+              signal: "断言用 toEqual 比分组顺序",
+              signalEn: "A toEqual check compares the group order",
+              reachFor: "别自己 sort —— 键的插入顺序就是答案",
+              reachForEn: "Do not sort it yourself; the order the keys were written in is the answer",
+            },
+            {
+              signal: "列表里可能出现重复的业务 id",
+              signalEn: "The same business id can appear twice in a list",
+              reachFor: "key 用 `${id}-${index}`，或给每条记录一个自己的 id",
+              reachForEn: "Use `${id}-${index}` as the key, or give every entry an id of its own",
+            },
+            {
+              signal: "onClick 需要带自己的参数",
+              signalEn: "onClick has to carry an argument of your own",
+              reachFor: "() => fn(arg)；直接传 fn 会收到事件对象",
+              reachForEn: "() => fn(arg); passing fn directly hands you the event object",
+            },
           ],
           recap: [
             "3 个类型 × 2 辆车 = 6 张卡，五个 toHaveLength(6) 就是这么来的。",
@@ -2688,12 +2947,21 @@ const CabCard = ({ cab, onSelectCab }) => {
             "历史列表的 key 不能只用 ride.id —— 同一辆车能订两次。",
             "onClick={onSelectCab} 会把事件对象当 cab 传进去，必须包箭头函数。",
           ],
+          recapEn: [
+            "3 types × 2 cabs = 6 cards, which is where the five toHaveLength(6) checks come from.",
+            "The group order comes from the order the keys were written in data.json. Object.keys hands it to you, so do not sort.",
+            "The five testids of CabCard: img, name, type, price, select-button.",
+            "The key in the history list cannot be ride.id alone, because the same cab can be booked twice.",
+            "onClick={onSelectCab} passes the event object in place of cab, so you have to wrap it in an arrow function.",
+          ],
         },
         {
           id: "cb-loading-timer",
           title: "Loading：一秒之后自己跳走",
           titleEn: "Loading: it moves to the next page by itself after one second",
           blurb: "useEffect 里一个 setTimeout，return 里一个 clearTimeout。少了后者会出真问题。",
+          blurbEn:
+            "One setTimeout inside useEffect, one clearTimeout in the return. Leave the second one out and you get a real problem.",
           minutes: 14,
           objectives: [
             "在 useEffect 里写 setTimeout 并正确清理",
@@ -2701,8 +2969,16 @@ const CabCard = ({ cab, onSelectCab }) => {
             "看懂测试为什么要 vi.useFakeTimers() + advanceTimersByTime(1000)",
             "知道 act() 包住时间推进的原因",
           ],
+          objectivesEn: [
+            "Write a setTimeout inside useEffect and clear it correctly",
+            "Explain what the cleanup function prevents, and what really goes wrong without it",
+            "See why the test needs vi.useFakeTimers() together with advanceTimersByTime(1000)",
+            "Know why the time advance is wrapped in act()",
+          ],
           whyForAssessment:
             "这是 effect 清理的标准考法，也是本站 React 变式二「计时器」的同一个考点。测试用 fake timer 把 1 秒变成一行代码，所以延迟数字必须正好是 1000 —— 写 900 或 1200，advanceTimersByTime(1000) 之后页面状态就不对了。",
+          whyForAssessmentEn:
+            "This is the standard way effect cleanup gets examined, and the Timer (useEffect cleanup) task on this site tests the same point. The test uses a fake timer to turn the 1 second into a single line, so the delay has to be exactly 1000. Write 900 or 1200 and the page is in the wrong state after advanceTimersByTime(1000).",
           sourceFiles: [
             { path: "cab-booking-context/src/components/Loading/Loading.jsx", role: "setTimeout + clearTimeout", edit: true },
             { path: "cab-booking-context/src/test/App.test.jsx", role: "fake timer 的用法在 beforeEach / afterEach 里" },
@@ -2711,7 +2987,10 @@ const CabCard = ({ cab, onSelectCab }) => {
             {
               id: "cb-effect-timeout",
               heading: "为什么定时器必须在 useEffect 里",
+              headingEn: "Why the timer has to be inside useEffect",
               lede: "写在组件体里，每次渲染都会开一个新的",
+              ledeEn:
+                "Put it in the component body and every render starts another one",
               body: (
                 <>
                   <p>
@@ -2848,7 +3127,10 @@ const CabCard = ({ cab, onSelectCab }) => {
             {
               id: "cb-cleanup",
               heading: "清理函数在防什么",
+              headingEn: "What the cleanup function prevents",
               lede: "组件已经不在了，定时器还在替它调 setState",
+              ledeEn:
+                "The component is already gone, and the timer still calls setState for it",
               body: (
                 <>
                   <p>
@@ -2951,7 +3233,7 @@ const CabCard = ({ cab, onSelectCab }) => {
                     </strong>
                   </p>
                   <p>
-                    <strong>When it really does blow up:</strong> add one Cancel button
+                    <strong>When a request really does hang:</strong> add one Cancel button
                     that lets the user go home during loading —
                   </p>
                   <ul>
@@ -3329,13 +3611,56 @@ useEffect(() => {
                   两者都必须清理。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  Two mistakes on top of each other.{" "}
+                  <strong>
+                    <code>setInterval</code> fires again and again
+                  </strong>
+                  , and{" "}
+                  <strong>with no cleanup function it does not even stop when the component is
+                  removed</strong>.
+                  <br />
+                  The interesting part is that <strong>test 3 still passes</strong> — it only checks
+                  that the confirmation page appeared, not whether the page changes again later.{" "}
+                  <strong>Test 4 fails</strong>: it books four cabs in a row, and the interval left
+                  over from the first round{" "}
+                  <strong>pulls the page back to the confirmation page</strong> during the later
+                  rounds, so the second round cannot find <code>book-button</code> any more.
+                  <br />
+                  <strong>
+                    Use <code>setTimeout</code> for something that runs once and{" "}
+                    <code>setInterval</code> only for something that repeats. Both of them have to be
+                    cleared.
+                  </strong>
+                </>
+              ),
             },
           ],
           transfer: [
-            { signal: "组件里要开定时器 / 订阅 / 加监听", reachFor: "放进 useEffect，并在 return 里成对清掉" },
-            { signal: "「本该自动跳转但一直不跳」", reachFor: "先看 effect 的依赖数组 —— 漏了就每次渲染都重置" },
-            { signal: "测试要控制一段延迟", reachFor: "vi.useFakeTimers() + act(() => vi.advanceTimersByTime(n))" },
-            { signal: "afterEach 里要不要清定时器", reachFor: "要 —— runOnlyPendingTimers 再 useRealTimers，否则漏到下个测试" },
+            {
+              signal: "组件里要开定时器 / 订阅 / 加监听",
+              signalEn: "A component starts a timer, a subscription or a listener",
+              reachFor: "放进 useEffect，并在 return 里成对清掉",
+              reachForEn: "Put it in useEffect and clear it in the return, one for one",
+            },
+            {
+              signal: "「本该自动跳转但一直不跳」",
+              signalEn: "\"It should move on by itself, but it never does\"",
+              reachFor: "先看 effect 的依赖数组 —— 漏了就每次渲染都重置",
+              reachForEn: "Look at the dependency array of the effect first; without it every render starts over",
+            },
+            {
+              signal: "测试要控制一段延迟",
+              signalEn: "A test needs to control a delay",
+              reachFor: "vi.useFakeTimers() + act(() => vi.advanceTimersByTime(n))",
+            },
+            {
+              signal: "afterEach 里要不要清定时器",
+              signalEn: "Whether afterEach has to clear the timers",
+              reachFor: "要 —— runOnlyPendingTimers 再 useRealTimers，否则漏到下个测试",
+              reachForEn: "Yes: runOnlyPendingTimers and then useRealTimers, or they leak into the next test",
+            },
           ],
           recap: [
             "setTimeout 是副作用，必须在 useEffect 里；写组件体里每渲染一次开一个。",
@@ -3344,12 +3669,21 @@ useEffect(() => {
             "React 18 起不再警告「在已卸载组件上 setState」，所以漏清理毫无提示。",
             "漏写依赖数组 = 每次渲染都重开定时器，那 1 秒永远数不完。",
           ],
+          recapEn: [
+            "setTimeout is a side effect, so it belongs in useEffect. In the component body it starts one more timer on every render.",
+            "The delay has to be 1000, because the test advances exactly 1000ms.",
+            "The cleanup function does not change the test result in this task, but add a cancel button and its absence becomes a visible bug.",
+            "Since React 18 there is no warning about calling setState on a component that is already removed, so a missing cleanup gives you no hint at all.",
+            "Leaving out the dependency array means the timer starts again on every render, so the 1 second never finishes.",
+          ],
         },
         {
           id: "cb-history-three",
           title: "历史与确认页：两个小而致命的细节",
           titleEn: "The history and confirmation pages: two small details that decide pass or fail",
           blurb: "slice(-3).reverse() 一个字符都不能错；bookedCabDetails?.name 少个问号就白屏。",
+          blurbEn:
+            "slice(-3).reverse() has to be exact, character for character; drop the question mark in bookedCabDetails?.name and the screen goes blank.",
           minutes: 15,
           objectives: [
             "说清 slice(-3) 和 slice(0, 3) 的区别",
@@ -3357,8 +3691,16 @@ useEffect(() => {
             "写出「最新三条、最新在最上」的取法",
             "说清为什么 bookedCabDetails 后面必须有可选链",
           ],
+          objectivesEn: [
+            "Explain the difference between slice(-3) and slice(0, 3)",
+            "Know that reverse() changes the array in place, and why it is safe here",
+            "Write the code for the three newest rides with the newest at the top",
+            "Explain why bookedCabDetails needs optional chaining after it",
+          ],
           whyForAssessment:
             "测试 4 是这道题唯一会「看起来做对了但实际全错」的地方：它同时查数量、顺序、和最旧那条真的消失。slice 方向写反、忘了 reverse、或者直接 reverse 到 state 上，三种错法都只在这一条测试里暴露。",
+          whyForAssessmentEn:
+            "Test 4 is the one place in this task where your work can look correct and be completely wrong. It checks the count, the order, and that the oldest entry really disappeared, all at the same time. A slice in the wrong direction, a missing reverse, or a reverse applied to the state array: all three show up only in this single test.",
           sourceFiles: [
             { path: "cab-booking-context/src/components/Home/RideHistory.jsx", role: "取最新三条并反转", edit: true },
             { path: "cab-booking-context/src/components/CabConfirmation/CabConfirmation.jsx", role: "可选链在这里", edit: true },
@@ -3367,7 +3709,10 @@ useEffect(() => {
             {
               id: "cb-slice-negative",
               heading: "slice(-3) 是「最后三个」",
+              headingEn: "slice(-3) means the last three",
               lede: "负数从尾巴数起。方向写反，测试 4 直接红",
+              ledeEn:
+                "A negative number counts from the end. Get the direction wrong and test 4 fails",
               body: (
                 <>
                   <p>
@@ -3480,7 +3825,7 @@ useEffect(() => {
                             3)
                           </td>
                           <td>
-                            ✕ the last assertion blows up —{" "}
+                            ✕ the last assertion fails —{" "}
                             <code>Ford Fusion</code> is still in the DOM
                           </td>
                         </tr>
@@ -3547,7 +3892,10 @@ history.slice(-3).reverse();
             {
               id: "cb-reverse-mutates",
               heading: "reverse() 原地修改 —— 这里为什么安全",
+              headingEn: "reverse() changes the array in place, and why that is safe here",
               lede: "因为 slice 已经给了你一个新数组",
+              ledeEn:
+                "Because slice has already given you a new array",
               body: (
                 <>
                   <p>
@@ -3761,7 +4109,10 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
             {
               id: "cb-optional-chain",
               heading: "bookedCabDetails?.name —— 那个问号不能省",
+              headingEn: "bookedCabDetails?.name: you cannot drop that question mark",
               lede: "初始值是 null，而 null 上取属性会抛错",
+              ledeEn:
+                "The initial value is null, and reading a property of null throws an error",
               body: (
                 <>
                   <p>
@@ -3842,7 +4193,7 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
                       <strong>
                         The moment somebody renders <code>CabConfirmation</code> on its own
                       </strong>{" "}
-                      — say in a component-level unit test — it blows up immediately;
+                      — say in a component-level unit test — it throws immediately;
                     </li>
                     <li>
                       Or add a &ldquo;view your last ride&rdquo; entry point later and
@@ -4085,6 +4436,22 @@ const RideHistory = () => {
                   <strong>把「读」和「改」分清楚 —— 渲染函数里只许读。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <strong>The result is right this time and wrong the next time.</strong>{" "}
+                  <code>reverse()</code> turns the state array itself into newest to oldest, and
+                  React does not notice, because the reference did not change.
+                  <br />
+                  The next <code>[...rideHistory, details]</code> then adds the new entry to the end
+                  of <strong>an array that is already reversed</strong>, which is the oldest end, and
+                  from that point the order is broken.
+                  <br />
+                  Worse, <strong>it reverses once on every render</strong>. Under{" "}
+                  <code>StrictMode</code> development renders twice, the two reversals cancel each
+                  other out, and <strong>you see nothing wrong while developing</strong>.{" "}
+                  <strong>Keep reading and changing apart: a render function may only read.</strong>
+                </>
+              ),
             },
             {
               wrong: demo(
@@ -4115,14 +4482,56 @@ const RideHistory = () => {
                   <strong>初始值是 null 的 state，读它的属性就该配 <code>?.</code>。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  The initial value of <code>useState(null)</code> is <code>null</code>.{" "}
+                  <strong>The complete flow never reaches it</strong>, because by the time you are on
+                  the confirmation page a cab has been chosen, so all four tests pass. This is{" "}
+                  <strong>another case where passing tests does not mean correct code</strong>.
+                  <br />
+                  But as soon as somebody writes a component test for{" "}
+                  <code>CabConfirmation</code>, or a &ldquo;view last ride&rdquo; entry point is added
+                  later, <strong>the screen is blank</strong>. React has no default error boundary,
+                  and an error thrown during render <strong>removes the whole tree</strong>.
+                  <br />
+                  <strong>
+                    When a state starts as null, reading its properties needs <code>?.</code>.
+                  </strong>
+                </>
+              ),
             },
           ],
           transfer: [
-            { signal: "要「最新 N 条」", reachFor: "slice(-N)；越界安全，不足 N 条也不报错" },
-            { signal: "要倒序显示", reachFor: "先 slice 出副本再 reverse，或用 toReversed()" },
-            { signal: "看到 sort / reverse / splice 作用在 state 上", reachFor: "立刻停 —— 它们原地改，先复制" },
-            { signal: "某个 state 初始值是 null", reachFor: "读它的属性配 ?.；只在真会为空的地方加" },
-            { signal: "测试只断言了「有几个」", reachFor: "补一条「该消失的真的消失了」—— 数量对内容错抓不住" },
+            {
+              signal: "要「最新 N 条」",
+              signalEn: "You need the newest N entries",
+              reachFor: "slice(-N)；越界安全，不足 N 条也不报错",
+              reachForEn: "slice(-N); it is safe past the end and does not fail with fewer than N items",
+            },
+            {
+              signal: "要倒序显示",
+              signalEn: "You need them shown in reverse order",
+              reachFor: "先 slice 出副本再 reverse，或用 toReversed()",
+              reachForEn: "slice a copy first and then reverse, or use toReversed()",
+            },
+            {
+              signal: "看到 sort / reverse / splice 作用在 state 上",
+              signalEn: "You see sort, reverse or splice used on state",
+              reachFor: "立刻停 —— 它们原地改，先复制",
+              reachForEn: "Stop there: they change the array in place, so copy it first",
+            },
+            {
+              signal: "某个 state 初始值是 null",
+              signalEn: "A piece of state starts out as null",
+              reachFor: "读它的属性配 ?.；只在真会为空的地方加",
+              reachForEn: "Read its properties with ?.; add it only where the value really can be empty",
+            },
+            {
+              signal: "测试只断言了「有几个」",
+              signalEn: "The test only checks how many items there are",
+              reachFor: "补一条「该消失的真的消失了」—— 数量对内容错抓不住",
+              reachForEn: "Add a check that what should be gone is gone; a right count with wrong content slips through",
+            },
           ],
           recap: [
             "slice(-3) 是最后三条，slice(0, 3) 是最前三条 —— 方向写反测试 4 才抓得住。",
@@ -4130,6 +4539,13 @@ const RideHistory = () => {
             "直接 rideHistory.reverse() 会翻掉 state，且 StrictMode 下开发时看不出来。",
             "sort / reverse / splice / push 都是原地改；slice / map / filter / concat 返回新数组。",
             "bookedCabDetails 初始 null，所以 ?.name 那个问号不能省。",
+          ],
+          recapEn: [
+            "slice(-3) is the last three, slice(0, 3) is the first three. Only test 4 catches the wrong direction.",
+            "reverse() changes the array in place; slice(-3).reverse() is safe because slice returns a new array first.",
+            "Calling rideHistory.reverse() reverses the state itself, and under StrictMode you cannot see it while developing.",
+            "sort, reverse, splice and push all change the array in place; slice, map, filter and concat return a new array.",
+            "bookedCabDetails starts as null, so the question mark in ?.name cannot be dropped.",
           ],
         },
       ],
@@ -4152,6 +4568,8 @@ const RideHistory = () => {
           title: "完整答案跑不起来 —— 一个扩展名的事",
           titleEn: "The complete answer does not run — the cause is one file extension",
           blurb: "README 说「先运行完整答案熟悉流程」。实测 0 个测试跑起来。",
+          blurbEn:
+            "The README says to run the complete answer first to get used to the flow. In practice 0 tests start.",
           minutes: 13,
           objectives: [
             "读懂「Failed to parse source for import analysis」这条报错",
@@ -4159,8 +4577,16 @@ const RideHistory = () => {
             "在两种修法里选对的那个，并说出为什么",
             "养成「先跑一次基线」的习惯",
           ],
+          objectivesEn: [
+            "Understand the error message \"Failed to parse source for import analysis\"",
+            "Explain why Vite does not parse JSX inside .js files by default",
+            "Pick the right one of the two fixes, and say why",
+            "Build the habit of running the project once as a baseline first",
+          ],
           whyForAssessment:
             "这是本站主线 ③「脚手架本身也会有问题」的又一个实例，而且这次踩得最狠 —— 不是某个测试失败，是 0 个测试跑起来。真实考试里遇到这种情况，能不能在两分钟内判断出「是环境问题不是我写错了」，直接决定你剩下的时间怎么花。",
+          whyForAssessmentEn:
+            "This is another example of theme 3 on this site: the project you are given can be broken itself. This case is the worst one. It is not that one test fails, it is that 0 tests start. In a real exam, being able to decide within two minutes that the setup is at fault and not your code decides how you spend the rest of your time.",
           sourceFiles: [
             { path: "cab-booking-context/src/context/CabContext.js", role: "缺陷本体：.js 扩展名 + 文件里有 JSX", edit: true },
             { path: "cab-booking-context/vite.config.mjs", role: "另一种（不推荐的）修法会改这里" },
@@ -4169,7 +4595,10 @@ const RideHistory = () => {
             {
               id: "cb-jsx-ext",
               heading: "为什么 .js 里的 JSX 会炸",
+              headingEn: "Why JSX inside a .js file fails",
               lede: "esbuild 默认按扩展名决定用哪个 loader",
+              ledeEn:
+                "By default esbuild picks the loader from the file extension",
               body: (
                 <>
                   <p>
@@ -4376,7 +4805,10 @@ Error: Failed to parse source for import analysis because the content contains i
             {
               id: "cb-two-fixes",
               heading: "两种修法，选哪个",
+              headingEn: "Two ways to fix it, and which one to pick",
               lede: "改扩展名，还是改构建配置",
+              ledeEn:
+                "Change the file extension, or change the build configuration",
               body: (
                 <>
                   <p>
@@ -4566,7 +4998,10 @@ Error: Failed to parse source for import analysis because the content contains i
             {
               id: "cb-better-writes",
               heading: "两处「测试能过但面试会问」的写法",
+              headingEn: "Two places that pass the tests but an interviewer will ask about",
               lede: "不是 bug。但你得知道它们的边界在哪",
+              ledeEn:
+                "They are not bugs. But you need to know where their limits are",
               body: (
                 <>
                   <p>
@@ -4988,14 +5423,58 @@ export default defineConfig({
                   <strong>判断标准很简单：改一个文件能解决的，别动全局配置。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <strong>It does make the tests run</strong> — and that is exactly what makes it
+                  dangerous.
+                  <br />
+                  The price comes in three parts: <strong>①</strong> from now on nobody notices when
+                  JSX is written in a <code>.js</code> file, so the problem spreads;{" "}
+                  <strong>②</strong> the next change of build tool breaks it again (Jest, Next, and a
+                  separate run of <code>tsc</code> all ignore this configuration);{" "}
+                  <strong>③</strong> a newcomer who opens <code>CabContext.js</code> and sees JSX
+                  will believe that JSX is allowed in <code>.js</code> files, and{" "}
+                  <strong>learns something that is wrong</strong>.
+                  <br />
+                  <strong>
+                    The rule is simple: when changing one file solves it, leave the global
+                    configuration alone.
+                  </strong>
+                </>
+              ),
             },
           ],
           transfer: [
-            { signal: "报错里出现「Tests no tests」/「0 test」", reachFor: "挂在收集阶段，别改业务代码 —— 去看构建/转换层" },
-            { signal: "「Failed to parse source for import analysis」", reachFor: "十有八九是 .js 里写了 JSX，改扩展名" },
-            { signal: "报错最后一句给了具体建议", reachFor: "先照着做 —— 这类工具报错常常直接给答案" },
-            { signal: "想加一条全局配置来救一个文件", reachFor: "先问「改那个文件行不行」" },
-            { signal: "面试问「这段代码有什么问题」", reachFor: "先说清它在什么条件下是对的，再说什么条件下会坏" },
+            {
+              signal: "报错里出现「Tests no tests」/「0 test」",
+              signalEn: "The output says \"Tests no tests\" or \"0 test\"",
+              reachFor: "挂在收集阶段，别改业务代码 —— 去看构建/转换层",
+              reachForEn: "It failed while collecting the tests: leave the feature code alone and look at the build and transform layer",
+            },
+            {
+              signal: "「Failed to parse source for import analysis」",
+              signalEn: "\"Failed to parse source for import analysis\"",
+              reachFor: "十有八九是 .js 里写了 JSX，改扩展名",
+              reachForEn: "Almost always JSX written in a .js file: change the extension",
+            },
+            {
+              signal: "报错最后一句给了具体建议",
+              signalEn: "The last line of the error gives a concrete suggestion",
+              reachFor: "先照着做 —— 这类工具报错常常直接给答案",
+              reachForEn: "Follow it first; errors from tools like this often state the answer",
+            },
+            {
+              signal: "想加一条全局配置来救一个文件",
+              signalEn: "You are about to add a global setting to rescue one file",
+              reachFor: "先问「改那个文件行不行」",
+              reachForEn: "Ask first whether changing that one file is enough",
+            },
+            {
+              signal: "面试问「这段代码有什么问题」",
+              signalEn: "An interviewer asks what is wrong with a piece of code",
+              reachFor: "先说清它在什么条件下是对的，再说什么条件下会坏",
+              reachForEn: "Say under which conditions it is correct first, then under which conditions it breaks",
+            },
           ],
           recap: [
             "基线是 0 个测试跑起来 —— 不是某个测试失败，是连收集都没过。",
@@ -5004,12 +5483,21 @@ export default defineConfig({
             "别用 vite.config 的 loader 覆盖来救一个文件 —— 那是拿长期换短期。",
             "两处「能过但可更好」：非函数式更新、value 未记忆化。它们不是 bug，要说清边界条件。",
           ],
+          recapEn: [
+            "The baseline is 0 tests started. It is not that one test failed; collecting the tests never got through.",
+            "The cause: CabContext.js contains JSX, but esbuild picks the loader from the file extension.",
+            "The fix is to rename it to .jsx, and not one import has to change, because none of them write the extension.",
+            "Do not use a loader override in vite.config to rescue a single file. That buys a short-term gain with a long-term cost.",
+            "Two places that pass but could be better: an update that is not written as a function, and a value that is not memoised. They are not bugs, so be ready to state the conditions where they matter.",
+          ],
         },
         {
           id: "cb-rewrite",
           title: "从零重写：空文件夹里做出来",
           titleEn: "Rewrite it: build the whole app in an empty folder",
           blurb: "这一节没有新知识。只有一个要求：不看答案，把整个应用写出来。",
+          blurbEn:
+            "There is nothing new to learn here. There is one requirement: write the whole app without looking at the answer.",
           minutes: 55,
           objectives: [
             "在空文件夹里搭出 Vite + React + Vitest 的测试环境",
@@ -5017,8 +5505,16 @@ export default defineConfig({
             "自己发现并修掉 .js / .jsx 那个坑",
             "跑到 4 passed / 4 total",
           ],
+          objectivesEn: [
+            "Set up a Vite, React and Vitest test environment in an empty folder",
+            "Write the Context and the six components from what the four tests ask for",
+            "Find and fix the .js and .jsx problem yourself",
+            "Reach 4 passed / 4 total",
+          ],
           whyForAssessment:
             "真实考试就是这样：一个仓库、一份 README、一套测试，没有答案。前面三个部分你都是「跟着看」，这一节是「自己做」。做不出来不代表白学了 —— 卡在哪一步，那一步就是你真正的薄弱点。",
+          whyForAssessmentEn:
+            "A real exam looks exactly like this: one repository, one README, one set of tests, and no answer. In the first three parts you were reading along. In this lesson you do it yourself. Not finishing does not mean the earlier work was wasted. Wherever you get stuck is your real weak point.",
           sourceFiles: [
             { path: "cab-booking-context/src/test/App.test.jsx", role: "唯一允许看的东西：四个测试" },
             { path: "cab-booking-context/src/data/data.json", role: "数据可以照抄，那不是考点" },
@@ -5027,7 +5523,10 @@ export default defineConfig({
             {
               id: "cb-rewrite-order",
               heading: "按什么顺序写",
+              headingEn: "What order to write it in",
               lede: "让测试一条一条变绿，而不是全写完再跑",
+              ledeEn:
+                "Make the tests pass one at a time, instead of writing everything and running them at the end",
               body: (
                 <>
                   <p>
@@ -5340,13 +5839,51 @@ $ npx vitest run
                   <strong>调试时间比写代码时间更容易失控</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <strong>Four failing tests carry almost no information.</strong> A Provider on the
+                  wrong level, a misspelled testid, and a state machine that is not connected are
+                  three completely different causes that produce <strong>the same output</strong>.
+                  <br />
+                  If you work through the tests in order,{" "}
+                  <strong>each step has only one variable</strong>: you have just written{" "}
+                  <code>RideHistory</code> and test 1 is still failing, so the problem can only be in
+                  the lines you just wrote or in the level of the Provider.
+                  <br />
+                  <strong>
+                    This is not a teaching suggestion, it is time management in a real exam.
+                  </strong>{" "}
+                  The exam is timed, and{" "}
+                  <strong>debugging time gets out of control more easily than writing time</strong>.
+                </>
+              ),
             },
           ],
           transfer: [
-            { signal: "拿到一个只给测试的项目", reachFor: "先跑基线记下来，再按测试顺序一条一条变绿" },
-            { signal: "一次改动之后好几条测试同时红", reachFor: "回退到只改一处，把变量降到一个" },
-            { signal: "「我知道怎么做但写不出来」", reachFor: "那就是这一档要练的东西 —— 卡住的地方才是薄弱点" },
-            { signal: "本机装不了 Node", reachFor: "StackBlitz：WebContainers 能真跑 npm install 和 npm test" },
+            {
+              signal: "拿到一个只给测试的项目",
+              signalEn: "You get a project that gives you only tests",
+              reachFor: "先跑基线记下来，再按测试顺序一条一条变绿",
+              reachForEn: "Run the baseline and write it down, then make the tests pass one by one in order",
+            },
+            {
+              signal: "一次改动之后好几条测试同时红",
+              signalEn: "Several tests fail together after a single change",
+              reachFor: "回退到只改一处，把变量降到一个",
+              reachForEn: "Go back to changing one thing at a time, so there is only one variable",
+            },
+            {
+              signal: "「我知道怎么做但写不出来」",
+              signalEn: "\"I know how to do it but I cannot write it\"",
+              reachFor: "那就是这一档要练的东西 —— 卡住的地方才是薄弱点",
+              reachForEn: "That is exactly what this level trains; the place you get stuck is the weak point",
+            },
+            {
+              signal: "本机装不了 Node",
+              signalEn: "You cannot install Node on your own machine",
+              reachFor: "StackBlitz：WebContainers 能真跑 npm install 和 npm test",
+              reachForEn: "StackBlitz: WebContainers really do run npm install and npm test",
+            },
           ],
           recap: [
             "按测试顺序写：测试 1 绿了再写测试 2 需要的东西，每步只有一个变量。",
@@ -5354,6 +5891,13 @@ $ npx vitest run
             "带 JSX 的文件从一开始就叫 .jsx，别重复那个坑。",
             "两个最容易错的点：slice(-3).reverse() 的顺序、确认页的 ?.name。",
             "提示分四级，先自己想 15 分钟 —— 你练的是没提示时自己找路。",
+          ],
+          recapEn: [
+            "Write in test order: make test 1 pass, then write what test 2 needs, so every step has only one variable.",
+            "The first step is to get the tests running and all failing. That alone is better than the baseline of the source project.",
+            "Give every file that contains JSX the .jsx extension from the start, so the same problem does not come back.",
+            "The two easiest things to get wrong: the order of slice(-3).reverse(), and ?.name on the confirmation page.",
+            "The hints come in four levels. Think for 15 minutes on your own first, because what you are practising is finding the way without hints.",
           ],
         },
       ],

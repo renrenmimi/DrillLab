@@ -909,6 +909,8 @@ export const reactVariants: Module = {
       title: "变式一 · Todo List",
       titleEn: "Variation 1 · Todo List",
       blurb: "和 Notes Manager 同一套骨架，多了一个布尔字段、一个筛选、两个批量操作。",
+      blurbEn:
+        "The same skeleton as the Notes Manager, plus one boolean field, one filter, and two bulk actions.",
       minutes: 14,
       objectives: [
         "用 map + 对象展开就地翻转一条数据的布尔字段",
@@ -916,13 +918,23 @@ export const reactVariants: Module = {
         "实现全选 / 取消全选和「清除已完成」",
         "说清筛选态下的删除为什么必须作用于原始数据",
       ],
+      objectivesEn: [
+        "Flip the boolean field on one item using map plus object spread",
+        "Write how many are left, whether everything is done, and the filtered list as derived values",
+        "Implement select all / clear all, and clear completed",
+        "Explain why a delete under an active filter must act on the original data",
+      ],
       whyForAssessment:
         "Todo List 是 React 面试与 assessment 出现频率最高的一道题。它考的东西和真实 Q1 完全重合（受控输入、三种不可变更新、派生数据），只是多了 toggle 和 filter 两个变式。做完这道题，Q1 那类题就不会再有陌生感。",
+      whyForAssessmentEn:
+        "The Todo List is the question that shows up most often in React interviews and exams. What it tests overlaps completely with the real Q1: controlled inputs, the three ways to update data without changing the original, and derived values. It only adds two extra moves, toggle and filter. Once you have done this one, Q1 style questions no longer feel new.",
       concepts: [
         {
           id: "shape",
           heading: "数据形状：只比 Note 多一个布尔字段",
+          headingEn: "The shape of the data: one boolean field more than Note",
           lede: "先看类型，其余都是从它推出来的。",
+          ledeEn: "Start with the type. Everything else follows from it.",
           body: (
             <>
               <p>
@@ -970,7 +982,9 @@ export type Todo = {
         {
           id: "toggle",
           heading: "翻转一条：map + 对象展开",
+          headingEn: "Flipping one item: map plus object spread",
           lede: "这是三件套之外的第四个动作，但底层还是 map。",
+          ledeEn: "This is a fourth action beyond the usual three, but underneath it is still map.",
           body: (
             <>
               <p>
@@ -1046,6 +1060,7 @@ setTodos((prev) =>
         {
           id: "derived",
           heading: "三个派生数据，一个 state 都不加",
+          headingEn: "Three derived values, and not one new state",
           body: (
             <>
               <p>
@@ -1116,6 +1131,7 @@ const remove = (id: number) => {
         {
           id: "batch",
           heading: "两个批量操作",
+          headingEn: "The two bulk actions",
           body: (
             <>
               <p>
@@ -1167,7 +1183,9 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
         {
           id: "full",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "7 个测试全过。",
+          ledeEn: "All 7 tests pass.",
           body: (
             <>
               <p>
@@ -1196,7 +1214,9 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           lede: "这就是跑出 7/7 的那个测试文件，原样贴在这里。",
+          ledeEn: "This is the test file that produced 7 of 7, pasted exactly as it is.",
           body: (
             <>
               <p>
@@ -1429,6 +1449,13 @@ useEffect(() => {
               就会不一致。<strong>能算出来的别存。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The same fact is now stored twice, and there is one extra render. Miss a
+              single place that should trigger the sync and the two copies disagree.{" "}
+              <strong>If you can compute it, do not store it.</strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1446,13 +1473,41 @@ const remove = (id: number) => {
               <strong>写操作永远作用于完整数据。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              When the filter is set to done, <code>visible</code> holds only the finished
+              items. This line throws away <strong>every unfinished item as well</strong>.
+              <br />
+              <strong>A write always acts on the full data.</strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「翻转某一项的开关」", reachFor: "map + { ...item, flag: !item.flag }" },
-        { signal: "「显示剩余 N 项」", reachFor: "派生数据，filter().length" },
-        { signal: "「全选 / 全不选」", reachFor: "先算统一目标值，再整体套上去" },
-        { signal: "有筛选又有增删改", reachFor: "读用 visible，写一律用完整数据" },
+        {
+          signal: "「翻转某一项的开关」",
+          signalEn: "Flip the switch on one item",
+          reachFor: "map + { ...item, flag: !item.flag }",
+          reachForEn: "map + { ...item, flag: !item.flag }",
+        },
+        {
+          signal: "「显示剩余 N 项」",
+          signalEn: "Show how many items are left",
+          reachFor: "派生数据，filter().length",
+          reachForEn: "A derived value: filter().length",
+        },
+        {
+          signal: "「全选 / 全不选」",
+          signalEn: "Select all / clear all",
+          reachFor: "先算统一目标值，再整体套上去",
+          reachForEn: "Compute one shared target value, then apply it to every item",
+        },
+        {
+          signal: "有筛选又有增删改",
+          signalEn: "A filter plus add, delete, and edit",
+          reachFor: "读用 visible，写一律用完整数据",
+          reachForEn: "Read from visible, always write to the full data",
+        },
       ],
       recap: [
         "Todo 比 Note 只多一个布尔字段，于是多出「翻转」这个动作。",
@@ -1460,6 +1515,13 @@ const remove = (id: number) => {
         "visible / remaining / allDone 三个都是派生数据，一个 state 都不加。",
         "全选是「统一目标值」，不是「各自翻转」，否则变成反选。",
         "筛选态下的写操作必须作用于完整数据，否则会丢掉被筛掉的项。",
+      ],
+      recapEn: [
+        "Todo has exactly one field more than Note, a boolean, and that field adds the toggle action.",
+        "Toggle with map plus object spread. The new object has to go all the way down, not stop at the outer array.",
+        "visible, remaining, and allDone are all derived values. None of them needs its own state.",
+        "Select all means one shared target value, not flipping each item on its own. Flipping each item inverts the selection instead.",
+        "Under an active filter a write must act on the full data, or the filtered-out items are lost.",
       ],
     },
 
@@ -1471,6 +1533,8 @@ const remove = (id: number) => {
       title: "变式二 · 计时器：useEffect 的清理函数",
       titleEn: "Variation 2 · a timer: the useEffect cleanup function",
       blurb: "这道题真正的考点只有一个 —— 你会不会写 return () => clearInterval(id)。",
+      blurbEn:
+        "This question really tests one thing: can you write return () => clearInterval(id).",
       minutes: 16,
       objectives: [
         "说清 useEffect 的清理函数什么时候跑、为什么必须有",
@@ -1478,13 +1542,23 @@ const remove = (id: number) => {
         "独立实现 start / pause / reset 的计时器",
         "看懂「忘了清理」造成的两种后果：越跳越快、卸载后泄漏",
       ],
+      objectivesEn: [
+        "Explain when the useEffect cleanup function runs, and why it has to be there",
+        "Explain why a stale closure, a callback holding an old value, freezes setSeconds(seconds + 1) at 1",
+        "Build a timer with start / pause / reset on your own",
+        "Recognise the two results of a missing cleanup: the count speeds up, and the timer keeps running after the component is gone",
+      ],
       whyForAssessment:
         "源项目里没有任何定时器，所以前面的课没讲过清理函数 —— 但它是 useEffect 的另一半，同类考试（计时器、轮询、订阅、事件监听、WebSocket）几乎必考。这道题是这个知识点最短的载体。",
+      whyForAssessmentEn:
+        "The source projects contain no timers, so no earlier lesson covered the cleanup function. It is the other half of useEffect, and exams of this kind almost always ask for it: timers, polling, subscriptions, event listeners, WebSocket. This question is the shortest way to carry that one idea.",
       concepts: [
         {
           id: "cleanup",
           heading: "清理函数：effect 的另一半",
+          headingEn: "The cleanup function: the other half of an effect",
           lede: "useEffect 里 return 出去的那个函数，React 会在「下一次执行之前」和「卸载时」调用它。",
+          ledeEn: "React calls the function you return from useEffect twice over: before the next run, and when the component is removed.",
           body: (
             <>
               <p>
@@ -1561,7 +1635,9 @@ const remove = (id: number) => {
         {
           id: "stale-closure",
           heading: "为什么必须用 setSeconds(s => s + 1)",
+          headingEn: "Why setSeconds(s => s + 1) is required",
           lede: "写成 setSeconds(seconds + 1) 会卡在 1 不动。这个坑叫「过期闭包」。",
+          ledeEn: "Write setSeconds(seconds + 1) and the display freezes at 1. The name for this is a stale closure: the callback still holds an old value.",
           body: (
             <>
               <p>
@@ -1633,7 +1709,9 @@ setSeconds((s) => s + 1);`,
         {
           id: "what-breaks",
           heading: "忘了清理会怎样：两种后果，都实测过",
+          headingEn: "What a missing cleanup does: two results, both measured",
           lede: "我把 clearInterval 那行删掉真跑了一遍，8 个测试挂了 4 个。",
+          ledeEn: "I deleted the clearInterval line and ran the suite for real: 4 of the 8 tests failed.",
           body: (
             <>
               <p>
@@ -1709,7 +1787,9 @@ $ npx vitest run src/Timer.test.tsx
         {
           id: "full",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "8 个测试全过，其中两条专门验证清理生效。",
+          ledeEn: "All 8 tests pass, and two of them exist only to prove the cleanup ran.",
           body: (
             <>
               <p>
@@ -1746,7 +1826,9 @@ $ npx vitest run src/Timer.test.tsx
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           lede: "定时器怎么测？把时间也 mock 掉。",
+          ledeEn: "How do you test a timer? Replace the clock with a fake one you control.",
           body: (
             <>
               <p>
@@ -2116,6 +2198,15 @@ const id = setInterval(() => {
               <strong>改成 <code>setSeconds(s =&gt; s + 1)</code>。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The callback captured the value <code>seconds</code> had at the moment the
+              effect was created. <code>seconds</code> is not in the dependency list, so
+              the effect is never rebuilt, and every second it computes{" "}
+              <code>0 + 1</code> again.{" "}
+              <strong>Change it to <code>setSeconds(s =&gt; s + 1)</code>.</strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2128,6 +2219,14 @@ const reset = () => setSeconds(0);`,
               <code>running</code> 还是 true，定时器还在跑 ——
               清零之后立刻又从 0 开始涨。用户点「重置」的预期是
               <strong>停下来并归零</strong>，两件事都要做。
+            </>
+          ),
+          whyEn: (
+            <>
+              <code>running</code> is still true and the interval is still going, so the
+              count starts climbing again from 0 right away. When a user presses reset
+              they expect it to <strong>stop and go back to zero</strong>. Both things
+              have to happen.
             </>
           ),
         },
@@ -2149,15 +2248,57 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
               <strong>让 effect + 清理函数管，代码更短也更难写错。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              This works, but it takes the lifetime of the side effect out of React&rsquo;s
+              hands and into yours, and then it is easy to forget the cleanup when the
+              component is removed.
+              <br />
+              The timer id is not data the render needs, so it should not be state in the
+              first place (if you must keep it, use <code>useRef</code>).{" "}
+              <strong>Let the effect and its cleanup function handle it: less code, and
+              fewer ways to get it wrong.</strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "effect 里出现 setInterval / setTimeout", reachFor: "return () => clear…" },
-        { signal: "effect 里 addEventListener", reachFor: "return () => removeEventListener（同一个函数引用）" },
-        { signal: "effect 里 subscribe / new WebSocket", reachFor: "return () => unsubscribe / close" },
-        { signal: "定时器回调里要用到 state", reachFor: "函数式更新，别读闭包里的值" },
-        { signal: "「数值卡在第一次的结果不动」", reachFor: "过期闭包" },
-        { signal: "「越跑越快」「重复触发」", reachFor: "漏了清理函数" },
+        {
+          signal: "effect 里出现 setInterval / setTimeout",
+          signalEn: "setInterval or setTimeout inside an effect",
+          reachFor: "return () => clear…",
+          reachForEn: "return () => clear…",
+        },
+        {
+          signal: "effect 里 addEventListener",
+          signalEn: "addEventListener inside an effect",
+          reachFor: "return () => removeEventListener（同一个函数引用）",
+          reachForEn: "return () => removeEventListener, with the same function reference",
+        },
+        {
+          signal: "effect 里 subscribe / new WebSocket",
+          signalEn: "subscribe or new WebSocket inside an effect",
+          reachFor: "return () => unsubscribe / close",
+          reachForEn: "return () => unsubscribe / close",
+        },
+        {
+          signal: "定时器回调里要用到 state",
+          signalEn: "A timer callback needs to read state",
+          reachFor: "函数式更新，别读闭包里的值",
+          reachForEn: "Use the updater function form; do not read the captured value",
+        },
+        {
+          signal: "「数值卡在第一次的结果不动」",
+          signalEn: "A number is stuck on the result of the first run",
+          reachFor: "过期闭包",
+          reachForEn: "A stale closure",
+        },
+        {
+          signal: "「越跑越快」「重复触发」",
+          signalEn: "It speeds up, or fires more than once",
+          reachFor: "漏了清理函数",
+          reachForEn: "The cleanup function is missing",
+        },
       ],
       recap: [
         "清理函数在「依赖变化前」和「卸载时」执行 —— 它负责拆掉这次 effect 建立的东西。",
@@ -2165,6 +2306,13 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
         "定时器回调必须用函数式更新，否则闭包里的 state 永远是旧的。",
         "漏掉 clearInterval 的实测后果：start/pause 四次得到 10 秒而不是 4 秒，卸载后定时器还活着。",
         "reset 要同时停表和清零；定时器 id 不该放 state。",
+      ],
+      recapEn: [
+        "The cleanup function runs before the dependencies change and when the component is removed. Its job is to take down whatever this effect set up.",
+        "If an effect starts a timer, a listener, a subscription, a connection, or a request, it must return a cleanup function.",
+        "A timer callback has to use the updater function form, or the state it captured stays old forever.",
+        "Measured result of a missing clearInterval: four start/pause cycles give 10 seconds instead of 4, and the timer is still alive after the component is gone.",
+        "reset has to stop the clock and zero it. The timer id does not belong in state.",
       ],
     },
 
@@ -2176,6 +2324,8 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
       title: "变式三 · fetch 取数：loading、error 与竞态",
       titleEn: "Variation 3 · fetching data: loading, error, and the race between two requests",
       blurb: "三个状态好写，难的是「用户切换很快时，慢的旧请求把新数据覆盖了」。",
+      blurbEn:
+        "The three states are easy. The hard part is when the user switches quickly and a slow old request overwrites the new data.",
       minutes: 18,
       objectives: [
         "写出 loading / error / data 三态的标准骨架",
@@ -2183,13 +2333,23 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
         "解释竞态（race condition）怎么发生，并用清理函数解决",
         "分清 AbortController 和 ignore 标志各解决什么",
       ],
+      objectivesEn: [
+        "Write the standard skeleton for the three states: loading, error, data",
+        "Know that fetch does not reject on a 404, so you have to check res.ok yourself",
+        "Explain how a race condition happens, and fix it with a cleanup function",
+        "Say what AbortController solves and what an ignore flag solves, and why they are different",
+      ],
       whyForAssessment:
         "原始需求里就写了「API request / loading state / error state」，但源项目里没有任何网络请求，所以前面没讲。这道题补上，而且直接给到「竞态」这一层 —— 只写三态谁都会，竞态才是区分度所在。",
+      whyForAssessmentEn:
+        "The original requirements already list API request, loading state, and error state, but the source projects make no network calls, so no earlier lesson covered this. This question fills that gap and goes one level further, to the race between two requests. Anyone can write the three states; the race is what tells answers apart.",
       concepts: [
         {
           id: "three-states",
           heading: "三态骨架",
+          headingEn: "The three-state skeleton",
           lede: "loading / error / data。顺序和优先级都有讲究。",
+          ledeEn: "loading, error, data. Both the order and which one wins matter.",
           body: (
             <>
               <p>
@@ -2255,7 +2415,9 @@ return <article data-testid="user">…</article>;`,
         {
           id: "res-ok",
           heading: "fetch 的第一个坑：404 不会 reject",
+          headingEn: "The first trap in fetch: a 404 does not reject",
           lede: "这是所有 fetch 题的必考点。",
+          ledeEn: "Every fetch question checks this one.",
           body: (
             <>
               <p>
@@ -2315,7 +2477,9 @@ const data: User = await res.json();`,
         {
           id: "race",
           heading: "真正的考点：竞态",
+          headingEn: "What is really being tested: the race between two requests",
           lede: "用户飞快切换 id，两个请求同时在飞，谁后回来谁说话 —— 而后回来的可能是旧的。",
+          ledeEn: "The user switches id quickly, two requests are in flight, and whichever answers last wins. The one that answers last may be the older one.",
           body: (
             <>
               <p>
@@ -2405,7 +2569,9 @@ t=200  用户 1 的响应回来 -> ignore#1 是 true  -> 直接丢掉 ✓
         {
           id: "abort",
           heading: "AbortController 和 ignore 解决的不是同一件事",
+          headingEn: "AbortController and the ignore flag do not solve the same problem",
           lede: "两个都要，各管一头。",
+          ledeEn: "You want both. Each one covers a different end.",
           body: (
             <>
               <div className="table-wrap">
@@ -2525,7 +2691,9 @@ return () => {
         {
           id: "full",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "6 个测试全过，包含竞态和 abort 两条。",
+          ledeEn: "All 6 tests pass, including one for the race and one for abort.",
           body: (
             <>
               <p>
@@ -2567,7 +2735,9 @@ return () => {
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           lede: "竞态这种「偶尔才出现」的 bug，怎么稳定地测出来？答案是自己控制谁先回来。",
+          ledeEn: "How do you reliably test a bug that only appears now and then? You decide yourself which request answers first.",
           body: (
             <>
               <p>
@@ -2985,6 +3155,17 @@ useEffect(async () => {
               正解是在 effect 内部包一个立即执行的 async 箭头函数。
             </>
           ),
+          whyEn: (
+            <>
+              An effect must return <strong>a cleanup function or undefined</strong>, and
+              an async function returns a <code>Promise</code>. React warns{" "}
+              <code>useEffect must not return anything besides a function</code>, and this
+              way there is no place to put a cleanup function at all.
+              <br />
+              The fix is to define an async arrow function inside the effect and call it
+              immediately.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -3000,6 +3181,14 @@ useEffect(() => {
               <strong>无限请求循环</strong>。
               开发时表现为网络面板疯狂刷屏，接口被打爆。
               这是 fetch 题最经典的事故。
+            </>
+          ),
+          whyEn: (
+            <>
+              Every render sends a request, and <code>setUser</code> causes another
+              render — <strong>an endless request loop</strong>. In development the
+              network panel never stops scrolling and the endpoint is flooded. This is the
+              classic accident in fetch questions.
             </>
           ),
         },
@@ -3024,15 +3213,54 @@ try {
               <strong>关 loading 要放在 <code>finally</code> 里。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              When the request fails, <code>loading</code> stays true forever, so the
+              screen sits on Loading… and the error message never gets a chance to show
+              (because <code>if (loading)</code> returned first).
+              <br />
+              <strong>Turn loading off inside <code>finally</code>.</strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「按 id 取数并展示」", reachFor: "三态 + effect 依赖 [id]" },
-        { signal: "用了 fetch", reachFor: "必须检查 res.ok，404 不会 reject" },
-        { signal: "「切换很快时数据错乱」", reachFor: "竞态，用 ignore 标志 + 清理函数" },
-        { signal: "「卸载后 setState 警告」", reachFor: "同一套 ignore 写法就解决了" },
-        { signal: "「网络面板疯狂刷屏」", reachFor: "effect 漏了依赖数组" },
-        { signal: "「出错后卡在 Loading」", reachFor: "setLoading(false) 要放 finally" },
+        {
+          signal: "「按 id 取数并展示」",
+          signalEn: "Fetch by id and show the result",
+          reachFor: "三态 + effect 依赖 [id]",
+          reachForEn: "The three states, plus an effect with [id] as its dependency",
+        },
+        {
+          signal: "用了 fetch",
+          signalEn: "The code uses fetch",
+          reachFor: "必须检查 res.ok，404 不会 reject",
+          reachForEn: "Check res.ok; a 404 does not reject",
+        },
+        {
+          signal: "「切换很快时数据错乱」",
+          signalEn: "The data comes out wrong when you switch quickly",
+          reachFor: "竞态，用 ignore 标志 + 清理函数",
+          reachForEn: "A race. Use an ignore flag plus a cleanup function",
+        },
+        {
+          signal: "「卸载后 setState 警告」",
+          signalEn: "A setState warning after the component is removed",
+          reachFor: "同一套 ignore 写法就解决了",
+          reachForEn: "The same ignore pattern fixes it",
+        },
+        {
+          signal: "「网络面板疯狂刷屏」",
+          signalEn: "The network panel never stops scrolling",
+          reachFor: "effect 漏了依赖数组",
+          reachForEn: "The effect is missing its dependency array",
+        },
+        {
+          signal: "「出错后卡在 Loading」",
+          signalEn: "It sticks on Loading after an error",
+          reachFor: "setLoading(false) 要放 finally",
+          reachForEn: "setLoading(false) belongs in finally",
+        },
       ],
       recap: [
         "三态骨架：loading 初始为 true，渲染顺序 loading → error → 空 → 数据。",
@@ -3040,6 +3268,13 @@ try {
         "竞态：慢的旧请求后回来会覆盖新数据。解法是每次 effect 一个 ignore 局部变量 + 清理函数置 true。",
         "AbortController 掐网络，ignore 挡 state 写入 —— 两个都要，AbortError 不算错误。",
         "effect 不能是 async；关 loading 放 finally；依赖数组里必须有 id。",
+      ],
+      recapEn: [
+        "The three-state skeleton: loading starts as true, and the render order is loading, then error, then empty, then data.",
+        "fetch only rejects when the network layer fails. For 404 and 500 you have to check res.ok yourself.",
+        "The race: a slow old request answers last and overwrites the new data. The fix is one local ignore variable per effect run, which the cleanup function sets to true.",
+        "AbortController stops the network call, ignore blocks the state write. You need both, and an AbortError does not count as an error.",
+        "An effect cannot be async. Turn loading off in finally. The dependency array must contain id.",
       ],
     },
 
@@ -3051,6 +3286,8 @@ try {
       title: "变式四 · 递归读取评论的评论",
       titleEn: "Variation 4 · reading replies to replies with recursion",
       blurb: "组件自己渲染自己；难点其实不在渲染，而在「给第四层加一条回复」怎么不改原树。",
+      blurbEn:
+        "A component renders itself. The hard part is not the rendering, it is adding a reply four levels down without changing the original tree.",
       minutes: 20,
       objectives: [
         "写出一个递归渲染自身的组件，并说清终止条件在哪",
@@ -3058,13 +3295,23 @@ try {
         "实现「往任意深度的节点下加回复」的不可变更新",
         "解释为什么只重建路径上的节点、而不是深拷贝整棵树",
       ],
+      objectivesEn: [
+        "Write a component that renders itself, and say exactly where the recursion stops",
+        "Count every item in the tree with recursion",
+        "Add a reply under a node at any depth without changing the original tree",
+        "Explain why you rebuild only the nodes on the path instead of deep-copying the whole tree",
+      ],
       whyForAssessment:
         "评论嵌套、目录树、组织架构、文件夹 —— 树形数据是 assessment 里的常客，而且它同时考「递归组件」和「嵌套结构的不可变更新」两件事。后者是前面所有 CRUD 题的升级版：数组的不可变更新大家都会了，树的还得再想一层。",
+      whyForAssessmentEn:
+        "Nested comments, directory trees, org charts, folders: tree data shows up in exams all the time, and it tests two things at once — a recursive component, and updating a nested structure without changing the original. The second one is a step up from every CRUD question so far. Everyone can do it for an array; a tree needs one more level of thought.",
       concepts: [
         {
           id: "shape",
           heading: "数据形状：一个类型引用自己",
+          headingEn: "The shape of the data: a type that refers to itself",
           lede: "评论的评论，本质上就是一个字段指回自己的类型。",
+          ledeEn: "A comment on a comment is really just a type with one field that points back at itself.",
           body: (
             <>
               <p>
@@ -3120,7 +3367,9 @@ try {
         {
           id: "recursive-component",
           heading: "递归组件：终止条件不用写 if",
+          headingEn: "A recursive component: you do not need an if to stop it",
           lede: "很多人卡在「递归怎么停」，其实 map 已经帮你停了。",
+          ledeEn: "Many people get stuck on how the recursion stops. map already stops it for you.",
           body: (
             <>
               <p>
@@ -3207,6 +3456,7 @@ try {
         {
           id: "recursive-count",
           heading: "递归统计：一行 reduce",
+          headingEn: "Counting with recursion: one line of reduce",
           body: (
             <>
               <p>
@@ -3263,7 +3513,9 @@ export function countComments(nodes: Comment[]): number {
         {
           id: "immutable-tree",
           heading: "真正的难点：给第四层加一条回复",
+          headingEn: "The real difficulty: adding a reply four levels down",
           lede: "数组的不可变更新大家都会了。树的还要再想一层。",
+          ledeEn: "Everyone can update an array without changing the original. A tree needs one more level of thought.",
           body: (
             <>
               <p>
@@ -3398,7 +3650,9 @@ const next = JSON.parse(JSON.stringify(comments));`,
         {
           id: "full",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "7 个测试全过，含「深层回复落在正确位置」和「原树未被修改」。",
+          ledeEn: "All 7 tests pass, including one that a deep reply lands in the right place and one that the original tree was not changed.",
           body: (
             <>
               <p>
@@ -3442,7 +3696,9 @@ const next = JSON.parse(JSON.stringify(comments));`,
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           lede: "「有没有偷偷改原树」这件事，用深冻结一测就知道。",
+          ledeEn: "To find out whether the original tree was quietly changed, freeze it all the way down and run the test.",
           body: (
             <>
               <p>
@@ -3808,6 +4064,14 @@ type Comment = { id: number; body: string; depth: number; replies: Comment[] };`
               <strong>用参数往下传 <code>depth + 1</code> 就够了。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              Depth is where the node sits in the tree, and it is worked out while
+              rendering. Store it in the data and every move or nesting operation has to
+              update it recursively; miss one and it no longer matches the real structure.{" "}
+              <strong>Passing <code>depth + 1</code> down as an argument is enough.</strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -3822,6 +4086,17 @@ const [collapsed, setCollapsed] = useState<Set<number>>(new Set());`,
               纯属自找麻烦。
               <br />
               例外：如果题目要求「一键全部折叠」，那才需要提上去。
+            </>
+          ),
+          whyEn: (
+            <>
+              Whether one item is collapsed matters only to that item, which makes it a
+              textbook piece of local state. Lifting it to the top means keeping a set of
+              ids and replacing that Set on every change — trouble you did not have to ask
+              for.
+              <br />
+              One exception: if the task asks for collapse everything with one button, then
+              it does have to move up.
             </>
           ),
         },
@@ -3843,15 +4118,56 @@ setComments(next);`,
               <strong>只重建路径</strong>才是这道题想考的。
             </>
           ),
+          whyEn: (
+            <>
+              The result is right and the original tree is untouched, so every test may
+              pass. But <strong>every node now has a new reference</strong>, so every
+              subtree wrapped in <code>React.memo</code> re-renders, and a large tree
+              visibly stalls. A deep copy is expensive on large data on its own too.
+              <br />
+              <strong>Rebuilding only the path</strong> is what this question is asking
+              for.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「评论的评论」「目录树」「组织架构」", reachFor: "类型自引用 + 递归组件" },
-        { signal: "递归组件怎么停", reachFor: "空数组 map 什么都不产出，天然终止" },
-        { signal: "「统计/查找/拍平树」", reachFor: "reduce 递归：自己 + 子树" },
-        { signal: "「给树里某个节点加/改/删」", reachFor: "map 递归，只重建路径上的节点" },
-        { signal: "需要缩进或层级样式", reachFor: "depth 参数往下传，别存进数据" },
-        { signal: "没报错 + 日志对 + 界面不动", reachFor: "改了原对象（数组和树都一样）" },
+        {
+          signal: "「评论的评论」「目录树」「组织架构」",
+          signalEn: "Comments on comments, directory trees, org charts",
+          reachFor: "类型自引用 + 递归组件",
+          reachForEn: "A type that refers to itself, plus a recursive component",
+        },
+        {
+          signal: "递归组件怎么停",
+          signalEn: "How a recursive component stops",
+          reachFor: "空数组 map 什么都不产出，天然终止",
+          reachForEn: "map over an empty array produces nothing, so it stops by itself",
+        },
+        {
+          signal: "「统计/查找/拍平树」",
+          signalEn: "Count, search, or flatten a tree",
+          reachFor: "reduce 递归：自己 + 子树",
+          reachForEn: "Recursive reduce: this node plus its subtrees",
+        },
+        {
+          signal: "「给树里某个节点加/改/删」",
+          signalEn: "Add, edit, or delete one node inside a tree",
+          reachFor: "map 递归，只重建路径上的节点",
+          reachForEn: "Recursive map; rebuild only the nodes on the path",
+        },
+        {
+          signal: "需要缩进或层级样式",
+          signalEn: "You need indentation or per-level styling",
+          reachFor: "depth 参数往下传，别存进数据",
+          reachForEn: "Pass depth down as an argument; do not store it in the data",
+        },
+        {
+          signal: "没报错 + 日志对 + 界面不动",
+          signalEn: "No error, the log looks right, the screen does not change",
+          reachFor: "改了原对象（数组和树都一样）",
+          reachForEn: "The original object was changed in place, in a tree just as in an array",
+        },
       ],
       recap: [
         "「评论的评论」= 类型里有个字段指回自己；深度不存数据，渲染时用参数传。",
@@ -3859,6 +4175,13 @@ setComments(next);`,
         "递归统计的骨架是「自己 1 条 + 子树全部」，同一模式能算深度、查找、拍平。",
         "树的不可变更新：map 递归，命中就 { ...node, replies: [...replies, reply] }，未命中也要造新节点并递归子树。",
         "只重建从根到目标的路径，不要深拷贝整棵树 —— 否则 React.memo 全失效。",
+      ],
+      recapEn: [
+        "A comment on a comment means a type with a field pointing back at itself. Depth is not stored in the data; it is passed down as an argument while rendering.",
+        "A recursive component renders itself inside its own JSX. Empty replies make map produce nothing, so the recursion ends on its own.",
+        "The shape of a recursive count is: this node counts 1, plus everything in its subtrees. The same pattern computes depth, searches, and flattens.",
+        "Updating a tree without changing the original: recursive map. On a match, { ...node, replies: [...replies, reply] }. On a miss, still build a new node and recurse into its subtrees.",
+        "Rebuild only the path from the root down to the target. Do not deep-copy the whole tree, or React.memo stops helping anywhere.",
       ],
     },
 
@@ -3870,6 +4193,8 @@ setComments(next);`,
       title: "变式五 · 主题切换：Context 怎么用",
       titleEn: "Variation 5 · theme switching: how to use Context",
       blurb: "createContext 三行就写完了。真正会挂的地方是「value 每次都是新对象」和「忘了套 Provider」。",
+      blurbEn:
+        "createContext takes three lines. What actually breaks is a value that is a new object every render, and a missing Provider.",
       minutes: 20,
       objectives: [
         "说清什么时候该上 Context、什么时候不该",
@@ -3877,13 +4202,23 @@ setComments(next);`,
         "解释 context value 为什么必须 useMemo、toggleTheme 为什么要 useCallback",
         "看懂「忘了套 Provider」的真实报错，并知道怎么让它报得更清楚",
       ],
+      objectivesEn: [
+        "Say when Context is the right tool and when it is not",
+        "Write the createContext + Provider + useContext set, and wrap it in a custom hook",
+        "Explain why the context value needs useMemo and why toggleTheme needs useCallback",
+        "Read the real error you get when the Provider is missing, and know how to make that error clearer",
+      ],
       whyForAssessment:
         "主题切换是 Context 最常见的考法，同一套骨架换个壳就是「当前登录用户」「语言」「购物车」。源项目里一个 Context 都没有，所以前面没讲。这道题除了考 API 会不会写，更考两个细节：value 有没有记忆化、忘了 Provider 时错误信息够不够清楚 —— 这两点是区分「抄过教程」和「真写过」的地方。",
+      whyForAssessmentEn:
+        "Theme switching is the most common way exams test Context. The same skeleton with a different label becomes the current user, the language, or the shopping cart. The source projects contain no Context at all, so no earlier lesson covered it. Beyond writing the API correctly, this question tests two details: whether the value is memoized, and whether the error is clear when the Provider is missing. Those two separate someone who copied a tutorial from someone who has really written this.",
       concepts: [
         {
           id: "why",
           heading: "为什么要 Context：props 传不动了",
+          headingEn: "Why Context exists: props cannot carry the value that far",
           lede: "Context 解决的是「跨很多层传同一个值」，不是「状态管理」。",
+          ledeEn: "Context solves one problem: passing the same value through many levels. It is not state management.",
           body: (
             <>
               <p>
@@ -3978,7 +4313,9 @@ setComments(next);`,
         {
           id: "three-parts",
           heading: "Context 只有三个动作，加一个自定义 hook",
+          headingEn: "Context has only three moves, plus a custom hook",
           lede: "createContext 造管道、Provider 灌值、useContext 取值。第四步是自己包一层。",
+          ledeEn: "createContext builds the pipe, Provider puts a value into it, useContext takes the value out. The fourth step is a wrapper you write yourself.",
           body: (
             <>
               <p>
@@ -4087,7 +4424,7 @@ setComments(next);`,
                         <code>createContext()</code> (the reference shape in the question)
                       </td>
                       <td>
-                        You get <code>undefined</code> and it blows up on the destructuring line
+                        You get <code>undefined</code> and it throws on the destructuring line
                         with an unreadable <code>Cannot destructure property…</code>
                       </td>
                     </tr>
@@ -4139,7 +4476,9 @@ export function useTheme(): ThemeContextValue {
         {
           id: "toggle",
           heading: "toggleTheme：又是函数式更新",
+          headingEn: "toggleTheme: the updater function form again",
           lede: "和计时器那道题同一个道理，只是这次藏在 context 里。",
+          ledeEn: "The same reason as in the timer question, only this time it is hidden inside the context.",
           body: (
             <>
               <p>
@@ -4219,7 +4558,9 @@ onClick={() => { toggleTheme(); toggleTheme(); }}
         {
           id: "memo",
           heading: "最容易漏的一步：value 必须记忆化",
+          headingEn: "The step people miss most: the value has to be memoized",
           lede: "这行代码看着无害，会让整棵子树每次都重渲染。",
+          ledeEn: "This line looks harmless, and it makes the whole subtree re-render every time.",
           body: (
             <>
               <p>
@@ -4317,7 +4658,9 @@ $ npx vitest run src/Theme.test.tsx
         {
           id: "consumers",
           heading: "两个消费者",
+          headingEn: "The two consumers",
           lede: "按钮和卡片都只做一件事：取值、用值。",
+          ledeEn: "The button and the card each do one thing: read the value, then use it.",
           body: (
             <>
               <p>
@@ -4385,7 +4728,9 @@ $ npx vitest run src/Theme.test.tsx
         {
           id: "full",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "8 个测试全过。",
+          ledeEn: "All 8 tests pass.",
           body: (
             <>
               <p>
@@ -4428,7 +4773,9 @@ $ npx vitest run src/Theme.test.tsx
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           lede: "Context 怎么测？测的是「消费者看到了什么」，不是 context 本身。",
+          ledeEn: "How do you test Context? You test what a consumer sees, not the context itself.",
           body: (
             <>
               <p>
@@ -4846,6 +5193,16 @@ const ThemeApp: React.FC = () => (
               而且功能测试不会红，只有专门测引用的那条会红。
             </>
           ),
+          whyEn: (
+            <>
+              Every render builds a new object. Context compares by reference, decides the
+              value changed, and every consumer re-renders — even when the theme did not
+              move.
+              <br />
+              <strong>Use <code>useMemo</code>.</strong> Note that the behaviour tests
+              stay green; only a test written to check the reference turns red.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -4860,6 +5217,16 @@ const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });`,
               <br />
               这是最难查的一类 bug ——
               <strong>宁可炸，也别静默地对。</strong>
+            </>
+          ),
+          whyEn: (
+            <>
+              With the Provider missing there is <strong>no error at all</strong>: the page
+              shows the light theme as usual, the button calls that empty function, and
+              nothing happens.
+              <br />
+              This is the hardest kind of bug to track down.{" "}
+              <strong>Better to fail loudly than to look correct in silence.</strong>
             </>
           ),
         },
@@ -4881,6 +5248,16 @@ export function ThemeProvider({ children }) {
               的变量就行 —— 它就在手边。
             </>
           ),
+          whyEn: (
+            <>
+              <code>useContext</code> looks for a Provider among its{" "}
+              <strong>ancestors</strong>. The <code>ThemeProvider</code> component is not
+              its own ancestor.
+              <br />
+              If you need the theme inside the Provider, just use the{" "}
+              <code>useState</code> variable. It is right there.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -4897,16 +5274,60 @@ export function ThemeProvider({ children }) {
               而 assessment 里这种分丢得最不值。
             </>
           ),
+          whyEn: (
+            <>
+              The task asks for <strong>where it will switch to</strong>: when the current
+              theme is light, show <code>Switch to Dark</code>.
+              <br />
+              Nothing technical is involved here. It is purely{" "}
+              <strong>reading the task</strong>, and in an exam these are the cheapest
+              points to lose.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「整棵树都要读同一个值」", reachFor: "Context：createContext + Provider + useContext" },
-        { signal: "「当前登录用户 / 语言 / 购物车」", reachFor: "和主题同一套骨架，换个类型" },
-        { signal: "写 Provider", reachFor: "value 一律 useMemo，函数一律 useCallback" },
-        { signal: "Cannot destructure property … of undefined", reachFor: "消费者不在 Provider 子树里" },
-        { signal: "「一部分组件正常、一部分拿到 undefined」", reachFor: "Provider 范围不够大，往上提" },
-        { signal: "「切换毫无反应但也不报错」", reachFor: "createContext 给了假默认值，把它换成 undefined + 守卫" },
-        { signal: "值每秒都在变（鼠标位置、播放进度）", reachFor: "别放 Context，或拆成两个 Context" },
+        {
+          signal: "「整棵树都要读同一个值」",
+          signalEn: "The whole tree has to read the same value",
+          reachFor: "Context：createContext + Provider + useContext",
+          reachForEn: "Context: createContext + Provider + useContext",
+        },
+        {
+          signal: "「当前登录用户 / 语言 / 购物车」",
+          signalEn: "Current user / language / shopping cart",
+          reachFor: "和主题同一套骨架，换个类型",
+          reachForEn: "The same skeleton as the theme, with a different type",
+        },
+        {
+          signal: "写 Provider",
+          signalEn: "Writing a Provider",
+          reachFor: "value 一律 useMemo，函数一律 useCallback",
+          reachForEn: "Always useMemo the value, always useCallback the functions",
+        },
+        {
+          signal: "Cannot destructure property … of undefined",
+          reachFor: "消费者不在 Provider 子树里",
+          reachForEn: "The consumer is not inside the Provider subtree",
+        },
+        {
+          signal: "「一部分组件正常、一部分拿到 undefined」",
+          signalEn: "Some components work, others get undefined",
+          reachFor: "Provider 范围不够大，往上提",
+          reachForEn: "The Provider does not cover enough of the tree; move it up",
+        },
+        {
+          signal: "「切换毫无反应但也不报错」",
+          signalEn: "Switching does nothing, and there is no error either",
+          reachFor: "createContext 给了假默认值，把它换成 undefined + 守卫",
+          reachForEn: "createContext was given a fake default value. Replace it with undefined plus a guard",
+        },
+        {
+          signal: "值每秒都在变（鼠标位置、播放进度）",
+          signalEn: "The value changes every second, like a mouse position or playback progress",
+          reachFor: "别放 Context，或拆成两个 Context",
+          reachForEn: "Keep it out of Context, or split it into two Contexts",
+        },
       ],
       recap: [
         "Context 解决跨层传值，适合「整棵树都读、又不常变」的东西；它不是状态管理器。",
@@ -4915,6 +5336,14 @@ export function ThemeProvider({ children }) {
         "toggleTheme 用函数式更新 + useCallback([])；一次事件连调两次也能正确翻回来。",
         "value 必须 useMemo，否则所有消费者每次都重渲染，而功能测试全绿查不出来。",
         "按钮文字是「要切到哪」，不是「现在是哪」—— 这是读题分。",
+      ],
+      recapEn: [
+        "Context solves passing a value across layers. It fits things the whole tree reads and that rarely change. It is not a state manager.",
+        "Three moves: createContext builds the pipe, Provider puts a value in, useContext takes it out. The fourth step is your own hook with a guard in it.",
+        "Pass undefined as the default and throw inside the hook. That is better than a fake default value: fail loudly rather than look correct in silence.",
+        "toggleTheme uses the updater function form plus useCallback with an empty dependency list, so two calls in one event still flip back correctly.",
+        "The value must go through useMemo, or every consumer re-renders every time, and the behaviour tests stay green so nothing catches it.",
+        "The button text says where it will switch to, not what it is now. These are points for reading the task.",
       ],
     },
   ],

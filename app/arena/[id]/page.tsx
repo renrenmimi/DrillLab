@@ -4,6 +4,7 @@
 
 import { ArenaBrief } from "@/components/arena-brief";
 import { allArena, arenaPublicById } from "@/content/arena";
+import { slashTitle } from "@/content/path";
 
 export function generateStaticParams() {
   return allArena().map((a) => ({ id: a.id }));
@@ -13,7 +14,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const a = arenaPublicById(id);
   if (!a) return {};
-  return { title: `考场 / Arena · ${a.title}`, description: a.scenario };
+  return {
+    title: `考场 / Arena · ${slashTitle(a.title, a.titleEn)}`,
+    description: slashTitle(a.scenario, a.scenarioEn),
+  };
 }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {

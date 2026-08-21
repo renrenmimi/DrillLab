@@ -98,6 +98,7 @@ export const reactHooks: Module = {
       title: "受控输入：value + onChange 的闭环",
       titleEn: "Controlled inputs: the loop between value and onChange",
       blurb: "输入框里的字，其实存在 React 的 state 里，不在 DOM 里。",
+      blurbEn: "The text you type sits in React state, not in the DOM.",
       minutes: 13,
       objectives: [
         "说清「受控」到底控的是什么",
@@ -105,8 +106,16 @@ export const reactHooks: Module = {
         "知道只写 value 不写 onChange 会怎样",
         "看懂表单提交里 event.preventDefault() 的必要性",
       ],
+      objectivesEn: [
+        "Explain what a controlled input actually controls",
+        "Write the full value + onChange loop",
+        "Know what happens if you write value but no onChange",
+        "See why event.preventDefault() is needed when a form is submitted",
+      ],
       whyForAssessment:
         "判卷测试用 userEvent.type() 往输入框里打字，然后断言表格内容。如果输入框不是受控的，打进去的字拿不到，Task 1 直接挂。",
+      whyForAssessmentEn:
+        "The grading tests type into the input with userEvent.type() and then assert on the table contents. If the input is not controlled, the typed text never reaches your code and Task 1 fails.",
       sourceFiles: [
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
@@ -117,7 +126,9 @@ export const reactHooks: Module = {
         {
           id: "what-controlled",
           heading: "「受控」的意思是：唯一真相在 state 里",
+          headingEn: "Controlled means the only source of truth is the state",
           lede: "输入框自己不做主，它只显示 state 告诉它的东西。",
+          ledeEn: "The input decides nothing on its own. It shows whatever the state tells it to show.",
           body: (
             <>
               <p>
@@ -212,7 +223,9 @@ export const reactHooks: Module = {
         {
           id: "missing-onchange",
           heading: "只写 value 不写 onChange 会怎样",
+          headingEn: "What happens if you write value but no onChange",
           lede: "输入框会变成只读的。这是个很容易踩的坑。",
+          ledeEn: "The input turns read-only. This mistake is very easy to make.",
           body: (
             <>
               <p>
@@ -270,6 +283,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
         {
           id: "form-submit",
           heading: "表单提交：preventDefault 不是可选项",
+          headingEn: "Submitting a form: preventDefault is not optional",
           body: (
             <>
               <p>
@@ -373,7 +387,9 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
         {
           id: "the-whole-file",
           heading: "把整个 NoteForm 读一遍",
+          headingEn: "Read the whole of NoteForm once",
           lede: "这是这道题最密集的一个文件。上面讲的四件事都在里面。",
+          ledeEn: "This is the densest file in the task. All four points above appear in it.",
           body: (
             <>
               <p>
@@ -576,6 +592,15 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               这是好事 —— 在 JavaScript 项目里，这个错会一直藏到运行时。
             </>
           ),
+          whyEn: (
+            <>
+              <code>e.target</code> is the DOM element object, not a string.
+              TypeScript reports
+              <code>Argument of type &apos;EventTarget&apos; is not assignable to
+              parameter of type &apos;string&apos;</code>. That is a good thing. In a
+              plain JavaScript project this mistake stays hidden until the code runs.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -592,13 +617,42 @@ onSubmit(newNote);
               明显是 bug。<strong>题目没写的细节，也是评分点。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The fourth test (editing) calls <code>clear</code> before it calls
+              <code>type</code>, so leaving the form filled does
+              <strong>not always</strong> fail the tests. But for the user, an input
+              that still holds the previous note after it was added is clearly a bug.
+              <strong>Details the task did not spell out are graded too.</strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「输入内容变化时同步更新页面」", reachFor: "受控输入：value + onChange + state" },
-        { signal: "「点了提交按钮页面就刷新」", reachFor: "event.preventDefault()" },
-        { signal: "输入框敲不进字", reachFor: "有 value 但漏了 onChange" },
-        { signal: "「表单要能被外部填充」", reachFor: "必须受控，非受控做不到" },
+        {
+          signal: "「输入内容变化时同步更新页面」",
+          signalEn: "The page has to update as the user types",
+          reachFor: "受控输入：value + onChange + state",
+          reachForEn: "Controlled input: value + onChange + state",
+        },
+        {
+          signal: "「点了提交按钮页面就刷新」",
+          signalEn: "The page reloads when the submit button is clicked",
+          reachFor: "event.preventDefault()",
+          reachForEn: "event.preventDefault()",
+        },
+        {
+          signal: "输入框敲不进字",
+          signalEn: "You cannot type anything into the input",
+          reachFor: "有 value 但漏了 onChange",
+          reachForEn: "value is set but onChange is missing",
+        },
+        {
+          signal: "「表单要能被外部填充」",
+          signalEn: "Something outside the form has to fill the form in",
+          reachFor: "必须受控，非受控做不到",
+          reachForEn: "It has to be controlled; an uncontrolled input cannot do this",
+        },
       ],
       recap: [
         "受控输入 = 显示由 state 决定（value），输入写回 state（onChange），形成闭环。",
@@ -606,6 +660,13 @@ onSubmit(newNote);
         "只写 value 不写 onChange，输入框会变成只读。",
         "form 提交必须 event.preventDefault()，否则页面刷新、state 归零。",
         "id: noteToEdit ? noteToEdit.id : Date.now() 一行同时服务新增和更新。",
+      ],
+      recapEn: [
+        "A controlled input shows what the state says (value) and writes typing back into the state (onChange). That closes the loop.",
+        "e.target.value is the text. e.target is the element, and e is the event.",
+        "value without onChange makes the input read-only.",
+        "A form submit needs event.preventDefault(), or the page reloads and all state is reset.",
+        "The single line id: noteToEdit ? noteToEdit.id : Date.now() serves adding and updating at the same time.",
       ],
     },
 
@@ -615,6 +676,7 @@ onSubmit(newNote);
       title: "列表渲染与 key",
       titleEn: "Rendering a list, and the key prop",
       blurb: "notes.map(...) 那三行，以及为什么 key 不能用数组下标。",
+      blurbEn: "Those three lines of notes.map(...), and why key must not be the array index.",
       minutes: 10,
       objectives: [
         "会用 map 把数组渲染成一串组件",
@@ -622,8 +684,16 @@ onSubmit(newNote);
         "知道为什么 key={index} 在有删除的列表里是错的",
         "知道空列表要不要特殊处理",
       ],
+      objectivesEn: [
+        "Use map to turn an array into a list of components",
+        "Explain who key is for and what React does with it",
+        "Know why key={index} is wrong in a list that allows deletion",
+        "Know whether an empty list needs special handling",
+      ],
       whyForAssessment:
         "Q1 的表格是 map 出来的，key 用错在这道题里会造成「删了一行，剩下的行内容串位」这种诡异现象 —— 而测试可能抓不到。",
+      whyForAssessmentEn:
+        "The Q1 table is produced by map. A wrong key here makes rows show the wrong content after a delete, and the tests may not catch it.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteTable/index.tsx", role: "map 渲染 + key" },
       ],
@@ -631,6 +701,7 @@ onSubmit(newNote);
         {
           id: "map-to-jsx",
           heading: "map 把「一串数据」变成「一串组件」",
+          headingEn: "map turns a list of data into a list of components",
           body: (
             <>
               <p>
@@ -701,7 +772,9 @@ onSubmit(newNote);
         {
           id: "why-key",
           heading: "key 是给 React 用来「认人」的",
+          headingEn: "key is how React tells one item from another",
           lede: "它不是给你看的，也不会出现在 DOM 里。",
+          ledeEn: "It is not there for you to read, and it never appears in the DOM.",
           body: (
             <>
               <p>
@@ -759,7 +832,9 @@ for more information.`,
         {
           id: "index-key-bug",
           heading: "为什么 key={index} 是个陷阱",
+          headingEn: "Why key={index} goes wrong",
           lede: "在「只往后加」的列表里它没问题。一旦有删除或插入，就会串位。",
+          ledeEn: "In a list that only grows at the end it is fine. As soon as you delete or insert, the rows get mismatched.",
           body: (
             <>
               <p>
@@ -834,6 +909,7 @@ for more information.`,
         {
           id: "empty-list",
           heading: "空列表需要特殊处理吗",
+          headingEn: "Does an empty list need special handling",
           body: (
             <>
               <p>
@@ -945,10 +1021,30 @@ for more information.`,
         },
       ],
       transfer: [
-        { signal: "「把一个数组显示成列表」", reachFor: "map + key={稳定 id}" },
-        { signal: "Each child should have a unique key", reachFor: "补 key，用数据自带的 id" },
-        { signal: "删了一行，其他行状态串位", reachFor: "key 用了 index，换成 id" },
-        { signal: "列表空白但数据有值", reachFor: "查 map 回调是不是花括号忘了 return" },
+        {
+          signal: "「把一个数组显示成列表」",
+          signalEn: "Show an array as a list",
+          reachFor: "map + key={稳定 id}",
+          reachForEn: "map plus key={a stable id}",
+        },
+        {
+          signal: "Each child should have a unique key",
+          signalEn: "Each child should have a unique key",
+          reachFor: "补 key，用数据自带的 id",
+          reachForEn: "Add key, and use the id that comes with the data",
+        },
+        {
+          signal: "删了一行，其他行状态串位",
+          signalEn: "After deleting one row, the other rows show the wrong state",
+          reachFor: "key 用了 index，换成 id",
+          reachForEn: "key is the index; change it to the id",
+        },
+        {
+          signal: "列表空白但数据有值",
+          signalEn: "The list is blank even though the data has items",
+          reachFor: "查 map 回调是不是花括号忘了 return",
+          reachForEn: "Check whether the map callback uses curly braces and forgot return",
+        },
       ],
       recap: [
         "map 把数据数组变成 JSX 数组，React 会平铺渲染。",
@@ -956,6 +1052,13 @@ for more information.`,
         "永远别用 index 当 key，更别用 Math.random()。",
         "空数组 map 出空数组，不需要特殊处理 —— 也不要因此改动 testid 元素的结构。",
         "箭头函数用花括号就必须 return，否则渲染空白且不报错。",
+      ],
+      recapEn: [
+        "map turns an array of data into an array of JSX, and React renders them one after another.",
+        "key is how React identifies each item. It must be unique inside that list and must stay with the data.",
+        "Never use the index as key, and never use Math.random().",
+        "An empty array maps to an empty array, so no special handling is needed. Do not change the structure of the elements that carry a data-testid because of it.",
+        "An arrow function written with curly braces needs return, or the list renders empty and no error appears.",
       ],
     },
 
@@ -965,6 +1068,7 @@ for more information.`,
       title: "useEffect：把 props 的变化同步进 state",
       titleEn: "useEffect: copying a change in props into state",
       blurb: "Task 3 的「点 Edit 后内容回填到表单」，靠的就是这 9 行。",
+      blurbEn: "In Task 3, clicking Edit puts the note back into the form. These 9 lines are what does it.",
       minutes: 15,
       objectives: [
         "说清 useEffect 什么时候跑",
@@ -972,8 +1076,16 @@ for more information.`,
         "解释 NoteForm 里那个 useEffect 为什么必须存在",
         "知道 useEffect 无限循环是怎么造成的",
       ],
+      objectivesEn: [
+        "Explain when useEffect runs",
+        "Read the three ways of writing the dependency array and what each one means",
+        "Explain why the useEffect in NoteForm has to be there",
+        "Know how a useEffect infinite loop happens",
+      ],
       whyForAssessment:
         "Task 3 要求「点 Edit → 内容回填进表单」。表单的 title/content 是 NoteForm 自己的 state，而触发源 noteToEdit 是外面传进来的 prop —— 把外部变化同步进内部 state，这正是 useEffect 的活。",
+      whyForAssessmentEn:
+        "Task 3 asks that clicking Edit fills the form with the note. The title and content of the form are NoteForm's own state, while the trigger noteToEdit is a prop from outside. Copying an outside change into inside state is exactly the job of useEffect.",
       sourceFiles: [
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
@@ -984,7 +1096,9 @@ for more information.`,
         {
           id: "when-effect-runs",
           heading: "useEffect 在「渲染完成之后」跑",
+          headingEn: "useEffect runs after the render is finished",
           lede: "它不是渲染的一部分，是渲染的后续动作。",
+          ledeEn: "It is not part of the render. It is what happens after the render.",
           body: (
             <>
               <p>
@@ -1076,7 +1190,9 @@ for more information.`,
         {
           id: "the-real-effect",
           heading: "读懂项目里这个 useEffect",
+          headingEn: "Read the useEffect in this project",
           lede: "9 行代码，把 Task 3 的一半工作做完了。",
+          ledeEn: "Nine lines of code do half of Task 3.",
           body: (
             <>
               <p>
@@ -1160,6 +1276,7 @@ for more information.`,
         {
           id: "deps-mistakes",
           heading: "依赖数组写错的三种后果",
+          headingEn: "Three things that go wrong when the dependency array is wrong",
           body: (
             <>
               <p>拿这段代码做实验，三种写法对应三种病：</p>
@@ -1391,6 +1508,15 @@ const NoteForm = ({ noteToEdit }) => {
               不做任何副作用。副作用放 <code>useEffect</code>。
             </>
           ),
+          whyEn: (
+            <>
+              Calling a setter during render immediately schedules another render,
+              and that render calls the setter again.
+              <strong>Rendering has to be pure</strong> is a basic React rule: the
+              component function only turns the current props and state into JSX, and
+              does nothing else. Anything else belongs in <code>useEffect</code>.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1411,13 +1537,45 @@ useEffect(() => {
               让人以为「Edit 生效了」，但输入框是空的。
             </>
           ),
+          whyEn: (
+            <>
+              <code>[]</code> means the effect runs once, after the first render. On
+              that first render <code>noteToEdit</code> is <code>null</code>, so
+              nothing happens, and when you click Edit later the effect never runs
+              again.
+              <br />
+              This bug is confusing: <strong>the button text does change to
+              &quot;Update&quot;</strong>, because that is computed straight from the
+              prop during render. It looks like Edit worked, but the inputs are empty.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「外部数据变了，内部状态要跟上」", reachFor: "useEffect(fn, [那个外部数据])" },
-        { signal: "「组件加载时做一次某事」", reachFor: "useEffect(fn, [])" },
-        { signal: "Maximum update depth exceeded", reachFor: "查依赖数组：是不是漏了，或含了自己改的 state" },
-        { signal: "「点了却没反应，但别的地方变了」", reachFor: "查依赖数组是不是写成了 []" },
+        {
+          signal: "「外部数据变了，内部状态要跟上」",
+          signalEn: "Outside data changed and inside state has to follow",
+          reachFor: "useEffect(fn, [那个外部数据])",
+          reachForEn: "useEffect(fn, [that outside value])",
+        },
+        {
+          signal: "「组件加载时做一次某事」",
+          signalEn: "Do something once, when the component first appears",
+          reachFor: "useEffect(fn, [])",
+          reachForEn: "useEffect(fn, [])",
+        },
+        {
+          signal: "Maximum update depth exceeded",
+          signalEn: "Maximum update depth exceeded",
+          reachFor: "查依赖数组：是不是漏了，或含了自己改的 state",
+          reachForEn: "Check the dependency array: it is missing, or it holds the state this effect changes",
+        },
+        {
+          signal: "「点了却没反应，但别的地方变了」",
+          signalEn: "Clicking does nothing here, but something else did change",
+          reachFor: "查依赖数组是不是写成了 []",
+          reachForEn: "Check whether the dependency array was written as []",
+        },
       ],
       recap: [
         "useEffect 在渲染完成后跑，依赖数组决定它跑不跑。",
@@ -1425,6 +1583,13 @@ useEffect(() => {
         "NoteForm 那个 effect 的职责是「把外部的 noteToEdit 同步进内部两个 state」。",
         "else 分支负责在退出编辑时清空表单，不能省。",
         "effect 里改的 state 不能放进它自己的依赖数组，否则死循环。",
+      ],
+      recapEn: [
+        "useEffect runs after the render is finished, and the dependency array decides whether it runs at all.",
+        "[] runs once. [a] runs when a changes. No array at all runs after every render, which is usually wrong.",
+        "The job of that effect in NoteForm is to copy the outside noteToEdit into its two inside state values.",
+        "The else branch clears the form when editing ends. Do not leave it out.",
+        "State that the effect itself changes must not be in that effect's dependency array, or it loops forever.",
       ],
     },
 
@@ -1434,6 +1599,7 @@ useEffect(() => {
       title: "派生数据与状态提升：什么不该做成 state",
       titleEn: "Values you can compute, and lifting state up: what should not be state",
       blurb: "isFormInvalid 为什么是一行普通变量，而不是第三个 useState。",
+      blurbEn: "Why isFormInvalid is one plain variable and not a third useState.",
       minutes: 11,
       objectives: [
         "判断一个值该做成 state 还是当场算出来",
@@ -1441,8 +1607,16 @@ useEffect(() => {
         "解释为什么 notes 必须住在 NoteManager 而不是 NoteTable",
         "看懂按钮文字 Add/Update 是怎么来的",
       ],
+      objectivesEn: [
+        "Decide whether a value should be state or should be computed on the spot",
+        "Explain what problems extra state causes",
+        "Explain why notes has to live in NoteManager and not in NoteTable",
+        "See where the button text Add or Update comes from",
+      ],
       whyForAssessment:
         "第二个测试断言「输入为空时提交按钮 disabled」。它靠的是 isFormInvalid 这个派生值。把它做成 state 是新手常见的过度设计，还容易出现「和实际输入不同步」的 bug。",
+      whyForAssessmentEn:
+        "The second test asserts that the submit button is disabled while the input is empty. That relies on the computed value isFormInvalid. Turning it into state is a common beginner habit, and it easily produces a value that no longer matches what is in the input.",
       sourceFiles: [
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
@@ -1457,7 +1631,9 @@ useEffect(() => {
         {
           id: "derived-values",
           heading: "能算出来的，就不要存",
+          headingEn: "If you can compute it, do not store it",
           lede: "state 越少，能出错的地方越少。",
+          ledeEn: "The less state you have, the fewer places there are for things to go wrong.",
           body: (
             <>
               <p>
@@ -1532,6 +1708,7 @@ if (isFormInvalid) return;      // handleSubmit 里再挡一次`,
         {
           id: "add-or-update",
           heading: "按钮文字：同一个 prop 决定三件事",
+          headingEn: "The button text: one prop decides three things",
           body: (
             <>
               <p>
@@ -1609,6 +1786,7 @@ if (isFormInvalid) return;      // handleSubmit 里再挡一次`,
         {
           id: "lifting",
           heading: "状态提升：数据放在「需要它的组件的最近共同祖先」",
+          headingEn: "Lifting state up: put the data in the closest shared parent of the components that need it",
           body: (
             <>
               <p>
@@ -1832,10 +2010,30 @@ return (
         },
       ],
       transfer: [
-        { signal: "「显示筛选/排序后的列表」", reachFor: "一个 state 存条件 + 一个派生数组，别存结果" },
-        { signal: "「显示总数 / 是否为空 / 是否可提交」", reachFor: "派生数据，当场算" },
-        { signal: "两个兄弟组件都要用同一份数据", reachFor: "提升到最近共同祖先" },
-        { signal: "「同一个事实存了两份」", reachFor: "删掉一份，改成派生" },
+        {
+          signal: "「显示筛选/排序后的列表」",
+          signalEn: "Show a filtered or sorted list",
+          reachFor: "一个 state 存条件 + 一个派生数组，别存结果",
+          reachForEn: "One state for the condition plus a computed array. Do not store the result",
+        },
+        {
+          signal: "「显示总数 / 是否为空 / 是否可提交」",
+          signalEn: "Show a count, or whether it is empty, or whether it can be submitted",
+          reachFor: "派生数据，当场算",
+          reachForEn: "Computed data. Work it out at render time",
+        },
+        {
+          signal: "两个兄弟组件都要用同一份数据",
+          signalEn: "Two sibling components need the same data",
+          reachFor: "提升到最近共同祖先",
+          reachForEn: "Move it up to their closest shared parent",
+        },
+        {
+          signal: "「同一个事实存了两份」",
+          signalEn: "The same fact is stored in two places",
+          reachFor: "删掉一份，改成派生",
+          reachForEn: "Delete one copy and compute it instead",
+        },
       ],
       recap: [
         "能从现有 state / props 算出来的值，不要做成 state。",
@@ -1843,6 +2041,13 @@ return (
         "isFormInvalid 是派生数据，每次渲染重算，永远和输入一致。",
         "state 放在「需要它的组件的最近共同祖先」，不要一律提到顶层。",
         "按钮文字 Add / Update 大小写必须一致 —— 测试会直接断言字符串。",
+      ],
+      recapEn: [
+        "If a value can be computed from existing state or props, do not make it state.",
+        "Extra state costs you consistency, and that is one of the hardest kinds of bug to find.",
+        "isFormInvalid is computed. It is worked out again on every render, so it always matches the input.",
+        "Put state in the closest shared parent of the components that need it. Do not push everything to the top.",
+        "The button text Add and Update must match exactly, capital letters included, because the tests assert on the string.",
       ],
     },
   ],

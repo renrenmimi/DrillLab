@@ -31,6 +31,8 @@ export const ivTs: Module = {
       titleEn: "Utility types: use them, and write them yourself",
       blurb:
         "Partial / Pick / Omit / Record 怎么选，mapped type 手写 MyPick 与 MyPartial，conditional type 配 infer 手写 MyReturnType。",
+      blurbEn:
+        "How to choose between Partial / Pick / Omit / Record, how to write MyPick and MyPartial as mapped types, and how to write MyReturnType with a conditional type and infer.",
       minutes: 28,
       objectives: [
         "在 patch 参数、props 裁剪、字典三个场景里说出该用哪个 utility type，以及为什么不用索引签名",
@@ -38,12 +40,21 @@ export const ivTs: Module = {
         "用 Pick 加 Exclude 组合出 Omit，并说出官方 Omit 的约束宽在哪里",
         "解释条件类型的分配律，并用 infer 手写 MyReturnType",
       ],
+      objectivesEn: [
+        "Say which utility type fits each of three cases: a patch argument, trimming props, and a dictionary — and why an index signature is not the answer",
+        "Write MyPartial and MyPick by hand, and explain every symbol in { [K in keyof T]?: T[K] }",
+        "Build Omit out of Pick and Exclude, and say where the built-in Omit has a looser constraint",
+        "Explain how a conditional type distributes over a union, and write MyReturnType with infer",
+      ],
       whyForAssessment:
         "senior 面试几乎不问「Partial 是什么」，问的是「Partial 怎么实现」。会不会 mapped type 和 conditional type，是「用过 TS」和「懂 TS」的分界线 —— 这三道题就压在这条线上。",
+      whyForAssessmentEn:
+        "Senior interviews rarely ask what Partial is. They ask how Partial is implemented. Whether you can write a mapped type and a conditional type is the line between having used TypeScript and understanding it. These three questions sit on that line.",
       concepts: [
         {
           id: "ts1",
           heading: "Partial、Required、Pick、Omit、Record 分别解决什么问题",
+          headingEn: "What problem does each of Partial, Required, Pick, Omit and Record solve?",
           lede: "What problems do Partial, Required, Pick, Omit and Record each solve",
           body: (
             <>
@@ -217,6 +228,7 @@ loose["drak"];   // 编译器放行，类型还谎称是 string —— 运行时
         {
           id: "ts2",
           heading: "手写 MyPick 和 MyPartial",
+          headingEn: "How do you write MyPick and MyPartial by hand?",
           lede: "Implement Pick and Partial by hand",
           body: (
             <>
@@ -379,6 +391,7 @@ type NoEmail = MyOmit<User, "email">;
         {
           id: "ts3",
           heading: "Exclude、Extract、ReturnType 是怎么实现的",
+          headingEn: "How are Exclude, Extract and ReturnType implemented?",
           lede: "How are Exclude, Extract and ReturnType implemented",
           body: (
             <>
@@ -545,19 +558,27 @@ type S = Unwrap<Promise<string>>;    // string`,
       transfer: [
         {
           signal: "更新函数要接「只改几个字段」的参数",
+          signalEn: "An update function takes an argument that changes only a few fields",
           reachFor: "Partial<T> 当 patch 类型：可选，但保留字段级检查",
+          reachForEn: "Partial<T> as the patch type: every field optional, but each field still checked",
         },
         {
           signal: "组件只用到大类型的几个字段",
+          signalEn: "A component uses only a few fields of a large type",
           reachFor: "Pick 白名单；对外脱敏优先 Pick 而不是 Omit",
+          reachForEn: "Pick as an allow list; when hiding fields from the outside, prefer Pick over Omit",
         },
         {
           signal: "键是有限集合的字典",
+          signalEn: "A dictionary whose keys are a fixed set",
           reachFor: "Record<字面量联合, V>，少键多键都在编译期报错",
+          reachForEn: "Record<union of literals, V>; a missing key and an extra key are both compile errors",
         },
         {
           signal: "被问「XX 工具类型怎么实现」",
+          signalEn: "Asked how some utility type is implemented",
           reachFor: "mapped type 循环属性；conditional type 配 infer 拆结构",
+          reachForEn: "A mapped type loops over properties; a conditional type with infer pulls a type apart",
         },
       ],
       recap: [
@@ -567,6 +588,14 @@ type S = Unwrap<Promise<string>>;    // string`,
         "MyPick 的 K extends keyof T 是泛型约束，把传错键的错误挡在调用处。",
         "Omit = Pick<T, Exclude<keyof T, K>>；官方 Omit 的 K 约束是 keyof any，比 keyof T 宽。",
         "分配律：裸类型参数遇到联合就逐成员求值再并；never 是空联合，并进去就消失。",
+      ],
+      recapEn: [
+        "The five utility types are five operations on a set of properties: make optional, make required, keep an allow list, drop a deny list, and build a dictionary from a key set.",
+        "Partial is shallow: it only changes the top level, so fields inside a nested object stay required.",
+        "A mapped type does four things in one line: keyof T lists the keys, in loops over them, ?/readonly/-? change the modifiers, and T[K] copies the type.",
+        "In MyPick, K extends keyof T is a generic constraint; it reports a wrong key at the call site.",
+        "Omit = Pick<T, Exclude<keyof T, K>>; the built-in Omit constrains K to keyof any, which is looser than keyof T.",
+        "Distribution: when a bare type parameter meets a union, each member is evaluated separately and the results are joined; never is the empty union, so it disappears from the join.",
       ],
     },
 
@@ -579,6 +608,8 @@ type S = Unwrap<Promise<string>>;    // string`,
       titleEn: "Generics and narrowing: getting any out of the code",
       blurb:
         "getProp 为什么必须约束 K extends keyof T，判别联合加 never 兜底做穷尽检查，unknown / any / never 的三种语义。",
+      blurbEn:
+        "Why getProp must constrain K extends keyof T, exhaustiveness checking with a discriminated union and a never fallback, and what unknown / any / never each mean.",
       minutes: 26,
       objectives: [
         "写出 getProp<T, K extends keyof T>(obj: T, key: K): T[K]，并解释约束和返回类型各解决什么",
@@ -586,12 +617,21 @@ type S = Unwrap<Promise<string>>;    // string`,
         "说清 as 断言为什么是逃生舱：它让编译器闭嘴，不产生任何运行时检查",
         "分清 unknown / any / never，并写出 catch (e) 的标准处理",
       ],
+      objectivesEn: [
+        "Write getProp<T, K extends keyof T>(obj: T, key: K): T[K], and explain what the constraint and the return type each fix",
+        "Use a discriminated union, a switch that narrows, and a never fallback to get an exhaustiveness check at compile time",
+        "Explain why an as assertion is only an escape hatch: it silences the compiler and adds no runtime check",
+        "Tell unknown / any / never apart, and write the standard handling for catch (e)",
+      ],
       whyForAssessment:
         "senior 面试的泛型题多半长成 getProp 的样子：先让你写，再追问「不写约束行不行」「返回 any 行不行」。收窄和 unknown 两道验的是同一件事 —— 不靠 any 也能过编译。代码里 any 的密度，面试官是真的会看。",
+      whyForAssessmentEn:
+        "Generic questions in senior interviews usually look like getProp: first write it, then answer what happens without the constraint, and what happens if it returns any. The narrowing question and the unknown question test the same thing — your code compiles without any. Interviewers really do look at how much any is in your code.",
       concepts: [
         {
           id: "ts4",
           heading: "为什么 getProp 必须写 K extends keyof T",
+          headingEn: "Why does getProp need K extends keyof T?",
           lede: "Why does getProp need the constraint K extends keyof T",
           body: (
             <>
@@ -662,7 +702,7 @@ type S = Unwrap<Promise<string>>;    // string`,
                 <strong>Follow-up:</strong> &ldquo;So what is wrong with{" "}
                 <code>{"(obj: object, key: string): any"}</code>?&rdquo; — it runs, but
                 a wrong object, a misspelled key or a misused return value all wait
-                until runtime to blow up; that gap is the junior version versus the
+                until runtime to fail; that gap is the junior version versus the
                 senior one. &ldquo;Can a constraint have a default?&rdquo; — yes:{" "}
                 <code>{"<T extends object = Record<string, unknown>>"}</code>.
                 &ldquo;Why two type parameters?&rdquo; — because the legal values of K
@@ -697,6 +737,7 @@ const a = getProp(user, "active");   // a 的类型是 boolean
         {
           id: "ts5",
           heading: "判别联合怎么配合 switch 做穷尽检查",
+          headingEn: "How does a discriminated union work with switch to check every case?",
           lede: "How do discriminated unions enable exhaustiveness checking",
           body: (
             <>
@@ -836,6 +877,7 @@ if (isShape(raw)) {
         {
           id: "ts6",
           heading: "unknown、any、never 各自是什么语义",
+          headingEn: "What do unknown, any and never each mean?",
           lede: "What do unknown, any and never each mean",
           body: (
             <>
@@ -1034,19 +1076,29 @@ function fail(msg: string): never {
       transfer: [
         {
           signal: "报错 Type 'K' cannot be used to index type 'T'",
+          signalEn: "The error Type 'K' cannot be used to index type 'T'",
           reachFor: "给 K 加约束：K extends keyof T",
+          reachForEn: "Constrain K: K extends keyof T",
         },
         {
           signal: "对象联合要按成员分别处理",
+          signalEn: "A union of object types has to be handled member by member",
           reachFor: "判别字段 + switch 收窄，default 里赋给 never",
+          reachForEn:
+            "A discriminant field plus a switch that narrows; assign to never in the default branch",
         },
         {
           signal: "想写 as 让报错消失",
+          signalEn: "You want to write as so an error goes away",
           reachFor: "先问有没有运行时检查；没有就写类型守卫，不是断言",
+          reachForEn:
+            "First ask whether there is a runtime check; if there is none, write a type guard, not an assertion",
         },
         {
           signal: "JSON.parse、catch、API 响应这类外部输入",
+          signalEn: "Input from outside: JSON.parse, catch, an API response",
           reachFor: "入口标 unknown，收窄之后再进业务代码",
+          reachForEn: "Type the entry point as unknown, narrow it, then let it into your own code",
         },
       ],
       recap: [
@@ -1056,6 +1108,14 @@ function fail(msg: string): never {
         "as 是闭嘴不是证明：不产生运行时检查，错误被推迟到别处爆发。",
         "unknown 是顶、never 是底、any 在层级外还会传染；边界一律 unknown。",
         "catch (e) 的 e 是 unknown：instanceof Error 收窄，String(e) 兜底。",
+      ],
+      recapEn: [
+        "The generic constraint does two things at once: obj[key] becomes legal, and the return type is exactly T[K].",
+        "T[K] is exact because K is inferred as a literal type, not as string.",
+        "A discriminated union has one field with the same name in every member, holding a different literal; switch narrows on it, and assigning to never in the default branch checks that no case is left out.",
+        "as silences the compiler, it does not prove anything: there is no runtime check, so the error surfaces later somewhere else.",
+        "unknown is the top type, never is the bottom type, and any sits outside the hierarchy and spreads; use unknown at every boundary.",
+        "In catch (e), e is unknown: narrow it with instanceof Error, and fall back to String(e).",
       ],
     },
   ],

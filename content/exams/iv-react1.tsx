@@ -24,6 +24,8 @@ export const ivReactBasics: Module = {
       title: "React 是什么 · 七问",
       titleEn: "7 questions on what React is",
       blurb: "React vs Angular、优势、SPA、JSX、虚拟 DOM 与 diff、reconciliation、babel 与 webpack。",
+      blurbEn:
+        "React vs Angular, the selling points, SPA, JSX, the virtual DOM and diffing, reconciliation, babel and webpack.",
       minutes: 22,
       objectives: [
         "说清虚拟 DOM 为什么快，以及它「不一定比手写 DOM 快」这层真相",
@@ -31,12 +33,21 @@ export const ivReactBasics: Module = {
         "分清 SPA 的优点和它带来的三个新问题",
         "说明 JSX 编译成了什么",
       ],
+      objectivesEn: [
+        "Explain why the virtual DOM is fast, and also why it is not always faster than writing DOM calls yourself",
+        "Explain the three shortcuts the diffing algorithm takes, and say why key matters",
+        "Tell the benefits of a SPA apart from the three new problems it creates",
+        "Say what JSX compiles into",
+      ],
       whyForAssessment:
         "这一组考的是「心智模型」。虚拟 DOM 和 diff 答得空洞（只说「快」）会掉分，答得出「批量 + 最小化真实操作，代价是内存和一次 diff 计算」才算过关。key 那条会直接连到 Q1 里列表渲染的真实代码。",
+      whyForAssessmentEn:
+        "This group tests your mental model. Answering \"the virtual DOM is fast\" and nothing more will cost you points. To pass you have to say what it actually does: it batches updates and keeps real DOM work to a minimum, and it pays for that with memory and one diffing pass. The point about key connects straight to the list rendering code in Q1.",
       concepts: [
         {
           id: "q321",
           heading: "什么是 SPA",
+          headingEn: "What is a SPA?",
           lede: "#321 What is a SPA",
           body: (
             <>
@@ -149,6 +160,7 @@ export const ivReactBasics: Module = {
         {
           id: "q320",
           heading: "React 的优势是什么",
+          headingEn: "What are the advantages of React?",
           lede: "#320 React advantage",
           body: (
             <>
@@ -385,6 +397,7 @@ export const ivReactBasics: Module = {
         {
           id: "q326",
           heading: "什么是 JSX",
+          headingEn: "What is JSX?",
           lede: "#326 What is JSX",
           body: (
             <>
@@ -522,6 +535,7 @@ const el = React.createElement(
         {
           id: "q330",
           heading: "虚拟 DOM 和 diff 算法",
+          headingEn: "What are the virtual DOM and the diffing algorithm?",
           lede: "#330 Virtual DOM and diffing algorithm",
           body: (
             <>
@@ -628,8 +642,8 @@ const el = React.createElement(
                   still good enough
                 </strong>{" "}
                 — it is a{" "}
-                <strong>trade-off between maintainability and performance</strong>, not a
-                silver bullet.
+                <strong>trade-off between maintainability and performance</strong>. It is
+                not the right choice everywhere.
               </p>
               <p>
                 <strong>The three diff heuristics</strong> (what turns O(n³) into O(n)):
@@ -688,6 +702,7 @@ const el = React.createElement(
         {
           id: "q353",
           heading: "什么是 reconciliation",
+          headingEn: "What is reconciliation?",
           lede: "#353 What is reconciliation",
           body: (
             <>
@@ -803,6 +818,7 @@ const el = React.createElement(
         {
           id: "q337",
           heading: "React 项目里 babel 和 webpack 干什么",
+          headingEn: "What do babel and webpack do in a React project?",
           lede: "#337 What do we use babel and web pack for in React applications",
           body: (
             <>
@@ -903,11 +919,36 @@ const el = React.createElement(
         },
       ],
       transfer: [
-        { signal: "问虚拟 DOM 为什么快", reachFor: "批量 + 最小化；并主动说「不一定比手写快」" },
-        { signal: "问 key", reachFor: "同层认身份；index 会导致误更新和输入串行" },
-        { signal: "问 Fiber", reachFor: "render 可中断、commit 不可中断" },
-        { signal: "问 SPA 缺点", reachFor: "首屏慢、SEO 差、路由自管、监听器要自己清" },
-        { signal: "「刷新页面 404」", reachFor: "服务端没配 history fallback" },
+        {
+          signal: "问虚拟 DOM 为什么快",
+          signalEn: "Asked why the virtual DOM is fast",
+          reachFor: "批量 + 最小化；并主动说「不一定比手写快」",
+          reachForEn: "It batches updates and keeps real DOM work small; add on your own that it is not always faster than hand-written DOM calls",
+        },
+        {
+          signal: "问 key",
+          signalEn: "Asked about key",
+          reachFor: "同层认身份；index 会导致误更新和输入串行",
+          reachForEn: "It identifies siblings at the same level; using the index updates the wrong row and moves typed input to the wrong field",
+        },
+        {
+          signal: "问 Fiber",
+          signalEn: "Asked about Fiber",
+          reachFor: "render 可中断、commit 不可中断",
+          reachForEn: "The render phase can be interrupted, the commit phase cannot",
+        },
+        {
+          signal: "问 SPA 缺点",
+          signalEn: "Asked for the downsides of a SPA",
+          reachFor: "首屏慢、SEO 差、路由自管、监听器要自己清",
+          reachForEn: "Slow first paint, weak SEO, routing you manage yourself, listeners you have to clean up",
+        },
+        {
+          signal: "「刷新页面 404」",
+          signalEn: "Reloading the page gives a 404",
+          reachFor: "服务端没配 history fallback",
+          reachForEn: "The server has no history fallback configured",
+        },
       ],
       recap: [
         "SPA 的代价是首屏慢、SEO 差、路由自己管、监听器不会自动清。",
@@ -917,6 +958,15 @@ const el = React.createElement(
         "diff 三规则：只比同层、类型不同整棵重建、同层用 key 认身份。",
         "reconciliation 是完整流程，Fiber 把它拆成可中断的 render 和不可中断的 commit。",
         "Babel 只转语法（新 API 靠 polyfill），Webpack 管打包；Babel 是 Webpack 流水线的一环。",
+      ],
+      recapEn: [
+        "What a SPA costs you: a slow first paint, weak SEO, routing you have to manage yourself, and listeners that are never cleaned up for you.",
+        "Three things React sells you: a declarative style, components, and one-way data flow. The downsides are picking your own libraries and tuning performance by hand.",
+        "JSX compiles into createElement, or _jsx since React 17; only an expression can go inside {}; text is escaped by default, which blocks XSS.",
+        "The virtual DOM is fast because it batches and keeps real DOM work small, but it is a trade between maintainability and speed, not a guaranteed win.",
+        "Three rules for diffing: compare only within the same level, rebuild the whole subtree when the type changes, and use key to identify siblings at the same level.",
+        "Reconciliation is the whole process; Fiber splits it into a render phase that can be interrupted and a commit phase that cannot.",
+        "Babel only converts syntax, so a new API still needs a polyfill; Webpack does the bundling, and Babel is one step in the Webpack pipeline.",
       ],
     },
 
@@ -928,6 +978,8 @@ const el = React.createElement(
       title: "组件与通信 · 十一问",
       titleEn: "11 questions on components and how they communicate",
       blurb: "函数 vs 类组件、生命周期、useEffect 对应关系、props vs state、组件通信、受控 vs 非受控、props drilling、PureComponent、Fragment、状态提升、HOC。",
+      blurbEn:
+        "Function vs class components, lifecycle, how useEffect maps onto it, props vs state, talking between components, controlled vs uncontrolled, props drilling, PureComponent, Fragment, lifting state up, HOC.",
       minutes: 28,
       objectives: [
         "把类组件的生命周期一一映射到 useEffect 的写法",
@@ -935,12 +987,21 @@ const el = React.createElement(
         "列出组件通信的五种方式并说明各自的适用场景",
         "分清受控和非受控，并说出各自的选择理由",
       ],
+      objectivesEn: [
+        "Map each class component lifecycle method onto the matching useEffect call",
+        "Explain three ways props and state differ, and why props cannot be changed",
+        "List the five ways components talk to each other, and when each one fits",
+        "Tell controlled and uncontrolled inputs apart, and give a reason for picking each",
+      ],
       whyForAssessment:
         "这一组和 Q1 那道真题重合度最高：受控输入、状态提升、props 往下事件往上，都是那道题的直接考点。生命周期与 useEffect 的对应关系是从类组件时代过来的人必被问的一题。",
+      whyForAssessmentEn:
+        "This group overlaps the real Q1 question more than any other: controlled inputs, lifting state up, and props going down while events go up are all tested there directly. How the lifecycle maps onto useEffect is always asked of anyone who started in the class component era.",
       concepts: [
         {
           id: "q322",
           heading: "函数组件 vs 类组件",
+          headingEn: "Function components vs class components",
           lede: "#322 Functional components vs Class components",
           body: (
             <>
@@ -1098,6 +1159,7 @@ const el = React.createElement(
         {
           id: "q323",
           heading: "React 的生命周期有哪些",
+          headingEn: "What are the React lifecycle methods?",
           lede: "#323 Explain the React component lifecycle and its methods",
           body: (
             <>
@@ -1216,6 +1278,7 @@ const el = React.createElement(
         {
           id: "q325",
           heading: "useEffect 和生命周期怎么对应",
+          headingEn: "How does useEffect map onto the lifecycle?",
           lede: "#325 UseEffect vs Lifecycle Methods",
           body: (
             <>
@@ -1531,6 +1594,7 @@ const el = React.createElement(
         {
           id: "q328",
           heading: "组件之间怎么通信",
+          headingEn: "How do components talk to each other?",
           lede: "#328 Communication between components",
           body: (
             <>
@@ -1662,6 +1726,7 @@ function Child({ onChange }) {
         {
           id: "q329",
           heading: "受控组件 vs 非受控组件",
+          headingEn: "Controlled components vs uncontrolled components",
           lede: "#329 Controlled component vs uncontrolled component",
           body: (
             <>
@@ -1847,6 +1912,7 @@ const ref = useRef(null);
         {
           id: "q345",
           heading: "什么是状态提升",
+          headingEn: "What is lifting state up?",
           lede: "#345 What is Lifting State Up in React",
           body: (
             <>
@@ -1943,6 +2009,7 @@ const ref = useRef(null);
         {
           id: "q331",
           heading: "什么是 props drilling",
+          headingEn: "What is props drilling?",
           lede: "#331 What is props drilling",
           body: (
             <>
@@ -2070,6 +2137,7 @@ const ref = useRef(null);
         {
           id: "q336",
           heading: "什么是 Pure Component",
+          headingEn: "What is a Pure Component?",
           lede: "#336 What are Pure Component",
           body: (
             <>
@@ -2196,6 +2264,7 @@ const onPick = useCallback((id) => pick(id), [pick]);
         {
           id: "q338",
           heading: "什么是 Fragment",
+          headingEn: "What is a Fragment?",
           lede: "#338 React Fragment",
           body: (
             <>
@@ -2311,6 +2380,7 @@ const onPick = useCallback((id) => pick(id), [pick]);
         {
           id: "q335",
           heading: "什么是 HOC",
+          headingEn: "What is a HOC?",
           lede: "#335 What is HOC",
           body: (
             <>
@@ -2469,14 +2539,54 @@ function Page() {
         },
       ],
       transfer: [
-        { signal: "问生命周期怎么迁移", reachFor: "didMount→[]、didUpdate→[dep]、willUnmount→return" },
-        { signal: "「测量 DOM 后改样式闪一下」", reachFor: "换 useLayoutEffect" },
-        { signal: "兄弟组件要共享数据", reachFor: "状态提升到最近共同父级" },
-        { signal: "中间层被迫透传 props", reachFor: "先试 children 组合，超过三四层再上 Context" },
-        { signal: "「输入框打字没反应」", reachFor: "传了 value 没传 onChange" },
-        { signal: "「从非受控变成受控」警告", reachFor: "初始值别用 undefined，用 \"\"" },
-        { signal: "加了 memo 却没效果", reachFor: "props 里有新引用，配 useMemo/useCallback" },
-        { signal: "tr 或 flex 容器里要返回多个元素", reachFor: "Fragment；要 key 就用完整写法" },
+        {
+          signal: "问生命周期怎么迁移",
+          signalEn: "Asked how to move lifecycle code over",
+          reachFor: "didMount→[]、didUpdate→[dep]、willUnmount→return",
+          reachForEn: "didMount becomes [], didUpdate becomes [dep], willUnmount becomes the returned cleanup function",
+        },
+        {
+          signal: "「测量 DOM 后改样式闪一下」",
+          signalEn: "The layout flickers after you measure the DOM and change a style",
+          reachFor: "换 useLayoutEffect",
+          reachForEn: "Switch to useLayoutEffect",
+        },
+        {
+          signal: "兄弟组件要共享数据",
+          signalEn: "Two sibling components need the same data",
+          reachFor: "状态提升到最近共同父级",
+          reachForEn: "Lift the state up to their nearest shared parent",
+        },
+        {
+          signal: "中间层被迫透传 props",
+          signalEn: "A middle component has to pass props through without using them",
+          reachFor: "先试 children 组合，超过三四层再上 Context",
+          reachForEn: "Try composing with children first; reach for Context once it goes past three or four levels",
+        },
+        {
+          signal: "「输入框打字没反应」",
+          signalEn: "Typing in the input does nothing",
+          reachFor: "传了 value 没传 onChange",
+          reachForEn: "You passed value but not onChange",
+        },
+        {
+          signal: "「从非受控变成受控」警告",
+          signalEn: "A warning about an input changing from uncontrolled to controlled",
+          reachFor: "初始值别用 undefined，用 \"\"",
+          reachForEn: "Do not start from undefined; start from \"\"",
+        },
+        {
+          signal: "加了 memo 却没效果",
+          signalEn: "You added memo and nothing got faster",
+          reachFor: "props 里有新引用，配 useMemo/useCallback",
+          reachForEn: "A prop is a new reference on every render; pair it with useMemo or useCallback",
+        },
+        {
+          signal: "tr 或 flex 容器里要返回多个元素",
+          signalEn: "You need to return several elements inside a tr or a flex container",
+          reachFor: "Fragment；要 key 就用完整写法",
+          reachForEn: "Use a Fragment; if you need a key, write out the full React.Fragment form",
+        },
       ],
       recap: [
         "函数组件胜出的真正原因：逻辑按关注点组织、复用不用套娃、没有 this 问题。",
@@ -2488,6 +2598,17 @@ function Page() {
         "PureComponent / memo 是浅比较，必须配不可变更新与稳定引用才有意义。",
         "Fragment 解决 tr 和 flex 里多一层 div 的真实问题；要 key 得用完整写法。",
         "HOC 的三个毛病（wrapper 地狱、来源不明、命名冲突）都被自定义 hook 解决了。",
+      ],
+      recapEn: [
+        "The real reason function components won: logic groups by topic, reuse needs no nesting, and there is no this to get wrong.",
+        "The three willXxx lifecycle methods were dropped because Fiber may run the render phase more than once.",
+        "useEffect does not replace the lifecycle. It declares what a side effect depends on. The [] version runs after paint, so it is not exactly didMount.",
+        "props are read-only because a render function has to be pure; if you can compute a value, do not store it.",
+        "Five ways to talk between components: props, callbacks, lifting state up, Context, a state library. Many levels of nesting is not by itself a reason to add Redux.",
+        "Use controlled inputs by default; a file input can only be uncontrolled; start the value at \"\", not undefined.",
+        "PureComponent and memo compare shallowly, so they only help if you also update without changing the original object and keep references stable.",
+        "Fragment solves a real problem: the extra div you cannot have inside a tr or a flex container. If you need a key, write out the full form.",
+        "The three problems with a HOC (layers of wrappers, props of unclear origin, name collisions) are all solved by a custom hook.",
       ],
     },
   ],

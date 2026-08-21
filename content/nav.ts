@@ -30,6 +30,7 @@ export interface NavLesson {
   /** 英文标题。没补就是 undefined，<T> 会回落中文 —— 见 content/types.ts 的 Lesson.titleEn */
   titleEn?: string;
   blurb: string;
+  blurbEn?: string;
   minutes: number;
   exerciseCount: number;
 }
@@ -116,7 +117,9 @@ export interface NavCoding {
 export interface NavArena {
   id: string;
   title: string;
+  titleEn?: string;
   scenario: string;
+  scenarioEn?: string;
   minutes: number;
   examId: string;
   fromMock: boolean;
@@ -184,6 +187,7 @@ const PAYLOAD: NavPayload = {
               "title": "Node.js、npm、node_modules 和 lockfile",
               "titleEn": "Node.js, npm, node_modules and the lockfile",
               "blurb": "为什么装个 React 项目会多出几万个文件，以及为什么那个 lock 文件不能随便删。",
+              "blurbEn": "Why installing a React project adds tens of thousands of files, and why you must not delete that lock file.",
               "minutes": 12,
               "exerciseCount": 2
             },
@@ -192,6 +196,7 @@ const PAYLOAD: NavPayload = {
               "title": "package.json 逐字段读一遍",
               "titleEn": "package.json, field by field",
               "blurb": "拿两个真实 assessment 的 package.json，一个字段一个字段地读懂。",
+              "blurbEn": "Take the package.json of both real exam projects and read them one field at a time.",
               "minutes": 14,
               "exerciseCount": 1
             },
@@ -200,6 +205,7 @@ const PAYLOAD: NavPayload = {
               "title": "npm scripts：命令到底跑了什么",
               "titleEn": "npm scripts: what the command actually runs",
               "blurb": "npm test 和 npm run test 有什么区别，以及 react-notes-app 为什么根本跑不了 npm test。",
+              "blurbEn": "How npm test differs from npm run test, and why npm test cannot run at all in react-notes-app.",
               "minutes": 13,
               "exerciseCount": 2
             },
@@ -208,6 +214,7 @@ const PAYLOAD: NavPayload = {
               "title": "两个考试项目的目录，逐个说明",
               "titleEn": "The directory layout of both exam projects",
               "blurb": "哪些文件是你要改的，哪些是给好的，哪些是干扰项。",
+              "blurbEn": "Which files you are meant to edit, which are already done for you, and which are there to distract you.",
               "minutes": 12,
               "exerciseCount": 2
             }
@@ -226,6 +233,7 @@ const PAYLOAD: NavPayload = {
               "title": "数组与对象：不可变更新三件套",
               "titleEn": "Arrays and objects: three ways to update without changing the original",
               "blurb": "增、删、改一个列表，在 React 里为什么必须「造新的」而不是「改旧的」。",
+              "blurbEn": "Adding to, deleting from and editing a list: why React needs a new array instead of a changed one.",
               "minutes": 14,
               "exerciseCount": 2
             },
@@ -234,6 +242,7 @@ const PAYLOAD: NavPayload = {
               "title": "异步：Promise、await、all 和 allSettled",
               "titleEn": "Async: Promise, await, all and allSettled",
               "blurb": "Q2 整道题就是异步，GraphQL resolver 每一个都是 async。这一节把它们讲透。",
+              "blurbEn": "All of Q2 is async work, and every GraphQL resolver is async. This lesson covers all of it.",
               "minutes": 15,
               "exerciseCount": 3
             },
@@ -242,6 +251,7 @@ const PAYLOAD: NavPayload = {
               "title": "ESM:import / export 与那些莫名其妙的报错",
               "titleEn": "ESM: import / export, and the errors that look strange at first",
               "blurb": "为什么 subgraph 里 import 要写 .js 后缀，为什么 jest 要加一个实验性参数。",
+              "blurbEn": "Why an import in the subgraph needs the .js ending, and why jest needs an experimental flag.",
               "minutes": 10,
               "exerciseCount": 1
             }
@@ -260,6 +270,7 @@ const PAYLOAD: NavPayload = {
               "title": "类型、type 与 interface",
               "titleEn": "Types, type and interface",
               "blurb": "Note 和 NoteFormProps 这两个真实类型，把该讲的都讲全了。",
+              "blurbEn": "Two real types from the project, Note and NoteFormProps, cover everything you need here.",
               "minutes": 12,
               "exerciseCount": 1
             },
@@ -268,6 +279,7 @@ const PAYLOAD: NavPayload = {
               "title": "泛型参数，以及怎么读 tsc 的报错",
               "titleEn": "Generic parameters, and how to read a tsc error",
               "blurb": "useState<Note[]> 那对尖括号在说什么，和 react-notes-app 那 10 个构建错误的真相。",
+              "blurbEn": "What the angle brackets in useState<Note[]> say, and the real cause of the 10 build errors in react-notes-app.",
               "minutes": 12,
               "exerciseCount": 2
             }
@@ -328,6 +340,7 @@ const PAYLOAD: NavPayload = {
               "title": "组件就是一个返回界面的函数",
               "titleEn": "A component is a function that returns what you see on screen",
               "blurb": "从这个项目最短的两个文件开始：App.tsx 只有 5 行。",
+              "blurbEn": "Start with the two shortest files in this project: App.tsx is only 5 lines.",
               "minutes": 11,
               "exerciseCount": 2
             },
@@ -336,6 +349,7 @@ const PAYLOAD: NavPayload = {
               "title": "props：数据往下流，事件往上报",
               "titleEn": "props: data flows down, events go back up",
               "blurb": "为什么 NoteItem 里的 Delete 按钮，最终改的是 NoteManager 里的数据。",
+              "blurbEn": "Why the Delete button inside NoteItem ends up changing data that lives in NoteManager.",
               "minutes": 12,
               "exerciseCount": 2
             },
@@ -344,6 +358,7 @@ const PAYLOAD: NavPayload = {
               "title": "useState：让界面跟着数据变",
               "titleEn": "useState: making the screen follow the data",
               "blurb": "两个 state 撑起了整道 Q1：notes 和 noteToEdit。",
+              "blurbEn": "Two pieces of state carry the whole of Q1: notes and noteToEdit.",
               "minutes": 14,
               "exerciseCount": 2
             }
@@ -362,6 +377,7 @@ const PAYLOAD: NavPayload = {
               "title": "受控输入：value + onChange 的闭环",
               "titleEn": "Controlled inputs: the loop between value and onChange",
               "blurb": "输入框里的字，其实存在 React 的 state 里，不在 DOM 里。",
+              "blurbEn": "The text you type sits in React state, not in the DOM.",
               "minutes": 13,
               "exerciseCount": 2
             },
@@ -370,6 +386,7 @@ const PAYLOAD: NavPayload = {
               "title": "列表渲染与 key",
               "titleEn": "Rendering a list, and the key prop",
               "blurb": "notes.map(...) 那三行，以及为什么 key 不能用数组下标。",
+              "blurbEn": "Those three lines of notes.map(...), and why key must not be the array index.",
               "minutes": 10,
               "exerciseCount": 2
             },
@@ -378,6 +395,7 @@ const PAYLOAD: NavPayload = {
               "title": "useEffect：把 props 的变化同步进 state",
               "titleEn": "useEffect: copying a change in props into state",
               "blurb": "Task 3 的「点 Edit 后内容回填到表单」，靠的就是这 9 行。",
+              "blurbEn": "In Task 3, clicking Edit puts the note back into the form. These 9 lines are what does it.",
               "minutes": 15,
               "exerciseCount": 2
             },
@@ -386,6 +404,7 @@ const PAYLOAD: NavPayload = {
               "title": "派生数据与状态提升：什么不该做成 state",
               "titleEn": "Values you can compute, and lifting state up: what should not be state",
               "blurb": "isFormInvalid 为什么是一行普通变量，而不是第三个 useState。",
+              "blurbEn": "Why isFormInvalid is one plain variable and not a third useState.",
               "minutes": 11,
               "exerciseCount": 3
             }
@@ -404,6 +423,7 @@ const PAYLOAD: NavPayload = {
               "title": "先读题：三个任务、一条硬约束、四个测试",
               "titleEn": "Read the question first: three tasks, one rule you must not break, four tests",
               "blurb": "在写第一行代码之前，把题目、约束和判卷标准全部摸清。",
+              "blurbEn": "Before writing a single line of code, get clear on the task, the constraints, and how it is graded.",
               "minutes": 13,
               "exerciseCount": 3
             },
@@ -412,6 +432,7 @@ const PAYLOAD: NavPayload = {
               "title": "Task 1 · Add：提交表单，新笔记进入表格",
               "titleEn": "Task 1 · Add: submit the form and the new note appears in the table",
               "blurb": "三道题里最简单的一道，但它建立了后两道题的全部结构。",
+              "blurbEn": "The easiest of the three tasks, but it sets up the whole structure the other two use.",
               "minutes": 12,
               "exerciseCount": 2
             },
@@ -420,6 +441,7 @@ const PAYLOAD: NavPayload = {
               "title": "Task 2 · Delete：点 Delete，该行按 id 被移除",
               "titleEn": "Task 2 · Delete: click Delete and that one row is removed by id",
               "blurb": "一行 filter。但「按 id」这三个字是有分量的。",
+              "blurbEn": "One line of filter. But the words by id carry weight.",
               "minutes": 11,
               "exerciseCount": 3
             },
@@ -428,6 +450,7 @@ const PAYLOAD: NavPayload = {
               "title": "Task 3 · Edit：回填、改文字、就地更新、退出编辑",
               "titleEn": "Task 3 · Edit: refill the form, change the button text, update the row where it is, leave edit mode",
               "blurb": "四个要求串成一条链。这是整道 Q1 的压轴题。",
+              "blurbEn": "Four requirements linked into one chain. This is the hardest part of Q1.",
               "minutes": 18,
               "exerciseCount": 3
             },
@@ -436,6 +459,7 @@ const PAYLOAD: NavPayload = {
               "title": "四个测试逐条读，以及它们的盲区",
               "titleEn": "The four tests read line by line, and what they fail to catch",
               "blurb": "判卷器长什么样，它查什么，它查不到什么。",
+              "blurbEn": "What the grader looks like, what it checks, and what it cannot check.",
               "minutes": 12,
               "exerciseCount": 3
             }
@@ -454,6 +478,7 @@ const PAYLOAD: NavPayload = {
               "title": "读题：三条要求，每一条都在指定一种写法",
               "titleEn": "Reading the question: three requirements, and each one decides how you write it",
               "blurb": "题面就写在 taskRunner.ts 的文件头注释里。逐条翻译。",
+              "blurbEn": "The question is written in the header comment of taskRunner.ts. Take it one requirement at a time.",
               "minutes": 12,
               "exerciseCount": 2
             },
@@ -462,6 +487,7 @@ const PAYLOAD: NavPayload = {
               "title": "实现：worker pool（工人池）",
               "titleEn": "Building it: a worker pool, meaning a fixed number of workers sharing one queue",
               "blurb": "别想复杂了。就是「开 limit 个工人，一起从同一个待办队列里抢活」。",
+              "blurbEn": "Do not overthink it. You start limit workers, and they all take jobs from the same to-do queue.",
               "minutes": 16,
               "exerciseCount": 3
             }
@@ -480,6 +506,7 @@ const PAYLOAD: NavPayload = {
               "title": "变式一 · Todo List",
               "titleEn": "Variation 1 · Todo List",
               "blurb": "和 Notes Manager 同一套骨架，多了一个布尔字段、一个筛选、两个批量操作。",
+              "blurbEn": "The same skeleton as the Notes Manager, plus one boolean field, one filter, and two bulk actions.",
               "minutes": 14,
               "exerciseCount": 2
             },
@@ -488,6 +515,7 @@ const PAYLOAD: NavPayload = {
               "title": "变式二 · 计时器：useEffect 的清理函数",
               "titleEn": "Variation 2 · a timer: the useEffect cleanup function",
               "blurb": "这道题真正的考点只有一个 —— 你会不会写 return () => clearInterval(id)。",
+              "blurbEn": "This question really tests one thing: can you write return () => clearInterval(id).",
               "minutes": 16,
               "exerciseCount": 3
             },
@@ -496,6 +524,7 @@ const PAYLOAD: NavPayload = {
               "title": "变式三 · fetch 取数：loading、error 与竞态",
               "titleEn": "Variation 3 · fetching data: loading, error, and the race between two requests",
               "blurb": "三个状态好写，难的是「用户切换很快时，慢的旧请求把新数据覆盖了」。",
+              "blurbEn": "The three states are easy. The hard part is when the user switches quickly and a slow old request overwrites the new data.",
               "minutes": 18,
               "exerciseCount": 3
             },
@@ -504,6 +533,7 @@ const PAYLOAD: NavPayload = {
               "title": "变式四 · 递归读取评论的评论",
               "titleEn": "Variation 4 · reading replies to replies with recursion",
               "blurb": "组件自己渲染自己；难点其实不在渲染，而在「给第四层加一条回复」怎么不改原树。",
+              "blurbEn": "A component renders itself. The hard part is not the rendering, it is adding a reply four levels down without changing the original tree.",
               "minutes": 20,
               "exerciseCount": 3
             },
@@ -512,6 +542,7 @@ const PAYLOAD: NavPayload = {
               "title": "变式五 · 主题切换：Context 怎么用",
               "titleEn": "Variation 5 · theme switching: how to use Context",
               "blurb": "createContext 三行就写完了。真正会挂的地方是「value 每次都是新对象」和「忘了套 Provider」。",
+              "blurbEn": "createContext takes three lines. What actually breaks is a value that is a new object every render, and a missing Provider.",
               "minutes": 20,
               "exerciseCount": 3
             }
@@ -530,6 +561,7 @@ const PAYLOAD: NavPayload = {
               "title": "Debug Lab · React 十种典型故障",
               "titleEn": "Debug Lab · ten typical React failures",
               "blurb": "每一种都给真实报错（或真实的「没有报错」），你来判断、定位、修复、验证。",
+              "blurbEn": "Each failure comes with the real error message, or with the real silence. You decide what it is, find it, fix it, and check the fix.",
               "minutes": 20,
               "exerciseCount": 4
             },
@@ -538,6 +570,7 @@ const PAYLOAD: NavPayload = {
               "title": "从零重写：空文件夹到 4 个测试全过",
               "titleEn": "Write it again yourself: from an empty folder to 4 passing tests",
               "blurb": "不给答案。给需求、文件清单、验证命令和四级提示。这一关是分界线。",
+              "blurbEn": "No answer is given. You get the requirements, the file list, the commands to check your work, and hints in four levels. This lesson is the dividing line.",
               "minutes": 60,
               "exerciseCount": 2
             }
@@ -679,6 +712,7 @@ const PAYLOAD: NavPayload = {
               "title": "GraphQL 是什么：一份 schema 加一堆 resolver",
               "titleEn": "What GraphQL is: one schema plus a set of resolvers",
               "blurb": "读真实的 schema.graphql，把 type / field / Query / Mutation 一次讲清。",
+              "blurbEn": "Read the real schema.graphql and cover type / field / Query / Mutation in one pass.",
               "minutes": 15,
               "exerciseCount": 3
             },
@@ -687,6 +721,7 @@ const PAYLOAD: NavPayload = {
               "title": "resolver 的四个参数",
               "titleEn": "The four arguments of a resolver",
               "blurb": "(parent, args, context, info) —— 这四个东西是整门考试的操作台。",
+              "blurbEn": "(parent, args, context, info) — you use these four in every task of this exam.",
               "minutes": 14,
               "exerciseCount": 3
             },
@@ -695,6 +730,7 @@ const PAYLOAD: NavPayload = {
               "title": "非空、列表，和那个没有 price 的 input",
               "titleEn": "Non-null, lists, and the input that has no price",
               "blurb": "schema 里两处细节，直接决定四个 TODO 里三个的对错。",
+              "blurbEn": "Two details in the schema decide whether three of the four TODOs are right.",
               "minutes": 13,
               "exerciseCount": 3
             }
@@ -713,6 +749,7 @@ const PAYLOAD: NavPayload = {
               "title": "为什么会有 Federation",
               "titleEn": "Why Federation exists",
               "blurb": "一张大 schema 拆成几个服务，代价是什么，换来什么。",
+              "blurbEn": "One big schema split across several services: what it costs and what you get.",
               "minutes": 11,
               "exerciseCount": 2
             },
@@ -721,6 +758,7 @@ const PAYLOAD: NavPayload = {
               "title": "subgraph 是怎么跑起来的",
               "titleEn": "How a subgraph starts up",
               "blurb": "buildSubgraphSchema 做了什么，为什么它会凭空多出两个字段。",
+              "blurbEn": "What buildSubgraphSchema does, and why two fields appear that you never wrote.",
               "minutes": 13,
               "exerciseCount": 2
             },
@@ -729,6 +767,7 @@ const PAYLOAD: NavPayload = {
               "title": "entity、@key 与 __resolveReference",
               "titleEn": "entity, @key and __resolveReference",
               "blurb": "「另一个服务要用哪个字段找到这个对象？」—— 想清这一句，这三个概念全通。",
+              "blurbEn": "Which field does another service use to find this object? Answer that one question and all three ideas become clear.",
               "minutes": 16,
               "exerciseCount": 3
             },
@@ -737,6 +776,7 @@ const PAYLOAD: NavPayload = {
               "title": "N+1 问题与 DataLoader",
               "titleEn": "The N+1 problem and DataLoader",
               "blurb": "客户端一句话，后端 100 次请求 —— 以及一个 30 行的解药。",
+              "blurbEn": "One client query, 100 backend requests — and a 30-line fix.",
               "minutes": 14,
               "exerciseCount": 4
             }
@@ -755,6 +795,7 @@ const PAYLOAD: NavPayload = {
               "title": "先读题：四个 TODO、三处埋雷、十个测试",
               "titleEn": "Read the task first: four TODOs, three planted bugs, ten tests",
               "blurb": "在写第一行 resolver 之前，把要改什么、别人给了什么、判卷标准是什么全摸清。",
+              "blurbEn": "Before writing the first line of a resolver, find out what to change, what is already given, and how it will be graded.",
               "minutes": 15,
               "exerciseCount": 3
             },
@@ -763,6 +804,7 @@ const PAYLOAD: NavPayload = {
               "title": "TODO 1 · User.orders",
               "titleEn": "TODO 1 · User.orders",
               "blurb": "Federation 链路的终点。三行代码，但每一行都有理由。",
+              "blurbEn": "The last step of the Federation path. Three lines of code, and every line has a reason.",
               "minutes": 13,
               "exerciseCount": 2
             },
@@ -771,6 +813,7 @@ const PAYLOAD: NavPayload = {
               "title": "TODO 2 · Order.shippingInfo",
               "titleEn": "TODO 2 · Order.shippingInfo",
               "blurb": "两行代码，但选错一行就答不到 N+1 这个考点。",
+              "blurbEn": "Two lines of code. Pick the wrong one and you miss the N+1 point entirely.",
               "minutes": 11,
               "exerciseCount": 2
             },
@@ -779,6 +822,7 @@ const PAYLOAD: NavPayload = {
               "title": "TODO 3 & 4 · Query.order 与 Query.orders",
               "titleEn": "TODO 3 & 4 · Query.order and Query.orders",
               "blurb": "一个用 loader、一个用数据源；一个可空、一个非空。放一起讲差别最清楚。",
+              "blurbEn": "One uses the loader, one uses the data source; one is nullable, one is not. Side by side the difference is clearest.",
               "minutes": 14,
               "exerciseCount": 2
             },
@@ -787,6 +831,7 @@ const PAYLOAD: NavPayload = {
               "title": "三处埋雷：怎么系统地找出来",
               "titleEn": "The three planted bugs: how to find them systematically",
               "blurb": "README 只说「有 integration issues」。这一节教你怎么把它们挖出来。",
+              "blurbEn": "The README only says there are integration issues. This lesson shows you how to find them.",
               "minutes": 16,
               "exerciseCount": 2
             }
@@ -805,6 +850,7 @@ const PAYLOAD: NavPayload = {
               "title": "先看懂给你的东西：Spring 的几个注解和一条请求链路",
               "titleEn": "Understand what you are given: a few Spring annotations and the path one request takes",
               "blurb": "没写过 Java 也能看懂 —— 这一节只讲这道题真正需要的那几个概念。",
+              "blurbEn": "You do not need Java experience. This lesson covers only the few ideas this task actually needs.",
               "minutes": 16,
               "exerciseCount": 2
             },
@@ -813,6 +859,7 @@ const PAYLOAD: NavPayload = {
               "title": "六个端点：状态码就是这道题的全部",
               "titleEn": "Six endpoints: the status codes are the whole task",
               "blurb": "五个测试只抓住两个错。另外三个端点全返回 null 也能过 —— 这一节讲怎么真的做对。",
+              "blurbEn": "The five tests catch only two mistakes. Three endpoints can return null and still pass. This lesson is about getting them actually right.",
               "minutes": 18,
               "exerciseCount": 5
             }
@@ -831,6 +878,7 @@ const PAYLOAD: NavPayload = {
               "title": "两道书面题：延迟传播与生产配置",
               "titleEn": "The two written questions: how delay spreads, and production configuration",
               "blurb": "写代码的题有测试兜底，这两道题只有你自己。给你一套可复用的答题结构。",
+              "blurbEn": "The coding tasks have tests to fall back on. These two questions have only you. Here is an answer structure you can reuse.",
               "minutes": 22,
               "exerciseCount": 3
             }
@@ -849,6 +897,7 @@ const PAYLOAD: NavPayload = {
               "title": "Debug Lab · Federation 十种典型故障",
               "titleEn": "Debug Lab · ten common Federation failures",
               "blurb": "从「resolver 写了但返回 null」到「composition 失败」，每一种都给真实报错。",
+              "blurbEn": "From a resolver that runs but returns null, to a composition failure. Every case comes with the real error text.",
               "minutes": 22,
               "exerciseCount": 4
             },
@@ -857,6 +906,7 @@ const PAYLOAD: NavPayload = {
               "title": "从零重写：空目录到 10 个测试全过",
               "titleEn": "Rewrite it: from an empty directory to all 10 tests passing",
               "blurb": "不给答案。给 schema、给数据源、给测试、给四级提示。这一关是分界线。",
+              "blurbEn": "No answer key. You get the schema, the data source, the tests, and four levels of hints. This stage is the dividing line.",
               "minutes": 90,
               "exerciseCount": 2
             }
@@ -986,6 +1036,7 @@ const PAYLOAD: NavPayload = {
               "title": "HTML 五问",
               "titleEn": "5 questions on HTML",
               "blurb": "块级与行内、事件冒泡与捕获、meta、语义化、无障碍。",
+              "blurbEn": "Block and inline elements, event bubbling and capturing, meta tags, semantic elements, accessibility.",
               "minutes": 14,
               "exerciseCount": 0
             },
@@ -994,6 +1045,7 @@ const PAYLOAD: NavPayload = {
               "title": "CSS 八问",
               "titleEn": "8 questions on CSS",
               "blurb": "盒模型、margin vs padding、Flex vs Grid、选择器、预处理器、响应式。",
+              "blurbEn": "The box model, margin vs padding, Flex vs Grid, selectors, preprocessors, responsive design.",
               "minutes": 18,
               "exerciseCount": 0
             }
@@ -1012,6 +1064,7 @@ const PAYLOAD: NavPayload = {
               "title": "引擎与类型十问",
               "titleEn": "10 questions on the engine and types",
               "blurb": "引擎、REPL、原始值 vs 引用值、类型转换、== vs ===、短路、var/let/const、传值传引用、Set、Map。",
+              "blurbEn": "The engine, REPL, primitive vs reference values, type conversion, == vs ===, short-circuiting, var/let/const, passing values and references, Set, Map.",
               "minutes": 22,
               "exerciseCount": 0
             },
@@ -1020,6 +1073,7 @@ const PAYLOAD: NavPayload = {
               "title": "函数与作用域十二问",
               "titleEn": "12 questions on functions and scope",
               "blurb": "定义方式、一等/一阶/高阶函数、纯函数、use strict、作用域、hoisting、作用域链、闭包、柯里化、IIFE。",
+              "blurbEn": "Ways to define a function, first class / first order / higher order functions, pure functions, use strict, scope, hoisting, the scope chain, closure, currying, IIFE.",
               "minutes": 26,
               "exerciseCount": 0
             }
@@ -1038,6 +1092,7 @@ const PAYLOAD: NavPayload = {
               "title": "this 与面向对象三问",
               "titleEn": "3 questions on this and object-oriented programming",
               "blurb": "OOP、this 指向的四条规则、call/apply/bind。",
+              "blurbEn": "OOP, the four rules for what this points to, call/apply/bind.",
               "minutes": 16,
               "exerciseCount": 0
             },
@@ -1046,6 +1101,7 @@ const PAYLOAD: NavPayload = {
               "title": "异步与事件循环六问",
               "titleEn": "6 questions on async and the event loop",
               "blurb": "事件循环、async/await vs Promise、回调地狱、finally、错误处理、异步方案总览。",
+              "blurbEn": "The event loop, async/await vs Promise, callback hell, finally, error handling, and an overview of the async options.",
               "minutes": 24,
               "exerciseCount": 0
             },
@@ -1054,6 +1110,7 @@ const PAYLOAD: NavPayload = {
               "title": "DOM、模块与工具链七问",
               "titleEn": "7 questions on the DOM, modules and tooling",
               "blurb": "DOM 与 DOM 事件、事件委托、ES6 新特性、ES6 模块、npm、Webpack、fetch vs axios。",
+              "blurbEn": "The DOM and DOM events, event delegation, new ES6 features, ES6 modules, npm, Webpack, fetch vs axios.",
               "minutes": 20,
               "exerciseCount": 0
             }
@@ -1072,6 +1129,7 @@ const PAYLOAD: NavPayload = {
               "title": "React 是什么 · 七问",
               "titleEn": "7 questions on what React is",
               "blurb": "React vs Angular、优势、SPA、JSX、虚拟 DOM 与 diff、reconciliation、babel 与 webpack。",
+              "blurbEn": "React vs Angular, the selling points, SPA, JSX, the virtual DOM and diffing, reconciliation, babel and webpack.",
               "minutes": 22,
               "exerciseCount": 0
             },
@@ -1080,6 +1138,7 @@ const PAYLOAD: NavPayload = {
               "title": "组件与通信 · 十一问",
               "titleEn": "11 questions on components and how they communicate",
               "blurb": "函数 vs 类组件、生命周期、useEffect 对应关系、props vs state、组件通信、受控 vs 非受控、props drilling、PureComponent、Fragment、状态提升、HOC。",
+              "blurbEn": "Function vs class components, lifecycle, how useEffect maps onto it, props vs state, talking between components, controlled vs uncontrolled, props drilling, PureComponent, Fragment, lifting state up, HOC.",
               "minutes": 28,
               "exerciseCount": 0
             }
@@ -1098,6 +1157,7 @@ const PAYLOAD: NavPayload = {
               "title": "Hooks 四问",
               "titleEn": "4 questions on Hooks",
               "blurb": "hooks 是什么与为什么、useMemo vs useCallback、React.memo vs useMemo、自定义 hook。",
+              "blurbEn": "What hooks are and why they exist, useMemo vs useCallback, React.memo vs useMemo, custom hooks.",
               "minutes": 20,
               "exerciseCount": 0
             },
@@ -1106,6 +1166,7 @@ const PAYLOAD: NavPayload = {
               "title": "性能与新特性 · 八问",
               "titleEn": "8 questions on performance and new features",
               "blurb": "性能优化、写样式的几种方式、React 18 新变化、lazy、最佳实践、StrictMode、错误边界、Router。",
+              "blurbEn": "Performance work, the ways to write styles, what is new in React 18, lazy, best practices, StrictMode, error boundaries, Router.",
               "minutes": 26,
               "exerciseCount": 0
             },
@@ -1114,6 +1175,7 @@ const PAYLOAD: NavPayload = {
               "title": "Redux 与 TypeScript · 六问",
               "titleEn": "6 questions on Redux and TypeScript",
               "blurb": "Redux vs Context、结构与工作流、三大原则、中间件、JS vs TS、静态类型检查。",
+              "blurbEn": "Redux vs Context, the parts and the data flow, the three principles, middleware, JS vs TS, static type checking.",
               "minutes": 22,
               "exerciseCount": 0
             }
@@ -1132,6 +1194,7 @@ const PAYLOAD: NavPayload = {
               "title": "Node 与 Express 四问",
               "titleEn": "4 questions on Node and Express",
               "blurb": "Node 的事件循环、请求响应周期、查询参数 vs 路径参数、CRUD。",
+              "blurbEn": "The Node.js event loop, the request and response cycle, query parameters vs path parameters, CRUD.",
               "minutes": 18,
               "exerciseCount": 0
             },
@@ -1140,6 +1203,7 @@ const PAYLOAD: NavPayload = {
               "title": "数据库两问",
               "titleEn": "2 questions on databases",
               "blurb": "关系型 vs 非关系型、主键与外键。",
+              "blurbEn": "Relational vs non-relational databases, primary keys and foreign keys.",
               "minutes": 12,
               "exerciseCount": 0
             },
@@ -1148,6 +1212,7 @@ const PAYLOAD: NavPayload = {
               "title": "网络、安全与测试 · 六问",
               "titleEn": "6 questions on networking, security and testing",
               "blurb": "测试的种类、HTTPS vs HTTP、JWT、CORS、session vs cookie、HTTP 状态码。",
+              "blurbEn": "Kinds of tests, HTTPS vs HTTP, JWT, CORS, session vs cookie, HTTP status codes.",
               "minutes": 24,
               "exerciseCount": 0
             }
@@ -1166,6 +1231,7 @@ const PAYLOAD: NavPayload = {
               "title": "16 道题逐题对照",
               "titleEn": "The 16 problems, compared one by one",
               "blurb": "哪些已经写过、哪些是缺口、缺的那道到底在考什么。",
+              "blurbEn": "Which ones you have already written, which ones are gaps, and what the missing ones actually test.",
               "minutes": 12,
               "exerciseCount": 1
             },
@@ -1174,6 +1240,7 @@ const PAYLOAD: NavPayload = {
               "title": "缺口一 · Dropdown、Tabs、星级评分",
               "titleEn": "Gap 1 · dropdown, tabs and star rating",
               "blurb": "三个小组件，考的是「组件自己的交互状态怎么管」—— 之前五道变式题一个都没覆盖到。",
+              "blurbEn": "Three small components. They test how a component manages its own interaction state, which none of the five earlier variant tasks covered.",
               "minutes": 24,
               "exerciseCount": 2
             },
@@ -1182,6 +1249,7 @@ const PAYLOAD: NavPayload = {
               "title": "缺口二 · useRef 操作 DOM，与写一个自定义 hook",
               "titleEn": "Gap 2 · using useRef on the DOM, and writing a custom hook",
               "blurb": "useRef 的第二种用法（拿 DOM 调命令式 API），以及把 state + effect 打包成可复用的 hook。",
+              "blurbEn": "The second use of useRef — holding a DOM node so you can call methods on it directly — and packing state plus an effect into a hook you can reuse.",
               "minutes": 22,
               "exerciseCount": 1
             },
@@ -1190,6 +1258,7 @@ const PAYLOAD: NavPayload = {
               "title": "缺口三 · 同一个 Todo 换成 Redux Toolkit",
               "titleEn": "Gap 3 · the same Todo app, moved to Redux Toolkit",
               "blurb": "业务和变式一完全一样，换成 createSlice + selector —— 正好能对比出 Redux 到底多给了什么。",
+              "blurbEn": "The same app as variant one, rebuilt with createSlice and selectors — which makes it easy to see what Redux actually adds.",
               "minutes": 24,
               "exerciseCount": 1
             },
@@ -1198,6 +1267,7 @@ const PAYLOAD: NavPayload = {
               "title": "缺口四 · Kanban 看板：一次改两个数组",
               "titleEn": "Gap 4 · a Kanban board: changing two arrays in one update",
               "blurb": "跨列移动是 CRUD 的升级版 —— 源列删、目标列加，必须在一次操作里完成。",
+              "blurbEn": "Moving a card between columns is CRUD one step up: remove from one column and add to another, in a single update.",
               "minutes": 20,
               "exerciseCount": 1
             }
@@ -1216,6 +1286,7 @@ const PAYLOAD: NavPayload = {
               "title": "计时两兄弟：debounce 与 throttle",
               "titleEn": "Two timing helpers: debounce and throttle",
               "blurb": "先分清「等你停手」和「匀速放行」，再各写一个。",
+              "blurbEn": "First tell the two apart — wait until the calls stop, versus let one through at a steady rate — then write each one.",
               "minutes": 30,
               "exerciseCount": 2
             },
@@ -1224,6 +1295,7 @@ const PAYLOAD: NavPayload = {
               "title": "数据与函数：deepClone、flatten、curry",
               "titleEn": "Data and functions: deepClone, flatten, curry",
               "blurb": "三道递归题。递归的出口、防循环的登记、不污染的攒参数。",
+              "blurbEn": "Three recursion problems: where recursion stops, the record that guards against cycles, and collecting arguments without leaking them.",
               "minutes": 35,
               "exerciseCount": 3
             },
@@ -1232,6 +1304,7 @@ const PAYLOAD: NavPayload = {
               "title": "异步与结构：Promise.all、EventEmitter、LRU",
               "titleEn": "Async and structure: Promise.all, EventEmitter, LRU",
               "blurb": "下标写入保顺序、拷贝列表再遍历、Map 的插入序当链表用。",
+              "blurbEn": "Write by index to keep the order, copy the list before you walk it, and use the insertion order of a Map as a linked list.",
               "minutes": 35,
               "exerciseCount": 3
             }
@@ -1250,6 +1323,7 @@ const PAYLOAD: NavPayload = {
               "title": "Utility Types：会用，还要会手写",
               "titleEn": "Utility types: use them, and write them yourself",
               "blurb": "Partial / Pick / Omit / Record 怎么选，mapped type 手写 MyPick 与 MyPartial，conditional type 配 infer 手写 MyReturnType。",
+              "blurbEn": "How to choose between Partial / Pick / Omit / Record, how to write MyPick and MyPartial as mapped types, and how to write MyReturnType with a conditional type and infer.",
               "minutes": 28,
               "exerciseCount": 1
             },
@@ -1258,6 +1332,7 @@ const PAYLOAD: NavPayload = {
               "title": "泛型与收窄：把 any 赶出代码",
               "titleEn": "Generics and narrowing: getting any out of the code",
               "blurb": "getProp 为什么必须约束 K extends keyof T，判别联合加 never 兜底做穷尽检查，unknown / any / never 的三种语义。",
+              "blurbEn": "Why getProp must constrain K extends keyof T, exhaustiveness checking with a discriminated union and a never fallback, and what unknown / any / never each mean.",
               "minutes": 26,
               "exerciseCount": 1
             }
@@ -1358,6 +1433,7 @@ const PAYLOAD: NavPayload = {
               "title": "先读四个测试：它们到底要什么",
               "titleEn": "Read the four tests first: what exactly they ask for",
               "blurb": "四个测试全靠 data-testid 找元素。先抄一张 testid 表出来，再动手。",
+              "blurbEn": "All four tests find elements by data-testid. Copy out the list of testids first, then start writing.",
               "minutes": 14,
               "exerciseCount": 2
             },
@@ -1366,6 +1442,7 @@ const PAYLOAD: NavPayload = {
               "title": "Context 放在哪一层 —— 这道题最容易死的地方",
               "titleEn": "Which level the Context goes on — the most common way to fail this task",
               "blurb": "Provider 必须包在 App 外面。包在里面，App 自己就用不了 Context。",
+              "blurbEn": "The Provider has to wrap App from the outside. Put it inside App and App itself cannot read the Context.",
               "minutes": 16,
               "exerciseCount": 2
             }
@@ -1384,6 +1461,7 @@ const PAYLOAD: NavPayload = {
               "title": "用一个 state 管四个页面",
               "titleEn": "Controlling four pages with one piece of state",
               "blurb": "没有 react-router。currentPage 是个字符串状态机，四个 && 决定谁显示。",
+              "blurbEn": "There is no react-router. currentPage is a string state machine, and four && checks decide which page shows.",
               "minutes": 15,
               "exerciseCount": 2
             },
@@ -1392,6 +1470,7 @@ const PAYLOAD: NavPayload = {
               "title": "按类型分组渲染六张卡",
               "titleEn": "Rendering the six cards grouped by type",
               "blurb": "两层 map：外层 Object.keys 出三个类型，内层出每组的车。key 有个坑。",
+              "blurbEn": "Two nested maps: Object.keys gives the three types on the outside, the cabs of each group on the inside. The key needs care.",
               "minutes": 13,
               "exerciseCount": 2
             },
@@ -1400,6 +1479,7 @@ const PAYLOAD: NavPayload = {
               "title": "Loading：一秒之后自己跳走",
               "titleEn": "Loading: it moves to the next page by itself after one second",
               "blurb": "useEffect 里一个 setTimeout，return 里一个 clearTimeout。少了后者会出真问题。",
+              "blurbEn": "One setTimeout inside useEffect, one clearTimeout in the return. Leave the second one out and you get a real problem.",
               "minutes": 14,
               "exerciseCount": 2
             },
@@ -1408,6 +1488,7 @@ const PAYLOAD: NavPayload = {
               "title": "历史与确认页：两个小而致命的细节",
               "titleEn": "The history and confirmation pages: two small details that decide pass or fail",
               "blurb": "slice(-3).reverse() 一个字符都不能错；bookedCabDetails?.name 少个问号就白屏。",
+              "blurbEn": "slice(-3).reverse() has to be exact, character for character; drop the question mark in bookedCabDetails?.name and the screen goes blank.",
               "minutes": 15,
               "exerciseCount": 2
             }
@@ -1426,6 +1507,7 @@ const PAYLOAD: NavPayload = {
               "title": "完整答案跑不起来 —— 一个扩展名的事",
               "titleEn": "The complete answer does not run — the cause is one file extension",
               "blurb": "README 说「先运行完整答案熟悉流程」。实测 0 个测试跑起来。",
+              "blurbEn": "The README says to run the complete answer first to get used to the flow. In practice 0 tests start.",
               "minutes": 13,
               "exerciseCount": 2
             },
@@ -1434,6 +1516,7 @@ const PAYLOAD: NavPayload = {
               "title": "从零重写：空文件夹里做出来",
               "titleEn": "Rewrite it: build the whole app in an empty folder",
               "blurb": "这一节没有新知识。只有一个要求：不看答案，把整个应用写出来。",
+              "blurbEn": "There is nothing new to learn here. There is one requirement: write the whole app without looking at the answer.",
               "minutes": 55,
               "exerciseCount": 1
             }
@@ -3051,6 +3134,7 @@ const PAYLOAD: NavPayload = {
     {
       "id": "r-rebuild-q1",
       "title": "从零重建 Q1 · Notes Manager",
+      "scenarioEn": "An empty folder. Start a Vite + React + TS project yourself, install the dependencies yourself, and write the Notes Manager add, edit and delete so all four tests pass. Do not change a single data-testid in the test file.",
       "scenario": "空文件夹。自己起一个 Vite + React + TS 项目，自己装依赖，把 Notes Manager 的增删改写出来并让四个测试全过。测试文件的 data-testid 一个都不能改。",
       "minutes": 75,
       "examId": "react",
@@ -3062,6 +3146,7 @@ const PAYLOAD: NavPayload = {
     {
       "id": "r-rebuild-q2",
       "title": "从零重建 Q2 · 并发任务调度器",
+      "scenarioEn": "An empty folder. Implement an async task scheduler with a concurrency limit: never run more than the limit at once, keep results in input order, and report a failed task as rejected instead of letting the whole batch fail.",
       "scenario": "空文件夹。实现一个带并发上限的异步任务调度器：并发数不得超过上限、结果顺序与输入一致、失败的任务以 rejected 出现而不是让整批崩掉。",
       "minutes": 45,
       "examId": "react",
@@ -3073,6 +3158,8 @@ const PAYLOAD: NavPayload = {
     {
       "id": "support-tickets",
       "title": "模拟考 A · Support Ticket Board",
+      "titleEn": "Mock exam A · Support Ticket Board",
+      "scenarioEn": "The React exam in a different business setting: Support Ticket Board. It tests the same things as Q1, but the problem is new — do not look back at your Q1 answer.",
       "scenario": "换了业务场景的 React 考试：Support Ticket Board。考点和 Q1 一致，但题面是新的 —— 不许回头看 Q1 的答案。",
       "minutes": 60,
       "examId": "react",
@@ -3084,6 +3171,7 @@ const PAYLOAD: NavPayload = {
     {
       "id": "g-rebuild-subgraph",
       "title": "从零重建 Task 1 · Orders subgraph",
+      "scenarioEn": "An empty folder. Build an Apollo Federation subgraph yourself: write the schema, write the four resolvers, use DataLoader to avoid N+1, put extensions.code on errors, and make all ten tests pass.",
       "scenario": "空文件夹。自己搭一个 Apollo Federation subgraph：写 schema、写四个 resolver、用 DataLoader 防 N+1、错误带上 extensions.code，并让十个测试全过。",
       "minutes": 90,
       "examId": "graphql-federation",
@@ -3095,6 +3183,7 @@ const PAYLOAD: NavPayload = {
     {
       "id": "g-rebuild-controller",
       "title": "从零重建 Task 2 · Spring Boot 控制器",
+      "scenarioEn": "An empty folder, or an empty Spring Initializr skeleton. Write the six REST endpoints: method, path, status code, where each parameter comes from, validation, and exception handling, with all five tests passing.",
       "scenario": "空文件夹（或一个空的 Spring Initializr 骨架）。把六个 REST 端点写出来：方法、路径、状态码、参数来源、校验、异常处理，五个测试全过。",
       "minutes": 75,
       "examId": "graphql-federation",
@@ -3106,6 +3195,8 @@ const PAYLOAD: NavPayload = {
     {
       "id": "book-reviews",
       "title": "模拟考 B · Book Reviews Subgraph",
+      "titleEn": "Mock exam B · Book Reviews Subgraph",
+      "scenarioEn": "The Federation exam in a different business setting: Book Reviews. A subgraph stitched together with an entity; it tests the same things as Task 1, and the problem is new.",
       "scenario": "换了业务场景的 Federation 考试：Book Reviews。subgraph 加 entity 缝合，考点和 Task 1 一致，题面是新的。",
       "minutes": 90,
       "examId": "graphql-federation",
@@ -3117,6 +3208,7 @@ const PAYLOAD: NavPayload = {
     {
       "id": "cb-from-scratch",
       "title": "空文件夹里做出整个 Cab Booking",
+      "scenarioEn": "An empty folder. You get four tests and one data file. Build a Cab Booking app: Context holds the current booking and the ride history, four pages switch through one state machine, and the history keeps only the three most recent with the newest first. All four tests pass.",
       "scenario": "空文件夹。只有四个测试和一份数据文件：搭一个 Cab Booking 应用 —— Context 存「当前预订」和「行程历史」，四个页面用一个状态机切换，历史只留最新三条且最新在最上。四个测试全过。",
       "minutes": 60,
       "examId": "cab-booking",

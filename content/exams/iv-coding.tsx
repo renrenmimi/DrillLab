@@ -940,19 +940,30 @@ export const ivCoding: Module = {
       title: "16 道题逐题对照",
       titleEn: "The 16 problems, compared one by one",
       blurb: "哪些已经写过、哪些是缺口、缺的那道到底在考什么。",
+      blurbEn:
+        "Which ones you have already written, which ones are gaps, and what the missing ones actually test.",
       minutes: 12,
       objectives: [
         "知道这 16 道题分别对应本站哪一节课",
         "识别出「换了个业务壳但考点相同」的题",
         "说清 7 道缺口题各自新增的是什么考点",
       ],
+      objectivesEn: [
+        "Know which lesson on this site each of the 16 problems maps to",
+        "Recognise problems that only change the story around them and test the same thing",
+        "Say what each of the 7 gap problems adds that the others do not test",
+      ],
       whyForAssessment:
         "coding 题的名字千变万化，考点其实很少。把 16 道题归成几类之后你会发现：能独立写出 Q1 的 CRUD、变式三的 fetch 三态、变式五的 Context，题库里一半的题就自动会了。这一节的用处是让你不要重复刷同类题。",
+      whyForAssessmentEn:
+        "Coding problems come with endless different names, but they test very few things. Once you sort the 16 into groups you can see it: if you can write the CRUD of Q1, the three fetch states of variant three and the Context of variant five on your own, half the question bank is already answered. This lesson is here so you do not practise the same problem over and over.",
       concepts: [
         {
           id: "map",
           heading: "覆盖对照表",
+          headingEn: "The coverage table",
           lede: "9 道已覆盖，7 道补进来。",
+          ledeEn: "9 are already covered; 7 are added here.",
           body: (
             <>
               <p>
@@ -1235,7 +1246,9 @@ export const ivCoding: Module = {
         {
           id: "classes",
           heading: "16 道题其实只有五类考点",
+          headingEn: "The 16 problems really test only five things",
           lede: "认出类别，就不用一道道刷。",
+          ledeEn: "Once you can name the group, you do not have to practise them one by one.",
           body: (
             <>
               <ol>
@@ -1393,6 +1406,12 @@ export const ivCoding: Module = {
         "最大的缺口是第四类「组件内部交互状态机」—— Dropdown / Tabs / 星级评分。",
         "Kanban 是 CRUD 的升级版：一次操作同时改两个数组，要写成一个纯函数。",
       ],
+      recapEn: [
+        "9 of the 16 problems are already covered by Q1, Q2, the five variant tasks and the two mock exams — do not practise them again.",
+        "Five things are tested: controlled inputs plus CRUD (seven problems), the three async states, sharing state across levels, interaction state inside one component, and useRef for direct DOM calls.",
+        "The largest gap is the fourth one, interaction state inside a single component — Dropdown, Tabs and star rating.",
+        "Kanban is CRUD one step up: one action changes two arrays at the same time, and it should be written as one pure function.",
+      ],
     },
 
     /* ============================================================
@@ -1403,6 +1422,8 @@ export const ivCoding: Module = {
       title: "缺口一 · Dropdown、Tabs、星级评分",
       titleEn: "Gap 1 · dropdown, tabs and star rating",
       blurb: "三个小组件，考的是「组件自己的交互状态怎么管」—— 之前五道变式题一个都没覆盖到。",
+      blurbEn:
+        "Three small components. They test how a component manages its own interaction state, which none of the five earlier variant tasks covered.",
       minutes: 24,
       objectives: [
         "用 useRef + document 监听实现「点外面关掉」，并正确清理",
@@ -1410,13 +1431,23 @@ export const ivCoding: Module = {
         "把「hover 预览」和「已选值」叠成一个显示值",
         "实现同时支持受控和非受控的组件",
       ],
+      objectivesEn: [
+        "Close on a click outside using useRef plus a document listener, and clean the listener up correctly",
+        "Explain why Tabs needs only one piece of state",
+        "Combine a hover preview and a chosen value into one displayed value",
+        "Build a component that works both controlled and uncontrolled",
+      ],
       whyForAssessment:
         "这三道是 Easy / Medium 里出现频率最高的。它们代码量小，所以面试官会盯细节：点外面关不关、Escape 关不关、监听器解绑没有、ARIA 有没有、hover 移出后回不回到已选值。写得出来是及格，这些细节全中才是好。",
+      whyForAssessmentEn:
+        "These three come up most often among the easy and medium problems. There is little code, so the interviewer watches the details: does a click outside close it, does Escape close it, is the listener removed, are the ARIA attributes there, does it go back to the chosen value when the pointer leaves. Getting it to work is a pass; getting every detail right is a good answer.",
       concepts: [
         {
           id: "dropdown",
           heading: "Dropdown：点外面要关掉",
+          headingEn: "Dropdown: a click outside has to close it",
           lede: "这道题唯一的难点就是「怎么知道用户点的不是我」。",
+          ledeEn: "The only hard part here is telling that the click was not inside my own element.",
           body: (
             <>
               <p>
@@ -1542,7 +1573,9 @@ export const ivCoding: Module = {
         {
           id: "tabs",
           heading: "Tabs：只需要一个 state",
+          headingEn: "Tabs: one piece of state is enough",
           lede: "很多人会给每个 tab 存一个 isActive，那是多余的。",
+          ledeEn: "Many people keep an isActive flag on every tab. That is not needed.",
           body: (
             <>
               <p>
@@ -1639,7 +1672,9 @@ export const ivCoding: Module = {
         {
           id: "stars",
           heading: "星级评分：两个状态叠出一个显示值",
+          headingEn: "Star rating: two pieces of state produce one displayed value",
           lede: "已选值 + hover 预览，显示的是「有 hover 就用 hover」。",
+          ledeEn: "A chosen value plus a hover preview: show the hover value whenever there is one.",
           body: (
             <>
               <p>
@@ -1719,7 +1754,7 @@ export const ivCoding: Module = {
                 <li>
                   <strong>Use <code>&lt;button&gt;</code>, not{" "}
                   <code>&lt;span&gt;</code></strong> — focusable and Enter-triggerable
-                  for free. Add <code>aria-label=&quot;3 stars&quot;</code> and a screen
+                  already. Add <code>aria-label=&quot;3 stars&quot;</code> and a screen
                   reader can use it too.
                 </li>
               </ul>
@@ -1969,6 +2004,17 @@ const onDocClick = (e: MouseEvent) => {
               它会检查整棵子树。
             </>
           ),
+          whyEn: (
+            <>
+              Clicking an option inside also counts as a click outside, so{" "}
+              <strong>
+                it closes the moment it opens, or you can never select anything
+              </strong>
+              .
+              <br />
+              Use <code>contains()</code> — it checks the whole subtree.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1989,6 +2035,19 @@ useEffect(() => {
               <strong>必须先存成一个具名函数，绑和解都用它。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The two arrow functions are <strong>different references</strong>, so{" "}
+              <code>removeEventListener</code>{" "}
+              <strong>removes nothing at all</strong> — and it reports no error, you
+              only notice that the listeners keep piling up.
+              <br />
+              <strong>
+                Store one named function first, and use that same function to add and to
+                remove.
+              </strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2007,15 +2066,57 @@ const [tabs, setTabs] = useState(
               只存一个 <code>activeId</code>，其余全算出来。
             </>
           ),
+          whyEn: (
+            <>
+              One fact is now stored n times, switching means walking all of them and
+              rewriting each one, and{" "}
+              <strong>
+                it is easy to end up with two active tabs, or none at all
+              </strong>
+              .
+              <br />
+              Keep a single <code>activeId</code> and compute the rest from it.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「点外面要关掉」", reachFor: "useRef + document mousedown + contains + 清理" },
-        { signal: "解绑监听器没生效", reachFor: "绑和解必须是同一个函数引用" },
-        { signal: "「弹层要能按 Escape 关」", reachFor: "同一个 effect 里再加 keydown" },
-        { signal: "「哪一项被选中」", reachFor: "只存一个 id，其余派生" },
-        { signal: "hover 预览 + 已选值", reachFor: "shown = hover ?? current，别用 ||" },
-        { signal: "要同时支持受控和非受控", reachFor: "判断 prop !== undefined" },
+        {
+          signal: "「点外面要关掉」",
+          signalEn: "\"a click outside should close it\"",
+          reachFor: "useRef + document mousedown + contains + 清理",
+          reachForEn: "useRef, a mousedown listener on document, contains, plus cleanup",
+        },
+        {
+          signal: "解绑监听器没生效",
+          signalEn: "Removing the listener has no effect",
+          reachFor: "绑和解必须是同一个函数引用",
+          reachForEn: "Adding and removing must use the same function reference",
+        },
+        {
+          signal: "「弹层要能按 Escape 关」",
+          signalEn: "\"Escape should close the panel\"",
+          reachFor: "同一个 effect 里再加 keydown",
+          reachForEn: "Add a keydown listener in the same effect",
+        },
+        {
+          signal: "「哪一项被选中」",
+          signalEn: "\"which item is selected\"",
+          reachFor: "只存一个 id，其余派生",
+          reachForEn: "Store one id only, and derive the rest",
+        },
+        {
+          signal: "hover 预览 + 已选值",
+          signalEn: "A hover preview together with a chosen value",
+          reachFor: "shown = hover ?? current，别用 ||",
+          reachForEn: "shown = hover ?? current; do not use ||",
+        },
+        {
+          signal: "要同时支持受控和非受控",
+          signalEn: "It has to work both controlled and uncontrolled",
+          reachFor: "判断 prop !== undefined",
+          reachForEn: "Check whether the prop !== undefined",
+        },
       ],
       recap: [
         "点外面关掉三要素：useRef 拿节点、document 上 mousedown、contains 判断，外加清理。",
@@ -2023,6 +2124,13 @@ const [tabs, setTabs] = useState(
         "Tabs 只需要一个 activeId，其余全是派生；ARIA 三件套别漏。",
         "星级评分核心是 shown = hover ?? current；onMouseLeave 挂容器不挂每颗星。",
         "用 button 而不是 span，天然可聚焦可回车；受控判断用 !== undefined。",
+      ],
+      recapEn: [
+        "Three parts to closing on an outside click: useRef for the node, mousedown on document, contains for the test — plus the cleanup.",
+        "Removing a listener needs the same function reference; passing a new arrow function removes nothing and reports no error.",
+        "Tabs needs one activeId and derives everything else; do not leave out the three ARIA attributes.",
+        "The core of a star rating is shown = hover ?? current; put onMouseLeave on the container, not on each star.",
+        "Use a button rather than a span so it can be focused and used with Enter; test for controlled with !== undefined.",
       ],
     },
 
@@ -2034,6 +2142,8 @@ const [tabs, setTabs] = useState(
       title: "缺口二 · useRef 操作 DOM，与写一个自定义 hook",
       titleEn: "Gap 2 · using useRef on the DOM, and writing a custom hook",
       blurb: "useRef 的第二种用法（拿 DOM 调命令式 API），以及把 state + effect 打包成可复用的 hook。",
+      blurbEn:
+        "The second use of useRef — holding a DOM node so you can call methods on it directly — and packing state plus an effect into a hook you can reuse.",
       minutes: 22,
       objectives: [
         "分清 useRef 的两种用途：存不参与渲染的值 vs 拿 DOM 节点",
@@ -2041,13 +2151,23 @@ const [tabs, setTabs] = useState(
         "写出一个带惰性初始化和错误兜底的自定义 hook",
         "说清「复用逻辑不复用状态」",
       ],
+      objectivesEn: [
+        "Tell the two uses of useRef apart: holding a value that is not rendered, versus holding a DOM node",
+        "Say when you have to call the DOM directly through a ref instead of describing it with state",
+        "Write a custom hook with a lazy initial value and a fallback when something throws",
+        "Explain that a hook shares the logic, not the state",
+      ],
       whyForAssessment:
         "「用 useRef 做一个播放器」考的是你知不知道 React 里有命令式逃逸口 —— 播放、聚焦、滚动、测量这些事没法用 state 表达。自定义 hook 那道是 #340 的动手版，面试官会看你的命名、返回值形状、以及有没有处理异常。",
+      whyForAssessmentEn:
+        "Building a player with useRef tests whether you know React leaves you a way out to call the DOM directly — playing, focusing, scrolling and measuring cannot be expressed as state. The custom hook problem is the hands-on version of #340, and the interviewer looks at your naming, the shape of what you return, and whether you handle errors.",
       concepts: [
         {
           id: "ref-two-uses",
           heading: "useRef 的两种用途",
+          headingEn: "The two uses of useRef",
           lede: "很多人只知道第一种。",
+          ledeEn: "Many people know only the first one.",
           body: (
             <>
               <div className="table-wrap">
@@ -2183,6 +2303,7 @@ const [tabs, setTabs] = useState(
         {
           id: "player-detail",
           heading: "播放器的三个细节",
+          headingEn: "Three details in the player",
           body: (
             <>
               <p>
@@ -2278,7 +2399,9 @@ test("点 Play 调 audio.play()，再点调 pause()", async () => {
         {
           id: "custom-hook",
           heading: "写一个自定义 hook",
+          headingEn: "Writing a custom hook",
           lede: "把 state + effect 打包，命名必须 use 开头。",
+          ledeEn: "Pack state and an effect together; the name has to start with use.",
           body: (
             <>
               <p>
@@ -2396,7 +2519,9 @@ return [value, setValue];        // 少了 as const`,
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How this was checked",
           lede: "这就是跑出 24 / 24 的那个测试文件（六道题合在一起）。",
+          ledeEn: "This is the test file that produced 24 / 24, with all six problems in one run.",
           body: (
             <>
               <p>
@@ -2556,6 +2681,19 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
               回调 ref 是合理的。）
             </>
           ),
+          whyEn: (
+            <>
+              This works, but{" "}
+              <strong>every time it receives the node it triggers a re-render</strong>,
+              and the DOM node is not part of the rendered output at all.
+              <br />
+              <strong>
+                Use <code>useRef</code>
+              </strong>
+              . (One exception: a callback ref is reasonable when you really do need to
+              run some logic once, at the moment the node appears.)
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2575,15 +2713,59 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
               的通用注意点。
             </>
           ),
+          whyEn: (
+            <>
+              Playback ending is{" "}
+              <strong>something the DOM does on its own</strong>, and React is not told
+              about it.{" "}
+              <strong>
+                You have to listen for <code>onEnded</code> and copy the change back
+                into state.
+              </strong>
+              <br />
+              This applies to every component where the DOM holds the real value and
+              state is only a copy of it.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "要 focus / play / scroll / 测量尺寸", reachFor: "useRef 拿节点，走命令式" },
-        { signal: "要存定时器 id 或上一次的值", reachFor: "useRef 存值，不用 state" },
-        { signal: "「DOM 自己变了但界面没同步」", reachFor: "监听对应事件把 state 同步回来" },
-        { signal: "同一组 state+effect 写了两遍", reachFor: "抽 use 开头的自定义 hook" },
-        { signal: "初始值需要一次昂贵计算或 I/O", reachFor: "useState(() => …) 惰性初始化" },
-        { signal: "自定义 hook 返回数组类型不对", reachFor: "加 as const" },
+        {
+          signal: "要 focus / play / scroll / 测量尺寸",
+          signalEn: "You need to focus, play, scroll or measure a size",
+          reachFor: "useRef 拿节点，走命令式",
+          reachForEn: "Hold the node with useRef and call it directly",
+        },
+        {
+          signal: "要存定时器 id 或上一次的值",
+          signalEn: "You need to keep a timer id or the previous value",
+          reachFor: "useRef 存值，不用 state",
+          reachForEn: "Keep the value in useRef, not in state",
+        },
+        {
+          signal: "「DOM 自己变了但界面没同步」",
+          signalEn: "\"the DOM changed on its own and the screen is out of step\"",
+          reachFor: "监听对应事件把 state 同步回来",
+          reachForEn: "Listen for the matching event and copy the change back into state",
+        },
+        {
+          signal: "同一组 state+effect 写了两遍",
+          signalEn: "The same state plus effect is written twice",
+          reachFor: "抽 use 开头的自定义 hook",
+          reachForEn: "Pull it into a custom hook whose name starts with use",
+        },
+        {
+          signal: "初始值需要一次昂贵计算或 I/O",
+          signalEn: "The initial value needs an expensive computation or a read from storage",
+          reachFor: "useState(() => …) 惰性初始化",
+          reachForEn: "Pass a function to useState so it runs only once",
+        },
+        {
+          signal: "自定义 hook 返回数组类型不对",
+          signalEn: "The array returned from a custom hook has the wrong type",
+          reachFor: "加 as const",
+          reachForEn: "Add as const",
+        },
       ],
       recap: [
         "useRef 两种用途：存不参与渲染的值、拿 DOM 节点调命令式 API；两者都不触发重渲染。",
@@ -2592,6 +2774,14 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
         "jsdom 不实现媒体播放，测试要 spyOn(HTMLMediaElement.prototype, \"play\")。",
         "自定义 hook 四要点：惰性初始化、try/catch 兜底、依赖带 key、as const 返元组。",
         "复用逻辑不复用状态 —— 两个组件各调一次就是两份独立 state。",
+      ],
+      recapEn: [
+        "Two uses of useRef: holding a value that is not rendered, and holding a DOM node so you can call its methods; neither one triggers a re-render.",
+        "Playing, focusing, scrolling and measuring are actions, not state — which is why React leaves a way out through a ref.",
+        "In a media component the DOM holds the real value and state is only a copy of it, so you listen for events such as onEnded.",
+        "jsdom does not implement media playback, so a test needs spyOn(HTMLMediaElement.prototype, \"play\").",
+        "Four points for a custom hook: a lazy initial value, a try/catch fallback, the key in the dependency list, and as const to return a tuple.",
+        "A hook shares the logic, not the state — two components each calling it get two separate copies of the state.",
       ],
     },
 
@@ -2603,6 +2793,8 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
       title: "缺口三 · 同一个 Todo 换成 Redux Toolkit",
       titleEn: "Gap 3 · the same Todo app, moved to Redux Toolkit",
       blurb: "业务和变式一完全一样，换成 createSlice + selector —— 正好能对比出 Redux 到底多给了什么。",
+      blurbEn:
+        "The same app as variant one, rebuilt with createSlice and selectors — which makes it easy to see what Redux actually adds.",
       minutes: 24,
       objectives: [
         "用 createSlice 写出一个完整的 slice，并说明 Immer 为什么不违反「state 只读」",
@@ -2610,13 +2802,23 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
         "用 selector 做到「只订阅自己要的那部分」",
         "脱离 React 单测 reducer",
       ],
+      objectivesEn: [
+        "Write a complete slice with createSlice, and explain why Immer does not break the rule that state is read-only",
+        "Explain what prepare is for, and why an id must not be generated inside a reducer",
+        "Use a selector so a component subscribes only to the part it needs",
+        "Unit test a reducer without React",
+      ],
       whyForAssessment:
         "「用 Redux Toolkit 做一个 Todo」是 Medium 里的常见题。它真正在考三件事：知不知道现在不该手写 action types 了、知不知道 Immer 的草稿是怎么回事、知不知道 selector 的意义。同一个业务和变式一对照着看，能清楚看出 Redux 换来了什么、代价是什么。",
+      whyForAssessmentEn:
+        "Building a Todo app with Redux Toolkit is a common medium problem. It really tests three things: whether you know that action types are no longer written by hand, whether you know what an Immer draft is, and whether you know what a selector is for. Putting it next to variant one, which does the same job, shows clearly what Redux buys you and what it costs.",
       concepts: [
         {
           id: "slice",
           heading: "createSlice：一次生成 reducer 和 actions",
+          headingEn: "createSlice: one call gives you the reducer and the actions",
           lede: "手写 Redux 的那套样板已经过时了。",
+          ledeEn: "The hand-written Redux boilerplate is out of date.",
           body: (
             <>
               <p>
@@ -2722,7 +2924,9 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
         {
           id: "selector",
           heading: "selector：这才是 Redux 比 Context 强的地方",
+          headingEn: "Selectors: this is where Redux beats Context",
           lede: "三个 useSelector 各自订阅一小块。",
+          ledeEn: "Three useSelector calls, each subscribing to one small part.",
           body: (
             <>
               <p>
@@ -2826,6 +3030,7 @@ const remaining = useSelector(selectRemaining);`,
         {
           id: "compare",
           heading: "和变式一（useState 版）对比：换来了什么，代价是什么",
+          headingEn: "Compared with variant one, the useState version: what you gain and what it costs",
           body: (
             <>
               <div className="table-wrap">
@@ -3118,6 +3323,20 @@ added(state, action: PayloadAction<string>) {
               <strong>用 <code>prepare</code>。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The reducer is no longer pure: the same state and the same action produce
+              a different result each time.
+              <br />
+              <strong>
+                Time-travel debugging and replaying actions both stop working
+              </strong>{" "}
+              — which is exactly what the third Redux principle protects.{" "}
+              <strong>
+                Use <code>prepare</code>.
+              </strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -3141,6 +3360,19 @@ const { visible, remaining } = useSelector((s) => ({
               <code>shallowEqual</code>。
             </>
           ),
+          whyEn: (
+            <>
+              <code>useSelector</code> compares the result with <code>===</code>, and a
+              new object is never equal to the previous one —{" "}
+              <strong>
+                so this component re-renders whenever anything in the store changes
+              </strong>
+              , and the selector no longer does anything for you.
+              <br />
+              Split it into several <code>useSelector</code> calls, or use{" "}
+              <code>createSelector</code> or <code>shallowEqual</code>.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -3160,14 +3392,49 @@ export function addTodo(state: TodosState, todo: Todo) {
               而且返回的还是同一个引用 —— React 不会重渲染。
             </>
           ),
+          whyEn: (
+            <>
+              <strong>
+                Immer only applies inside <code>createSlice</code> and{" "}
+                <code>createReducer</code>.
+              </strong>{" "}
+              In an ordinary function this changes the original object for real, and it
+              returns the same reference — so React does not re-render.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "要写 Redux", reachFor: "createSlice，别手写 action types" },
-        { signal: "reducer 里想用 nanoid / Date.now", reachFor: "挪到 prepare 或 action creator" },
-        { signal: "「加了 selector 还是每次都重渲染」", reachFor: "selector 返回了新对象" },
-        { signal: "问该不该上 Redux", reachFor: "看是否多组件读写 + 是否需要按 action 追溯" },
-        { signal: "要脱离 React 测状态逻辑", reachFor: "reducer 是纯函数，直接 reducer(state, action)" },
+        {
+          signal: "要写 Redux",
+          signalEn: "You are asked to write Redux",
+          reachFor: "createSlice，别手写 action types",
+          reachForEn: "createSlice; do not write action types by hand",
+        },
+        {
+          signal: "reducer 里想用 nanoid / Date.now",
+          signalEn: "You want nanoid or Date.now inside a reducer",
+          reachFor: "挪到 prepare 或 action creator",
+          reachForEn: "Move it into prepare, or into the action creator",
+        },
+        {
+          signal: "「加了 selector 还是每次都重渲染」",
+          signalEn: "\"I added a selector and it still re-renders every time\"",
+          reachFor: "selector 返回了新对象",
+          reachForEn: "The selector is returning a new object",
+        },
+        {
+          signal: "问该不该上 Redux",
+          signalEn: "Asked whether the app should use Redux",
+          reachFor: "看是否多组件读写 + 是否需要按 action 追溯",
+          reachForEn: "Ask whether several components read and write it, and whether you need to trace changes action by action",
+        },
+        {
+          signal: "要脱离 React 测状态逻辑",
+          signalEn: "You need to test the state logic without React",
+          reachFor: "reducer 是纯函数，直接 reducer(state, action)",
+          reachForEn: "A reducer is a pure function; just call reducer(state, action)",
+        },
       ],
       recap: [
         "createSlice 一次生成 reducer、action creators 和 types，老写法的三份样板全省。",
@@ -3176,6 +3443,14 @@ export function addTodo(state: TodosState, todo: Todo) {
         "selector 让组件只订阅自己那部分 —— 这是 Redux 比 Context 强的具体地方。",
         "selector 不要返回新对象，否则每次 store 变都重渲染。",
         "这道题的规模用 useState 就够；能说出「什么时候才该上 Redux」比写完更重要。",
+      ],
+      recapEn: [
+        "One createSlice call produces the reducer, the action creators and the types, replacing all three pieces of the old boilerplate.",
+        "Immer hands you a draft, so even push produces a new object — but that only holds inside createSlice and createReducer.",
+        "Generate the id in prepare; the reducer has to stay pure or time travel stops working.",
+        "A selector lets a component subscribe to just its own part — this is the concrete place where Redux beats Context.",
+        "Do not return a new object from a selector, or the component re-renders on every store change.",
+        "At this size useState is enough; being able to say when Redux is worth it matters more than finishing the code.",
       ],
     },
 
@@ -3187,6 +3462,8 @@ export function addTodo(state: TodosState, todo: Todo) {
       title: "缺口四 · Kanban 看板：一次改两个数组",
       titleEn: "Gap 4 · a Kanban board: changing two arrays in one update",
       blurb: "跨列移动是 CRUD 的升级版 —— 源列删、目标列加，必须在一次操作里完成。",
+      blurbEn:
+        "Moving a card between columns is CRUD one step up: remove from one column and add to another, in a single update.",
       minutes: 20,
       objectives: [
         "把「移动一张卡」写成一个纯函数，一次返回完整的新 board",
@@ -3194,13 +3471,23 @@ export function addTodo(state: TodosState, todo: Todo) {
         "让没被碰到的列复用原数组引用",
         "处理「没动」和「找不到卡」两种边界",
       ],
+      objectivesEn: [
+        "Write moving a card as one pure function that returns the whole new board at once",
+        "Explain why it must not be two setState calls, one to remove and one to add",
+        "Let the columns you did not touch keep their original array reference",
+        "Handle the two edge cases: nothing moved, and the card was not found",
+      ],
       whyForAssessment:
         "Kanban 是 Hard 档的常见题，但拖拽只是外壳 —— 面试官真正看的是你怎么组织这次「同时影响两处」的状态更新。写成纯函数的人和在组件里堆两次 setState 的人，一眼就能分出来。",
+      whyForAssessmentEn:
+        "Kanban is a common hard problem, but the dragging is only the wrapper — what the interviewer looks at is how you organise one update that changes two places at once. Whoever writes it as a pure function and whoever stacks two setState calls inside the component are easy to tell apart.",
       concepts: [
         {
           id: "shape",
           heading: "数据形状：用 Record 而不是数组套数组",
+          headingEn: "The shape of the data: a Record, not an array of arrays",
           lede: "board 是「列 id → 卡片数组」的映射。",
+          ledeEn: "The board maps a column id to an array of cards.",
           body: (
             <>
               <p>
@@ -3257,7 +3544,9 @@ export function addTodo(state: TodosState, todo: Todo) {
         {
           id: "move",
           heading: "moveCard：这道题的全部难点",
+          headingEn: "moveCard: the whole difficulty of this problem",
           lede: "函数体十行，四个关键决定。每一个都有理由。",
+          ledeEn: "Ten lines of code, four decisions that matter. Each one has a reason.",
           body: (
             <>
               <p>
@@ -3513,11 +3802,36 @@ return {
         },
       ],
       transfer: [
-        { signal: "一次操作要改两处状态", reachFor: "写成一个纯函数，一次返回完整新状态" },
-        { signal: "「状态没变但界面重渲染了」", reachFor: "early return 时返回原引用，别造 { ...x }" },
-        { signal: "映射结构要改其中两个键", reachFor: "{ ...obj, [k1]: …, [k2]: … } 计算属性名" },
-        { signal: "想验证「真的没改原数据」", reachFor: "测试里 Object.freeze 深冻结" },
-        { signal: "Kanban / 分组列表 / 多选穿梭框", reachFor: "都是同一个「一次改两个数组」的模式" },
+        {
+          signal: "一次操作要改两处状态",
+          signalEn: "One action has to change state in two places",
+          reachFor: "写成一个纯函数，一次返回完整新状态",
+          reachForEn: "Write one pure function that returns the whole new state at once",
+        },
+        {
+          signal: "「状态没变但界面重渲染了」",
+          signalEn: "\"nothing changed but the screen re-rendered\"",
+          reachFor: "early return 时返回原引用，别造 { ...x }",
+          reachForEn: "When you return early, return the original reference; do not build { ...x }",
+        },
+        {
+          signal: "映射结构要改其中两个键",
+          signalEn: "Two keys of a mapping have to change",
+          reachFor: "{ ...obj, [k1]: …, [k2]: … } 计算属性名",
+          reachForEn: "{ ...obj, [k1]: …, [k2]: … } with computed property names",
+        },
+        {
+          signal: "想验证「真的没改原数据」",
+          signalEn: "You want to prove the original data was really not changed",
+          reachFor: "测试里 Object.freeze 深冻结",
+          reachForEn: "Freeze it deeply with Object.freeze in the test",
+        },
+        {
+          signal: "Kanban / 分组列表 / 多选穿梭框",
+          signalEn: "Kanban, a grouped list, or a two-panel multi-select",
+          reachFor: "都是同一个「一次改两个数组」的模式",
+          reachForEn: "All the same pattern: change two arrays in one update",
+        },
       ],
       recap: [
         "board 用 Record<ColumnId, Card[]>，配计算属性名一次改两个键；列的顺序单独放常量。",
@@ -3525,6 +3839,13 @@ return {
         "两个 early return 要返回原引用而不是 { ...board }，否则白渲染一次。",
         "{ ...board } 只浅拷贝顶层 —— 未被碰到的列自动复用原数组，和评论树「只重建路径」同理。",
         "别写成两次 setState「先删再加」：一旦中间插入校验或提前 return，卡片就会消失。",
+      ],
+      recapEn: [
+        "Use Record<ColumnId, Card[]> for the board, with computed property names to change two keys at once; keep the column order in a separate constant.",
+        "moveCard has to be a pure function: it can be unit tested without React, and it cannot produce a half-finished state.",
+        "The two early returns should give back the original reference, not { ...board }, or you pay for a render that changes nothing.",
+        "{ ...board } copies only the top level — the columns you did not touch keep their original arrays, the same idea as rebuilding only one path in a comment tree.",
+        "Do not write it as two setState calls, one to remove and one to add: as soon as a check or an early return slips in between, the card disappears.",
       ],
     },
   ],

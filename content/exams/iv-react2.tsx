@@ -23,6 +23,8 @@ export const ivReactHooks: Module = {
       title: "Hooks 四问",
       titleEn: "4 questions on Hooks",
       blurb: "hooks 是什么与为什么、useMemo vs useCallback、React.memo vs useMemo、自定义 hook。",
+      blurbEn:
+        "What hooks are and why they exist, useMemo vs useCallback, React.memo vs useMemo, custom hooks.",
       minutes: 20,
       objectives: [
         "说出 hooks 解决的三个类组件痛点",
@@ -30,12 +32,21 @@ export const ivReactHooks: Module = {
         "说出 hooks 的两条规则以及「为什么」不能写在条件里",
         "写出一个自定义 hook 并说明命名约定",
       ],
+      objectivesEn: [
+        "Name three problems with class components that hooks solve",
+        "Say what each of useMemo, useCallback and React.memo actually caches",
+        "State the two rules of hooks, and explain why you cannot put one inside a condition",
+        "Write a custom hook and explain the naming rule",
+      ],
       whyForAssessment:
         "「useMemo 和 useCallback 有什么区别」是出现频率最高的 React 题之一，而且大部分人答不全 —— 能补上「什么时候不该用」和「三个必须配套」才是好答案。hooks 规则那道会追问底层原因（链表 + 调用顺序），答得出来就上一个档。",
+      whyForAssessmentEn:
+        "\"What is the difference between useMemo and useCallback\" is one of the most common React questions, and most people give only half an answer. A good answer also covers when not to use them, and the fact that the three of them only help when used together. For the rules of hooks the interviewer will ask why, and the reason is that React stores them in a list by call order. Getting that right moves you up a level.",
       concepts: [
         {
           id: "q324",
           heading: "什么是 hooks，为什么要用",
+          headingEn: "What are hooks, and why use them?",
           lede: "#324 What are hooks in React and Why do we use them",
           body: (
             <>
@@ -506,6 +517,7 @@ const onSave = useCallback(() => save(config), [{ ...config }]);
         {
           id: "q340",
           heading: "自定义 hook 是干什么的，命名有什么约定",
+          headingEn: "What is a custom hook for, and what is the naming rule?",
           lede: "#340 What are custom hooks for and what is the naming convention for them",
           body: (
             <>
@@ -642,11 +654,36 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         },
       ],
       transfer: [
-        { signal: "hook 写在 if 里", reachFor: "React 按调用顺序存链表，会错位；条件放 effect 内部" },
-        { signal: "问 useMemo vs useCallback", reachFor: "一个缓存值一个缓存函数；后者是前者的语法糖" },
-        { signal: "加了 memo 没效果", reachFor: "三个必须配套；context 变化 memo 拦不住" },
-        { signal: "同一组 state+effect 出现两次", reachFor: "抽自定义 hook，use 开头" },
-        { signal: "以为自定义 hook 能共享状态", reachFor: "复用的是逻辑，状态各自独立" },
+        {
+          signal: "hook 写在 if 里",
+          signalEn: "A hook written inside an if",
+          reachFor: "React 按调用顺序存链表，会错位；条件放 effect 内部",
+          reachForEn: "React stores hooks in a list by call order, so they shift out of line; put the condition inside the effect instead",
+        },
+        {
+          signal: "问 useMemo vs useCallback",
+          signalEn: "Asked about useMemo vs useCallback",
+          reachFor: "一个缓存值一个缓存函数；后者是前者的语法糖",
+          reachForEn: "One caches a value, the other caches a function; useCallback is a shorter way to write useMemo",
+        },
+        {
+          signal: "加了 memo 没效果",
+          signalEn: "You added memo and nothing got faster",
+          reachFor: "三个必须配套；context 变化 memo 拦不住",
+          reachForEn: "All three have to be used together, and memo cannot stop a re-render caused by a Context change",
+        },
+        {
+          signal: "同一组 state+effect 出现两次",
+          signalEn: "The same pair of state and effect appears in two places",
+          reachFor: "抽自定义 hook，use 开头",
+          reachForEn: "Pull it out into a custom hook whose name starts with use",
+        },
+        {
+          signal: "以为自定义 hook 能共享状态",
+          signalEn: "Expecting a custom hook to share state between components",
+          reachFor: "复用的是逻辑，状态各自独立",
+          reachForEn: "The logic is reused; each caller gets its own separate state",
+        },
       ],
       recap: [
         "hooks 解决三件事：逻辑复用难、逻辑被生命周期切碎、this 易错。",
@@ -655,6 +692,14 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         "React.memo 省一次渲染、useMemo 省一次计算；三个必须配套用才有意义。",
         "memo 拦不住 context 变化 —— 所以 context value 必须 useMemo。",
         "自定义 hook 必须 use 开头（ESLint 靠它识别）；复用逻辑不复用状态。",
+      ],
+      recapEn: [
+        "hooks solve three things: reusing logic was hard, logic was cut apart across lifecycle methods, and this was easy to get wrong.",
+        "The reason for the rules of hooks is that React stores them in a list by call order, not by name.",
+        "useMemo caches a value, useCallback caches a function; useCallback is exactly useMemo(() => fn, deps).",
+        "React.memo saves a render, useMemo saves a computation; the three of them only help when used together.",
+        "memo cannot stop a Context change, which is why a Context value must go through useMemo.",
+        "A custom hook has to start with use, because that is how ESLint recognises it; you reuse the logic, not the state.",
       ],
     },
 
@@ -666,6 +711,8 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
       title: "性能与新特性 · 八问",
       titleEn: "8 questions on performance and new features",
       blurb: "性能优化、写样式的几种方式、React 18 新变化、lazy、最佳实践、StrictMode、错误边界、Router。",
+      blurbEn:
+        "Performance work, the ways to write styles, what is new in React 18, lazy, best practices, StrictMode, error boundaries, Router.",
       minutes: 26,
       objectives: [
         "按「先测量再优化」的顺序列出 React 性能优化手段",
@@ -673,12 +720,21 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         "解释 StrictMode 为什么故意渲染两次",
         "说明错误边界能抓什么、不能抓什么",
       ],
+      objectivesEn: [
+        "List the ways to make React faster, in the right order: measure first, then optimise",
+        "Explain the real difference made by automatic batching and the concurrent features in React 18",
+        "Explain why StrictMode renders twice on purpose",
+        "Say what an error boundary catches and what it does not catch",
+      ],
       whyForAssessment:
         "性能优化那道是开放题，最能看出你有没有真调过 —— 先说「用 Profiler 找出问题」比直接列 API 高一个档。React 18 和 StrictMode 那两道会问到「为什么」，答得出并发和纯函数就说明理解了设计动机。",
+      whyForAssessmentEn:
+        "The performance question is open-ended, and it shows better than any other whether you have really tuned an app. Saying \"first I use the Profiler to find the problem\" ranks a level above listing APIs. For React 18 and StrictMode the interviewer asks why, and answering with concurrent rendering and pure functions shows you understand what the design is for.",
       concepts: [
         {
           id: "q343",
           heading: "怎么优化 React 性能",
+          headingEn: "How do you make a React app faster?",
           lede: "#343 How could you improve performance in React",
           body: (
             <>
@@ -841,6 +897,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         {
           id: "q342",
           heading: "React 里怎么写样式",
+          headingEn: "How do you write styles in React?",
           lede: "#342 How to use styles in React",
           body: (
             <>
@@ -945,7 +1002,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
                     </tr>
                     <tr>
                       <td>CSS-in-JS (styled-components)</td>
-                      <td>props can drive the styles, scoping comes for free</td>
+                      <td>props can drive the styles, and scoping needs no extra work</td>
                       <td><strong>Runtime cost</strong>, and SSR needs extra setup</td>
                     </tr>
                     <tr>
@@ -994,6 +1051,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         {
           id: "q344",
           heading: "React 18 有哪些新变化",
+          headingEn: "What is new in React 18?",
           lede: "#344 What are the new changes in react 18",
           body: (
             <>
@@ -1143,6 +1201,7 @@ function onChange(e) {
         {
           id: "q347",
           heading: "React.lazy 是干什么的",
+          headingEn: "What does React.lazy do?",
           lede: "#347 What is React lazy function",
           body: (
             <>
@@ -1267,6 +1326,7 @@ const preload = () => import("./pages/Settings");
         {
           id: "q332",
           heading: "什么是 StrictMode",
+          headingEn: "What is StrictMode?",
           lede: "#332 What is React strict mode",
           body: (
             <>
@@ -1381,6 +1441,7 @@ const preload = () => import("./pages/Settings");
         {
           id: "q333",
           heading: "什么是错误边界，有什么用",
+          headingEn: "What is an error boundary, and what is it for?",
           lede: "#333 What are error boundaries and How are they useful",
           body: (
             <>
@@ -1531,6 +1592,7 @@ const preload = () => import("./pages/Settings");
         {
           id: "q334",
           heading: "React Router 的意义是什么",
+          headingEn: "What is the point of React Router?",
           lede: "#334 React router, What is the point of it",
           body: (
             <>
@@ -1673,6 +1735,7 @@ const preload = () => import("./pages/Settings");
         {
           id: "q348",
           heading: "写 React 时你会注意哪些最佳实践",
+          headingEn: "Which best practices do you follow when writing React?",
           lede: "#348 When coding React, what are some best practices that you keep in mind",
           body: (
             <>
@@ -1797,14 +1860,54 @@ const preload = () => import("./pages/Settings");
         },
       ],
       transfer: [
-        { signal: "问性能优化", reachFor: "先说用 Profiler 测量，再分「少渲染/少下载/少算」三类" },
-        { signal: "长列表卡", reachFor: "虚拟化，收益远大于 memo" },
-        { signal: "频繁变的 state 拖累整棵树", reachFor: "state 下移，别提到顶层" },
-        { signal: "要动态样式", reachFor: "行内只放 CSS 变量，规则留在 CSS 文件" },
-        { signal: "「setState 两次只渲染一次了」", reachFor: "React 18 自动批处理；要立即渲染用 flushSync" },
-        { signal: "「effect 跑了两次 / 日志打两遍」", reachFor: "StrictMode 故意的，检查清理函数写了没" },
-        { signal: "「一个小组件报错整页白屏」", reachFor: "按区块放错误边界" },
-        { signal: "「刷新子路由 404」", reachFor: "服务端配 history fallback，或用 HashRouter" },
+        {
+          signal: "问性能优化",
+          signalEn: "Asked about performance work",
+          reachFor: "先说用 Profiler 测量，再分「少渲染/少下载/少算」三类",
+          reachForEn: "Start with measuring in the Profiler, then split the answer three ways: render less, download less, compute less",
+        },
+        {
+          signal: "长列表卡",
+          signalEn: "A long list feels slow",
+          reachFor: "虚拟化，收益远大于 memo",
+          reachForEn: "Render only the visible rows; this helps far more than memo",
+        },
+        {
+          signal: "频繁变的 state 拖累整棵树",
+          signalEn: "State that changes often slows down the whole tree",
+          reachFor: "state 下移，别提到顶层",
+          reachForEn: "Move that state down to the component that needs it instead of keeping it at the top",
+        },
+        {
+          signal: "要动态样式",
+          signalEn: "You need styles that change at runtime",
+          reachFor: "行内只放 CSS 变量，规则留在 CSS 文件",
+          reachForEn: "Put only CSS variables inline and keep the rules in the CSS file",
+        },
+        {
+          signal: "「setState 两次只渲染一次了」",
+          signalEn: "Two setState calls now cause only one render",
+          reachFor: "React 18 自动批处理；要立即渲染用 flushSync",
+          reachForEn: "React 18 batches them automatically; use flushSync if you need the render right away",
+        },
+        {
+          signal: "「effect 跑了两次 / 日志打两遍」",
+          signalEn: "The effect runs twice, or a log appears twice",
+          reachFor: "StrictMode 故意的，检查清理函数写了没",
+          reachForEn: "StrictMode does that on purpose; check that you wrote the cleanup function",
+        },
+        {
+          signal: "「一个小组件报错整页白屏」",
+          signalEn: "One small component throws and the whole page goes blank",
+          reachFor: "按区块放错误边界",
+          reachForEn: "Put an error boundary around each section of the page",
+        },
+        {
+          signal: "「刷新子路由 404」",
+          signalEn: "Reloading a nested route gives a 404",
+          reachFor: "服务端配 history fallback，或用 HashRouter",
+          reachForEn: "Configure a history fallback on the server, or use HashRouter",
+        },
       ],
       recap: [
         "性能优化先用 Profiler 测量；三类手段是少渲染、少下载、少算，长列表虚拟化收益最大。",
@@ -1816,6 +1919,16 @@ const preload = () => import("./pages/Settings");
         "Router 用 Link 不用 a；BrowserRouter 需要服务端 history fallback。",
         "最佳实践六条：不可变更新、别存派生数据、state 放刚好够用的层、清理副作用、稳定 key、先测量再优化。",
       ],
+      recapEn: [
+        "Measure in the Profiler before you optimise. The three kinds of fix are render less, download less, compute less, and rendering only the visible rows of a long list pays off most.",
+        "For styles that change at runtime use a CSS variable rather than an inline style, so you keep pseudo-classes and media queries.",
+        "The core of React 18 is concurrent rendering. The change you notice first is automatic batching, and if the concurrent features do nothing for you it is usually because you did not switch to createRoot.",
+        "React.lazy needs Suspense around it, and also an error boundary in case the chunk fails to load.",
+        "StrictMode runs in development only. It renders and mounts twice on purpose, to expose a render that is not pure and a missing cleanup function.",
+        "An error boundary does not catch errors in event handlers, in async code, or during SSR. Place one per section of the page rather than only at the root.",
+        "With Router use Link, not a. BrowserRouter needs a history fallback on the server.",
+        "Six best practices: update without changing the original, do not store what you can compute, keep state at the lowest level that works, clean up side effects, use stable keys, measure before you optimise.",
+      ],
     },
 
     /* ============================================================
@@ -1826,6 +1939,8 @@ const preload = () => import("./pages/Settings");
       title: "Redux 与 TypeScript · 六问",
       titleEn: "6 questions on Redux and TypeScript",
       blurb: "Redux vs Context、结构与工作流、三大原则、中间件、JS vs TS、静态类型检查。",
+      blurbEn:
+        "Redux vs Context, the parts and the data flow, the three principles, middleware, JS vs TS, static type checking.",
       minutes: 22,
       objectives: [
         "说清 Redux 和 Context 解决的不是同一个问题",
@@ -1833,8 +1948,16 @@ const preload = () => import("./pages/Settings");
         "背出三大原则并解释每一条为什么必要",
         "说明静态类型检查在什么阶段发现什么问题",
       ],
+      objectivesEn: [
+        "Explain that Redux and Context do not solve the same problem",
+        "Draw the full path: action to middleware to reducer to store to view",
+        "State the three principles, and explain why each one is needed",
+        "Say at which stage static type checking finds a problem, and which kind of problem",
+      ],
       whyForAssessment:
         "只要简历上写了 Redux，这四道基本会连着问。「Redux vs Context」是最容易答错的一道 —— 说「Context 能替代 Redux」或者反过来都不对。TS 那两道是现在的标配题。",
+      whyForAssessmentEn:
+        "If Redux is on your resume, these four questions usually come one after another. \"Redux vs Context\" is the one people get wrong most often: saying Context can replace Redux is wrong, and so is the opposite. The two TypeScript questions are now standard.",
       concepts: [
         {
           id: "q349",
@@ -2006,6 +2129,7 @@ const preload = () => import("./pages/Settings");
         {
           id: "q350",
           heading: "Redux 的结构和工作流",
+          headingEn: "What are the parts of Redux and how does data flow through them?",
           lede: "#350 Redux structure and workflow",
           body: (
             <>
@@ -2187,6 +2311,7 @@ dispatch(add({ id: Date.now(), text, done: false }));`,
         {
           id: "q352",
           heading: "Redux 的三大原则",
+          headingEn: "What are the three principles of Redux?",
           lede: "#352 Redux 3 main principles",
           body: (
             <>
@@ -2310,6 +2435,7 @@ dispatch(add({ id: Date.now(), text, done: false }));`,
         {
           id: "q354",
           heading: "解释一下 Redux 中间件",
+          headingEn: "Explain Redux middleware",
           lede: "#354 explain Redux Middleware",
           body: (
             <>
@@ -2554,7 +2680,7 @@ const fetchUser = (id) => async (dispatch) => {
                   <tbody>
                     <tr>
                       <td>Type checking</td>
-                      <td>Blows up at runtime</td>
+                      <td>Fails at runtime</td>
                       <td><strong>Reported at compile time</strong></td>
                     </tr>
                     <tr>
@@ -2615,6 +2741,7 @@ const fetchUser = (id) => async (dispatch) => {
         {
           id: "q356",
           heading: "什么是静态类型检查，有什么好处",
+          headingEn: "What is static type checking, and what does it give you?",
           lede: "#356 What is static type checking and how can developers benefit from it",
           body: (
             <>
@@ -2745,12 +2872,42 @@ const fetchUser = (id) => async (dispatch) => {
         },
       ],
       transfer: [
-        { signal: "问 Redux vs Context", reachFor: "一个是传递方案一个是状态管理；Context 缺精细订阅、中间件、DevTools" },
-        { signal: "「context 一变全都重渲染」", reachFor: "拆 Context，或换 selector 型状态库" },
-        { signal: "reducer 里想发请求", reachFor: "挪到中间件或 thunk，reducer 必须纯" },
-        { signal: "问三大原则", reachFor: "串起来讲：可序列化 → 可记录 → 可重放 = 时间旅行" },
-        { signal: "问服务端数据怎么管", reachFor: "TanStack Query / SWR，别用 Redux 硬凑缓存" },
-        { signal: "以为 TS 类型能校验接口数据", reachFor: "运行时没有 TS，要用 zod" },
+        {
+          signal: "问 Redux vs Context",
+          signalEn: "Asked about Redux vs Context",
+          reachFor: "一个是传递方案一个是状态管理；Context 缺精细订阅、中间件、DevTools",
+          reachForEn: "One is a way to pass data down, the other is state management; Context has no per-field subscriptions, no middleware and no DevTools",
+        },
+        {
+          signal: "「context 一变全都重渲染」",
+          signalEn: "One Context change re-renders everything",
+          reachFor: "拆 Context，或换 selector 型状态库",
+          reachForEn: "Split the Context into smaller ones, or move to a state library where each component selects the fields it reads",
+        },
+        {
+          signal: "reducer 里想发请求",
+          signalEn: "You want to send a request from inside a reducer",
+          reachFor: "挪到中间件或 thunk，reducer 必须纯",
+          reachForEn: "Move it into middleware or a thunk; a reducer has to be pure",
+        },
+        {
+          signal: "问三大原则",
+          signalEn: "Asked for the three principles",
+          reachFor: "串起来讲：可序列化 → 可记录 → 可重放 = 时间旅行",
+          reachForEn: "Tell them as one chain: state can be serialised, so changes can be recorded, so they can be replayed, which is time travel",
+        },
+        {
+          signal: "问服务端数据怎么管",
+          signalEn: "Asked how to manage data from the server",
+          reachFor: "TanStack Query / SWR，别用 Redux 硬凑缓存",
+          reachForEn: "TanStack Query or SWR; do not build a cache out of Redux",
+        },
+        {
+          signal: "以为 TS 类型能校验接口数据",
+          signalEn: "Expecting a TypeScript type to validate data from an API",
+          reachFor: "运行时没有 TS，要用 zod",
+          reachForEn: "No TypeScript is left at runtime, so validate with something like zod",
+        },
       ],
       recap: [
         "Context 管传递，Redux 管状态管理；Context 缺精细订阅、中间件、DevTools 三样。",
@@ -2759,6 +2916,14 @@ const fetchUser = (id) => async (dispatch) => {
         "中间件签名 store => next => action，是专门给副作用留的位置；thunk 够用，saga 只在需要编排时值。",
         "TS 编译后运行时什么都不剩 —— 所以类型不能校验外部数据，as 只是「我保证」。",
         "静态检查最被低估的价值是重构有底气；但它只保证类型对不保证逻辑对，不能替代测试。",
+      ],
+      recapEn: [
+        "Context passes data down, Redux manages state. Context is missing three things: per-field subscriptions, middleware, and DevTools.",
+        "The one-way loop in Redux: dispatch, then middleware, then reducer, then store, then view. Today always write it with createSlice from RTK.",
+        "The three principles matter as a chain: one source of truth means the state can be serialised, read-only state means changes can be recorded, pure reducers mean they can be replayed.",
+        "Middleware has the signature store => next => action, and it is the place set aside for side effects. thunk is enough for most cases; saga is only worth it when you have to coordinate several steps.",
+        "Nothing of TypeScript is left after compiling, so a type cannot validate data from outside, and as only means \"trust me\".",
+        "The most underrated value of static checking is the confidence to refactor. But it only guarantees the types are right, not the logic, so it does not replace tests.",
       ],
     },
   ],

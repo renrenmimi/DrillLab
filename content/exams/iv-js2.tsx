@@ -23,18 +23,27 @@ export const ivJsAsync: Module = {
       title: "this 与面向对象三问",
       titleEn: "3 questions on this and object-oriented programming",
       blurb: "OOP、this 指向的四条规则、call/apply/bind。",
+      blurbEn: "OOP, the four rules for what this points to, call/apply/bind.",
       minutes: 16,
       objectives: [
         "按优先级说出 this 指向的四条判定规则",
         "分清 call、apply、bind 三者的差别并手写一个 bind",
         "说明 JS 的原型继承和 class 的关系",
       ],
+      objectivesEn: [
+        "State the four rules that decide what this points to, in priority order",
+        "Tell call, apply and bind apart, and write your own bind",
+        "Explain how prototype inheritance in JavaScript relates to class",
+      ],
       whyForAssessment:
         "this 是「给你一段代码问输出什么」的常客，而且答错就说明基本功不牢。手写 bind、手写 new、手写继承是现场编码题的高频三件套。这一组也是理解 React 类组件为什么要 bind 的前提。",
+      whyForAssessmentEn:
+        "this shows up whenever you are handed code and asked what it prints, and a wrong answer says the basics are not solid. Writing bind, writing new, and writing inheritance by hand are three frequent live coding tasks. This group is also what you need before you can explain why a React class component calls bind.",
       concepts: [
         {
           id: "q302",
           heading: "什么是面向对象编程",
+          headingEn: "What is object-oriented programming?",
           lede: "#302 What is Object-Oriented Programming (OOP)",
           body: (
             <>
@@ -171,6 +180,7 @@ new Dog("x") instanceof Animal;                              // true`,
         {
           id: "q303",
           heading: "this 指向什么",
+          headingEn: "What does this refer to?",
           lede: "#303 What does 'this' refer to",
           body: (
             <>
@@ -336,6 +346,7 @@ class Btn extends React.Component {
         {
           id: "q304",
           heading: "call、apply、bind 的区别",
+          headingEn: "What is the difference between call, apply and bind?",
           lede: "#304 What are the differences between call, apply & bind",
           body: (
             <>
@@ -516,16 +527,42 @@ Function.prototype.myBind = function (ctx, ...preset) {
         },
       ],
       transfer: [
-        { signal: "「this 是 undefined」", reachFor: "隐式丢失 —— 点号没了；用 bind 或箭头包一层" },
-        { signal: "给你代码问 this 是什么", reachFor: "按 new > 显式 > 隐式 > 默认 四条走；箭头看外层" },
-        { signal: "要转发不定参数和 this", reachFor: "fn.apply(this, args)" },
-        { signal: "问 class 和原型的关系", reachFor: "class 是语法糖，底下是原型链" },
+        {
+          signal: "「this 是 undefined」",
+          signalEn: "this is undefined",
+          reachFor: "隐式丢失 —— 点号没了；用 bind 或箭头包一层",
+          reachForEn: "The implicit binding was lost — the dot is gone; use bind, or wrap it in an arrow function",
+        },
+        {
+          signal: "给你代码问 this 是什么",
+          signalEn: "Handed code and asked what this is",
+          reachFor: "按 new > 显式 > 隐式 > 默认 四条走；箭头看外层",
+          reachForEn: "Work through the four rules in order: new > explicit > implicit > default; for an arrow function look at the enclosing scope",
+        },
+        {
+          signal: "要转发不定参数和 this",
+          signalEn: "You need to forward this and an unknown number of arguments",
+          reachFor: "fn.apply(this, args)",
+          reachForEn: "fn.apply(this, args)",
+        },
+        {
+          signal: "问 class 和原型的关系",
+          signalEn: "Asked how class relates to prototypes",
+          reachFor: "class 是语法糖，底下是原型链",
+          reachForEn: "class is syntax sugar; what it builds is a prototype chain",
+        },
       ],
       recap: [
         "OOP 四特征：封装、继承、多态、抽象；JS 是原型继承，class 只是语法糖。",
         "this 四条规则按优先级：new > call/apply/bind > obj.fn() > 默认；箭头函数不参与。",
         "隐式丢失是最常见的坑，也是 React 类组件要 bind 的原因。",
         "Apply 收 Array、Call 用 Comma；bind 返回新函数、能预置参数、绑一次锁死但 new 能突破。",
+      ],
+      recapEn: [
+        "OOP has four traits: encapsulation, inheritance, polymorphism and abstraction; JavaScript inherits through prototypes, and class is only syntax sugar.",
+        "The four rules for this, in priority order: new > call/apply/bind > obj.fn() > default; an arrow function follows none of them.",
+        "Losing the implicit binding is the most common mistake, and it is why a React class component has to call bind.",
+        "Apply takes an Array, Call takes Commas; bind returns a new function, can preset arguments, and binds once for good — only new can override it.",
       ],
     },
 
@@ -537,6 +574,8 @@ Function.prototype.myBind = function (ctx, ...preset) {
       title: "异步与事件循环六问",
       titleEn: "6 questions on async and the event loop",
       blurb: "事件循环、async/await vs Promise、回调地狱、finally、错误处理、异步方案总览。",
+      blurbEn:
+        "The event loop, async/await vs Promise, callback hell, finally, error handling, and an overview of the async options.",
       minutes: 24,
       objectives: [
         "说出宏任务和微任务的执行顺序，并推出一段代码的输出",
@@ -544,12 +583,21 @@ Function.prototype.myBind = function (ctx, ...preset) {
         "在四种并发场景下选对 Promise.all / allSettled / race / any",
         "说明为什么 try/catch 抓不到异步错误",
       ],
+      objectivesEn: [
+        "State the order in which macrotasks and microtasks run, and work out what a piece of code prints",
+        "Explain that async/await is only syntax sugar over Promise, and what it changes in practice",
+        "Pick the right one of Promise.all / allSettled / race / any in four concurrency cases",
+        "Explain why try/catch does not catch an async error",
+      ],
       whyForAssessment:
         "事件循环是最能分出层次的一道题：只会说「JS 是单线程、异步靠回调」是及格，能背出「同步 → 微任务 → 渲染 → 宏任务」并解释 await 之后的代码是微任务，才是好答案。Promise 的四个静态方法几乎必被追问。",
+      whyForAssessmentEn:
+        "The event loop question separates candidates more than any other. Saying that JavaScript is single threaded and does async work through callbacks is a pass. A good answer names the order — synchronous code, then microtasks, then paint, then one macrotask — and explains that the code after await runs as a microtask. The four static methods on Promise are almost always the follow-up.",
       concepts: [
         {
           id: "q305",
           heading: "事件循环是怎么工作的",
+          headingEn: "How does the event loop work?",
           lede: "#305 What does the event loop",
           body: (
             <>
@@ -881,6 +929,7 @@ const posts = await fetchPosts(user.id);   // 必须先有 user.id`,
         {
           id: "q307",
           heading: "什么是回调地狱",
+          headingEn: "What is callback hell?",
           lede: "#307 What is callback hell",
           body: (
             <>
@@ -998,6 +1047,7 @@ try {
         {
           id: "q309",
           heading: "Promise 链里的 finally() 有什么用",
+          headingEn: "What is finally() for in a Promise chain?",
           lede: "#309 What is the purpose of the finally() method in a Promise chain",
           body: (
             <>
@@ -1120,6 +1170,7 @@ Promise.resolve(1).finally(() => { throw new Error("x"); }).catch(e => console.l
         {
           id: "q310",
           heading: "错误处理怎么做",
+          headingEn: "How do you handle errors?",
           lede: "#310 Error Handling",
           body: (
             <>
@@ -1271,6 +1322,7 @@ window.addEventListener("unhandledrejection", (e) => report(e.reason));`,
         {
           id: "q311",
           heading: "怎么处理异步操作",
+          headingEn: "How do you handle asynchronous operations?",
           lede: "#311 Handle asynchronous operations",
           body: (
             <>
@@ -1460,13 +1512,48 @@ await fetch(url, { signal: c.signal });`,
         },
       ],
       transfer: [
-        { signal: "给代码问输出顺序", reachFor: "同步 → 微任务全清 → 一个宏任务；Promise 先于 setTimeout" },
-        { signal: "两个 await 连着写", reachFor: "检查是否该改成 Promise.all 并行" },
-        { signal: "「出错后卡在 Loading」", reachFor: "setLoading(false) 放 finally" },
-        { signal: "try/catch 抓不到错误", reachFor: "错误在回调里，已经是下一轮事件循环" },
-        { signal: "批量操作要报告每一个", reachFor: "allSettled，不是 all" },
-        { signal: "要超时", reachFor: "race 是不等了，AbortController 才是真取消" },
-        { signal: "fetch 拿到 404 却当成功", reachFor: "自己检查 res.ok" },
+        {
+          signal: "给代码问输出顺序",
+          signalEn: "Handed code and asked in what order it prints",
+          reachFor: "同步 → 微任务全清 → 一个宏任务；Promise 先于 setTimeout",
+          reachForEn: "Synchronous code, then every microtask, then one macrotask; a Promise runs before setTimeout",
+        },
+        {
+          signal: "两个 await 连着写",
+          signalEn: "Two awaits written one after the other",
+          reachFor: "检查是否该改成 Promise.all 并行",
+          reachForEn: "Check whether they should run at the same time with Promise.all",
+        },
+        {
+          signal: "「出错后卡在 Loading」",
+          signalEn: "After an error the screen is stuck on Loading",
+          reachFor: "setLoading(false) 放 finally",
+          reachForEn: "Put setLoading(false) in finally",
+        },
+        {
+          signal: "try/catch 抓不到错误",
+          signalEn: "try/catch does not catch the error",
+          reachFor: "错误在回调里，已经是下一轮事件循环",
+          reachForEn: "The error is inside a callback, which already runs on a later turn of the event loop",
+        },
+        {
+          signal: "批量操作要报告每一个",
+          signalEn: "A batch job has to report on every item",
+          reachFor: "allSettled，不是 all",
+          reachForEn: "allSettled, not all",
+        },
+        {
+          signal: "要超时",
+          signalEn: "You need a timeout",
+          reachFor: "race 是不等了，AbortController 才是真取消",
+          reachForEn: "race only stops waiting; AbortController is what actually cancels",
+        },
+        {
+          signal: "fetch 拿到 404 却当成功",
+          signalEn: "fetch gets a 404 and treats it as success",
+          reachFor: "自己检查 res.ok",
+          reachForEn: "Check res.ok yourself",
+        },
       ],
       recap: [
         "事件循环一轮：同步跑完 → 微任务一次全清 → 渲染 → 取一个宏任务；异步能力来自宿主环境不是引擎。",
@@ -1476,6 +1563,15 @@ await fetch(url, { signal: c.signal });`,
         "finally 拿不到值、原样透传、但里面抛错会覆盖结果；关 loading 就该放这儿。",
         "try/catch 抓不到回调里的异步错误；抛 Error 对象不抛字符串；最外层要有兜底。",
         "all 全成功、allSettled 全结束、race 第一个结束、any 第一个成功。",
+      ],
+      recapEn: [
+        "One turn of the event loop: run all synchronous code, drain every microtask, paint, then take one macrotask; the async ability comes from the host environment, not from the engine.",
+        "The body of an async function runs synchronously up to the first await; what comes after await is the same as .then, so it is a microtask.",
+        "async/await is syntax sugar over Promise; the main gain is that errors are handled the same way as in synchronous code, and the main mistake is writing work in sequence when it could run at the same time.",
+        "The real problem with callback hell is that error handling is repeated in every callback and the steps cannot be composed, not just that the indentation grows.",
+        "finally receives no value and passes the result through unchanged, but an error thrown inside it replaces that result; turning loading off belongs here.",
+        "try/catch does not catch an async error raised inside a callback; throw an Error object, not a string; and keep one handler at the outermost level.",
+        "all needs every one to succeed, allSettled waits for every one to finish, race takes the first one to finish, any takes the first one to succeed.",
       ],
     },
 
@@ -1487,6 +1583,8 @@ await fetch(url, { signal: c.signal });`,
       title: "DOM、模块与工具链七问",
       titleEn: "7 questions on the DOM, modules and tooling",
       blurb: "DOM 与 DOM 事件、事件委托、ES6 新特性、ES6 模块、npm、Webpack、fetch vs axios。",
+      blurbEn:
+        "The DOM and DOM events, event delegation, new ES6 features, ES6 modules, npm, Webpack, fetch vs axios.",
       minutes: 20,
       objectives: [
         "说清 DOM 是什么、以及为什么频繁操作 DOM 慢",
@@ -1494,12 +1592,21 @@ await fetch(url, { signal: c.signal });`,
         "分清 CommonJS 和 ES 模块在时机与语法上的差别",
         "说出 Webpack 的四个核心概念和构建流程",
       ],
+      objectivesEn: [
+        "Explain what the DOM is, and why touching it many times is slow",
+        "Write event delegation, and say which two problems it solves",
+        "Tell CommonJS and ES modules apart, in timing and in syntax",
+        "Name Webpack's four core concepts and describe the build steps",
+      ],
       whyForAssessment:
         "事件委托是唯一有区分度的一道 —— 它连着 React 的事件机制。模块和 Webpack 属于工程题，答得出「为什么需要打包」比背配置项更重要。fetch vs axios 是很实用的一道，我们那道 fetch 变式题的第一个坑就在这里。",
+      whyForAssessmentEn:
+        "Event delegation is the only question here that separates candidates, because it connects to the way React handles events. Modules and Webpack are engineering questions; answering why bundling is needed matters more than reciting config options. fetch vs axios is a practical one — the first trap in our fetch variant exercise comes from it.",
       concepts: [
         {
           id: "q288",
           heading: "什么是 DOM，什么是 DOM 事件",
+          headingEn: "What is the DOM, and what is a DOM event?",
           lede: "#288 What is the DOM and what is DOM event",
           body: (
             <>
@@ -1593,6 +1700,7 @@ await fetch(url, { signal: c.signal });`,
         {
           id: "q289",
           heading: "事件传播 vs 事件委托",
+          headingEn: "Event propagation vs event delegation",
           lede: "#289 Event propagation vs Event delegation",
           body: (
             <>
@@ -1723,6 +1831,7 @@ table.addEventListener("click", (e) => {
         {
           id: "q301",
           heading: "ES6 有哪些新特性",
+          headingEn: "What features did ES6 add?",
           lede: "#301 Name the new ES6 features",
           body: (
             <>
@@ -1865,6 +1974,7 @@ table.addEventListener("click", (e) => {
         {
           id: "q308",
           heading: "什么是 ES6 模块",
+          headingEn: "What are ES6 modules?",
           lede: "#308 What are ES6 modules",
           body: (
             <>
@@ -2056,6 +2166,7 @@ table.addEventListener("click", (e) => {
         {
           id: "q312",
           heading: "什么是 npm",
+          headingEn: "What is npm?",
           lede: "#312 What is npm",
           body: (
             <>
@@ -2201,6 +2312,7 @@ table.addEventListener("click", (e) => {
         {
           id: "q283",
           heading: "Webpack 是怎么工作的",
+          headingEn: "How does Webpack work?",
           lede: "#283 How does Webpack work",
           body: (
             <>
@@ -2326,6 +2438,7 @@ table.addEventListener("click", (e) => {
         {
           id: "q387",
           heading: "fetch 和 axios 的区别",
+          headingEn: "What is the difference between fetch and axios?",
           lede: "#387 What is the difference between making server requests via fetch and axios?",
           body: (
             <>
@@ -2537,13 +2650,48 @@ async function request(url, opts = {}) {
         },
       ],
       transfer: [
-        { signal: "列表每一项都绑监听器", reachFor: "事件委托，挂父元素 + e.target.closest()" },
-        { signal: "「动态插入的元素没有行为」", reachFor: "委托，天然覆盖后来的元素" },
-        { signal: "问 React 事件机制", reachFor: "委托到 root + 合成事件；拦不住原生监听器" },
-        { signal: "问为什么要打包", reachFor: "模块化、转译、合并压缩、tree shaking" },
-        { signal: "问 Vite 为什么快", reachFor: "开发不打包用原生 ESM，依赖预构建用 esbuild" },
-        { signal: "CI 里装依赖", reachFor: "npm ci，严格按 lock" },
-        { signal: "从 axios 转到 fetch", reachFor: "记得补 res.ok 检查和超时" },
+        {
+          signal: "列表每一项都绑监听器",
+          signalEn: "Every item in a list gets its own listener",
+          reachFor: "事件委托，挂父元素 + e.target.closest()",
+          reachForEn: "Event delegation: one listener on the parent, plus e.target.closest()",
+        },
+        {
+          signal: "「动态插入的元素没有行为」",
+          signalEn: "An element inserted later does nothing when clicked",
+          reachFor: "委托，天然覆盖后来的元素",
+          reachForEn: "Delegation; it covers elements added later with no extra work",
+        },
+        {
+          signal: "问 React 事件机制",
+          signalEn: "Asked how React handles events",
+          reachFor: "委托到 root + 合成事件；拦不住原生监听器",
+          reachForEn: "React delegates to the root and uses synthetic events; it cannot stop a native listener",
+        },
+        {
+          signal: "问为什么要打包",
+          signalEn: "Asked why bundling is needed",
+          reachFor: "模块化、转译、合并压缩、tree shaking",
+          reachForEn: "Modules, transpiling, merging and minifying, tree shaking",
+        },
+        {
+          signal: "问 Vite 为什么快",
+          signalEn: "Asked why Vite is fast",
+          reachFor: "开发不打包用原生 ESM，依赖预构建用 esbuild",
+          reachForEn: "In development it does not bundle, it serves native ESM, and it pre-builds dependencies with esbuild",
+        },
+        {
+          signal: "CI 里装依赖",
+          signalEn: "Installing dependencies in CI",
+          reachFor: "npm ci，严格按 lock",
+          reachForEn: "npm ci, which follows the lockfile exactly",
+        },
+        {
+          signal: "从 axios 转到 fetch",
+          signalEn: "Moving from axios to fetch",
+          reachFor: "记得补 res.ok 检查和超时",
+          reachForEn: "Remember to add the res.ok check and a timeout",
+        },
       ],
       recap: [
         "DOM 是浏览器提供的对象树 API，不属于 JS 语言；慢是因为重排重绘，不是读写属性本身。",
@@ -2553,6 +2701,15 @@ async function request(url, opts = {}) {
         "package-lock.json 必须提交；CI 用 npm ci 而不是 npm install。",
         "Webpack 四概念 entry/output/loader/plugin，loader 从右到左执行。",
         "fetch 不因 4xx reject，必须查 res.ok —— 这是从 axios 转过来最容易漏的一条。",
+      ],
+      recapEn: [
+        "The DOM is a tree of objects the browser provides; it is not part of the JavaScript language. It is slow because of reflow and repaint, not because reading or writing a property is slow.",
+        "target is the element that was clicked, currentTarget is where the listener is attached; event delegation depends on that difference.",
+        "Delegation solves two problems, the number of listeners and elements added later; React delegates events to the root and uses synthetic events.",
+        "ESM resolves its imports at compile time, which makes tree shaking possible; CommonJS loads at runtime and its exports are copies of the values.",
+        "package-lock.json has to be committed; in CI use npm ci instead of npm install.",
+        "Webpack has four concepts, entry/output/loader/plugin, and loaders run from right to left.",
+        "fetch does not reject on a 4xx, so you have to check res.ok — the step most often forgotten when moving over from axios.",
       ],
     },
   ],

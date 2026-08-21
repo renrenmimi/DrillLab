@@ -183,6 +183,8 @@ export const ivHand: Module = {
       title: "计时两兄弟：debounce 与 throttle",
       titleEn: "Two timing helpers: debounce and throttle",
       blurb: "先分清「等你停手」和「匀速放行」，再各写一个。",
+      blurbEn:
+        "First tell the two apart — wait until the calls stop, versus let one through at a steady rate — then write each one.",
       minutes: 30,
       objectives: [
         "一句话说清 debounce 和 throttle 的语义差别，并各举一个正确的使用场景",
@@ -190,12 +192,21 @@ export const ivHand: Module = {
         "手写 leading + trailing 的 throttle",
         "说清为什么两者都必须用闭包存状态",
       ],
+      objectivesEn: [
+        "Say in one sentence how debounce and throttle differ, and give one correct use case for each",
+        "Write a trailing debounce by hand, with a cancel method",
+        "Write a throttle by hand that fires on both the first and the last call",
+        "Explain why both of them have to keep their state in a closure",
+      ],
       whyForAssessment:
         "美国面试 phone screen 的头号手写题。考的不只是写出来 —— 面试官会先问「这俩有什么区别、各用在哪」，答错场景直接扣分：搜索框用 throttle、滚动埋点用 debounce 都是反着的。",
+      whyForAssessmentEn:
+        "This is the number one write-it-yourself question in a phone screen. Writing the code is not the whole test — the interviewer asks first how the two differ and where each one belongs, and naming the wrong scenario costs you points right away: a search box with throttle, or scroll tracking with debounce, are both the wrong way round.",
       concepts: [
         {
           id: "hd-debounce",
           heading: "debounce：把一串调用压成最后一次",
+          headingEn: "debounce: squeeze a burst of calls down to the last one",
           lede: "Write a debounce; when do you reach for it",
           body: (
             <>
@@ -275,6 +286,7 @@ export const ivHand: Module = {
         {
           id: "hd-throttle",
           heading: "throttle：不管多密，每个窗口最多一次",
+          headingEn: "throttle: however dense the calls, at most one per window",
           lede: "Write a throttle with leading and trailing calls",
           body: (
             <>
@@ -481,13 +493,46 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
               <strong>闭包状态必须声明在「造函数的那一层」。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              This is the most common way the debounce question fails.{" "}
+              <code>timer</code> is declared <strong>inside</strong> the returned
+              function, so every call gets a brand new <code>null</code> and{" "}
+              <code>clearTimeout</code> never reaches the previous timer. Every call
+              then fires on its own, exactly as if you had written no debounce at all.{" "}
+              <strong>
+                Closure state has to be declared in the outer function, the one that
+                builds the returned function.
+              </strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「停止输入后再搜索」「resize 结束后」", reachFor: "debounce —— 等你停手" },
-        { signal: "「滚动时持续上报」「拖拽跟随」", reachFor: "throttle —— 匀速放行" },
-        { signal: "手写题要在多次调用之间记住东西", reachFor: "闭包变量声明在「造函数的那一层」" },
-        { signal: "计时类测试在慢环境里抖", reachFor: "只断言「等待后已发生」，别断言「等待后还没发生」" },
+        {
+          signal: "「停止输入后再搜索」「resize 结束后」",
+          signalEn: "\"search after the typing stops\", \"after the resize ends\"",
+          reachFor: "debounce —— 等你停手",
+          reachForEn: "debounce — wait until the calls stop",
+        },
+        {
+          signal: "「滚动时持续上报」「拖拽跟随」",
+          signalEn: "\"report while scrolling\", \"follow the drag\"",
+          reachFor: "throttle —— 匀速放行",
+          reachForEn: "throttle — let one through at a steady rate",
+        },
+        {
+          signal: "手写题要在多次调用之间记住东西",
+          signalEn: "A write-it-yourself question has to remember something between calls",
+          reachFor: "闭包变量声明在「造函数的那一层」",
+          reachForEn: "Declare the closure variable in the outer function that builds the returned one",
+        },
+        {
+          signal: "计时类测试在慢环境里抖",
+          signalEn: "Timing tests come out flaky on a slow machine",
+          reachFor: "只断言「等待后已发生」，别断言「等待后还没发生」",
+          reachForEn: "Only assert that it has happened after the wait; never assert that it has not happened yet",
+        },
       ],
       recap: [
         "debounce = 等你停手：清旧 timer + 设新 timer 就是「重新计时」。",
@@ -495,6 +540,13 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
         "连续事件流里 debounce 可能永远不执行，throttle 保证节奏 —— 场景选错直接扣分。",
         "状态放闭包（造函数那一层），放进返回函数里就全废了。",
         "追问点：leading 选项、cancel vs flush、单变量简版的取舍。",
+      ],
+      recapEn: [
+        "debounce = wait until the calls stop: clearing the old timer and setting a new one is what restarts the clock.",
+        "throttle = let one through at a steady rate: a timestamp handles the first call, a timer plus lastArgs handles the last one.",
+        "In a continuous stream of events debounce may never run at all, while throttle keeps a fixed rate — picking the wrong one costs you points.",
+        "Keep the state in the closure, in the outer function; move it inside the returned function and nothing works.",
+        "Follow-ups: a leading option, cancel versus flush, and the trade-off of the short one-variable version.",
       ],
     },
 
@@ -506,6 +558,8 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
       title: "数据与函数：deepClone、flatten、curry",
       titleEn: "Data and functions: deepClone, flatten, curry",
       blurb: "三道递归题。递归的出口、防循环的登记、不污染的攒参数。",
+      blurbEn:
+        "Three recursion problems: where recursion stops, the record that guards against cycles, and collecting arguments without leaking them.",
       minutes: 35,
       objectives: [
         "手写 deepClone：分支覆盖 Date / Map / Set / 数组 / 对象，循环引用不爆栈",
@@ -513,12 +567,21 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
         "手写 flatten，depth 语义与 Array.prototype.flat 一致",
         "手写 curry，部分应用可复用、互不污染",
       ],
+      objectivesEn: [
+        "Write deepClone by hand, with branches for Date / Map / Set / array / object, and no stack overflow on a circular reference",
+        "Explain why JSON.parse(JSON.stringify(x)) does not count as an answer to deep clone",
+        "Write flatten by hand, with depth behaving the same way as Array.prototype.flat",
+        "Write curry by hand, so a partly applied function can be reused and does not affect the others",
+      ],
       whyForAssessment:
         "deepClone 是「递归 + 分支 + 防循环」三合一的经典题，面试官用它一次看三个能力。flatten 考递归出口的干净程度。curry 考闭包攒参数 —— 写成共享数组就会在「复用部分应用」这一问上当场翻车。",
+      whyForAssessmentEn:
+        "deepClone packs three things into one classic problem — recursion, type branches, and guarding against cycles — so the interviewer sees three skills at once. flatten tests how cleanly you stop the recursion. curry tests collecting arguments in a closure: write it with one shared array and you fail on the spot when asked to reuse a partly applied function.",
       concepts: [
         {
           id: "hd-clone",
           heading: "deepClone：先登记，再递归",
+          headingEn: "deepClone: record it first, then recurse",
           lede: "Write a deepClone that survives circular references",
           body: (
             <>
@@ -588,6 +651,7 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
         {
           id: "hd-flatten",
           heading: "flatten：递归的出口就是 depth",
+          headingEn: "flatten: depth is what stops the recursion",
           lede: "Write a flatten with a depth parameter",
           body: (
             <>
@@ -638,6 +702,7 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
         {
           id: "hd-curry",
           heading: "curry：攒参数必须造新数组",
+          headingEn: "curry: collecting arguments means building a new array each time",
           lede: "Write a curry; why must partial applications not share state",
           body: (
             <>
@@ -856,12 +921,37 @@ const clone = JSON.parse(JSON.stringify(source));
               坏了都没报错。练习的检查器直接把它列为禁用写法。
             </>
           ),
+          whyEn: (
+            <>
+              In an interview this is not a short answer, it{" "}
+              <strong>shows you have never written a deep clone</strong>. Every cost on
+              that list can turn into data that is quietly wrong in production — above
+              all the two where a <code>undefined</code> key disappears and a{" "}
+              <code>Date</code> becomes a string, because neither reports an error. The
+              checker in the exercise rejects this form outright.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "克隆 / 序列化类题目提到「循环引用」", reachFor: "WeakMap 登记「原对象 → 结果」，先登记再递归" },
-        { signal: "「和原生 API 行为一致」", reachFor: "先把原生的默认值和边界抄下来（flat 默认 1、depth 0 浅拷贝）" },
-        { signal: "闭包攒东西 + 要求可复用", reachFor: "造新数组 / 新对象，绝不 push 共享的" },
+        {
+          signal: "克隆 / 序列化类题目提到「循环引用」",
+          signalEn: "A clone or serialize problem mentions circular references",
+          reachFor: "WeakMap 登记「原对象 → 结果」，先登记再递归",
+          reachForEn: "Record source object to result in a WeakMap; record first, then recurse",
+        },
+        {
+          signal: "「和原生 API 行为一致」",
+          signalEn: "\"behave the same way as the built-in API\"",
+          reachFor: "先把原生的默认值和边界抄下来（flat 默认 1、depth 0 浅拷贝）",
+          reachForEn: "Write down the built-in defaults and edge cases first (flat defaults to 1, depth 0 is a shallow copy)",
+        },
+        {
+          signal: "闭包攒东西 + 要求可复用",
+          signalEn: "A closure collects values and the result has to be reusable",
+          reachFor: "造新数组 / 新对象，绝不 push 共享的",
+          reachForEn: "Build a new array or object every time; never push into a shared one",
+        },
       ],
       recap: [
         "deepClone 的灵魂：先登记再递归。分支顺序：原始值 → seen → Date → Map/Set → 数组 → 对象。",
@@ -869,6 +959,13 @@ const clone = JSON.parse(JSON.stringify(source));
         "flatten 的出口就是 depth；默认 1、depth 0 浅拷贝，语义对齐原生。",
         "curry 攒参数必须拼新数组 —— push 版会污染部分应用，有测试专门抓。",
         "fn.length 数不到默认参数和 rest 参数 —— 说得出这句就答干净了。",
+      ],
+      recapEn: [
+        "The heart of deepClone: record first, then recurse. Branch order: primitive value, then seen, then Date, then Map/Set, then array, then object.",
+        "Memorise the five things JSON.parse(JSON.stringify(x)) breaks — the follow-up on this always comes.",
+        "depth is what stops flatten; the default is 1, depth 0 is a shallow copy, matching the built-in.",
+        "curry has to join arguments into a new array — the push version leaks into other partly applied functions, and a test looks for exactly that.",
+        "fn.length does not count default parameters or a rest parameter — saying that line finishes the answer cleanly.",
       ],
     },
 
@@ -880,6 +977,8 @@ const clone = JSON.parse(JSON.stringify(source));
       title: "异步与结构：Promise.all、EventEmitter、LRU",
       titleEn: "Async and structure: Promise.all, EventEmitter, LRU",
       blurb: "下标写入保顺序、拷贝列表再遍历、Map 的插入序当链表用。",
+      blurbEn:
+        "Write by index to keep the order, copy the list before you walk it, and use the insertion order of a Map as a linked list.",
       minutes: 35,
       objectives: [
         "手写 Promise.all：按输入顺序收结果、首个失败立刻整体失败",
@@ -887,12 +986,21 @@ const clone = JSON.parse(JSON.stringify(source));
         "手写 EventEmitter：on / off / once / emit，once 不挤掉邻居",
         "手写 LRUCache：利用 Map 的插入序，不手搓双向链表",
       ],
+      objectivesEn: [
+        "Write Promise.all by hand: results in input order, and the first failure fails the whole thing at once",
+        "Write Promise.allSettled by hand, and say how it differs from all",
+        "Write an EventEmitter by hand with on / off / once / emit, where once does not drop its neighbours",
+        "Write an LRUCache by hand using the insertion order of a Map, with no hand-built doubly linked list",
+      ],
       whyForAssessment:
         "Promise.all 是异步手写题的第一名，考点全在两个细节：结果顺序和短路失败。EventEmitter 考「遍历中修改列表」这个老陷阱。LRU 是数据结构题里最常见的一道 —— 知道 Map 按插入序遍历，就能把它从 40 行压到 15 行。",
+      whyForAssessmentEn:
+        "Promise.all is the most common async write-it-yourself question, and it turns on two details: the order of the results, and failing immediately on the first error. EventEmitter tests an old trap, changing a list while you walk it. LRU is the data structure question you see most often — once you know a Map iterates in insertion order, it drops from 40 lines to 15.",
       concepts: [
         {
           id: "hd-pall",
           heading: "Promise.all：下标写入 + 计数器",
+          headingEn: "Promise.all: write by index, and count how many are done",
           lede: "Implement Promise.all and Promise.allSettled by hand",
           body: (
             <>
@@ -978,6 +1086,7 @@ const clone = JSON.parse(JSON.stringify(source));
         {
           id: "hd-emitter",
           heading: "EventEmitter：拷贝一份再遍历",
+          headingEn: "EventEmitter: copy the list, then walk the copy",
           lede: "Implement an EventEmitter with on, off, once and emit",
           body: (
             <>
@@ -1045,6 +1154,7 @@ const clone = JSON.parse(JSON.stringify(source));
         {
           id: "hd-lru",
           heading: "LRU：Map 的插入序就是现成的链表",
+          headingEn: "LRU: the insertion order of a Map is already the linked list you need",
           lede: "Implement an LRU cache without writing a linked list",
           body: (
             <>
@@ -1338,13 +1448,46 @@ items.forEach((item) => {
               <code>results[i] = value</code> 按下标写。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The contract of <code>Promise.all</code> is that{" "}
+              <strong>the results come back in input order</strong>, no matter which one
+              finishes first — the caller matches input to output by index. The push
+              version gives a random order once the calls really run in parallel, and
+              this bug often does not show up in a local test where every call takes the
+              same time, so it only appears in production.{" "}
+              <strong>
+                Always write by index with <code>results[i] = value</code>.
+              </strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「结果要和输入对得上」的并发题", reachFor: "下标写入 + 计数器，别 push" },
-        { signal: "回调 / 监听器列表在触发中会变", reachFor: "遍历前拷贝一份（[...list]）" },
-        { signal: "要 O(1) 的「最近使用」语义", reachFor: "JS 里先想 Map 的插入序，再讲教科书的哈希 + 链表" },
-        { signal: "「XX 和 XX 的语义差别」式追问", reachFor: "一败即停 vs 逐项报告 —— 用场景答，不用定义答" },
+        {
+          signal: "「结果要和输入对得上」的并发题",
+          signalEn: "A parallel problem where the results have to line up with the input",
+          reachFor: "下标写入 + 计数器，别 push",
+          reachForEn: "Write by index and keep a counter; do not push",
+        },
+        {
+          signal: "回调 / 监听器列表在触发中会变",
+          signalEn: "A list of callbacks or listeners changes while it is being run",
+          reachFor: "遍历前拷贝一份（[...list]）",
+          reachForEn: "Copy it before you walk it ([...list])",
+        },
+        {
+          signal: "要 O(1) 的「最近使用」语义",
+          signalEn: "You need O(1) most-recently-used behaviour",
+          reachFor: "JS 里先想 Map 的插入序，再讲教科书的哈希 + 链表",
+          reachForEn: "In JavaScript reach for the insertion order of a Map first, then explain the textbook hash map plus linked list",
+        },
+        {
+          signal: "「XX 和 XX 的语义差别」式追问",
+          signalEn: "A follow-up of the form \"how do X and Y differ\"",
+          reachFor: "一败即停 vs 逐项报告 —— 用场景答，不用定义答",
+          reachForEn: "Stop on the first failure versus report on every item — answer with a scenario, not a definition",
+        },
       ],
       recap: [
         "Promise.all 三件套：下标写入、空数组先判、reject 直接当 then 的第二参 —— 短路失败。",
@@ -1352,6 +1495,13 @@ items.forEach((item) => {
         "EventEmitter 唯一的坑：emit 拷贝列表再遍历，once 的自删才不会挤掉邻居。",
         "LRU 用 Map 的插入序：删掉再放回 = 刷新，迭代器第一个键 = 最旧。",
         "教科书版哈希表 + 双向链表是语言无关的答案 —— 两个版本都要会讲。",
+      ],
+      recapEn: [
+        "Three parts to Promise.all: write by index, check for an empty array first, and pass reject as the second argument of then so the first failure ends it.",
+        "allSettled = wrap every item so it always succeeds and carries a status, then hand them to all; answer the difference with an example.",
+        "The one trap in EventEmitter: emit copies the list before walking it, so a once listener removing itself does not drop its neighbours.",
+        "LRU with the insertion order of a Map: delete then set again to refresh, and the first key from the iterator is the oldest.",
+        "The textbook hash map plus doubly linked list is the language-independent answer — be able to explain both versions.",
       ],
     },
   ],
