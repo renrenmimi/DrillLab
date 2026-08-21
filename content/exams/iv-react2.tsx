@@ -23,6 +23,8 @@ export const ivReactHooks: Module = {
       title: "Hooks 四问",
       titleEn: "4 questions on Hooks",
       blurb: "hooks 是什么与为什么、useMemo vs useCallback、React.memo vs useMemo、自定义 hook。",
+      blurbEn:
+        "What hooks are and why they exist, useMemo vs useCallback, React.memo vs useMemo, custom hooks.",
       minutes: 20,
       objectives: [
         "说出 hooks 解决的三个类组件痛点",
@@ -30,12 +32,21 @@ export const ivReactHooks: Module = {
         "说出 hooks 的两条规则以及「为什么」不能写在条件里",
         "写出一个自定义 hook 并说明命名约定",
       ],
+      objectivesEn: [
+        "Name three problems with class components that hooks solve",
+        "Say what each of useMemo, useCallback and React.memo actually caches",
+        "State the two rules of hooks, and explain why you cannot put one inside a condition",
+        "Write a custom hook and explain the naming rule",
+      ],
       whyForAssessment:
         "「useMemo 和 useCallback 有什么区别」是出现频率最高的 React 题之一，而且大部分人答不全 —— 能补上「什么时候不该用」和「三个必须配套」才是好答案。hooks 规则那道会追问底层原因（链表 + 调用顺序），答得出来就上一个档。",
+      whyForAssessmentEn:
+        "\"What is the difference between useMemo and useCallback\" is one of the most common React questions, and most people give only half an answer. A good answer also covers when not to use them, and the fact that the three of them only help when used together. For the rules of hooks the interviewer will ask why, and the reason is that React stores them in a list by call order. Getting that right moves you up a level.",
       concepts: [
         {
           id: "q324",
           heading: "什么是 hooks，为什么要用",
+          headingEn: "What are hooks, and why use them?",
           lede: "#324 What are hooks in React and Why do we use them",
           body: (
             <>
@@ -506,6 +517,7 @@ const onSave = useCallback(() => save(config), [{ ...config }]);
         {
           id: "q340",
           heading: "自定义 hook 是干什么的，命名有什么约定",
+          headingEn: "What is a custom hook for, and what is the naming rule?",
           lede: "#340 What are custom hooks for and what is the naming convention for them",
           body: (
             <>
@@ -642,11 +654,36 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         },
       ],
       transfer: [
-        { signal: "hook 写在 if 里", reachFor: "React 按调用顺序存链表，会错位；条件放 effect 内部" },
-        { signal: "问 useMemo vs useCallback", reachFor: "一个缓存值一个缓存函数；后者是前者的语法糖" },
-        { signal: "加了 memo 没效果", reachFor: "三个必须配套；context 变化 memo 拦不住" },
-        { signal: "同一组 state+effect 出现两次", reachFor: "抽自定义 hook，use 开头" },
-        { signal: "以为自定义 hook 能共享状态", reachFor: "复用的是逻辑，状态各自独立" },
+        {
+          signal: "hook 写在 if 里",
+          signalEn: "A hook written inside an if",
+          reachFor: "React 按调用顺序存链表，会错位；条件放 effect 内部",
+          reachForEn: "React stores hooks in a list by call order, so they shift out of line; put the condition inside the effect instead",
+        },
+        {
+          signal: "问 useMemo vs useCallback",
+          signalEn: "Asked about useMemo vs useCallback",
+          reachFor: "一个缓存值一个缓存函数；后者是前者的语法糖",
+          reachForEn: "One caches a value, the other caches a function; useCallback is a shorter way to write useMemo",
+        },
+        {
+          signal: "加了 memo 没效果",
+          signalEn: "You added memo and nothing got faster",
+          reachFor: "三个必须配套；context 变化 memo 拦不住",
+          reachForEn: "All three have to be used together, and memo cannot stop a re-render caused by a Context change",
+        },
+        {
+          signal: "同一组 state+effect 出现两次",
+          signalEn: "The same pair of state and effect appears in two places",
+          reachFor: "抽自定义 hook，use 开头",
+          reachForEn: "Pull it out into a custom hook whose name starts with use",
+        },
+        {
+          signal: "以为自定义 hook 能共享状态",
+          signalEn: "Expecting a custom hook to share state between components",
+          reachFor: "复用的是逻辑，状态各自独立",
+          reachForEn: "The logic is reused; each caller gets its own separate state",
+        },
       ],
       recap: [
         "hooks 解决三件事：逻辑复用难、逻辑被生命周期切碎、this 易错。",
@@ -655,6 +692,14 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         "React.memo 省一次渲染、useMemo 省一次计算；三个必须配套用才有意义。",
         "memo 拦不住 context 变化 —— 所以 context value 必须 useMemo。",
         "自定义 hook 必须 use 开头（ESLint 靠它识别）；复用逻辑不复用状态。",
+      ],
+      recapEn: [
+        "hooks solve three things: reusing logic was hard, logic was cut apart across lifecycle methods, and this was easy to get wrong.",
+        "The reason for the rules of hooks is that React stores them in a list by call order, not by name.",
+        "useMemo caches a value, useCallback caches a function; useCallback is exactly useMemo(() => fn, deps).",
+        "React.memo saves a render, useMemo saves a computation; the three of them only help when used together.",
+        "memo cannot stop a Context change, which is why a Context value must go through useMemo.",
+        "A custom hook has to start with use, because that is how ESLint recognises it; you reuse the logic, not the state.",
       ],
     },
 
