@@ -297,13 +297,17 @@ export const gqlBasics: Module = {
   id: "gql-basics",
   stage: "Federation · 第 1 部分",
   title: "GraphQL 基础",
+  titleEn: "GraphQL basics",
   summary:
     "schema、type、field、query、resolver、非空与列表。全部用 node-subgraph 的真实 schema.graphql 当例子 —— 这份 schema 的每个细节后面都会变成考点。",
+  summaryEn:
+    "schema, type, field, query, resolver, non-null and lists. Every example is the real schema.graphql from node-subgraph, and every detail in that schema turns into an exam point later.",
   lessons: [
     /* ---------- 1.1 ---------- */
     {
       id: "g-what-is",
       title: "GraphQL 是什么：一份 schema 加一堆 resolver",
+      titleEn: "What GraphQL is: one schema plus a set of resolvers",
       blurb: "读真实的 schema.graphql，把 type / field / Query / Mutation 一次讲清。",
       minutes: 15,
       objectives: [
@@ -876,6 +880,7 @@ ___3___ OrderItemInput {
     {
       id: "g-resolver",
       title: "resolver 的四个参数",
+      titleEn: "The four arguments of a resolver",
       blurb: "(parent, args, context, info) —— 这四个东西是整门考试的操作台。",
       minutes: 14,
       objectives: [
@@ -1448,6 +1453,7 @@ ___3___ OrderItemInput {
     {
       id: "g-nullable",
       title: "非空、列表，和那个没有 price 的 input",
+      titleEn: "Non-null, lists, and the input that has no price",
       blurb: "schema 里两处细节，直接决定四个 TODO 里三个的对错。",
       minutes: 13,
       objectives: [
@@ -2047,13 +2053,17 @@ export const fedMentalModel: Module = {
   id: "fed-mental-model",
   stage: "Federation · 第 2 部分",
   title: "Federation 心智模型",
+  titleEn: "A mental model for Federation",
   summary:
     "为什么要拆、subgraph 是什么、entity 和 @key 在解决什么问题、Router 怎么把碎片缝起来、DataLoader 为什么必须出现。",
+  summaryEn:
+    "Why one schema gets split up, what a subgraph is, what problem entity and @key solve, how the Router joins the pieces back into a single schema, and why DataLoader is needed.",
   lessons: [
     /* ---------- 2.1 ---------- */
     {
       id: "g-why-federation",
       title: "为什么会有 Federation",
+      titleEn: "Why Federation exists",
       blurb: "一张大 schema 拆成几个服务，代价是什么，换来什么。",
       minutes: 11,
       objectives: [
@@ -2513,6 +2523,7 @@ type Review { id body author: User product: Product }`,
     {
       id: "g-subgraph",
       title: "subgraph 是怎么跑起来的",
+      titleEn: "How a subgraph starts up",
       blurb: "buildSubgraphSchema 做了什么，为什么它会凭空多出两个字段。",
       minutes: 13,
       objectives: [
@@ -2980,6 +2991,7 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
     {
       id: "g-entity",
       title: "entity、@key 与 __resolveReference",
+      titleEn: "entity, @key and __resolveReference",
       blurb: "「另一个服务要用哪个字段找到这个对象？」—— 想清这一句，这三个概念全通。",
       minutes: 16,
       objectives: [
@@ -3474,6 +3486,7 @@ type User ___1___(fields: "id") {
     {
       id: "g-dataloader",
       title: "N+1 问题与 DataLoader",
+      titleEn: "The N+1 problem and DataLoader",
       blurb: "客户端一句话，后端 100 次请求 —— 以及一个 30 行的解药。",
       minutes: 14,
       objectives: [

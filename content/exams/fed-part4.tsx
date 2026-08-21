@@ -241,13 +241,17 @@ export const fedMastery: Module = {
   id: "fed-mastery",
   stage: "Federation · 第 6 部分",
   title: "综合 Debug 与从零重写",
+  titleEn: "Mixed debugging, and rewriting from an empty directory",
   summary:
     "把 GraphQL 和 Spring 两边的典型故障集中练一遍，然后在没有答案的情况下从空目录重建整个 subgraph 和整个控制器。",
+  summaryEn:
+    "Practice the common failures on both the GraphQL side and the Spring side in one place, then rebuild the whole subgraph and the whole controller from an empty directory, with no answer to look at.",
   lessons: [
     /* ---------- 6.1 ---------- */
     {
       id: "g-debug-lab",
       title: "Debug Lab · Federation 十种典型故障",
+      titleEn: "Debug Lab · ten common Federation failures",
       blurb: "从「resolver 写了但返回 null」到「composition 失败」，每一种都给真实报错。",
       minutes: 22,
       objectives: [
@@ -1181,6 +1185,7 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
     {
       id: "g-rebuild",
       title: "从零重写：空目录到 10 个测试全过",
+      titleEn: "Rewrite it: from an empty directory to all 10 tests passing",
       blurb: "不给答案。给 schema、给数据源、给测试、给四级提示。这一关是分界线。",
       minutes: 90,
       objectives: [
