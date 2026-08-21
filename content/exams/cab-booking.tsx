@@ -401,6 +401,7 @@ const cabBooking: Exam = {
     {
       path: "cab-booking-context",
       role: "参考项目。6 个组件 + 1 个 Context + 4 个测试",
+      roleEn: "Reference project. Six components, one Context, four tests",
     },
   ],
   prerequisites: ["foundations"],

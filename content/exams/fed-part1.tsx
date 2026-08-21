@@ -331,6 +331,7 @@ export const gqlBasics: Module = {
         {
           path: "graphql-federation-practice/node-subgraph/src/schema.graphql",
           role: "整个 subgraph 的契约",
+          roleEn: "The contract for the whole subgraph",
         },
       ],
       concepts: [
@@ -1044,10 +1045,12 @@ ___3___ OrderItemInput {
         {
           path: "graphql-federation-practice/node-subgraph/src/index.js",
           role: "context 在这里被构造，键名以它为准",
+          roleEn: "The context is built here, and these key names are the ones that count",
         },
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "四个 TODO 的位置",
+          roleEn: "Where the four TODOs are",
           edit: true,
         },
       ],
@@ -1735,10 +1738,12 @@ ___3___ OrderItemInput {
         {
           path: "graphql-federation-practice/node-subgraph/src/schema.graphql",
           role: "非空标记与 input 定义",
+          roleEn: "The non-null markers and the input definitions",
         },
         {
           path: "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
           role: "createOrder 里那行乘法暴露了 price 的必要性",
+          roleEn: "The multiplication inside createOrder shows why price is needed",
         },
       ],
       concepts: [
@@ -3056,10 +3061,12 @@ type Review { id body author: User product: Product }`,
         {
           path: "graphql-federation-practice/node-subgraph/src/index.js",
           role: "启动流程与 context 构造",
+          roleEn: "The startup sequence and how the context is built",
         },
         {
           path: "graphql-federation-practice/node-subgraph/package.json",
           role: "start / test script 与 federation 依赖",
+          roleEn: "The start and test scripts, and the federation dependency",
         },
       ],
       concepts: [
@@ -3655,10 +3662,12 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
         {
           path: "graphql-federation-practice/node-subgraph/src/schema.graphql",
           role: "@key 与 @external 的真实用法",
+          roleEn: "How @key and @external are actually used",
         },
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "__resolveReference 已给好，orders 要你写",
+          roleEn: "__resolveReference is given; orders is yours to write",
           edit: true,
         },
       ],
@@ -4297,11 +4306,13 @@ type User ___1___(fields: "id") {
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "两个 loader 工厂函数（其中一个有埋雷）",
+          roleEn: "Two loader factory functions, one with a planted bug",
           edit: true,
         },
         {
           path: "graphql-federation-practice/node-subgraph/package.json",
           role: "dependencies 里那个 dataloader 就是提示",
+          roleEn: "The dataloader in dependencies is the hint",
         },
       ],
       concepts: [

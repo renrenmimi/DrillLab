@@ -347,18 +347,22 @@ export const fedTask2: Module = {
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/service/OrderService.java",
           role: "业务逻辑全在这里（PROVIDED）",
+          roleEn: "All the business logic is here (PROVIDED)",
         },
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/exception/GlobalExceptionHandler.java",
           role: "404 与 400 的统一出口（PROVIDED）",
+          roleEn: "The single place 404 and 400 come out of (PROVIDED)",
         },
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/config/CorrelationIdFilter.java",
           role: "把 correlation id 放进 MDC（PROVIDED）",
+          roleEn: "Puts the correlation id into the MDC (PROVIDED)",
         },
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/controller/OrderController.java",
           role: "六个 TODO",
+          roleEn: "Six TODOs",
           edit: true,
         },
       ],
@@ -1461,11 +1465,13 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/controller/OrderController.java",
           role: "六个 TODO",
+          roleEn: "Six TODOs",
           edit: true,
         },
         {
           path: "graphql-federation-practice/java-service/src/test/java/com/techflow/orders/OrderControllerTest.java",
           role: "五个测试",
+          roleEn: "Five tests",
         },
       ],
       concepts: [
@@ -3215,11 +3221,13 @@ export const fedWritten: Module = {
         {
           path: "graphql-federation-practice/QUESTIONS.md",
           role: "两道题的原文",
+          roleEn: "The two questions as written",
           edit: true,
         },
         {
           path: "graphql-federation-practice/java-service/src/main/resources/application.properties",
           role: "项目里真实的配置（和题面给的片段不完全一样）",
+          roleEn: "The real configuration in the project, which is not quite the snippet in the question",
         },
       ],
       concepts: [

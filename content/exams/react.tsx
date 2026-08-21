@@ -847,6 +847,7 @@ const reactExam: Exam = {
     {
       path: "react-notes-app",
       role: "参考项目。Vite + React 18 + TS strict + Vitest。本机实测 4 个测试全过（仓库里是完成版）",
+      roleEn: "Reference project. Vite + React 18 + TS strict + Vitest. All four tests pass as measured; the repo holds the finished version",
     },
   ],
   prerequisites: ["foundations"],

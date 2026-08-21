@@ -258,15 +258,18 @@ export const fedTask1: Module = {
         {
           path: "graphql-federation-practice/README.md",
           role: "任务清单与 EDIT THIS / PROVIDED 标注",
+          roleEn: "The task list and the EDIT THIS / PROVIDED markers",
         },
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "唯一要改的文件",
+          roleEn: "The only file you change",
           edit: true,
         },
         {
           path: "graphql-federation-practice/node-subgraph/__tests__/resolvers.test.js",
           role: "10 个判卷测试",
+          roleEn: "The ten tests that decide the marks",
         },
       ],
       concepts: [
@@ -2812,6 +2815,7 @@ async shippingInfo(parent, _, { loaders }) {
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "Query.order 与 Query.orders",
+          roleEn: "Query.order and Query.orders",
           edit: true,
         },
       ],
@@ -3914,11 +3918,13 @@ return order ?? null;`,
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "三处埋雷都在这里",
+          roleEn: "All three planted bugs are in here",
           edit: true,
         },
         {
           path: "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
           role: "核对方法名与签名的依据（PROVIDED，别改）",
+          roleEn: "What you check method names and signatures against (PROVIDED, do not change)",
         },
       ],
       concepts: [

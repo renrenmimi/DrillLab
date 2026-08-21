@@ -213,6 +213,15 @@ export interface DebugExercise extends ExerciseBase {
   level: 2 | 3;
   /** 真实报错文本（尽量原样） */
   errorOutput: string;
+  /**
+   * 英文版。
+   *
+   * 【为什么这个也需要英文】
+   * 报错正文本身是原样保留的，但这些块里常掺着中文标注行
+   * （`# 更严重的情况：…`、`# 复现：…`），那是给读者的说明，不是报错的一部分。
+   * 报错行照抄，标注行译 —— 和 codeEn 一个道理。
+   */
+  errorOutputEn?: string;
   /** 出错的代码 */
   broken: CodeExample;
   /** 「这是什么类型的错误」多选 */
@@ -427,7 +436,7 @@ export interface Exam {
   tests: string;
   testsEn?: string;
   /** 源项目在本机的真实路径（可为空，如 Foundations） */
-  sourceProjects: { path: string; role: string }[];
+  sourceProjects: { path: string; role: string; roleEn?: string }[];
   /** 前置考试 id */
   prerequisites: string[];
   /** 技术栈标签 */

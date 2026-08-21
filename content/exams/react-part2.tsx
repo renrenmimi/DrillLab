@@ -120,6 +120,7 @@ export const reactHooks: Module = {
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
           role: "两个受控输入 + 表单提交的完整实现",
+          roleEn: "The complete implementation of the two controlled inputs and the form submit",
         },
       ],
       concepts: [
@@ -1230,6 +1231,7 @@ for more information.`,
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
           role: "第 17–25 行那个 useEffect",
+          roleEn: "The useEffect on lines 17 to 25",
         },
       ],
       concepts: [
@@ -1844,10 +1846,12 @@ useEffect(() => {
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
           role: "isFormInvalid 与按钮文字",
+          roleEn: "isFormInvalid and the button text",
         },
         {
           path: "react-notes-app/src/components/NoteManager/index.tsx",
           role: "状态提升的落点",
+          roleEn: "Where the lifted state ends up",
         },
       ],
       concepts: [

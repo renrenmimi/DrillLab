@@ -70,7 +70,7 @@ export interface NavExam {
   stack: string[];
   status: string;
   prerequisites: string[];
-  sourceProjects: { path: string; role: string }[];
+  sourceProjects: { path: string; role: string; roleEn?: string }[];
   lessonCount: number;
   exerciseCount: number;
   minutes: number;
@@ -314,7 +314,8 @@ const PAYLOAD: NavPayload = {
       "sourceProjects": [
         {
           "path": "react-notes-app",
-          "role": "参考项目。Vite + React 18 + TS strict + Vitest。本机实测 4 个测试全过（仓库里是完成版）"
+          "role": "参考项目。Vite + React 18 + TS strict + Vitest。本机实测 4 个测试全过（仓库里是完成版）",
+          "roleEn": "Reference project. Vite + React 18 + TS strict + Vitest. All four tests pass as measured; the repo holds the finished version"
         }
       ],
       "lessonCount": 21,
@@ -686,7 +687,8 @@ const PAYLOAD: NavPayload = {
       "sourceProjects": [
         {
           "path": "graphql-federation-practice",
-          "role": "参考项目。本机实测基线：subgraph 6 failed / 4 passed，Java 5 run / 2 failures"
+          "role": "参考项目。本机实测基线：subgraph 6 failed / 4 passed，Java 5 run / 2 failures",
+          "roleEn": "Reference project. Measured baseline: subgraph 6 failed / 4 passed, Java 5 run / 2 failures"
         }
       ],
       "lessonCount": 17,
@@ -1408,7 +1410,8 @@ const PAYLOAD: NavPayload = {
       "sourceProjects": [
         {
           "path": "cab-booking-context",
-          "role": "参考项目。6 个组件 + 1 个 Context + 4 个测试"
+          "role": "参考项目。6 个组件 + 1 个 Context + 4 个测试",
+          "roleEn": "Reference project. Six components, one Context, four tests"
         }
       ],
       "lessonCount": 8,

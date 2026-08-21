@@ -1222,6 +1222,7 @@ React limits the number of nested updates to prevent infinite loops.
         {
           path: "react-notes-app/src/components/NoteManager/index.tsx",
           role: "两个 state 与三个 handler 的全部真实代码",
+          roleEn: "The full real code for the two pieces of state and the three handlers",
         },
       ],
       concepts: [

@@ -1315,6 +1315,7 @@ const fedExam: Exam = {
     {
       path: "graphql-federation-practice",
       role: "参考项目。本机实测基线：subgraph 6 failed / 4 passed，Java 5 run / 2 failures",
+      roleEn: "Reference project. Measured baseline: subgraph 6 failed / 4 passed, Java 5 run / 2 failures",
     },
   ],
   prerequisites: ["foundations"],

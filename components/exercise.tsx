@@ -675,7 +675,9 @@ function Debug({ ex, examId }: { ex: DebugExercise; examId: string }) {
             zh="第 1 步 · 先看现象和代码，别急着改"
           />
         </div>
-        <div className="errbox-body">{ex.errorOutput}</div>
+        <div className="errbox-body">
+          <T zh={ex.errorOutput} en={ex.errorOutputEn} />
+        </div>
       </div>
 
       <CodeBlock ex={ex.broken} />
