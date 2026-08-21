@@ -12,11 +12,11 @@ export const metadata: Metadata = {
   // （见 lib/locale.tsx：两份文字都进 HTML，CSS 藏一份）。所以标题切不了语言。
   // 并排写比只写一种好：两种语言的用户在标签页和搜索结果里都认得出。
   title: {
-    default: "DrillLab · 把 Online Assessment 练到能独立完成 / Train for your online assessment",
+    default: "DrillLab · 练到能独立写出来 / Practising until you can do it alone",
     template: "%s · DrillLab",
   },
   description:
-    "一个多考试的前端训练平台：105 道面试八股、25 道 coding 题（21 道能在浏览器里跑测试）、三个参考项目的逐题拆解、模拟考与计时考场。从 npm 讲起，练到能在空文件夹里独立写出来。 / A multi-exam front-end training app: 105 interview questions, 25 coding problems (21 runnable in the browser), three reference projects taken apart task by task, mock papers and a timed arena.",
+    "一个自学用的刷题 App：四条主线，每一条给你的脚手架比上一条少 —— 105 道问答、148 个课内练习、25 道 coding 题（21 道能在浏览器里跑测试），最后是一个空文件夹加一个计时器。覆盖 React、TypeScript、GraphQL Federation 与 Spring Boot，从 npm 讲起。 / A study app with four tracks, each handing you less than the last: 105 questions, 148 in-lesson exercises, 25 coding problems (21 runnable in the browser), and finally an empty folder with a clock. Covers React, TypeScript, GraphQL Federation and Spring Boot, starting from npm.",
 };
 
 export const viewport: Viewport = {
