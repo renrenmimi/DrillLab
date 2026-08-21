@@ -6748,7 +6748,24 @@ $ npx vitest run
 # 现在怎么办？四条全红，不知道从哪查。
 # Provider 层级错了？testid 拼错了？状态机没接上？
 # 三种原因都会导致这个输出。`,
-                { filename: "一次写完的下场（示意）" },
+                {
+                  filename: "一次写完的下场（示意）",
+                  filenameEn: "Where writing it all at once leads (illustration)",
+                  codeEn: `# ✕ writing all six components first, and only then running the tests
+
+$ npx vitest run
+ ✗ renders the home page and empty ride history
+ ✗ shows grouped cab options with all required card fields
+ ✗ completes a booking and adds it to ride history
+ ✗ keeps only the newest three rides
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+
+# now what? All four are red and there is nowhere to start.
+# Wrong Provider level? Misspelled testid? State machine not connected?
+# All three causes produce this same output.`,
+                },
               ),
               why: (
                 <>
