@@ -2022,7 +2022,26 @@ table.addEventListener("click", (e) => {
 // target vs currentTarget
 // e.target        = 真正被点的元素（可能是按钮里的 span）
 // e.currentTarget = 监听器挂在哪（这里永远是 table）`,
-              { filename: "事件委托的标准写法" },
+              {
+                filename: "事件委托的标准写法",
+                filenameEn: "The standard way to write event delegation",
+                codeEn: `// ✗ One listener per row, and rows added later have no behaviour
+document.querySelectorAll("tr .del").forEach((btn) =>
+  btn.addEventListener("click", onDelete),
+);
+
+// ✓ Delegation: one listener, and new rows behave correctly on their own
+table.addEventListener("click", (e) => {
+  // closest, not matches —— the user may click the icon inside the button
+  const btn = e.target.closest(".del");
+  if (!btn) return;                       // a click on empty space just returns
+  onDelete(btn.dataset.id);
+});
+
+// target vs currentTarget
+// e.target        = the element actually clicked (maybe a span inside the button)
+// e.currentTarget = where the listener is attached (always the table here)`,
+              },
             ),
           ],
         },
