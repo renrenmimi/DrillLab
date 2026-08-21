@@ -1254,6 +1254,37 @@ div.side-mod > .side-mod-title:hover {
   border-bottom: 1px solid var(--rule);
 }
 
+/* 课程序号：和侧栏一样 01 起，主线才有。两处必须对得上，
+   否则路线图和侧栏会给出两套顺序。 */
+.road-course-idx {
+  margin-right: 8px;
+  color: var(--accent-ink);
+}
+
+/* 平行支线的分组带。和侧栏的 .side-band 是同一件事，措辞也一样。 */
+.road-band {
+  margin: 34px 0 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.road-band-title {
+  display: block;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.road-band-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
 /* 节点：左边一条竖线把它们串起来 */
 .road-node {
   position: relative;
