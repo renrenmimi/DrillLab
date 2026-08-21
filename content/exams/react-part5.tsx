@@ -4738,12 +4738,20 @@ export function countComments(nodes: Comment[]): number {
           kind: "code-completion",
           id: "r-var-tree-write",
           title: "写出树形数据的不可变更新",
+          titleEn: "Write an immutable update for tree data",
           level: 3,
           generated: true,
           prompt: (
             <p>
               这是这道题真正的难点。目标节点可能在任意深度，
               要返回一棵新树，而且<strong>原树一个字节都不能改</strong>。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              This is the hard part of the question. The target node can be at any
+              depth, you have to return a new tree, and{" "}
+              <strong>not one byte of the original may change</strong>.
             </p>
           ),
           language: "ts",
@@ -4765,6 +4773,23 @@ export function addReply(
 ): Comment[] {
 
 }`,
+          starterEn: `import type { Comment } from "../../types/Comment";
+
+/**
+ * Add one reply to the replies of the node with parentId, and return a brand new tree.
+ *
+ * Requirements:
+ *   · parentId can be at any depth
+ *   · do not change the nodes you were given (the caller deep-freezes them to check)
+ *   · do not deep-copy the whole tree
+ */
+export function addReply(
+  nodes: Comment[],
+  parentId: number,
+  reply: Comment,
+): Comment[] {
+
+}`,
           requirements: [
             "找到 id === parentId 的节点，把 reply 追加到它的 replies 末尾",
             "返回新数组、新节点对象，不修改原数据",
@@ -4772,15 +4797,38 @@ export function addReply(
             "不许用 JSON.parse(JSON.stringify(...)) 深拷贝",
             "不许用 push / splice / 直接赋值",
           ],
+          requirementsEn: [
+            "Find the node whose id === parentId and append reply to the end of its replies",
+            "Return a new array and new node objects, without changing the original data",
+            "The target can be at any depth, so recurse downwards to find it",
+            "Do not deep-copy with JSON.parse(JSON.stringify(...))",
+            "Do not use push / splice / direct assignment",
+          ],
           checks: [
-            { label: "用 map 返回新数组", must: "nodes\\.map\\s*\\(" },
-            { label: "按 parentId 比较", must: "\\.id\\s*===?\\s*parentId" },
-            { label: "命中时用对象展开造新节点", must: "\\{\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*replies" },
-            { label: "命中时用数组展开追加 reply", must: "\\[\\s*\\.\\.\\.\\s*\\w+\\.replies\\s*,\\s*reply\\s*\\]" },
-            { label: "未命中时递归往下找", must: "addReply\\s*\\(\\s*\\w+\\.replies" },
-            { label: "没有深拷贝", mustNot: "JSON\\.parse|structuredClone" },
-            { label: "没有 push / splice", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
-            { label: "没有直接赋值改原对象", mustNot: "\\w+\\.replies\\s*=[^=]" },
+            { label: "用 map 返回新数组", labelEn: "map returns a new array", must: "nodes\\.map\\s*\\(" },
+            { label: "按 parentId 比较", labelEn: "The comparison is against parentId", must: "\\.id\\s*===?\\s*parentId" },
+            {
+              label: "命中时用对象展开造新节点",
+              labelEn: "On a match, an object spread builds a new node",
+              must: "\\{\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*replies",
+            },
+            {
+              label: "命中时用数组展开追加 reply",
+              labelEn: "On a match, an array spread appends reply",
+              must: "\\[\\s*\\.\\.\\.\\s*\\w+\\.replies\\s*,\\s*reply\\s*\\]",
+            },
+            {
+              label: "未命中时递归往下找",
+              labelEn: "Without a match, it recurses further down",
+              must: "addReply\\s*\\(\\s*\\w+\\.replies",
+            },
+            { label: "没有深拷贝", labelEn: "No deep copy", mustNot: "JSON\\.parse|structuredClone" },
+            { label: "没有 push / splice", labelEn: "No push / splice", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
+            {
+              label: "没有直接赋值改原对象",
+              labelEn: "No direct assignment onto an original object",
+              mustNot: "\\w+\\.replies\\s*=[^=]",
+            },
           ],
           hints: [
             "先在纸上画一棵三层的树，标出目标节点，然后问自己：从根走到它，路径上有哪几个对象？这些对象里，哪些的内容真的变了？没在路径上的分支需要变吗？",
@@ -4790,6 +4838,22 @@ export function addReply(
       返回 { 展开这个节点, replies: [展开它的 replies, reply] }
   否则:
       返回 { 展开这个节点, replies: 递归调用(这个节点的 replies, parentId, reply) }
+})`,
+            `return nodes.map((node) => {
+  if (node.id === parentId) {
+    return { ...node, replies: [...node.replies, reply] };
+  }
+  return { ...node, replies: addReply(node.replies, parentId, reply) };
+});`,
+          ],
+          hintsEn: [
+            "Draw a three-level tree on paper and mark the target node, then ask yourself: walking from the root to it, which objects lie on that path? Of those objects, which ones really change content? And do the branches beside the path need to change at all?",
+            "Walk down with map. At each level there are two cases: this node is the target (build a new node with new replies), or the target is somewhere in its subtree (also build a new node, but hand replies to the recursion). Both cases return a new object, because before the recursion returns you do not know whether the target is below.",
+            `return nodes.map(each node => {
+  if the id of this node === parentId:
+      return { spread this node, replies: [spread its replies, reply] }
+  otherwise:
+      return { spread this node, replies: recursive call(the replies of this node, parentId, reply) }
 })`,
             `return nodes.map((node) => {
   if (node.id === parentId) {
