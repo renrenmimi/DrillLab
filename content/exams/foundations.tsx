@@ -4563,10 +4563,13 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
 }`,
                   {
                     filename: "tsconfig.json（原样）",
+                    filenameEn: "tsconfig.json (unchanged)",
                     sourceFile: "react-notes-app/tsconfig.json",
                     highlight: [12],
                     explanation:
                       "注意最后一行：include 里有 src，而测试文件就在 src 下。compilerOptions 里没有 types 字段，所以 vitest 的全局变量对 tsc 是不存在的。",
+                    explanationEn:
+                      "Look at the last line: include holds src, and the test file sits under src. compilerOptions has no types field, so as far as tsc is concerned the vitest globals do not exist.",
                   },
                 ),
               ],
@@ -4676,6 +4679,7 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
               kind: "recognition",
               id: "f-whose-fault",
               title: "这是谁的问题",
+              titleEn: "Whose problem is this",
               level: 1,
               prompt: (
                 <p>
@@ -4686,11 +4690,20 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
                   最合理的判断是？
                 </p>
               ),
+              promptEn: (
+                <p>
+                  You have just cloned react-notes-app, written not one line of code,
+                  and run <code>npm run build</code>. You get 10 of{" "}
+                  <code>TS2582: Cannot find name &apos;test&apos;</code>. At the same
+                  time <code>npx vitest run</code> shows all 4 tests passing. What is the
+                  most sensible conclusion?
+                </p>
+              ),
               options: [
-                { id: "a", label: "我的 React 代码写错了，要回去改组件" },
-                { id: "b", label: "依赖装坏了，删 node_modules 重装" },
-                { id: "c", label: "项目自带的 tsconfig 没配测试框架的全局类型，与我的实现无关" },
-                { id: "d", label: "Node 版本不对，要换版本" },
+                { id: "a", label: "我的 React 代码写错了，要回去改组件", labelEn: "My React code is wrong and I should go back and edit the components" },
+                { id: "b", label: "依赖装坏了，删 node_modules 重装", labelEn: "The install is broken; delete node_modules and install again" },
+                { id: "c", label: "项目自带的 tsconfig 没配测试框架的全局类型，与我的实现无关", labelEn: "The tsconfig that ships with the project does not declare the test framework globals, which has nothing to do with my implementation" },
+                { id: "d", label: "Node 版本不对，要换版本", labelEn: "The Node version is wrong and should be changed" },
               ],
               answer: ["c"],
               explain: (
@@ -4699,6 +4712,18 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
                   而测试本身跑得过。这说明<strong>逻辑没问题，是类型配置缺了一块</strong>。
                   继续用 <code>npx vitest run</code> 验证实现即可，
                   并把这个配置问题作为观察记下来 —— 别去改业务代码，也别贸然改 tsconfig。
+                </>
+              ),
+              explainEn: (
+                <>
+                  Three pieces of evidence point the same way: every error is in the test
+                  file, the names it cannot find are globals injected by the test
+                  framework, and the tests themselves pass. So{" "}
+                  <strong>the logic is fine and one piece of type configuration is
+                  missing</strong>. Keep verifying your implementation with{" "}
+                  <code>npx vitest run</code> and record the config problem as an
+                  observation. Do not edit your own code, and do not change tsconfig
+                  without being asked.
                 </>
               ),
             },
