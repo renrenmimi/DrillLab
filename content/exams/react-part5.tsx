@@ -1411,12 +1411,21 @@ const toggleAll = () => {
           kind: "code-completion",
           id: "r-var-todo-write",
           title: "自己写出筛选与「清除已完成」",
+          titleEn: "Write the filtering and the clear-completed action yourself",
           level: 3,
           generated: true,
           prompt: (
             <p>
               已有 <code>todos</code> 和 <code>filter</code> 两个 state。
               写出可见列表和「清除已完成」，注意筛选态下的写操作该作用于谁。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You already have the two states <code>todos</code> and{" "}
+              <code>filter</code>. Write the visible list and the clear-completed
+              action, and think about which list a write should act on while a
+              filter is on.
             </p>
           ),
           language: "tsx",
@@ -1432,6 +1441,17 @@ const visible =
 const clearDone = () => {
 
 };`,
+          starterEn: `// Already there:
+//   const [todos, setTodos] = useState<Todo[]>([]);
+//   const [filter, setFilter] = useState<Filter>("all");   // "all" | "active" | "done"
+
+// 1. the visible list (derived data, do not add a state)
+const visible =
+
+// 2. clear the completed items
+const clearDone = () => {
+
+};`,
           requirements: [
             "visible 是派生数据，不许用 useState 或 useEffect",
             'filter 为 "all" 时显示全部，"active" 显示未完成，"done" 显示已完成',
@@ -1439,16 +1459,47 @@ const clearDone = () => {
             "写操作必须作用于 todos，不能作用于 visible",
             "不许修改原数组",
           ],
+          requirementsEn: [
+            "visible is derived data: no useState and no useEffect",
+            'When filter is "all" show everything, "active" shows the unfinished ones, "done" shows the finished ones',
+            "clearDone removes every finished item and keeps the unfinished ones",
+            "A write has to act on todos, never on visible",
+            "Do not change the original array",
+          ],
           checks: [
-            { label: "visible 是普通 const，不是 state", mustNot: "useState[^\\n]*visible|setVisible" },
-            { label: "没有用 useEffect 同步筛选结果", mustNot: "useEffect" },
-            { label: "visible 用了 filter 或三元判断", must: "visible[\\s\\S]{0,160}(filter|\\?)" },
-            { label: "区分了 done 与未完成两种情况", must: "\\.done" },
-            { label: "clearDone 调用了 setTodos", must: "clearDone[\\s\\S]{0,160}setTodos" },
-            { label: "clearDone 用函数式更新", must: "setTodos\\s*\\(\\s*\\(?\\s*prev" },
-            { label: "clearDone 保留未完成项（条件带取反）", must: "filter\\s*\\(\\s*\\(?\\s*\\w+\\)?\\s*=>\\s*!" },
-            { label: "没有基于 visible 去 setTodos", mustNot: "setTodos\\s*\\(\\s*visible" },
-            { label: "没有 push / splice", mustNot: "\\.(push|splice)\\s*\\(" },
+            {
+              label: "visible 是普通 const，不是 state",
+              labelEn: "visible is a plain const, not a state",
+              mustNot: "useState[^\\n]*visible|setVisible",
+            },
+            {
+              label: "没有用 useEffect 同步筛选结果",
+              labelEn: "No useEffect is used to sync the filtered result",
+              mustNot: "useEffect",
+            },
+            {
+              label: "visible 用了 filter 或三元判断",
+              labelEn: "visible uses filter or a conditional",
+              must: "visible[\\s\\S]{0,160}(filter|\\?)",
+            },
+            { label: "区分了 done 与未完成两种情况", labelEn: "Finished and unfinished are told apart", must: "\\.done" },
+            { label: "clearDone 调用了 setTodos", labelEn: "clearDone calls setTodos", must: "clearDone[\\s\\S]{0,160}setTodos" },
+            {
+              label: "clearDone 用函数式更新",
+              labelEn: "clearDone uses a functional update",
+              must: "setTodos\\s*\\(\\s*\\(?\\s*prev",
+            },
+            {
+              label: "clearDone 保留未完成项（条件带取反）",
+              labelEn: "clearDone keeps the unfinished items (the condition is negated)",
+              must: "filter\\s*\\(\\s*\\(?\\s*\\w+\\)?\\s*=>\\s*!",
+            },
+            {
+              label: "没有基于 visible 去 setTodos",
+              labelEn: "setTodos is not called with visible",
+              mustNot: "setTodos\\s*\\(\\s*visible",
+            },
+            { label: "没有 push / splice", labelEn: "No push / splice", mustNot: "\\.(push|splice)\\s*\\(" },
           ],
           hints: [
             "先问两个问题：可见列表需要「记住」吗？还是每次渲染都能算出来？删除的时候，被筛掉的那些数据还在不在 todos 里？",
@@ -1457,6 +1508,23 @@ const clearDone = () => {
 
 const clearDone = () => {
   setTodos(最新值 => 最新值.filter(每一条 => 这条没完成))
+}`,
+            `const visible =
+  filter === "all"
+    ? todos
+    : todos.filter((t) => (filter === "done" ? t.done : !t.done));
+
+const clearDone = () => {
+  setTodos((prev) => prev.filter((t) => !t.done));
+};`,
+          ],
+          hintsEn: [
+            "Start with two questions. Does the visible list need to be remembered, or can it be computed on every render? And when you delete, are the filtered-out items still inside todos?",
+            "Compute visible on the spot with a conditional plus filter. clearDone is one filter whose condition keeps the unfinished ones — remember that filter means keep, so the condition is negated.",
+            `const visible = filter is all ? todos : todos.filter(each => filter is done ? this one is finished : this one is not finished)
+
+const clearDone = () => {
+  setTodos(latest => latest.filter(each => this one is not finished))
 }`,
             `const visible =
   filter === "all"
@@ -1477,7 +1545,7 @@ const clearDone = () => {
 const clearDone = () => {
   setTodos((prev) => prev.filter((t) => !t.done));
 };`,
-            { filename: "参考答案（实测通过）" },
+            { filename: "参考答案（实测通过）", filenameEn: "Reference answer (verified by running it)" },
           ),
         },
       ],
@@ -1490,6 +1558,13 @@ const [visible, setVisible] = useState<Todo[]>([]);
 useEffect(() => {
   setVisible(filter === "all" ? todos : todos.filter(...));
 }, [todos, filter]);`,
+            {
+              codeEn: `// ✗ A separate state for the filtered result, kept in sync by useEffect
+const [visible, setVisible] = useState<Todo[]>([]);
+useEffect(() => {
+  setVisible(filter === "all" ? todos : todos.filter(...));
+}, [todos, filter]);`,
+            },
           ),
           why: (
             <>
@@ -1512,6 +1587,12 @@ useEffect(() => {
 const remove = (id: number) => {
   setTodos(visible.filter((t) => t.id !== id));
 };`,
+            {
+              codeEn: `// ✗ Deleting from visible while a filter is on
+const remove = (id: number) => {
+  setTodos(visible.filter((t) => t.id !== id));
+};`,
+            },
           ),
           why: (
             <>
