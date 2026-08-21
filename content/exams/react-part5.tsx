@@ -6161,12 +6161,20 @@ export function useTheme(): ThemeContextValue {
           kind: "code-completion",
           id: "r-var-theme-write",
           title: "自己写出 ThemeProvider 和 useTheme",
+          titleEn: "Write ThemeProvider and useTheme yourself",
           level: 3,
           generated: true,
           prompt: (
             <p>
               类型已给好。写出 context、Provider、自定义 hook 三部分。
               检查器会查记忆化、函数式更新和守卫。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The types are given. Write all three parts: the context, the Provider,
+              and the custom hook. The checker looks for the memoization, the updater
+              form and the guard.
             </p>
           ),
           language: "tsx",
@@ -6193,6 +6201,28 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme(): ThemeContextValue {
 
 }`,
+          starterEn: `import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+
+export type Theme = "light" | "dark";
+
+export interface ThemeContextValue {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+// 1. build the context (what default value? decide what should happen when the Provider is missing)
+
+
+// 2. Provider: hold theme, hand out toggleTheme
+export function ThemeProvider({ children }: { children: ReactNode }) {
+
+}
+
+// 3. the custom hook
+export function useTheme(): ThemeContextValue {
+
+}`,
           requirements: [
             "theme 初始为 'light'",
             "toggleTheme 在 light / dark 之间翻转，必须用函数式更新",
@@ -6201,19 +6231,27 @@ export function useTheme(): ThemeContextValue {
             "没套 Provider 就用 useTheme() 时抛出一句能看懂的错误",
             "不许把 theme 存到组件外的全局变量里",
           ],
+          requirementsEn: [
+            "theme starts as 'light'",
+            "toggleTheme flips between light and dark, using the updater form",
+            "The context value has to be memoized, so no new object appears while theme is unchanged",
+            "The reference of toggleTheme has to be stable, unchanged even when theme changes",
+            "Calling useTheme() with no Provider above it throws a message a person can read",
+            "Do not keep theme in a global variable outside the component",
+          ],
           checks: [
-            { label: "用 createContext 造了 context", must: "createContext\\s*(<[^>]*>)?\\s*\\(" },
-            { label: "默认值给的是 undefined（配合守卫）", must: "createContext\\s*(<[^>]*>)?\\s*\\(\\s*undefined\\s*\\)" },
-            { label: "theme 初始为 light", must: "useState\\s*(<[^>]*>)?\\s*\\(\\s*[\"'`]light[\"'`]\\s*\\)" },
-            { label: "toggleTheme 用函数式更新", must: "setTheme\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>" },
-            { label: "没有读闭包里的 theme 去算新值", mustNot: "setTheme\\s*\\(\\s*theme\\s*===" },
-            { label: "toggleTheme 包了 useCallback", must: "useCallback" },
-            { label: "context value 用 useMemo 记忆化", must: "useMemo\\s*\\(" },
-            { label: "没有直接把字面量对象传给 Provider", mustNot: "value=\\{\\{" },
-            { label: "渲染了 Ctx.Provider 并把 children 放进去", must: "\\.Provider[\\s\\S]{0,80}children" },
-            { label: "useTheme 里用了 useContext", must: "useContext\\s*\\(" },
-            { label: "useTheme 里有守卫并抛错", must: "if\\s*\\([^)]*\\)\\s*throw new Error" },
-            { label: "没有把 theme 放到模块级全局变量", mustNot: "^let\\s+theme\\s*=" },
+            { label: "用 createContext 造了 context", labelEn: "createContext builds the context", must: "createContext\\s*(<[^>]*>)?\\s*\\(" },
+            { label: "默认值给的是 undefined（配合守卫）", labelEn: "The default value is undefined, to pair with the guard", must: "createContext\\s*(<[^>]*>)?\\s*\\(\\s*undefined\\s*\\)" },
+            { label: "theme 初始为 light", labelEn: "theme starts as light", must: "useState\\s*(<[^>]*>)?\\s*\\(\\s*[\"'`]light[\"'`]\\s*\\)" },
+            { label: "toggleTheme 用函数式更新", labelEn: "toggleTheme uses the updater form", must: "setTheme\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>" },
+            { label: "没有读闭包里的 theme 去算新值", labelEn: "The new value is not computed from the theme in the closure", mustNot: "setTheme\\s*\\(\\s*theme\\s*===" },
+            { label: "toggleTheme 包了 useCallback", labelEn: "toggleTheme is wrapped in useCallback", must: "useCallback" },
+            { label: "context value 用 useMemo 记忆化", labelEn: "The context value is memoized with useMemo", must: "useMemo\\s*\\(" },
+            { label: "没有直接把字面量对象传给 Provider", labelEn: "No object literal is passed straight to the Provider", mustNot: "value=\\{\\{" },
+            { label: "渲染了 Ctx.Provider 并把 children 放进去", labelEn: "Ctx.Provider is rendered with children inside it", must: "\\.Provider[\\s\\S]{0,80}children" },
+            { label: "useTheme 里用了 useContext", labelEn: "useTheme uses useContext", must: "useContext\\s*\\(" },
+            { label: "useTheme 里有守卫并抛错", labelEn: "useTheme has a guard that throws", must: "if\\s*\\([^)]*\\)\\s*throw new Error" },
+            { label: "没有把 theme 放到模块级全局变量", labelEn: "theme is not kept in a module-level global", mustNot: "^let\\s+theme\\s*=" },
           ],
           hints: [
             "先想清楚三个问题：这个值放在谁的 state 里？谁能读到它？「忘了套 Provider」的时候，你希望程序静默地用一个假默认值，还是当场炸给你看？",
@@ -6241,8 +6279,35 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }`,
           ],
+          hintsEn: [
+            "Settle three questions first: whose state holds this value? Who can read it? And when somebody forgets the Provider, do you want the program to quietly use a made-up default, or to fail loudly right there?",
+            "Give createContext a default of undefined, then in useTheme write if (!ctx) throw. That reports clearly and lets TS narrow the type. Write toggleTheme as setTheme(prev => ...) wrapped in useCallback(..., []), and the value as useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]).",
+            `const Ctx = createContext<type of the value | undefined>(undefined)
+
+ThemeProvider:
+  theme, setTheme = useState("light")
+  toggleTheme = useCallback(() => setTheme(old value => old value is light ? dark : light), [])
+  value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme])
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
+
+useTheme:
+  ctx = useContext(Ctx)
+  if nothing came back, throw a readable message
+  return ctx`,
+            `const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<Theme>("light");
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  }, []);
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}`,
+          ],
           solution: tested("tsx", THEME_CONTEXT, {
             filename: "参考答案（实测 8/8 通过）",
+            filenameEn: "Reference answer (8 of 8 pass here)",
             collapsible: true,
           }),
         },
