@@ -3286,6 +3286,8 @@ try {
       title: "变式四 · 递归读取评论的评论",
       titleEn: "Variation 4 · reading replies to replies with recursion",
       blurb: "组件自己渲染自己；难点其实不在渲染，而在「给第四层加一条回复」怎么不改原树。",
+      blurbEn:
+        "A component renders itself. The hard part is not the rendering, it is adding a reply four levels down without changing the original tree.",
       minutes: 20,
       objectives: [
         "写出一个递归渲染自身的组件，并说清终止条件在哪",
@@ -3293,13 +3295,23 @@ try {
         "实现「往任意深度的节点下加回复」的不可变更新",
         "解释为什么只重建路径上的节点、而不是深拷贝整棵树",
       ],
+      objectivesEn: [
+        "Write a component that renders itself, and say exactly where the recursion stops",
+        "Count every item in the tree with recursion",
+        "Add a reply under a node at any depth without changing the original tree",
+        "Explain why you rebuild only the nodes on the path instead of deep-copying the whole tree",
+      ],
       whyForAssessment:
         "评论嵌套、目录树、组织架构、文件夹 —— 树形数据是 assessment 里的常客，而且它同时考「递归组件」和「嵌套结构的不可变更新」两件事。后者是前面所有 CRUD 题的升级版：数组的不可变更新大家都会了，树的还得再想一层。",
+      whyForAssessmentEn:
+        "Nested comments, directory trees, org charts, folders: tree data shows up in exams all the time, and it tests two things at once — a recursive component, and updating a nested structure without changing the original. The second one is a step up from every CRUD question so far. Everyone can do it for an array; a tree needs one more level of thought.",
       concepts: [
         {
           id: "shape",
           heading: "数据形状：一个类型引用自己",
+          headingEn: "The shape of the data: a type that refers to itself",
           lede: "评论的评论，本质上就是一个字段指回自己的类型。",
+          ledeEn: "A comment on a comment is really just a type with one field that points back at itself.",
           body: (
             <>
               <p>
@@ -3355,7 +3367,9 @@ try {
         {
           id: "recursive-component",
           heading: "递归组件：终止条件不用写 if",
+          headingEn: "A recursive component: you do not need an if to stop it",
           lede: "很多人卡在「递归怎么停」，其实 map 已经帮你停了。",
+          ledeEn: "Many people get stuck on how the recursion stops. map already stops it for you.",
           body: (
             <>
               <p>
@@ -3442,6 +3456,7 @@ try {
         {
           id: "recursive-count",
           heading: "递归统计：一行 reduce",
+          headingEn: "Counting with recursion: one line of reduce",
           body: (
             <>
               <p>
@@ -3498,7 +3513,9 @@ export function countComments(nodes: Comment[]): number {
         {
           id: "immutable-tree",
           heading: "真正的难点：给第四层加一条回复",
+          headingEn: "The real difficulty: adding a reply four levels down",
           lede: "数组的不可变更新大家都会了。树的还要再想一层。",
+          ledeEn: "Everyone can update an array without changing the original. A tree needs one more level of thought.",
           body: (
             <>
               <p>
@@ -3633,7 +3650,9 @@ const next = JSON.parse(JSON.stringify(comments));`,
         {
           id: "full",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "7 个测试全过，含「深层回复落在正确位置」和「原树未被修改」。",
+          ledeEn: "All 7 tests pass, including one that a deep reply lands in the right place and one that the original tree was not changed.",
           body: (
             <>
               <p>
@@ -3677,7 +3696,9 @@ const next = JSON.parse(JSON.stringify(comments));`,
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           lede: "「有没有偷偷改原树」这件事，用深冻结一测就知道。",
+          ledeEn: "To find out whether the original tree was quietly changed, freeze it all the way down and run the test.",
           body: (
             <>
               <p>
@@ -4043,6 +4064,14 @@ type Comment = { id: number; body: string; depth: number; replies: Comment[] };`
               <strong>用参数往下传 <code>depth + 1</code> 就够了。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              Depth is where the node sits in the tree, and it is worked out while
+              rendering. Store it in the data and every move or nesting operation has to
+              update it recursively; miss one and it no longer matches the real structure.{" "}
+              <strong>Passing <code>depth + 1</code> down as an argument is enough.</strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -4057,6 +4086,17 @@ const [collapsed, setCollapsed] = useState<Set<number>>(new Set());`,
               纯属自找麻烦。
               <br />
               例外：如果题目要求「一键全部折叠」，那才需要提上去。
+            </>
+          ),
+          whyEn: (
+            <>
+              Whether one item is collapsed matters only to that item, which makes it a
+              textbook piece of local state. Lifting it to the top means keeping a set of
+              ids and replacing that Set on every change — trouble you did not have to ask
+              for.
+              <br />
+              One exception: if the task asks for collapse everything with one button, then
+              it does have to move up.
             </>
           ),
         },
@@ -4078,15 +4118,56 @@ setComments(next);`,
               <strong>只重建路径</strong>才是这道题想考的。
             </>
           ),
+          whyEn: (
+            <>
+              The result is right and the original tree is untouched, so every test may
+              pass. But <strong>every node now has a new reference</strong>, so every
+              subtree wrapped in <code>React.memo</code> re-renders, and a large tree
+              visibly stalls. A deep copy is expensive on large data on its own too.
+              <br />
+              <strong>Rebuilding only the path</strong> is what this question is asking
+              for.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「评论的评论」「目录树」「组织架构」", reachFor: "类型自引用 + 递归组件" },
-        { signal: "递归组件怎么停", reachFor: "空数组 map 什么都不产出，天然终止" },
-        { signal: "「统计/查找/拍平树」", reachFor: "reduce 递归：自己 + 子树" },
-        { signal: "「给树里某个节点加/改/删」", reachFor: "map 递归，只重建路径上的节点" },
-        { signal: "需要缩进或层级样式", reachFor: "depth 参数往下传，别存进数据" },
-        { signal: "没报错 + 日志对 + 界面不动", reachFor: "改了原对象（数组和树都一样）" },
+        {
+          signal: "「评论的评论」「目录树」「组织架构」",
+          signalEn: "Comments on comments, directory trees, org charts",
+          reachFor: "类型自引用 + 递归组件",
+          reachForEn: "A type that refers to itself, plus a recursive component",
+        },
+        {
+          signal: "递归组件怎么停",
+          signalEn: "How a recursive component stops",
+          reachFor: "空数组 map 什么都不产出，天然终止",
+          reachForEn: "map over an empty array produces nothing, so it stops by itself",
+        },
+        {
+          signal: "「统计/查找/拍平树」",
+          signalEn: "Count, search, or flatten a tree",
+          reachFor: "reduce 递归：自己 + 子树",
+          reachForEn: "Recursive reduce: this node plus its subtrees",
+        },
+        {
+          signal: "「给树里某个节点加/改/删」",
+          signalEn: "Add, edit, or delete one node inside a tree",
+          reachFor: "map 递归，只重建路径上的节点",
+          reachForEn: "Recursive map; rebuild only the nodes on the path",
+        },
+        {
+          signal: "需要缩进或层级样式",
+          signalEn: "You need indentation or per-level styling",
+          reachFor: "depth 参数往下传，别存进数据",
+          reachForEn: "Pass depth down as an argument; do not store it in the data",
+        },
+        {
+          signal: "没报错 + 日志对 + 界面不动",
+          signalEn: "No error, the log looks right, the screen does not change",
+          reachFor: "改了原对象（数组和树都一样）",
+          reachForEn: "The original object was changed in place, in a tree just as in an array",
+        },
       ],
       recap: [
         "「评论的评论」= 类型里有个字段指回自己；深度不存数据，渲染时用参数传。",
@@ -4094,6 +4175,13 @@ setComments(next);`,
         "递归统计的骨架是「自己 1 条 + 子树全部」，同一模式能算深度、查找、拍平。",
         "树的不可变更新：map 递归，命中就 { ...node, replies: [...replies, reply] }，未命中也要造新节点并递归子树。",
         "只重建从根到目标的路径，不要深拷贝整棵树 —— 否则 React.memo 全失效。",
+      ],
+      recapEn: [
+        "A comment on a comment means a type with a field pointing back at itself. Depth is not stored in the data; it is passed down as an argument while rendering.",
+        "A recursive component renders itself inside its own JSX. Empty replies make map produce nothing, so the recursion ends on its own.",
+        "The shape of a recursive count is: this node counts 1, plus everything in its subtrees. The same pattern computes depth, searches, and flattens.",
+        "Updating a tree without changing the original: recursive map. On a match, { ...node, replies: [...replies, reply] }. On a miss, still build a new node and recurse into its subtrees.",
+        "Rebuild only the path from the root down to the target. Do not deep-copy the whole tree, or React.memo stops helping anywhere.",
       ],
     },
 
