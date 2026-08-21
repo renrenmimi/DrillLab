@@ -668,6 +668,10 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
             "tsx",
             `// ✗ onChange 里忘了 .value
 <input value={title} onChange={(e) => setTitle(e.target)} />`,
+            {
+              codeEn: `// ✗ .value is missing inside onChange
+<input value={title} onChange={(e) => setTitle(e.target)} />`,
+            },
           ),
           why: (
             <>
@@ -694,6 +698,11 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
             `// ✗ 提交后忘了清空表单
 onSubmit(newNote);
 // 少了 setTitle("") 和 setContent("")`,
+            {
+              codeEn: `// ✗ the form is not cleared after submitting
+onSubmit(newNote);
+// setTitle("") and setContent("") are missing`,
+            },
           ),
           why: (
             <>
