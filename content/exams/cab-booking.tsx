@@ -5859,10 +5859,30 @@ $ npx vitest run
             },
           ],
           transfer: [
-            { signal: "拿到一个只给测试的项目", reachFor: "先跑基线记下来，再按测试顺序一条一条变绿" },
-            { signal: "一次改动之后好几条测试同时红", reachFor: "回退到只改一处，把变量降到一个" },
-            { signal: "「我知道怎么做但写不出来」", reachFor: "那就是这一档要练的东西 —— 卡住的地方才是薄弱点" },
-            { signal: "本机装不了 Node", reachFor: "StackBlitz：WebContainers 能真跑 npm install 和 npm test" },
+            {
+              signal: "拿到一个只给测试的项目",
+              signalEn: "You get a project that gives you only tests",
+              reachFor: "先跑基线记下来，再按测试顺序一条一条变绿",
+              reachForEn: "Run the baseline and write it down, then make the tests pass one by one in order",
+            },
+            {
+              signal: "一次改动之后好几条测试同时红",
+              signalEn: "Several tests fail together after a single change",
+              reachFor: "回退到只改一处，把变量降到一个",
+              reachForEn: "Go back to changing one thing at a time, so there is only one variable",
+            },
+            {
+              signal: "「我知道怎么做但写不出来」",
+              signalEn: "\"I know how to do it but I cannot write it\"",
+              reachFor: "那就是这一档要练的东西 —— 卡住的地方才是薄弱点",
+              reachForEn: "That is exactly what this level trains; the place you get stuck is the weak point",
+            },
+            {
+              signal: "本机装不了 Node",
+              signalEn: "You cannot install Node on your own machine",
+              reachFor: "StackBlitz：WebContainers 能真跑 npm install 和 npm test",
+              reachForEn: "StackBlitz: WebContainers really do run npm install and npm test",
+            },
           ],
           recap: [
             "按测试顺序写：测试 1 绿了再写测试 2 需要的东西，每步只有一个变量。",
