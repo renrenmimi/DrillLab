@@ -2253,10 +2253,17 @@ export const reactMastery: Module = {
           kind: "debug",
           id: "r-lab-import-path",
           title: "故障 1 · 路径大小写",
+          titleEn: "Fault 1 · upper and lower case in a path",
           level: 2,
           prompt: (
             <p>
               新建了组件之后启动开发服务器，Vite 直接报错，页面白屏。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You add a new component, start the dev server, and Vite reports an
+              error right away. The page is blank.
             </p>
           ),
           errorOutput: `[plugin:vite:import-analysis] Failed to resolve import
@@ -2276,27 +2283,32 @@ function App() {
           ),
           classify: {
             options: [
-              { id: "a", label: "模块解析错误 —— 路径写错了" },
-              { id: "b", label: "类型错误" },
-              { id: "c", label: "渲染循环" },
-              { id: "d", label: "状态更新错误" },
+              { id: "a", label: "模块解析错误 —— 路径写错了", labelEn: "A module resolution error — the path is wrong" },
+              { id: "b", label: "类型错误", labelEn: "A type error" },
+              { id: "c", label: "渲染循环", labelEn: "A render loop" },
+              { id: "d", label: "状态更新错误", labelEn: "A state update mistake" },
             ],
             answer: "a",
           },
           locate: {
             question: "具体错在哪？",
+            questionEn: "What exactly is wrong?",
             options: [
-              { id: "a", label: "目录名大小写不对，实际是 NoteManager" },
-              { id: "b", label: "应该写 ../components/NoteManager" },
-              { id: "c", label: "应该加 .tsx 后缀" },
-              { id: "d", label: "应该用花括号：import { NoteManager }" },
+              { id: "a", label: "目录名大小写不对，实际是 NoteManager", labelEn: "The case of the directory name is wrong; it is really NoteManager" },
+              { id: "b", label: "应该写 ../components/NoteManager", labelEn: "It should be ../components/NoteManager" },
+              { id: "c", label: "应该加 .tsx 后缀", labelEn: "The .tsx extension should be added" },
+              { id: "d", label: "应该用花括号：import { NoteManager }", labelEn: "It should use braces: import { NoteManager }" },
             ],
             answer: "a",
           },
           fixed: real(
             "tsx",
             `import NoteManager from "./components/NoteManager";`,
-            { filename: "改对之后", sourceFile: "react-notes-app/src/App.tsx" },
+            {
+              filename: "改对之后",
+              filenameEn: "After the fix",
+              sourceFile: "react-notes-app/src/App.tsx",
+            },
           ),
           rootCause: (
             <>
@@ -2320,7 +2332,37 @@ function App() {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                The real name of the directory is <code>NoteManager</code>, with
+                a capital N and a capital M.
+              </p>
+              <p>
+                <strong>This bug is especially easy to miss on macOS</strong>:
+                the default macOS file system{" "}
+                <strong>does not distinguish upper from lower case</strong>, so
+                sometimes it runs locally. But module resolution in Vite, and CI
+                on Linux, <strong>both do distinguish</strong>. That produces
+                the &ldquo;it works here, it fails as soon as I commit&rdquo;
+                situation.
+              </p>
+              <p>
+                Look at option C: this project uses Vite, so you{" "}
+                <strong>may</strong> leave out the extension, because Vite adds{" "}
+                <code>/index.tsx</code> for you. So adding the extension is not
+                required, unlike the plain ESM described in the previous course.{" "}
+                <strong>
+                  The same thing follows different rules in different
+                  environments, which is exactly why you read the build
+                  configuration.
+                </strong>
+              </p>
+            </>
+          ),
           verify: "npm run dev   # 页面应该正常显示表单和表格",
+          verifyEn:
+            "npm run dev   # the page should show the form and the table normally",
         },
         {
           kind: "debug",
