@@ -1921,9 +1921,17 @@ useEffect(() => {
 if (isFormInvalid) return;      // handleSubmit 里再挡一次`,
               {
                 filename: "src/components/NoteForm/index.tsx（节选）",
+                filenameEn: "src/components/NoteForm/index.tsx (excerpt)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
+                codeEn: `const isFormInvalid = title.trim() === "" || content.trim() === "";
+
+// used in two places:
+<button type="submit" disabled={isFormInvalid} data-testid="form-submit-button">
+if (isFormInvalid) return;      // handleSubmit blocks it a second time`,
                 explanation:
                   "注意 .trim() —— 只输入空格也算无效。这个细节题目没写，但它是合理实现的一部分，而且测试里 disabled 那条也能覆盖到初始空值的情况。",
+                explanationEn:
+                  "Note the .trim() — spaces only still counts as invalid. The task never says this, but it is part of a sensible implementation, and the disabled assertion in the tests covers the empty initial values too.",
               },
             ),
           ],
@@ -2000,6 +2008,7 @@ if (isFormInvalid) return;      // handleSubmit 里再挡一次`,
 </button>`,
               {
                 filename: "src/components/NoteForm/index.tsx（节选）",
+                filenameEn: "src/components/NoteForm/index.tsx (excerpt)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 highlight: [6],
               },
@@ -2090,7 +2099,7 @@ noteToEdit   NoteItem 产生 + NoteForm 消费    NoteManager（共同祖先）
 title        只有 NoteForm 用                 NoteForm（自己留着）
 content      只有 NoteForm 用                 NoteForm（自己留着）
 isFormInvalid 由 title/content 算出           不是 state，当场算`,
-              { filename: "四个值的归属" },
+              { filename: "四个值的归属", filenameEn: "Where the four values belong" },
             ),
           ],
         },
