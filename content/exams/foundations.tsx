@@ -2379,6 +2379,8 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
           titleEn: "Async: Promise, await, all and allSettled",
           blurb:
             "Q2 整道题就是异步，GraphQL resolver 每一个都是 async。这一节把它们讲透。",
+          blurbEn:
+            "All of Q2 is async work, and every GraphQL resolver is async. This lesson covers all of it.",
           minutes: 15,
           objectives: [
             "说清 Promise 的三种状态，以及 await 到底在等什么",
@@ -2386,8 +2388,16 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
             "知道「函数」和「函数的返回值」在异步里为什么必须分清",
             "会用 try/catch 包住 await",
           ],
+          objectivesEn: [
+            "Explain the three states of a Promise, and what await is actually waiting for",
+            "Tell apart how Promise.all and Promise.allSettled behave",
+            "Know why a function and the value a function returns must be kept apart in async code",
+            "Wrap an await in try/catch",
+          ],
           whyForAssessment:
             "Q2 要你手写一个「allSettled + 并发上限」；Federation 的每个 resolver 都是 async 且要求 try/catch。这一节是两道题共同的地基。",
+          whyForAssessmentEn:
+            "Q2 asks you to write allSettled behaviour with a limit on how many run at once. In Federation, every resolver is async and has to use try/catch. This lesson is the base both questions stand on.",
           sourceFiles: [
             { path: "react-notes-app/q2/taskRunner.ts", role: "Q2 的题面与要求都在文件顶部注释里" },
             { path: "react-notes-app/q2/demo.ts", role: "验证台：打印实时并发数" },
@@ -2396,7 +2406,9 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
             {
               id: "promise-basics",
               heading: "Promise：一张「以后会给你结果」的凭据",
+              headingEn: "A Promise is a receipt for a result that arrives later",
               lede: "它有三种状态，而且只会变一次。",
+              ledeEn: "It has three states, and it settles only once.",
               body: (
                 <>
                   <p>
@@ -2463,7 +2475,9 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
             {
               id: "fn-vs-result",
               heading: "最关键的一个区分：函数，还是函数的返回值",
+              headingEn: "The key distinction: a function, or the value the function returns",
               lede: "Q2 整道题都建立在这个区分上。",
+              ledeEn: "The whole of Q2 rests on this distinction.",
               body: (
                 <>
                   <p>看 Q2 的类型定义：</p>
@@ -2531,6 +2545,8 @@ await task();    // ✓ 对：先调用，再等它的返回值`,
             {
               id: "all-vs-allsettled",
               heading: "Promise.all 和 Promise.allSettled：差别在「一个失败了怎么办」",
+              headingEn:
+                "Promise.all and Promise.allSettled: they differ in what happens when one fails",
               body: (
                 <>
                   <div className="table-wrap">
@@ -2644,7 +2660,10 @@ await task();    // ✓ 对：先调用，再等它的返回值`,
             {
               id: "worker-pool",
               heading: "并发上限的实现思路：共享一个游标的 worker",
+              headingEn: "How to limit how many run at once: workers sharing one cursor",
               lede: "别想复杂了。就是「开 limit 个工人，一起从同一个待办队列里抢活」。",
+              ledeEn:
+                "It is simpler than it sounds. Start limit workers, and let them all take the next job from the same queue.",
               body: (
                 <>
                   <p>
@@ -2738,6 +2757,7 @@ task 6 DONE    (running now: 0)`,
             {
               id: "try-catch-await",
               heading: "try/catch 包住 await",
+              headingEn: "Wrapping await in try/catch",
               body: (
                 <>
                   <p>
@@ -2900,10 +2920,30 @@ task 6 DONE    (running now: 0)`,
             },
           ],
           transfer: [
-            { signal: "「不管有没有失败都要拿到全部结果」", reachFor: "Promise.allSettled 的语义" },
-            { signal: "「限制同时进行的数量」", reachFor: "传函数数组 + worker pool 共享游标" },
-            { signal: "「一批 id 换一批数据」", reachFor: "map + Promise.all，长度与顺序不变" },
-            { signal: "「proper error handling」出现在 TODO 里", reachFor: "try { await ... } catch" },
+            {
+              signal: "「不管有没有失败都要拿到全部结果」",
+              signalEn: "You need every result, whether some failed or not",
+              reachFor: "Promise.allSettled 的语义",
+              reachForEn: "That is what Promise.allSettled does",
+            },
+            {
+              signal: "「限制同时进行的数量」",
+              signalEn: "You must limit how many run at the same time",
+              reachFor: "传函数数组 + worker pool 共享游标",
+              reachForEn: "Pass an array of functions, and have a pool of workers share one cursor",
+            },
+            {
+              signal: "「一批 id 换一批数据」",
+              signalEn: "Turn a list of ids into a list of records",
+              reachFor: "map + Promise.all，长度与顺序不变",
+              reachForEn: "map plus Promise.all. The length and the order stay the same",
+            },
+            {
+              signal: "「proper error handling」出现在 TODO 里",
+              signalEn: "A TODO comment asks for proper error handling",
+              reachFor: "try { await ... } catch",
+              reachForEn: "try { await ... } catch",
+            },
           ],
           recap: [
             "Promise 三态，只定一次；await 成功给值、失败抛异常。",
@@ -2911,6 +2951,13 @@ task 6 DONE    (running now: 0)`,
             "all 一个失败就整体失败；allSettled 全等完再汇总。两者都保证顺序。",
             "并发上限 = 开 limit 个 worker 抢同一个游标，结果按下标写回自动保序。",
             "await 要用 try/catch 接；catch 之后循环继续，才叫「不抛错」。",
+          ],
+          recapEn: [
+            "A Promise has three states and settles only once. await gives you the value on success and throws on failure.",
+            "() => Promise<T> is a function. Promise<T> is work that has already started. Only the first form lets you control how many run at once.",
+            "all fails as a whole as soon as one fails. allSettled waits for all of them and then reports. Both keep the order.",
+            "To cap how many run at once, start limit workers that share one cursor, and write each result back at its own index so the order is kept.",
+            "Catch an await with try/catch. Only if the loop carries on after the catch does the function really not throw.",
           ],
         },
 
