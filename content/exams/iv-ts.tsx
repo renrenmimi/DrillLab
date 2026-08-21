@@ -205,7 +205,28 @@ type UserCardProps = Pick<User, "name" | "role">;
 
 // Omit<T, K>：去掉不该外泄的字段
 type PublicUser = Omit<User, "email">;`,
-              { filename: "三个场景各拿哪个" },
+              {
+    codeEn: `interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: "admin" | "member";
+}
+
+// Partial<T>: every field in patch may be left out, but if given it must be right
+function updateUser(user: User, patch: Partial<User>): User {
+  return { ...user, ...patch };
+}
+
+declare const user: User;
+updateUser(user, { name: "Ada" });     // ✓ pass only the fields you change
+// updateUser(user, { nmae: "Ada" });  // ✗ field name misspelt, compile error
+
+// Pick<T, K>: cut the fields a component really uses out of a bigger type
+type UserCardProps = Pick<User, "name" | "role">;
+
+// Omit<T, K>: drop the fields that must not leak out
+type PublicUser = Omit<User, "email">;`, filename: "三个场景各拿哪个" },
             ),
             demo(
               "ts",
@@ -221,7 +242,19 @@ const themeColor: Record<Theme, string> = {
 // 索引签名：任何 string 键都「合法」
 const loose: { [key: string]: string } = { light: "#ffffff" };
 loose["drak"];   // 编译器放行，类型还谎称是 string —— 运行时是 undefined`,
-              { filename: "Record vs 索引签名" },
+              {
+    codeEn: `type Theme = "light" | "dark";
+
+// Record plus a literal union: the set of keys is closed
+const themeColor: Record<Theme, string> = {
+  light: "#ffffff",
+  dark: "#1a1a1a",
+};
+// Leaving out dark, or adding blue, is a compile error either way
+
+// An index signature: any string key is "valid"
+const loose: { [key: string]: string } = { light: "#ffffff" };
+loose["drak"];   // The compiler allows it and claims string — at runtime it is undefined`, filename: "Record vs 索引签名" },
             ),
           ],
         },
@@ -366,7 +399,36 @@ type Card = MyPick<User, "id" | "name">;
 // { id: number; name: string }
 
 // MyPick<User, "age"> 在这一行就报错，而不是悄悄得到一个错的类型`,
-              { filename: "MyPartial 与 MyPick" },
+              {
+    codeEn: `interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+// MyPartial: copy every property and add ? along the way
+type MyPartial<T> = {
+  [K in keyof T]?: T[K];
+};
+
+// Read it piece by piece:
+//   keyof T        the union of property names: "id" | "name" | "email"
+//   [K in ...]     mapping: one property per member of the union, K is the loop variable
+//   ?:             adds the optional modifier to each generated property
+//   T[K]           indexed access: copy whatever type the original property had
+
+// MyPick: keep only the properties listed in K
+type MyPick<T, K extends keyof T> = {
+  [P in K]: T[P];
+};
+
+type Draft = MyPartial<User>;
+// { id?: number; name?: string; email?: string }
+
+type Card = MyPick<User, "id" | "name">;
+// { id: number; name: string }
+
+// MyPick<User, "age"> fails on this line, instead of quietly giving a wrong type`, filename: "MyPartial 与 MyPick" },
             ),
             demo(
               "ts",
@@ -384,7 +446,21 @@ type NoEmail = MyOmit<User, "email">;
 
 // 官方 Omit 的约束更宽：K extends keyof any（即 string | number | symbol）。
 // 所以 Omit<User, "notAKey"> 合法，MyOmit<User, "notAKey"> 报错。`,
-              { filename: "追问：Omit 怎么组合出来" },
+              {
+    codeEn: `// The expected answer to the follow-up: Omit is Pick over the remaining keys
+type MyOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+type NoEmail = MyOmit<User, "email">;
+// { id: number; name: string }
+
+// The built-in Omit has a looser constraint: K extends keyof any (string | number | symbol).
+// So Omit<User, "notAKey"> is allowed, while MyOmit<User, "notAKey"> is an error.`, filename: "追问：Omit 怎么组合出来" },
             ),
           ],
         },
@@ -486,7 +562,23 @@ type NoA = Exclude<"a" | "b" | "c", "a">;
 // 手写版各一行
 type MyExclude<T, U> = T extends U ? never : T;
 type MyExtract<T, U> = T extends U ? T : never;`,
-              { filename: "分配律：过滤联合" },
+              {
+    codeEn: `// A conditional type: the ternary expression, at the type level
+type IsString<T> = T extends string ? true : false;
+type A = IsString<"hi">;   // true
+type B = IsString<42>;     // false
+
+// Distribution: a bare type parameter over a union is applied member by member, then joined
+type NoA = Exclude<"a" | "b" | "c", "a">;
+// = ("a" extends "a" ? never : "a")
+// | ("b" extends "a" ? never : "b")
+// | ("c" extends "a" ? never : "c")
+// = never | "b" | "c"
+// = "b" | "c"            ← never is the empty union, so it disappears in a join
+
+// One line each, written by hand
+type MyExclude<T, U> = T extends U ? never : T;
+type MyExtract<T, U> = T extends U ? T : never;`, filename: "分配律：过滤联合" },
             ),
             demo(
               "ts",
@@ -507,7 +599,24 @@ type Unwrap<T> = T extends Promise<infer V> ? V : T;
 
 type N = ElementOf<number[]>;        // number
 type S = Unwrap<Promise<string>>;    // string`,
-              { filename: "infer：把返回类型拆出来" },
+              {
+    codeEn: `// infer R: leave a hole in the pattern, and the compiler fills it in when the match succeeds
+// (this is exactly how ReturnType is written in lib.es5.d.ts)
+type MyReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
+
+function getUser() {
+  return { id: 1, name: "Ada" };
+}
+
+type U = MyReturnType<typeof getUser>;
+// { id: number; name: string }
+
+// The same move takes apart any composite type
+type ElementOf<T> = T extends (infer E)[] ? E : never;
+type Unwrap<T> = T extends Promise<infer V> ? V : T;
+
+type N = ElementOf<number[]>;        // number
+type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类型拆出来" },
             ),
           ],
         },
@@ -730,7 +839,23 @@ const user = { id: 1, name: "Ada", active: true };
 const n = getProp(user, "name");     // n 的类型是 string
 const a = getProp(user, "active");   // a 的类型是 boolean
 // getProp(user, "email");           // ✗ 编译期就挡住，不用等运行时的 undefined`,
-              { filename: "约束前 vs 约束后" },
+              {
+    codeEn: `// Without a constraint: K and T are unrelated, so the compiler cannot prove obj has that key
+function getPropBad<T, K>(obj: T, key: K) {
+  // return obj[key];
+  // ✗ Type 'K' cannot be used to index type 'T'.
+}
+
+// With a constraint: K is limited to T's property names, and the return type is exactly T[K]
+function getProp<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+const user = { id: 1, name: "Ada", active: true };
+
+const n = getProp(user, "name");     // n has type string
+const a = getProp(user, "active");   // a has type boolean
+// getProp(user, "email");           // ✗ stopped at compile time, no runtime undefined`, filename: "约束前 vs 约束后" },
             ),
           ],
         },
@@ -851,7 +976,28 @@ function area(s: Shape): number {
     }
   }
 }`,
-              { filename: "判别联合与穷尽检查" },
+              {
+    codeEn: `type Shape =
+  | { kind: "circle"; radius: number }
+  | { kind: "square"; side: number }
+  | { kind: "rect"; width: number; height: number };
+
+function area(s: Shape): number {
+  switch (s.kind) {
+    case "circle":
+      return Math.PI * s.radius ** 2;   // inside this branch s is narrowed to circle
+    case "square":
+      return s.side ** 2;
+    case "rect":
+      return s.width * s.height;
+    default: {
+      // Exhaustiveness check: all three members are handled, so s can only be never here.
+      // Add a fourth kind and forget its case, and this line fails to compile at once.
+      const exhausted: never = s;
+      return exhausted;
+    }
+  }
+}`, filename: "判别联合与穷尽检查" },
             ),
             demo(
               "ts",
@@ -870,7 +1016,22 @@ const raw: unknown = JSON.parse(localStorage.getItem("draft") ?? "{}");
 if (isShape(raw)) {
   area(raw);   // ✓ 这一行的安全是运行时检查换来的，不是宣称出来的
 }`,
-              { filename: "as 是闭嘴，收窄是证明" },
+              {
+    codeEn: `// as tells the compiler to be quiet; it does not prove anything to the compiler
+const draft = JSON.parse(localStorage.getItem("draft") ?? "{}") as Shape;
+// The compiler believes it. At runtime this can be anything, and the error surfaces elsewhere
+
+// A type guard is a proof: every narrowing step is backed by a real runtime check
+function isShape(x: unknown): x is Shape {
+  if (typeof x !== "object" || x === null) return false;
+  if (!("kind" in x)) return false;
+  return x.kind === "circle" || x.kind === "square" || x.kind === "rect";
+}
+
+const raw: unknown = JSON.parse(localStorage.getItem("draft") ?? "{}");
+if (isShape(raw)) {
+  area(raw);   // ✓ this line is safe because of the runtime check, not because we said so
+}`, filename: "as 是闭嘴，收窄是证明" },
             ),
           ],
         },
@@ -1003,7 +1164,24 @@ if (typeof u === "string") {
 function fail(msg: string): never {
   throw new Error(msg);
 }`,
-              { filename: "三个极端" },
+              {
+    codeEn: `// any lets everything through both ways: anything goes into it, and it goes into anything
+const a: any = JSON.parse('"hi"');
+const n1: number = a;      // the compiler says nothing, and n1 is really a string
+a.toFixed();               // compiles, then throws a TypeError at runtime
+
+// unknown: anything comes in, but you must narrow it before it goes out
+const u: unknown = JSON.parse('"hi"');
+// const n2: number = u;   // ✗ Type 'unknown' is not assignable to type 'number'
+// u.toUpperCase();        // ✗ 'u' is of type 'unknown'
+if (typeof u === "string") {
+  u.toUpperCase();         // ✓ usable once it is proved to be a string
+}
+
+// never: no value is possible — it either throws or is unreachable
+function fail(msg: string): never {
+  throw new Error(msg);
+}`, filename: "三个极端" },
             ),
             demo(
               "ts",
@@ -1018,7 +1196,18 @@ function fail(msg: string): never {
     console.error(String(e));    // 兜底：JS 允许 throw 任何值，包括字符串
   }
 }`,
-              { filename: "catch (e) 的标准处理" },
+              {
+    codeEn: `try {
+  JSON.parse("{oops");
+} catch (e) {
+  // Under strict (useUnknownInCatchVariables) e is unknown:
+  // console.error(e.message);   // ✗ 'e' is of type 'unknown'
+  if (e instanceof Error) {
+    console.error(e.message);    // ✓ readable only after narrowing to Error
+  } else {
+    console.error(String(e));    // fallback: JS allows throwing any value, strings included
+  }
+}`, filename: "catch (e) 的标准处理" },
             ),
           ],
         },
