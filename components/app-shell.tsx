@@ -1,32 +1,60 @@
 "use client";
 
-// 外壳：顶栏 + 左侧课程目录 + 主内容（+ 可选右侧目录栏）。
+// 外壳：顶栏 + 左侧学习路径 + 主内容（+ 可选右侧目录栏）。
 //
-// 【导航的分工 —— 这一版专门为了解决「到底看顶栏还是看侧栏」】
+// 【为什么又改了导航 —— 上一版仍然是错的】
 //
-// 顶栏 = 去哪儿。全站级的五个目的地，跟当前学到哪无关。
-// 侧栏 = 我在学什么。**只在课程页和模拟考页出现**，而且只展开当前这一门。
+// 上一版的分工是「顶栏 = 去哪儿，侧栏 = 我在学什么，侧栏只在课程页出现」。
+// 使用者的反馈是：那七个已上线的 app「你点左边那栏，一步一步做，就不会错过
+// 任何信息」，而这个不行 ——「你不知道该点左边还是该点 header 那些链接」。
 //
-// 之前的问题：侧栏在每一页都显示全部课程的目录，于是
-//   · 在「速查」「练习场」这种页面上，侧栏是纯噪音；
-//   · 顶栏的「考试」和侧栏的课程列表、首页的课程清单三重重复；
-//   · 各门课并列排着，没有任何「先学哪个」的信号。
+// 病根不是标签起得不好，是**这个产品是二维的，而导航把两维拆给了两个控件**：
+//   一维是学什么   —— foundations / react / federation / cab-booking / 八股
+//   一维是给你多少 —— 八股 → 课内练习 → Coding → 考场（见 components/ladder.tsx）
+// 两维正交，谁也不是谁的子集。侧栏管第一维、顶栏管第二维，于是站在任何
+// 一页上都有两个都说得通的下一步，学的人得在脑子里拼一张矩阵才知道点哪个。
 //
-// 现在：
-//   · 非课程页不渲染侧栏，页面全宽（.shell[data-nav="off"]）；
-//   · 「考试」索引页并进「课程」（/path），顶栏因此只剩一个课程入口；
-//   · 侧栏顶部写明「建议顺序」并给每门课编号（01 起，按 NAV 的顺序）；
-//   · 顶栏多一个 中/EN 开关。
+// 这一版只做一件事：**把第二维塞进第一维**。
+//   · 侧栏常驻，每一页都在，就是那条唯一的阶梯；
+//   · 主线按 prerequisites 排序并编号 01 起 —— 不是按 NAV 的登记顺序；
+//   · 展开当前那门课时，四个难度档按顺序摊开：
+//     课文（每节带自己的八股题数）→ Coding → 考场 → 模拟考；
+//     哪一档没内容就不出现（给 foundations 挂个「Coding 0」只是噪音）；
+//   · 面试八股没有前置、也没有课依赖它，所以不编号，单独放「平行支线」；
+//   · 主线里第一门没做完的那门标「从这里开始 / 接着学」——
+//     编号只说顺序，这个才回答「现在该进行哪一步」；
+//   · 四张全量表（/drill /practice /code /arena）压到最下面一组：
+//     竖着走一门课是主路，横着看一整档是另一种看法，都留着但不并列。
 //
-// 侧栏内容全部由 content/nav 推导 —— 加一门考试不用碰这个文件。
+// 顶栏因此只剩跟学习内容无关的东西：品牌、搜索、语言、主题。
+//
+// 侧栏内容全部由 content/nav 和 content/path 推导 —— 加一门考试不用碰这个文件。
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { NAV, examPath, lessonPath } from "@/content/nav";
+import {
+  ARENA,
+  CODING,
+  DRILLS,
+  NAV,
+  arenaPath,
+  codingPath,
+  examPath,
+  lessonPath,
+  type NavExam,
+} from "@/content/nav";
+import {
+  arenaOfExam,
+  codingOfExam,
+  drillsOfExam,
+  drillsOfLesson,
+  pathGroups,
+} from "@/content/path";
 import { useLocale } from "@/lib/locale";
 import { useProgress } from "@/lib/progress";
 import { useTheme } from "@/lib/theme";
+import { drillListHref } from "./drill-query";
 import { Search } from "./search";
 import { T } from "./t";
 
@@ -54,16 +82,6 @@ const TOP_NAV = [
   // 但必须在顶栏里 —— 藏在首页某一段里的说明书等于没有。
   { href: "/guide", zh: "使用说明", en: "How to use" },
 ];
-
-/**
- * 哪些路径下才显示左侧课程目录。
- *
- * 情景侧边栏：只有进到某一门考试内部才出现，而且下面只展开**当前这一门**，
- * 别的门只留一行标题 —— 不让无关课程干扰当前的学习心流。
- */
-function hasCourseNav(path: string) {
-  return path.startsWith("/exams") || path.startsWith("/mock/");
-}
 
 function Mark() {
   // 四根递减的柱子 —— 这个站的内核就是四条主线，每一条给你的脚手架比上一条少：
@@ -104,24 +122,276 @@ function Mark() {
   );
 }
 
+/**
+ * 一门课在侧栏里的那一节。
+ *
+ * 折叠时一行：编号、名字、进度。
+ * 展开时（只有当前这门会展开）把这门课的四个难度档按顺序摊开 ——
+ * 课文 → Coding → 考场 → 模拟考。顺序就是 Ladder 的顺序，不是随便排的。
+ */
+function ExamNode({
+  exam,
+  num,
+  isNext,
+  onNavigate,
+}: {
+  exam: NavExam;
+  /** 主线才有编号；平行支线传 undefined */
+  num?: number;
+  /** 建议从这门开始 / 接着学 */
+  isNext: boolean;
+  onNavigate: () => void;
+}) {
+  const path = usePathname();
+  const { locale } = useLocale();
+  const { lessonDone, countLessons, ready } = useProgress();
+
+  const isCurrent =
+    path.startsWith(examPath(exam.id)) || path.startsWith(`/mock/${exam.id}`);
+  const done = ready ? countLessons(exam.id) : 0;
+
+  const coding = codingOfExam(exam.id);
+  const arena = arenaOfExam(exam.id);
+  const drills = drillsOfExam(exam.id);
+
+  return (
+    <div className="side-group">
+      <Link
+        className="side-exam"
+        href={examPath(exam.id)}
+        data-active={isCurrent || undefined}
+        data-next={isNext || undefined}
+        onClick={onNavigate}
+      >
+        <span className="side-exam-title">
+          <span className="side-exam-idx tabular">
+            {num === undefined ? "—" : String(num).padStart(2, "0")}
+          </span>
+          {exam.shortTitle}
+          {exam.status === "draft" && (
+            <span className="tag" style={{ fontSize: 10 }}>
+              <T zh="草稿" en="Draft" />
+            </span>
+          )}
+        </span>
+        <span className="side-exam-meta">
+          <T
+            zh={`${done} / ${exam.lessonCount} 节${drills.length ? ` · ${drills.length} 道八股` : ""}`}
+            en={`${done} / ${exam.lessonCount} lessons${drills.length ? ` · ${drills.length} drills` : ""}`}
+          />
+        </span>
+        {/* 只在 ready 之后渲染 —— 进度在 localStorage 里，服务端不知道，
+            提前渲染会 hydration 不一致。 */}
+        {isNext && ready && (
+          <span className="side-exam-next">
+            {done === 0 ? (
+              <T zh="从这里开始" en="Start here" />
+            ) : (
+              <T zh="接着学" en="Continue" />
+            )}
+          </span>
+        )}
+      </Link>
+
+      {/* 【为什么模块要折叠】
+          原来当前那门课的所有模块全展开 —— React 考试 21 节、八股 25 节
+          堆成一长条，要找「我在哪」得整条扫一遍。
+          现在只展开你正在读的那个模块，其余收起来。
+
+          用原生 <details>：零 JS，键盘和屏幕阅读器都免费得到正确行为。
+          open 由当前路径算出来，所以换页时会自动跟着走；
+          中途手动展开别的模块也不会被打断（React 不会因为无关渲染去改它）。 */}
+      {isCurrent &&
+        exam.modules.map((mod) => {
+          const hasCurrent = mod.lessons.some((l) => path === lessonPath(exam.id, l.id));
+          const doneInMod = ready
+            ? mod.lessons.filter((l) => lessonDone(exam.id, l.id)).length
+            : 0;
+          return (
+            <details className="side-mod" key={mod.id} open={hasCurrent}>
+              <summary className="side-mod-title">
+                {mod.stage && <span className="side-mod-stage">{mod.stage}</span>}
+                <span className="side-mod-name">{mod.title}</span>
+                <span className="side-mod-count tabular">
+                  {doneInMod}/{mod.lessons.length}
+                </span>
+              </summary>
+              <ul className="side-lessons">
+                {mod.lessons.map((lesson) => {
+                  const href = lessonPath(exam.id, lesson.id);
+                  // 这一节自己的八股题。105 道挂在 17 节课上，最多一节 12 道 ——
+                  // 平铺进侧栏不可能，但标出数量并链到只筛这一节的题单可以。
+                  const n = drillsOfLesson(lesson.id).length;
+                  return (
+                    <li key={lesson.id}>
+                      <Link
+                        className="side-lesson"
+                        href={href}
+                        data-active={path === href || undefined}
+                        data-done={ready && lessonDone(exam.id, lesson.id) ? "true" : undefined}
+                        onClick={onNavigate}
+                      >
+                        <span className="side-lesson-n">·</span>
+                        <span>{lesson.title}</span>
+                      </Link>
+                      {n > 0 && (
+                        <Link
+                          className="side-drill-n tabular"
+                          href={drillListHref({}, { lesson: lesson.id })}
+                          onClick={onNavigate}
+                          title={
+                            locale === "en"
+                              ? `${n} short questions from this lesson`
+                              : `这一节的 ${n} 道八股题`
+                          }
+                        >
+                          <T zh={`八股 ${n}`} en={`${n} drills`} />
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </details>
+          );
+        })}
+
+      {/* 课文之后是三个更高的难度档。哪一档没有内容就不出现 ——
+          给 foundations 挂一个「Coding 0」只是噪音。 */}
+      {isCurrent && coding.length > 0 && (
+        <details className="side-mod" open={path.startsWith("/code")}>
+          <summary className="side-mod-title">
+            <span className="side-mod-stage">
+              <T zh="写得对" en="Write it" />
+            </span>
+            {/* 不叫「Coding 题」：八股那门课里有个模块就叫「Coding 题：对照与补缺」，
+                两个都以「Coding 题」开头挨在同一列里，正是使用者说的「分不清」。
+                那个是讲题的课，这个是整套的题本身。 */}
+            <span className="side-mod-name">
+              <T zh="整套 Coding 题" en="Coding problems" />
+            </span>
+            <span className="side-mod-count tabular">{coding.length}</span>
+          </summary>
+          <ul className="side-lessons">
+            {coding.map((c) => {
+              const href = codingPath(c.id);
+              return (
+                <li key={c.id}>
+                  <Link
+                    className="side-lesson"
+                    href={href}
+                    data-active={path === href || undefined}
+                    onClick={onNavigate}
+                  >
+                    <span className="side-lesson-n">·</span>
+                    <span>{c.title}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </details>
+      )}
+
+      {isCurrent && arena.length > 0 && (
+        <details className="side-mod" open={path.startsWith("/arena")}>
+          <summary className="side-mod-title">
+            <span className="side-mod-stage">
+              <T zh="空手做" en="Build it blind" />
+            </span>
+            <span className="side-mod-name">
+              <T zh="考场题" en="Arena" />
+            </span>
+            <span className="side-mod-count tabular">{arena.length}</span>
+          </summary>
+          <ul className="side-lessons">
+            {arena.map((a) => {
+              const href = arenaPath(a.id);
+              return (
+                <li key={a.id}>
+                  <Link
+                    className="side-lesson"
+                    href={href}
+                    data-active={path === href || undefined}
+                    onClick={onNavigate}
+                  >
+                    <span className="side-lesson-n">·</span>
+                    <span>{a.title}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </details>
+      )}
+
+      {isCurrent && exam.mockExams.length > 0 && (
+        <div className="side-mod">
+          <div className="side-mod-title">
+            <T zh="模拟考" en="Mock exams" />
+          </div>
+          <ul className="side-lessons">
+            {exam.mockExams.map((m) => {
+              const href = `/mock/${exam.id}/${m.id}`;
+              return (
+                <li key={m.id}>
+                  <Link
+                    className="side-lesson"
+                    href={href}
+                    data-active={path === href || undefined}
+                    onClick={onNavigate}
+                  >
+                    <span className="side-lesson-n">·</span>
+                    <span>{m.title}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Sidebar({
   open,
   onNavigate,
   panelRef,
   offscreen,
-  showCourses,
 }: {
   open: boolean;
   onNavigate: () => void;
   panelRef: React.RefObject<HTMLElement | null>;
   /** 窄屏且抽屉关着 —— 此时侧栏在屏幕外，要整块移出可聚焦序列 */
   offscreen: boolean;
-  /** 当前页面有没有课程目录。没有时窄屏抽屉里只剩主导航 */
-  showCourses: boolean;
 }) {
   const path = usePathname();
-  const { lessonDone, countLessons, ready, reset } = useProgress();
+  const { countLessons, ready, reset } = useProgress();
   const { locale } = useLocale();
+
+  const groups = pathGroups();
+  const main = groups.find((g) => g.kind === "main")?.exams ?? [];
+
+  // 「下一步该学哪门」：主线里第一门没做完的。
+  // 这是使用者提的那个问题的直接答案（「第一步应该是从哪个内容学习」）——
+  // 光有编号还不够，编号只说顺序，不说你走到哪了。
+  // 平行支线不参与：它任何时候都能开始，谈不上「下一步」。
+  const nextExam = ready
+    ? main.find((e) => countLessons(e.id) < e.lessonCount)?.id
+    : undefined;
+
+  const exerciseTotal = NAV.reduce((n, e) => n + e.exerciseCount, 0);
+
+  // 四张全量表。侧栏是竖着走一门课，这里是横着看同一批题的某一档 ——
+  // 两种看法都留着，但竖的是主路，所以这一组压在最下面。
+  const BANKS = [
+    { href: "/drill", zh: "八股全表", en: "All drills", n: DRILLS.length },
+    { href: "/practice", zh: "课内练习", en: "Lesson exercises", n: exerciseTotal },
+    { href: "/code", zh: "Coding 全表", en: "All coding", n: CODING.length },
+    { href: "/arena", zh: "考场全表", en: "All arena", n: ARENA.length },
+    { href: "/reference", zh: "速查", en: "Reference", n: undefined },
+  ];
 
   return (
     <aside
@@ -148,127 +418,70 @@ function Sidebar({
         ))}
       </nav>
 
-      {/* 让「课程是有先后的」这件事一眼看出来。
-          注意用条件渲染而不是 hidden 属性 —— .side-head 是 display: flex，
+      {/* 注意用条件渲染而不是 hidden 属性 —— .side-head 是 display: flex，
           会盖掉 UA 样式表里的 [hidden] { display: none }（踩过）。 */}
-      {showCourses && (
-        <div className="side-head">
-          <span className="side-head-label">
-            <T zh="建议顺序" en="Suggested order" />
-          </span>
-          <Link className="side-head-link" href="/path" onClick={onNavigate}>
-            <T zh="看全部课程 →" en="All courses →" />
-          </Link>
-        </div>
-      )}
+      <div className="side-head">
+        <span className="side-head-label">
+          <T zh="学习路径" en="Learning path" />
+        </span>
+        <Link className="side-head-link" href="/path" onClick={onNavigate}>
+          <T zh="看总览 →" en="Overview →" />
+        </Link>
+      </div>
 
-      {showCourses && NAV.map((exam, i) => {
-        const isCurrent = path.startsWith(examPath(exam.id)) || path.startsWith(`/mock/${exam.id}`);
-        const done = ready ? countLessons(exam.id) : 0;
-
-        return (
-          <div className="side-group" key={exam.id}>
-            <Link
-              className="side-exam"
-              href={examPath(exam.id)}
-              data-active={isCurrent || undefined}
-              onClick={onNavigate}
-            >
-              <span className="side-exam-title">
-                <span className="side-exam-idx tabular">{String(i + 1).padStart(2, "0")}</span>
-                {exam.shortTitle}
-                {exam.status === "draft" && (
-                  <span className="tag" style={{ fontSize: 10 }}>
-                    <T zh="草稿" en="Draft" />
-                  </span>
-                )}
+      {groups.map((group) => (
+        <div key={group.kind}>
+          {/* 平行支线单独起一组，并且**不给编号**。
+              它没有前置课，也没有课以它为前置 —— 编成 05 是在骗人。 */}
+          {group.kind === "parallel" && (
+            <div className="side-band">
+              <span className="side-band-title">
+                <T zh="平行支线" en="Parallel track" />
               </span>
-              <span className="side-exam-meta">
+              <span className="side-band-note">
                 <T
-                  zh={`${done} / ${exam.lessonCount} 节 · ${exam.exerciseCount} 个练习`}
-                  en={`${done} / ${exam.lessonCount} lessons · ${exam.exerciseCount} exercises`}
+                  zh="不依赖主线，任何时候都能开始"
+                  en="No prerequisites — start any time"
                 />
               </span>
-            </Link>
+            </div>
+          )}
+          {group.exams.map((exam, i) => (
+            <ExamNode
+              key={exam.id}
+              exam={exam}
+              num={group.kind === "main" ? i + 1 : undefined}
+              isNext={exam.id === nextExam}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </div>
+      ))}
 
-            {/* 【为什么模块要折叠】
-                原来当前那门课的所有模块全展开 —— React 考试 21 节、八股 20 节
-                堆成一长条，要找「我在哪」得整条扫一遍。
-                现在只展开你正在读的那个模块，其余收起来。
-
-                用原生 <details>：零 JS，键盘和屏幕阅读器都免费得到正确行为。
-                open 由当前路径算出来，所以换页时会自动跟着走；
-                中途手动展开别的模块也不会被打断（React 不会因为无关渲染去改它）。 */}
-            {isCurrent &&
-              exam.modules.map((mod) => {
-                const hasCurrent = mod.lessons.some(
-                  (l) => path === lessonPath(exam.id, l.id),
-                );
-                const doneInMod = ready
-                  ? mod.lessons.filter((l) => lessonDone(exam.id, l.id)).length
-                  : 0;
-                return (
-                <details className="side-mod" key={mod.id} open={hasCurrent}>
-                  <summary className="side-mod-title">
-                    {mod.stage && <span className="side-mod-stage">{mod.stage}</span>}
-                    <span className="side-mod-name">{mod.title}</span>
-                    <span className="side-mod-count tabular">
-                      {doneInMod}/{mod.lessons.length}
-                    </span>
-                  </summary>
-                  <ul className="side-lessons">
-                    {mod.lessons.map((lesson) => {
-                      const href = lessonPath(exam.id, lesson.id);
-                      return (
-                        <li key={lesson.id}>
-                          <Link
-                            className="side-lesson"
-                            href={href}
-                            data-active={path === href || undefined}
-                            data-done={
-                              ready && lessonDone(exam.id, lesson.id) ? "true" : undefined
-                            }
-                            onClick={onNavigate}
-                          >
-                            <span className="side-lesson-n">·</span>
-                            <span>{lesson.title}</span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </details>
-                );
-              })}
-
-            {isCurrent && exam.mockExams.length > 0 && (
-              <div className="side-mod">
-                <div className="side-mod-title">
-                  <T zh="模拟考" en="Mock exams" />
-                </div>
-                <ul className="side-lessons">
-                  {exam.mockExams.map((m) => {
-                    const href = `/mock/${exam.id}/${m.id}`;
-                    return (
-                      <li key={m.id}>
-                        <Link
-                          className="side-lesson"
-                          href={href}
-                          data-active={path === href || undefined}
-                          onClick={onNavigate}
-                        >
-                          <span className="side-lesson-n">·</span>
-                          <span>{m.title}</span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
-          </div>
-        );
-      })}
+      <div className="side-band">
+        <span className="side-band-title">
+          <T zh="题库总表" en="Whole banks" />
+        </span>
+        <span className="side-band-note">
+          <T
+            zh="上面是竖着走一门课，这里是横着看同一档的全部题"
+            en="Above walks one course down; these list one tier across all courses"
+          />
+        </span>
+      </div>
+      <nav className="side-banks" aria-label={locale === "en" ? "Question banks" : "题库"}>
+        {BANKS.map((b) => (
+          <Link
+            key={b.href}
+            href={b.href}
+            data-active={path === b.href || undefined}
+            onClick={onNavigate}
+          >
+            <T zh={b.zh} en={b.en} />
+            {b.n !== undefined && <span className="side-bank-n tabular">{b.n}</span>}
+          </Link>
+        ))}
+      </nav>
 
       <div className="side-foot">
         <p style={{ marginBottom: 8 }}>
@@ -319,8 +532,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const openerRef = useRef<HTMLButtonElement | null>(null);
   // 初始 false，与服务端渲染一致；挂载后才根据实际视口修正
   const [narrow, setNarrow] = useState(false);
-
-  const showNav = hasCourseNav(path);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 900px)");
@@ -375,7 +586,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const en = locale === "en";
 
   return (
-    <div className="shell" data-nav={showNav ? undefined : "off"}>
+    <div className="shell">
       <header className="topbar" style={{ gridColumn: "1 / -1" }}>
         {/* 汉堡在桌面由 CSS 隐藏（那里侧栏是常驻列）；窄屏永远显示，
             因为抽屉同时承担主导航 */}
@@ -494,7 +705,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         onNavigate={() => setDrawer(false)}
         panelRef={panelRef}
         offscreen={narrow && !drawer}
-        showCourses={showNav}
       />
 
       {children}
