@@ -2269,6 +2269,7 @@ console.log("after:", notes);
       title: "从零重写：空文件夹到 4 个测试全过",
       titleEn: "Write it again yourself: from an empty folder to 4 passing tests",
       blurb: "不给答案。给需求、文件清单、验证命令和四级提示。这一关是分界线。",
+      blurbEn: "No answer is given. You get the requirements, the file list, the commands to check your work, and hints in four levels. This lesson is the dividing line.",
       minutes: 60,
       objectives: [
         "在没有参考代码的情况下从空文件建出整个项目",
@@ -2276,8 +2277,16 @@ console.log("after:", notes);
         "独立实现 Q1 三个任务和 Q2 调度器",
         "用测试和手动场景验证自己的实现",
       ],
+      objectivesEn: [
+        "Build the whole project from empty files, with no code to copy from",
+        "Set up the build and test configuration of a React project yourself",
+        "Implement the three Q1 tasks and the Q2 task runner without help",
+        "Check your implementation with the tests and by trying it by hand",
+      ],
       whyForAssessment:
         "填空和跟写只能证明你「看懂了」。真正的考试是打开一个空编辑器。这一关就是模拟那个时刻 —— 而且它比真实考试更难，因为连脚手架都要你自己搭。",
+      whyForAssessmentEn:
+        "Filling in blanks and copying along only proves you followed the explanation. The real exam starts with an empty editor. This lesson recreates that moment, and it is harder than the real exam, because here you also set up the project yourself.",
       sourceFiles: [
         { path: "react-notes-app/", role: "参考项目 —— 做完之后再对照，不要提前看" },
       ],
@@ -2285,7 +2294,9 @@ console.log("after:", notes);
         {
           id: "why-rebuild",
           heading: "为什么必须做这一关",
+          headingEn: "Why you have to do this lesson",
           lede: "读代码用的是识别能力，写代码用的是生成能力。两者不是一回事。",
+          ledeEn: "Reading code means recognising it. Writing code means producing it. These are two different abilities.",
           body: (
             <>
               <p>
@@ -2334,6 +2345,7 @@ console.log("after:", notes);
         {
           id: "how-to",
           heading: "建议的做法",
+          headingEn: "A suggested way to work through it",
           body: (
             <>
               <ol>
@@ -2811,10 +2823,10 @@ runTasks(tasks, 2).then((results) => {
         },
       ],
       transfer: [
-        { signal: "拿到空目录", reachFor: "先让空架子能跑起来，再写业务" },
-        { signal: "有测试文件", reachFor: "先抄进来当判卷器，一个一个攻" },
-        { signal: "不知道 state 放哪", reachFor: "画组件树，找需要它的组件的共同祖先" },
-        { signal: "写完了", reachFor: "跑测试 + 手动跑测试覆盖不到的场景" },
+        { signal: "拿到空目录", signalEn: "You are handed an empty folder", reachFor: "先让空架子能跑起来，再写业务", reachForEn: "Get the empty project running first, then write the features" },
+        { signal: "有测试文件", signalEn: "There is a test file", reachFor: "先抄进来当判卷器，一个一个攻", reachForEn: "Copy it in first and use it as your grader, then take one test at a time" },
+        { signal: "不知道 state 放哪", signalEn: "You do not know where to put the state", reachFor: "画组件树，找需要它的组件的共同祖先", reachForEn: "Draw the component tree and find the closest shared parent of the components that need it" },
+        { signal: "写完了", signalEn: "You think you are finished", reachFor: "跑测试 + 手动跑测试覆盖不到的场景", reachForEn: "Run the tests, then try the cases the tests do not cover by hand" },
       ],
       recap: [
         "识别能力和生成能力是两回事 —— 只有从空文件写过，才算真会。",
@@ -2822,6 +2834,13 @@ runTasks(tasks, 2).then((results) => {
         "有测试就先抄进来，它是你唯一客观的进度条。",
         "卡住 15 分钟再看提示，提示是四级递进的。",
         "最后一定要手动验证「按 id」「原位置」「退出编辑模式」这三条。",
+      ],
+      recapEn: [
+        "Recognising code and producing code are two different abilities. You only really know it once you have written it from empty files.",
+        "Opening move: get the empty project running first, so you can see Hello on screen, then write the features.",
+        "If there is a test, copy it in first. It is your only objective progress bar.",
+        "Stay stuck for 15 minutes before opening a hint. The hints go in four levels, each one more specific.",
+        "At the end, check three things by hand: it edits by id, the note stays in place, and edit mode closes.",
       ],
     },
   ],
