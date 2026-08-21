@@ -1810,10 +1810,18 @@ export class EventEmitter {
           kind: "code-completion",
           level: 3,
           title: "手写 LRUCache（用 Map，不写链表）",
+          titleEn: "Write an LRUCache by hand (use a Map, no linked list)",
           prompt: (
             <>
               把「什么都没存」的骨架写成真正的 LRU：超容量淘汰最久未使用，
               get 和 put 都要刷新「最近用过」。
+            </>
+          ),
+          promptEn: (
+            <>
+              This skeleton stores nothing. Turn it into a real LRU: over capacity, drop
+              the entry that has gone unused the longest, and both get and put must mark
+              an entry as recently used.
             </>
           ),
           language: "ts",
@@ -1840,6 +1848,28 @@ export class EventEmitter {
     return this.map.size;
   }
 }`,
+          starterEn: `export class LRUCache<K, V> {
+  private map = new Map<K, V>();
+
+  constructor(private capacity: number) {
+    if (capacity < 1) throw new Error("capacity must be at least 1");
+  }
+
+  get(key: K): V | undefined {
+    void key;
+    // TODO: on a hit -> delete then re-insert (that refreshes it), and return the value.
+    return undefined;
+  }
+
+  put(key: K, value: V): void {
+    void key; void value;
+    // TODO: delete an existing key first; after set, if over capacity delete map.keys().next().value.
+  }
+
+  get size(): number {
+    return this.map.size;
+  }
+}`,
           requirements: [
             "get / put 基本读写；get 不到返回 undefined",
             "超容量时淘汰最久未使用的那条",
@@ -1847,15 +1877,28 @@ export class EventEmitter {
             "put 已存在的 key：更新值并刷新",
             "capacity 为 1 也要正确",
           ],
+          requirementsEn: [
+            "Basic reads and writes through get and put; a miss on get returns undefined",
+            "Over capacity, drop the entry that has gone unused the longest",
+            "A hit on get marks that entry as recently used",
+            "put on a key that already exists updates the value and marks it as recently used",
+            "A capacity of 1 still behaves correctly",
+          ],
           checks: [
-            { label: "刷新 = 删掉再放回", must: "delete\\(" },
-            { label: "淘汰迭代器的第一个键", must: "keys\\(\\)\\.next\\(\\)" },
+            { label: "刷新 = 删掉再放回", labelEn: "Refreshing means delete then re-insert", must: "delete\\(" },
+            { label: "淘汰迭代器的第一个键", labelEn: "Drops the first key from the iterator", must: "keys\\(\\)\\.next\\(\\)" },
           ],
           hints: [
             "核心洞察：Map 按插入序遍历。「删掉再 set」= 挪到最新；keys().next().value = 最旧。",
             "get：!has 返回 undefined；否则取值、delete、set 回去、返回值。",
             "put：has 就先 delete；set；然后 size > capacity 时删 keys().next().value。",
             "先写 get 后写 put，两个都围绕「删掉再放回」这一个动作。",
+          ],
+          hintsEn: [
+            "The one idea to see: a Map iterates in insertion order. Delete-then-set moves an entry to the newest end; keys().next().value is the oldest.",
+            "get: if !has, return undefined; otherwise read the value, delete, set it back, and return it.",
+            "put: if has, delete first; then set; then if size > capacity, delete keys().next().value.",
+            "Write get before put. Both are built around the same single move: delete then re-insert.",
           ],
           solution: tested("ts", REF_LRU, {
             filename: "lru.ts（scratchpad vitest 5 / 5）",
