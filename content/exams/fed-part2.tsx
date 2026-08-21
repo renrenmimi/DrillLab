@@ -1815,6 +1815,12 @@ throw new GraphQLError('Failed to fetch orders for user', {
 async orders(user, _, { loaders }) {
   return loaders.orderLoader.load(user.id);
 }`,
+            {
+              codeEn: `// ✗ uses the loader instead of the data source
+async orders(user, _, { loaders }) {
+  return loaders.orderLoader.load(user.id);
+}`,
+            },
           ),
           why: (
             <>
@@ -1846,6 +1852,12 @@ async orders(user, _, { loaders }) {
 async orders(user, _, { dataSources }) {
   return await dataSources.orderDataSource.getOrdersByUserId(user.id);
 }`,
+            {
+              codeEn: `// ✗ forgot the fallback
+async orders(user, _, { dataSources }) {
+  return await dataSources.orderDataSource.getOrdersByUserId(user.id);
+}`,
+            },
           ),
           why: (
             <>
@@ -2073,6 +2085,17 @@ async shippingInfo(parent, _, { loaders }) {
 async shippingInfo(parent, _, { dataSources }) {
   return dataSources.shippingDataSource.getShippingInfo(parent.id);
 }`,
+              {
+                codeEn: `// ✓ goes through the loader — this answers the N+1 question
+async shippingInfo(parent, _, { loaders }) {
+  return loaders.shippingInfoLoader.load(parent.id);
+}
+
+// ✗ calls the data source directly — tests still pass, but one request per order
+async shippingInfo(parent, _, { dataSources }) {
+  return dataSources.shippingDataSource.getShippingInfo(parent.id);
+}`,
+              },
             ),
             real(
               "js",
@@ -2092,6 +2115,21 @@ it('should return null for order without shipping info', async () => {
 });`,
               {
                 filename: "两个相关测试",
+                filenameEn: "The two related tests",
+                codeEn: `it('should return shipping info for an order', async () => {
+  const order = { id: 'order-456' };                    // ← just one order
+  const shippingInfo = await resolvers.Order.shippingInfo(order, {}, context);
+
+  expect(shippingInfo).toBeDefined();
+  expect(shippingInfo).toHaveProperty('status');
+  expect(shippingInfo).toHaveProperty('trackingNumber');
+});
+
+it('should return null for order without shipping info', async () => {
+  const order = { id: 'order-999' };
+  const shippingInfo = await resolvers.Order.shippingInfo(order, {}, context);
+  expect(shippingInfo).toBeNull();                      // ← note it is toBeNull
+});`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/__tests__/resolvers.test.js",
                 highlight: [2, 12],
@@ -2218,6 +2256,29 @@ it('should return null for order without shipping info', async () => {
 }`,
               {
                 filename: "Order.shippingInfo（参考答案，实测通过）",
+                filenameEn:
+                  "Order.shippingInfo (reference answer, measured to pass)",
+                codeEn: `async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
+  try {
+    // going through the loader is what keeps this field from causing N+1
+    const shippingInfo = await loaders.shippingInfoLoader.load(parent.id);
+
+    // ShippingInfo is nullable in the schema -> null is a legal answer
+    return shippingInfo ?? null;
+  } catch (error) {
+    if (error instanceof GraphQLError) throw error;
+
+    console.error(\`[\${correlationId}] Error resolving Order.shippingInfo:\`, error.message);
+    throw new GraphQLError('Failed to fetch shipping info', {
+      extensions: {
+        code: ErrorCodes.SERVICE_ERROR,
+        correlationId,
+        orderId: parent.id,
+        originalError: error.message
+      }
+    });
+  }
+}`,
                 highlight: [4, 7],
               },
             ),
@@ -2270,7 +2331,7 @@ it('should return null for order without shipping info', async () => {
     shippingInfo { status trackingNumber }
   }
 }`,
-              { filename: "验证用的查询" },
+              { filename: "验证用的查询", filenameEn: "The query used to check it" },
             ),
             real(
               "text",
@@ -2284,7 +2345,20 @@ it('should return null for order without shipping info', async () => {
    "shippingInfo":{"status":"IN_TRANSIT","trackingNumber":"TRACK123456"}},
   {"id":"order-457","status":"DELIVERED",
    "shippingInfo":{"status":"DELIVERED","trackingNumber":"TRACK123457"}}]}`,
-              { filename: "合并生效的证据" },
+              {
+                filename: "合并生效的证据",
+                filenameEn: "Evidence the batching worked",
+                codeEn: `# The log you want (one line, N=2)
+[corr-...] Query.orders userId: 123
+[DataLoader] Batching 2 shipping info requests
+
+# The response measured in the audit (with the reference answer)
+{"orders":[
+  {"id":"order-456","status":"SHIPPED",
+   "shippingInfo":{"status":"IN_TRANSIT","trackingNumber":"TRACK123456"}},
+  {"id":"order-457","status":"DELIVERED",
+   "shippingInfo":{"status":"DELIVERED","trackingNumber":"TRACK123457"}}]}`,
+              },
             ),
           ],
         },
@@ -2294,11 +2368,18 @@ it('should return null for order without shipping info', async () => {
           kind: "fill-blank",
           id: "g-t2-blank",
           title: "补全 Order.shippingInfo",
+          titleEn: "Fill in Order.shippingInfo",
           level: 2,
           prompt: (
             <p>
               三个空。第 1 个决定你答不答得到 N+1 考点，
               第 3 个决定第二条测试过不过。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Three blanks. The first decides whether you answer the N+1
+              question at all; the third decides whether the second test passes.
             </p>
           ),
           language: "js",
@@ -2323,6 +2404,8 @@ it('should return null for order without shipping info', async () => {
               n: 1,
               accept: ["loaders"],
               hint: "TODO 原文点名了要用什么。context 里哪个键放着它？",
+              hintEn:
+                "The TODO names what to use. Which key in context holds it?",
               why: (
                 <>
                   <code>loaders</code>。TODO 原文写的是
@@ -2333,12 +2416,27 @@ it('should return null for order without shipping info', async () => {
                   但那样 N+1 这个考点就没答到 —— 这一问的分主要在这里。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>loaders</code>. The TODO says{" "}
+                  <em>using DataLoader to prevent N+1 queries</em>.
+                  <br />
+                  Writing{" "}
+                  <code>dataSources.shippingDataSource.getShippingInfo(...)</code>{" "}
+                  <strong>also passes both tests</strong>, because each test
+                  only asks for one order. But then the N+1 question goes
+                  unanswered, and that is where most of the credit for this part
+                  sits.
+                </>
+              ),
               width: 9,
             },
             {
               n: 2,
               accept: ["id"],
               hint: "parent 是那个 order 对象。loader 的 key 是什么？",
+              hintEn:
+                "parent is that order object. What is the loader's key?",
               why: (
                 <>
                   <code>id</code>。<code>shippingInfoLoader</code> 的 batch 函数
@@ -2350,12 +2448,27 @@ it('should return null for order without shipping info', async () => {
                   <code>status</code> 等属性。别传成 <code>parent.userId</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>id</code>. The batch function of{" "}
+                  <code>shippingInfoLoader</code> calls{" "}
+                  <code>getShippingInfo(orderId)</code>, so the key is the order
+                  id.
+                  <br />
+                  <code>parent</code> is the order object returned one level
+                  up. It has <code>id</code>, <code>userId</code>,{" "}
+                  <code>status</code> and so on. Do not pass{" "}
+                  <code>parent.userId</code> by mistake.
+                </>
+              ),
               width: 4,
             },
             {
               n: 3,
               accept: ["null"],
               hint: "schema 说 ShippingInfo 可空；而测试断言的是 toBeNull()。",
+              hintEn:
+                "The schema says ShippingInfo is nullable, and the test asserts toBeNull().",
               why: (
                 <>
                   <code>null</code>。两个理由：
@@ -2370,6 +2483,23 @@ it('should return null for order without shipping info', async () => {
                   写成 <code>[]</code> 或 <code>{"{}"}</code> 都会让测试挂。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>null</code>, for two reasons:
+                  <br />① In the schema{" "}
+                  <code>shippingInfo: ShippingInfo</code> has no{" "}
+                  <code>!</code>, so it is nullable.
+                  <br />② The test uses{" "}
+                  <code>expect(shippingInfo).toBeNull()</code> —{" "}
+                  <strong>
+                    <code>undefined</code> is not <code>null</code>
+                  </strong>
+                  , and that assertion would fail. So fall back to null
+                  explicitly.
+                  <br />
+                  <code>[]</code> or <code>{"{}"}</code> both break the test.
+                </>
+              ),
               width: 6,
             },
           ],
@@ -2378,6 +2508,7 @@ it('should return null for order without shipping info', async () => {
           kind: "recognition",
           id: "g-t2-why-loader",
           title: "为什么不能直接调数据源",
+          titleEn: "Why you cannot just call the data source",
           level: 1,
           prompt: (
             <p>
@@ -2385,11 +2516,17 @@ it('should return null for order without shipping info', async () => {
               能让两条测试都通过。为什么还是错的？
             </p>
           ),
+          promptEn: (
+            <p>
+              <code>dataSources.shippingDataSource.getShippingInfo(parent.id)</code>{" "}
+              makes both tests pass. So why is it still wrong?
+            </p>
+          ),
           options: [
-            { id: "a", label: "它会返回 undefined 而不是 null" },
-            { id: "b", label: "TODO 原文明确要求用 DataLoader 防 N+1；查 N 个订单会产生 N 次数据源调用" },
-            { id: "c", label: "shippingDataSource 不在 context 里" },
-            { id: "d", label: "它是同步的，不能 await" },
+            { id: "a", label: "它会返回 undefined 而不是 null", labelEn: "It returns undefined instead of null" },
+            { id: "b", label: "TODO 原文明确要求用 DataLoader 防 N+1；查 N 个订单会产生 N 次数据源调用", labelEn: "The TODO explicitly asks for DataLoader to prevent N+1; asking for N orders produces N calls to the data source" },
+            { id: "c", label: "shippingDataSource 不在 context 里", labelEn: "shippingDataSource is not in context" },
+            { id: "d", label: "它是同步的，不能 await", labelEn: "It is synchronous, so you cannot await it" },
           ],
           answer: ["b"],
           explain: (
@@ -2404,6 +2541,23 @@ it('should return null for order without shipping info', async () => {
               验证方式：数日志里 <code>[DataLoader] Batching</code> 的行数。
             </>
           ),
+          explainEn: (
+            <>
+              Each test only asks for one order, so it <strong>cannot see</strong>{" "}
+              the difference. But the TODO names DataLoader, and asking for 100
+              orders with a direct data-source call produces 100 requests.
+              <br />
+              <strong>
+                This is the third place in this project where a passing test
+                does not mean correct code
+              </strong>{" "}
+              (the first two: the three tests that pass by accident, and the
+              Java side scoring 3/5 while returning null everywhere).
+              <br />
+              How to check: count the{" "}
+              <code>[DataLoader] Batching</code> lines in the log.
+            </>
+          ),
         },
       ],
       mistakes: [
@@ -2415,6 +2569,13 @@ async shippingInfo(parent, _, { loaders }) {
   await new Promise((r) => setTimeout(r, 0));       // 多余的一跳
   return loaders.shippingInfoLoader.load(parent.id);
 }`,
+            {
+              codeEn: `// ✗ awaiting each one inside the resolver breaks the merge
+async shippingInfo(parent, _, { loaders }) {
+  await new Promise((r) => setTimeout(r, 0));       // an extra hop for nothing
+  return loaders.shippingInfoLoader.load(parent.id);
+}`,
+            },
           ),
           why: (
             <>
