@@ -210,6 +210,49 @@ const Tabs: React.FC<{ tabs: Tab[]; initialId?: string }> = ({ tabs, initialId }
 
 export default Tabs;`;
 
+const C_TABS_EN = `import React, { useState } from "react";
+
+export interface Tab { id: string; label: string; content: React.ReactNode }
+
+const Tabs: React.FC<{ tabs: Tab[]; initialId?: string }> = ({ tabs, initialId }) => {
+  // Only "which one is active" is stored; the current panel is derived from it
+  const [activeId, setActiveId] = useState(initialId ?? tabs[0]?.id);
+
+  const active = tabs.find((t) => t.id === activeId) ?? tabs[0];
+
+  return (
+    <div data-testid="tabs">
+      <div role="tablist">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={t.id === active.id}
+            aria-controls={\`panel-\${t.id}\`}
+            id={\`tab-\${t.id}\`}
+            onClick={() => setActiveId(t.id)}
+            data-testid={\`tab-\${t.id}\`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Only the active panel is rendered */}
+      <div
+        role="tabpanel"
+        id={\`panel-\${active.id}\`}
+        aria-labelledby={\`tab-\${active.id}\`}
+        data-testid="panel"
+      >
+        {active.content}
+      </div>
+    </div>
+  );
+};
+
+export default Tabs;`;
+
 const C_STARS = `import React, { useState } from "react";
 
 interface Props {
@@ -248,6 +291,56 @@ const StarRating: React.FC<Props> = ({ max = 5, value, onChange }) => {
           data-filled={n <= shown}
           onMouseEnter={() => setHover(n)}
           onClick={() => set(n === current ? 0 : n)}   // 再点同一颗就清零
+          data-testid={\`star-\${n}\`}
+        >
+          {n <= shown ? "★" : "☆"}
+        </button>
+      ))}
+      <output data-testid="stars-value">{current}</output>
+    </div>
+  );
+};
+
+export default StarRating;`;
+
+const C_STARS_EN = `import React, { useState } from "react";
+
+interface Props {
+  max?: number;
+  value?: number;                 // Pass it and the component is controlled
+  onChange?: (v: number) => void;
+}
+
+const StarRating: React.FC<Props> = ({ max = 5, value, onChange }) => {
+  const [inner, setInner] = useState(0);
+  const [hover, setHover] = useState<number | null>(null);
+
+  const isControlled = value !== undefined;
+  const current = isControlled ? value : inner;
+
+  // Show the hovered star if there is a hover, otherwise the picked one — this is derived data
+  const shown = hover ?? current;
+
+  const set = (v: number) => {
+    if (!isControlled) setInner(v);
+    onChange?.(v);
+  };
+
+  return (
+    <div
+      data-testid="stars"
+      data-value={current}
+      onMouseLeave={() => setHover(null)}
+    >
+      {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
+        <button
+          key={n}
+          type="button"
+          aria-label={\`\${n} 星\`}
+          aria-pressed={n === current}
+          data-filled={n <= shown}
+          onMouseEnter={() => setHover(n)}
+          onClick={() => set(n === current ? 0 : n)}   // Clicking the same star again resets to zero
           data-testid={\`star-\${n}\`}
         >
           {n <= shown ? "★" : "☆"}
@@ -1744,6 +1837,8 @@ export const ivCoding: Module = {
           code: [
             tested("tsx", C_TABS, {
               filename: "src/components/Tabs/index.tsx（实测通过）",
+              filenameEn: "src/components/Tabs/index.tsx (passes in a real run)",
+              codeEn: C_TABS_EN,
             }),
           ],
         },
@@ -1850,6 +1945,8 @@ export const ivCoding: Module = {
           code: [
             tested("tsx", C_STARS, {
               filename: "src/components/StarRating/index.tsx（实测通过）",
+              filenameEn: "src/components/StarRating/index.tsx (passes in a real run)",
+              codeEn: C_STARS_EN,
               collapsible: true,
             }),
             demo(
@@ -2060,6 +2157,8 @@ return (
           ],
           solution: tested("tsx", C_STARS, {
             filename: "参考答案（实测通过，含受控模式）",
+            filenameEn: "Reference answer (passes in a real run, controlled mode included)",
+            codeEn: C_STARS_EN,
             collapsible: true,
           }),
         },
