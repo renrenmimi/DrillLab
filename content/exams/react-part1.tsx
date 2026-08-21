@@ -823,6 +823,18 @@ const handleDelete = (id: number) => {
 </button>`,
               {
                 filename: "一条完整的事件链",
+                filenameEn: "One complete event chain",
+                codeEn: `// NoteManager (the parent): define the handler, pass it down
+const handleDelete = (id: number) => {
+  setNotes((prev) => prev.filter((note) => note.id !== id));
+};
+
+<NoteTable notes={notes} onDelete={handleDelete} onEdit={handleEdit} />
+
+// NoteItem (the grandchild): call it when the click happens
+<button onClick={() => onDelete(note.id)} className="danger">
+  Delete
+</button>`,
                 sourceFile:
                   "react-notes-app/src/components/NoteManager/index.tsx 与 NoteItem/index.tsx",
               },
@@ -920,12 +932,20 @@ const handleDelete = (id: number) => {
           kind: "fill-blank",
           id: "r-props-blanks",
           title: "补全 NoteItem 的两个按钮",
+          titleEn: "Fill in the two buttons of NoteItem",
           level: 2,
           prompt: (
             <p>
               这是 <code>NoteItem</code> 真实的两个按钮。
               一个要传整条笔记，一个只传 id —— 想清楚各自要传什么，
               以及怎么才能「点击时才执行」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              These are the two real buttons of <code>NoteItem</code>. One passes
+              the whole note, the other passes only the id. Decide what each one
+              has to pass, and how to make it run only on the click.
             </p>
           ),
           language: "tsx",
@@ -946,6 +966,7 @@ const handleDelete = (id: number) => {
               n: 1,
               accept: ["() =>", "()=>", "() = >"],
               hint: "要「点的时候才执行」，而且要传参数。",
+              hintEn: "It has to run only on the click, and it has to pass an argument.",
               why: (
                 <>
                   <code>() =&gt;</code>。需要传参数时，必须包一层箭头函数，
@@ -954,18 +975,39 @@ const handleDelete = (id: number) => {
                   因为 <code>NoteForm</code> 要用它的 title 和 content 回填表单。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>() =&gt;</code>. When you need to pass an argument you must
+                  wrap it in an arrow function, otherwise{" "}
+                  <code>onEdit(note)</code> runs right away during the render.
+                  What gets passed here is <strong>the whole note</strong>,
+                  because <code>NoteForm</code> needs its title and content to
+                  prefill the form.
+                </>
+              ),
               width: 8,
             },
             {
               n: 2,
               accept: ["note.id"],
               hint: "看 onDelete 的类型：(id: number) => void。",
+              hintEn: "Look at the type of onDelete: (id: number) => void.",
               why: (
                 <>
                   <code>note.id</code>。<code>onDelete</code> 的类型签名是
                   <code>(id: number) =&gt; void</code>，只要 id。
                   README 也明确写了删除要<strong>「按 id」</strong>——
                   传整条 note 会类型报错，按 title 删则违反题目要求。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>note.id</code>. The type signature of{" "}
+                  <code>onDelete</code> is <code>(id: number) =&gt; void</code>,
+                  so it wants the id and nothing else. The README also says the
+                  delete has to work <strong>by id</strong>. Passing the whole
+                  note is a type error, and deleting by title breaks the
+                  requirement.
                 </>
               ),
               width: 9,
@@ -976,11 +1018,20 @@ const handleDelete = (id: number) => {
           kind: "debug",
           id: "r-debug-immediate-call",
           title: "Debug Lab · 页面一打开，所有笔记就消失了",
+          titleEn: "Debug Lab · every note disappears the moment the page opens",
           level: 2,
           prompt: (
             <p>
               添加两条笔记后刷新页面（假设有持久化），表格瞬间变空。
               有时候浏览器还会卡住。先判断类型，再找病灶。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Add two notes, then reload the page (assume the notes are saved
+              somewhere). The table goes empty at once, and sometimes the browser
+              stops responding. First name the kind of error, then find the line
+              that causes it.
             </p>
           ),
           errorOutput: `Warning: Maximum update depth exceeded. This can happen when a component
@@ -1004,24 +1055,37 @@ React limits the number of nested updates to prevent infinite loops.
     </tr>
   );
 };`,
-            { filename: "有问题的 NoteItem", highlight: [7, 10] },
+            {
+              filename: "有问题的 NoteItem",
+              filenameEn: "The NoteItem with the bug",
+              highlight: [7, 10],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "类型错误 —— props 类型写错了" },
-              { id: "b", label: "事件处理器错误 —— 渲染时就调用了函数，而不是把函数传下去" },
-              { id: "c", label: "状态更新错误 —— 改了原数组" },
-              { id: "d", label: "异步错误 —— 少了 await" },
+              { id: "a", label: "类型错误 —— props 类型写错了", labelEn: "A type error — the props types are wrong" },
+              {
+                id: "b",
+                label: "事件处理器错误 —— 渲染时就调用了函数，而不是把函数传下去",
+                labelEn: "An event handler error — the function is called during the render instead of being passed down",
+              },
+              { id: "c", label: "状态更新错误 —— 改了原数组", labelEn: "A state update error — the original array was changed" },
+              { id: "d", label: "异步错误 —— 少了 await", labelEn: "An async error — an await is missing" },
             ],
             answer: "b",
           },
           locate: {
             question: "第 7 行和第 10 行错在哪？",
+            questionEn: "What is wrong on line 7 and line 10?",
             options: [
-              { id: "a", label: "少了一层箭头函数：应该是 onClick={() => onDelete(note.id)}" },
-              { id: "b", label: "应该写成 onclick 而不是 onClick" },
-              { id: "c", label: "note.id 应该改成 note" },
-              { id: "d", label: "className 的位置不对" },
+              {
+                id: "a",
+                label: "少了一层箭头函数：应该是 onClick={() => onDelete(note.id)}",
+                labelEn: "An arrow function wrapper is missing: it should be onClick={() => onDelete(note.id)}",
+              },
+              { id: "b", label: "应该写成 onclick 而不是 onClick", labelEn: "It should be onclick, not onClick" },
+              { id: "c", label: "note.id 应该改成 note", labelEn: "note.id should be note" },
+              { id: "d", label: "className 的位置不对", labelEn: "className is in the wrong place" },
             ],
             answer: "a",
           },
@@ -1036,6 +1100,7 @@ React limits the number of nested updates to prevent infinite loops.
 </button>`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteItem/index.tsx",
             },
           ),
@@ -1056,6 +1121,31 @@ React limits the number of nested updates to prevent infinite loops.
                 记住这条判别法：<strong>onClick 后面的花括号里，
                 要么是一个名字，要么是一个箭头函数。
                 出现「名字 + 括号」就一定是错的。</strong>
+              </p>
+            </>
+          ),
+          rootCauseEn: (
+            <>
+              <p>
+                Inside the curly braces of{" "}
+                <code>onClick={"{onDelete(note.id)}"}</code> there is a{" "}
+                <strong>function call</strong>, and it runs while the JSX is
+                being evaluated — that is, during the render. React receives its
+                return value, <code>undefined</code>, so an actual click does
+                nothing.
+              </p>
+              <p>
+                It gets worse: render, call onDelete, setState, render again,
+                call onDelete again. That is an endless loop, and React throws{" "}
+                <code>Maximum update depth exceeded</code>.
+              </p>
+              <p>
+                Remember this rule of thumb:{" "}
+                <strong>
+                  inside the curly braces after onClick you write either a name
+                  or an arrow function. A name followed by parentheses is always
+                  wrong.
+                </strong>
               </p>
             </>
           ),
