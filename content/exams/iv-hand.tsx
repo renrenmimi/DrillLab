@@ -1920,7 +1920,19 @@ items.forEach((item) => {
 });
 
 // promiseAll([slow("a"), fast("b")]) 会得到 ["b", "a"] —— 测试第一条就红`,
-            { filename: "Promise.all 手写题的第一名错法" },
+            {
+              filename: "Promise.all 手写题的第一名错法",
+              filenameEn: "The number one wrong answer to the Promise.all question",
+              codeEn: `// ✕ collecting results with push — the order becomes "whoever finished first comes first"
+items.forEach((item) => {
+  Promise.resolve(item).then((value) => {
+    results.push(value);              // the fast one cut the line
+    if (results.length === items.length) resolve(results);
+  }, reject);
+});
+
+// promiseAll([slow("a"), fast("b")]) gives you ["b", "a"] — the very first test goes red`,
+            },
           ),
           why: (
             <>
