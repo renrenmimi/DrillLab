@@ -1029,7 +1029,18 @@ const cabBooking: Exam = {
     </li>
   ))}
 </ul>`,
-                { filename: "挂错层级" },
+                {
+                  filename: "挂错层级",
+                  filenameEn: "Placed on the wrong level",
+                  codeEn: `// ✕ the testid sits on the outer node — test 4 counts only 1
+<ul className="history-list" data-testid="history-cabs">
+  {latestRides.map((ride, index) => (
+    <li key={ride.id}>
+      <span>{ride.name}</span>
+    </li>
+  ))}
+</ul>`,
+                },
               ),
               why: (
                 <>
@@ -1247,6 +1258,7 @@ const cabBooking: Exam = {
               code: [
                 real("jsx", SRC_CONTEXT, {
                   filename: "src/context/CabContext.js（源项目原文 —— 注意扩展名）",
+                  filenameEn: "src/context/CabContext.js (as in the source project — note the extension)",
                   sourceFile: "cab-booking-context/src/context/CabContext.js",
                   highlight: [3, 26, 27, 28],
                 }),
@@ -1348,6 +1360,7 @@ const cabBooking: Exam = {
               code: [
                 real("jsx", SRC_INDEX, {
                   filename: "src/index.jsx（Provider 在 App 外面）",
+                  filenameEn: "src/index.jsx (the Provider wraps App)",
                   sourceFile: "cab-booking-context/src/index.jsx",
                   highlight: [9, 10, 11],
                 }),
@@ -1485,6 +1498,7 @@ const App = () => {
               code: [
                 real("jsx", SRC_APP, {
                   filename: "src/App.jsx（唯一的写入口在这里被调用）",
+                  filenameEn: "src/App.jsx (the only write path is called here)",
                   sourceFile: "cab-booking-context/src/App.jsx",
                   highlight: [14, 16, 17, 18, 19],
                 }),
@@ -1692,6 +1706,7 @@ export { CabProvider, useCabContext };`,
               ],
               solution: real("jsx", SRC_CONTEXT, {
                 filename: "src/context/CabContext.jsx（参考答案 —— 源项目原文，仅改扩展名）",
+              filenameEn: "src/context/CabContext.jsx (reference answer — the source project text, only the extension changed)",
                 sourceFile: "cab-booking-context/src/context/CabContext.js",
               }),
             },
@@ -2014,6 +2029,7 @@ const useCabContext = () => {
               code: [
                 real("jsx", SRC_APP, {
                   filename: "src/App.jsx（四个 && 就是状态机）",
+                  filenameEn: "src/App.jsx (four && operators are the state machine)",
                   sourceFile: "cab-booking-context/src/App.jsx",
                   highlight: [25, 29, 33, 37],
                 }),
@@ -2131,6 +2147,7 @@ const useCabContext = () => {
               code: [
                 real("jsx", SRC_HOME, {
                   filename: "src/components/Home/Home.jsx（只往上抛回调）",
+                  filenameEn: "src/components/Home/Home.jsx (it only passes the callback up)",
                   sourceFile: "cab-booking-context/src/components/Home/Home.jsx",
                   highlight: [15],
                 }),
@@ -2743,6 +2760,7 @@ const handleSelectCab = (cab) => {
               code: [
                 real("jsx", SRC_CARD, {
                   filename: "src/components/CabOptions/CabCard.jsx（五个 testid）",
+                  filenameEn: "src/components/CabOptions/CabCard.jsx (five testids)",
                   sourceFile: "cab-booking-context/src/components/CabOptions/CabCard.jsx",
                   highlight: [4, 6, 9, 12, 17],
                 }),
@@ -2867,6 +2885,7 @@ const CabCard = ({ cab, onSelectCab }) => {
               ],
               solution: real("jsx", SRC_CARD, {
                 filename: "src/components/CabOptions/CabCard.jsx（参考答案 —— 源项目原文）",
+              filenameEn: "src/components/CabOptions/CabCard.jsx (reference answer — the source project text)",
                 sourceFile: "cab-booking-context/src/components/CabOptions/CabCard.jsx",
               }),
             },
@@ -3582,6 +3601,7 @@ Ignored nodes: comments, script, style
               },
               fixed: real("jsx", SRC_LOADING, {
                 filename: "src/components/Loading/Loading.jsx（修好：补上依赖数组）",
+              filenameEn: "src/components/Loading/Loading.jsx (fixed: the dependency array is back)",
                 sourceFile: "cab-booking-context/src/components/Loading/Loading.jsx",
                 highlight: [10],
               }),
@@ -4463,6 +4483,7 @@ const RideHistory = () => {
               ],
               solution: real("jsx", SRC_HISTORY, {
                 filename: "src/components/Home/RideHistory.jsx（参考答案 —— 源项目原文）",
+              filenameEn: "src/components/Home/RideHistory.jsx (reference answer — the source project text)",
                 sourceFile: "cab-booking-context/src/components/Home/RideHistory.jsx",
               }),
             },
@@ -4855,6 +4876,7 @@ Error: Failed to parse source for import analysis because the content contains i
       Tests  no tests`,
                   {
                     filename: "npx vitest run 的真实输出（本机实测，路径已改短）",
+                  filenameEn: "The real output of npx vitest run (measured here, with paths shortened)",
                     explanation:
                       "「Tests no tests」这五个字是最重要的信号 —— 一个测试都没跑起来。这时候去改组件代码是白费功夫。",
                   },
@@ -5242,6 +5264,7 @@ const value = useMemo(
 // 否则它每次都是新函数，useMemo 的依赖每次都变 —— 记忆化等于没做。`,
                   {
                     filename: "两处改法（示意 —— 不是源项目代码）",
+                  filenameEn: "Two ways to change it (illustration — not source project code)",
                     explanation:
                       "最后那句注释是这一组最容易踩的坑：useMemo 的依赖里放了一个每次都新建的函数，等于白写。useCallback 和 useMemo 通常成对出现，就是这个原因。",
                   },
@@ -5308,6 +5331,7 @@ Error: Failed to parse source for import analysis because the content contains i
       Tests  no tests`,
               broken: real("jsx", SRC_CONTEXT, {
                 filename: "src/context/CabContext.js ← 注意这个扩展名",
+              filenameEn: "src/context/CabContext.js ← look at that extension",
                 sourceFile: "cab-booking-context/src/context/CabContext.js",
                 highlight: [19],
               }),
@@ -5332,6 +5356,7 @@ Error: Failed to parse source for import analysis because the content contains i
               },
               fixed: real("jsx", SRC_CONTEXT, {
                 filename: "src/context/CabContext.jsx ← 只改了文件名，内容一个字没动",
+              filenameEn: "src/context/CabContext.jsx ← only the file name changed, not one character inside",
                 sourceFile: "cab-booking-context/src/context/CabContext.js",
               }),
               rootCause: (
