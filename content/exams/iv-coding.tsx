@@ -3462,6 +3462,8 @@ export function addTodo(state: TodosState, todo: Todo) {
       title: "缺口四 · Kanban 看板：一次改两个数组",
       titleEn: "Gap 4 · a Kanban board: changing two arrays in one update",
       blurb: "跨列移动是 CRUD 的升级版 —— 源列删、目标列加，必须在一次操作里完成。",
+      blurbEn:
+        "Moving a card between columns is CRUD one step up: remove from one column and add to another, in a single update.",
       minutes: 20,
       objectives: [
         "把「移动一张卡」写成一个纯函数，一次返回完整的新 board",
@@ -3469,13 +3471,23 @@ export function addTodo(state: TodosState, todo: Todo) {
         "让没被碰到的列复用原数组引用",
         "处理「没动」和「找不到卡」两种边界",
       ],
+      objectivesEn: [
+        "Write moving a card as one pure function that returns the whole new board at once",
+        "Explain why it must not be two setState calls, one to remove and one to add",
+        "Let the columns you did not touch keep their original array reference",
+        "Handle the two edge cases: nothing moved, and the card was not found",
+      ],
       whyForAssessment:
         "Kanban 是 Hard 档的常见题，但拖拽只是外壳 —— 面试官真正看的是你怎么组织这次「同时影响两处」的状态更新。写成纯函数的人和在组件里堆两次 setState 的人，一眼就能分出来。",
+      whyForAssessmentEn:
+        "Kanban is a common hard problem, but the dragging is only the wrapper — what the interviewer looks at is how you organise one update that changes two places at once. Whoever writes it as a pure function and whoever stacks two setState calls inside the component are easy to tell apart.",
       concepts: [
         {
           id: "shape",
           heading: "数据形状：用 Record 而不是数组套数组",
+          headingEn: "The shape of the data: a Record, not an array of arrays",
           lede: "board 是「列 id → 卡片数组」的映射。",
+          ledeEn: "The board maps a column id to an array of cards.",
           body: (
             <>
               <p>
@@ -3532,7 +3544,9 @@ export function addTodo(state: TodosState, todo: Todo) {
         {
           id: "move",
           heading: "moveCard：这道题的全部难点",
+          headingEn: "moveCard: the whole difficulty of this problem",
           lede: "函数体十行，四个关键决定。每一个都有理由。",
+          ledeEn: "Ten lines of code, four decisions that matter. Each one has a reason.",
           body: (
             <>
               <p>
@@ -3788,11 +3802,36 @@ return {
         },
       ],
       transfer: [
-        { signal: "一次操作要改两处状态", reachFor: "写成一个纯函数，一次返回完整新状态" },
-        { signal: "「状态没变但界面重渲染了」", reachFor: "early return 时返回原引用，别造 { ...x }" },
-        { signal: "映射结构要改其中两个键", reachFor: "{ ...obj, [k1]: …, [k2]: … } 计算属性名" },
-        { signal: "想验证「真的没改原数据」", reachFor: "测试里 Object.freeze 深冻结" },
-        { signal: "Kanban / 分组列表 / 多选穿梭框", reachFor: "都是同一个「一次改两个数组」的模式" },
+        {
+          signal: "一次操作要改两处状态",
+          signalEn: "One action has to change state in two places",
+          reachFor: "写成一个纯函数，一次返回完整新状态",
+          reachForEn: "Write one pure function that returns the whole new state at once",
+        },
+        {
+          signal: "「状态没变但界面重渲染了」",
+          signalEn: "\"nothing changed but the screen re-rendered\"",
+          reachFor: "early return 时返回原引用，别造 { ...x }",
+          reachForEn: "When you return early, return the original reference; do not build { ...x }",
+        },
+        {
+          signal: "映射结构要改其中两个键",
+          signalEn: "Two keys of a mapping have to change",
+          reachFor: "{ ...obj, [k1]: …, [k2]: … } 计算属性名",
+          reachForEn: "{ ...obj, [k1]: …, [k2]: … } with computed property names",
+        },
+        {
+          signal: "想验证「真的没改原数据」",
+          signalEn: "You want to prove the original data was really not changed",
+          reachFor: "测试里 Object.freeze 深冻结",
+          reachForEn: "Freeze it deeply with Object.freeze in the test",
+        },
+        {
+          signal: "Kanban / 分组列表 / 多选穿梭框",
+          signalEn: "Kanban, a grouped list, or a two-panel multi-select",
+          reachFor: "都是同一个「一次改两个数组」的模式",
+          reachForEn: "All the same pattern: change two arrays in one update",
+        },
       ],
       recap: [
         "board 用 Record<ColumnId, Card[]>，配计算属性名一次改两个键；列的顺序单独放常量。",
@@ -3800,6 +3839,13 @@ return {
         "两个 early return 要返回原引用而不是 { ...board }，否则白渲染一次。",
         "{ ...board } 只浅拷贝顶层 —— 未被碰到的列自动复用原数组，和评论树「只重建路径」同理。",
         "别写成两次 setState「先删再加」：一旦中间插入校验或提前 return，卡片就会消失。",
+      ],
+      recapEn: [
+        "Use Record<ColumnId, Card[]> for the board, with computed property names to change two keys at once; keep the column order in a separate constant.",
+        "moveCard has to be a pure function: it can be unit tested without React, and it cannot produce a half-finished state.",
+        "The two early returns should give back the original reference, not { ...board }, or you pay for a render that changes nothing.",
+        "{ ...board } copies only the top level — the columns you did not touch keep their original arrays, the same idea as rebuilding only one path in a comment tree.",
+        "Do not write it as two setState calls, one to remove and one to add: as soon as a check or an early return slips in between, the card disappears.",
       ],
     },
   ],
