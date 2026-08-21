@@ -2766,10 +2766,17 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
 }`,
                   {
                     filename: "真实项目里最常见的 async 长相",
+                    filenameEn: "The most common shape of async in a real project",
                     sourceFile:
                       "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
+                    codeEn: `async getOrdersByUserId(userId) {
+  await new Promise(resolve => setTimeout(resolve, 10));   // pretend a 10ms network delay
+  return this.orders.filter(order => order.userId === userId);
+}`,
                     explanation:
                       "async 函数的返回值一定被包成 Promise。所以哪怕这里 return 的是普通数组，调用方也得 await 才能拿到它。",
+                    explanationEn:
+                      "Whatever an async function returns is always wrapped in a Promise. So even though this one returns a plain array, the caller still has to await it to get the array.",
                   },
                 ),
               ],
@@ -2841,6 +2848,13 @@ const promise = task();                    // 调用了 → 请求现在才发�
 
 await task;      // ✗ 错：在等一个函数，它不是 Promise，立刻就过去了
 await task();    // ✓ 对：先调用，再等它的返回值`,
+                  {
+                    codeEn: `const task = () => fetch("/api/orders");   // a function. Nothing has happened yet.
+const promise = task();                    // called → only now is the request sent
+
+await task;      // ✗ wrong: waiting on a function, not a Promise, so it passes at once
+await task();    // ✓ right: call it first, then wait for what it returns`,
+                  },
                 ),
               ],
             },
@@ -3050,8 +3064,11 @@ task 5 DONE    (running now: 1)
 task 6 DONE    (running now: 0)`,
                   {
                     filename: "npm run q2 的真实输出",
+                    filenameEn: "The real output of npm run q2",
                     explanation:
                       "读这段输出的方法：盯住 running now，它从来没到 3。而且任务 3 失败之后，4、5、6 照样跑完了 —— 这就是 allSettled 的语义。",
+                    explanationEn:
+                      "How to read this output: watch running now, which never reaches 3. And after task 3 fails, tasks 4, 5 and 6 still finish — that is what allSettled means.",
                   },
                 ),
               ],
