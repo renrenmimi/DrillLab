@@ -6560,6 +6560,10 @@ const ThemeApp: React.FC = () => (
             "tsx",
             `// ✗ 直接传字面量对象
 <ThemeContext.Provider value={{ theme, toggleTheme }}>`,
+            {
+              codeEn: `// ✗ Passing the object literal straight through
+<ThemeContext.Provider value={{ theme, toggleTheme }}>`,
+            },
           ),
           why: (
             <>
@@ -6586,6 +6590,10 @@ const ThemeApp: React.FC = () => (
             "tsx",
             `// ✗ 给一个「看起来合理」的默认值
 const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });`,
+            {
+              codeEn: `// ✗ Giving it a default value that looks reasonable
+const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });`,
+            },
           ),
           why: (
             <>
@@ -6615,6 +6623,13 @@ export function ThemeProvider({ children }) {
   const { theme } = useTheme();   // 报错：这时 Provider 还没渲染
   ...
 }`,
+            {
+              codeEn: `// ✗ Calling useTheme() inside ThemeProvider itself
+export function ThemeProvider({ children }) {
+  const { theme } = useTheme();   // throws: the Provider has not rendered yet
+  ...
+}`,
+            },
           ),
           why: (
             <>
@@ -6641,6 +6656,10 @@ export function ThemeProvider({ children }) {
             "tsx",
             `// ✗ 按钮文字写成「现在是什么」
 {theme === "light" ? "Switch to Light" : "Switch to Dark"}`,
+            {
+              codeEn: `// ✗ Button text that says what the theme is now
+{theme === "light" ? "Switch to Light" : "Switch to Dark"}`,
+            },
           ),
           why: (
             <>
