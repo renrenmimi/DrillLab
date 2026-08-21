@@ -2096,8 +2096,8 @@ const tax = (n, rate) => n * rate;`,
                   <strong>
                     <code>this</code> inside a plain function is <code>undefined</code>
                   </strong>{" "}
-                  instead of <code>window</code> — so a forgotten bind blows up on the
-                  spot.
+                  instead of <code>window</code> — so a forgotten bind throws right
+                  there.
                 </li>
                 <li>
                   Assigning to a read-only property, or deleting one that cannot be

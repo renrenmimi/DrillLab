@@ -702,7 +702,7 @@ type S = Unwrap<Promise<string>>;    // string`,
                 <strong>Follow-up:</strong> &ldquo;So what is wrong with{" "}
                 <code>{"(obj: object, key: string): any"}</code>?&rdquo; — it runs, but
                 a wrong object, a misspelled key or a misused return value all wait
-                until runtime to blow up; that gap is the junior version versus the
+                until runtime to fail; that gap is the junior version versus the
                 senior one. &ldquo;Can a constraint have a default?&rdquo; — yes:{" "}
                 <code>{"<T extends object = Record<string, unknown>>"}</code>.
                 &ldquo;Why two type parameters?&rdquo; — because the legal values of K

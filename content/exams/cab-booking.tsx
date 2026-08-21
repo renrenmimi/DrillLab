@@ -2951,7 +2951,7 @@ const CabCard = ({ cab, onSelectCab }) => {
                     </strong>
                   </p>
                   <p>
-                    <strong>When it really does blow up:</strong> add one Cancel button
+                    <strong>When a request really does hang:</strong> add one Cancel button
                     that lets the user go home during loading —
                   </p>
                   <ul>
@@ -3480,7 +3480,7 @@ useEffect(() => {
                             3)
                           </td>
                           <td>
-                            ✕ the last assertion blows up —{" "}
+                            ✕ the last assertion fails —{" "}
                             <code>Ford Fusion</code> is still in the DOM
                           </td>
                         </tr>
@@ -3842,7 +3842,7 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
                       <strong>
                         The moment somebody renders <code>CabConfirmation</code> on its own
                       </strong>{" "}
-                      — say in a component-level unit test — it blows up immediately;
+                      — say in a component-level unit test — it throws immediately;
                     </li>
                     <li>
                       Or add a &ldquo;view your last ride&rdquo; entry point later and

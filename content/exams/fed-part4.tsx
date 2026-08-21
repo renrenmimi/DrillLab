@@ -672,7 +672,7 @@ export const fedMastery: Module = {
               </div>
               <p>
                 <strong>You can catch half of these locally:</strong> three of
-                the first four blow up right at{" "}
+                the first four fail right at{" "}
                 <code>buildSubgraphSchema</code> (the service will not start), or
                 make <code>{"{ _service { sdl } }"}</code> throw. So{" "}
                 <strong>

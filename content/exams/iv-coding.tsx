@@ -1719,7 +1719,7 @@ export const ivCoding: Module = {
                 <li>
                   <strong>Use <code>&lt;button&gt;</code>, not{" "}
                   <code>&lt;span&gt;</code></strong> — focusable and Enter-triggerable
-                  for free. Add <code>aria-label=&quot;3 stars&quot;</code> and a screen
+                  already. Add <code>aria-label=&quot;3 stars&quot;</code> and a screen
                   reader can use it too.
                 </li>
               </ul>

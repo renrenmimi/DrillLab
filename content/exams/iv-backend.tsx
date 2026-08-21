@@ -2316,7 +2316,7 @@ server: {
                       <td>
                         <strong>500</strong>
                       </td>
-                      <td>Server blew up</td>
+                      <td>Server failed</td>
                       <td>An uncaught error</td>
                     </tr>
                     <tr>

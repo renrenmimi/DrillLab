@@ -1610,8 +1610,8 @@ onDelete: (id: number) => void;`,
                 <li>
                   <code>prev.filter(...)</code> —
                   <code>filter</code> always returns a <strong>new array</strong> and
-                  leaves the original alone. So the immutable update comes for free;
-                  no extra spread needed.
+                  leaves the original alone. So the update does not change the original
+                  array, and no extra spread is needed.
                 </li>
                 <li>
                   <code>(note) =&gt; note.id !== id</code> —

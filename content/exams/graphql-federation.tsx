@@ -1055,7 +1055,7 @@ return avg || null;`,
           </p>
           <p>
             <strong>
-              So this one does not cross the data silently, it blows up the whole batch
+              So this one does not mix the data up silently, it fails the whole batch
             </strong>{" "}
             — that test fails on the TypeError, not on some field not lining up.{" "}
             <strong>

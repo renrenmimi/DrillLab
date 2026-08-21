@@ -4087,7 +4087,7 @@ setComments(next);`,
                         <code>createContext()</code> (the reference shape in the question)
                       </td>
                       <td>
-                        You get <code>undefined</code> and it blows up on the destructuring line
+                        You get <code>undefined</code> and it throws on the destructuring line
                         with an unreadable <code>Cannot destructure property…</code>
                       </td>
                     </tr>

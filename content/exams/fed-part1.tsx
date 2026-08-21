@@ -3889,7 +3889,8 @@ async shippingInfo(parent, _, { dataSources }) {
                 <strong>never use <code>filter</code></strong> (that shortens the
                 array) and must <strong>never reorder</strong>.{" "}
                 <code>keys.map(...)</code> plus <code>Promise.all</code> is the
-                safest shape — it keeps length and order right for free.
+                safest shape: it keeps the length and the order correct without any extra
+                work.
               </p>
               <p>
                 <strong>What about &ldquo;not found&rdquo;?</strong> Put a{" "}

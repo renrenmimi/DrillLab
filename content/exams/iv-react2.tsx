@@ -945,7 +945,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
                     </tr>
                     <tr>
                       <td>CSS-in-JS (styled-components)</td>
-                      <td>props can drive the styles, scoping comes for free</td>
+                      <td>props can drive the styles, and scoping needs no extra work</td>
                       <td><strong>Runtime cost</strong>, and SSR needs extra setup</td>
                     </tr>
                     <tr>
@@ -2554,7 +2554,7 @@ const fetchUser = (id) => async (dispatch) => {
                   <tbody>
                     <tr>
                       <td>Type checking</td>
-                      <td>Blows up at runtime</td>
+                      <td>Fails at runtime</td>
                       <td><strong>Reported at compile time</strong></td>
                     </tr>
                     <tr>

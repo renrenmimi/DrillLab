@@ -628,8 +628,8 @@ const el = React.createElement(
                   still good enough
                 </strong>{" "}
                 — it is a{" "}
-                <strong>trade-off between maintainability and performance</strong>, not a
-                silver bullet.
+                <strong>trade-off between maintainability and performance</strong>. It is
+                not the right choice everywhere.
               </p>
               <p>
                 <strong>The three diff heuristics</strong> (what turns O(n³) into O(n)):

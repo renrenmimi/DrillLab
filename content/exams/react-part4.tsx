@@ -279,8 +279,8 @@ export const reactQ2: Module = {
                         the result array must be in the same order as the input
                       </td>
                       <td>
-                        Rules out <code>Promise.all</code> (one failure blows up
-                        everything), and also &ldquo;push whoever finishes first&rdquo;
+                        Rules out <code>Promise.all</code> (one failure fails the whole
+                        batch), and also &ldquo;push whoever finishes first&rdquo;
                         (the order scrambles)
                       </td>
                     </tr>
