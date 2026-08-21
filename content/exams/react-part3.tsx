@@ -4243,7 +4243,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
 
   // 3. Click the first Delete button
 
-  // 4. Assert: 内容A is gone, 内容B is still there
+  // 4. Assert: "内容A" is gone, "内容B" is still there
 });`,
           requirements: [
             "添加两条 title 完全相同、content 不同的笔记",
