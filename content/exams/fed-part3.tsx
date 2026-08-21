@@ -2626,11 +2626,20 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
           kind: "code-completion",
           id: "g-endpoints-write",
           title: "不看答案，自己写出全部六个端点",
+          titleEn: "Write all six endpoints yourself, without looking at the answer",
           level: 3,
           prompt: (
             <p>
               六个端点一起写。业务逻辑全部调 <code>orderService</code>，
               你负责选对状态码、处理可选参数、转 enum、打日志。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Write all six endpoints. Every piece of business logic goes
+              through <code>orderService</code>; your job is picking the right
+              status codes, handling the optional parameter, converting the
+              enum, and logging.
             </p>
           ),
           language: "java",
@@ -2672,6 +2681,41 @@ public ResponseEntity<Order> updateOrderStatus(
 @DeleteMapping("/api/orders/{id}")
 public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
 }`,
+          starterEn: `// OrderService gives you:
+//   getAllOrders()                          -> List<Order>
+//   getOrderById(Long)                      -> Order (throws EntityNotFoundException if absent)
+//   getOrdersByUserId(String)               -> List<Order>
+//   createOrder(CreateOrderRequest)         -> Order
+//   updateOrderStatus(Long, OrderStatus)    -> Order (throws EntityNotFoundException if absent)
+//   deleteOrder(Long)                       -> void (throws EntityNotFoundException if absent)
+// GlobalExceptionHandler already maps EntityNotFoundException -> 404 and validation failure -> 400
+// correlation id: MDC.get("correlationId")
+
+@GetMapping("/api/orders")
+public ResponseEntity<List<Order>> getAllOrders(@RequestParam(required = false) String userId) {
+}
+
+@GetMapping("/api/orders/{id}")
+public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+}
+
+@GetMapping("/api/orders/user/{userId}")
+public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable String userId) {
+}
+
+@PostMapping("/api/orders")
+public ResponseEntity<Order> createOrder(@Valid @RequestBody CreateOrderRequest request) {
+}
+
+@PatchMapping("/api/orders/{id}/status")
+public ResponseEntity<Order> updateOrderStatus(
+        @PathVariable Long id,
+        @RequestBody Map<String, String> statusUpdate) {
+}
+
+@DeleteMapping("/api/orders/{id}")
+public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+}`,
           requirements: [
             "GET /api/orders：？userId= 传了就按用户过滤，没传返回全部；200",
             "GET /api/orders/{id}：200；不要 try/catch，让 404 由全局处理器给出",
@@ -2681,17 +2725,26 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
             "DELETE /api/orders/{id}：204 No Content",
             "六个端点都用 logger.info 打日志，并带上 MDC 里的 correlationId",
           ],
+          requirementsEn: [
+            "GET /api/orders: filter by user when ?userId= is given, otherwise return everything; 200",
+            "GET /api/orders/{id}: 200; no try/catch, let the global handler produce the 404",
+            "GET /api/orders/user/{userId}: 200",
+            "POST /api/orders: 201 Created",
+            "PATCH /api/orders/{id}/status: convert the string in the body into an OrderStatus; return 400 when it is missing or invalid; 200 on success",
+            "DELETE /api/orders/{id}: 204 No Content",
+            "All six endpoints log with logger.info and include the correlationId from the MDC",
+          ],
           checks: [
-            { label: "POST 用了 HttpStatus.CREATED（201）", must: "HttpStatus\\.CREATED" },
-            { label: "DELETE 用了 noContent()（204）", must: "noContent\\s*\\(\\s*\\)" },
-            { label: "GET /api/orders 处理了可选的 userId", must: "userId\\s*==\\s*null|isBlank\\s*\\(" },
-            { label: "可选过滤时调了 getOrdersByUserId", must: "getOrdersByUserId\\s*\\(" },
-            { label: "PATCH 用 valueOf 转 enum", must: "OrderStatus\\s*\\.\\s*valueOf" },
-            { label: "PATCH 做了 toUpperCase（valueOf 大小写敏感）", must: "toUpperCase\\s*\\(" },
-            { label: "PATCH 非法/缺失值返回 400", must: "BAD_REQUEST" },
-            { label: "没有 try/catch EntityNotFoundException（该交给全局处理器）", mustNot: "catch\\s*\\(\\s*EntityNotFoundException" },
-            { label: "打了日志", must: "logger\\.(info|debug)" },
-            { label: "日志里带了 correlationId", must: "correlationId" },
+            { label: "POST 用了 HttpStatus.CREATED（201）", labelEn: "POST uses HttpStatus.CREATED (201)", must: "HttpStatus\\.CREATED" },
+            { label: "DELETE 用了 noContent()（204）", labelEn: "DELETE uses noContent() (204)", must: "noContent\\s*\\(\\s*\\)" },
+            { label: "GET /api/orders 处理了可选的 userId", labelEn: "GET /api/orders handles the optional userId", must: "userId\\s*==\\s*null|isBlank\\s*\\(" },
+            { label: "可选过滤时调了 getOrdersByUserId", labelEn: "Calls getOrdersByUserId when filtering", must: "getOrdersByUserId\\s*\\(" },
+            { label: "PATCH 用 valueOf 转 enum", labelEn: "PATCH converts the enum with valueOf", must: "OrderStatus\\s*\\.\\s*valueOf" },
+            { label: "PATCH 做了 toUpperCase（valueOf 大小写敏感）", labelEn: "PATCH calls toUpperCase (valueOf is case sensitive)", must: "toUpperCase\\s*\\(" },
+            { label: "PATCH 非法/缺失值返回 400", labelEn: "PATCH returns 400 for a missing or invalid value", must: "BAD_REQUEST" },
+            { label: "没有 try/catch EntityNotFoundException（该交给全局处理器）", labelEn: "Does not try/catch EntityNotFoundException (the global handler takes it)", mustNot: "catch\\s*\\(\\s*EntityNotFoundException" },
+            { label: "打了日志", labelEn: "It logs", must: "logger\\.(info|debug)" },
+            { label: "日志里带了 correlationId", labelEn: "The log line carries correlationId", must: "correlationId" },
           ],
           hints: [
             "先给六个端点各回答一个问题：「成功时有内容返回吗？」「是新建了资源吗？」这两个答案就决定了状态码。另外注意哪些异常你不该管。",
@@ -2723,6 +2776,38 @@ try {
 }
 
 // 日志
+private String correlationId() { return MDC.get("correlationId"); }`,
+          ],
+          hintsEn: [
+            "Answer one question for each of the six endpoints: \"is there content to return on success?\" and \"did it create a resource?\" Those two answers decide the status code. Also note which exceptions are not yours to handle.",
+            "For 201 use ResponseEntity.status(HttpStatus.CREATED).body(...); for 204 use ResponseEntity.noContent().build(). Leave EntityNotFoundException to GlobalExceptionHandler; do not catch it. PATCH receives a Map, which Bean Validation does not protect, so you must turn both a missing and an invalid value into a 400 yourself.",
+            `getAllOrders: userId empty (null or blank) → getAllOrders(), otherwise getOrdersByUserId(userId), ok(...)
+getOrderById: ok(orderService.getOrderById(id))   // no catch
+getOrdersByUserId: ok(orderService.getOrdersByUserId(userId))
+createOrder: status(CREATED).body(orderService.createOrder(request))
+updateOrderStatus:
+  raw = statusUpdate.get("status")
+  raw empty → throw ResponseStatusException(BAD_REQUEST, ...)
+  try { status = OrderStatus.valueOf(raw.trim().toUpperCase()) }
+  catch (IllegalArgumentException) → throw ResponseStatusException(BAD_REQUEST, ...)
+  ok(orderService.updateOrderStatus(id, status))
+deleteOrder: orderService.deleteOrder(id); noContent().build()`,
+            `// POST
+return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request));
+
+// DELETE
+orderService.deleteOrder(id);
+return ResponseEntity.noContent().build();
+
+// the conversion part of PATCH
+final OrderStatus status;
+try {
+    status = OrderStatus.valueOf(raw.trim().toUpperCase());
+} catch (IllegalArgumentException ex) {
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown status: " + raw);
+}
+
+// logging
 private String correlationId() { return MDC.get("correlationId"); }`,
           ],
           solution: real("java", CONTROLLER_SOLUTION, {
