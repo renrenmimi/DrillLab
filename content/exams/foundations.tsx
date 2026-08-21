@@ -1722,6 +1722,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           titleEn: "Arrays and objects: three ways to update without changing the original",
           blurb:
             "增、删、改一个列表，在 React 里为什么必须「造新的」而不是「改旧的」。",
+          blurbEn:
+            "Adding to, deleting from and editing a list: why React needs a new array instead of a changed one.",
           minutes: 14,
           objectives: [
             "熟练用展开语法新增、filter 删除、map 就地替换",
@@ -1729,8 +1731,16 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             "会用解构从对象里取值、给组件 props 取值",
             "看到一段列表操作，能判断它改的是原数组还是新数组",
           ],
+          objectivesEn: [
+            "Use spread syntax to add, filter to delete, and map to replace an item in place",
+            "Explain what it means to update without changing the original, and why React needs it",
+            "Use destructuring to read values out of an object and out of component props",
+            "Look at some list code and say whether it changes the original array or builds a new one",
+          ],
           whyForAssessment:
             "Q1 的三道题，本质就是这三个操作各一次：Add 用展开、Delete 用 filter、Edit 用 map。GraphQL 那边的 createOrder 也要用 map 给每个 item 补价格。学会这一节，两门考试的数据操作部分就都通了。",
+          whyForAssessmentEn:
+            "The three parts of Q1 are one of each operation: Add uses spread, Delete uses filter, Edit uses map. On the GraphQL side, createOrder also uses map to add a price to every item. Learn this lesson and the data handling of both exams is covered.",
           sourceFiles: [
             { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "三个操作的真实用法都在这里" },
           ],
@@ -1738,7 +1748,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             {
               id: "why-immutable",
               heading: "为什么不能直接改",
+              headingEn: "Why you cannot change the original directly",
               lede: "React 判断「要不要重新渲染」的方法，是比较「新旧是不是同一个东西」。",
+              ledeEn:
+                "React decides whether to render again by checking whether the new value is the same object as the old one.",
               body: (
                 <>
                   <p>
@@ -1804,7 +1817,9 @@ setNotes([...notes, newNote]);`,
             {
               id: "three-ops",
               heading: "三件套：新增 / 删除 / 就地替换",
+              headingEn: "The three operations: add, delete, replace in place",
               lede: "Q1 的三道题就是这三行。",
+              ledeEn: "The three parts of Q1 are these three lines.",
               body: (
                 <>
                   <p>
@@ -1889,6 +1904,7 @@ setNotes((prev) =>
             {
               id: "map-filter-find",
               heading: "map / filter / find：三个都返回什么",
+              headingEn: "map / filter / find: what each one returns",
               body: (
                 <>
                   <p>
@@ -2006,6 +2022,7 @@ async getOrdersByUserId(userId) {
             {
               id: "spread-objects",
               heading: "对象展开：改一个字段，其他原样",
+              headingEn: "Object spread: change one field, keep the rest",
               body: (
                 <>
                   <p>
@@ -2056,6 +2073,7 @@ const pricedItems = await Promise.all(
             {
               id: "destructuring",
               heading: "解构：从对象里一次取好几个值",
+              headingEn: "Destructuring: take several values out of an object at once",
               body: (
                 <>
                   <p>
@@ -2272,6 +2290,16 @@ setNotes((prev) => [
                   <strong>测试过了不等于做对了</strong> —— 这是这两个 assessment 反复出现的主题。
                 </>
               ),
+              whyEn: (
+                <>
+                  This passes the tests, because the test has only one item and the order is not
+                  visible. But it breaks what the question asks for:{" "}
+                  <strong>update the item where it already is</strong>. With two or more items,
+                  the edited one jumps to the last row.{" "}
+                  <strong>Passing the tests is not the same as getting it right</strong> — that
+                  point comes back again and again in both exams.
+                </>
+              ),
             },
             {
               wrong: demo(
@@ -2286,14 +2314,47 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
                   <code>!==</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  This keeps only the item you wanted to remove, and drops all the others.{" "}
+                  <code>filter</code> keeps the elements whose callback returns{" "}
+                  <code>true</code>, so the condition for deleting has to be{" "}
+                  <code>!==</code>.
+                </>
+              ),
             },
           ],
           transfer: [
-            { signal: "「新增一条到列表」", reachFor: "[...prev, item]" },
-            { signal: "「删除某一条」", reachFor: "prev.filter(x => x.id !== id)" },
-            { signal: "「更新某一条，位置不变」", reachFor: "prev.map(x => x.id === id ? next : x)" },
-            { signal: "「给每一项补上一个字段」", reachFor: "map + 对象展开（异步就再套 Promise.all）" },
-            { signal: "数据变了但界面不动", reachFor: "查是不是 push / splice / 直接赋值改了原对象" },
+            {
+              signal: "「新增一条到列表」",
+              signalEn: "Add one item to a list",
+              reachFor: "[...prev, item]",
+              reachForEn: "[...prev, item]",
+            },
+            {
+              signal: "「删除某一条」",
+              signalEn: "Delete one item",
+              reachFor: "prev.filter(x => x.id !== id)",
+              reachForEn: "prev.filter(x => x.id !== id)",
+            },
+            {
+              signal: "「更新某一条，位置不变」",
+              signalEn: "Update one item and keep its position",
+              reachFor: "prev.map(x => x.id === id ? next : x)",
+              reachForEn: "prev.map(x => x.id === id ? next : x)",
+            },
+            {
+              signal: "「给每一项补上一个字段」",
+              signalEn: "Add one field to every item",
+              reachFor: "map + 对象展开（异步就再套 Promise.all）",
+              reachForEn: "map plus object spread, wrapped in Promise.all if the work is async",
+            },
+            {
+              signal: "数据变了但界面不动",
+              signalEn: "The data changed but the interface did not",
+              reachFor: "查是不是 push / splice / 直接赋值改了原对象",
+              reachForEn: "Check whether push, splice or a direct assignment changed the original",
+            },
           ],
           recap: [
             "React 靠「是不是同一个对象」判断变化，所以必须造新的、不改旧的。",
@@ -2301,6 +2362,13 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
             "map 长度不变、filter 可能变短、find 返回单个或 undefined。",
             "map 里用 async，外面一定要套 Promise.all。",
             "「数据对但界面不动」是改了原对象的典型症状，而且不会报错。",
+          ],
+          recapEn: [
+            "React looks at whether it is the same object to decide that something changed, so build a new one and leave the old one alone.",
+            "Add with spread [...prev, x], delete with filter and !==, edit with map and a conditional.",
+            "map keeps the length, filter can make it shorter, find returns one item or undefined.",
+            "If you use async inside map, you must wrap the result in Promise.all.",
+            "Right data with a frozen interface is the usual sign that you changed the original object, and nothing reports an error.",
           ],
         },
 
