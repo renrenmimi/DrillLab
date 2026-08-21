@@ -1,0 +1,147 @@
+/* ============================================================
+   DrillLab · Design Tokens
+   ------------------------------------------------------------
+   方向：纸感、克制、久读不累。
+   明确不做：紫蓝渐变 / 玻璃拟态 / 霓虹描边 / 发光阴影 /
+            backdrop-filter / 渐变文字 / 大面积纯白。
+   层级只靠四件事：留白、字号、极浅的背景差、一像素细线。
+   ============================================================ */
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* —— 表面。从「纸」到「抬高的纸」，差值极小，靠细线分界 —— */
+  --paper: #f2f5ef; /* 页面底色，略带绿灰，不是纯白 */
+  --surface: #f8faf5; /* 内容区 */
+  --raised: #fdfefb; /* 需要抬起来的块（练习、代码说明） */
+  --sunken: #eaeee6; /* 需要压下去的块（输入框底、表头） */
+
+  /* —— 文字。三档全部达 WCAG AA（正文 4.5:1），实测见下面的数字 ——
+     【为什么 --ink-3 调深了】老值 #7c8880 对 --paper 只有 3.35:1、
+     对 --sunken 3.14:1，而它恰恰用在 10–13px 的计数、编号、眉题上 ——
+     字越小越需要对比度，老配色刚好反着来。实测 11 个页面上有 33 类
+     文字不达标，绝大多数是它。现在最差的一档（对 --sunken）是 4.53:1。
+     --ink-2 顺带压深一点，保住三档之间的层次差。 */
+  --ink: #1c2723; /* 正文。对 --paper 13.9:1 */
+  --ink-2: #4a574f; /* 次要说明。对 --paper 6.90:1 */
+  --ink-3: #5f6b64; /* 元信息、编号、计数。对 --paper 5.06:1，最差 4.74:1 */
+
+  /* —— 分界线 —— */
+  --rule: #dbe2d8;
+  --rule-strong: #c2cdc2;
+
+  /* —— 强调色：一支鼠尾草绿，全站只有它是彩色主角 ——
+     【为什么从 #5c7f6c 压深了一档】它是主按钮 / CTA / 当前页 chip 的底色，
+     上面压白字。老值对白字只有 4.46:1（差 0.04 不达标），实测三处都栽在
+     这一个颜色上：.hero-cta-sub、.pager-num[data-on]、.foot-next-title。
+     #547563 对白字 5.12:1，对 --paper 也从 4.05 升到 4.65 —— 顺带把
+     「拿 --accent 当小字用」的地方一起救了。 */
+  --accent: #547563;
+  --accent-ink: #3a574a; /* 强调色文字（小字号时用，保证对比度） */
+  --accent-wash: #e3eee6;
+  --accent-line: #a9c2b3;
+
+  /* —— 语义色。都是同一套低饱和的「洗色」 —— */
+  --info: #37627f;
+  --info-wash: #e2ecf2;
+  --info-line: #aac6d7;
+
+  --warn: #835f1d; /* 4.84:1 on --warn-wash（老值 #8a6520 只有 4.42） */
+  --warn-wash: #f3ead4;
+  --warn-line: #d9c489;
+
+  --danger: #9c4a45;
+  --danger-wash: #f4e4e1;
+  --danger-line: #dcaea8;
+
+  --ok: #3f7357;
+  --ok-wash: #e2eee6;
+  --ok-line: #a5c6b0;
+
+  /* —— 代码区。深底，但饱和度压得很低 —— */
+  --code-bg: #1e2622;
+  --code-bar: #263029;
+  --code-ink: #e5ebe5;
+  --code-line-n: #828f86; /* 行号也是文字，4.59:1（老值 3.49） */
+  --code-hl: rgba(255, 255, 255, 0.055);
+  --code-hl-bar: #7fa78c;
+  /* 代码块横滚条。深底上的浅色细条，常驻显示 —— 见 styles/code.css 里的注释 */
+  --code-scroll: rgba(255, 255, 255, 0.22);
+
+  --tk-kw: #c2a4d8;
+  --tk-str: #a8c98d;
+  --tk-num: #dcb187;
+  --tk-com: #8a9a8f; /* 注释是课文的一部分，要读得清：5.24:1 */
+  --tk-fn: #8fb6d8;
+  --tk-type: #83c3bb;
+  --tk-tag: #d9a3a3;
+  --tk-attr: #cfc189;
+  --tk-dir: #cba0bd;
+  --tk-op: #9aa8a0;
+  --tk-var: #d9a3a3;
+
+  /* —— 阴影：只用极淡的一层，不做发光 —— */
+  --lift: 0 1px 2px rgba(28, 39, 35, 0.05);
+  --lift-2: 0 1px 3px rgba(28, 39, 35, 0.06), 0 6px 16px rgba(28, 39, 35, 0.05);
+
+  /* —— 尺度 —— */
+  --measure: 70ch; /* 正文阅读宽度（65–72ch 的中段） */
+  --measure-wide: 84ch; /* 代码与表格可以宽一点 */
+  --sidebar-w: 268px;
+  --rail-w: 212px;
+  --topbar-h: 56px;
+
+  --r-sm: 3px;
+  --r: 6px;
+  --r-lg: 10px;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #121714;
+  --surface: #171d19;
+  --raised: #1d241f;
+  --sunken: #0e1310;
+
+  --ink: #e6ece7;
+  --ink-2: #a2aea6;
+  /* 老值 #7a867e 对 --raised 只有 4.18:1。#828e86 在 /path 那种带底色的
+     行上还是 4.36，再抬一档到 #8a968d（最差 5.16:1）。 */
+  --ink-3: #8a968d;
+
+  --rule: #2a332d;
+  --rule-strong: #3b463e;
+
+  --accent: #8cb39c;
+  --accent-ink: #a3c5b1;
+  --accent-wash: #1f2a23;
+  --accent-line: #3f5648;
+
+  --info: #8ab4cf;
+  --info-wash: #1a252c;
+  --info-line: #38505d;
+
+  --warn: #ceac6b;
+  --warn-wash: #292319;
+  --warn-line: #574a2e;
+
+  --danger: #d59a93;
+  --danger-wash: #2a1e1d;
+  --danger-line: #593d3a;
+
+  --ok: #8fbfa1;
+  --ok-wash: #1a2620;
+  --ok-line: #3a5544;
+
+  --code-bg: #0d1210;
+  --code-bar: #141a16;
+  --code-ink: #e0e7e0;
+  --code-line-n: #79877e; /* 5.02:1（老值 3.37） */
+  --code-hl: rgba(255, 255, 255, 0.05);
+  --code-scroll: rgba(255, 255, 255, 0.2);
+
+  --lift: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --lift-2: 0 1px 3px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(0, 0, 0, 0.28);
+}

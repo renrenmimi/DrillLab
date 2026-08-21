@@ -1,0 +1,447 @@
+/* ============================================================
+   代码窗 / 终端命令 / 可编辑代码
+   ------------------------------------------------------------
+   代码是本站的视觉主角：窗口宽、字号够大、语法色低饱和、
+   永远显示文件名与语言、真实来源单独标注。
+   ============================================================ */
+
+.codewin {
+  margin: 18px 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--code-bg);
+  max-width: var(--measure-wide);
+}
+
+.codewin-bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px 6px 12px;
+  background: var(--code-bar);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 12px;
+  min-height: 32px;
+}
+
+.codewin-name {
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 12px;
+  color: #c3ccc5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.codewin-lang {
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #8b9a90; /* 4.63:1 on --code-bar（老值 #7d8c83 只有 3.87） */
+  flex-shrink: 0;
+}
+
+.codewin-bar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.codewin-flag {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #9fb0a5;
+  white-space: nowrap;
+}
+
+/* 三档可信度：源项目 / 已跑通 / 示意 */
+.codewin-flag[data-verified="source"] {
+  color: #a8c98d;
+  border-color: rgba(168, 201, 141, 0.34);
+}
+
+.codewin-flag[data-verified="verified"] {
+  color: #83c3bb;
+  border-color: rgba(131, 195, 187, 0.34);
+}
+
+.codewin-flag[data-verified="demo"] {
+  color: #dcb187;
+  border-color: rgba(220, 177, 135, 0.34);
+}
+
+.codewin-copy {
+  padding: 1px 7px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9fb0a5;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+.codewin-copy:hover {
+  color: #e5ebe5;
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.codewin-body {
+  overflow-x: auto;
+  /* macOS 默认「使用鼠标或触控板时才显示滚动条」，所以光有 overflow-x
+     还是看不出这块能横滚。这里把滚动条常驻并调细，让「还有内容在右边」
+     这件事一眼可见。Firefox 用 scrollbar-*，WebKit 用伪元素。 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--code-scroll) transparent;
+  padding: 11px 0;
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 14px;
+  line-height: 1.68;
+  color: var(--code-ink);
+  tab-size: 2;
+}
+
+.codewin-body[data-collapsed="true"] {
+  max-height: 300px;
+  overflow-y: hidden;
+  /* 底部渐隐，让「还有更多」看起来是设计而不是渲染截断 */
+  -webkit-mask-image: linear-gradient(180deg, #000 76%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 76%, transparent 100%);
+}
+
+/* 【别删 .cl-wrap】没有它，.codewin-body 的 overflow-x: auto 是摆设。
+   .cl 是块级 flex 容器，宽度被压成外框宽度；.cl-c 是 white-space: pre 的
+   flex item，超出的部分只是「可见地溢出」，并不撑大 .cl，于是
+   .codewin-body 的 scrollWidth 永远等于 clientWidth —— 滚动条不出现，
+   长代码行被外层的 overflow: hidden 直接切掉，而且没有任何提示。
+   实测 390px 视口下目录树的深层路径就是这么消失的。
+
+   max-content 让这一层按最长那行取宽，scrollWidth 才会长出来；
+   min-width: 100% 保证内容短于外框时不缩水。
+   每行的 min-width 相对这一层算，所以 .cl.hl 的高亮背景会一直铺到
+   最长那行的末尾，而不是在外框右边缘断掉。 */
+.cl-wrap {
+  width: max-content;
+  min-width: 100%;
+}
+
+.cl {
+  display: flex;
+  padding: 0 14px 0 0;
+  min-height: 1.68em;
+  min-width: 100%;
+}
+
+.cl.hl {
+  background: var(--code-hl);
+  box-shadow: inset 2px 0 0 var(--code-hl-bar);
+}
+
+/* 高亮行的底被提亮了，行号在上面掉到 3.90:1。
+   而高亮行恰恰是「让你看这一行」的那一行 —— 行号该更清楚，不是更糊。 */
+.cl.hl .cl-n {
+  color: #96a39a;
+}
+
+.cl-n {
+  flex: 0 0 auto;
+  width: 3.1em;
+  padding-right: 1.1em;
+  text-align: right;
+  color: var(--code-line-n);
+  user-select: none;
+  font-size: 12.5px;
+}
+
+.cl-c {
+  flex: 1 1 auto;
+  white-space: pre;
+}
+
+.codewin-body::-webkit-scrollbar {
+  height: 8px;
+}
+
+.codewin-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.codewin-body::-webkit-scrollbar-thumb {
+  background: var(--code-scroll);
+  border-radius: var(--r-sm);
+}
+
+.codewin-expand {
+  display: block;
+  width: 100%;
+  padding: 5px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9fb0a5;
+  background: var(--code-bar);
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  cursor: pointer;
+}
+
+.codewin-expand:hover {
+  color: #e5ebe5;
+}
+
+.codewin-note {
+  padding: 10px 14px;
+  background: var(--raised);
+  border-top: 1px solid var(--rule);
+  font-size: 14.5px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+
+.codewin-src {
+  padding: 5px 14px;
+  background: var(--sunken);
+  border-top: 1px solid var(--rule);
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.codewin-src code {
+  font-size: 11.5px;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--ink-2);
+}
+
+/* ---------- 语法色 ---------- */
+
+.tk-kw {
+  color: var(--tk-kw);
+}
+.tk-str {
+  color: var(--tk-str);
+}
+.tk-num {
+  color: var(--tk-num);
+}
+.tk-com {
+  color: var(--tk-com);
+  font-style: italic;
+}
+.tk-fn {
+  color: var(--tk-fn);
+}
+.tk-type {
+  color: var(--tk-type);
+}
+.tk-tag {
+  color: var(--tk-tag);
+}
+.tk-attr {
+  color: var(--tk-attr);
+}
+.tk-dir {
+  color: var(--tk-dir);
+}
+.tk-op {
+  color: var(--tk-op);
+}
+.tk-var {
+  color: var(--tk-var);
+}
+
+/* ---------- 终端命令 ---------- */
+
+.term {
+  margin: 16px 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  overflow: hidden;
+  max-width: var(--measure-wide);
+}
+
+.term-row {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 9px 12px;
+  background: var(--code-bg);
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 13.5px;
+  color: var(--code-ink);
+}
+
+.term-row + .term-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.term-prompt {
+  color: #7fa78c;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.term-cmd {
+  flex: 1 1 auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.term-copy {
+  flex-shrink: 0;
+  padding: 0 6px;
+  font: inherit;
+  font-size: 11px;
+  color: #7d8c83;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+.term-copy:hover {
+  color: #e5ebe5;
+}
+
+.term-out {
+  padding: 8px 12px 8px 30px;
+  background: var(--code-bar);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #9fb0a5;
+  white-space: pre-wrap;
+}
+
+.term-cwd {
+  padding: 4px 12px;
+  background: var(--sunken);
+  border-bottom: 1px solid var(--rule);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+}
+
+/* ---------- 可编辑代码区 ---------- */
+
+.editor {
+  margin: 18px 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  overflow: hidden;
+  max-width: var(--measure-wide);
+}
+
+.editor-bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px 6px 12px;
+  background: var(--code-bar);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  min-height: 32px;
+}
+
+.editor-area {
+  display: block;
+  width: 100%;
+  min-height: 190px;
+  padding: 11px 14px;
+  border: 0;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 14px;
+  line-height: 1.68;
+  tab-size: 2;
+  resize: vertical;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+
+.editor-area:focus {
+  outline: 0;
+  box-shadow: inset 0 0 0 2px var(--accent-line);
+}
+
+.editor-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 9px 12px;
+  background: var(--raised);
+  border-top: 1px solid var(--rule);
+}
+
+.editor-hintmsg {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+/* ---------- 差异对照 ---------- */
+
+.diff {
+  margin: 0;
+  border-top: 1px solid var(--rule);
+  background: var(--code-bg);
+  overflow-x: auto;
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.66;
+}
+
+.diff-row {
+  display: flex;
+  padding-right: 12px;
+  white-space: pre;
+}
+
+.diff-sign {
+  flex: 0 0 auto;
+  width: 2.2em;
+  text-align: center;
+  user-select: none;
+  color: var(--code-line-n);
+}
+
+.diff-row[data-k="add"] {
+  background: rgba(127, 167, 140, 0.15);
+}
+
+.diff-row[data-k="add"] .diff-sign {
+  color: #a8c98d;
+}
+
+.diff-row[data-k="del"] {
+  background: rgba(213, 154, 147, 0.14);
+}
+
+.diff-row[data-k="del"] .diff-sign {
+  color: #d59a93;
+}
+
+.diff-text {
+  flex: 1 1 auto;
+  color: var(--code-ink);
+}

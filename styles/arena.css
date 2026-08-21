@@ -1,0 +1,505 @@
+/* ============================================================
+   考场 —— 阶段 C
+   ------------------------------------------------------------
+   只有这一份是考场自己的样式。列表长条、标签、提示框、答案门、
+   文件树、终端全部复用现成的类（.exam-row / .tag / .callout /
+   .minihead / .btn / .filetree / .term）。
+   颜色一律走 tokens.css 的变量，深色模式跟着一起翻。
+   ============================================================ */
+
+/* ---------- 列表页 ---------- */
+
+.arena-lede > p {
+  margin: 0;
+}
+
+/* 「有一场还在计时中」的横条 —— 未收尾的考试必须一眼看到 */
+.arena-live {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 0 0 22px;
+  padding: 14px 16px;
+  border: 1px solid var(--danger-line);
+  border-left: 3px solid var(--danger);
+  border-radius: var(--r);
+  background: var(--danger-wash);
+  max-width: var(--measure-wide);
+}
+
+.arena-live strong {
+  display: block;
+  font-size: 14.5px;
+  color: var(--ink);
+}
+
+.arena-live p {
+  margin: 3px 0 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  max-width: 60ch;
+}
+
+.arena-live .btn {
+  margin-left: auto;
+}
+
+/* 三个数字的概览条 */
+.arena-sum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 26px;
+  padding: 14px 0 16px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  max-width: var(--measure-wide);
+}
+
+.arena-sum-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.arena-sum-cell b {
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 没试过的题数 > 0 时，这个数字自己就是行动信号 */
+.arena-sum-cell[data-tone="call"] b {
+  color: var(--accent-ink);
+}
+
+/* 没试过的题：左边一条强调色的杠 + 略抬起来的底 */
+.arena-list .exam-row[data-fresh="true"] {
+  margin-left: -14px;
+  padding-left: 11px;
+  border-left: 3px solid var(--accent);
+  background: linear-gradient(to right, var(--accent-wash), transparent 62%);
+}
+
+.arena-list .exam-row[data-fresh="true"] .exam-idx {
+  color: var(--accent-ink);
+}
+
+.arena-side {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-end;
+  line-height: 1.5;
+}
+
+.arena-side-tags {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+@media (max-width: 700px) {
+  .arena-side {
+    align-items: flex-start;
+  }
+
+  .arena-side-tags {
+    justify-content: flex-start;
+  }
+
+  .arena-list .exam-row[data-fresh="true"] {
+    margin-left: 0;
+    padding-left: 10px;
+  }
+}
+
+/* ---------- 规则 ---------- */
+
+.arena-rules {
+  margin: 0 0 26px;
+  padding: 0 0 0 22px;
+  max-width: var(--measure);
+  font-size: 15px;
+  color: var(--ink-2);
+  line-height: 1.72;
+}
+
+.arena-rules li {
+  margin: 7px 0;
+}
+
+.arena-rules li::marker {
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 说明屏的开考块 ---------- */
+
+.arena-startbox {
+  margin-top: 34px;
+  max-width: var(--measure-wide);
+}
+
+.arena-none {
+  margin: 0 0 14px;
+  font-size: 14.5px;
+  color: var(--ink-2);
+}
+
+.arena-note {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.65;
+  max-width: 66ch;
+}
+
+.arena-startbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  background: var(--raised);
+}
+
+.arena-startbar[data-state="idle"] {
+  border-color: var(--accent-line);
+}
+
+.arena-startbar[data-state="live"] {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+}
+
+.arena-startbar[data-state="blocked"] {
+  border-color: var(--warn-line);
+  background: var(--warn-wash);
+}
+
+.arena-startbar-text {
+  flex: 1 1 260px;
+  min-width: 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+
+.arena-startbar-text strong {
+  display: block;
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+/* ---------- 二次确认 ---------- */
+
+.arena-confirm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-top: 14px;
+  padding: 13px 15px;
+  border: 1px solid var(--warn-line);
+  border-radius: var(--r);
+  background: var(--warn-wash);
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+
+.arena-confirm > span:first-child {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.arena-confirm strong {
+  color: var(--ink);
+}
+
+/* ---------- 计时器 ---------- */
+
+.arena-clockbar {
+  position: sticky;
+  top: var(--topbar-h);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: -8px 0 26px;
+  padding: 12px 16px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--lift);
+}
+
+.arena-clockbar[data-state="live"] {
+  border-color: var(--accent-line);
+}
+
+/* 超时不打断，只变红 —— 什么时候停由人决定 */
+.arena-clockbar[data-over="true"] {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+}
+
+.arena-clock {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.arena-clockbar[data-over="true"] .arena-clock {
+  color: var(--danger);
+}
+
+.arena-clock-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+.arena-clock-limit {
+  color: var(--ink-2);
+}
+
+.arena-clock-over {
+  color: var(--danger);
+}
+
+.arena-clock-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .arena-clockbar {
+    gap: 10px;
+  }
+
+  .arena-clock {
+    font-size: 26px;
+  }
+
+  .arena-clock-actions {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+.arena-run-head {
+  padding-top: 4px;
+}
+
+/* ---------- 需求分组 ---------- */
+
+.arena-reqs + .arena-reqs {
+  margin-top: 18px;
+}
+
+.arena-req-group {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--accent-ink);
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 9px;
+}
+
+/* ---------- 自评页 ---------- */
+
+.arena-box {
+  margin-top: 30px;
+  max-width: var(--measure-wide);
+}
+
+.arena-verdict {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 16px 0 18px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.arena-verdict-time {
+  font-size: 38px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.arena-verdict-time[data-over="true"] {
+  color: var(--danger);
+}
+
+.arena-verdict-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.arena-checks {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.arena-check {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 4px 10px;
+  align-items: start;
+  padding: 12px 14px;
+  cursor: pointer;
+  background: var(--surface);
+}
+
+.arena-check + .arena-check {
+  border-top: 1px solid var(--rule);
+}
+
+.arena-check:hover {
+  background: var(--raised);
+}
+
+.arena-check[data-on="true"] {
+  background: var(--ok-wash);
+}
+
+.arena-checks[data-readonly="true"] .arena-check {
+  cursor: default;
+}
+
+.arena-check input {
+  width: 15px;
+  height: 15px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+}
+
+.arena-check-cmd {
+  font-size: 13.5px;
+  color: var(--ink);
+  word-break: break-all;
+}
+
+.arena-check-exp {
+  grid-column: 2;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.55;
+}
+
+.arena-submit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.arena-submit-text {
+  flex: 1 1 240px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+/* ---------- 历史记录 ---------- */
+
+.arena-hist {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure-wide);
+}
+
+.arena-hist-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.arena-hist-row[data-best="true"] {
+  background: var(--accent-wash);
+}
+
+.arena-hist-n {
+  width: 30px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.arena-hist-time {
+  min-width: 62px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.arena-hist-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.arena-hist-when {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.arena-hist-checks {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .arena-hist-when {
+    margin-left: 0;
+  }
+
+  .arena-verdict-time {
+    font-size: 32px;
+  }
+}

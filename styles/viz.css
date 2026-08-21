@@ -1,0 +1,243 @@
+/* ============================================================
+   数据流图 / 请求流图
+   ------------------------------------------------------------
+   节点 + SVG 连线 + 逐帧高亮。不用插画，不用漂浮圆球。
+   ============================================================ */
+
+.viz {
+  margin: 20px 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  background: var(--raised);
+  overflow: hidden;
+  max-width: var(--measure-wide);
+}
+
+.viz-bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px;
+  background: var(--sunken);
+  border-bottom: 1px solid var(--rule);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.viz-stage {
+  padding: 20px 16px;
+  overflow-x: auto;
+}
+
+.viz-flow {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  min-width: min-content;
+}
+
+.viz-node {
+  flex: 1 1 0;
+  min-width: 118px;
+  padding: 11px 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--surface);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.viz-node[data-on="true"] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.viz-node[data-on="past"] {
+  border-color: var(--ok-line);
+  background: var(--ok-wash);
+}
+
+.viz-node-kind {
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 2px;
+}
+
+.viz-node[data-on="true"] .viz-node-kind {
+  color: var(--accent-ink);
+}
+
+.viz-node-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.viz-node-detail {
+  margin-top: 5px;
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  word-break: break-word;
+}
+
+.viz-arrow {
+  flex: 0 0 auto;
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rule-strong);
+  font-size: 14px;
+}
+
+.viz-arrow[data-on="true"] {
+  color: var(--accent);
+}
+
+/* 竖排（窄屏或本身就是纵向流程） */
+.viz-flow[data-dir="column"] {
+  flex-direction: column;
+}
+
+.viz-flow[data-dir="column"] .viz-arrow {
+  width: 100%;
+  height: 24px;
+  transform: rotate(90deg);
+}
+
+@media (max-width: 720px) {
+  .viz-flow {
+    flex-direction: column;
+  }
+
+  .viz-arrow {
+    width: 100%;
+    height: 22px;
+    transform: rotate(90deg);
+  }
+}
+
+.viz-msg {
+  padding: 11px 14px;
+  border-top: 1px solid var(--rule);
+  background: var(--surface);
+  font-size: 15px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  min-height: 3.2em;
+}
+
+.viz-msg code {
+  background: var(--sunken);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  padding: 0.05em 0.32em;
+  font-size: 0.87em;
+}
+
+.viz-ctl {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding: 9px 12px;
+  border-top: 1px solid var(--rule);
+  background: var(--raised);
+}
+
+.viz-steps {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.viz-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 100px;
+  background: var(--rule-strong);
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.viz-dot[data-on="true"] {
+  background: var(--accent);
+  width: 16px;
+}
+
+/* ---------- 静态分层图（不需要播放的架构图） ---------- */
+
+.layers {
+  margin: 20px 0;
+  max-width: var(--measure-wide);
+}
+
+.layer {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 16px;
+  padding: 13px 0;
+  border-top: 1px solid var(--rule);
+  align-items: start;
+}
+
+.layer:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.layer-name {
+  font-size: 12.5px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: var(--accent-ink);
+  padding-top: 2px;
+}
+
+.layer-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.layer-item {
+  padding: 5px 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--surface);
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.layer-item[data-tone="edit"] {
+  border-color: var(--warn-line);
+  background: var(--warn-wash);
+  color: var(--warn);
+}
+
+.layer-item[data-tone="given"] {
+  color: var(--ink-3);
+}
+
+.layer-note {
+  width: 100%;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  margin-top: 2px;
+}
+
+@media (max-width: 640px) {
+  .layer {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+}

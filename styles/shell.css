@@ -1,0 +1,1665 @@
+/* ============================================================
+   外壳：顶栏 / 左侧课程导航 / 主内容 / 右侧目录栏
+   ------------------------------------------------------------
+   不做厚重三栏后台：两侧都是「无框」的，只用一条细线和留白分区。
+   ============================================================ */
+
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* 首页 / 学习路径 / 练习场 / 模拟考索引 / 速查 —— 这些页面没有课程目录，
+   整个第一列收掉，内容全宽。见 app-shell.tsx 顶部的分工说明。 */
+.shell[data-nav="off"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* 桌面上没有课程目录就整块不渲染视觉；窄屏下面的媒体查询会把它放回来，
+   因为窄屏的抽屉里还装着主导航（顶栏在窄屏是隐藏的）。 */
+.shell[data-nav="off"] .sidebar {
+  display: none;
+}
+
+/* 抽屉里的主导航 —— 只在窄屏出现。
+   之前窄屏下 .topbar-nav 被 display:none，而抽屉里只有课程目录，
+   于是「练习场」「速查」这些页面在手机上根本到不了（踩过）。 */
+.side-top-nav {
+  display: none;
+}
+
+/* ---------- 顶栏 ---------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 22px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  font-weight: 650;
+  font-size: 15.5px;
+  letter-spacing: -0.01em;
+}
+
+.topbar-brand:hover {
+  text-decoration: none;
+}
+
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 10px;
+}
+
+.topbar-nav a {
+  padding: 5px 10px;
+  border-radius: var(--r);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.topbar-nav a:hover {
+  background: var(--sunken);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.topbar-nav a[data-active="true"] {
+  color: var(--ink);
+  font-weight: 600;
+  background: var(--accent-wash);
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 语言开关：中 / EN。宽度固定，切换时顶栏不会跳。 */
+.lang-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 32px;
+  padding: 0 7px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+
+.lang-btn:hover {
+  background: var(--sunken);
+  border-color: var(--accent-line);
+  color: var(--ink);
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: var(--sunken);
+  border-color: var(--rule);
+  color: var(--ink);
+}
+
+.menu-btn {
+  display: none;
+}
+
+/* ---------- 左侧课程导航 ---------- */
+
+.sidebar {
+  grid-row: 2;
+  border-right: 1px solid var(--rule);
+  padding: 22px 0 60px;
+  position: sticky;
+  top: var(--topbar-h);
+  align-self: start;
+  max-height: calc(100vh - var(--topbar-h));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* 侧栏顶部：告诉用户这四门是有先后的 */
+.side-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 20px 14px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.side-head-label {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.side-head-link {
+  font-size: 12px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/* 课程序号：01 02 03 04，让「顺序」这件事不用读文字就看得出 */
+.side-exam-idx {
+  display: inline-block;
+  min-width: 1.9em;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+
+.side-exam[data-active] .side-exam-idx {
+  color: var(--accent-ink);
+}
+
+.side-group + .side-group {
+  margin-top: 26px;
+}
+
+.side-group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 20px 7px;
+}
+
+.side-group-head .eyebrow {
+  font-size: 10.5px;
+}
+
+.side-exam {
+  display: block;
+  padding: 7px 20px;
+  border-left: 2px solid transparent;
+}
+
+.side-exam:hover {
+  background: var(--sunken);
+  text-decoration: none;
+}
+
+.side-exam[data-active="true"] {
+  border-left-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.side-exam-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.side-exam-meta {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.side-mod {
+  margin-top: 12px;
+  padding: 0 20px;
+}
+
+/* 侧栏模块头。现在是 <summary>，所以要自己接管折叠标记 ——
+   默认那个三角在窄侧栏里占位太重，换成一个跟着 open 转向的细箭头。 */
+.side-mod-title {
+  margin-bottom: 5px;
+  position: relative;
+  padding-right: 34px;
+  cursor: pointer;
+  list-style: none; /* Firefox */
+  border-radius: var(--r);
+}
+
+.side-mod-title::-webkit-details-marker {
+  display: none; /* Safari / Chrome */
+}
+
+.side-mod-title:hover {
+  background: var(--sunken);
+}
+
+.side-mod-title:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 折叠箭头。收起时朝右，展开时朝下 */
+.side-mod-title::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid var(--ink-3);
+  border-bottom: 1.5px solid var(--ink-3);
+  transform: rotate(-45deg);
+  transition: transform 0.14s ease;
+}
+
+.side-mod[open] > .side-mod-title::after {
+  transform: rotate(45deg);
+}
+
+/* 组内进度。收起来的时候这个数字就是唯一的进度信号，所以不能藏 */
+.side-mod-count {
+  position: absolute;
+  right: 18px;
+  top: 1px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+/* 「模拟考」那一块还是 div，不该长出箭头和 hover 底色 */
+div.side-mod > .side-mod-title {
+  padding-right: 0;
+  cursor: default;
+}
+
+div.side-mod > .side-mod-title::after {
+  display: none;
+}
+
+div.side-mod > .side-mod-title:hover {
+  background: transparent;
+}
+
+.side-mod-stage {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.side-mod-name {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.side-lessons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--rule);
+}
+
+.side-lessons li {
+  margin: 0;
+}
+
+.side-lesson {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 4px 8px 4px 11px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.side-lesson:hover {
+  color: var(--ink);
+  background: var(--sunken);
+  text-decoration: none;
+}
+
+.side-lesson[data-active="true"] {
+  border-left-color: var(--accent);
+  color: var(--ink);
+  font-weight: 600;
+  background: var(--accent-wash);
+}
+
+.side-lesson-n {
+  font-size: 11px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  min-width: 1.4em;
+  flex-shrink: 0;
+}
+
+.side-lesson[data-done="true"] .side-lesson-n::before {
+  content: "✓";
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.side-lesson[data-done="true"] .side-lesson-n {
+  color: transparent;
+  position: relative;
+}
+
+.side-lesson[data-done="true"] .side-lesson-n::before {
+  position: absolute;
+  left: 0;
+}
+
+.side-foot {
+  margin: 26px 20px 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* ---------- 主内容 ---------- */
+
+.main {
+  grid-row: 2;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--rail-w);
+  gap: 40px;
+  padding: 34px 34px 96px;
+  align-items: start;
+}
+
+.main[data-rail="off"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.content {
+  min-width: 0;
+  max-width: var(--measure-wide);
+}
+
+/* 没有右栏时把内容居中。
+   有右栏的页面，栅格右边那一列被目录填满，内容贴左是对的；
+   没有右栏时栅格塌成一列，内容还贴左的话余量全堆到右边 ——
+   实测 1280px 视口下首页右侧空了 454px（35%），看起来像没写完。
+   受影响的是 data-rail="off" 的那些页面：首页、路线图、考场四页、
+   八股详情、抽认卡、考试总览、模拟考工作区。 */
+.main[data-rail="off"] > .content {
+  /* 【width: 100% 不能省】grid item 上单独写 margin-inline: auto 会让它
+     从「拉伸填满栅格列」变成「按内容宽度」——  窄屏下 max-width: 84ch
+     比视口还宽，于是整页横向溢出 395px（实测在 375px 视口上踩到）。
+     先 width: 100% 占满列，再由 max-width 收口，最后 auto 边距居中。 */
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* 课程页和 /practice 这类「内容 + 目录」的页面：两栏作为一个整体居中，
+   而不是内容居中、目录被推到屏幕最右边。 */
+.main:not([data-rail="off"]) {
+  justify-content: center;
+  grid-template-columns: minmax(0, var(--measure-wide)) var(--rail-w);
+}
+
+/* ---------- 右侧目录栏 ---------- */
+
+.rail {
+  position: sticky;
+  top: calc(var(--topbar-h) + 34px);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.rail-block + .rail-block {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+
+.rail-head {
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+
+/* 右栏统计：一个大数字 + 分母。三个列表页共用，别再各写各的行内样式。 */
+.rail-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  color: var(--ink-2);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.rail-stat b {
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.15;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.rail-toc {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--rule);
+}
+
+.rail-toc a {
+  display: block;
+  padding: 3px 0 3px 11px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--ink-2);
+}
+
+.rail-toc a:hover {
+  color: var(--ink);
+  text-decoration: none;
+  border-left-color: var(--rule-strong);
+}
+
+.rail-toc a[data-active="true"] {
+  color: var(--ink);
+  font-weight: 600;
+  border-left-color: var(--accent);
+}
+
+/* ---------- 移动端 ---------- */
+
+.drawer-scrim {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  /* 目录收起来了，栅格塌成一列 —— 选择器要压过上面那条
+     `.main:not([data-rail="off"])`，所以这里同样写全。 */
+  .main,
+  .main:not([data-rail="off"]) {
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: stretch;
+  }
+
+  /* 这时候所有页面都没有右栏了，内容一律居中。
+     同样必须带 width: 100% —— 理由见上面那条注释。 */
+  .main > .content,
+  .main[data-rail="off"] > .content {
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .rail {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* 窄屏：抽屉永远可用，因为它同时承担主导航 */
+  .shell[data-nav="off"] .sidebar {
+    display: block;
+  }
+
+  .side-top-nav {
+    display: block;
+    padding: 0 20px 16px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .side-top-nav a {
+    display: block;
+    padding: 7px 0;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 550;
+  }
+
+  .side-top-nav a[data-active] {
+    color: var(--accent-ink);
+  }
+
+  .menu-btn {
+    display: inline-flex;
+  }
+
+  .topbar {
+    padding: 0 14px;
+    gap: 8px;
+  }
+
+  .topbar-nav {
+    display: none;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: var(--topbar-h);
+    left: 0;
+    bottom: 0;
+    width: min(84vw, 320px);
+    max-height: none;
+    background: var(--paper);
+    z-index: 60;
+    transform: translateX(-102%);
+    transition: transform 0.2s ease;
+    box-shadow: var(--lift-2);
+  }
+
+  .sidebar[data-open="true"] {
+    transform: translateX(0);
+  }
+
+  .drawer-scrim[data-open="true"] {
+    display: block;
+    position: fixed;
+    inset: var(--topbar-h) 0 0;
+    background: rgba(28, 39, 35, 0.28);
+    z-index: 55;
+  }
+
+  .main {
+    padding: 22px 16px 80px;
+  }
+}
+
+/* ---------- 搜索（⌘K） ---------- */
+
+.search-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 9px 5px 10px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink-3);
+  background: var(--sunken);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  cursor: pointer;
+}
+
+.search-trigger:hover {
+  border-color: var(--accent-line);
+  color: var(--ink-2);
+}
+
+.search-kbd {
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 10.5px;
+  padding: 1px 5px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+  color: var(--ink-3);
+}
+
+.search-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(28, 39, 35, 0.3);
+}
+
+[data-theme="dark"] .search-scrim {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.search-panel {
+  position: fixed;
+  z-index: 81;
+  top: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(620px, calc(100vw - 28px));
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--lift-2);
+  overflow: hidden;
+}
+
+.search-input {
+  display: block;
+  width: 100%;
+  padding: 15px 18px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.search-input:focus {
+  outline: 0;
+}
+
+.search-input::placeholder {
+  color: var(--ink-3);
+}
+
+.search-results {
+  max-height: min(52vh, 440px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.search-hit {
+  display: block;
+  padding: 9px 18px;
+  border-left: 2px solid transparent;
+}
+
+.search-hit:hover {
+  text-decoration: none;
+}
+
+.search-hit[data-on="true"] {
+  background: var(--accent-wash);
+  border-left-color: var(--accent);
+}
+
+.search-hit-kind {
+  display: block;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+
+.search-hit-title {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.search-hit-sub {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-empty {
+  padding: 22px 18px;
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--ink-3);
+}
+
+.search-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--sunken);
+  border-top: 1px solid var(--rule);
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+@media (max-width: 700px) {
+  .search-trigger-label {
+    display: none;
+  }
+  .search-kbd {
+    display: none;
+  }
+  .search-foot {
+    display: none;
+  }
+}
+
+/* ---------- 首页第一屏的「开始」条 ----------
+   之前编辑式引言压在最上面，主行动在一屏半以下 —— 新用户不知道该点哪。
+   现在第一屏只有一件事：一个主按钮。右边给「已经有基础」的人一条旁路。 */
+
+.start-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+  padding-bottom: 34px;
+  margin-bottom: 34px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.start-title {
+  font-size: clamp(28px, 3.6vw, 40px);
+  line-height: 1.18;
+  margin: 8px 0 14px;
+}
+
+.start-sub {
+  font-size: 17px;
+  color: var(--ink-2);
+  max-width: 54ch;
+  margin-bottom: 20px;
+}
+
+.start-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.start-alt {
+  padding: 16px 18px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  background: var(--sunken);
+}
+
+.start-alt-head {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+
+.start-alt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+
+.start-alt-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 5px 0;
+}
+
+.start-alt-list li + li {
+  border-top: 1px solid var(--rule);
+}
+
+.start-alt-idx {
+  display: inline-block;
+  min-width: 2.1em;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--ink-3);
+}
+
+@media (max-width: 860px) {
+  .start-strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+}
+
+.start-alt-more {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--accent-ink);
+}
+
+/* ============================================================
+   首页：唯一的主行动
+   ------------------------------------------------------------
+   之前第一屏是引言 + 一排全局数字 + 四门课并列，认知负担全砸在第一屏。
+   现在第一屏只有一件事，其余全部下移或折叠。
+   ============================================================ */
+
+.home {
+  max-width: 74ch;
+}
+
+.hero {
+  padding: 26px 0 40px;
+}
+
+.hero-title {
+  font-size: clamp(30px, 4.2vw, 46px);
+  line-height: 1.15;
+  margin: 10px 0 18px;
+  max-width: 30ch;
+}
+
+.hero-sub {
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  max-width: 58ch;
+  margin-bottom: 28px;
+}
+
+/* 主 CTA 故意做大：两行，主行动 + 具体去哪 */
+.hero-cta {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 26px;
+  border-radius: var(--r-lg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fff;
+  transition: background 0.14s ease, transform 0.14s ease;
+}
+
+.hero-cta:hover {
+  background: var(--accent-ink);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .hero-cta,
+[data-theme="dark"] .hero-cta:hover {
+  color: #0f1512;
+}
+
+.hero-cta-main {
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.hero-cta-main::after {
+  content: " →";
+}
+
+.hero-cta-sub {
+  font-size: 13px;
+  /* 0.82 的透明度把这行副标题压到 4.46:1（差 0.04 不达标）。
+     深绿底上的白字，0.9 看起来仍然是「次要」，但读得清。 */
+  opacity: 0.9;
+}
+
+.hero-alt {
+  margin: 16px 0 0;
+  font-size: 14.5px;
+}
+
+/* ---------- 首页次要区 ---------- */
+
+.home-sec {
+  padding-top: 34px;
+  margin-top: 34px;
+  border-top: 1px solid var(--rule);
+}
+
+.home-sec-title {
+  font-size: 15px;
+  font-weight: 650;
+  margin-bottom: 6px;
+}
+
+.home-sec-lede {
+  color: var(--ink-2);
+  font-size: 15px;
+  margin-bottom: 18px;
+}
+
+.home-note {
+  font-size: 14.5px;
+  color: var(--ink-2);
+  margin-top: 16px;
+}
+
+/* 三/四档练法：一行一档，越往下给得越少 */
+.tier-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tier;
+}
+
+.tier-list li {
+  margin: 0;
+}
+
+.tier-list li + li {
+  border-top: 1px solid var(--rule);
+}
+
+/* 【第三轮改动】布局从「刻度徽章在左、名字在右」改成单列纵向：
+   名字第一行 → 四档刻度第二行（退成小字副标）→ 给你什么 → 什么时候来。
+
+   为什么改：原来 .tier-goal 是左列的徽章，视觉上是那一行的第一个词，
+   于是新用户在首页学到的名字是「说得出」，点进去页面叫「八股题库」。
+   见 docs/ia-audit-round3.md 的术语统一表。 */
+/* 三行 + 左侧序号栏：
+     [01] 八股题库 · 说得出            105
+          给你问题，你用嘴答
+          课程走完一门再来刷
+   原来是四行等宽堆叠、字重接近，扫视时四张卡长得一样，得逐行读。
+   序号让「四档是有顺序的」这件事直接可见。 */
+.tier-list a {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "step head  n"
+    ".    gives gives"
+    ".    when  when";
+  align-items: baseline;
+  gap: 3px 10px;
+  padding: 14px 12px 14px 0;
+  color: var(--ink);
+}
+
+.tier-list a:hover {
+  background: var(--sunken);
+  text-decoration: none;
+}
+
+/* 序号用 CSS counter 生成 —— 不进 DOM 文本，屏幕阅读器不会念「零一」 */
+.tier-step {
+  grid-area: step;
+  counter-increment: tier;
+  font-size: 12px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  opacity: 0.55;
+}
+
+.tier-step::before {
+  content: counter(tier, decimal-leading-zero);
+}
+
+.tier-head {
+  grid-area: head;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tier-name {
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+/* 四档刻度：跟在名字后面的小字。仍然排在名字之后 ——
+   排到前面会让新用户以为这一档就叫「说得出」（见 ia-audit-round3.md）。 */
+.tier-goal {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* 数字降级：比原来更小更淡，不与主 CTA 抢焦点 */
+.tier-n {
+  grid-area: n;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+  opacity: 0.75;
+}
+
+.tier-gives {
+  grid-area: gives;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+/* 「什么时候来」—— 这一行是这次改动的重点。
+   later 是灰的（劝你先上课，但链接照样能点）；
+   now 用强调色（这是给你的建议）。刻意没有锁图标、没有禁用态。 */
+.tier-when {
+  grid-area: when;
+  font-size: 12.5px;
+  line-height: 1.6;
+  margin-top: 2px;
+}
+
+.tier-when[data-state="later"] {
+  color: var(--ink-3);
+}
+
+.tier-when[data-state="now"] {
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.tier-when[data-state="now"]::before {
+  content: "→ ";
+}
+
+.tier-when[data-state="open"] {
+  color: var(--ink-3);
+}
+
+/* 折叠的「其他」 */
+.home-more {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+
+.home-more > summary {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--ink-2);
+  list-style: none;
+}
+
+.home-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.home-more > summary::before {
+  content: "＋ ";
+  color: var(--ink-3);
+}
+
+.home-more[open] > summary::before {
+  content: "－ ";
+}
+
+.home-more > summary:hover {
+  color: var(--ink);
+}
+
+.home-more-body {
+  padding-top: 14px;
+  font-size: 14.5px;
+}
+
+.home-more-body ul {
+  padding-left: 1.2em;
+}
+
+/* 四档列表现在本来就是单列，窄屏不需要再改布局
+   （原来这里把两列压成一列、把徽章从左侧挪下来 —— 布局改了之后是死代码）。 */
+
+/* ============================================================
+   路线图（/path）
+   ------------------------------------------------------------
+   连线 + 节点 + 三态：读完打勾变灰、当前强高亮、后面弱化。
+   ============================================================ */
+
+.road-progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 34px;
+  max-width: var(--measure);
+}
+
+.road-progress-num {
+  font-size: 15px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.road,
+.road-nodes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.road-course + .road-course {
+  margin-top: 38px;
+}
+
+.road-course-title {
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* 节点：左边一条竖线把它们串起来 */
+.road-node {
+  position: relative;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 16px;
+  margin: 0;
+  padding: 16px 0 18px;
+}
+
+/* 竖线 —— 最后一个节点不画，免得线悬空 */
+.road-node:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 30px;
+  bottom: -6px;
+  width: 2px;
+  background: var(--rule);
+}
+
+.road-dot {
+  width: 18px;
+  height: 18px;
+  margin-top: 4px;
+  border-radius: 50%;
+  border: 2px solid var(--rule-strong);
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink-3);
+  z-index: 1;
+}
+
+.road-node[data-state="done"] .road-dot {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #fff;
+}
+
+/* 当前那一段：实心强调 + 一圈光环，一眼能找到 */
+.road-node[data-state="current"] .road-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-wash);
+}
+
+.road-node[data-state="current"] {
+  background: var(--accent-wash);
+  border-radius: var(--r-lg);
+  padding-left: 14px;
+  padding-right: 14px;
+  margin-left: -14px;
+  margin-right: -14px;
+}
+
+/* 读完的整块压暗，但不到读不清的程度 */
+.road-node[data-state="done"] .road-body {
+  opacity: 0.62;
+}
+
+/* 后面还没到的：更弱，暗示「建议先走前面」但不锁死 */
+.road-node[data-state="locked"] .road-body {
+  opacity: 0.78;
+}
+
+.road-node-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+}
+
+.road-part {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+
+.road-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.road-node-title {
+  font-size: 17px;
+  font-weight: 650;
+  margin-bottom: 5px;
+}
+
+.road-node[data-state="current"] .road-node-title {
+  font-size: 19px;
+}
+
+.road-summary {
+  font-size: 14.5px;
+  color: var(--ink-2);
+  max-width: var(--measure);
+  margin-bottom: 10px;
+}
+
+.road-lessons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.road-end {
+  margin-top: 44px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure);
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   四档阶梯（/practice、/drill、/code、/arena 顶部）
+   ------------------------------------------------------------
+   把「这几个有什么区别」的答案放在困惑发生的地方 —— 页面顶部，
+   不是首页某张表里。
+   ============================================================ */
+
+.ladder {
+  margin: 0 0 34px;
+  padding: 16px 18px 14px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  background: var(--sunken);
+}
+
+/* 标题行：文字在左，「怎么选」的展开开关贴到最右。
+   两者同一行，展开区就不再占额外的一行高度。 */
+.ladder {
+  position: relative;
+}
+
+.ladder-head {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+  padding-right: 108px;
+}
+
+.ladder-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.ladder-step {
+  display: flex;
+  /* 【别用 align-items: center】四格高度不一样（说明文字有的一行有的两行），
+     居中会让 → 浮在半空、和任何一行文字都不齐。
+     flex-start + 一个固定的上边距，把箭头钉在「名称」那一行上。 */
+  align-items: flex-start;
+  gap: 4px;
+  margin: 0;
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.ladder-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  color: var(--ink-2);
+}
+
+a.ladder-link:hover {
+  background: var(--paper);
+  border-color: var(--rule);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+/* 当前那一格：白底 + 强调左边框，和其他格拉开 */
+.ladder-step[data-on] .ladder-link {
+  background: var(--paper);
+  border-color: var(--accent-line);
+  box-shadow: inset 3px 0 0 var(--accent);
+  color: var(--ink);
+}
+
+.ladder-goal {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  color: var(--accent-ink);
+}
+
+.ladder-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ladder-n {
+  margin-left: 6px;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--ink-3);
+}
+
+.ladder-gives {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+.ladder-arrow {
+  color: var(--ink-3);
+  font-size: 13px;
+  flex-shrink: 0;
+  /* 9px 内边距 + 11px 的 goal 行 + 2px gap，正好落到 .ladder-name 上 */
+  margin-top: 30px;
+}
+
+/* /practice 的「按难度、类型筛」折叠区。
+   有筛选生效时 open 由服务端算出来，所以不会「筛完看不到筛了什么」。 */
+.filters-more {
+  margin: 4px 0 0;
+}
+
+.filters-more-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 0;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  cursor: pointer;
+  list-style: none;
+}
+
+.filters-more-head::-webkit-details-marker {
+  display: none;
+}
+
+.filters-more-head::after {
+  content: "";
+  width: 4.5px;
+  height: 4.5px;
+  border-right: 1.4px solid currentColor;
+  border-bottom: 1.4px solid currentColor;
+  transform: rotate(45deg) translate(-1px, -1px);
+  transition: transform 0.14s ease;
+  order: 3;
+}
+
+.filters-more[open] > .filters-more-head::after {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+.filters-more-head:hover {
+  color: var(--ink-2);
+}
+
+.filters-more-head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+/* 收起时也要看得见「有筛选生效」 */
+.filters-more-on {
+  display: inline-flex;
+  gap: 6px;
+  padding: 1px 7px;
+  border-radius: 100px;
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+/* 可展开的补充说明。四格对比一直在，这段默认收起 ——
+   见 ladder.tsx 里的注释：摊开时整个 Ladder 高 212px，
+   /drill 首屏一道题都看不到。 */
+/* 开关绝对定位到标题行的右端 —— 收起时 0 额外高度。
+   展开的说明正常撑开容器（details 展开时内容在文档流里）。 */
+.ladder-more {
+  position: static;
+}
+
+.ladder-more > .ladder-more-head {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+}
+
+.ladder-more-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--ink-3);
+  cursor: pointer;
+  list-style: none;
+}
+
+.ladder-more-head::-webkit-details-marker {
+  display: none;
+}
+
+.ladder-more-head::after {
+  content: "";
+  width: 4.5px;
+  height: 4.5px;
+  border-right: 1.4px solid currentColor;
+  border-bottom: 1.4px solid currentColor;
+  transform: rotate(45deg) translate(-1px, -1px);
+  transition: transform 0.14s ease;
+}
+
+.ladder-more[open] > .ladder-more-head::after {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+.ladder-more-head:hover {
+  color: var(--ink-2);
+}
+
+.ladder-more-head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+.ladder-foot {
+  margin: 11px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+/* 【窄屏用 2×2，不要竖着排四条】
+   竖排时每格连标题带说明约 200px，四格 + 标题行实测 900px ——
+   390px 视口上要滑过两屏才看得见第一道题。
+   2×2 之后整块约 210px，而四格对比一个字都没少
+   （CLAUDE.md：四格对比必须一直可见，藏起来等于白改）。 */
+@media (max-width: 760px) {
+  .ladder {
+    padding: 13px 13px 11px;
+  }
+
+  .ladder-head {
+    /* 展开开关在窄屏回到正常流，不再绝对定位到右上角，
+       所以这里不用给它留 108px */
+    padding-right: 0;
+    margin-bottom: 8px;
+  }
+
+  .ladder-steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .ladder-arrow {
+    display: none;
+  }
+
+  .ladder-step {
+    flex: none;
+  }
+
+  .ladder-link {
+    padding: 8px 10px;
+  }
+
+  .ladder-gives {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  /* 绝对定位的展开开关在窄屏会压住标题第二行 —— 放回正常流 */
+  .ladder-more > .ladder-more-head {
+    position: static;
+    margin-top: 10px;
+  }
+}
+
+/* ---------- 使用说明页 ---------- */
+
+.guide-sec {
+  margin-top: 42px;
+}
+
+.guide-h {
+  font-size: 19px;
+  font-weight: 650;
+  margin: 0 0 12px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.guide-steps {
+  margin: 14px 0 0;
+  padding-left: 22px;
+}
+
+.guide-steps li {
+  margin-bottom: 13px;
+  line-height: 1.72;
+}
+
+.guide-steps li::marker {
+  color: var(--ink-3);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.guide-limits {
+  margin: 12px 0 0;
+  padding-left: 20px;
+}
+
+.guide-limits li {
+  margin-bottom: 13px;
+  line-height: 1.72;
+}
+
+/* 「顺带说一句」这类补充：压一档，不跟正文抢 */
+.guide-note {
+  margin-top: 14px;
+  padding: 11px 14px;
+  border-left: 2px solid var(--accent-line);
+  background: var(--sunken);
+  border-radius: 0 var(--r) var(--r) 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+
+.guide-cta {
+  margin: 44px 0 0;
+  padding-top: 26px;
+  border-top: 1px solid var(--rule);
+}
+
+/* 可折叠的 callout —— 第一次读有用、之后碍事的那种建议。
+   <details> 直接复用 .callout 的外观，只把标题变成 summary。 */
+.callout-fold > .callout-fold-head {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.callout-fold > .callout-fold-head::-webkit-details-marker {
+  display: none;
+}
+
+.callout-fold > .callout-fold-head::after {
+  content: "";
+  width: 4.5px;
+  height: 4.5px;
+  border-right: 1.4px solid currentColor;
+  border-bottom: 1.4px solid currentColor;
+  transform: rotate(45deg) translate(-1px, -1px);
+  transition: transform 0.14s ease;
+  opacity: 0.6;
+}
+
+.callout-fold[open] > .callout-fold-head::after {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+.callout-fold > .callout-fold-head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}

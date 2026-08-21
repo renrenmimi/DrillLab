@@ -1,0 +1,322 @@
+/* ============================================================
+   Coding 题：列表页 (/code) 与详情页 (/code/[id])
+   ------------------------------------------------------------
+   【这个文件曾经是空的】原来只有一行注释，48 字节 ——
+   coding-list.tsx 用的 .cd-list / .cd-row / .cd-row-main /
+   .cd-row-title / .cd-row-meta，以及 .cd-badge / .cd-brief /
+   .cd-fold / .cd-hidden，全站一条规则都没有。
+   于是 /code 的题目列表就是一个裸 <ol>：标题、四个标签、
+   「8 条验收标准」、「未开始」全挤在一行里连成一串。
+   四条主线之一的入口页，主体内容没有样式。
+
+   这里按站里现成的语言补齐：一行一题，细线分隔，
+   和 .exam-row（考场 / 考试总览）是同一套骨架。
+   ============================================================ */
+
+.cd-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: var(--measure-wide);
+}
+
+.cd-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px 16px;
+  align-items: baseline;
+  padding: 13px 10px 13px 12px;
+  margin: 0 -12px;
+  border-radius: var(--r);
+  border-bottom: 1px solid var(--rule);
+}
+
+.cd-row:hover {
+  background: var(--surface);
+}
+
+.cd-row:last-child {
+  border-bottom: 0;
+}
+
+/* 整行左半边都是链接 —— 点标题和点标签是同一个目标 */
+.cd-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  color: inherit;
+}
+
+.cd-row-main:hover {
+  text-decoration: none;
+}
+
+.cd-row-title {
+  font-size: 16.5px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.cd-row-main:hover .cd-row-title {
+  color: var(--accent-ink);
+}
+
+.cd-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+}
+
+/* —— 「已完成 / 未开始」——
+   data-on="pending" 是「进度还没从 localStorage 读回来」的那一帧：
+   保持占位但不显示文字，避免读回来时整行跳一下。 */
+.cd-badge {
+  justify-self: end;
+  min-width: 4.6em;
+  padding: 2px 9px;
+  border: 1px solid var(--rule);
+  border-radius: 100px;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--ink-3);
+}
+
+.cd-badge[data-on="yes"] {
+  color: var(--ok);
+  border-color: var(--ok-line);
+  background: var(--ok-wash);
+}
+
+.cd-badge[data-on="pending"] {
+  border-color: transparent;
+}
+
+@media (max-width: 640px) {
+  .cd-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cd-badge {
+    justify-self: start;
+  }
+}
+
+/* ---------- 详情页 ---------- */
+
+.cd-brief {
+  font-size: 17px;
+  line-height: 1.72;
+  color: var(--ink);
+  max-width: var(--measure);
+}
+
+.cd-brief > * + * {
+  margin-top: 1.05em;
+}
+
+/* 「展开那一节课的原文」—— 详情页里引用课文的折叠块。
+   默认收起，因为这一页的顺序是「先自己卡一会儿，再看讲解」。 */
+.cd-fold {
+  margin: 14px 0 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--surface);
+  max-width: var(--measure-wide);
+}
+
+.cd-fold > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.cd-fold > summary::-webkit-details-marker {
+  display: none;
+}
+
+.cd-fold > summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 10px;
+  color: var(--ink-3);
+  transition: transform 0.12s ease;
+}
+
+.cd-fold[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.cd-fold > summary:hover {
+  color: var(--ink);
+  background: var(--sunken);
+  border-radius: var(--r) var(--r) 0 0;
+}
+
+.cd-fold > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--r);
+}
+
+.cd-fold-body {
+  padding: 4px 14px 14px;
+  border-top: 1px solid var(--rule);
+}
+
+/* 「空白重来」档下代替讲解和答案的那句话。
+   它是一条说明，不是正文 —— 压下去，别让人以为讲解没加载出来。 */
+.cd-hidden {
+  margin: 20px 0;
+  padding: 13px 16px;
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--r);
+  background: var(--sunken);
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  max-width: var(--measure);
+}
+
+/* ============================================================
+   工作区（Sandpack）外壳
+   ------------------------------------------------------------
+   【这一整族也曾经没有样式】.sbx / .sbx-gate / .sbx-modes /
+   .sbx-bar / .sbx-local … 12 个类，CSS 里一条规则都没有。
+   coding-sandpack.tsx 里那句「编辑器高度改由 styles/coding.css
+   控制」指向的就是这个文件 —— 而它当时是空的，所以高度从来没被控制过。
+   ============================================================ */
+
+/* —— 打开之前的那道门 ——
+   沙箱要联网、要拉远程打包器，所以不自动加载：先说清楚它是什么、
+   要什么条件，用户点了才 import()。这也是首屏 JS 不含 Sandpack 的原因。 */
+.sbx-gate {
+  margin: 18px 0;
+  padding: 16px 18px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  max-width: var(--measure-wide);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+.sbx-gate > p {
+  margin: 0 0 10px;
+}
+
+.sbx-gate-warn {
+  padding: 10px 13px;
+  border-left: 3px solid var(--warn-line);
+  border-radius: 0 var(--r) var(--r) 0;
+  background: var(--warn-wash);
+  font-size: 14px;
+}
+
+.sbx-gate-warn strong {
+  color: var(--warn);
+}
+
+.sbx-gate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.sbx-loading {
+  margin: 18px 0;
+  padding: 40px 18px;
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--r-lg);
+  text-align: center;
+  color: var(--ink-3);
+  font-size: 14px;
+  max-width: var(--measure-wide);
+}
+
+/* —— 打开之后 —— */
+.sbx-wrap {
+  margin: 18px 0;
+  max-width: var(--measure-wide);
+}
+
+/* 「带脚手架 / 空白重来」两档 */
+.sbx-modes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.sbx-modes-note {
+  flex: 1 1 260px;
+  min-width: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+
+.sbx {
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+/* 外框由 .sbx 画，Sandpack 自己那一圈去掉，别套两层边。
+   【编辑器高度不在这里】Sandpack 往 .sp-stack 上写内联 height，
+   内联样式压过 CSS —— 高度必须走 <SandpackCodeEditor editorHeight>，
+   见 components/coding-sandpack.tsx。 */
+.sbx .sp-layout {
+  border: 0;
+  border-radius: 0;
+}
+
+/* 「跑测试」那一条 */
+.sbx-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 9px 12px;
+  border-top: 1px solid var(--rule);
+  background: var(--sunken);
+}
+
+.sbx-bar-note {
+  flex: 1 1 240px;
+  min-width: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+/* —— 跑不了沙箱的那两道：只给本机命令，不给假编辑器 —— */
+.sbx-local {
+  margin: 18px 0;
+  max-width: var(--measure-wide);
+}
+
+.sbx-local .minihead {
+  margin-top: 0;
+}
+
+.sbx-local-why {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  max-width: var(--measure);
+}

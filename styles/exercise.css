@@ -1,0 +1,889 @@
+/* ============================================================
+   练习：识别 / 排序 / 填空 / 写整块 / Debug / 从零重写
+   ------------------------------------------------------------
+   练习是唯一「配得上一张卡片」的东西 —— 它是独立、可交互、
+   有状态的。所以这里用了框，别处不用。
+   ============================================================ */
+
+.ex {
+  margin: 26px 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  background: var(--raised);
+  overflow: hidden;
+  max-width: var(--measure-wide);
+}
+
+.ex-head {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding: 11px 16px;
+  background: var(--sunken);
+  border-bottom: 1px solid var(--rule);
+}
+
+.ex-level {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-line);
+  color: var(--accent-ink);
+  white-space: nowrap;
+}
+
+/* 题型徽章。难度徽章（.ex-level）是彩的、有边框；题型是灰的、无框 ——
+   两者并排时一眼分得清「这是刻度」和「这是题型」。 */
+.ex-kind {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.ex-level[data-level="3"] {
+  background: var(--warn-wash);
+  border-color: var(--warn-line);
+  color: var(--warn);
+}
+
+.ex-level[data-level="4"] {
+  background: var(--danger-wash);
+  border-color: var(--danger-line);
+  color: var(--danger);
+}
+
+.ex-title {
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ex-head-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ex-body {
+  padding: 16px;
+}
+
+.ex-prompt {
+  font-size: 15.5px;
+  color: var(--ink-2);
+  margin-bottom: 14px;
+}
+
+.ex-prompt p {
+  margin-bottom: 0.65em;
+}
+
+.ex-body .codewin,
+.ex-body .term,
+.ex-body .editor {
+  max-width: none;
+}
+
+.ex-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.ex-verdict {
+  margin-left: auto;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.ex-verdict[data-ok="true"] {
+  color: var(--ok);
+}
+
+.ex-verdict[data-ok="false"] {
+  color: var(--danger);
+}
+
+/* ---------- 选项 ---------- */
+
+.opts {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 12px 0;
+}
+
+.opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--surface);
+  font-size: 15px;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  line-height: 1.55;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+
+.opt:hover:not(:disabled) {
+  border-color: var(--accent-line);
+}
+
+.opt[data-state="picked"] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.opt[data-state="right"] {
+  border-color: var(--ok-line);
+  background: var(--ok-wash);
+}
+
+.opt[data-state="wrong"] {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+}
+
+.opt:disabled {
+  cursor: default;
+}
+
+.opt-key {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.opt[data-state="picked"] .opt-key,
+.opt[data-state="right"] .opt-key {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.opt[data-state="wrong"] .opt-key {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.opt-label {
+  /* .opt 是 flex 容器，flex item 的 min-width 默认是 auto ——
+     一条 node-subgraph/src/dataSources/orderDataSource.js 这样的长路径
+     压不下去，实测 390px 视口下把选项撑出去 116px。
+     min-width: 0 允许它缩，anywhere 允许在路径中间断行。 */
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.opt-label code {
+  white-space: pre-wrap;
+}
+
+/* ---------- 排序 ---------- */
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--surface);
+  font-size: 14.5px;
+}
+
+.order-item[data-state="right"] {
+  border-color: var(--ok-line);
+  background: var(--ok-wash);
+}
+
+.order-item[data-state="wrong"] {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+}
+
+.order-n {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  background: var(--sunken);
+  border: 1px solid var(--rule);
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.order-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.order-move {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.order-move button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--ink-2);
+  background: var(--raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+.order-move button:hover:not(:disabled) {
+  border-color: var(--accent-line);
+  color: var(--ink);
+}
+
+.order-move button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------- 填空 ---------- */
+
+.blank-code {
+  margin: 12px 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  background: var(--code-bg);
+  overflow: hidden;
+}
+
+.blank-body {
+  padding: 12px 0;
+  overflow-x: auto;
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 14px;
+  line-height: 2.05;
+  color: var(--code-ink);
+}
+
+.blank-input {
+  display: inline-block;
+  padding: 1px 6px;
+  margin: 0 1px;
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #f2f7f2;
+  background: rgba(255, 255, 255, 0.07);
+  border: 0;
+  border-bottom: 2px solid var(--accent-line);
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  text-align: center;
+  vertical-align: baseline;
+}
+
+.blank-input:focus {
+  outline: 0;
+  background: rgba(255, 255, 255, 0.13);
+  border-bottom-color: #a8c98d;
+}
+
+.blank-input[data-state="right"] {
+  border-bottom-color: #a8c98d;
+  background: rgba(168, 201, 141, 0.17);
+}
+
+.blank-input[data-state="wrong"] {
+  border-bottom-color: #d59a93;
+  background: rgba(213, 154, 147, 0.17);
+}
+
+.blank-input::placeholder {
+  color: #6d7b72;
+}
+
+.blank-n {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7fa78c;
+  vertical-align: super;
+  margin-right: 1px;
+  user-select: none;
+}
+
+.blank-why {
+  margin-top: 12px;
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+}
+
+.blank-why-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--rule);
+  font-size: 14.5px;
+  color: var(--ink-2);
+}
+
+.blank-why-row:last-child {
+  border-bottom: 0;
+}
+
+.blank-why-n {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-ink);
+  font-variant-numeric: tabular-nums;
+  padding-top: 2px;
+}
+
+.blank-why-row b {
+  color: var(--ink);
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 13.5px;
+}
+
+/* ---------- 分级提示 ---------- */
+
+.hints {
+  margin: 14px 0 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.hints-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  background: var(--sunken);
+  border-bottom: 1px solid var(--rule);
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.hints-head strong {
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.hint-step {
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+  color: var(--ink-2);
+  background: var(--surface);
+}
+
+.hint-step:last-child {
+  border-bottom: 0;
+}
+
+.hint-step-n {
+  display: block;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  margin-bottom: 3px;
+}
+
+.hint-more {
+  padding: 9px 13px;
+  background: var(--surface);
+}
+
+/* ---------- 检查清单结果 ---------- */
+
+.checks {
+  margin: 12px 0 0;
+  border-top: 1px solid var(--rule);
+  padding-top: 10px;
+}
+
+.check-row {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 5px 0;
+  font-size: 14.5px;
+  color: var(--ink-2);
+}
+
+.check-mark {
+  flex-shrink: 0;
+  width: 17px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.check-row[data-ok="true"] .check-mark {
+  color: var(--ok);
+}
+
+.check-row[data-ok="false"] .check-mark {
+  color: var(--danger);
+}
+
+/* ---------- 测试结果 ---------- */
+
+.testres {
+  margin: 16px 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r);
+  overflow: hidden;
+  max-width: var(--measure-wide);
+}
+
+.testres-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  background: var(--sunken);
+  border-bottom: 1px solid var(--rule);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.testres-head .mono {
+  font-size: 12.5px;
+  color: var(--ink);
+}
+
+.testres-sum {
+  margin-left: auto;
+  font-size: 12.5px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.testres-body {
+  background: var(--raised);
+}
+
+.testres-row {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 14px;
+}
+
+.testres-row:last-child {
+  border-bottom: 0;
+}
+
+.testres-mark {
+  flex-shrink: 0;
+  width: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.testres-row[data-pass="true"] .testres-mark {
+  color: var(--ok);
+}
+
+.testres-row[data-pass="false"] .testres-mark {
+  color: var(--danger);
+}
+
+.testres-name {
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 13px;
+  color: var(--ink);
+  min-width: 0;
+  word-break: break-word;
+}
+
+.testres-note {
+  margin-left: auto;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ---------- Debug Lab 步骤 ---------- */
+
+.debug-step {
+  margin: 16px 0;
+  padding-left: 15px;
+  border-left: 2px solid var(--rule-strong);
+}
+
+.debug-step[data-done="true"] {
+  border-left-color: var(--ok-line);
+}
+
+.debug-step-head {
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 7px;
+}
+
+.errbox {
+  margin: 12px 0;
+  border: 1px solid var(--danger-line);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.errbox-bar {
+  padding: 5px 12px;
+  background: var(--danger-wash);
+  border-bottom: 1px solid var(--danger-line);
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--danger);
+}
+
+.errbox-body {
+  padding: 11px 13px;
+  background: var(--code-bg);
+  color: #e2c6c2;
+  font-family:
+    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  font-size: 12.5px;
+  line-height: 1.62;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* ---------- 从零重写 / 模拟考工作台 ---------- */
+
+.workspace {
+  max-width: var(--measure-wide);
+}
+
+.ws-brief {
+  padding: 18px 20px;
+  border: 1px solid var(--rule-strong);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--r) var(--r) 0;
+  background: var(--raised);
+  margin-bottom: 26px;
+}
+
+.ws-brief-head {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  margin-bottom: 8px;
+}
+
+.ws-task {
+  margin: 0 0 22px;
+  padding: 16px 18px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--surface);
+}
+
+.ws-task-head {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-bottom: 9px;
+}
+
+.ws-task-n {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: var(--accent-ink);
+}
+
+.ws-task-title {
+  font-size: 16.5px;
+  font-weight: 600;
+}
+
+.ws-req {
+  margin: 0 0 12px;
+  padding-left: 1.2em;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.rubric {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--rule);
+}
+
+.rubric-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.rubric-pt {
+  flex-shrink: 0;
+  min-width: 2.6em;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--accent-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.reveal-gate {
+  margin: 30px 0;
+  padding: 20px;
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--r);
+  text-align: center;
+  background: var(--sunken);
+}
+
+.reveal-gate p {
+  font-size: 15px;
+  color: var(--ink-2);
+  max-width: 54ch;
+  margin: 0 auto 12px;
+}
+
+/* ---------- 练习场筛选条 ---------- */
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* 【为什么要有这条】/code 上下叠着三行 .filters（方向 / 难度 / 怎么跑），
+   它们是同一组筛选控件，却各自画一条分隔线、各留 22px 下边距 ——
+   实测三行占 216px，把第一道题挤到折叠线以下。
+   同组内部只留 10px、不画线，线只画在这一组的最后一行下面。 */
+.filters + .filters {
+  margin-top: -12px;
+}
+
+.filters:not(:last-of-type) + .filters {
+  border-top: 0;
+}
+
+.filters:has(+ .filters) {
+  padding-bottom: 0;
+  margin-bottom: 10px;
+  border-bottom: 0;
+}
+
+.filter-btn {
+  padding: 4px 11px;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  border-color: var(--accent-line);
+  color: var(--ink);
+}
+
+.filter-btn[data-on="true"] {
+  background: var(--accent-wash);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.filter-label {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-right: 3px;
+}
+
+.ex-origin {
+  display: block;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+
+.ex-origin a {
+  color: var(--ink-2);
+}
+
+/* ---------- 练习场分页 ---------- */
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 30px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure-wide);
+}
+
+.pager-nums {
+  display: flex;
+  gap: 3px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pager-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+
+.pager-num:hover {
+  border-color: var(--accent-line);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.pager-num[data-on="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 650;
+}
+
+[data-theme="dark"] .pager-num[data-on="true"] {
+  color: #0f1512;
+}
+
+/* ---------- disabled 按钮必须说清为什么 ----------
+   光把按钮变灰，用户会以为界面坏了。所以：
+   ① 灰得更明确（虚线边 + 明显降低对比），别只靠 opacity；
+   ② 旁边永远有一句话说明还缺什么。 */
+
+.ex-actions .btn:disabled {
+  opacity: 1;                       /* 不用半透明 —— 那会让文字也变糊 */
+  color: var(--ink-3);
+  background: var(--sunken);
+  border-style: dashed;
+  border-color: var(--rule-strong);
+}
+
+.ex-actions .btn-primary:disabled {
+  background: var(--sunken);
+  border-color: var(--rule-strong);
+  color: var(--ink-3);
+}
+
+.why-disabled {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+/* 窄屏上让说明文字自己占一行，别把按钮挤变形 */
+@media (max-width: 560px) {
+  .why-disabled {
+    flex-basis: 100%;
+  }
+}
+
+/* 「已按你在学的那门课筛选」那一行（components/practice-focus.tsx）。
+   自动筛掉东西必须说出来 —— 静默隐藏等于「我的练习不见了」。 */
+.practice-focus {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--accent-ink);
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-lg);
+  padding: 8px 12px;
+  margin: 0 0 14px;
+  max-width: var(--measure);
+}
+
+/* 难度筛选那一排的一行含义说明（components/practice-page.tsx）。
+   第三轮删掉了整块 L1–L4 阶梯解释，但不能让 L1/L2 变成没人解释的字母，
+   所以把含义压成一行挂在筛选器标签下面 —— 是标注，不是又一套体系。 */
+.filter-hint {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ink-3);
+  margin-top: 2px;
+  max-width: 22em;
+}
