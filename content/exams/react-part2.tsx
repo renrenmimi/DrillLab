@@ -547,11 +547,19 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           kind: "debug",
           id: "r-debug-preventdefault",
           title: "Debug Lab · 点 Add 之后页面闪一下，笔记没了",
+          titleEn: "Debug Lab · the page blinks after Add and the note is gone",
           level: 2,
           prompt: (
             <p>
               填好标题和内容，点 Add。页面明显闪了一下，
               地址栏出现了 <code>?</code>，表格还是空的。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Fill in a title and some content, then press Add. The page clearly
+              blinks, a <code>?</code> appears in the address bar, and the table is
+              still empty.
             </p>
           ),
           errorOutput: `# 没有 JavaScript 报错。
@@ -569,24 +577,25 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
   setTitle("");
   setContent("");
 };`,
-            { filename: "有问题的 handleSubmit" },
+            { filename: "有问题的 handleSubmit", filenameEn: "The broken handleSubmit" },
           ),
           classify: {
             options: [
-              { id: "a", label: "状态更新错误 —— 改了原数组" },
-              { id: "b", label: "浏览器默认行为没被拦住 —— 表单原生提交导致页面刷新" },
-              { id: "c", label: "类型错误 —— event 类型写错了" },
-              { id: "d", label: "异步错误 —— onSubmit 应该 await" },
+              { id: "a", label: "状态更新错误 —— 改了原数组", labelEn: "State update error — the original array was mutated" },
+              { id: "b", label: "浏览器默认行为没被拦住 —— 表单原生提交导致页面刷新", labelEn: "The browser default was not stopped — the native form submit reloads the page" },
+              { id: "c", label: "类型错误 —— event 类型写错了", labelEn: "Type error — the type of event is wrong" },
+              { id: "d", label: "异步错误 —— onSubmit 应该 await", labelEn: "Async error — onSubmit should be awaited" },
             ],
             answer: "b",
           },
           locate: {
             question: "缺了哪一行？",
+            questionEn: "Which line is missing?",
             options: [
-              { id: "a", label: "函数第一行应该是 event.preventDefault();" },
-              { id: "b", label: "应该在 onSubmit 之后加 return false;" },
-              { id: "c", label: "button 的 type 应该改成 button" },
-              { id: "d", label: "form 上应该加 method=\"post\"" },
+              { id: "a", label: "函数第一行应该是 event.preventDefault();", labelEn: "The first line of the function should be event.preventDefault();" },
+              { id: "b", label: "应该在 onSubmit 之后加 return false;", labelEn: "return false; should be added after onSubmit" },
+              { id: "c", label: "button 的 type 应该改成 button", labelEn: "The button's type should be changed to button" },
+              { id: "d", label: "form 上应该加 method=\"post\"", labelEn: "method=\"post\" should be added to the form" },
             ],
             answer: "a",
           },
@@ -599,6 +608,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
 };`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
               highlight: [2],
             },
@@ -624,7 +634,32 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                When <code>&lt;button type=&quot;submit&quot;&gt;</code> is clicked,
+                the browser runs the form&rsquo;s{" "}
+                <strong>default submit behaviour</strong>: it encodes the form data
+                into the URL, starts a navigation, and reloads the page. Once the
+                page reloads, the whole React app restarts and every piece of state
+                is reset.
+              </p>
+              <p>
+                The <code>?</code> in the address bar is the evidence of that
+                default behaviour — seeing it is almost enough for the diagnosis.
+              </p>
+              <p>
+                Look at option C (changing the button to{" "}
+                <code>type=&quot;button&quot;</code>). It does stop the submit, but
+                then the <code>form</code>&rsquo;s <code>onSubmit</code> never fires,
+                so you also have to move the handler to the button&rsquo;s{" "}
+                <code>onClick</code> — and submitting with the Enter key stops
+                working. <strong>The correct answer is preventDefault.</strong>
+              </p>
+            </>
+          ),
           verify: "npx vitest run   # 应该看到 4 passed",
+          verifyEn: "npx vitest run   # you should see 4 passed",
         },
       ],
       mistakes: [
