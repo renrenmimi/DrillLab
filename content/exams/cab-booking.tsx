@@ -3962,12 +3962,22 @@ const Loading = ({ onComplete }) => {
               kind: "debug",
               level: 2,
               title: "Debug Lab：定时器永远不到期",
+              titleEn: "Debug Lab: the timer never fires",
               prompt: (
                 <>
                   测试 3 报「找不到 <code>confirm-message</code>」，
                   而 DOM 快照显示页面还停在 loading。
                   先读报错，再看下面那个 <code>Loading</code> 组件 ——
                   <strong>它和源项目差一个东西</strong>。
+                </>
+              ),
+              promptEn: (
+                <>
+                  Test 3 reports that it cannot find{" "}
+                  <code>confirm-message</code>, and the DOM snapshot shows the page still
+                  sitting on loading. Read the error first, then look at the{" "}
+                  <code>Loading</code> component below —{" "}
+                  <strong>one thing in it differs from the source project</strong>.
                 </>
               ),
               errorOutput: `FAIL  src/test/App.test.jsx > React: Cab Booking > completes a booking and adds it to ride history
@@ -4006,30 +4016,51 @@ Ignored nodes: comments, script, style
     </main>
   );
 };`,
-                { filename: "src/components/Loading/Loading.jsx（有问题的版本）" },
+                {
+                  filename: "src/components/Loading/Loading.jsx（有问题的版本）",
+                  filenameEn: "src/components/Loading/Loading.jsx (the broken version)",
+                  codeEn: `const Loading = ({ onComplete }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (onComplete) onComplete();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  });                                  // ← where is the dependency array?
+
+  return (
+    <main data-testid="loading" className="loading-container">
+      <div className="spinner" aria-hidden="true" />
+      <h1>Loading...</h1>
+    </main>
+  );
+};`,
+                },
               ),
               classify: {
                 options: [
-                  { id: "a", label: "testid 写错了 —— confirm-message 拼错或漏了" },
-                  { id: "b", label: "effect 的依赖数组漏了，导致定时器每次渲染都被清掉重开" },
-                  { id: "c", label: "Context 没套 Provider" },
-                  { id: "d", label: "延迟时间大于 1000，fake timer 拨不到" },
+                  { id: "a", label: "testid 写错了 —— confirm-message 拼错或漏了", labelEn: "The testid is wrong — confirm-message is misspelled or missing" },
+                  { id: "b", label: "effect 的依赖数组漏了，导致定时器每次渲染都被清掉重开", labelEn: "The effect has no dependency array, so the timer is cleared and restarted on every render" },
+                  { id: "c", label: "Context 没套 Provider", labelEn: "The Context has no Provider around it" },
+                  { id: "d", label: "延迟时间大于 1000，fake timer 拨不到", labelEn: "The delay is longer than 1000, so the fake timer never reaches it" },
                 ],
                 answer: "b",
               },
               locate: {
                 question: "从报错的 DOM 快照看，页面停在哪个状态？这说明问题出在哪？",
+                questionEn: "From the DOM snapshot in the error, which state is the page stuck in, and what does that point at?",
                 options: [
-                  { id: "a", label: "停在 loading —— 所以是 Loading 组件没有触发 onComplete" },
-                  { id: "b", label: "停在首页 —— 所以是 book-button 的回调没接上" },
-                  { id: "c", label: "停在 cab-options —— 所以是 onSelectCab 没传下去" },
-                  { id: "d", label: "DOM 是空的 —— 所以是 render 就抛错了" },
+                  { id: "a", label: "停在 loading —— 所以是 Loading 组件没有触发 onComplete", labelEn: "Stuck on loading — so the Loading component never fired onComplete" },
+                  { id: "b", label: "停在首页 —— 所以是 book-button 的回调没接上", labelEn: "Stuck on the home page — so the book-button callback is not wired up" },
+                  { id: "c", label: "停在 cab-options —— 所以是 onSelectCab 没传下去", labelEn: "Stuck on cab-options — so onSelectCab was never passed down" },
+                  { id: "d", label: "DOM 是空的 —— 所以是 render 就抛错了", labelEn: "The DOM is empty — so render itself threw" },
                 ],
                 answer: "a",
               },
               fixed: real("jsx", SRC_LOADING, {
                 filename: "src/components/Loading/Loading.jsx（修好：补上依赖数组）",
-              filenameEn: "src/components/Loading/Loading.jsx (fixed: the dependency array is back)",
+                filenameEn:
+                  "src/components/Loading/Loading.jsx (fixed: the dependency array is back)",
                 sourceFile: "cab-booking-context/src/components/Loading/Loading.jsx",
                 highlight: [10],
               }),
@@ -4077,6 +4108,56 @@ Ignored nodes: comments, script, style
                     这个组合基本就是
                     <strong>「某个本该发生的异步跳转没发生」</strong>，
                     去看那个 effect 的依赖数组。
+                  </p>
+                </>
+              ),
+              rootCauseEn: (
+                <>
+                  <p>
+                    <strong>The cause: the <code>useEffect</code> has no dependency
+                    array, which means it runs after every render.</strong>
+                  </p>
+                  <p>
+                    <code>useEffect(fn)</code> and <code>useEffect(fn, [])</code> differ
+                    by one argument and behave very differently:
+                  </p>
+                  <ul>
+                    <li>
+                      <code>useEffect(fn, [])</code> — runs once, after mounting
+                    </li>
+                    <li>
+                      <code>useEffect(fn, [dep])</code> — runs again only when dep
+                      changes
+                    </li>
+                    <li>
+                      <code>useEffect(fn)</code> —{" "}
+                      <strong>runs again after every render</strong>, and runs the
+                      previous cleanup function first
+                    </li>
+                  </ul>
+                  <p>
+                    So the sequence becomes: render → start the timer → render again →{" "}
+                    <strong><code>clearTimeout</code> throws it away</strong> → start a
+                    new one → render again → throw it away...{" "}
+                    <strong>As long as the component keeps re-rendering, that one second
+                    is never counted out.</strong>
+                  </p>
+                  <p>
+                    <strong>Why it keeps re-rendering in this task:</strong>{" "}
+                    <code>Loading</code> has no state of its own, but every time{" "}
+                    <code>App</code> re-renders it hands over a new{" "}
+                    <code>onComplete</code> (an inline arrow function), and{" "}
+                    <strong>with no dependency array there is not even a check for
+                    whether anything changed</strong> — it just runs.
+                  </p>
+                  <p>
+                    <strong>How to recognise this shape at a glance:</strong> the error
+                    says something that should be there cannot be found, and the DOM
+                    snapshot shows{" "}
+                    <strong>the page stuck in the previous state</strong>. That
+                    combination almost always means{" "}
+                    <strong>an async transition that should have happened did
+                    not</strong>, so go and look at that effect&rsquo;s dependency array.
                   </p>
                 </>
               ),
