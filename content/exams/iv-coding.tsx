@@ -2142,6 +2142,8 @@ const [tabs, setTabs] = useState(
       title: "缺口二 · useRef 操作 DOM，与写一个自定义 hook",
       titleEn: "Gap 2 · using useRef on the DOM, and writing a custom hook",
       blurb: "useRef 的第二种用法（拿 DOM 调命令式 API），以及把 state + effect 打包成可复用的 hook。",
+      blurbEn:
+        "The second use of useRef — holding a DOM node so you can call methods on it directly — and packing state plus an effect into a hook you can reuse.",
       minutes: 22,
       objectives: [
         "分清 useRef 的两种用途：存不参与渲染的值 vs 拿 DOM 节点",
@@ -2149,13 +2151,23 @@ const [tabs, setTabs] = useState(
         "写出一个带惰性初始化和错误兜底的自定义 hook",
         "说清「复用逻辑不复用状态」",
       ],
+      objectivesEn: [
+        "Tell the two uses of useRef apart: holding a value that is not rendered, versus holding a DOM node",
+        "Say when you have to call the DOM directly through a ref instead of describing it with state",
+        "Write a custom hook with a lazy initial value and a fallback when something throws",
+        "Explain that a hook shares the logic, not the state",
+      ],
       whyForAssessment:
         "「用 useRef 做一个播放器」考的是你知不知道 React 里有命令式逃逸口 —— 播放、聚焦、滚动、测量这些事没法用 state 表达。自定义 hook 那道是 #340 的动手版，面试官会看你的命名、返回值形状、以及有没有处理异常。",
+      whyForAssessmentEn:
+        "Building a player with useRef tests whether you know React leaves you a way out to call the DOM directly — playing, focusing, scrolling and measuring cannot be expressed as state. The custom hook problem is the hands-on version of #340, and the interviewer looks at your naming, the shape of what you return, and whether you handle errors.",
       concepts: [
         {
           id: "ref-two-uses",
           heading: "useRef 的两种用途",
+          headingEn: "The two uses of useRef",
           lede: "很多人只知道第一种。",
+          ledeEn: "Many people know only the first one.",
           body: (
             <>
               <div className="table-wrap">
@@ -2291,6 +2303,7 @@ const [tabs, setTabs] = useState(
         {
           id: "player-detail",
           heading: "播放器的三个细节",
+          headingEn: "Three details in the player",
           body: (
             <>
               <p>
@@ -2386,7 +2399,9 @@ test("点 Play 调 audio.play()，再点调 pause()", async () => {
         {
           id: "custom-hook",
           heading: "写一个自定义 hook",
+          headingEn: "Writing a custom hook",
           lede: "把 state + effect 打包，命名必须 use 开头。",
+          ledeEn: "Pack state and an effect together; the name has to start with use.",
           body: (
             <>
               <p>
@@ -2504,7 +2519,9 @@ return [value, setValue];        // 少了 as const`,
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How this was checked",
           lede: "这就是跑出 24 / 24 的那个测试文件（六道题合在一起）。",
+          ledeEn: "This is the test file that produced 24 / 24, with all six problems in one run.",
           body: (
             <>
               <p>
@@ -2664,6 +2681,19 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
               回调 ref 是合理的。）
             </>
           ),
+          whyEn: (
+            <>
+              This works, but{" "}
+              <strong>every time it receives the node it triggers a re-render</strong>,
+              and the DOM node is not part of the rendered output at all.
+              <br />
+              <strong>
+                Use <code>useRef</code>
+              </strong>
+              . (One exception: a callback ref is reasonable when you really do need to
+              run some logic once, at the moment the node appears.)
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2683,15 +2713,59 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
               的通用注意点。
             </>
           ),
+          whyEn: (
+            <>
+              Playback ending is{" "}
+              <strong>something the DOM does on its own</strong>, and React is not told
+              about it.{" "}
+              <strong>
+                You have to listen for <code>onEnded</code> and copy the change back
+                into state.
+              </strong>
+              <br />
+              This applies to every component where the DOM holds the real value and
+              state is only a copy of it.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "要 focus / play / scroll / 测量尺寸", reachFor: "useRef 拿节点，走命令式" },
-        { signal: "要存定时器 id 或上一次的值", reachFor: "useRef 存值，不用 state" },
-        { signal: "「DOM 自己变了但界面没同步」", reachFor: "监听对应事件把 state 同步回来" },
-        { signal: "同一组 state+effect 写了两遍", reachFor: "抽 use 开头的自定义 hook" },
-        { signal: "初始值需要一次昂贵计算或 I/O", reachFor: "useState(() => …) 惰性初始化" },
-        { signal: "自定义 hook 返回数组类型不对", reachFor: "加 as const" },
+        {
+          signal: "要 focus / play / scroll / 测量尺寸",
+          signalEn: "You need to focus, play, scroll or measure a size",
+          reachFor: "useRef 拿节点，走命令式",
+          reachForEn: "Hold the node with useRef and call it directly",
+        },
+        {
+          signal: "要存定时器 id 或上一次的值",
+          signalEn: "You need to keep a timer id or the previous value",
+          reachFor: "useRef 存值，不用 state",
+          reachForEn: "Keep the value in useRef, not in state",
+        },
+        {
+          signal: "「DOM 自己变了但界面没同步」",
+          signalEn: "\"the DOM changed on its own and the screen is out of step\"",
+          reachFor: "监听对应事件把 state 同步回来",
+          reachForEn: "Listen for the matching event and copy the change back into state",
+        },
+        {
+          signal: "同一组 state+effect 写了两遍",
+          signalEn: "The same state plus effect is written twice",
+          reachFor: "抽 use 开头的自定义 hook",
+          reachForEn: "Pull it into a custom hook whose name starts with use",
+        },
+        {
+          signal: "初始值需要一次昂贵计算或 I/O",
+          signalEn: "The initial value needs an expensive computation or a read from storage",
+          reachFor: "useState(() => …) 惰性初始化",
+          reachForEn: "Pass a function to useState so it runs only once",
+        },
+        {
+          signal: "自定义 hook 返回数组类型不对",
+          signalEn: "The array returned from a custom hook has the wrong type",
+          reachFor: "加 as const",
+          reachForEn: "Add as const",
+        },
       ],
       recap: [
         "useRef 两种用途：存不参与渲染的值、拿 DOM 节点调命令式 API；两者都不触发重渲染。",
@@ -2700,6 +2774,14 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
         "jsdom 不实现媒体播放，测试要 spyOn(HTMLMediaElement.prototype, \"play\")。",
         "自定义 hook 四要点：惰性初始化、try/catch 兜底、依赖带 key、as const 返元组。",
         "复用逻辑不复用状态 —— 两个组件各调一次就是两份独立 state。",
+      ],
+      recapEn: [
+        "Two uses of useRef: holding a value that is not rendered, and holding a DOM node so you can call its methods; neither one triggers a re-render.",
+        "Playing, focusing, scrolling and measuring are actions, not state — which is why React leaves a way out through a ref.",
+        "In a media component the DOM holds the real value and state is only a copy of it, so you listen for events such as onEnded.",
+        "jsdom does not implement media playback, so a test needs spyOn(HTMLMediaElement.prototype, \"play\").",
+        "Four points for a custom hook: a lazy initial value, a try/catch fallback, the key in the dependency list, and as const to return a tuple.",
+        "A hook shares the logic, not the state — two components each calling it get two separate copies of the state.",
       ],
     },
 
