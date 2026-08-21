@@ -266,6 +266,8 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                 filenameEn: "The full order of the three phases",
                 explanation:
                   "面试里画得出这个顺序，基本就过了。注意目标元素上的监听器不分捕获/冒泡，按注册顺序执行。",
+                explanationEn:
+                  "If you can draw this order in an interview, that question is handled. One detail: on the target element itself there is no capture or bubble distinction, so those listeners run in the order they were registered.",
               },
             ),
           ],

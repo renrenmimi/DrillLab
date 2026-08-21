@@ -5547,6 +5547,8 @@ Error: Failed to parse source for import analysis because the content contains i
                   filenameEn: "The real output of npx vitest run (measured here, with paths shortened)",
                     explanation:
                       "「Tests no tests」这五个字是最重要的信号 —— 一个测试都没跑起来。这时候去改组件代码是白费功夫。",
+                    explanationEn:
+                      "The words \"Tests  no tests\" are the signal that matters most: not one test even started. Editing the component code at this point is wasted effort.",
                   },
                 ),
               ],

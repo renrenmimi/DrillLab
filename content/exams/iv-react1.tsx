@@ -718,6 +718,8 @@ const el = React.createElement(
                 filenameEn: "Choosing the key",
                 explanation:
                   "只有「列表永不重排、不增删中间项」时 index 才安全。既然多数列表都会变，直接养成用 id 的习惯。",
+                explanationEn:
+                  "An index is only safe when the list is never reordered and no item is inserted or removed in the middle. Most lists do change, so make using an id your default habit.",
               },
             ),
           ],
