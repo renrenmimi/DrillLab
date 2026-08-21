@@ -1001,10 +1001,30 @@ const cabBooking: Exam = {
             },
           ],
           transfer: [
-            { signal: "测试全靠 data-testid 找元素", reachFor: "先抄一张 testid 表，标清每个几个、挂在哪一层" },
-            { signal: "要断言「某个东西不存在」", reachFor: "queryBy 而不是 getBy —— getBy 找不到会抛错" },
-            { signal: "空状态和列表两个 testid", reachFor: "它们互斥，用三元表达式，别两个都渲染" },
-            { signal: "toEqual 比一个数组", reachFor: "那是有序断言，顺序错了就红" },
+            {
+              signal: "测试全靠 data-testid 找元素",
+              signalEn: "The tests find every element by data-testid",
+              reachFor: "先抄一张 testid 表，标清每个几个、挂在哪一层",
+              reachForEn: "Copy out a testid table first: how many of each, and which element it sits on",
+            },
+            {
+              signal: "要断言「某个东西不存在」",
+              signalEn: "You have to assert that something is not there",
+              reachFor: "queryBy 而不是 getBy —— getBy 找不到会抛错",
+              reachForEn: "queryBy, not getBy; getBy throws when it finds nothing",
+            },
+            {
+              signal: "空状态和列表两个 testid",
+              signalEn: "One testid for the empty state and one for the list",
+              reachFor: "它们互斥，用三元表达式，别两个都渲染",
+              reachForEn: "They exclude each other: use a ternary, do not render both",
+            },
+            {
+              signal: "toEqual 比一个数组",
+              signalEn: "toEqual compares a whole array",
+              reachFor: "那是有序断言，顺序错了就红",
+              reachForEn: "That is an ordered check; a wrong order fails",
+            },
           ],
           recap: [
             "四个测试是一次完整用户流程：首页 → 选车 → 加载 → 确认 → 历史。",
@@ -1698,10 +1718,30 @@ const useCabContext = () => {
             },
           ],
           transfer: [
-            { signal: "组件读不到自己提供的 Context", reachFor: "useContext 往上找 —— Provider 必须在消费者之上" },
-            { signal: "测试文件自己包了一层 Provider", reachFor: "那是在告诉你 Provider 该在哪一层" },
-            { signal: "「Cannot destructure property of undefined」", reachFor: "十有八九是忘了套 Provider" },
-            { signal: "一个业务动作要改两个 state", reachFor: "包成 Context 里的一个函数，别让调用方调两次" },
+            {
+              signal: "组件读不到自己提供的 Context",
+              signalEn: "A component cannot read the Context it provides itself",
+              reachFor: "useContext 往上找 —— Provider 必须在消费者之上",
+              reachForEn: "useContext looks upwards: the Provider has to sit above the reader",
+            },
+            {
+              signal: "测试文件自己包了一层 Provider",
+              signalEn: "The test file wraps a Provider of its own",
+              reachFor: "那是在告诉你 Provider 该在哪一层",
+              reachForEn: "That tells you which level the Provider belongs on",
+            },
+            {
+              signal: "「Cannot destructure property of undefined」",
+              signalEn: "\"Cannot destructure property of undefined\"",
+              reachFor: "十有八九是忘了套 Provider",
+              reachForEn: "Almost always a missing Provider",
+            },
+            {
+              signal: "一个业务动作要改两个 state",
+              signalEn: "One user action has to change two pieces of state",
+              reachFor: "包成 Context 里的一个函数，别让调用方调两次",
+              reachForEn: "Wrap it in one function inside the Context; do not make the caller call twice",
+            },
           ],
           recap: [
             "Context 三件套：createContext 造管道、Provider 灌值、自定义 hook 取值 + 守卫。",
@@ -2269,10 +2309,30 @@ const handleSelectCab = (cab) => {
             },
           ],
           transfer: [
-            { signal: "几个界面互斥地出现", reachFor: "一个字符串 state + 若干 &&，别用多个 boolean" },
-            { signal: "一个动作要改状态又要切界面", reachFor: "把两件事包进同一个 handler，放在拥有界面状态的那一层" },
-            { signal: "子组件需要触发父组件的状态变化", reachFor: "父组件传回调下去，子组件不碰父的 state" },
-            { signal: "onClick 里想传参数", reachFor: "() => fn(arg)；参数不变就直接传 fn，别多包一层" },
+            {
+              signal: "几个界面互斥地出现",
+              signalEn: "Several screens that must never show at the same time",
+              reachFor: "一个字符串 state + 若干 &&，别用多个 boolean",
+              reachForEn: "One string state plus a few && checks, not several booleans",
+            },
+            {
+              signal: "一个动作要改状态又要切界面",
+              signalEn: "One action changes data and switches the screen",
+              reachFor: "把两件事包进同一个 handler，放在拥有界面状态的那一层",
+              reachForEn: "Put both jobs in one handler, at the level that owns the screen state",
+            },
+            {
+              signal: "子组件需要触发父组件的状态变化",
+              signalEn: "A child component needs to change the parent's state",
+              reachFor: "父组件传回调下去，子组件不碰父的 state",
+              reachForEn: "The parent passes a callback down; the child never touches the parent's state",
+            },
+            {
+              signal: "onClick 里想传参数",
+              signalEn: "You want to pass an argument from onClick",
+              reachFor: "() => fn(arg)；参数不变就直接传 fn，别多包一层",
+              reachForEn: "() => fn(arg); with no argument pass fn itself and add no wrapper",
+            },
           ],
           recap: [
             "四个页面用一个 currentPage 字符串管，四个 && 各判一次。",
