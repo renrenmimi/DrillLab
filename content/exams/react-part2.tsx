@@ -858,6 +858,7 @@ onSubmit(newNote);
 </tbody>`,
               {
                 filename: "src/components/NoteTable/index.tsx（节选）",
+                filenameEn: "src/components/NoteTable/index.tsx (excerpt)",
                 sourceFile: "react-notes-app/src/components/NoteTable/index.tsx",
                 highlight: [4],
               },
@@ -1404,10 +1405,13 @@ for more information.`,
 }, [noteToEdit]);`,
               {
                 filename: "src/components/NoteForm/index.tsx（第 17–25 行）",
+                filenameEn: "src/components/NoteForm/index.tsx (lines 17–25)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 highlight: [9],
                 explanation:
                   "第 9 行那个 [noteToEdit] 是整段的开关。改成 [] 就只在首次渲染跑一次，点 Edit 永远不回填；去掉它就变成每次渲染都跑，直接死循环。",
+                explanationEn:
+                  "The [noteToEdit] on line 9 is the switch for the whole block. Change it to [] and the effect runs only on the first render, so Edit never prefills. Remove it and the effect runs on every render, which is an endless loop.",
               },
             ),
           ],
@@ -1484,11 +1488,18 @@ for more information.`,
           kind: "fill-blank",
           id: "r-effect-blanks",
           title: "补全编辑回填的 useEffect",
+          titleEn: "Complete the useEffect that prefills the form for editing",
           level: 2,
           prompt: (
             <p>
               这是 <code>NoteForm</code> 里那个决定 Task 3 成败的 effect。
               两个空：一个分支条件，一个依赖数组。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              This is the effect in <code>NoteForm</code> that decides whether Task 3
+              passes. Two blanks: one branch condition, one dependency array.
             </p>
           ),
           language: "tsx",
@@ -1508,6 +1519,7 @@ for more information.`,
               n: 1,
               accept: ["noteToEdit"],
               hint: "noteToEdit 的类型是 Note | null。要区分「有」和「没有」。",
+              hintEn: "The type of noteToEdit is Note | null. You have to tell \u201cthere is one\u201d from \u201cthere is none\u201d.",
               why: (
                 <>
                   <code>noteToEdit</code>。类型是 <code>Note | null</code>，
@@ -1520,12 +1532,24 @@ for more information.`,
                   这叫<strong>类型收窄</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>noteToEdit</code>. Its type is <code>Note | null</code>, so you
+                  can use it as the condition directly (<code>null</code> is falsy).
+                  <br />
+                  That <code>if</code> does one more thing: in strict mode TypeScript
+                  knows that inside the <code>if</code>, <code>noteToEdit</code> cannot
+                  be null, which is why <code>noteToEdit.title</code> does not raise an
+                  error. This is called <strong>type narrowing</strong>.
+                </>
+              ),
               width: 12,
             },
             {
               n: 2,
               accept: ["[noteToEdit]"],
               hint: "只在「外面换了要编辑的笔记」时才需要重新同步。",
+              hintEn: "You only need to sync again when the note to edit is swapped from outside.",
               why: (
                 <>
                   <code>[noteToEdit]</code>。
@@ -1537,6 +1561,19 @@ for more information.`,
                   <br />
                   写 <code>[noteToEdit, title, content]</code> → 也死循环，
                   因为 effect 自己改了 title 和 content。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>[noteToEdit]</code>.
+                  <br />
+                  Write <code>[]</code> → pressing Edit does not prefill (the button
+                  text does change, which is misleading).
+                  <br />
+                  Write nothing → the effect runs on every render: an endless loop.
+                  <br />
+                  Write <code>[noteToEdit, title, content]</code> → also an endless
+                  loop, because the effect itself changes title and content.
                 </>
               ),
               width: 14,
