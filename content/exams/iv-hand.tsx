@@ -1656,10 +1656,18 @@ export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled
           kind: "code-completion",
           level: 3,
           title: "手写 EventEmitter",
+          titleEn: "Write an EventEmitter by hand",
           prompt: (
             <>
               把空骨架填成完整的 EventEmitter：on / off / once / emit。
               重点：once 触发时不能挤掉同一事件的其他监听器。
+            </>
+          ),
+          promptEn: (
+            <>
+              Fill the empty skeleton in to a complete EventEmitter: on, off, once and
+              emit. The point to watch: when a once listener fires, it must not push
+              aside the other listeners on the same event.
             </>
           ),
           language: "ts",
@@ -1693,22 +1701,63 @@ export class EventEmitter {
     return false;
   }
 }`,
+          starterEn: `type Listener = (...args: unknown[]) => void;
+
+export class EventEmitter {
+  private listeners = new Map<string, Listener[]>();
+
+  on(event: string, fn: Listener): this {
+    void event; void fn;
+    // TODO
+    return this;
+  }
+
+  off(event: string, fn: Listener): this {
+    void event; void fn;
+    // TODO: filter that one out; do not splice the array you are walking.
+    return this;
+  }
+
+  once(event: string, fn: Listener): this {
+    void event; void fn;
+    // TODO: add a wrapper — off(itself) first, then call fn.
+    return this;
+  }
+
+  emit(event: string, ...args: unknown[]): boolean {
+    void event; void args;
+    // TODO: nobody listening -> return false; otherwise walk a [...list] copy and return true.
+    return false;
+  }
+}`,
           requirements: [
             "on 注册；emit 按注册顺序调用所有监听器并传参",
             "off 只移除指定的那一个监听器",
             "once 只触发一次，且不挤掉同一事件的其他监听器",
             "emit 返回「有没有人在听」",
           ],
+          requirementsEn: [
+            "on registers a listener; emit calls every listener in registration order and passes the arguments along",
+            "off removes only the one listener it was given",
+            "once fires exactly once, and does not push aside the other listeners on the same event",
+            "emit returns whether anyone was listening",
+          ],
           checks: [
-            { label: "emit 遍历前拷贝了列表", must: "\\[\\.\\.\\." },
-            { label: "once 包了 wrapper 并自我移除", must: "once[\\s\\S]*off\\(" },
-            { label: "off 用 filter（不改正在遍历的数组）", must: "\\.filter\\(" },
+            { label: "emit 遍历前拷贝了列表", labelEn: "emit copies the list before walking it", must: "\\[\\.\\.\\." },
+            { label: "once 包了 wrapper 并自我移除", labelEn: "once adds a wrapper that removes itself", must: "once[\\s\\S]*off\\(" },
+            { label: "off 用 filter（不改正在遍历的数组）", labelEn: "off uses filter, so it does not change the array being walked", must: "\\.filter\\(" },
           ],
           hints: [
             "on：取出（或新建）该事件的数组，push 进去，存回 Map。",
             "off：this.listeners.set(event, list.filter(l => l !== fn))。",
             "once 的 wrapper：const wrapper = (...args) => { this.off(event, wrapper); fn(...args); }; 然后 on(event, wrapper)。",
             "emit：没人听返回 false；否则 for (const fn of [...list]) fn(...args)，返回 true —— 拷贝那步是 once 不挤掉邻居的关键。",
+          ],
+          hintsEn: [
+            "on: take the array for that event (or make a new one), push the listener in, and set it back on the Map.",
+            "off: this.listeners.set(event, list.filter(l => l !== fn)).",
+            "The once wrapper: const wrapper = (...args) => { this.off(event, wrapper); fn(...args); }; then on(event, wrapper).",
+            "emit: return false if nobody is listening; otherwise for (const fn of [...list]) fn(...args) and return true. That copy is what keeps once from pushing its neighbours aside.",
           ],
           solution: tested(
             "ts",
@@ -1750,7 +1799,10 @@ export class EventEmitter {
     return true;
   }
 }`,
-            { filename: "emitter.ts（scratchpad vitest 6 / 6）" },
+            {
+              filename: "emitter.ts（scratchpad vitest 6 / 6）",
+              filenameEn: "emitter.ts (scratchpad vitest 6 / 6)",
+            },
           ),
         },
         {
