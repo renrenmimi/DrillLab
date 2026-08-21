@@ -173,7 +173,25 @@ new Dog("旺财").speak();          // "旺财 汪汪"
 // class 只是语法糖，底下是原型链
 Object.getPrototypeOf(Dog.prototype) === Animal.prototype;   // true
 new Dog("x") instanceof Animal;                              // true`,
-              { filename: "四个特征与原型链" },
+              {
+                filename: "四个特征与原型链",
+                filenameEn: "The four traits and the prototype chain",
+                codeEn: `class Animal {
+  #secret = "a private field, unreachable from outside";   // encapsulation
+  constructor(name) { this.name = name; }
+  speak() { return \`\${this.name} 发出声音\`; }   // "<name> makes a sound"
+}
+
+class Dog extends Animal {
+  speak() { return \`\${this.name} 汪汪\`; }   // polymorphism: overrides the parent, and barks
+}
+
+new Dog("旺财").speak();          // the dog's name, then its bark
+
+// class is only syntax sugar; a prototype chain sits underneath
+Object.getPrototypeOf(Dog.prototype) === Animal.prototype;   // true
+new Dog("x") instanceof Animal;                              // true`,
+              },
             ),
           ],
         },
