@@ -2000,6 +2000,7 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
           kind: "from-scratch",
           id: "g-rebuild-subgraph",
           title: "从零重建 Task 1 · Orders subgraph",
+          titleEn: "Rebuild Task 1 · the Orders subgraph",
           level: 4,
           prompt: (
             <p>
@@ -2007,6 +2008,17 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
               实现四个 resolver 加一个 mutation，让 10 个测试全过，
               并且 <code>_service</code> 和 <code>_entities</code> 都能正常工作。
               <strong>不要打开源项目的 orderResolvers.js。</strong>
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Starting from an empty directory, build an Apollo Federation
+              subgraph. Write four resolvers plus one mutation, get all 10 tests
+              passing, and make both <code>_service</code> and{" "}
+              <code>_entities</code> work.{" "}
+              <strong>
+                Do not open orderResolvers.js from the source project.
+              </strong>
             </p>
           ),
           requirements: [
@@ -2024,41 +2036,76 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
             "所有 resolver 都用 try/catch，catch 第一行放行已有的 GraphQLError",
             "所有日志和错误 extensions 里带上 correlationId",
           ],
+          requirementsEn: [
+            "Start a subgraph with @apollo/server + @apollo/subgraph, listening on 4000",
+            "Read the schema from a .graphql file and assemble it with buildSubgraphSchema",
+            "Build the context per request: three data sources, two DataLoaders, one correlationId",
+            "Take correlationId from the x-correlation-id request header, and generate one when it is absent",
+            "Write User.__resolveReference: turn the representation into a local object",
+            "Write User.orders: read orders by user.id; the type is [Order!]!, so never return null",
+            "Write Order.shippingInfo: it must go through the DataLoader to prevent N+1; it is nullable, so return null when nothing is found",
+            "Write Query.order: go through the DataLoader; when nothing is found, throw a GraphQLError carrying ORDER_NOT_FOUND",
+            "Write Query.orders: validate userId; the type is [Order!]!, so fall back to []",
+            "Write Mutation.createOrder: look up product prices to complete items first, then create; throw INVALID_INPUT when validation fails",
+            "The batch function of both DataLoaders: the array it returns must match keys in both length and order",
+            "Wrap every resolver in try/catch, and let an existing GraphQLError pass through on the first line of catch",
+            "Carry correlationId in every log line and in the extensions of every error",
+          ],
           fileList: [
             {
               path: "package.json",
               role: '自己写：type: module、start / test script（test 要带 NODE_OPTIONS=--experimental-vm-modules）、依赖 @apollo/server @apollo/subgraph graphql graphql-tag dataloader，devDep jest @jest/globals，以及内嵌 jest 配置',
+              roleEn:
+                'You write it: type: module, the start / test scripts (test needs NODE_OPTIONS=--experimental-vm-modules), the dependencies @apollo/server @apollo/subgraph graphql graphql-tag dataloader, the devDependencies jest @jest/globals, and an inline jest config',
             },
             {
               path: "src/schema.graphql",
               role: "★ 抄源项目的（这是题目）：User entity + Order/OrderItem/ShippingInfo + enum + Query/Mutation + input",
+              roleEn:
+                "★ Copy it from the source project (this is the question): the User entity + Order/OrderItem/ShippingInfo + enum + Query/Mutation + input",
             },
             {
               path: "src/dataSources/orderDataSource.js",
               role: "★ 抄源项目的（这是题目）：三个 mock 数据源类。注意 OrderDataSource 只有 getOrder / getOrdersByUserId / createOrder",
+              roleEn:
+                "★ Copy it from the source project (this is the question): three mock data source classes. Note that OrderDataSource has only getOrder / getOrdersByUserId / createOrder",
             },
             {
               path: "src/index.js",
               role: "★ 自己写：读 schema、buildSubgraphSchema、ApolloServer + formatError、startStandaloneServer、每请求造 context",
+              roleEn:
+                "★ You write it: read the schema, buildSubgraphSchema, ApolloServer + formatError, startStandaloneServer, and build the context per request",
             },
             {
               path: "src/resolvers/orderResolvers.js",
               role: "★★ 自己写：两个 loader 工厂 + resolvers（User / Order / Query / Mutation）+ ErrorCodes",
+              roleEn:
+                "★★ You write it: two loader factories + the resolvers (User / Order / Query / Mutation) + ErrorCodes",
             },
             {
               path: "__tests__/resolvers.test.js",
               role: "★ 抄源项目的（这是判卷器）：10 个测试，beforeEach 里重建 dataSources 与 loaders",
+              roleEn:
+                "★ Copy it from the source project (this is what grades you): 10 tests, with dataSources and loaders rebuilt in beforeEach",
             },
             {
               path: "verify-schema.mjs",
               role: "★ 自己写：进程内查 _service、普通查询、_entities、mutation",
+              roleEn:
+                "★ You write it: query _service in process, then a normal query, then _entities, then the mutation",
             },
           ],
           commands: [
-            { cmd: "npm install", expect: "依赖装好，出现 node_modules 与 package-lock.json" },
+            {
+              cmd: "npm install",
+              expect: "依赖装好，出现 node_modules 与 package-lock.json",
+              expectEn:
+                "The dependencies install, and node_modules and package-lock.json appear",
+            },
             {
               cmd: "npm start",
               expect: "打印 Subgraph ready at http://0.0.0.0:4000/",
+              expectEn: "It prints Subgraph ready at http://0.0.0.0:4000/",
             },
             {
               cmd: "npm test",
@@ -2068,6 +2115,8 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
               cmd: "node verify-schema.mjs",
               expect:
                 "SDL 出得来且含 @key；orders + shippingInfo 有值；order-999 返回 ORDER_NOT_FOUND；_entities 能拿到 orders；createOrder 的 items[0].price 有值且 totalAmount > 0；空 items 返回 INVALID_INPUT",
+              expectEn:
+                "The SDL comes out and contains @key; orders + shippingInfo have values; order-999 returns ORDER_NOT_FOUND; _entities can read orders; items[0].price from createOrder has a value and totalAmount > 0; empty items returns INVALID_INPUT",
             },
           ],
           hints: [
@@ -2116,6 +2165,52 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
 // ③ 每个 catch 的第一行
 if (error instanceof GraphQLError) throw error;`,
           ],
+          hintsEn: [
+            "Do not think about resolvers yet. Ask three questions first: how does the schema get into the server? Who creates the things in context, and when? Why must a DataLoader be created fresh for every request? Once those three are clear, index.js writes itself.",
+            "You need four groups of resolvers: User (__resolveReference + orders), Order (shippingInfo), Query (order + orders), and Mutation (createOrder). Before writing them, do two things: ① copy out a table of the data source method names; ② mark down whether each schema field is nullable. Those two tables stop most of the mistakes. Also note that OrderItemInput has no price, but the data source needs it to compute the total.",
+            `index.js:
+  read schema.graphql -> gql() -> buildSubgraphSchema([{ typeDefs, resolvers }])
+  new ApolloServer({ schema, formatError })
+  startStandaloneServer(server, { listen, context: async ({ req }) => {
+    correlationId = req.headers['x-correlation-id'] || generate one
+    new the three data sources; use them to new the two loaders
+    return { dataSources: {...}, loaders: {...}, correlationId }
+  }})
+
+orderResolvers.js:
+  createXxxLoader(ds) = new DataLoader(async keys => {
+    return await Promise.all(keys.map(k => ds.someMethod(k)))   // length and order must line up
+  })
+
+  User.__resolveReference(user) -> { id: user.id }
+  User.orders(user, _, ctx)     -> ds.orderDataSource.getOrdersByUserId(user.id) ?? []
+  Order.shippingInfo(parent,…)  -> loaders.shippingInfoLoader.load(parent.id) ?? null
+  Query.order(_, {id}, ctx)     -> loaders.orderLoader.load(id); if absent, throw ORDER_NOT_FOUND
+  Query.orders(_, {userId}, ctx)-> validate userId; read from ds; ?? []
+  Mutation.createOrder          -> validate; fill in price with getProductPrice; ds.createOrder(userId, pricedItems)
+
+  around every resolver: try { … } catch (e) {
+    if (e instanceof GraphQLError) throw e;
+    throw new GraphQLError(msg, { extensions: { code, correlationId, originalError } });
+  }`,
+            `// The two places that go wrong most often, given to you directly:
+
+// ① the method name inside the loader (there is no getOrderById on the data source)
+orderIds.map(id => orderDataSource.getOrder(id))
+
+// ② the mutation must fill in price first, the key is orderDataSource, and the signature takes two positional arguments
+const pricedItems = await Promise.all(
+  items.map(async item => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    price: await dataSources.inventoryDataSource.getProductPrice(item.productId)
+  }))
+);
+const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);
+
+// ③ the first line of every catch
+if (error instanceof GraphQLError) throw error;`,
+          ],
           solution: [
             real("js", FULL_RESOLVERS, {
               filename: "src/resolvers/orderResolvers.js（完整参考答案，实测 10/10 通过）",
@@ -2154,6 +2249,7 @@ if (error instanceof GraphQLError) throw error;`,
 }`,
               {
                 filename: "package.json（与源项目一致）",
+                filenameEn: "package.json (identical to the source project)",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/package.json",
                 collapsible: true,
