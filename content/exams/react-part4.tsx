@@ -121,6 +121,7 @@ export const reactQ2: Module = {
       title: "读题：三条要求，每一条都在指定一种写法",
       titleEn: "Reading the question: three requirements, and each one decides how you write it",
       blurb: "题面就写在 taskRunner.ts 的文件头注释里。逐条翻译。",
+      blurbEn: "The question is written in the header comment of taskRunner.ts. Take it one requirement at a time.",
       minutes: 12,
       objectives: [
         "复述三条要求，并说清每条排除了哪种实现",
@@ -128,8 +129,16 @@ export const reactQ2: Module = {
         "看懂 SettledResult 这个可辨识联合类型",
         "知道怎么跑 demo.ts 以及怎么读它的输出",
       ],
+      objectivesEn: [
+        "Restate the three requirements, and say which implementation each one rules out",
+        "Explain why the parameter is an array of functions and not an array of Promise values",
+        "Read the SettledResult type and see that it is a discriminated union",
+        "Know how to run demo.ts and how to read its output",
+      ],
       whyForAssessment:
         "这道题没有断言测试，只有一个打印实时并发数的 demo.ts。也就是说：验收全靠你自己会不会读那段输出。读不懂输出，就不知道自己做对没有。",
+      whyForAssessmentEn:
+        "This question has no assertion tests. It has one demo.ts that prints how many tasks are running at each moment. So the only check is whether you can read that output. If you cannot read it, you do not know whether your answer is right.",
       sourceFiles: [
         { path: "react-notes-app/q2/taskRunner.ts", role: "题面 + 类型 + 要实现的函数", edit: true },
         { path: "react-notes-app/q2/demo.ts", role: "验证台，打印实时并发数与最终结果" },
@@ -138,7 +147,9 @@ export const reactQ2: Module = {
         {
           id: "the-brief",
           heading: "题面原文",
+          headingEn: "The question, word for word",
           lede: "注意它是英文的，而且每一条都很精确。",
+          ledeEn: "Note that it is written in English, and every line is precise.",
           body: (
             <>
               <p>
@@ -169,6 +180,7 @@ export const reactQ2: Module = {
         {
           id: "translate",
           heading: "三条要求逐条翻译",
+          headingEn: "The three requirements, one at a time",
           body: (
             <>
               <div className="table-wrap">
@@ -300,7 +312,9 @@ export const reactQ2: Module = {
         {
           id: "fn-not-promise",
           heading: "为什么是函数数组：这是整道题的支点",
+          headingEn: "Why it is an array of functions: this is what the whole question turns on",
           lede: "如果传进来的是 Promise，这道题根本无解。",
+          ledeEn: "If you were handed Promise values, this question would have no answer at all.",
           body: (
             <>
               <p>
@@ -390,6 +404,7 @@ const tasks = [
         {
           id: "settled-result",
           heading: "SettledResult：一个可辨识联合",
+          headingEn: "SettledResult: a discriminated union",
           body: (
             <>
               <p>
@@ -467,7 +482,9 @@ for (const r of results) {
         {
           id: "the-harness",
           heading: "验证台 demo.ts 怎么读",
+          headingEn: "How to read demo.ts, the check harness",
           lede: "这道题没有断言测试。会读输出，等于会判卷。",
+          ledeEn: "This question has no assertion tests. Reading the output is the grading.",
           body: (
             <>
               <p>
@@ -647,10 +664,10 @@ runTasks(tasks, 2).then((results) => {
         },
       ],
       transfer: [
-        { signal: "「限制同时进行的数量」", reachFor: "参数必须是工厂函数数组，不能是已启动的 Promise" },
-        { signal: "「不管失败都要拿到全部结果」", reachFor: "allSettled 的语义：try/catch 每一个，都记下来" },
-        { signal: "「结果顺序与输入一致」", reachFor: "按下标写回预分配的数组，别用 push" },
-        { signal: "看到 status: \"a\" | \"b\" 这种字段", reachFor: "可辨识联合，if 之后类型自动收窄" },
+        { signal: "「限制同时进行的数量」", signalEn: "The wording: limit how many run at the same time", reachFor: "参数必须是工厂函数数组，不能是已启动的 Promise", reachForEn: "The parameter must be an array of functions that create the work, not Promise values that already started" },
+        { signal: "「不管失败都要拿到全部结果」", signalEn: "The wording: collect every result even when some fail", reachFor: "allSettled 的语义：try/catch 每一个，都记下来", reachForEn: "This is what allSettled means: wrap each one in try/catch and record what happened" },
+        { signal: "「结果顺序与输入一致」", signalEn: "The wording: results must be in the same order as the input", reachFor: "按下标写回预分配的数组，别用 push", reachForEn: "Write into an array you created up front, at the matching index; do not use push" },
+        { signal: "看到 status: \"a\" | \"b\" 这种字段", signalEn: "You see a field like status: \"a\" | \"b\"", reachFor: "可辨识联合，if 之后类型自动收窄", reachForEn: "A discriminated union: inside the if, the type narrows on its own" },
       ],
       recap: [
         "三条要求：函数数组、并发上限 limit、绝不抛错且保序。",
@@ -658,6 +675,13 @@ runTasks(tasks, 2).then((results) => {
         "Promise.allSettled(tasks.map(t => t())) 满足两条但违反并发上限 —— 难点全在节流。",
         "SettledResult 是可辨识联合，靠 status 字段收窄类型，必须用 type 不能用 interface。",
         "这道题没有断言测试，验收靠读 demo.ts 的三条输出特征。",
+      ],
+      recapEn: [
+        "Three requirements: an array of functions, a concurrency limit called limit, and never throwing while keeping the order.",
+        "The parameter is () => Promise<T> and not Promise<T>, because once a Promise exists you cannot pause it.",
+        "Promise.allSettled(tasks.map(t => t())) meets two requirements but breaks the concurrency limit. All the difficulty is in the throttling.",
+        "SettledResult is a discriminated union: the status field narrows the type, and it must be declared with type, not interface.",
+        "This question has no assertion tests. You check it by reading three things in the demo.ts output.",
       ],
     },
 
