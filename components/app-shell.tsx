@@ -311,7 +311,9 @@ function ExamNode({
                     onClick={onNavigate}
                   >
                     <span className="side-lesson-n">·</span>
-                    <span>{c.title}</span>
+                    <span>
+                      <T zh={c.title} en={c.titleEn} />
+                    </span>
                   </Link>
                 </li>
               );

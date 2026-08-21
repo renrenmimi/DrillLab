@@ -18,6 +18,7 @@ import type { LocalizedString } from "./t";
 export function CodingWorkspace({
   id,
   title,
+  titleEn,
   spec,
   commands,
   localWhy,
@@ -26,6 +27,7 @@ export function CodingWorkspace({
 }: {
   id: string;
   title: string;
+  titleEn?: string;
   spec?: SandboxSpec;
   commands?: { cmd: string; expect: string }[];
   localWhy: LocalizedString;
@@ -50,7 +52,7 @@ export function CodingWorkspace({
           <LocalRunCard commands={commands ?? []} why={localWhy} />
         )}
 
-        <CodingDoneToggle id={id} title={title} />
+        <CodingDoneToggle id={id} title={title} titleEn={titleEn} />
       </section>
 
       {blank ? (

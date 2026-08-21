@@ -404,6 +404,8 @@ export interface DrillQuestion {
 export interface CodingProblem {
   id: string;
   title: string;
+  /** 英文标题。见 Lesson.titleEn 里那段为什么是旁挂字段 */
+  titleEn?: string;
   track: "react" | "js" | "graphql" | "java";
   difficulty: 1 | 2 | 3;
   minutes: number;

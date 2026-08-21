@@ -205,7 +205,9 @@ export function CodingList({ query }: { query: CodingQuery }) {
             {shown.map((p) => (
               <li className="cd-row" key={p.id}>
                 <Link className="cd-row-main" href={codingPath(p.id)}>
-                  <span className="cd-row-title">{p.title}</span>
+                  <span className="cd-row-title">
+                    <T zh={p.title} en={p.titleEn} />
+                  </span>
                   <span className="cd-row-meta">
                     <span className="tag">{CODING_TRACK_LABEL[p.track]}</span>
                     <span className="tag" data-tone={p.difficulty === 3 ? "warn" : undefined}>

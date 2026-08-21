@@ -79,6 +79,7 @@ export function GET() {
     coding: allCodingProblems().map((p) => ({
       id: p.id,
       title: p.title,
+      titleEn: p.titleEn,
       track: p.track,
       difficulty: p.difficulty,
       minutes: p.minutes,

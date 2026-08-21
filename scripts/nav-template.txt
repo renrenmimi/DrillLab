@@ -102,6 +102,7 @@ export interface NavDrill {
 export interface NavCoding {
   id: string;
   title: string;
+  titleEn?: string;
   track: "react" | "js" | "graphql" | "java";
   difficulty: 1 | 2 | 3;
   minutes: number;

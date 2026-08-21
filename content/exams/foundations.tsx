@@ -79,6 +79,8 @@ const foundations: Exam = {
   category: "基础",
   tests:
     "这一门本身不是考试，是另外两门的地基。考场上真正会卡住新手的往往不是 React 语法，而是「测试怎么跑」「这个报错是我写错了还是项目本来就坏的」「dependencies 和 devDependencies 有什么区别」这类问题。",
+  testsEn:
+    "This course is not an exam itself. It is the base the other two stand on. What usually stops a beginner in an exam is not React syntax. It is questions like how to run the tests, whether an error is your own mistake or a defect that was already in the project, and what the difference is between dependencies and devDependencies.",
   sourceProjects: [
     { path: "react-notes-app", role: "React Capstone，提供真实 package.json / tsconfig / vite 配置" },
     { path: "graphql-federation-practice", role: "Federation Capstone，提供真实 subgraph package.json / pom.xml" },
@@ -1539,6 +1541,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       titleEn: "JavaScript: only the parts the exams use",
       summary:
         "不做完整 JS 教程。只讲 CRUD 三件事（增删改）背后的数组与对象操作，以及 Q2 和 resolver 都离不开的异步。",
+      summaryEn:
+        "Not a full JavaScript course. It covers the array and object work behind adding, deleting and updating, plus the async parts that both Q2 and the resolvers depend on.",
       lessons: [
         /* ---------- 1.1 ---------- */
         {
@@ -3053,6 +3057,8 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
       titleEn: "TypeScript: just enough",
       summary:
         "只讲两个考试里真实出现的：基本类型、type 与 interface、组件 props 类型、泛型参数，以及怎么读 tsc 的报错。",
+      summaryEn:
+        "Only what actually appears in the two exams: basic types, type versus interface, typing component props, generic parameters, and how to read a tsc error.",
       lessons: [
         /* ---------- 1.4 ---------- */
         {
