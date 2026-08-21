@@ -1390,7 +1390,7 @@ const App = () => {
   const { updateBookedCabDetails } = useCabContext();   // ← this line runs first
                                                         //   the Provider below is not mounted yet
   return (
-    <CabProvider>                                       {/* ← too late */}
+    <CabProvider>                                       {/* ← 太晚了 */}
       <div className="App">…</div>
     </CabProvider>
   );
