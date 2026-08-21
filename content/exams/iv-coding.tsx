@@ -1247,10 +1247,76 @@ export const selectVisible = (s: { todos: TodosState }) => {
   return items.filter((t) => (filter === "done" ? t.done : !t.done));
 };`;
 
+const C_SLICE_EN = `import { createSlice, nanoid } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+
+export type Filter = "all" | "active" | "done";
+export interface Todo { id: string; text: string; done: boolean }
+export interface TodosState { items: Todo[]; filter: Filter }
+
+const initialState: TodosState = { items: [], filter: "all" };
+
+const todosSlice = createSlice({
+  name: "todos",
+  initialState,
+  reducers: {
+    // It looks like state is being changed, but the Immer built into RTK hands you
+    // a draft proxy and produces a new object — so "state is read-only" still holds.
+    added: {
+      // prepare lets the action creator take only text and build the id here — that way
+      // nanoid() never appears in the reducer, and the reducer stays a pure function.
+      reducer(state, action: PayloadAction<Todo>) {
+        state.items.push(action.payload);
+      },
+      prepare(text: string) {
+        return { payload: { id: nanoid(), text: text.trim(), done: false } };
+      },
+    },
+    toggled(state, action: PayloadAction<string>) {
+      const t = state.items.find((x) => x.id === action.payload);
+      if (t) t.done = !t.done;
+    },
+    removed(state, action: PayloadAction<string>) {
+      state.items = state.items.filter((x) => x.id !== action.payload);
+    },
+    clearedDone(state) {
+      state.items = state.items.filter((x) => !x.done);
+    },
+    filterChanged(state, action: PayloadAction<Filter>) {
+      state.filter = action.payload;
+    },
+  },
+});
+
+export const { added, toggled, removed, clearedDone, filterChanged } = todosSlice.actions;
+export default todosSlice.reducer;
+
+/* ---------- selectors: a component subscribes only to the part it really uses ---------- */
+
+export const selectFilter = (s: { todos: TodosState }) => s.todos.filter;
+export const selectRemaining = (s: { todos: TodosState }) =>
+  s.todos.items.filter((t) => !t.done).length;
+
+export const selectVisible = (s: { todos: TodosState }) => {
+  const { items, filter } = s.todos;
+  if (filter === "all") return items;
+  return items.filter((t) => (filter === "done" ? t.done : !t.done));
+};`;
+
 const C_STORE = `import { configureStore } from "@reduxjs/toolkit";
 import todos from "./todosSlice";
 
 // configureStore 默认就装好了 thunk 和 DevTools，不用自己 applyMiddleware
+export const makeStore = () => configureStore({ reducer: { todos } });
+
+export type AppStore = ReturnType<typeof makeStore>;
+export type RootState = ReturnType<AppStore["getState"]>;
+export type AppDispatch = AppStore["dispatch"];`;
+
+const C_STORE_EN = `import { configureStore } from "@reduxjs/toolkit";
+import todos from "./todosSlice";
+
+// configureStore already sets up thunk and DevTools; no applyMiddleware needed
 export const makeStore = () => configureStore({ reducer: { todos } });
 
 export type AppStore = ReturnType<typeof makeStore>;
@@ -3734,12 +3800,17 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
           code: [
             tested("ts", C_SLICE, {
               filename: "src/store/todosSlice.ts（实测 8/8 通过）",
+              filenameEn: "src/store/todosSlice.ts (8/8 in a real run)",
+              codeEn: C_SLICE_EN,
               collapsible: true,
             }),
             tested("ts", C_STORE, {
               filename: "src/store/index.ts",
+              codeEn: C_STORE_EN,
               explanation:
                 "configureStore 默认就装好了 thunk 和 DevTools —— 不用再手写 applyMiddleware(thunk) 和那段 window.__REDUX_DEVTOOLS_EXTENSION__ 判断。",
+              explanationEn:
+                "configureStore already sets up thunk and DevTools, so you no longer write applyMiddleware(thunk) by hand, nor that window.__REDUX_DEVTOOLS_EXTENSION__ check.",
             }),
           ],
         },
