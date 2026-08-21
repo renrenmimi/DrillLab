@@ -630,6 +630,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           code: [
             real("tsx", NOTE_MANAGER_FULL, {
               filename: "src/components/NoteManager/index.tsx（完整参考答案）",
+              filenameEn: "src/components/NoteManager/index.tsx (complete reference answer)",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
               highlight: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 26, 27, 28],
               collapsible: true,
@@ -1345,6 +1346,7 @@ const handleSubmitNote = (submittedNote: Note) => {
 });`,
               {
                 filename: "src/NoteManager.test.tsx（第 1 个测试）",
+                filenameEn: "src/NoteManager.test.tsx (test 1)",
                 sourceFile: "react-notes-app/src/NoteManager.test.tsx",
               },
             ),
@@ -1978,6 +1980,7 @@ onDelete: (id: number) => void;`,
 });`,
               {
                 filename: "src/NoteManager.test.tsx（第 3 个测试）",
+                filenameEn: "src/NoteManager.test.tsx (test 3)",
                 sourceFile: "react-notes-app/src/NoteManager.test.tsx",
                 highlight: [6],
                 explanation:
@@ -2789,6 +2792,7 @@ const handleDelete = (id: number) => {
 );`,
               {
                 filename: "src/components/NoteManager/index.tsx（map 分支）",
+                filenameEn: "src/components/NoteManager/index.tsx (the map branch)",
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
               },
             ),
@@ -2844,6 +2848,7 @@ const handleEdit = (note: Note) => {
 };`,
               {
                 filename: "src/components/NoteManager/index.tsx（三道题的完整落点）",
+                filenameEn: "src/components/NoteManager/index.tsx (where all three tasks land)",
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 highlight: [8, 15],
               },
@@ -2936,6 +2941,7 @@ const handleEdit = (note: Note) => {
 });`,
               {
                 filename: "src/NoteManager.test.tsx（第 4 个测试）",
+                filenameEn: "src/NoteManager.test.tsx (test 4)",
                 sourceFile: "react-notes-app/src/NoteManager.test.tsx",
                 highlight: [7, 8, 15, 16],
               },
@@ -3679,6 +3685,7 @@ export default defineConfig({
 });`,
               {
                 filename: "vite.config.ts（全文）",
+                filenameEn: "vite.config.ts (full file)",
                 sourceFile: "react-notes-app/vite.config.ts",
                 highlight: [6, 7, 8, 9, 10],
               },
@@ -4191,6 +4198,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
           generated: true,
           language: "tsx",
           filename: "src/NoteManager.test.tsx（自己加的测试）",
+          filenameEn: "src/NoteManager.test.tsx (a test you add yourself)",
           starter: `test("deletes only the clicked note when titles are identical", async () => {
   render(<NoteManager />);
 

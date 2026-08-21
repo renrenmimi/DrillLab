@@ -179,6 +179,7 @@ function App() {
 export default App;`,
               {
                 filename: "src/App.tsx（全文）",
+                filenameEn: "src/App.tsx (full file)",
                 sourceFile: "react-notes-app/src/App.tsx",
                 explanation:
                   "这个文件唯一的作用是「把根组件指向 NoteManager」。Q1 的所有逻辑都不在这里 —— 别在这个文件里改东西。",
@@ -289,6 +290,7 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {
 export default NoteItem;`,
               {
                 filename: "src/components/NoteItem/index.tsx（全文）",
+                filenameEn: "src/components/NoteItem/index.tsx (full file)",
                 sourceFile: "react-notes-app/src/components/NoteItem/index.tsx",
                 highlight: [13, 14, 16, 21],
               },
@@ -742,6 +744,7 @@ return (
 };`,
               {
                 filename: "src/components/NoteTable/index.tsx（节选）",
+                filenameEn: "src/components/NoteTable/index.tsx (extract)",
                 sourceFile: "react-notes-app/src/components/NoteTable/index.tsx",
                 highlight: [13, 16, 18, 19],
                 explanation:
@@ -1379,6 +1382,7 @@ const NoteManager = () => {
   const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);`,
               {
                 filename: "src/components/NoteManager/index.tsx（开头）",
+                filenameEn: "src/components/NoteManager/index.tsx (the opening)",
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 explanation:
                   "noteToEdit 用 null 表示「现在不在编辑任何东西」。这个 state 是 Task 3 的核心 —— 它同时决定了「表单里显示什么」和「按钮上写 Add 还是 Update」。",

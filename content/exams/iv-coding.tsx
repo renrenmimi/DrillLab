@@ -4316,12 +4316,19 @@ $ npx vitest run
           kind: "fill-blank",
           id: "iv-coding-rtk-blank",
           title: "补全 createSlice",
+          titleEn: "Fill in createSlice",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 3 个空是这道题的加分点，
               第 4 个空写错会让 reducer 不纯。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The 3rd one is the bonus point of this question; get the 4th
+              one wrong and the reducer is no longer pure.
             </p>
           ),
           language: "ts",
@@ -4349,6 +4356,8 @@ $ npx vitest run
               n: 1,
               accept: ["createSlice"],
               hint: "Redux Toolkit 里一次生成 reducer 和 actions 的那个函数。",
+              hintEn:
+                "The Redux Toolkit function that produces the reducer and the actions in one go.",
               why: (
                 <>
                   <code>createSlice</code>。
@@ -4360,12 +4369,26 @@ $ npx vitest run
                   <strong>老写法要手写的三份样板全省了</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>createSlice</code>.
+                  <br />
+                  It produces <code>slice.reducer</code>, <code>slice.actions</code> and
+                  the action types (shaped like <code>&quot;todos/added&quot;</code>) at
+                  once —{" "}
+                  <strong>
+                    all three pieces of boilerplate the old style made you write by hand
+                  </strong>
+                  .
+                </>
+              ),
               width: 12,
             },
             {
               n: 2,
               accept: ["push"],
               hint: "在 createSlice 里可以直接「改」state。",
+              hintEn: "Inside createSlice you are allowed to change state directly.",
               why: (
                 <>
                   <code>push</code>。
@@ -4382,12 +4405,31 @@ $ npx vitest run
                   <code>[...arr, x]</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>push</code>.
+                  <br />
+                  <strong>This does not break the immutability rule</strong> —{" "}
+                  <code>createSlice</code> has Immer built in, so what you hold is a{" "}
+                  <strong>draft proxy</strong>. Your changes are recorded and a new object
+                  is produced; the old state is untouched.
+                  <br />
+                  <strong>
+                    But you only get this inside <code>createSlice</code> and{" "}
+                    <code>createReducer</code>
+                  </strong>
+                  . In a component or an ordinary function you still write{" "}
+                  <code>[...arr, x]</code>.
+                </>
+              ),
               width: 6,
             },
             {
               n: 3,
               accept: ["prepare"],
               hint: "在「创建 action」的时候做点事，而不是在 reducer 里做。",
+              hintEn:
+                "Do the work at the moment the action is created, not inside the reducer.",
               why: (
                 <>
                   <code>prepare</code>。
@@ -4403,6 +4445,21 @@ $ npx vitest run
                   <code>Date.now()</code> 就不纯了，
                   同样的 state + action 会得到不同结果，
                   <strong>时间旅行调试直接失效</strong>。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>prepare</code>.
+                  <br />
+                  It lets the action creator take only <code>text</code> while the payload
+                  carries a complete <code>Todo</code>.
+                  <br />
+                  <strong>Why it has to be this way</strong>: the id comes from a random
+                  generator, and <strong>a reducer has to be a pure function</strong>. Put{" "}
+                  <code>nanoid()</code> or <code>Date.now()</code> in it and it is no
+                  longer pure — the same state plus the same action gives a different
+                  result, and{" "}
+                  <strong>time-travel debugging stops working entirely</strong>.
                 </>
               ),
               width: 9,

@@ -185,7 +185,9 @@ export interface CodeCompletionExercise extends ExerciseBase {
   kind: "code-completion";
   level: 3;
   language: CodeLang;
+  /** 常被当标题用，不只是路径 —— 见 CodeExample.filenameEn */
   filename?: string;
+  filenameEn?: string;
   /** 预填的骨架（通常是签名 + 注释要求） */
   starter: string;
   /** 英文版骨架。约束同 CodeExample.codeEn：行数必须一致 */

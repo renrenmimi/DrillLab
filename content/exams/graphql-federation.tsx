@@ -619,18 +619,21 @@ const reviewsMock: MockExam = {
   starter: [
     demo("graphql", MOCK_SCHEMA, {
       filename: "src/schema.graphql（PROVIDED —— 精读它，可空性决定你的兜底策略）",
+      filenameEn: "src/schema.graphql (PROVIDED — read it closely; nullability decides your fallback)",
       collapsible: true,
       explanation:
         "四处先标出来：Author.reviews 和 Book.reviews 都是 [Review!]!（双重非空）；Author.averageRating 是 Float（可空）；Review.reviewer 可空；Book 的 @key 是两个字段。",
     }),
     demo("js", MOCK_DATASOURCE, {
       filename: "src/dataSources/reviewDataSource.js（PROVIDED —— 抄一张方法名表）",
+      filenameEn: "src/dataSources/reviewDataSource.js (PROVIDED — copy out a table of method names)",
       collapsible: true,
       explanation:
         "真实方法名：fetchReview / fetchByAuthor / fetchByBook / insertReview / lookupReviewer / computeAverage。starter 里有一处调了不存在的方法。",
     }),
     tested("js", MOCK_STARTER, {
       filename: "src/resolvers/reviewResolvers.js（EDIT THIS —— 7 个 TODO + 6 处埋雷）",
+      filenameEn: "src/resolvers/reviewResolvers.js (EDIT THIS — 7 TODOs plus 6 planted bugs)",
       collapsible: true,
       explanation:
         "这是 DrillLab 自出的模拟题，不是源项目内容。六处埋雷没有任何标注 —— 和真实考试一样，只有 README 里那句「可能存在集成问题」。",
@@ -639,6 +642,7 @@ const reviewsMock: MockExam = {
   tests: [
     tested("js", MOCK_TESTS, {
       filename: "__tests__/resolvers.test.js（判卷器，14 个测试）",
+      filenameEn: "__tests__/resolvers.test.js (the marker, 14 tests)",
       collapsible: true,
       explanation:
         "比真实项目多了三条针对性测试：averageRating 的 toBeNull、Book.__resolveReference 的两个 key 字段、以及 reviewerLoader 的长度/顺序契约。这三条正是真实项目测不到但你该会的地方。",
@@ -1285,6 +1289,7 @@ function createReviewerLoader(reviewerDataSource) {
   solution: [
     tested("js", MOCK_SOLUTION, {
       filename: "src/resolvers/reviewResolvers.js（参考答案）",
+      filenameEn: "src/resolvers/reviewResolvers.js (reference answer)",
       collapsible: true,
       explanation:
         "这份答案多了一个 wrap 高阶函数，把「catch 里放行 GraphQLError 再包装」这段重复逻辑抽掉了。真实考试里写不写都行 —— 但如果你自己想到了这一步，说明你真的理解了那个模式，而不是在复制粘贴。",

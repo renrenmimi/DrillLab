@@ -263,6 +263,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
 // Output order when btn is clicked:
 // outer capture -> inner capture -> btn target -> inner bubble -> outer bubble`,
                 filename: "三个阶段的完整顺序",
+                filenameEn: "The full order of the three phases",
                 explanation:
                   "面试里画得出这个顺序，基本就过了。注意目标元素上的监听器不分捕获/冒泡，按注册顺序执行。",
               },

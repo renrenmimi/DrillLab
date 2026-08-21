@@ -4746,6 +4746,7 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
               ),
               language: "tsx",
               filename: "两个真实片段",
+              filenameEn: "Two real snippets",
               template: `// NoteManager：两个 state
 const [notes, setNotes] = useState<___1___>([]);
 const [noteToEdit, setNoteToEdit] = useState<Note | ___2___>(null);

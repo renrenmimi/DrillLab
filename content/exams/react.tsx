@@ -269,6 +269,7 @@ const ticketMock: MockExam = {
   starter: [
     tested("ts", MOCK_STARTER, {
       filename: "starter 代码骨架（13 个 TODO）",
+      filenameEn: "The starter skeleton (13 TODOs)",
       collapsible: true,
       explanation:
         "这是 DrillLab 自出的模拟题，不是源项目内容。把它拆成对应文件后自己实现。注意 data-testid 全部被测试依赖，不能改。",
@@ -277,6 +278,7 @@ const ticketMock: MockExam = {
   tests: [
     tested("tsx", MOCK_TEST_FILE, {
       filename: "src/TicketBoard.test.tsx（判卷器，五个测试）",
+      filenameEn: "src/TicketBoard.test.tsx (the marker, five tests)",
       collapsible: true,
       explanation:
         "第五个测试是真实 Q1 没有的 —— 它查筛选。注意 userEvent.selectOptions 用来操作 <select>，这是本模拟题新引入的 API。",
@@ -503,6 +505,7 @@ const ticketMock: MockExam = {
 </select>`,
           {
             filename: "受控的 select",
+            filenameEn: "A controlled select",
             explanation:
               "as Priority 是必要的 —— e.target.value 只知道自己是 string。也可以把 state 类型放宽成 string，但那会失去联合类型的保护，不划算。",
           },
