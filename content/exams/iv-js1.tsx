@@ -2432,7 +2432,18 @@ const tax = (n, rate) => n * rate;`,
   console.log(a);   // 1          ✓ var 无视 {}
   console.log(b);   // ReferenceError
 }`,
-              { filename: "函数作用域 vs 块作用域" },
+              {
+                filename: "函数作用域 vs 块作用域",
+                filenameEn: "Function scope vs block scope",
+                codeEn: `function f() {
+  if (true) {
+    var a = 1;      // function scope
+    let b = 2;      // block scope
+  }
+  console.log(a);   // 1          ✓ var ignores {}
+  console.log(b);   // ReferenceError
+}`,
+              },
             ),
           ],
         },
