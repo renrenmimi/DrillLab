@@ -1042,7 +1042,19 @@ setTodos((prev) =>
 setNotes((prev) =>
   prev.map((n) => (n.id === next.id ? next : n)),
 );`,
-              { filename: "两种 map 更新" },
+              {
+                filename: "两种 map 更新",
+                filenameEn: "Two kinds of map update",
+                codeEn: `// Toggle one item
+setTodos((prev) =>
+  prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
+);
+
+// Compare with the whole-item replace of Q1
+setNotes((prev) =>
+  prev.map((n) => (n.id === next.id ? next : n)),
+);`,
+              },
             ),
             demo(
               "tsx",
@@ -1053,7 +1065,17 @@ setTodos((prev) =>
     return t;
   }),
 );`,
-              { filename: "看起来像不可变，其实不是" },
+              {
+                filename: "看起来像不可变，其实不是",
+                filenameEn: "It looks immutable, and it is not",
+                codeEn: `// ✗ The array is new, but the object was changed in place
+setTodos((prev) =>
+  prev.map((t) => {
+    if (t.id === id) t.done = !t.done;   // this changes the original object
+    return t;
+  }),
+);`,
+              },
             ),
           ],
         },
@@ -1122,8 +1144,22 @@ const remove = (id: number) => {
 };`,
               {
                 filename: "派生数据",
+                filenameEn: "Derived values",
+                codeEn: `const visible =
+  filter === "all"
+    ? todos
+    : todos.filter((t) => (filter === "done" ? t.done : !t.done));
+const remaining = todos.filter((t) => !t.done).length;
+const allDone = todos.length > 0 && remaining === 0;
+
+// Every write acts on todos
+const remove = (id: number) => {
+  setTodos((prev) => prev.filter((t) => t.id !== id));
+};`,
                 explanation:
                   "allDone 里那个 todos.length > 0 不能省 —— 空列表时 remaining 也是 0，不判断的话按钮一上来就显示「Uncheck all」。",
+                explanationEn:
+                  "The todos.length > 0 inside allDone is not optional: with an empty list remaining is also 0, and without that check the button says Uncheck all from the very first render.",
               },
             ),
           ],
@@ -1171,12 +1207,27 @@ const remove = (id: number) => {
 const clearDone = () => {
   setTodos((prev) => prev.filter((t) => !t.done));
 };`,
-              { filename: "批量操作" },
+              {
+                filename: "批量操作",
+                filenameEn: "The bulk actions",
+                codeEn: `const toggleAll = () => {
+  const next = !allDone;                                  // decide one shared target value first
+  setTodos((prev) => prev.map((t) => ({ ...t, done: next })));
+};
+
+const clearDone = () => {
+  setTodos((prev) => prev.filter((t) => !t.done));
+};`,
+              },
             ),
             demo(
               "tsx",
               `// ✗ 每条各自翻转 —— 混合状态下变成「反选」，不是「全选」
 setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
+              {
+                codeEn: `// ✗ Toggling each item on its own — with a mixed list this inverts the selection instead of selecting all
+setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
+              },
             ),
           ],
         },
