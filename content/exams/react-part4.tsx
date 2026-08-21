@@ -870,7 +870,26 @@ runTasks(tasks, 2).then((results) => {
   t=400  4 完 → 立刻开 6
   t=450  5、6 陆续完
   总计 ~450ms，槽位几乎没空过`,
-              { filename: "两种思路的耗时对比" },
+              {
+                filename: "两种思路的耗时对比",
+                filenameEn: "How long the two approaches take",
+                codeEn: `Task durations: 1→300ms  2→100ms  3→200ms  4→100ms  5→150ms  6→100ms
+
+✗ Batching (each batch waits for its slowest task)
+  batch 1: [1(300), 2(100)]  → wait 300ms
+  batch 2: [3(200), 4(100)]  → wait 200ms
+  batch 3: [5(150), 6(100)]  → wait 150ms
+  650ms in total, and many slots sit idle in between
+
+✓ worker pool (whoever is free takes the next job)
+  t=0    start 1 and 2
+  t=100  2 done → start 3 at once
+  t=300  1 done → start 4 at once      3 still running
+  t=300  3 done → start 5 at once
+  t=400  4 done → start 6 at once
+  t=450  5 and 6 finish one after the other
+  ~450ms in total, and a slot is almost never idle`,
+              },
             ),
           ],
         },
@@ -1014,7 +1033,12 @@ runTasks(tasks, 2).then((results) => {
               `const i = nextIndex;   // 记下我抢到的号
 nextIndex++;           // 立刻把游标推进，别人抢不到同一个
                        // ↑ 这两行之间没有 await，不会被打断`,
-              { sourceFile: "react-notes-app/q2/taskRunner.ts" },
+              {
+                sourceFile: "react-notes-app/q2/taskRunner.ts",
+                codeEn: `const i = nextIndex;   // remember the number I grabbed
+nextIndex++;           // move the cursor at once so nobody grabs the same one
+                       // ↑ no await between these two lines, so nothing interrupts them`,
+              },
             ),
           ],
         },
@@ -1079,7 +1103,13 @@ nextIndex++;           // 立刻把游标推进，别人抢不到同一个
               `// 第一步
 const results: SettledResult<T>[] = new Array(tasks.length);
 let nextIndex = 0;`,
-              { filename: "推导 · 第一步" },
+              {
+                filename: "推导 · 第一步",
+                filenameEn: "Working it out · step one",
+                codeEn: `// Step one
+const results: SettledResult<T>[] = new Array(tasks.length);
+let nextIndex = 0;`,
+              },
             ),
             demo(
               "ts",
@@ -1098,7 +1128,25 @@ const worker = async () => {
     // catch 之后不 return，循环继续 → 一个失败不连累别人
   }
 };`,
-              { filename: "推导 · 第二步" },
+              {
+                filename: "推导 · 第二步",
+                filenameEn: "Working it out · step two",
+                codeEn: `// Step two: one worker keeps taking the next job
+const worker = async () => {
+  while (nextIndex < tasks.length) {
+    const i = nextIndex;
+    nextIndex++;
+
+    try {
+      const value = await tasks[i]();          // ← the parentheses! calling it is what starts it
+      results[i] = { status: "fulfilled", value };
+    } catch (reason) {
+      results[i] = { status: "rejected", reason };
+    }
+    // no return after catch, the loop keeps going → one failure does not stop the others
+  }
+};`,
+              },
             ),
             demo(
               "ts",
@@ -1110,7 +1158,18 @@ for (let w = 0; w < workerCount; w++) {
 }
 await Promise.all(workers);
 return results;`,
-              { filename: "推导 · 第三步" },
+              {
+                filename: "推导 · 第三步",
+                filenameEn: "Working it out · step three",
+                codeEn: `// Step three: start limit workers and wait for all of them
+const workerCount = Math.min(limit, tasks.length);
+const workers: Promise<void>[] = [];
+for (let w = 0; w < workerCount; w++) {
+  workers.push(worker());        // these parentheses mean "start this worker"
+}
+await Promise.all(workers);
+return results;`,
+              },
             ),
           ],
         },
