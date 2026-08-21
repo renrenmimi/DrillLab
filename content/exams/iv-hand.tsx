@@ -953,11 +953,20 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           kind: "code-completion",
           level: 3,
           title: "手写 deepClone（防循环）",
+          titleEn: "Write deepClone by hand (cycle-safe)",
           prompt: (
             <>
               把「直接返回原值」的半成品写成完整的 deepClone：分支覆盖
               Date / Map / Set / 数组 / 普通对象，循环引用不爆栈。
               <strong>不许用 JSON.parse(JSON.stringify(x))。</strong>
+            </>
+          ),
+          promptEn: (
+            <>
+              Grow this return-the-input version into a full deepClone: branches for
+              Date, Map, Set, arrays and plain objects, and a circular reference must
+              not recurse forever.{" "}
+              <strong>JSON.parse(JSON.stringify(x)) is not allowed.</strong>
             </>
           ),
           language: "ts",
@@ -968,6 +977,12 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
   //       每造一个新容器，立刻 seen.set(原对象, 新容器) —— 这一步防循环。
   return value;
 }`,
+          starterEn: `export function deepClone<T>(value: T, seen = new WeakMap<object, unknown>()): T {
+  void seen;
+  // TODO: handle primitives first, then branch on Date / Map / Set / Array / plain object.
+  //       Right after you build a new container, call seen.set(original, new one) — that is the cycle guard.
+  return value;
+}`,
           requirements: [
             "原始值和 null 原样返回",
             "嵌套对象 / 数组逐层克隆，每一层都是新引用",
@@ -975,18 +990,31 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
             "循环引用不爆栈（WeakMap 登记「原对象 → 克隆」）",
             "不许用 JSON.parse(JSON.stringify(x))",
           ],
+          requirementsEn: [
+            "Primitives and null come back unchanged",
+            "Nested objects and arrays are cloned level by level, and every level is a new reference",
+            "A Date becomes a new Date; Map and Set are deep-cloned",
+            "A circular reference does not recurse forever (a WeakMap records original to clone)",
+            "JSON.parse(JSON.stringify(x)) is not allowed",
+          ],
           checks: [
-            { label: "用 WeakMap（或 seen）防循环", must: "seen\\.(has|get|set)" },
-            { label: "处理了 Date", must: "instanceof Date" },
-            { label: "区分数组与对象", must: "Array\\.isArray" },
-            { label: "没有用 JSON 大法", mustNot: "JSON\\.parse" },
-            { label: "没有用原生 structuredClone 代劳", mustNot: "structuredClone" },
+            { label: "用 WeakMap（或 seen）防循环", labelEn: "Uses a WeakMap (or seen) as the cycle guard", must: "seen\\.(has|get|set)" },
+            { label: "处理了 Date", labelEn: "Handles Date", must: "instanceof Date" },
+            { label: "区分数组与对象", labelEn: "Tells arrays and objects apart", must: "Array\\.isArray" },
+            { label: "没有用 JSON 大法", labelEn: "Does not fall back on the JSON trick", mustNot: "JSON\\.parse" },
+            { label: "没有用原生 structuredClone 代劳", labelEn: "Does not let the built-in structuredClone do the work", mustNot: "structuredClone" },
           ],
           hints: [
             "第一行先把非对象挡回去：value === null || typeof value !== \"object\" 就原样返回。",
             "接着查 seen：seen.has(obj) 就直接 return seen.get(obj) —— 循环引用从这里出去。",
             "每个容器分支的固定节奏：造新容器 → seen.set(原对象, 新容器) → 再递归填内容。次序不能反。",
             "普通对象分支：for (const key of Object.keys(value)) out[key] = deepClone(value[key], seen)。",
+          ],
+          hintsEn: [
+            "Turn away non-objects on the first line: if value === null || typeof value !== \"object\", return it unchanged.",
+            "Then check seen: if seen.has(obj), return seen.get(obj) straight away — this is the exit for a circular reference.",
+            "Every container branch follows the same order: build the new container, then seen.set(original, new one), then recurse to fill it. Do not swap those steps.",
+            "The plain-object branch: for (const key of Object.keys(value)) out[key] = deepClone(value[key], seen).",
           ],
           solution: tested("ts", REF_CLONE_CORE, {
             filename: "deepClone.ts（核心 —— 完整版含 Map/Set 分支，vitest 6 / 6）",
