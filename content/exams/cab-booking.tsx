@@ -4924,6 +4924,7 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
               kind: "recognition",
               level: 1,
               title: "哪些写法能让测试 4 全绿？（多选）",
+              titleEn: "Which versions make test 4 pass? (more than one)",
               prompt: (
                 <>
                   历史是 <code>[Fusion, Accord, Highlander, Explorer]</code>
@@ -4931,6 +4932,14 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
                   断言要求：3 条、顺序
                   <code>Explorer / Highlander / Accord</code>、
                   <code>Fusion</code> 不在 DOM 里。
+                </>
+              ),
+              promptEn: (
+                <>
+                  The history is <code>[Fusion, Accord, Highlander, Explorer]</code>{" "}
+                  (oldest → newest). The assertions want: 3 entries, in the order{" "}
+                  <code>Explorer / Highlander / Accord</code>, and{" "}
+                  <code>Fusion</code> not in the DOM.
                 </>
               ),
               options: [
@@ -4974,16 +4983,60 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
                   也是为什么不能只看一次测试结果。</strong>
                 </>
               ),
+              explainEn: (
+                <>
+                  <strong>A, C and E are all correct.</strong>
+                  <ul>
+                    <li>
+                      <strong>A</strong> — what the source project writes.{" "}
+                      <code>slice</code> builds a new array first, and{" "}
+                      <code>reverse</code> changes that copy.
+                    </li>
+                    <li>
+                      <strong>C</strong> — copy the whole thing, reverse it, take the
+                      first three. Same result. <strong>It copies the entire
+                      array</strong>, which does not matter with only a few entries.
+                    </li>
+                    <li>
+                      <strong>E</strong> — <code>toReversed()</code> (ES2023) returns a
+                      new array by itself, which is the clearest of the three.
+                    </li>
+                  </ul>
+                  <strong>B is wrong:</strong> it takes the three oldest and reverses
+                  them, giving <code>Highlander / Accord / Fusion</code>. The count is
+                  right and the order even looks reversed,{" "}
+                  <strong>but Fusion is still there, so the last assertion
+                  fails</strong>.
+                  <br />
+                  <strong>D is the most hidden mistake:</strong> the resulting array{" "}
+                  <strong>is correct</strong> (<code>Explorer / Highlander / Accord</code>
+                  ) and the first test run may even pass — but{" "}
+                  <code>reverse()</code>{" "}
+                  <strong>has already reversed the state in place</strong>. The next
+                  booking appends after the reversed items, so the order is wrong from
+                  then on, and it reverses again on every render.{" "}
+                  <strong>This is the classic &ldquo;right this time, wrong from now
+                  on&rdquo;, and it is why one green test run is not proof.</strong>
+                </>
+              ),
             },
             {
               id: "cb-history-write",
               kind: "code-completion",
               level: 3,
               title: "从零写出 RideHistory",
+              titleEn: "Write RideHistory from an empty file",
               prompt: (
                 <>
                   从 Context 读历史，取最新三条、最新在最上，
                   空的时候显示空状态。检查器会挡住原地修改。
+                </>
+              ),
+              promptEn: (
+                <>
+                  Read the history out of the Context, take the three newest with the
+                  newest at the top, and show the empty state when there is nothing. The
+                  checker blocks changes made in place.
                 </>
               ),
               language: "jsx",
@@ -5000,6 +5053,18 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
 
 const RideHistory = () => {
 `,
+              starterEn: `import { useCabContext } from "../../context/CabContext";
+
+// Requirements:
+// 1. read rideHistory out of the Context
+// 2. take the three newest, with the newest at the top
+// 3. with records: a <ul> holding one <li data-testid="history-cabs"> per entry,
+//    showing the cab name and $price
+// 4. when empty: <p data-testid="no-ride-title">No ride history yet.</p>
+// 5. never change the state in place (no reverse / sort / push on rideHistory)
+
+const RideHistory = () => {
+`,
               requirements: [
                 "从 useCabContext() 里读 rideHistory",
                 "取最新三条并让最新的排在最上面（slice(-3).reverse() 或等价写法）",
@@ -5008,31 +5073,45 @@ const RideHistory = () => {
                 "空历史显示 <p data-testid=\"no-ride-title\">No ride history yet.</p>，且此时不渲染列表",
                 "key 不能只用 ride.id —— 同一辆车可以被订两次",
               ],
+              requirementsEn: [
+                "Read rideHistory out of useCabContext()",
+                "Take the three newest and put the newest at the top (slice(-3).reverse() or an equivalent)",
+                "Never call reverse or sort on rideHistory directly — that changes the state in place",
+                "One <li data-testid=\"history-cabs\"> per record, holding the cab name and the $price",
+                "An empty history shows <p data-testid=\"no-ride-title\">No ride history yet.</p> and renders no list",
+                "The key cannot be ride.id alone — the same cab can be booked twice",
+              ],
               checks: [
                 {
                   label: "读了 rideHistory",
+                  labelEn: "rideHistory is read",
                   must: "useCabContext\\(\\)[\\s\\S]{0,120}rideHistory",
                 },
                 {
                   label: "取的是最新三条（slice(-3) 或先复制再翻转）",
+                  labelEn: "It takes the three newest (slice(-3), or a copy then a reverse)",
                   must: "slice\\(\\s*-3\\s*\\)|\\[\\s*\\.\\.\\.rideHistory\\s*\\]\\s*\\.(reverse|toReversed)",
                 },
                 {
                   label: "做了反转（最新在最上）",
+                  labelEn: "It reverses them (newest at the top)",
                   must: "reverse\\(\\)|toReversed\\(\\)",
                 },
                 {
                   label: "没有直接 reverse / sort 到 state 上",
+                  labelEn: "reverse and sort are not applied to the state",
                   mustNot: "rideHistory\\s*\\.\\s*(reverse|sort)\\s*\\(",
                 },
-                { label: "没有 push", mustNot: "\\.push\\(" },
-                { label: "两个 testid 都在", must: "history-cabs[\\s\\S]*no-ride-title|no-ride-title[\\s\\S]*history-cabs" },
+                { label: "没有 push", labelEn: "push is not used", mustNot: "\\.push\\(" },
+                { label: "两个 testid 都在", labelEn: "Both testids are there", must: "history-cabs[\\s\\S]*no-ride-title|no-ride-title[\\s\\S]*history-cabs" },
                 {
                   label: "空状态文案照抄原文",
+                  labelEn: "The empty-state wording is copied exactly",
                   must: "No ride history yet\\.",
                 },
                 {
                   label: "key 不是裸 ride.id",
+                  labelEn: "The key is not a bare ride.id",
                   mustNot: "key=\\{\\s*ride\\.id\\s*\\}",
                 },
               ],
@@ -5042,9 +5121,16 @@ const RideHistory = () => {
                 "const latestRides = rideHistory.slice(-3).reverse();\n然后 return 里：{latestRides.length > 0 ? ( <ul>…</ul> ) : ( <p data-testid=\"no-ride-title\">…</p> )}",
                 "每条：<li key={`${ride.id}-${index}`} data-testid=\"history-cabs\"><span>{ride.name}</span><strong>${ride.price}</strong></li>",
               ],
+              hintsEn: [
+                "Two jobs: first work out which three entries to show and in what order, then decide between the with-records and no-records renders.",
+                "Building the list uses slice together with reverse. The point is to keep reverse away from the state — work out whether slice returns the original array or a new one.",
+                "const latestRides = rideHistory.slice(-3).reverse();\nThen in the return: {latestRides.length > 0 ? ( <ul>…</ul> ) : ( <p data-testid=\"no-ride-title\">…</p> )}",
+                "Each entry: <li key={`${ride.id}-${index}`} data-testid=\"history-cabs\"><span>{ride.name}</span><strong>${ride.price}</strong></li>",
+              ],
               solution: real("jsx", SRC_HISTORY, {
                 filename: "src/components/Home/RideHistory.jsx（参考答案 —— 源项目原文）",
-              filenameEn: "src/components/Home/RideHistory.jsx (reference answer — the source project text)",
+                filenameEn:
+                  "src/components/Home/RideHistory.jsx (reference answer — the source project text)",
                 sourceFile: "cab-booking-context/src/components/Home/RideHistory.jsx",
               }),
             },
