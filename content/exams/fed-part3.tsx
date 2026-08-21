@@ -1163,6 +1163,29 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 }`,
               {
                 filename: "CorrelationIdFilter.java（全文，PROVIDED）",
+                filenameEn: "CorrelationIdFilter.java (full file, PROVIDED)",
+                codeEn: `@Component
+public class CorrelationIdFilter extends OncePerRequestFilter {
+    private static final String HEADER = "X-Correlation-ID";
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String correlationId = request.getHeader(HEADER);
+        if (correlationId == null || correlationId.isBlank()) {
+            correlationId = UUID.randomUUID().toString();
+        }
+
+        MDC.put("correlationId", correlationId);
+        response.setHeader(HEADER, correlationId);
+
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            MDC.remove("correlationId");     // threads are reused, so clean up
+        }
+    }
+}`,
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/config/CorrelationIdFilter.java",
                 highlight: [13, 14, 19],
@@ -1243,6 +1266,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
           kind: "recognition",
           id: "g-spring-exception",
           title: "找不到订单时该怎么处理",
+          titleEn: "What to do when the order is not found",
           level: 1,
           prompt: (
             <p>
@@ -1252,11 +1276,19 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               控制器应该怎么写？
             </p>
           ),
+          promptEn: (
+            <p>
+              In the <code>getOrderById</code> endpoint,{" "}
+              <code>orderService.getOrderById(id)</code> throws{" "}
+              <code>EntityNotFoundException</code> when it finds nothing. How
+              should the controller be written?
+            </p>
+          ),
           options: [
-            { id: "a", label: "什么都不做，直接 return ResponseEntity.ok(orderService.getOrderById(id))" },
-            { id: "b", label: "try/catch 住，catch 里 return ResponseEntity.notFound().build()" },
-            { id: "c", label: "try/catch 住，catch 里 return null" },
-            { id: "d", label: "先调 existsById 检查一遍再取" },
+            { id: "a", label: "什么都不做，直接 return ResponseEntity.ok(orderService.getOrderById(id))", labelEn: "Do nothing special: return ResponseEntity.ok(orderService.getOrderById(id))" },
+            { id: "b", label: "try/catch 住，catch 里 return ResponseEntity.notFound().build()", labelEn: "Wrap it in try/catch and return ResponseEntity.notFound().build() from the catch" },
+            { id: "c", label: "try/catch 住，catch 里 return null", labelEn: "Wrap it in try/catch and return null from the catch" },
+            { id: "d", label: "先调 existsById 检查一遍再取", labelEn: "Call existsById to check first, then fetch" },
           ],
           answer: ["a"],
           explain: (
@@ -1277,11 +1309,30 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               <code>existsById</code>。
             </>
           ),
+          explainEn: (
+            <>
+              The project already has a <code>GlobalExceptionHandler</code>{" "}
+              marked <code>@RestControllerAdvice</code>, whose job is to turn{" "}
+              <code>EntityNotFoundException</code> into a 404 with a JSON body.{" "}
+              <strong>Just let the exception travel up.</strong>
+              <br />
+              B does produce a 404, but{" "}
+              <strong>the response body is gone</strong> (the global handler
+              returns <code>{"{ timestamp, status, message }"}</code>), and it
+              reimplements something that already works.
+              <br />
+              C is the worst: the 404 becomes a 200.
+              <br />
+              D is unnecessary, and <code>OrderService</code> does not expose{" "}
+              <code>existsById</code> anyway.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-spring-annotations",
           title: "这三个参数注解各从哪取值",
+          titleEn: "Where each of these parameter annotations reads from",
           level: 1,
           prompt: (
             <p>
@@ -1297,11 +1348,24 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               。<code>id</code> 和 <code>statusUpdate</code> 分别是什么？
             </p>
           ),
+          promptEn: (
+            <p>
+              The request is <code>PATCH /api/orders/7/status</code> with the
+              body <code>{'{"status":"SHIPPED"}'}</code>.
+              <br />
+              The method signature is{" "}
+              <code>
+                updateOrderStatus(@PathVariable Long id, @RequestBody
+                Map&lt;String,String&gt; statusUpdate)
+              </code>
+              . What are <code>id</code> and <code>statusUpdate</code>?
+            </p>
+          ),
           options: [
-            { id: "a", label: "id = 7L；statusUpdate = { \"status\": \"SHIPPED\" }" },
-            { id: "b", label: "id = null；statusUpdate = { \"id\": \"7\", \"status\": \"SHIPPED\" }" },
-            { id: "c", label: "id = 7L；statusUpdate = \"SHIPPED\"" },
-            { id: "d", label: "两个都从查询串取" },
+            { id: "a", label: "id = 7L；statusUpdate = { \"status\": \"SHIPPED\" }", labelEn: "id = 7L, statusUpdate = { \"status\": \"SHIPPED\" }" },
+            { id: "b", label: "id = null；statusUpdate = { \"id\": \"7\", \"status\": \"SHIPPED\" }", labelEn: "id = null, statusUpdate = { \"id\": \"7\", \"status\": \"SHIPPED\" }" },
+            { id: "c", label: "id = 7L；statusUpdate = \"SHIPPED\"", labelEn: "id = 7L, statusUpdate = \"SHIPPED\"" },
+            { id: "d", label: "两个都从查询串取", labelEn: "Both are read from the query string" },
           ],
           answer: ["a"],
           explain: (
@@ -1318,6 +1382,24 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               注意它是 <strong>Map 而不是 DTO</strong> ——
               所以<strong>没有 Bean Validation 保护</strong>，
               下一节会讲这意味着你必须自己校验。
+            </>
+          ),
+          explainEn: (
+            <>
+              <code>@PathVariable</code> reads from the{" "}
+              <strong>path</strong> —{" "}
+              <code>/api/orders/<strong>7</strong>/status</code> matches the{" "}
+              <code>{"{id}"}</code> segment, and Spring converts{" "}
+              <code>&quot;7&quot;</code> into <code>Long 7L</code> for you.
+              <br />
+              <code>@RequestBody</code> deserializes the whole request body
+              from JSON into a <code>Map</code>, so{" "}
+              <code>statusUpdate.get(&quot;status&quot;)</code> is what gives
+              you <code>&quot;SHIPPED&quot;</code>.
+              <br />
+              Note it is a <strong>Map, not a DTO</strong>, so{" "}
+              <strong>Bean Validation does not protect it</strong>. The next
+              lesson covers what that means: you have to validate it yourself.
             </>
           ),
         },
