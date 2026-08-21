@@ -810,7 +810,24 @@ count ?? 10                 // 0   ✓
 {list.length && <List />}       // ✗ 空列表时页面上多一个 0
 {list.length > 0 && <List />}   // ✓
 {list.length ? <List /> : null} // ✓ 也可以`,
-              { filename: "短路的三个实际用法与两个坑" },
+              {
+                filename: "短路的三个实际用法与两个坑",
+                filenameEn: "Three real uses of short-circuiting, and two traps",
+                codeEn: `// Short-circuiting returns the operand itself
+console.log(1 && 2);          // 2
+console.log(0 && 2);          // 0    ← not false
+console.log("" || "default"); // "default"
+
+// The difference between || and ??
+const count = 0;
+count || 10                 // 10  ✗ 0 is treated as "nothing was passed"
+count ?? 10                 // 0   ✓
+
+// The classic React conditional-rendering trap
+{list.length && <List />}       // ✗ an empty list prints a stray 0 on the page
+{list.length > 0 && <List />}   // ✓
+{list.length ? <List /> : null} // ✓ this works too`,
+              },
             ),
           ],
         },
