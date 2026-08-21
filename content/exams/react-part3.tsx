@@ -207,7 +207,11 @@ export const reactQ1: Module = {
 - Task 3  Edit:   点 Edit -> 内容回填进表单、按钮变 Update ->
                   提交 -> 原位置更新该 note、退出编辑模式
 约束： 不得修改任何 data-testid。`,
-              { filename: "README.md（Q1 原文）", sourceFile: "react-notes-app/README.md" },
+              {
+                filename: "README.md（Q1 原文）",
+                filenameEn: "README.md (the original text of Q1)",
+                sourceFile: "react-notes-app/README.md",
+              },
             ),
           ],
         },
@@ -2774,7 +2778,7 @@ const handleDelete = (id: number) => {
 ✗ 先删再插到头部
   [B2, ...prev.filter(...)]
   结果：[B2, A, C]        ← 也不是原位置`,
-              { filename: "三种写法的实际结果" },
+              { filename: "三种写法的实际结果", filenameEn: "What the three versions actually produce" },
             ),
             real(
               "tsx",
