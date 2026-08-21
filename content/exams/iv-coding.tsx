@@ -3326,12 +3326,19 @@ return [value, setValue];        // as const is missing`,
           kind: "code-completion",
           id: "iv-coding-hook-write",
           title: "自己写出 useLocalStorage",
+          titleEn: "Write useLocalStorage yourself",
           level: 3,
           generated: true,
           prompt: (
             <p>
               四个考点全都会被检查：惰性初始化、try/catch 兜底、
               依赖带 key、<code>as const</code>。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              All four points get checked: lazy initialisation, a try/catch fallback,{" "}
+              <code>key</code> in the dependency list, and <code>as const</code>.
             </p>
           ),
           language: "ts",
@@ -3350,6 +3357,20 @@ return [value, setValue];        // as const is missing`,
 export function useLocalStorage<T>(key: string, initial: T) {
 
 }`,
+          starterEn: `import { useEffect, useState } from "react";
+
+/**
+ * Tie a value to localStorage.
+ *
+ * Requirements:
+ *   · Read from localStorage on the first render; use initial if there is nothing there
+ *   · Write back to localStorage when the value changes
+ *   · Do not let the component break when localStorage is unavailable or holds bad data
+ *   · Return [value, setValue], typed as a tuple
+ */
+export function useLocalStorage<T>(key: string, initial: T) {
+
+}`,
           requirements: [
             "读 localStorage 只在首次渲染发生一次（惰性初始化）",
             "读和写都要有 try/catch",
@@ -3357,16 +3378,23 @@ export function useLocalStorage<T>(key: string, initial: T) {
             "effect 的依赖里要有 key 和 value",
             "返回元组，用 as const",
           ],
+          requirementsEn: [
+            "Reading localStorage happens once, on the first render (lazy initialisation)",
+            "Both the read and the write need a try/catch",
+            "JSON serialising and deserialising",
+            "The effect's dependency list holds key and value",
+            "Return a tuple, using as const",
+          ],
           checks: [
-            { label: "useState 用了惰性初始化（传函数）", must: "useState[^\\n]*\\(\\s*\\(\\s*\\)\\s*=>" },
-            { label: "没有在 useState 里直接调用读取", mustNot: "useState\\s*\\(\\s*(JSON\\.parse|window\\.localStorage|localStorage)" },
-            { label: "读的时候有 try/catch", must: "try\\s*\\{[\\s\\S]{0,200}getItem[\\s\\S]{0,200}\\}\\s*catch" },
-            { label: "写的时候用了 setItem", must: "setItem" },
-            { label: "写的时候也有 try/catch", must: "try\\s*\\{[\\s\\S]{0,160}setItem[\\s\\S]{0,120}\\}\\s*catch" },
-            { label: "用了 JSON.stringify / JSON.parse", must: "JSON\\.stringify" },
-            { label: "effect 依赖里有 key 和 value", must: "\\[\\s*key\\s*,\\s*value\\s*\\]" },
-            { label: "返回值用 as const（元组类型）", must: "as const" },
-            { label: "没有把 localStorage 读写放在渲染主体里裸调", mustNot: "^\\s*const\\s+\\w+\\s*=\\s*(window\\.)?localStorage\\.getItem" },
+            { label: "useState 用了惰性初始化（传函数）", labelEn: "useState is given a function, so initialisation is lazy", must: "useState[^\\n]*\\(\\s*\\(\\s*\\)\\s*=>" },
+            { label: "没有在 useState 里直接调用读取", labelEn: "The read is not called directly inside useState", mustNot: "useState\\s*\\(\\s*(JSON\\.parse|window\\.localStorage|localStorage)" },
+            { label: "读的时候有 try/catch", labelEn: "The read is wrapped in try/catch", must: "try\\s*\\{[\\s\\S]{0,200}getItem[\\s\\S]{0,200}\\}\\s*catch" },
+            { label: "写的时候用了 setItem", labelEn: "The write uses setItem", must: "setItem" },
+            { label: "写的时候也有 try/catch", labelEn: "The write is wrapped in try/catch too", must: "try\\s*\\{[\\s\\S]{0,160}setItem[\\s\\S]{0,120}\\}\\s*catch" },
+            { label: "用了 JSON.stringify / JSON.parse", labelEn: "Uses JSON.stringify and JSON.parse", must: "JSON\\.stringify" },
+            { label: "effect 依赖里有 key 和 value", labelEn: "The effect dependencies hold key and value", must: "\\[\\s*key\\s*,\\s*value\\s*\\]" },
+            { label: "返回值用 as const（元组类型）", labelEn: "The return value uses as const, so the type is a tuple", must: "as const" },
+            { label: "没有把 localStorage 读写放在渲染主体里裸调", labelEn: "No bare localStorage read or write in the render body", mustNot: "^\\s*const\\s+\\w+\\s*=\\s*(window\\.)?localStorage\\.getItem" },
           ],
           hints: [
             "先问自己两个问题：读 localStorage 这件事应该发生几次？如果 localStorage 里存的是一段被人手改坏的 JSON，你的组件会怎样？",
@@ -3399,6 +3427,42 @@ useEffect(() => {
     window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
     /* 写不进去只影响持久化 */
+  }
+}, [key, value]);
+
+return [value, setValue] as const;`,
+          ],
+          hintsEn: [
+            "Ask yourself two questions first: how many times should reading localStorage happen? And if localStorage holds a piece of JSON someone has broken by hand, what happens to your component?",
+            "useState accepts an initialiser function, which React calls only on the first render — that is lazy initialisation. Both the read and the write need a try/catch: localStorage throws in private mode, and JSON.parse throws on bad data. Finally, return [value, setValue] as const.",
+            `const [value, setValue] = useState<T>(() => {
+  try {
+    read raw
+    return initial if raw is null, otherwise JSON.parse it
+  } catch {
+    return initial
+  }
+})
+
+useEffect(() => {
+  try { write JSON.stringify(value) } catch {}
+}, [key, value])
+
+return [value, setValue] as const`,
+            `const [value, setValue] = useState<T>(() => {
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw === null ? initial : (JSON.parse(raw) as T);
+  } catch {
+    return initial;
+  }
+});
+
+useEffect(() => {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* A failed write only affects persistence */
   }
 }, [key, value]);
 
