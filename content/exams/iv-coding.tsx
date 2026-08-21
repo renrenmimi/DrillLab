@@ -5021,12 +5021,20 @@ if (from === to) return { ...board };`,
           kind: "code-completion",
           id: "iv-coding-kanban-write",
           title: "写出 moveCard",
+          titleEn: "Write moveCard",
           level: 3,
           generated: true,
           prompt: (
             <p>
               一次操作同时改两个数组，而且不许碰原 board。
               检查器会查两个边界和「未动的列复用引用」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              One action changes two arrays, and the board you were handed must not be
+              touched. The checker looks at the two edge cases and at whether untouched
+              columns keep their original reference.
             </p>
           ),
           language: "ts",
@@ -5051,6 +5059,26 @@ export function moveCard(
 ): Board {
 
 }`,
+          starterEn: `import type { Board, ColumnId } from "../../types/Card";
+// type Board = Record<ColumnId, Card[]>
+
+/**
+ * Move the card with cardId from column from to column to, and return a brand new board.
+ *
+ * Requirements:
+ *   · When from and to are the same, return it as it is (the same reference)
+ *   · When the card is not found, return it as it is
+ *   · Do not change the board you were handed (the caller deep-freezes it)
+ *   · Columns that were not touched keep their original array reference
+ */
+export function moveCard(
+  board: Board,
+  from: ColumnId,
+  to: ColumnId,
+  cardId: number,
+): Board {
+
+}`,
           requirements: [
             "from === to 时返回同一个引用，不造新对象",
             "找不到卡时返回同一个引用",
@@ -5058,16 +5086,23 @@ export function moveCard(
             "只改这两列，其余列复用原数组",
             "不许 push / splice / 直接赋值",
           ],
+          requirementsEn: [
+            "When from === to, return the same reference and build no new object",
+            "When the card is not found, return the same reference",
+            "Drop it from the source column with filter, and append to the target column with spread",
+            "Only those two columns change; the rest keep their original arrays",
+            "No push, no splice, no direct assignment",
+          ],
           checks: [
-            { label: "处理了 from === to 并原样返回", must: "from\\s*===?\\s*to[\\s\\S]{0,40}return\\s+board" },
-            { label: "先找卡片", must: "board\\s*\\[\\s*from\\s*\\]\\s*\\.find" },
-            { label: "找不到时原样返回", must: "(!card|card\\s*===?\\s*undefined)[\\s\\S]{0,40}return\\s+board" },
-            { label: "用展开保留其余列", must: "\\{\\s*\\.\\.\\.\\s*board\\s*," },
-            { label: "源列用 filter", must: "\\[\\s*from\\s*\\]\\s*:\\s*board\\s*\\[\\s*from\\s*\\]\\s*\\.filter" },
-            { label: "目标列用数组展开追加", must: "\\[\\s*to\\s*\\]\\s*:\\s*\\[\\s*\\.\\.\\.\\s*board\\s*\\[\\s*to\\s*\\]\\s*,\\s*card\\s*\\]" },
-            { label: "没有 push / splice / unshift", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
-            { label: "没有深拷贝", mustNot: "JSON\\.parse|structuredClone" },
-            { label: "没有直接给 board 的列赋值", mustNot: "board\\s*\\[[^\\]]+\\]\\s*=[^=]" },
+            { label: "处理了 from === to 并原样返回", labelEn: "Handles from === to and returns the board as it is", must: "from\\s*===?\\s*to[\\s\\S]{0,40}return\\s+board" },
+            { label: "先找卡片", labelEn: "Finds the card first", must: "board\\s*\\[\\s*from\\s*\\]\\s*\\.find" },
+            { label: "找不到时原样返回", labelEn: "Returns the board as it is when the card is not found", must: "(!card|card\\s*===?\\s*undefined)[\\s\\S]{0,40}return\\s+board" },
+            { label: "用展开保留其余列", labelEn: "Keeps the other columns with a spread", must: "\\{\\s*\\.\\.\\.\\s*board\\s*," },
+            { label: "源列用 filter", labelEn: "The source column uses filter", must: "\\[\\s*from\\s*\\]\\s*:\\s*board\\s*\\[\\s*from\\s*\\]\\s*\\.filter" },
+            { label: "目标列用数组展开追加", labelEn: "The target column appends with an array spread", must: "\\[\\s*to\\s*\\]\\s*:\\s*\\[\\s*\\.\\.\\.\\s*board\\s*\\[\\s*to\\s*\\]\\s*,\\s*card\\s*\\]" },
+            { label: "没有 push / splice / unshift", labelEn: "No push, splice or unshift", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
+            { label: "没有深拷贝", labelEn: "No deep copy", mustNot: "JSON\\.parse|structuredClone" },
+            { label: "没有直接给 board 的列赋值", labelEn: "No direct assignment to a column of board", mustNot: "board\\s*\\[[^\\]]+\\]\\s*=[^=]" },
           ],
           hints: [
             "先在纸上画三列，把要移动的那张卡圈出来。问自己：这次操作之后，哪几个数组的内容变了？没变的那些，需要造新数组吗？如果造了会有什么代价？",
@@ -5080,6 +5115,29 @@ return {
   ...board,
   [from]: board[from] 去掉这张卡,
   [to]: board[to] 后面加上这张卡,
+}`,
+            `if (from === to) return board;
+
+const card = board[from].find((c) => c.id === cardId);
+if (!card) return board;
+
+return {
+  ...board,
+  [from]: board[from].filter((c) => c.id !== cardId),
+  [to]: [...board[to], card],
+};`,
+          ],
+          hintsEn: [
+            "Draw three columns on paper first and circle the card you are moving. Then ask yourself: after this move, which arrays have different contents? For the ones that did not change, do you need new arrays? What would it cost if you built them anyway?",
+            "Return an object literal: start with ...board to carry every column over, then use the computed keys [from] and [to] to replace those two. Filter the card out of the source column, and write [...the old one, card] for the target. The two early returns at the top return board itself, not { ...board }.",
+            `if (from === to) return board
+const card = find the matching id in board[from]
+if (!card) return board
+
+return {
+  ...board,
+  [from]: board[from] without this card,
+  [to]: board[to] with this card appended,
 }`,
             `if (from === to) return board;
 
@@ -5114,8 +5172,27 @@ return {
             {
               filename: "参考答案（实测通过，含深冻结与引用复用两条断言）",
               filenameEn: "Reference answer (passes as measured, including the deep-freeze and reference-reuse assertions)",
+              codeEn: `export function moveCard(
+  board: Board,
+  from: ColumnId,
+  to: ColumnId,
+  cardId: number,
+): Board {
+  if (from === to) return board;                       // nothing moved, so return it as it is
+
+  const card = board[from].find((c) => c.id === cardId);
+  if (!card) return board;                             // not found either, so return it as it is
+
+  return {
+    ...board,
+    [from]: board[from].filter((c) => c.id !== cardId), // drop it from the source column
+    [to]: [...board[to], card],                        // append it to the target column
+  };
+}`,
               explanation:
                 "{ ...board } 只浅拷贝顶层，所以没被列出来的列复用的是原数组引用 —— 测试里用 expect(next.done).toBe(b.done) 验证了这一点。",
+              explanationEn:
+                "{ ...board } copies only the top level, so a column you did not list keeps the original array reference. The test checks this with expect(next.done).toBe(b.done).",
             },
           ),
         },
