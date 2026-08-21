@@ -4037,8 +4037,14 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   {
                     filename: "src/components/NoteForm/index.tsx",
                     sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
+                    codeEn: `interface NoteFormProps {
+  onSubmit: (note: Note) => void;    // function type: takes one Note, returns nothing
+  noteToEdit: Note | null;           // union type: either a Note or null
+}`,
                     explanation:
                       "两个字段各演示了一种写法。onSubmit 的 (note: Note) => void 是「函数类型」；noteToEdit 的 Note | null 是「联合类型」—— 用 null 表示「现在不在编辑任何东西」。",
+                    explanationEn:
+                      "Each field shows one form. The (note: Note) => void on onSubmit is a function type; the Note | null on noteToEdit is a union type, where null means nothing is being edited right now.",
                   },
                 ),
                 real(
@@ -4128,7 +4134,12 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   `ReactDOM.createRoot(document.getElementById("root")!).render(...)
 //                                                            ↑
 //                            非空断言：告诉编译器「相信我，这里不会是 null」`,
-                  { sourceFile: "react-notes-app/src/main.tsx" },
+                  {
+                    sourceFile: "react-notes-app/src/main.tsx",
+                    codeEn: `ReactDOM.createRoot(document.getElementById("root")!).render(...)
+//                                                            ↑
+//                    non-null assertion: tells the compiler this will not be null`,
+                  },
                 ),
               ],
             },
@@ -4332,8 +4343,12 @@ const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);  // 必须写�
 const [title, setTitle] = useState("");                       // 不用写："" 就是 string`,
                   {
                     filename: "三处真实的 useState",
+                    filenameEn: "Three real uses of useState",
                     sourceFile:
                       "react-notes-app/src/components/NoteManager/index.tsx 与 NoteForm/index.tsx",
+                    codeEn: `const [notes, setNotes] = useState<Note[]>([]);              // required: [] does not say what it holds
+const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);  // required: null says nothing
+const [title, setTitle] = useState("");                       // not needed: "" means string`,
                   },
                 ),
                 real(
@@ -4400,7 +4415,10 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'. Do you nee
 src/NoteManager.test.tsx(11,3): error TS2304: Cannot find name 'expect'.
 src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
 ...共 10 条，全部在这一个文件里`,
-                  { filename: "本机实测输出" },
+                  {
+                    filename: "本机实测输出",
+                    filenameEn: "Output measured on this machine",
+                  },
                 ),
               ],
             },
