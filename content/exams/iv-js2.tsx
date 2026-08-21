@@ -1465,7 +1465,34 @@ if (!row) throw new NotFoundError(\`user \${id} 不存在\`);
 
 // 兜底
 window.addEventListener("unhandledrejection", (e) => report(e.reason));`,
-              { filename: "四条实践" },
+              {
+                filename: "四条实践",
+                filenameEn: "Four practices",
+                codeEn: `// ✗ Never caught —— the callback runs in a later turn of the event loop
+try {
+  setTimeout(() => { throw new Error("failed"); }, 0);
+} catch (e) {
+  console.log("this line is never reached");
+}
+
+// ✓ Catch an async error inside the async chain
+try {
+  await somethingAsync();
+} catch (e) { /* ✓ */ }
+
+// ✗ Swallowing the error: the caller cannot tell "not there" from "it failed"
+async function getUser(id) {
+  try { return await api.get(id); }
+  catch { return null; }
+}
+
+// ✓ Let it throw, or throw an error that has a type
+class NotFoundError extends Error {}
+if (!row) throw new NotFoundError(\`user \${id} 不存在\`);   // "user <id> does not exist"
+
+// A last line of defence
+window.addEventListener("unhandledrejection", (e) => report(e.reason));`,
+              },
             ),
           ],
         },
