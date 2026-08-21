@@ -2607,6 +2607,12 @@ async shippingInfo(parent, _, { loaders }) {
 async shippingInfo(parent, _, { loaders }) {
   return loaders.orderLoader.load(parent.id);
 }`,
+            {
+              codeEn: `// ✗ the wrong loader
+async shippingInfo(parent, _, { loaders }) {
+  return loaders.orderLoader.load(parent.id);
+}`,
+            },
           ),
           why: (
             <>
@@ -2923,6 +2929,13 @@ async shippingInfo(parent, _, { loaders }) {
 };`,
               {
                 filename: "starter 里给好的错误码表",
+                filenameEn: "The error-code table the starter gives you",
+                codeEn: `const ErrorCodes = {
+  ORDER_NOT_FOUND: 'ORDER_NOT_FOUND',   // ← used by Query.order
+  INVALID_INPUT: 'INVALID_INPUT',       // ← used by Query.orders and createOrder
+  INVENTORY_ERROR: 'INVENTORY_ERROR',   // ← unused in the reference answer
+  SERVICE_ERROR: 'SERVICE_ERROR'        // ← the catch-all
+};`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
               },
@@ -2961,6 +2974,37 @@ async shippingInfo(parent, _, { loaders }) {
 }`,
               {
                 filename: "Query.order（参考答案）",
+                filenameEn: "Query.order (reference answer)",
+                codeEn: `async order(_, { id }, { dataSources, loaders, correlationId }) {
+  try {
+    console.log(\`[\${correlationId}] Query.order id: \${id}\`);
+
+    const order = await loaders.orderLoader.load(id);
+
+    if (!order) {
+      throw new GraphQLError(\`Order not found: \${id}\`, {
+        extensions: {
+          code: ErrorCodes.ORDER_NOT_FOUND,
+          correlationId,
+          orderId: id
+        }
+      });
+    }
+
+    return order;
+  } catch (error) {
+    if (error instanceof GraphQLError) throw error;   // ← the key line: let the one above through
+
+    console.error(\`[\${correlationId}] Error in Query.order:\`, error.message);
+    throw new GraphQLError('Failed to fetch order', {
+      extensions: {
+        code: ErrorCodes.SERVICE_ERROR,
+        correlationId,
+        originalError: error.message
+      }
+    });
+  }
+}`,
                 highlight: [5, 7, 19],
               },
             ),
@@ -3210,10 +3254,17 @@ async shippingInfo(parent, _, { loaders }) {
           kind: "fill-blank",
           id: "g-t34-blank",
           title: "补全两个 Query resolver",
+          titleEn: "Fill in both Query resolvers",
           level: 2,
           prompt: (
             <p>
               四个空横跨两个 resolver。注意它们数据来源不同、兜底策略不同。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks across two resolvers. Note they read from different
+              places and need different fallbacks.
             </p>
           ),
           language: "js",
@@ -3256,6 +3307,8 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
               n: 1,
               accept: ["orderLoader"],
               hint: "TODO 说用 DataLoader。context.loaders 里有两个，选按 order id 取的那个。",
+              hintEn:
+                "The TODO says use DataLoader. context.loaders holds two; pick the one keyed by order id.",
               why: (
                 <>
                   <code>orderLoader</code>。它的 batch 函数调
@@ -3264,12 +3317,24 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   别选 <code>shippingInfoLoader</code> —— 那个取的是物流信息。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>orderLoader</code>. Its batch function calls{" "}
+                  <code>getOrder(id)</code>, which is exactly &ldquo;fetch one
+                  order by its id&rdquo;.
+                  <br />
+                  Do not pick <code>shippingInfoLoader</code> — that one fetches
+                  shipping information.
+                </>
+              ),
               width: 13,
             },
             {
               n: 2,
               accept: ["ORDER_NOT_FOUND"],
               hint: "starter 里给好的 ErrorCodes 表里，哪个是为这个场景准备的？",
+              hintEn:
+                "In the ErrorCodes table the starter gives you, which one was prepared for this case?",
               why: (
                 <>
                   <code>ORDER_NOT_FOUND</code>。
@@ -3280,12 +3345,28 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   看到一个没用上的错误码，就该想「它是为哪个场景准备的」。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>ORDER_NOT_FOUND</code>. The <code>ErrorCodes</code>{" "}
+                  table has it ready, and <strong>this is the only place that
+                  uses it</strong>.
+                  <br />
+                  <strong>
+                    A constant someone prepared for you is a hint about what to
+                    throw.
+                  </strong>{" "}
+                  When you see an unused error code, ask which case it was
+                  prepared for.
+                </>
+              ),
               width: 18,
             },
             {
               n: 3,
               accept: ["userId"],
               hint: "schema: orders(userId: ID!)。参数从哪个位置解构？",
+              hintEn:
+                "schema: orders(userId: ID!). Which argument do you destructure it from?",
               why: (
                 <>
                   <code>userId</code>。它在 <strong>args</strong>（第二个参数）里，
@@ -3298,12 +3379,31 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   <strong>同样一个「用户 id」，在两个 resolver 里来自不同参数。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>userId</code>. It lives in <strong>args</strong>, the
+                  second argument, because the schema declares{" "}
+                  <code>orders(userId: ID!)</code>.
+                  <br />
+                  The first argument is <code>_</code> — the parent of a
+                  top-level Query field means nothing.
+                  <br />
+                  Compare <code>User.orders</code>: there the id comes from{" "}
+                  <strong>parent</strong>, because it is a field on User.{" "}
+                  <strong>
+                    The same user id arrives through different arguments in the
+                    two resolvers.
+                  </strong>
+                </>
+              ),
               width: 8,
             },
             {
               n: 4,
               accept: ["[]"],
               hint: "schema 说 [Order!]!。「没有订单」怎么表达？",
+              hintEn:
+                "The schema says [Order!]!. How do you express \"no orders\"?",
               why: (
                 <>
                   <code>[]</code>。双重非空 → 不能返回 null，
@@ -3314,6 +3414,19 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   <strong>同一个项目里两种兜底策略，依据全在 schema 的感叹号上。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>[]</code>. Non-null twice means you cannot return null,
+                  but an empty array is legal.
+                  <br />
+                  Compare <code>Query.order</code> above: that one is nullable,
+                  so it can — and does — throw when it finds nothing.{" "}
+                  <strong>
+                    Two different fallbacks in the same project, and the
+                    exclamation marks in the schema decide which is which.
+                  </strong>
+                </>
+              ),
               width: 5,
             },
           ],
@@ -3322,11 +3435,20 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
           kind: "code-completion",
           id: "g-t34-write",
           title: "不看答案，自己写出两个 Query resolver",
+          titleEn:
+            "Write both Query resolvers yourself, without looking at the answer",
           level: 3,
           prompt: (
             <p>
               两个函数一起写。注意它们的数据来源、兜底策略、
               context 解构都不一样。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Write both functions together. They differ in where they read
+              from, what they fall back to, and what they destructure out of
+              context.
             </p>
           ),
           language: "js",
@@ -3348,6 +3470,21 @@ async order(_, { id }, { dataSources, loaders, correlationId }) {
 async orders(_, { userId }, { dataSources, correlationId }) {
 
 }`,
+          starterEn: `// schema:
+//   order(id: ID!): Order              nullable
+//   orders(userId: ID!): [Order!]!     non-null twice
+// context: { dataSources: { orderDataSource, ... }, loaders: { orderLoader, shippingInfoLoader }, correlationId }
+// ErrorCodes: ORDER_NOT_FOUND / INVALID_INPUT / INVENTORY_ERROR / SERVICE_ERROR
+
+// TODO: Implement order query using DataLoader with structured error handling
+async order(_, { id }, { dataSources, loaders, correlationId }) {
+
+},
+
+// TODO: Implement orders query with error handling and correlation ID logging
+async orders(_, { userId }, { dataSources, correlationId }) {
+
+}`,
           requirements: [
             "Query.order 用 orderLoader 取数据",
             "Query.order 找不到时抛带 ORDER_NOT_FOUND code 的 GraphQLError",
@@ -3357,16 +3494,25 @@ async orders(_, { userId }, { dataSources, correlationId }) {
             "两个都用 try/catch，catch 里先放行已有的 GraphQLError",
             "两个都在日志里带上 correlationId",
           ],
+          requirementsEn: [
+            "Query.order reads through orderLoader",
+            "When Query.order finds nothing, it throws a GraphQLError carrying the ORDER_NOT_FOUND code",
+            "Query.orders reads through orderDataSource.getOrdersByUserId",
+            "Query.orders validates userId and throws INVALID_INPUT when it is not valid",
+            "Query.orders never returns null (the schema says [Order!]!)",
+            "Both use try/catch, and the catch lets an existing GraphQLError through first",
+            "Both include correlationId in their log line",
+          ],
           checks: [
-            { label: "Query.order 用了 orderLoader.load", must: "orderLoader\\s*\\.\\s*load" },
-            { label: "抛了 ORDER_NOT_FOUND", must: "ORDER_NOT_FOUND" },
-            { label: "Query.orders 用了 getOrdersByUserId", must: "getOrdersByUserId\\s*\\(" },
-            { label: "Query.orders 校验了 userId", must: "if\\s*\\(\\s*!\\s*userId" },
-            { label: "用了 INVALID_INPUT", must: "INVALID_INPUT" },
-            { label: "非空列表兜底成 []", must: "(\\?\\?|\\|\\|)\\s*\\[\\s*\\]" },
-            { label: "两处都放行了已结构化的错误", must: "instanceof\\s+GraphQLError[\\s\\S]*instanceof\\s+GraphQLError" },
-            { label: "日志带了 correlationId", must: "console\\.(log|error)[\\s\\S]{0,60}correlationId" },
-            { label: "Query.orders 没有误用 loader", mustNot: "orders\\s*\\([\\s\\S]{0,200}loaders\\.\\w+\\.load" },
+            { label: "Query.order 用了 orderLoader.load", labelEn: "Query.order uses orderLoader.load", must: "orderLoader\\s*\\.\\s*load" },
+            { label: "抛了 ORDER_NOT_FOUND", labelEn: "Throws ORDER_NOT_FOUND", must: "ORDER_NOT_FOUND" },
+            { label: "Query.orders 用了 getOrdersByUserId", labelEn: "Query.orders uses getOrdersByUserId", must: "getOrdersByUserId\\s*\\(" },
+            { label: "Query.orders 校验了 userId", labelEn: "Query.orders validates userId", must: "if\\s*\\(\\s*!\\s*userId" },
+            { label: "用了 INVALID_INPUT", labelEn: "Uses INVALID_INPUT", must: "INVALID_INPUT" },
+            { label: "非空列表兜底成 []", labelEn: "The non-null list falls back to []", must: "(\\?\\?|\\|\\|)\\s*\\[\\s*\\]" },
+            { label: "两处都放行了已结构化的错误", labelEn: "Both places let an already structured error through", must: "instanceof\\s+GraphQLError[\\s\\S]*instanceof\\s+GraphQLError" },
+            { label: "日志带了 correlationId", labelEn: "The log line carries correlationId", must: "console\\.(log|error)[\\s\\S]{0,60}correlationId" },
+            { label: "Query.orders 没有误用 loader", labelEn: "Query.orders does not reach for a loader by mistake", mustNot: "orders\\s*\\([\\s\\S]{0,200}loaders\\.\\w+\\.load" },
           ],
           hints: [
             "先分清两个字段的差别：一个取单条（可空）、一个取列表（非空）。schema 的感叹号决定了它们「找不到时」的行为完全不同。",
@@ -3386,6 +3532,43 @@ async orders(_, { userId }, ctx) {
     if (!userId) throw 带 INVALID_INPUT 的 GraphQLError
     return (await 数据源.getOrdersByUserId(userId)) ?? []
   } catch (e) { 同上 }
+}`,
+            `// Query.order
+const order = await loaders.orderLoader.load(id);
+if (!order) {
+  throw new GraphQLError(\`Order not found: \${id}\`, {
+    extensions: { code: ErrorCodes.ORDER_NOT_FOUND, correlationId, orderId: id }
+  });
+}
+return order;
+
+// Query.orders
+if (!userId) {
+  throw new GraphQLError('userId is required', {
+    extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+  });
+}
+const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
+return orders ?? [];`,
+          ],
+          hintsEn: [
+            "Start by separating the two fields: one fetches a single record (nullable), the other a list (non-null). The exclamation marks in the schema make their \"found nothing\" behaviour completely different.",
+            "Query.order uses loaders.orderLoader.load(id) and throws ORDER_NOT_FOUND when it finds nothing. Query.orders uses dataSources.orderDataSource.getOrdersByUserId(userId) and falls back to []. Both need try/catch, and the first line of each catch lets a GraphQLError through.",
+            `async order(_, { id }, ctx) {
+  try {
+    log a line
+    const order = await loaders.orderLoader.load(id)
+    if (not found) throw a GraphQLError with ORDER_NOT_FOUND
+    return order
+  } catch (e) { let a GraphQLError through, otherwise wrap as SERVICE_ERROR }
+}
+
+async orders(_, { userId }, ctx) {
+  try {
+    log a line
+    if (!userId) throw a GraphQLError with INVALID_INPUT
+    return (await dataSource.getOrdersByUserId(userId)) ?? []
+  } catch (e) { same as above }
 }`,
             `// Query.order
 const order = await loaders.orderLoader.load(id);
@@ -3468,6 +3651,8 @@ async orders(_, { userId }, { dataSources, correlationId }) {
 }`,
             {
               filename: "参考答案（审计实测：Query.orders 两条测试通过；Query.order 用 order-999 实测返回 ORDER_NOT_FOUND）",
+              filenameEn:
+                "Reference answer (measured in the audit: both Query.orders tests pass, and Query.order returns ORDER_NOT_FOUND for order-999)",
               collapsible: true,
             },
           ),
