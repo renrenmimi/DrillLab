@@ -1530,7 +1530,14 @@ const App = () => {
               kind: "fill-blank",
               level: 2,
               title: "补齐 Context 三件套",
+              titleEn: "Fill in the three parts of the Context",
               prompt: <>四个空。第 4 个空是这道题的守卫，写错了就等于没有守卫。</>,
+              promptEn: (
+                <>
+                  Four blanks. The fourth one is the guard, and getting it wrong is the
+                  same as having no guard at all.
+                </>
+              ),
               language: "jsx",
               filename: "src/context/CabContext.jsx",
               template: `import { createContext, useContext, useState } from "react";
@@ -1571,12 +1578,22 @@ export { CabProvider, useCabContext };`,
                   n: 1,
                   accept: ["createContext"],
                   hint: "从 react 里 import 的那个",
+                  hintEn: "The one imported from react.",
                   why: (
                     <>
                       <code>createContext()</code> 造管道。
                       源项目<strong>没传默认值</strong> ——
                       所以没套 Provider 时 <code>useContext</code> 返回{" "}
                       <code>undefined</code>，正好被第 4 个空的守卫抓住。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>createContext()</code> lays the pipe. The source project
+                      passes <strong>no default value</strong>, so with no Provider
+                      around it <code>useContext</code> returns{" "}
+                      <code>undefined</code> — which is exactly what the guard in blank 4
+                      catches.
                     </>
                   ),
                 },
@@ -1588,6 +1605,7 @@ export { CabProvider, useCabContext };`,
                     "prev => [...prev, details]",
                   ],
                   hint: "追加一条，返回新数组",
+                  hintEn: "Append one item and return a new array.",
                   why: (
                     <>
                       <strong>两种都接受，但它们不等价。</strong>
@@ -1604,11 +1622,31 @@ export { CabProvider, useCabContext };`,
                       两种都不许用 <code>push</code> —— 那是原地修改，React 看不到变化。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <strong>Both are accepted, but they are not the same.</strong>
+                      <br />
+                      The source project writes{" "}
+                      <code>[...rideHistory, details]</code>, which reads the{" "}
+                      <code>rideHistory</code> captured in the closure.{" "}
+                      <strong>Call it twice inside one event and you lose an
+                      entry.</strong> The tests never hit this, because every booking is
+                      separated by a full page switch and re-render.
+                      <br />
+                      <code>(prev) =&gt; [...prev, details]</code> is a functional update
+                      and <strong>always reads the latest value</strong>, which is the
+                      safer form. Part 3 covers this difference on its own.
+                      <br />
+                      Neither form may use <code>push</code> — that changes the array in
+                      place, and React sees no change.
+                    </>
+                  ),
                 },
                 {
                   n: 3,
                   accept: ["Provider"],
                   hint: "Context 对象上那个组件",
+                  hintEn: "The component that sits on the Context object.",
                   why: (
                     <>
                       <code>CabContext.Provider</code>。
@@ -1619,11 +1657,23 @@ export { CabProvider, useCabContext };`,
                       这种不闭合的会直接编译不过。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>CabContext.Provider</code>. Its <code>value</code> is exactly
+                      what <code>useContext</code> hands back inside the subtree.
+                      <br />
+                      Note that the opening and closing tags are{" "}
+                      <strong>the same blank</strong> — an unmatched{" "}
+                      <code>&lt;CabContext.Provider&gt;…&lt;/CabContext&gt;</code> does
+                      not compile.
+                    </>
+                  ),
                 },
                 {
                   n: 4,
                   accept: ["!context", "context === undefined", "!ctx"],
                   hint: "拿不到的时候是什么值？",
+                  hintEn: "What is the value when there is nothing to get?",
                   why: (
                     <>
                       没套 Provider 时 <code>useContext</code> 返回{" "}
@@ -1635,6 +1685,20 @@ export { CabProvider, useCabContext };`,
                       undefined</code>
                       ，然后去查 <code>rideHistory</code> —— 而真正的原因是
                       「忘了套 Provider」。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      With no Provider around it, <code>useContext</code> returns{" "}
+                      <code>undefined</code>, so <code>!context</code> is true and the
+                      error is thrown.
+                      <br />
+                      <strong>The value of the guard is turning the error into plain
+                      words.</strong> Without it you see{" "}
+                      <code>Cannot destructure property &apos;rideHistory&apos; of
+                      undefined</code> and go looking at{" "}
+                      <code>rideHistory</code> — when the real cause is a missing
+                      Provider.
                     </>
                   ),
                 },
