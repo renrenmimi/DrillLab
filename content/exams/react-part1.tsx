@@ -1510,18 +1510,45 @@ setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
           kind: "ordering",
           id: "r-render-order",
           title: "把一次点击的顺序排对",
+          titleEn: "Put the steps of one click in order",
           level: 1,
           prompt: (
             <p>
               用户点了某一行的 Delete 按钮。把下面五件事按发生顺序排好。
             </p>
           ),
+          promptEn: (
+            <p>
+              The user clicked the Delete button on one row. Put the five things
+              below in the order they happen.
+            </p>
+          ),
           items: [
-            { id: "d", label: "React 重新执行 NoteManager 函数，拿到新的 JSX" },
-            { id: "a", label: "NoteItem 的 onClick 触发，调用 onDelete(note.id)" },
-            { id: "e", label: "React 对比新旧 JSX，把变化的部分写进真实 DOM" },
-            { id: "b", label: "NoteManager 里的 handleDelete 执行，调用 setNotes(...)" },
-            { id: "c", label: "React 记下 notes 的新值，标记这个组件需要重新渲染" },
+            {
+              id: "d",
+              label: "React 重新执行 NoteManager 函数，拿到新的 JSX",
+              labelEn: "React runs the NoteManager function again and gets new JSX",
+            },
+            {
+              id: "a",
+              label: "NoteItem 的 onClick 触发，调用 onDelete(note.id)",
+              labelEn: "The onClick of NoteItem fires and calls onDelete(note.id)",
+            },
+            {
+              id: "e",
+              label: "React 对比新旧 JSX，把变化的部分写进真实 DOM",
+              labelEn: "React compares the new JSX with the old one and writes only the differences into the real DOM",
+            },
+            {
+              id: "b",
+              label: "NoteManager 里的 handleDelete 执行，调用 setNotes(...)",
+              labelEn: "handleDelete inside NoteManager runs and calls setNotes(...)",
+            },
+            {
+              id: "c",
+              label: "React 记下 notes 的新值，标记这个组件需要重新渲染",
+              labelEn: "React records the new value of notes and marks this component for a re-render",
+            },
           ],
           answer: ["a", "b", "c", "d", "e"],
           explain: (
@@ -1533,16 +1560,34 @@ setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
               它只是「预约一次重新渲染」，新值在下一次渲染里才看得到。
             </>
           ),
+          explainEn: (
+            <>
+              The event travels up from <code>NoteItem</code> at the bottom, the
+              handler in the parent runs, the setter updates the state, React
+              runs the component function again, and the DOM is updated after the
+              comparison. <strong>Note that setNotes does not change the notes
+              variable right away</strong> — it only asks for one more render, and
+              the new value is visible in that next render.
+            </>
+          ),
         },
         {
           kind: "code-completion",
           id: "r-write-state",
           title: "自己写出 NoteManager 的两个 state 和删除逻辑",
+          titleEn: "Write the two states of NoteManager and the delete logic yourself",
           level: 3,
           prompt: (
             <p>
               只给你组件外壳。按要求补出两个 state 和 <code>handleDelete</code>。
               不要看下面的答案，先自己写。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You get only the shell of the component. Add the two states and{" "}
+              <code>handleDelete</code> as described. Write it yourself before you
+              look at the answer below.
             </p>
           ),
           language: "tsx",
@@ -1563,29 +1608,65 @@ const NoteManager: React.FC = () => {
 };
 
 export default NoteManager;`,
+          starterEn: `import { useState } from "react";
+import type { Note } from "../../types/Note";
+
+const NoteManager: React.FC = () => {
+  // 1. the note list, empty at the start
+  // 2. the note being edited right now, null when there is none
+
+  // 3. delete one note by id
+  const handleDelete = (id: number) => {
+  };
+
+  return null; // this exercise only looks at the three spots above
+};
+
+export default NoteManager;`,
           requirements: [
             "用 useState 声明 notes，类型是 Note[]，初始值为空数组",
             "用 useState 声明 noteToEdit，类型是 Note | null，初始值为 null",
             "handleDelete 按 id 移除对应笔记，必须用函数式更新，不许改动原数组",
           ],
+          requirementsEn: [
+            "Declare notes with useState, typed Note[], starting as an empty array",
+            "Declare noteToEdit with useState, typed Note | null, starting as null",
+            "handleDelete removes the matching note by id, using a functional update, without changing the original array",
+          ],
           checks: [
             {
               label: "notes 用了 useState<Note[]>([])",
+              labelEn: "notes uses useState<Note[]>([])",
               must: "useState\\s*<\\s*Note\\s*\\[\\s*\\]\\s*>\\s*\\(\\s*\\[\\s*\\]\\s*\\)",
             },
             {
               label: "noteToEdit 用了 useState<Note | null>(null)",
+              labelEn: "noteToEdit uses useState<Note | null>(null)",
               must: "useState\\s*<\\s*Note\\s*\\|\\s*null\\s*>\\s*\\(\\s*null\\s*\\)",
             },
-            { label: "handleDelete 里用了 filter", must: "filter" },
-            { label: "用了函数式更新 setNotes(prev => ...)", must: "setNotes\\s*\\(\\s*\\(?\\s*prev" },
-            { label: "按 id 比较，用的是 !==", must: "!==\\s*id" },
-            { label: "没有用 push / splice 改原数组", mustNot: "\\.(push|splice)\\s*\\(" },
+            { label: "handleDelete 里用了 filter", labelEn: "handleDelete uses filter", must: "filter" },
+            {
+              label: "用了函数式更新 setNotes(prev => ...)",
+              labelEn: "A functional update is used: setNotes(prev => ...)",
+              must: "setNotes\\s*\\(\\s*\\(?\\s*prev",
+            },
+            { label: "按 id 比较，用的是 !==", labelEn: "The comparison is by id, with !==", must: "!==\\s*id" },
+            {
+              label: "没有用 push / splice 改原数组",
+              labelEn: "The original array is not changed with push / splice",
+              mustNot: "\\.(push|splice)\\s*\\(",
+            },
           ],
           hints: [
             "两个 state 的初始值都「看不出类型」（空数组、null），所以泛型参数必须显式写。",
             "删除要用 filter，它是唯一会让数组变短的方法。改动写在 setNotes 里。",
             "setNotes(prev => prev.filter(每一条 => 这条的 id 不等于要删的 id))",
+            "setNotes((prev) => prev.filter((note) => note.id !== id));",
+          ],
+          hintsEn: [
+            "Neither initial value shows its type on its own (an empty array, null), so you have to write the type parameter yourself.",
+            "Deleting means filter — it is the only method that makes an array shorter. The change goes inside setNotes.",
+            "setNotes(prev => prev.filter(each one => the id of this one is not the id to delete))",
             "setNotes((prev) => prev.filter((note) => note.id !== id));",
           ],
           solution: real(
@@ -1599,6 +1680,7 @@ export default NoteManager;`,
   };`,
             {
               filename: "参考答案（与项目里的实现一致）",
+              filenameEn: "Reference answer (same as the project's own code)",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -1610,6 +1692,10 @@ export default NoteManager;`,
             "tsx",
             `// ✗ 直接赋值 —— React 完全不知道发生了什么
 notes = [...notes, newNote];`,
+            {
+              codeEn: `// ✗ Assigning straight to the variable — React never learns anything happened
+notes = [...notes, newNote];`,
+            },
           ),
           why: (
             <>
@@ -1634,6 +1720,11 @@ notes = [...notes, newNote];`,
             `// ✗ 以为 setState 是同步的
 setNotes((prev) => [...prev, newNote]);
 console.log(notes.length);   // 还是旧的长度！`,
+            {
+              codeEn: `// ✗ Assuming setState is synchronous
+setNotes((prev) => [...prev, newNote]);
+console.log(notes.length);   // still the old length!`,
+            },
           ),
           why: (
             <>
