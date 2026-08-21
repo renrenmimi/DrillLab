@@ -400,8 +400,10 @@ export default NoteItem;`,
           kind: "recognition",
           id: "r-jsx-brace",
           title: "哪一行会把变量的值显示出来",
+          titleEn: "Which line prints the value of a variable",
           level: 1,
           prompt: <p>下面哪一行会在页面上显示这条笔记的标题内容？</p>,
+          promptEn: <p>Which line below shows the title of this note on the page?</p>,
           options: [
             { id: "a", label: "<td>note.title</td>" },
             { id: "b", label: "<td>{note.title}</td>" },
@@ -417,16 +419,33 @@ export default NoteItem;`,
               D 的 <code>value</code> 不是 <code>&lt;td&gt;</code> 的有效属性。
             </>
           ),
+          explainEn: (
+            <>
+              Curly braces are the switch back into JavaScript. A prints the ten
+              characters <code>note.title</code> as text. C is template string
+              syntax, which does nothing in JSX, so it prints{" "}
+              <code>$&#123;note.title&#125;</code> as text. In D,{" "}
+              <code>value</code> is not a valid attribute on{" "}
+              <code>&lt;td&gt;</code>.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-where-code",
           title: "三道题的代码该写在哪个文件",
+          titleEn: "Which file the code for the three tasks belongs in",
           level: 1,
           prompt: (
             <p>
               Q1 的三个任务（Add / Delete / Edit）都要改动笔记列表。
               这些逻辑主要写在哪个文件里？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              All three tasks in Q1 (Add / Delete / Edit) change the note list.
+              Which file holds most of that logic?
             </p>
           ),
           options: [
@@ -443,6 +462,16 @@ export default NoteItem;`,
               <code>onSubmit</code> 上报；<code>NoteItem</code> 只负责把点击
               <code>onEdit</code> / <code>onDelete</code> 上报。
               它们都不碰列表本身。
+            </>
+          ),
+          explainEn: (
+            <>
+              The <code>notes</code> state lives in <code>NoteManager</code>, and
+              all three tasks change that list. <code>NoteForm</code> only
+              collects the input and reports it up through{" "}
+              <code>onSubmit</code>. <code>NoteItem</code> only reports the
+              clicks up through <code>onEdit</code> / <code>onDelete</code>.
+              Neither one touches the list itself.
             </>
           ),
         },
