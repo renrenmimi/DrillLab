@@ -3025,7 +3025,7 @@ t=200  用户 1 的响应回来 -> ignore#1 是 true  -> 直接丢掉 ✓
 
 # 没有 ignore 的话，t=200 那一刻会 setUser(用户1)，
 # 界面变回用户 1，而 URL 上还是 2。`,
-              { filename: "竞态的时间线" },
+              { filename: "竞态的时间线", filenameEn: "The timeline of the race" },
             ),
             tested(
               "tsx",
@@ -3041,7 +3041,22 @@ t=200  用户 1 的响应回来 -> ignore#1 是 true  -> 直接丢掉 ✓
 
   return () => { ignore = true; };       // 清理函数只做这一件事
 }, [userId]);`,
-              { filename: "竞态的解法" },
+              {
+                filename: "竞态的解法",
+                filenameEn: "How the race is settled",
+                codeEn: `useEffect(() => {
+  let ignore = false;                    // one of these per run of the effect
+
+  (async () => {
+    const res = await fetch(\`/api/users/\${userId}\`);
+    if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+    const data = await res.json();
+    if (!ignore) setUser(data);          // ← if this run no longer counts, do nothing
+  })();
+
+  return () => { ignore = true; };       // the cleanup does only this
+}, [userId]);`,
+              },
             ),
           ],
         },
@@ -3163,7 +3178,24 @@ return () => {
   ignore = true;
   controller.abort();
 };`,
-              { filename: "两者配合" },
+              {
+                filename: "两者配合",
+                filenameEn: "The two working together",
+                codeEn: `const controller = new AbortController();
+
+const res = await fetch(url, { signal: controller.signal });
+// ...
+} catch (e) {
+  const err = e as Error;
+  // Cancelling on purpose is not an error, so do not show it to the user
+  if (!ignore && err.name !== "AbortError") setError(err.message);
+}
+
+return () => {
+  ignore = true;
+  controller.abort();
+};`,
+              },
             ),
           ],
         },
