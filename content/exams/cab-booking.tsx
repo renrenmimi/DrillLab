@@ -3230,7 +3230,20 @@ const CabCard = ({ cab, onSelectCab }) => {
 
 // .sort() 出来是字典序：["Luxury", "SUV", "Sedan"]
 // 断言要的是：      ["Sedan", "SUV", "Luxury"]`,
-                { filename: "多余的排序" },
+                {
+                  filename: "多余的排序",
+                  filenameEn: "A sort that was not needed",
+                  codeEn: `// ✕ sorting the groups yourself — test 2 fails
+{Object.keys(cabData).sort().map((type) => (
+  <section key={type}>
+    <h3 data-testid="car-type-heading">{type}</h3>
+    …
+  </section>
+))}
+
+// .sort() gives dictionary order: ["Luxury", "SUV", "Sedan"]
+// the assertion wants:            ["Sedan", "SUV", "Luxury"]`,
+                },
               ),
               why: (
                 <>
@@ -3279,7 +3292,19 @@ const CabCard = ({ cab, onSelectCab }) => {
 // → updateBookedCabDetails(clickEvent)
 // → 确认页显示 undefined is on the way
 // → 历史里那条记录的 name 和 price 都是 undefined`,
-                { filename: "忘了包箭头函数" },
+                {
+                  filename: "忘了包箭头函数",
+                  filenameEn: "The arrow function was left out",
+                  codeEn: `// ✕ using onSelectCab as onClick directly
+<button data-testid="cab-card-select-button" onClick={onSelectCab}>
+  Select
+</button>
+
+// onClick passes the click event object in as the first argument
+// → updateBookedCabDetails(clickEvent)
+// → the confirmation page shows undefined is on the way
+// → the name and price of that history entry are both undefined`,
+                },
               ),
               why: (
                 <>
