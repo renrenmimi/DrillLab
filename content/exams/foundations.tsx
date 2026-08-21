@@ -4205,6 +4205,13 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                       （改 state），不是为了拿返回值。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>void</code> means there is no return value. Event callbacks
+                      are nearly always <code>void</code> — you call them for their
+                      effect (changing state), not for what they hand back.
+                    </>
+                  ),
                   width: 6,
                 },
               ],
