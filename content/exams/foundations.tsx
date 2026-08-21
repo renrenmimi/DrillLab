@@ -2321,8 +2321,15 @@ const NoteForm: React.FC<NoteFormProps> = ({ onSubmit, noteToEdit }) => { ... }
 // GraphQL：从 context 里解构
 async orders(user, _, { dataSources, loaders, correlationId }) { ... }`,
                   {
+                    codeEn: `// React: destructuring out of props
+const NoteForm: React.FC<NoteFormProps> = ({ onSubmit, noteToEdit }) => { ... }
+
+// GraphQL: destructuring out of context
+async orders(user, _, { dataSources, loaders, correlationId }) { ... }`,
                     explanation:
                       "GraphQL resolver 那行里的 _ 只是个「我不用这个参数」的约定写法（那个位置是 args）。它不是特殊语法，就是个普通变量名。",
+                    explanationEn:
+                      "The _ on the GraphQL resolver line is only a convention meaning \"I do not use this parameter\" (that position holds args). It is not special syntax, just an ordinary variable name.",
                   },
                 ),
               ],
@@ -2333,11 +2340,20 @@ async orders(user, _, { dataSources, loaders, correlationId }) { ... }`,
               kind: "fill-blank",
               id: "f-crud-blanks",
               title: "补全 Q1 的三个数据操作",
+              titleEn: "Fill in the three data operations of Q1",
               level: 2,
               prompt: (
                 <p>
                   这是 <code>NoteManager</code> 里三个 handler 的真实代码，
                   挖掉了决定行为的关键词。想清楚每个操作要「保留多少条」再填。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  This is the real code of the three handlers in{" "}
+                  <code>NoteManager</code>, with the words that decide the behaviour
+                  removed. Before you fill each one in, work out how many items that
+                  operation has to keep.
                 </p>
               ),
               language: "tsx",
@@ -2364,11 +2380,20 @@ const handleDelete = (id: number) => {
                   n: 1,
                   accept: ["map"],
                   hint: "要求「原位置更新」——  所以结果数组必须和原来一样长、顺序一样。",
+                  hintEn: "The task says update in place, so the result must have the same length and the same order.",
                   why: (
                     <>
                       <code>map</code> 保持长度和顺序不变，逐个决定「这一项换不换」。
                       如果用 <code>filter</code> 删掉旧的再 push 新的，顺序就变了，
                       题目要求的「原位置更新」就没做到。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>map</code> keeps the length and the order, and decides item
+                      by item whether to swap it. If you use <code>filter</code> to drop
+                      the old one and then push the new one, the order changes and the
+                      &ldquo;update in place&rdquo; the task asked for is not done.
                     </>
                   ),
                   width: 6,
@@ -2377,11 +2402,20 @@ const handleDelete = (id: number) => {
                   n: 2,
                   accept: ["...prev", "... prev"],
                   hint: "旧的全都要保留，新的加在后面。",
+                  hintEn: "Keep every old item and put the new one after them.",
                   why: (
                     <>
                       <code>[...prev, submittedNote]</code> 造了一个新数组，
                       内容是旧的全部加上新的一条。<strong>必须是新数组</strong> ——
                       如果写 <code>prev.push(...)</code>,React 会认为值没变、不重新渲染。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>[...prev, submittedNote]</code> builds a new array holding
+                      every old item plus the new one. <strong>It has to be a new
+                      array</strong> — write <code>prev.push(...)</code> and React
+                      decides the value did not change and does not re-render.
                     </>
                   ),
                   width: 9,
@@ -2390,13 +2424,21 @@ const handleDelete = (id: number) => {
                   n: 3,
                   accept: ["filter"],
                   hint: "删除意味着结果会变短。",
+                  hintEn: "Deleting means the result gets shorter.",
                   why: <><code>filter</code> 是唯一会让数组变短的那个。</>,
+                  whyEn: (
+                    <>
+                      <code>filter</code> is the only one of them that makes an array
+                      shorter.
+                    </>
+                  ),
                   width: 8,
                 },
                 {
                   n: 4,
                   accept: ["!==", "!="],
                   hint: "filter 保留的是「回调返回 true」的元素。",
+                  hintEn: "filter keeps the items whose callback returned true.",
                   why: (
                     <>
                       要删掉 id 相等的那条，就得<strong>保留</strong>不相等的 ——
@@ -2404,6 +2446,16 @@ const handleDelete = (id: number) => {
                       「只留下要删的那一条」，正好反了。
                       另外这里必须按 <code>id</code> 比，不能按 title 比：
                       题目原文写的是「该行<strong>按 id</strong> 被移除」。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      To drop the note whose id matches, you have to{" "}
+                      <strong>keep</strong> the ones that do not match — so it is{" "}
+                      <code>!==</code>. Writing <code>===</code> keeps only the note you
+                      wanted to delete, which is exactly backwards. It also has to
+                      compare on <code>id</code>, not on title: the task text says the
+                      row is removed <strong>by id</strong>.
                     </>
                   ),
                   width: 5,
