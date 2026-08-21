@@ -53,6 +53,8 @@ interface Spec {
    * 有这个字段就在这里把整道题的要求写全，不去改那个练习。
    */
   requirements?: string[];
+  /** 英文版验收标准。长度必须和 requirements 完全一致，否则渲染端整段回落中文。 */
+  requirementsEn?: string[];
   /**
    * 显式覆盖参考答案。
    *
@@ -592,6 +594,16 @@ const SPECS: Spec[] = [
       "Check all / Uncheck all 按「当前是否已全部完成」整体反转",
       "Clear completed 只删已完成的",
     ],
+    requirementsEn: [
+      "The Add button is disabled while the input is empty or holds only spaces",
+      "Submitting clears the input and appends the new item to the end of the list",
+      "The checkbox toggles done on one item: use map plus object spread, and never change the original object",
+      "Delete removes a single item with filter, never with splice",
+      "visible, remaining and allDone are all derived values. Do not add state for them",
+      "The all / active / done filter only changes what is shown. Switching back to all brings every item back",
+      "Check all / Uncheck all flips every item at once, based on whether they are all done right now",
+      "Clear completed removes only the items that are already done",
+    ],
   },
   {
     id: "timer",
@@ -613,6 +625,14 @@ const SPECS: Spec[] = [
       "没在跑的时候不该有定时器",
       "Reset 归零并且停下",
     ],
+    requirementsEn: [
+      "Show format(seconds), starting at 00:00. The button switches between Start and Pause",
+      "While it is running, the count goes up by 1 every second",
+      "You must use the updater form setSeconds(s => s + 1). Otherwise a stale closure keeps the count stuck at 1",
+      "The effect must return a cleanup function that calls clearInterval. Without it, restarting stacks up intervals and the timer keeps ticking after unmount",
+      "No interval should exist while the timer is not running",
+      "Reset sets the count back to zero and stops the timer",
+    ],
   },
   {
     id: "fetch-user",
@@ -631,6 +651,13 @@ const SPECS: Spec[] = [
       "userId 变了要重新取，并且先回到 loading，不留上一个人的数据在屏幕上",
       "竞态：旧请求晚回来不许覆盖新数据（effect 里立 ignore 开关，清理函数置 true）",
       "切 userId / 卸载时用 AbortController 掐掉在飞的请求；AbortError 不是错误，不给用户看",
+    ],
+    requirementsEn: [
+      "Three states: loading, error, and success which shows name and email",
+      "fetch only rejects when the network layer fails. Check res.ok yourself for 404 and 500, and put HTTP plus the status code in the error message",
+      "When userId changes, fetch again and go back to loading first, so the previous user's data never stays on screen",
+      "Race condition: an old response that arrives late must not overwrite newer data. Declare an ignore flag inside the effect and set it to true in the cleanup function",
+      "Use AbortController to cancel the in-flight request when userId changes or the component unmounts. An AbortError is not a real failure, so do not show it to the user",
     ],
   },
   {
