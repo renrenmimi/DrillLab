@@ -2630,6 +2630,12 @@ useEffect(() => {
 const id = setInterval(() => {
   setSeconds(seconds + 1);
 }, 1000);`,
+            {
+              codeEn: `// ✗ Stale closure: the display freezes at 00:01
+const id = setInterval(() => {
+  setSeconds(seconds + 1);
+}, 1000);`,
+            },
           ),
           why: (
             <>
@@ -2654,6 +2660,10 @@ const id = setInterval(() => {
             "tsx",
             `// ✗ reset 只清零，没停表
 const reset = () => setSeconds(0);`,
+            {
+              codeEn: `// ✗ reset only zeroes the count; it never stops the clock
+const reset = () => setSeconds(0);`,
+            },
           ),
           why: (
             <>
@@ -2678,6 +2688,12 @@ const reset = () => setSeconds(0);`,
 const [timerId, setTimerId] = useState<number | null>(null);
 const start = () => setTimerId(setInterval(...));
 const pause = () => { if (timerId) clearInterval(timerId); };`,
+            {
+              codeEn: `// ✗ Keeping the interval id in a state
+const [timerId, setTimerId] = useState<number | null>(null);
+const start = () => setTimerId(setInterval(...));
+const pause = () => { if (timerId) clearInterval(timerId); };`,
+            },
           ),
           why: (
             <>
