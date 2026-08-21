@@ -2254,6 +2254,7 @@ export const ivCoding: Module = {
           kind: "recognition",
           id: "iv-coding-recog",
           title: "认出考点：这道题在考什么",
+          titleEn: "Name the point: what is this question testing",
           level: 1,
           generated: true,
           prompt: (
@@ -2262,11 +2263,18 @@ export const ivCoding: Module = {
               这道题<strong>最核心</strong>的考点是哪一个？
             </p>
           ),
+          promptEn: (
+            <p>
+              The interviewer says: &ldquo;Build a Kanban board where a card can move
+              between three columns.&rdquo; Which is the <strong>central</strong> point
+              this question tests?
+            </p>
+          ),
           options: [
-            { id: "a", label: "拖拽事件（HTML5 drag and drop API）的用法" },
-            { id: "b", label: "一次操作要同时对两个数组做不可变更新，且只能触发一次 state 变化" },
-            { id: "c", label: "CSS Grid 三列布局" },
-            { id: "d", label: "useEffect 的依赖数组怎么写" },
+            { id: "a", label: "拖拽事件（HTML5 drag and drop API）的用法", labelEn: "How to use drag events (the HTML5 drag and drop API)" },
+            { id: "b", label: "一次操作要同时对两个数组做不可变更新，且只能触发一次 state 变化", labelEn: "One action has to update two arrays immutably, and may cause only one state change" },
+            { id: "c", label: "CSS Grid 三列布局", labelEn: "A three-column CSS Grid layout" },
+            { id: "d", label: "useEffect 的依赖数组怎么写", labelEn: "How to write the dependency array of useEffect" },
           ],
           answer: ["b"],
           explain: (
@@ -2296,6 +2304,44 @@ export const ivCoding: Module = {
                 顺带一个加分点：<strong>没被碰到的那一列应该复用原数组引用</strong>，
                 这样用了 <code>React.memo</code> 的列不会白重渲染 ——
                 和评论树那道题「只重建路径」是同一个思路。
+              </p>
+            </>
+          ),
+          explainEn: (
+            <>
+              <p>
+                <strong>B.</strong> Dragging is only the outer shell of the interaction —
+                replace it with two arrow buttons in an interview and the point of the
+                question is untouched (and easier to test).
+              </p>
+              <p>
+                The real difficulty is that{" "}
+                <strong>
+                  moving one card has to change both the source column and the target
+                  column
+                </strong>
+                . Writing two <code>setState</code> calls (remove from the source, then
+                add to the target) does get batched in React 18, but{" "}
+                <strong>they are still two separate operations in your logic</strong> —
+                add a check or an early return between them and a card disappears.
+              </p>
+              <p>
+                <strong>
+                  The right answer is a pure function{" "}
+                  <code>moveCard(board, from, to, id)</code> that returns the complete new
+                  board in one step
+                </strong>
+                . That function can be unit-tested without React, and it cannot produce a
+                half-updated state.
+              </p>
+              <p>
+                One more point in your favour:{" "}
+                <strong>
+                  a column that was not touched should keep its original array reference
+                </strong>
+                , so a column wrapped in <code>React.memo</code> does not re-render for
+                nothing — the same idea as rebuilding only the path in the comment-tree
+                question.
               </p>
             </>
           ),
