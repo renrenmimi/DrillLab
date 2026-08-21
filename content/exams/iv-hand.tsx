@@ -1564,10 +1564,20 @@ const clone = JSON.parse(JSON.stringify(source));
           kind: "code-completion",
           level: 3,
           title: "手写 Promise.all + allSettled",
+          titleEn: "Write Promise.all and allSettled by hand",
           prompt: (
             <>
               把两个「直接 resolve 空数组」的半成品写成真的。
               <strong>不许调用原生 Promise.all / Promise.allSettled。</strong>
+            </>
+          ),
+          promptEn: (
+            <>
+              Both half-finished functions just resolve with an empty array. Make them
+              real.{" "}
+              <strong>
+                Calling the built-in Promise.all or Promise.allSettled is not allowed.
+              </strong>
             </>
           ),
           language: "ts",
@@ -1587,6 +1597,21 @@ export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled
   // TODO: 把每一项包成「永远成功、结果里带 status」的 Promise，再交给 promiseAll。
   return Promise.resolve([]);
 }`,
+          starterEn: `export function promiseAll<T>(items: (T | Promise<T>)[]): Promise<T[]> {
+  void items;
+  // TODO: inside new Promise, use forEach + write by index + a counter; pass reject as the second argument of .then.
+  return Promise.resolve([]);
+}
+
+export type Settled<T> =
+  | { status: "fulfilled"; value: T }
+  | { status: "rejected"; reason: unknown };
+
+export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled<T>[]> {
+  void items;
+  // TODO: wrap each item in a Promise that always succeeds and carries a status, then hand it to promiseAll.
+  return Promise.resolve([]);
+}`,
           requirements: [
             "结果按输入顺序排，不是完成顺序（下标写入，不许 push）",
             "空数组立刻 resolve([])",
@@ -1594,18 +1619,31 @@ export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled
             "任何一个 reject，整体立刻 reject，不等慢的",
             "allSettled 永不 reject，逐项报 { status, value | reason }",
           ],
+          requirementsEn: [
+            "Results follow the input order, not the finishing order (write by index; push is not allowed)",
+            "An empty array resolves with [] straight away",
+            "Plain values mixed into the array are fine",
+            "If any one rejects, the whole thing rejects at once and does not wait for the slow ones",
+            "allSettled never rejects; it reports { status, value | reason } for each item",
+          ],
           checks: [
-            { label: "手写了 executor", must: "new Promise" },
-            { label: "按下标写入结果", must: "results\\[i\\]|results\\[index\\]" },
-            { label: "普通值包了一层", must: "Promise\\.resolve\\(" },
-            { label: "没有调用原生 Promise.all", mustNot: "Promise\\.all\\(" },
-            { label: "没有调用原生 allSettled", mustNot: "Promise\\.allSettled\\(" },
+            { label: "手写了 executor", labelEn: "Writes the executor by hand", must: "new Promise" },
+            { label: "按下标写入结果", labelEn: "Writes results by index", must: "results\\[i\\]|results\\[index\\]" },
+            { label: "普通值包了一层", labelEn: "Wraps plain values one level", must: "Promise\\.resolve\\(" },
+            { label: "没有调用原生 Promise.all", labelEn: "Does not call the built-in Promise.all", mustNot: "Promise\\.all\\(" },
+            { label: "没有调用原生 allSettled", labelEn: "Does not call the built-in allSettled", mustNot: "Promise\\.allSettled\\(" },
           ],
           hints: [
             "promiseAll 的骨架：new Promise((resolve, reject) => { ... })，里面 results 数组 + remaining 计数器。",
             "先判空：remaining === 0 直接 resolve(results)。",
             "items.forEach((item, i) => Promise.resolve(item).then(value => { results[i] = value; remaining -= 1; if (remaining === 0) resolve(results); }, reject))。",
             "allSettled：items.map(item => Promise.resolve(item).then(v => ({status:\"fulfilled\",value:v}), r => ({status:\"rejected\",reason:r})))，再交给 promiseAll。",
+          ],
+          hintsEn: [
+            "The frame of promiseAll: new Promise((resolve, reject) => { ... }), holding a results array and a remaining counter.",
+            "Check for empty first: if remaining === 0, resolve(results) right away.",
+            "items.forEach((item, i) => Promise.resolve(item).then(value => { results[i] = value; remaining -= 1; if (remaining === 0) resolve(results); }, reject)).",
+            "allSettled: items.map(item => Promise.resolve(item).then(v => ({status:\"fulfilled\",value:v}), r => ({status:\"rejected\",reason:r}))), then hand that to promiseAll.",
           ],
           solution: tested("ts", REF_PALL, {
             filename: "promiseAll.ts（vitest 6 / 6，allSettled 在完整版里）",
