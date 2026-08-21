@@ -4742,18 +4742,11 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
               ),
               language: "tsx",
               filename: "两个真实片段",
-              filenameEn: "Two real excerpts",
               template: `// NoteManager：两个 state
 const [notes, setNotes] = useState<___1___>([]);
 const [noteToEdit, setNoteToEdit] = useState<Note | ___2___>(null);
 
 // q2/taskRunner.ts：自定义泛型
-export type Task<T> = () => ___3___<T>;`,
-              templateEn: `// NoteManager: two pieces of state
-const [notes, setNotes] = useState<___1___>([]);
-const [noteToEdit, setNoteToEdit] = useState<Note | ___2___>(null);
-
-// q2/taskRunner.ts: a generic of your own
 export type Task<T> = () => ___3___<T>;`,
               blanks: [
                 {
