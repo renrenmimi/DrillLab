@@ -898,6 +898,299 @@ test("[378] 新增的卡进 todo 列", async () => {
   expect(screen.getByTestId("count-todo")).toHaveTextContent("3");
 });`;
 
+const C_TEST_EN = `import { act, render, renderHook, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import Dropdown from "./components/Dropdown";
+import Tabs from "./components/Tabs";
+import StarRating from "./components/StarRating";
+import Player from "./components/Player";
+import Kanban, { moveCard } from "./components/Kanban";
+import { useLocalStorage } from "./hooks/useLocalStorage";
+import type { Board } from "./types/Card";
+
+/* ---------------- #366 Dropdown ---------------- */
+
+const OPTS = [
+  { id: "a", label: "苹果" },
+  { id: "b", label: "香蕉" },
+];
+
+test("[366] the trigger opens it; picking an option closes it and shows the choice", async () => {
+  render(<Dropdown options={OPTS} />);
+  expect(screen.queryByTestId("dropdown-list")).toBeNull();
+
+  await userEvent.click(screen.getByTestId("dropdown-trigger"));
+  expect(screen.getByTestId("dropdown-list")).toBeInTheDocument();
+  expect(screen.getByTestId("dropdown-trigger")).toHaveAttribute("aria-expanded", "true");
+
+  await userEvent.click(screen.getByTestId("option-b"));
+  expect(screen.queryByTestId("dropdown-list")).toBeNull();
+  expect(screen.getByTestId("dropdown-trigger")).toHaveTextContent("香蕉");
+});
+
+test("[366] a click outside closes it, a click inside does not", async () => {
+  render(
+    <div>
+      <Dropdown options={OPTS} />
+      <button data-testid="outside">外面</button>
+    </div>,
+  );
+  await userEvent.click(screen.getByTestId("dropdown-trigger"));
+
+  // Click inside itself: should not close
+  await userEvent.click(screen.getByTestId("dropdown-list"));
+  expect(screen.getByTestId("dropdown-list")).toBeInTheDocument();
+
+  // Click outside: should close
+  await userEvent.click(screen.getByTestId("outside"));
+  expect(screen.queryByTestId("dropdown-list")).toBeNull();
+});
+
+test("[366] Escape closes it", async () => {
+  render(<Dropdown options={OPTS} />);
+  await userEvent.click(screen.getByTestId("dropdown-trigger"));
+  await userEvent.keyboard("{Escape}");
+  expect(screen.queryByTestId("dropdown-list")).toBeNull();
+});
+
+test("[366] the document listeners are removed after unmount (the cleanup works)", async () => {
+  const add = vi.spyOn(document, "addEventListener");
+  const remove = vi.spyOn(document, "removeEventListener");
+
+  const { unmount } = render(<Dropdown options={OPTS} />);
+  await userEvent.click(screen.getByTestId("dropdown-trigger"));   // it only binds once open
+  const added = add.mock.calls.filter(([t]) => t === "mousedown" || t === "keydown").length;
+  expect(added).toBe(2);
+
+  unmount();
+  const removed = remove.mock.calls.filter(([t]) => t === "mousedown" || t === "keydown").length;
+  expect(removed).toBe(2);   // without the cleanup function this would be 0
+
+  add.mockRestore();
+  remove.mockRestore();
+});
+
+/* ---------------- #367 Tabs ---------------- */
+
+const TABS = [
+  { id: "one", label: "第一", content: <p>内容一</p> },
+  { id: "two", label: "第二", content: <p>内容二</p> },
+  { id: "three", label: "第三", content: <p>内容三</p> },
+];
+
+test("[367] the first tab is active by default, and only the active panel renders", () => {
+  render(<Tabs tabs={TABS} />);
+  expect(screen.getByTestId("tab-one")).toHaveAttribute("aria-selected", "true");
+  expect(screen.getByTestId("panel")).toHaveTextContent("内容一");
+  expect(screen.queryByText("内容二")).toBeNull();
+});
+
+test("[367] clicking the second one switches, and aria-selected follows", async () => {
+  render(<Tabs tabs={TABS} />);
+  await userEvent.click(screen.getByTestId("tab-two"));
+
+  expect(screen.getByTestId("panel")).toHaveTextContent("内容二");
+  expect(screen.getByTestId("tab-two")).toHaveAttribute("aria-selected", "true");
+  expect(screen.getByTestId("tab-one")).toHaveAttribute("aria-selected", "false");
+});
+
+test("[367] initialId sets which tab starts active", () => {
+  render(<Tabs tabs={TABS} initialId="three" />);
+  expect(screen.getByTestId("panel")).toHaveTextContent("内容三");
+});
+
+/* ---------------- #368 StarRating ---------------- */
+
+test("[368] clicking the third star scores 3, and the first three fill in", async () => {
+  render(<StarRating />);
+  await userEvent.click(screen.getByTestId("star-3"));
+
+  expect(screen.getByTestId("stars-value")).toHaveTextContent("3");
+  expect(screen.getByTestId("star-3")).toHaveAttribute("data-filled", "true");
+  expect(screen.getByTestId("star-4")).toHaveAttribute("data-filled", "false");
+});
+
+test("[368] hover previews, and moving out returns to the picked value", async () => {
+  render(<StarRating />);
+  await userEvent.click(screen.getByTestId("star-2"));
+
+  await userEvent.hover(screen.getByTestId("star-5"));
+  expect(screen.getByTestId("star-5")).toHaveAttribute("data-filled", "true");   // the preview
+
+  await userEvent.unhover(screen.getByTestId("star-5"));
+  // note that unhover only left that one star; you have to leave the whole container
+  await userEvent.pointer({ target: document.body });
+  expect(screen.getByTestId("stars")).toHaveAttribute("data-value", "2");        // the picked value did not change
+});
+
+test("[368] clicking the same star again resets to zero", async () => {
+  render(<StarRating />);
+  await userEvent.click(screen.getByTestId("star-4"));
+  await userEvent.click(screen.getByTestId("star-4"));
+  expect(screen.getByTestId("stars-value")).toHaveTextContent("0");
+});
+
+test("[368] in controlled mode it does not change its own value, it only calls onChange", async () => {
+  const onChange = vi.fn();
+  render(<StarRating value={1} onChange={onChange} />);
+  await userEvent.click(screen.getByTestId("star-5"));
+
+  expect(onChange).toHaveBeenCalledWith(5);
+  expect(screen.getByTestId("stars")).toHaveAttribute("data-value", "1");   // still the 1 the parent passed in
+});
+
+/* ---------------- #373 Player (useRef driving the DOM) ---------------- */
+
+let play: ReturnType<typeof vi.spyOn>;
+let pause: ReturnType<typeof vi.spyOn>;
+
+beforeEach(() => {
+  // jsdom does not implement media playback; play() throws Not implemented, so it needs a stub
+  play = vi
+    .spyOn(HTMLMediaElement.prototype, "play")
+    .mockImplementation(() => Promise.resolve());
+  pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  play.mockRestore();
+  pause.mockRestore();
+});
+
+test("[373] clicking Play calls audio.play(), clicking again calls pause()", async () => {
+  render(<Player src="/a.mp3" />);
+  expect(screen.getByTestId("toggle")).toHaveTextContent("Play");
+
+  await userEvent.click(screen.getByTestId("toggle"));
+  expect(play).toHaveBeenCalledTimes(1);
+  expect(screen.getByTestId("toggle")).toHaveTextContent("Pause");
+
+  await userEvent.click(screen.getByTestId("toggle"));
+  expect(pause).toHaveBeenCalledTimes(1);
+  expect(screen.getByTestId("toggle")).toHaveTextContent("Play");
+});
+
+test("[373] Stop sets currentTime back to zero and halts playback", async () => {
+  render(<Player src="/a.mp3" />);
+  const audio = screen.getByTestId("audio") as HTMLAudioElement;
+
+  await userEvent.click(screen.getByTestId("toggle"));
+  audio.currentTime = 30;
+  await userEvent.click(screen.getByTestId("stop"));
+
+  expect(audio.currentTime).toBe(0);          // what changed is the DOM property itself
+  expect(screen.getByTestId("toggle")).toHaveTextContent("Play");
+});
+
+/* ---------------- #375 a custom hook ---------------- */
+
+test("[375] useLocalStorage uses the default the first time, and writes it to localStorage", () => {
+  localStorage.clear();
+  const { result } = renderHook(() => useLocalStorage("k", { n: 1 }));
+
+  expect(result.current[0]).toEqual({ n: 1 });
+  expect(JSON.parse(localStorage.getItem("k")!)).toEqual({ n: 1 });
+});
+
+test("[375] an existing value is read back instead of using the default", () => {
+  localStorage.setItem("k", JSON.stringify("存过的"));
+  const { result } = renderHook(() => useLocalStorage("k", "默认"));
+  expect(result.current[0]).toBe("存过的");
+});
+
+test("[375] setValue writes back in step", () => {
+  localStorage.clear();
+  const { result } = renderHook(() => useLocalStorage("k", 0));
+
+  act(() => result.current[1](42));
+  expect(result.current[0]).toBe(42);
+  expect(localStorage.getItem("k")).toBe("42");
+});
+
+test("[375] bad data does not break the component; it falls back to the default", () => {
+  localStorage.setItem("k", "{不是合法 JSON");
+  const { result } = renderHook(() => useLocalStorage("k", "兜底"));
+  expect(result.current[0]).toBe("兜底");
+});
+
+test("[375] two components each call it once = two independent states (shared logic, not shared state)", () => {
+  localStorage.clear();
+  const a = renderHook(() => useLocalStorage("shared", 0));
+  const b = renderHook(() => useLocalStorage("shared", 0));
+
+  act(() => a.result.current[1](5));
+  expect(a.result.current[0]).toBe(5);
+  expect(b.result.current[0]).toBe(0);   // b does not follow along
+});
+
+/* ---------------- #378 Kanban ---------------- */
+
+const board = (): Board => ({
+  todo: [{ id: 1, title: "写文档" }, { id: 2, title: "改 bug" }],
+  doing: [{ id: 3, title: "评审" }],
+  done: [],
+});
+
+function deepFreeze<T>(o: T): T {
+  Object.freeze(o);
+  Object.values(o as Record<string, unknown>).forEach((v) => {
+    if (v && typeof v === "object" && !Object.isFrozen(v)) deepFreeze(v);
+  });
+  return o;
+}
+
+test("[378] moveCard moves the card to the target column and does not change the original board", () => {
+  const original = deepFreeze(board());
+  const next = moveCard(original, "todo", "doing", 1);
+
+  expect(next.todo.map((c) => c.id)).toEqual([2]);
+  expect(next.doing.map((c) => c.id)).toEqual([3, 1]);
+  // the original object was not touched at all
+  expect(original.todo.map((c) => c.id)).toEqual([1, 2]);
+  expect(original.doing.map((c) => c.id)).toEqual([3]);
+});
+
+test("[378] a no-op move, or a card that is not found, returns the very same reference", () => {
+  const b = board();
+  expect(moveCard(b, "todo", "todo", 1)).toBe(b);
+  expect(moveCard(b, "todo", "done", 999)).toBe(b);
+});
+
+test("[378] untouched columns keep the original array reference (only the changed parts are rebuilt)", () => {
+  const b = board();
+  const next = moveCard(b, "todo", "doing", 1);
+  expect(next.done).toBe(b.done);        // done did not move, so the reference is unchanged
+  expect(next.todo).not.toBe(b.todo);    // what moved has to be a new array
+});
+
+test("[378] clicking move-right changes the card's column and the counts follow", async () => {
+  render(<Kanban initial={board()} />);
+  expect(screen.getByTestId("count-todo")).toHaveTextContent("2");
+  expect(screen.getByTestId("card-1")).toHaveAttribute("data-col", "todo");
+
+  await userEvent.click(screen.getByLabelText("把 写文档 右移"));
+
+  expect(screen.getByTestId("card-1")).toHaveAttribute("data-col", "doing");
+  expect(screen.getByTestId("count-todo")).toHaveTextContent("1");
+  expect(screen.getByTestId("count-doing")).toHaveTextContent("2");
+});
+
+test("[378] the first column has no move-left button, the last has no move-right", () => {
+  render(<Kanban initial={board()} />);
+  expect(screen.queryByLabelText("把 写文档 左移")).toBeNull();   // todo is the first column
+  expect(screen.getByLabelText("把 评审 右移")).toBeInTheDocument();
+});
+
+test("[378] a newly added card goes into the todo column", async () => {
+  render(<Kanban initial={board()} />);
+  await userEvent.type(screen.getByTestId("card-input"), "新任务");
+  await userEvent.click(screen.getByTestId("card-submit"));
+
+  expect(screen.getByTestId("col-todo")).toHaveTextContent("新任务");
+  expect(screen.getByTestId("count-todo")).toHaveTextContent("3");
+});`;
+
 const C_SLICE = `import { createSlice, nanoid } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
@@ -3016,10 +3309,13 @@ return [value, setValue];        // as const is missing`,
 
  Test Files  1 passed (1)
       Tests  24 passed (24)`,
-              { filename: "验证命令" },
+              { filename: "验证命令", filenameEn: "The command used to check it" },
             ),
             tested("tsx", C_TEST, {
               filename: "src/Coding.test.tsx（DrillLab 自出，本机跑过 24/24）",
+              filenameEn:
+                "src/Coding.test.tsx (written by DrillLab; 24/24 in a real run on this machine)",
+              codeEn: C_TEST_EN,
               collapsible: true,
             }),
           ],
