@@ -15,6 +15,8 @@ import type { DrillTrack } from "@/content/types";
 import { DrillAnswer } from "./drill-answer";
 import { DrillCard, DrillEmptyIfNone, DrillListStatus, DrillSearchBox, type MarkFilter } from "./drill-card";
 import { DrillProgressStrip } from "./drill-marks";
+import { lessonRef } from "@/content/path";
+import { lessonPath } from "@/content/nav";
 import { DRILL_PAGE, drillListHref, drillMatchesKeyword, type DrillQuery } from "./drill-query";
 import { T } from "./t";
 import { Ladder } from "./ladder";
@@ -41,8 +43,17 @@ export function DrillList({ query }: { query: DrillQuery }) {
   const track = readTrack(query.track);
   const markFilter = readMark(query.mark);
   const kw = (query.q ?? "").trim();
+  // 侧栏送过来的「只看这一节」。id 不认识就当没传，不报错 —— 手改 URL 不该白屏。
+  const lesson = query.lesson && lessonRef(query.lesson) ? query.lesson : undefined;
+  const lessonInfo = lesson ? lessonRef(lesson) : undefined;
 
-  const matched = all.filter((q) => {
+  // 【为什么要有 base】
+  // 按课文筛选时，「全部 105」「node 18」这些数字全是全站的，而列表里只有 12 道。
+  // 分母和列表不是同一批东西，读起来就是错的。所以筛选按钮和「N / M」
+  // 一律以当前基准集为分母：没筛课文时是全库，筛了就是这一节。
+  const base = lesson ? all.filter((q) => q.lessonId === lesson) : all;
+
+  const matched = base.filter((q) => {
     if (track !== "all" && q.track !== track) return false;
     if (kw && !drillMatchesKeyword(kw, q)) return false;
     return true;
@@ -54,7 +65,13 @@ export function DrillList({ query }: { query: DrillQuery }) {
   const page = paging ? Math.min(Math.max(1, Number(query.page ?? "1") || 1), pages) : 1;
   const visible = paging ? matched.slice((page - 1) * DRILL_PAGE, page * DRILL_PAGE) : matched;
 
-  const counts = drillTrackCounts();
+  // 全库时直接用现成的统计；筛了课文就从 base 现算，并且只列真的出现过的方向
+  // （一节课通常只覆盖两三个方向，把 0 的也排出来是纯噪音）。
+  const counts = lesson
+    ? TRACK_ORDER.map((t) => ({ track: t, count: base.filter((q) => q.track === t).length })).filter(
+        (c) => c.count > 0,
+      )
+    : drillTrackCounts();
 
   return (
     <main className="main">
@@ -73,6 +90,23 @@ export function DrillList({ query }: { query: DrillQuery }) {
             />
           </p>
         </div>
+
+        {/* 侧栏点进来的「这一节的八股题」。
+            必须给一条回全库的路 —— 不然筛完就出不去了，只能按后退。 */}
+        {lessonInfo && (
+          <div className="lesson-scope">
+            <span className="lesson-scope-label">
+              <T zh="只看这一节" en="One lesson only" />
+            </span>
+            <Link href={lessonPath(lessonInfo.examId, lesson!)}>{lessonInfo.title}</Link>
+            <span className="lesson-scope-n tabular">
+              <T zh={`${base.length} 道`} en={`${base.length} questions`} />
+            </span>
+            <Link className="lesson-scope-clear" href={drillListHref({}, {})}>
+              <T zh={`看全部 ${all.length} 道 →`} en={`All ${all.length} questions →`} />
+            </Link>
+          </div>
+        )}
 
         <Ladder current="drill" />
 
@@ -114,7 +148,7 @@ export function DrillList({ query }: { query: DrillQuery }) {
             data-on={track === "all"}
             href={drillListHref(query, { track: "all", page: "1" })}
           >
-            <T zh={`全部 ${all.length}`} en={`All ${all.length}`} />
+            <T zh={`全部 ${base.length}`} en={`All ${base.length}`} />
           </Link>
           {counts.map((c) => (
             <Link
@@ -148,7 +182,7 @@ export function DrillList({ query }: { query: DrillQuery }) {
         <DrillListStatus
           ids={visible.map((q) => q.id)}
           matched={matched.length}
-          total={all.length}
+          total={base.length}
           markFilter={markFilter}
           page={page}
           pages={pages}

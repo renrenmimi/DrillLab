@@ -32,6 +32,18 @@ for (const exam of NAV) {
   }
 }
 
+/** lessonId → 课程 id、课文标题。侧栏和 /drill?lesson= 的横幅都要用。 */
+const LESSON_REF: Record<string, { examId: string; title: string }> = {};
+for (const exam of NAV) {
+  for (const mod of exam.modules) {
+    for (const lesson of mod.lessons) {
+      LESSON_REF[lesson.id] = { examId: exam.id, title: lesson.title };
+    }
+  }
+}
+
+export const lessonRef = (lessonId: string) => LESSON_REF[lessonId];
+
 /** 这门课的八股题。目前 105 道全部属于 interview，别的课是 0。 */
 export const drillsOfExam = (examId: string): NavDrill[] =>
   DRILLS.filter((d) => d.examId === examId);
