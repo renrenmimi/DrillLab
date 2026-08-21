@@ -1306,6 +1306,8 @@ $ npx vitest run
           title: "两个考试项目的目录，逐个说明",
           titleEn: "The directory layout of both exam projects",
           blurb: "哪些文件是你要改的，哪些是给好的，哪些是干扰项。",
+          blurbEn:
+            "Which files you are meant to edit, which are already done for you, and which are there to distract you.",
           minutes: 12,
           objectives: [
             "看懂两个 assessment 的完整目录结构",
@@ -1313,8 +1315,16 @@ $ npx vitest run
             "知道 index.html → main.tsx → App.tsx → 组件 这条前端启动链",
             "认出项目里的干扰项",
           ],
+          objectivesEn: [
+            "Read the full directory layout of both exam projects",
+            "Tell apart where the entry files, the config files, the source and the tests each sit",
+            "Know the front-end start-up chain: index.html to main.tsx to App.tsx to the components",
+            "Spot the files in the project that are only there to distract you",
+          ],
           whyForAssessment:
             "两个考试都明确标了「EDIT THIS」和「PROVIDED」。改错文件不加分；而找不到该改的文件会直接丢分。",
+          whyForAssessmentEn:
+            "Both exams mark files as EDIT THIS or PROVIDED. Editing the wrong file earns nothing, and failing to find the file you were meant to edit loses points directly.",
           sourceFiles: [
             { path: "react-notes-app/", role: "Q1 在 src/,Q2 在 q2/" },
             { path: "graphql-federation-practice/", role: "node-subgraph/ 和 java-service/ 两个服务" },
@@ -1323,6 +1333,7 @@ $ npx vitest run
             {
               id: "react-tree",
               heading: "react-notes-app 的完整结构",
+              headingEn: "The full layout of react-notes-app",
               body: (
                 <>
                   <p>
@@ -1381,7 +1392,10 @@ $ npx vitest run
             {
               id: "startup-chain",
               heading: "前端项目的启动链：谁调用谁",
+              headingEn: "The start-up chain of a front-end project: what calls what",
               lede: "浏览器打开一个空 div，最后长出整个界面 —— 中间这几跳要看清。",
+              ledeEn:
+                "The browser opens an empty div and ends up with the whole interface. Follow each step in between.",
               body: (
                 <>
                   <p>
@@ -1475,6 +1489,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             {
               id: "fed-tree",
               heading: "Federation 项目：两个服务，两个语言",
+              headingEn: "The Federation project: two services, two languages",
               body: (
                 <>
                   <p>
@@ -1526,7 +1541,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             {
               id: "distractors",
               heading: "认出干扰项",
+              headingEn: "Spotting the distractors",
               lede: "考试项目里经常有「看起来很重要但其实没用」的东西。",
+              ledeEn:
+                "Exam projects often contain things that look important but are never used.",
               body: (
                 <>
                   <ul>
@@ -1647,9 +1665,24 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             },
           ],
           transfer: [
-            { signal: "两个兄弟组件要共享数据", reachFor: "把 state 提升到共同父组件" },
-            { signal: "不确定某文件要不要改", reachFor: "看 README 的 EDIT THIS / PROVIDED 标注" },
-            { signal: "看到一个可疑的资源文件", reachFor: "搜一下有没有代码引用它，没有就是干扰项" },
+            {
+              signal: "两个兄弟组件要共享数据",
+              signalEn: "Two sibling components need to share data",
+              reachFor: "把 state 提升到共同父组件",
+              reachForEn: "Move the state up into the parent they share",
+            },
+            {
+              signal: "不确定某文件要不要改",
+              signalEn: "You are not sure whether a file should be edited",
+              reachFor: "看 README 的 EDIT THIS / PROVIDED 标注",
+              reachForEn: "Check the EDIT THIS / PROVIDED labels in the README",
+            },
+            {
+              signal: "看到一个可疑的资源文件",
+              signalEn: "You find a file that looks suspicious",
+              reachFor: "搜一下有没有代码引用它，没有就是干扰项",
+              reachForEn: "Search for code that references it. If nothing does, it is a distractor",
+            },
           ],
           recap: [
             "react-notes-app 有两道独立的题：src/ 是 React 的 Q1,q2/ 是纯 TS 的 Q2。",
@@ -1657,6 +1690,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             "兄弟组件不能直接通话，所以共享数据必须放在共同父组件里。",
             "Federation 项目只有两个文件要改：orderResolvers.js 和 OrderController.java。",
             "orders.db、@shareable、getInventoryStatus、MetricsConfig 都是干扰项。",
+          ],
+          recapEn: [
+            "react-notes-app holds two separate questions: src/ is the React Q1, q2/ is the plain TypeScript Q2.",
+            "The front-end start-up chain: index.html, main.tsx, App.tsx, NoteManager, then the child components.",
+            "Sibling components cannot talk to each other directly, so shared data has to sit in the parent they share.",
+            "The Federation project has only two files to edit: orderResolvers.js and OrderController.java.",
+            "orders.db, @shareable, getInventoryStatus and MetricsConfig are all distractors.",
           ],
         },
       ],
