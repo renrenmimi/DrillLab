@@ -61,9 +61,18 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
         </>
       ),
     })),
-    ...(lesson.exercises?.length ? [{ id: "exercises", label: "练习 · 动手做 / Practice" }] : []),
-    ...(lesson.mistakes?.length ? [{ id: "mistakes", label: "常见错误 / Common mistakes" }] : []),
-    ...(lesson.transfer?.length ? [{ id: "transfer", label: "迁移模式 / Transfer" }] : []),
+    // 这三条原来是硬编码的「中文 / English」斜杠格式。段标题双语化之后，
+    // 目录里其余每一条在英文模式下都是纯英文，只有这三条还带着中文 ——
+    // 一列干净的英文里夹三条中英并排，看起来像没做完。改成 <T>。
+    ...(lesson.exercises?.length
+      ? [{ id: "exercises", label: <T zh="练习 · 动手做" en="Practice" /> }]
+      : []),
+    ...(lesson.mistakes?.length
+      ? [{ id: "mistakes", label: <T zh="常见错误" en="Common mistakes" /> }]
+      : []),
+    ...(lesson.transfer?.length
+      ? [{ id: "transfer", label: <T zh="迁移模式" en="Transfer" /> }]
+      : []),
   ];
 
   return (
@@ -73,7 +82,7 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
       <div className="content">
         <LessonHeader
           crumbs={[
-            { label: "路线图 / Roadmap", href: "/path" },
+            { label: <T zh="路线图" en="Roadmap" />, href: "/path" },
             {
               label: <T zh={exam.shortTitle} en={exam.shortTitleEn} />,
               href: examPath(exam.id),
@@ -115,7 +124,12 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
           <FileExplorer
             files={lesson.sourceFiles}
             showContent
-            title="这节课要看的真实文件 / Real files this lesson looks at"
+            title={
+              <T
+                zh="这节课要看的真实文件"
+                en="Real files this lesson looks at"
+              />
+            }
           />
         )}
 

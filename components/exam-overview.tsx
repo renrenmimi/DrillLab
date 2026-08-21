@@ -82,7 +82,7 @@ export function ExamOverview({ examId }: { examId: string }) {
                 不是任何一道题的答案。 */}
             <FileExplorer
               showContent
-              title="源项目 / Source project"
+              title={<T zh="源项目" en="Source project" />}
               files={exam.sourceProjects.map((p) => ({ path: p.path, role: p.role }))}
             />
           </>

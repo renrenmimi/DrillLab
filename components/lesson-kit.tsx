@@ -265,7 +265,9 @@ export function FileExplorer({
   files,
   showContent = false,
 }: {
-  title: string;
+  // 收 ReactNode，好塞 <T zh en /> —— 原来是硬编码的「中文 / English」，
+  // 在已经全英文的界面里显得像没做完
+  title: ReactNode;
   /** role 可以是普通字符串（两种语言都用它），也可以是 L(zh, en) */
   files: { path: string; role: LocalizedString; edit?: boolean }[];
   /**

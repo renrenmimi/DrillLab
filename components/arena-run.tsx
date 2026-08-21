@@ -99,7 +99,15 @@ export function ArenaRun({ id }: { id: string }) {
         <div className="minihead">
           <T zh="要自己建的文件" en="Files you create yourself" />
         </div>
-        <FileExplorer title="文件清单 / File list（目录可以不一样，接口要对得上）" files={a.fileList} />
+        <FileExplorer
+          title={
+            <T
+              zh="文件清单（目录可以不一样，接口要对得上）"
+              en="File list (the layout may differ, the interfaces must match)"
+            />
+          }
+          files={a.fileList}
+        />
 
         <div className="minihead">
           <T zh="验收命令 —— 交卷后要逐条自评" en="Acceptance commands — you will self-assess each one" />
