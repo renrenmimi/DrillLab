@@ -1,0 +1,9 @@
+<!-- 四根递减的柱子 = 四条主线，每条给的脚手架比上一条少，最后只剩空文件夹。
+     完整设计说明和那两个坑（注释别太长、SVG 内别写注释）见 components/app-shell.tsx 的 Mark。 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="32" height="32">
+  <rect x="2" y="3" width="3" height="14" rx="1" fill="#a9c2b3" />
+  <rect x="6.5" y="7" width="3" height="10" rx="1" fill="#a9c2b3" />
+  <rect x="11" y="11" width="3" height="6" rx="1" fill="#a9c2b3" />
+  <rect x="15.5" y="15" width="3" height="2" rx="1" fill="#547563" />
+  <path d="M2 18.4 H18.5" stroke="#547563" stroke-width="1.5" stroke-linecap="round" />
+</svg>
