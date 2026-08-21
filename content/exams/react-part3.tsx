@@ -2224,11 +2224,19 @@ const handleDelete = (id: number) => {
           kind: "debug",
           id: "r-debug-filter-title",
           title: "Debug Lab · 删一条，同名的全没了",
+          titleEn: "Debug Lab · delete one note and every note with the same title goes too",
           level: 2,
           prompt: (
             <p>
               测试全过，但手动测试时发现：三条标题相同的笔记，
               点其中一条的 Delete，三条一起消失。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Every test passes, but a manual check shows this: with three notes
+              that share a title, clicking Delete on one of them makes all three
+              disappear.
             </p>
           ),
           errorOutput: `# 测试：4 passed (4)   ← 测试全过！
@@ -2245,24 +2253,37 @@ const handleDelete = (id: number) => {
   const target = notes.find((n) => n.id === id);
   setNotes((prev) => prev.filter((note) => note.title !== target?.title));
 };`,
-            { filename: "有问题的 handleDelete", highlight: [3] },
+            {
+              filename: "有问题的 handleDelete",
+              filenameEn: "The handleDelete with the bug",
+              highlight: [3],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "状态更新错误 —— 改了原数组" },
-              { id: "b", label: "比较依据错误 —— 按 title 而不是按 id，同名会被一起删" },
-              { id: "c", label: "异步错误 —— find 需要 await" },
-              { id: "d", label: "类型错误 —— target 可能是 undefined" },
+              { id: "a", label: "状态更新错误 —— 改了原数组", labelEn: "A state update error — the original array was changed" },
+              {
+                id: "b",
+                label: "比较依据错误 —— 按 title 而不是按 id，同名会被一起删",
+                labelEn: "The comparison is wrong — it compares titles instead of ids, so notes with the same title all go together",
+              },
+              { id: "c", label: "异步错误 —— find 需要 await", labelEn: "An async error — find needs an await" },
+              { id: "d", label: "类型错误 —— target 可能是 undefined", labelEn: "A type error — target may be undefined" },
             ],
             answer: "b",
           },
           locate: {
             question: "第 3 行该怎么改？",
+            questionEn: "How should line 3 be changed?",
             options: [
-              { id: "a", label: "改成 prev.filter((note) => note.id !== id)" },
-              { id: "b", label: "改成 prev.filter((note) => note.title === target?.title)" },
-              { id: "c", label: "在 filter 外面加一个 if (target)" },
-              { id: "d", label: "把 find 改成 findIndex，再用 splice" },
+              { id: "a", label: "改成 prev.filter((note) => note.id !== id)", labelEn: "Change it to prev.filter((note) => note.id !== id)" },
+              {
+                id: "b",
+                label: "改成 prev.filter((note) => note.title === target?.title)",
+                labelEn: "Change it to prev.filter((note) => note.title === target?.title)",
+              },
+              { id: "c", label: "在 filter 外面加一个 if (target)", labelEn: "Wrap the filter in an if (target)" },
+              { id: "d", label: "把 find 改成 findIndex，再用 splice", labelEn: "Change find to findIndex, then use splice" },
             ],
             answer: "a",
           },
@@ -2273,6 +2294,7 @@ const handleDelete = (id: number) => {
 };`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -2298,7 +2320,33 @@ const handleDelete = (id: number) => {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                A <code>title</code> is not unique; only an <code>id</code> is.
+                Filtering on the title clears every note that shares that title.
+                The two lines with <code>find</code> are a pointless detour —{" "}
+                <strong>the id is already a parameter, so just use it.</strong>
+              </p>
+              <p>
+                <strong>
+                  The most important part of this exercise: every test passes.
+                </strong>{" "}
+                The tests use a single note, so the same-title case never comes
+                up. The only ways to catch this bug are{" "}
+                <strong>reading the words &quot;by id&quot; in the task</strong>{" "}
+                or building a same-title case by hand.
+              </p>
+              <p>
+                Option D (<code>findIndex</code> plus <code>splice</code>) is
+                wrong too: <code>splice</code> changes the original array, React
+                sees no change, and the screen does not update.
+              </p>
+            </>
+          ),
           verify: "npm run dev   # 手动加三条同名笔记，删中间那条，只应消失一条",
+          verifyEn:
+            "npm run dev   # add three notes with the same title by hand, delete the middle one, only one should disappear",
         },
       ],
       transfer: [
