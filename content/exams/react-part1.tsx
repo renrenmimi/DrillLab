@@ -341,7 +341,7 @@ export default NoteItem;`,
     │                            向下：noteToEdit（决定回填与按钮文字）
     └── NoteTable                纯展示：把 notes 摊成表格
         └── NoteItem × N         纯展示 + 上报 onEdit / onDelete`,
-              { filename: "组件树" },
+              { filename: "组件树", filenameEn: "Component tree" },
             ),
           ],
         },
@@ -486,6 +486,14 @@ function noteItem() { return <tr>...</tr>; }
 export default function App() {
   return <noteItem />;   // React 当成 HTML 标签处理
 }`,
+            {
+              codeEn: `// ✗ Name starts with a lowercase letter — nothing appears, and no error
+function noteItem() { return <tr>...</tr>; }
+
+export default function App() {
+  return <noteItem />;   // React reads this as an HTML tag
+}`,
+            },
           ),
           why: (
             <>
@@ -514,6 +522,13 @@ return (
   <td>{note.title}</td>
   <td>{note.content}</td>
 );`,
+            {
+              codeEn: `// ✗ Two sibling elements returned
+return (
+  <td>{note.title}</td>
+  <td>{note.content}</td>
+);`,
+            },
           ),
           why: (
             <>
