@@ -6322,6 +6322,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
               按钮好好的，卡片一渲染就整页白屏。这是真实报错。
             </p>
           ),
+          promptEn: (
+            <p>
+              The button is fine, and the moment the card renders the whole page goes
+              blank. This is the real error.
+            </p>
+          ),
           errorOutput: `$ npx vitest run src/Theme.test.tsx
 
 TypeError: Cannot destructure property 'theme' of
@@ -6357,24 +6363,60 @@ const ThemeApp: React.FC = () => (
     <ThemedCard />
   </>
 );`,
-            { filename: "src/components/ThemeApp/index.tsx", highlight: [12, 13, 14] },
+            {
+              filename: "src/components/ThemeApp/index.tsx",
+              codeEn: `// ThemeContext.tsx
+const ThemeContext = createContext<ThemeContextValue>(undefined as never);
+
+export function useTheme() {
+  return useContext(ThemeContext);      // no guard
+}
+
+// ThemeApp/index.tsx
+const ThemeApp: React.FC = () => (
+  <>
+    <ThemeProvider>
+      <ThemeToggleButton />
+    </ThemeProvider>
+    <ThemedCard />
+  </>
+);`,
+              highlight: [12, 13, 14],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "Provider 位置错了 —— ThemedCard 在 Provider 的子树外面，useContext 拿到默认值 undefined" },
-              { id: "b", label: "忘了 export ThemeContext" },
-              { id: "c", label: "useMemo 的依赖数组写错了" },
-              { id: "d", label: "ThemedCard 应该改成 class 组件" },
+              {
+                id: "a",
+                label: "Provider 位置错了 —— ThemedCard 在 Provider 的子树外面，useContext 拿到默认值 undefined",
+                labelEn: "The Provider is in the wrong place — ThemedCard sits outside its subtree, so useContext gets the default value, undefined",
+              },
+              { id: "b", label: "忘了 export ThemeContext", labelEn: "ThemeContext was never exported" },
+              { id: "c", label: "useMemo 的依赖数组写错了", labelEn: "The dependency array of useMemo is wrong" },
+              { id: "d", label: "ThemedCard 应该改成 class 组件", labelEn: "ThemedCard should be a class component" },
             ],
             answer: "a",
           },
           locate: {
             question: "怎么改？",
+            questionEn: "How do you fix it?",
             options: [
-              { id: "a", label: "把 Provider 提到最外层，让按钮和卡片都在它的子树里；同时在 useTheme 里加守卫，让下次报错能看懂" },
-              { id: "b", label: "给 createContext 传一个 { theme: 'light', toggleTheme: () => {} } 当默认值" },
-              { id: "c", label: "在 ThemedCard 里写 const ctx = useTheme() ?? { theme: 'light' }" },
-              { id: "d", label: "把 ThemedCard 也包一个自己的 ThemeProvider" },
+              {
+                id: "a",
+                label: "把 Provider 提到最外层，让按钮和卡片都在它的子树里；同时在 useTheme 里加守卫，让下次报错能看懂",
+                labelEn: "Move the Provider to the outermost level so both the button and the card are inside its subtree, and add a guard in useTheme so the next failure reads clearly",
+              },
+              {
+                id: "b",
+                label: "给 createContext 传一个 { theme: 'light', toggleTheme: () => {} } 当默认值",
+                labelEn: "Give createContext a default of { theme: 'light', toggleTheme: () => {} }",
+              },
+              {
+                id: "c",
+                label: "在 ThemedCard 里写 const ctx = useTheme() ?? { theme: 'light' }",
+                labelEn: "Inside ThemedCard write const ctx = useTheme() ?? { theme: 'light' }",
+              },
+              { id: "d", label: "把 ThemedCard 也包一个自己的 ThemeProvider", labelEn: "Wrap ThemedCard in a ThemeProvider of its own" },
             ],
             answer: "a",
           },
@@ -6396,7 +6438,26 @@ const ThemeApp: React.FC = () => (
     <ThemedCard />
   </ThemeProvider>
 );`,
-            { filename: "改对之后（8/8 通过）" },
+            {
+              filename: "改对之后（8/8 通过）",
+              filenameEn: "After the fix (8 of 8 pass)",
+              codeEn: `// ThemeContext.tsx — default value undefined, plus a guard
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme has to be used inside <ThemeProvider>");
+  return ctx;
+}
+
+// ThemeApp/index.tsx — the Provider wraps every consumer
+const ThemeApp: React.FC = () => (
+  <ThemeProvider>
+    <ThemeToggleButton />
+    <ThemedCard />
+  </ThemeProvider>
+);`,
+            },
           ),
           rootCause: (
             <>
@@ -6438,8 +6499,59 @@ const ThemeApp: React.FC = () => (
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>ThemedCard</code> sits <strong>beside</strong>{" "}
+                <code>ThemeProvider</code>, not inside its subtree.{" "}
+                <code>useContext</code> only looks upwards for the nearest Provider
+                among its <strong>ancestors</strong>. Finding none, it returns the
+                default value from <code>createContext</code>, which here is{" "}
+                <code>undefined</code>. Then{" "}
+                <code>{"const { theme } = undefined"}</code> throws.
+              </p>
+              <p>
+                <strong>Why is the button fine?</strong> Because it really is inside
+                the Provider.{" "}
+                <strong>
+                  Some components working while others report undefined is the
+                  fingerprint of this bug
+                </strong>
+                : the Provider exists, its reach is just too small.
+              </p>
+              <p>
+                <strong>Why is option B, a default value, worse?</strong> It makes the
+                error disappear and buys you a{" "}
+                <strong>silent wrong result</strong>: the card stays light forever,
+                the button does nothing, and nothing at all tells you that this
+                component is not connected to a Provider. A blank page at least says
+                something is wrong; this gives you no clue at all.{" "}
+                <strong>Fail early rather than late.</strong>
+              </p>
+              <p>
+                <strong>
+                  Option C, the <code>?? </code>fallback,
+                </strong>{" "}
+                is a smaller version of the same problem, and it also throws away{" "}
+                <code>toggleTheme</code>.
+              </p>
+              <p>
+                The <code>__vite_ssr_import_1__</code> in the message is just a
+                variable name Vite produced, so ignore it.{" "}
+                <strong>
+                  Reading an error means catching three things: the kind of error (
+                  <code>TypeError</code>), which property (
+                  <code>&apos;theme&apos;</code>), and which component (
+                  <code>at ThemedCard</code>).
+                </strong>{" "}
+                Those three together are enough to locate it.
+              </p>
+            </>
+          ),
           verify:
             "npx vitest run src/Theme.test.tsx   # 8 passed，包含「没套 Provider 必须报错」那条",
+          verifyEn:
+            "npx vitest run src/Theme.test.tsx   # 8 passed, including the one about using it without a Provider",
         },
       ],
       mistakes: [
