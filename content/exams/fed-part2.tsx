@@ -690,6 +690,7 @@ Tests:       6 failed, 4 passed, 10 total`,
           kind: "recognition",
           id: "g-fake-pass",
           title: "为什么基线里有 4 个测试是通过的",
+          titleEn: "Why 4 tests already pass at the baseline",
           level: 1,
           prompt: (
             <p>
@@ -697,11 +698,17 @@ Tests:       6 failed, 4 passed, 10 total`,
               <code>return null</code>，为什么还有 4 个测试通过？
             </p>
           ),
+          promptEn: (
+            <p>
+              All four TODOs contain nothing but <code>return []</code> or{" "}
+              <code>return null</code>. So why do 4 tests still pass?
+            </p>
+          ),
           options: [
-            { id: "a", label: "那 4 个测试写错了" },
-            { id: "b", label: "其中 3 个断言的正好是「返回空」，空实现刚好满足；第 4 个测的是本来就正确的 shipping loader" },
-            { id: "c", label: "jest 有缓存" },
-            { id: "d", label: "那 4 个测试被 skip 了" },
+            { id: "a", label: "那 4 个测试写错了", labelEn: "Those 4 tests are written wrong" },
+            { id: "b", label: "其中 3 个断言的正好是「返回空」，空实现刚好满足；第 4 个测的是本来就正确的 shipping loader", labelEn: "3 of them assert that the result is empty, which the empty implementation happens to satisfy; the 4th tests the shipping loader, which was already correct" },
+            { id: "c", label: "jest 有缓存", labelEn: "jest is using a cache" },
+            { id: "d", label: "那 4 个测试被 skip 了", labelEn: "Those 4 tests are skipped" },
           ],
           answer: ["b"],
           explain: (
@@ -717,11 +724,29 @@ Tests:       6 failed, 4 passed, 10 total`,
               绿色不等于做对了。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              The three &ldquo;returns empty when there is no data&rdquo; tests
+              are <strong>passing by accident</strong> —{" "}
+              <code>return []</code> and <code>return null</code> happen to
+              satisfy their assertions.
+              <br />
+              The fourth one, the DataLoader batching test for shipping, passes
+              for real, because <code>createShippingInfoLoader</code> has no
+              planted bug in it.
+              <br />
+              <strong>
+                So those three tests constrain your implementation not at all.
+                Green does not mean correct.
+              </strong>
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-fix-where",
           title: "埋雷 1 该在哪个文件修",
+          titleEn: "Which file should planted bug 1 be fixed in",
           level: 1,
           prompt: (
             <p>
@@ -730,11 +755,18 @@ Tests:       6 failed, 4 passed, 10 total`,
               正确的修法是？
             </p>
           ),
+          promptEn: (
+            <p>
+              <code>createOrderLoader</code> calls{" "}
+              <code>orderDataSource.getOrderById(id)</code>, which does not
+              exist. What is the right fix?
+            </p>
+          ),
           options: [
-            { id: "a", label: "在 orderDataSource.js 里加一个 getOrderById 方法" },
-            { id: "b", label: "把 loader 里的调用改成 getOrder(id)" },
-            { id: "c", label: "两个都行，看个人喜好" },
-            { id: "d", label: "改测试，让它不测这个 loader" },
+            { id: "a", label: "在 orderDataSource.js 里加一个 getOrderById 方法", labelEn: "Add a getOrderById method to orderDataSource.js" },
+            { id: "b", label: "把 loader 里的调用改成 getOrder(id)", labelEn: "Change the call inside the loader to getOrder(id)" },
+            { id: "c", label: "两个都行，看个人喜好", labelEn: "Either one; it is a matter of taste" },
+            { id: "d", label: "改测试，让它不测这个 loader", labelEn: "Edit the test so it stops testing this loader" },
           ],
           answer: ["b"],
           explain: (
@@ -750,20 +782,42 @@ Tests:       6 failed, 4 passed, 10 total`,
               D 更不行 —— 改判卷器等于作弊，而且测试也是 PROVIDED。
             </>
           ),
+          explainEn: (
+            <>
+              The README marks <code>orderDataSource.js</code> as{" "}
+              <strong>PROVIDED</strong>, and the grader may swap the original
+              back in — your added method disappears and the loader breaks
+              again.
+              <br />
+              <strong>Only change files marked EDIT THIS.</strong> Here the only
+              file to change is{" "}
+              <code>src/resolvers/orderResolvers.js</code>.
+              <br />
+              D is worse: editing the grader is cheating, and the tests are
+              PROVIDED too.
+            </>
+          ),
         },
         {
           kind: "ordering",
           id: "g-task1-order",
           title: "把 Task 1 的推进顺序排对",
+          titleEn: "Put the steps of Task 1 in the right order",
           level: 1,
           prompt: <p>拿到 node-subgraph，最合理的动作顺序？</p>,
+          promptEn: (
+            <p>
+              You have just opened node-subgraph. What is the most sensible
+              order to work in?
+            </p>
+          ),
           items: [
-            { id: "e", label: "逐个实现四个 TODO" },
-            { id: "b", label: "读 schema.graphql，记下四个返回类型的可空性" },
-            { id: "a", label: "npm install，然后 npm test 拿到 6 failed / 4 passed 的基线" },
-            { id: "f", label: "npm test 转绿，再写个 verify 脚本查 _service 和 _entities" },
-            { id: "c", label: "读 index.js 和 dataSources，抄下 context 键名与方法名" },
-            { id: "d", label: "修三处埋雷" },
+            { id: "e", label: "逐个实现四个 TODO", labelEn: "Implement the four TODOs one by one" },
+            { id: "b", label: "读 schema.graphql，记下四个返回类型的可空性", labelEn: "Read schema.graphql and note the nullability of the four return types" },
+            { id: "a", label: "npm install，然后 npm test 拿到 6 failed / 4 passed 的基线", labelEn: "npm install, then npm test to get the 6 failed / 4 passed baseline" },
+            { id: "f", label: "npm test 转绿，再写个 verify 脚本查 _service 和 _entities", labelEn: "Once npm test is green, write a verify script that checks _service and _entities" },
+            { id: "c", label: "读 index.js 和 dataSources，抄下 context 键名与方法名", labelEn: "Read index.js and the dataSources, and copy out the context keys and method names" },
+            { id: "d", label: "修三处埋雷", labelEn: "Fix the three planted bugs" },
           ],
           answer: ["a", "b", "c", "d", "e", "f"],
           explain: (
@@ -777,6 +831,22 @@ Tests:       6 failed, 4 passed, 10 total`,
               埋雷 1 会让 DataLoader 测试挂，如果你先写
               <code>Query.order</code>（它用 orderLoader），
               会被埋雷的报错干扰，白花时间怀疑自己的代码。
+            </>
+          ),
+          explainEn: (
+            <>
+              Install the dependencies and get a baseline → read the schema, so
+              you know what shape to return → read index.js and the data
+              sources, so you know what you can call →{" "}
+              <strong>fix the planted bugs first</strong> (otherwise you write
+              the TODOs correctly and the tests are still red, and you conclude
+              your own code is wrong) → write the TODOs → verify last.
+              <br />
+              <strong>Fixing the planted bugs first really matters.</strong>{" "}
+              Planted bug 1 makes the DataLoader test fail, so if you start with{" "}
+              <code>Query.order</code>, which uses orderLoader, that bug&rsquo;s
+              error message gets in your way and you waste time doubting your
+              own code.
             </>
           ),
         },
