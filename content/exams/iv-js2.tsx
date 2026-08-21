@@ -1143,7 +1143,31 @@ try {
 } catch (err) {
   handle(err);              // 一处兜住全部
 }`,
-              { filename: "同一段逻辑的两种写法" },
+              {
+                filename: "同一段逻辑的两种写法",
+                filenameEn: "The same logic written two ways",
+                codeEn: `// Callback hell
+getUser(id, (err, user) => {
+  if (err) return handle(err);
+  getPosts(user.id, (err, posts) => {
+    if (err) return handle(err);            // the same line again
+    getComments(posts[0].id, (err, comments) => {
+      if (err) return handle(err);          // and once more
+      render(comments);
+    });
+  });
+});
+
+// async/await
+try {
+  const user = await getUser(id);
+  const posts = await getPosts(user.id);
+  const comments = await getComments(posts[0].id);
+  render(comments);
+} catch (err) {
+  handle(err);              // one place catches all of them
+}`,
+              },
             ),
           ],
         },
