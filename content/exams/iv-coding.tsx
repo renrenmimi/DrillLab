@@ -2793,6 +2793,8 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
       title: "缺口三 · 同一个 Todo 换成 Redux Toolkit",
       titleEn: "Gap 3 · the same Todo app, moved to Redux Toolkit",
       blurb: "业务和变式一完全一样，换成 createSlice + selector —— 正好能对比出 Redux 到底多给了什么。",
+      blurbEn:
+        "The same app as variant one, rebuilt with createSlice and selectors — which makes it easy to see what Redux actually adds.",
       minutes: 24,
       objectives: [
         "用 createSlice 写出一个完整的 slice，并说明 Immer 为什么不违反「state 只读」",
@@ -2800,13 +2802,23 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
         "用 selector 做到「只订阅自己要的那部分」",
         "脱离 React 单测 reducer",
       ],
+      objectivesEn: [
+        "Write a complete slice with createSlice, and explain why Immer does not break the rule that state is read-only",
+        "Explain what prepare is for, and why an id must not be generated inside a reducer",
+        "Use a selector so a component subscribes only to the part it needs",
+        "Unit test a reducer without React",
+      ],
       whyForAssessment:
         "「用 Redux Toolkit 做一个 Todo」是 Medium 里的常见题。它真正在考三件事：知不知道现在不该手写 action types 了、知不知道 Immer 的草稿是怎么回事、知不知道 selector 的意义。同一个业务和变式一对照着看，能清楚看出 Redux 换来了什么、代价是什么。",
+      whyForAssessmentEn:
+        "Building a Todo app with Redux Toolkit is a common medium problem. It really tests three things: whether you know that action types are no longer written by hand, whether you know what an Immer draft is, and whether you know what a selector is for. Putting it next to variant one, which does the same job, shows clearly what Redux buys you and what it costs.",
       concepts: [
         {
           id: "slice",
           heading: "createSlice：一次生成 reducer 和 actions",
+          headingEn: "createSlice: one call gives you the reducer and the actions",
           lede: "手写 Redux 的那套样板已经过时了。",
+          ledeEn: "The hand-written Redux boilerplate is out of date.",
           body: (
             <>
               <p>
@@ -2912,7 +2924,9 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
         {
           id: "selector",
           heading: "selector：这才是 Redux 比 Context 强的地方",
+          headingEn: "Selectors: this is where Redux beats Context",
           lede: "三个 useSelector 各自订阅一小块。",
+          ledeEn: "Three useSelector calls, each subscribing to one small part.",
           body: (
             <>
               <p>
@@ -3016,6 +3030,7 @@ const remaining = useSelector(selectRemaining);`,
         {
           id: "compare",
           heading: "和变式一（useState 版）对比：换来了什么，代价是什么",
+          headingEn: "Compared with variant one, the useState version: what you gain and what it costs",
           body: (
             <>
               <div className="table-wrap">
@@ -3308,6 +3323,20 @@ added(state, action: PayloadAction<string>) {
               <strong>用 <code>prepare</code>。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The reducer is no longer pure: the same state and the same action produce
+              a different result each time.
+              <br />
+              <strong>
+                Time-travel debugging and replaying actions both stop working
+              </strong>{" "}
+              — which is exactly what the third Redux principle protects.{" "}
+              <strong>
+                Use <code>prepare</code>.
+              </strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -3331,6 +3360,19 @@ const { visible, remaining } = useSelector((s) => ({
               <code>shallowEqual</code>。
             </>
           ),
+          whyEn: (
+            <>
+              <code>useSelector</code> compares the result with <code>===</code>, and a
+              new object is never equal to the previous one —{" "}
+              <strong>
+                so this component re-renders whenever anything in the store changes
+              </strong>
+              , and the selector no longer does anything for you.
+              <br />
+              Split it into several <code>useSelector</code> calls, or use{" "}
+              <code>createSelector</code> or <code>shallowEqual</code>.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -3350,14 +3392,49 @@ export function addTodo(state: TodosState, todo: Todo) {
               而且返回的还是同一个引用 —— React 不会重渲染。
             </>
           ),
+          whyEn: (
+            <>
+              <strong>
+                Immer only applies inside <code>createSlice</code> and{" "}
+                <code>createReducer</code>.
+              </strong>{" "}
+              In an ordinary function this changes the original object for real, and it
+              returns the same reference — so React does not re-render.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "要写 Redux", reachFor: "createSlice，别手写 action types" },
-        { signal: "reducer 里想用 nanoid / Date.now", reachFor: "挪到 prepare 或 action creator" },
-        { signal: "「加了 selector 还是每次都重渲染」", reachFor: "selector 返回了新对象" },
-        { signal: "问该不该上 Redux", reachFor: "看是否多组件读写 + 是否需要按 action 追溯" },
-        { signal: "要脱离 React 测状态逻辑", reachFor: "reducer 是纯函数，直接 reducer(state, action)" },
+        {
+          signal: "要写 Redux",
+          signalEn: "You are asked to write Redux",
+          reachFor: "createSlice，别手写 action types",
+          reachForEn: "createSlice; do not write action types by hand",
+        },
+        {
+          signal: "reducer 里想用 nanoid / Date.now",
+          signalEn: "You want nanoid or Date.now inside a reducer",
+          reachFor: "挪到 prepare 或 action creator",
+          reachForEn: "Move it into prepare, or into the action creator",
+        },
+        {
+          signal: "「加了 selector 还是每次都重渲染」",
+          signalEn: "\"I added a selector and it still re-renders every time\"",
+          reachFor: "selector 返回了新对象",
+          reachForEn: "The selector is returning a new object",
+        },
+        {
+          signal: "问该不该上 Redux",
+          signalEn: "Asked whether the app should use Redux",
+          reachFor: "看是否多组件读写 + 是否需要按 action 追溯",
+          reachForEn: "Ask whether several components read and write it, and whether you need to trace changes action by action",
+        },
+        {
+          signal: "要脱离 React 测状态逻辑",
+          signalEn: "You need to test the state logic without React",
+          reachFor: "reducer 是纯函数，直接 reducer(state, action)",
+          reachForEn: "A reducer is a pure function; just call reducer(state, action)",
+        },
       ],
       recap: [
         "createSlice 一次生成 reducer、action creators 和 types，老写法的三份样板全省。",
@@ -3366,6 +3443,14 @@ export function addTodo(state: TodosState, todo: Todo) {
         "selector 让组件只订阅自己那部分 —— 这是 Redux 比 Context 强的具体地方。",
         "selector 不要返回新对象，否则每次 store 变都重渲染。",
         "这道题的规模用 useState 就够；能说出「什么时候才该上 Redux」比写完更重要。",
+      ],
+      recapEn: [
+        "One createSlice call produces the reducer, the action creators and the types, replacing all three pieces of the old boilerplate.",
+        "Immer hands you a draft, so even push produces a new object — but that only holds inside createSlice and createReducer.",
+        "Generate the id in prepare; the reducer has to stay pure or time travel stops working.",
+        "A selector lets a component subscribe to just its own part — this is the concrete place where Redux beats Context.",
+        "Do not return a new object from a selector, or the component re-renders on every store change.",
+        "At this size useState is enough; being able to say when Redux is worth it matters more than finishing the code.",
       ],
     },
 
