@@ -605,7 +605,18 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
     timer = setTimeout(() => fn(...args), delay);
   };
 }`,
-            { filename: "状态放错了地方" },
+            {
+              filename: "状态放错了地方",
+              filenameEn: "The state is in the wrong place",
+              codeEn: `// ✕ the timer moved inside the returned function — every call gets a new variable, so the old one can never be cleared
+export function debounce(fn: (...a: unknown[]) => void, delay: number) {
+  return (...args: unknown[]) => {
+    let timer: ReturnType<typeof setTimeout> | null = null;  // null every single time
+    if (timer !== null) clearTimeout(timer);                 // never true
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}`,
+            },
           ),
           why: (
             <>
