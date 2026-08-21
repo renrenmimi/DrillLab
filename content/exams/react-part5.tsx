@@ -3314,6 +3314,28 @@ useEffect(() => {
 # 现象：start / pause 来回点四次，每次只走 1 秒，
 # 显示却是 00:10 —— 正好是 1+2+3+4。
 # 而且 Reset 之后秒数还在自己往上涨。`,
+          errorOutputEn: `$ npx vitest run src/Timer.test.tsx
+
+ ✕ pause stops the clock and keeps the value
+   Expected element to have text content: 00:02
+   Received:                              00:07
+
+ ✕ start/pause many times does not speed up
+   Expected element to have text content: 00:04
+   Received:                              00:10
+
+ ✕ reset stops and zeroes
+   Expected element to have text content: 00:00
+   Received:                              00:03
+
+ ✕ unmount clears the interval
+   AssertionError: expected 1 to be +0 // Object.is equality
+
+ Tests  4 failed | 4 passed (8)
+
+# Symptom: click start / pause four times, one second of running each time,
+# and the display reads 00:10 — exactly 1+2+3+4.
+# After Reset the seconds also keep climbing on their own.`,
           broken: demo(
             "tsx",
             `useEffect(() => {
@@ -4545,6 +4567,21 @@ $ npx vitest run src/UserCard.test.tsx
 #   2. 立刻点用户 2（这个快，10ms）
 #   3. 先看到用户 2 —— 对的
 #   4. 200ms 后界面自己变成了用户 1  ← 错的，URL 上还是 2`,
+          errorOutputEn: `# No error at all.
+
+$ npx vitest run src/UserCard.test.tsx
+
+ ✕ a slow stale response must not overwrite the newer one（竞态）
+   Expected element to have text content: 用户2
+   Received:                              用户1
+
+ Tests  1 failed | 5 passed (6)
+
+# Manual repro:
+#   1. Click user 1 (that request is slow, 200ms)
+#   2. Click user 2 right away (that one is fast, 10ms)
+#   3. User 2 shows up first — correct
+#   4. 200ms later the view switches itself to user 1  ← wrong, the URL still says 2`,
           broken: demo(
             "tsx",
             `useEffect(() => {
@@ -5771,6 +5808,20 @@ $ npx vitest run src/CommentTree.test.tsx
 # 手动复现：点某条评论的 Reply、输入、发送
 #   console.log(comments) -> 新回复确实在树里
 #   屏幕 -> 一点变化都没有`,
+          errorOutputEn: `# No error at all.
+
+$ npx vitest run src/CommentTree.test.tsx
+
+ ✕ addReply 挂到深层节点，且不改原树
+   TypeError: Cannot add property 0, object is not extensible
+   (The test deep-froze the original tree; the implementation edits it in place.)
+
+ ✕ 给三层的评论再回复，落在正确的位置
+   Unable to find an element with the text: 第四层
+
+# Manual repro: click Reply on a comment, type something, send it
+#   console.log(comments) -> the new reply really is in the tree
+#   the screen -> nothing changes at all`,
           broken: demo(
             "tsx",
             `function addReply(nodes: Comment[], parentId: number, reply: Comment) {
@@ -7195,6 +7246,23 @@ TypeError: Cannot destructure property 'theme' of
  Tests  5 failed | 3 passed (8)
 
 # 浏览器里的报错略有不同，意思一样：
+#   Cannot destructure property 'theme' of 'useTheme(...)' as it is undefined.`,
+          errorOutputEn: `$ npx vitest run src/Theme.test.tsx
+
+TypeError: Cannot destructure property 'theme' of
+  '(0 , __vite_ssr_import_1__.useTheme)(...)' as it is undefined.
+    at ThemedCard (src/components/ThemedCard/index.tsx:6:11)
+    at ThemeApp
+
+ ✕ 默认是 light，按钮说 Switch to Dark
+ ✕ 点一下变 dark：按钮文字和卡片底色一起变
+ ✕ 再点一下切回 light
+ ✕ 没套 Provider 就用 useTheme()，必须立刻报错
+ ✕ toggleTheme 是稳定引用：theme 变了它也不变
+
+ Tests  5 failed | 3 passed (8)
+
+# The browser wording is slightly different but means the same thing:
 #   Cannot destructure property 'theme' of 'useTheme(...)' as it is undefined.`,
           broken: demo(
             "tsx",
