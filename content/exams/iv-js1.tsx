@@ -2201,7 +2201,27 @@ const tax = (n) => n * rate;
 
 // ✓ 纯：所有依赖都从参数进来
 const tax = (n, rate) => n * rate;`,
-              { filename: "怎么把不纯改纯" },
+              {
+                filename: "怎么把不纯改纯",
+                filenameEn: "How to turn an impure function into a pure one",
+                codeEn: `// ✗ Impure: it changes the array that was passed in
+function addItem(list, item) {
+  list.push(item);
+  return list;
+}
+
+// ✓ Pure: it returns a new array
+function addItem(list, item) {
+  return [...list, item];
+}
+
+// ✗ Impure: the output depends on something outside
+let rate = 0.1;
+const tax = (n) => n * rate;
+
+// ✓ Pure: every input arrives as a parameter
+const tax = (n, rate) => n * rate;`,
+              },
             ),
           ],
         },
