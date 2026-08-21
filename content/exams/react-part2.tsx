@@ -1584,11 +1584,18 @@ for more information.`,
           kind: "debug",
           id: "r-debug-effect-loop",
           title: "Debug Lab · 点 Edit 之后页面卡死",
+          titleEn: "Debug Lab · the page freezes after you press Edit",
           level: 3,
           prompt: (
             <p>
               点某一行的 Edit 按钮，浏览器标签页转圈，控制台刷出大量警告。
               请判断类型并定位。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Press the Edit button on any row. The browser tab spins and the console
+              fills up with warnings. Classify the error, then locate it.
             </p>
           ),
           errorOutput: `Warning: Maximum update depth exceeded. This can happen when a component
@@ -1610,24 +1617,25 @@ prevent an infinite loop.`,
     setContent("");
   }
 }, [noteToEdit, title, content]);`,
-            { filename: "有问题的依赖数组", highlight: [9] },
+            { filename: "有问题的依赖数组", filenameEn: "The broken dependency array", highlight: [9] },
           ),
           classify: {
             options: [
-              { id: "a", label: "语法错误 —— 依赖数组写法不合法" },
-              { id: "b", label: "useEffect 依赖错误 —— 依赖里包含了 effect 自己会修改的 state" },
-              { id: "c", label: "props 错误 —— noteToEdit 没传下来" },
-              { id: "d", label: "受控输入错误 —— onChange 写错了" },
+              { id: "a", label: "语法错误 —— 依赖数组写法不合法", labelEn: "Syntax error — the dependency array is not valid" },
+              { id: "b", label: "useEffect 依赖错误 —— 依赖里包含了 effect 自己会修改的 state", labelEn: "useEffect dependency error — a dependency holds state the effect itself changes" },
+              { id: "c", label: "props 错误 —— noteToEdit 没传下来", labelEn: "props error — noteToEdit was never passed down" },
+              { id: "d", label: "受控输入错误 —— onChange 写错了", labelEn: "Controlled input error — onChange is wrong" },
             ],
             answer: "b",
           },
           locate: {
             question: "第 9 行该怎么改？",
+            questionEn: "How should line 9 change?",
             options: [
-              { id: "a", label: "改成 [noteToEdit]" },
-              { id: "b", label: "改成 []" },
-              { id: "c", label: "整个依赖数组删掉" },
-              { id: "d", label: "改成 [noteToEdit, setTitle, setContent]" },
+              { id: "a", label: "改成 [noteToEdit]", labelEn: "Change it to [noteToEdit]" },
+              { id: "b", label: "改成 []", labelEn: "Change it to []" },
+              { id: "c", label: "整个依赖数组删掉", labelEn: "Delete the whole dependency array" },
+              { id: "d", label: "改成 [noteToEdit, setTitle, setContent]", labelEn: "Change it to [noteToEdit, setTitle, setContent]" },
             ],
             answer: "a",
           },
@@ -1636,6 +1644,7 @@ prevent an infinite loop.`,
             `}, [noteToEdit]);`,
             {
               filename: "改对之后（只改最后一行）",
+              filenameEn: "After the fix (only the last line changes)",
               sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
             },
           ),
@@ -1661,7 +1670,31 @@ prevent an infinite loop.`,
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                This is how the loop starts turning: the effect runs → it calls{" "}
+                <code>setTitle</code> → <code>title</code> changed → a re-render is
+                triggered → React sees that <code>title</code> in the dependency list
+                changed → the effect runs again → it calls <code>setTitle</code> again
+                → and so on.
+              </p>
+              <p>
+                <strong>The rule: state that an effect changes must never appear in
+                that effect&rsquo;s own dependency array.</strong>{" "}
+                A dependency array should hold only the reason this sync happens —
+                here that is <code>noteToEdit</code>.
+              </p>
+              <p>
+                About option D: the two setters <code>setTitle</code> and{" "}
+                <code>setContent</code> have a <strong>stable identity</strong> (React
+                guarantees the same function on every render), so putting them in the
+                dependency array causes no loop. It just achieves nothing.
+              </p>
+            </>
+          ),
           verify: "npx vitest run   # 第 4 个测试「edits a note in place」应该通过",
+          verifyEn: "npx vitest run   # the fourth test, \"edits a note in place\", should pass",
         },
       ],
       mistakes: [
@@ -1674,6 +1707,14 @@ const NoteForm = ({ noteToEdit }) => {
   if (noteToEdit) setTitle(noteToEdit.title);   // 渲染期间调 setState
   ...
 };`,
+            {
+              codeEn: `// ✗ syncing straight inside the component body — an endless loop
+const NoteForm = ({ noteToEdit }) => {
+  const [title, setTitle] = useState("");
+  if (noteToEdit) setTitle(noteToEdit.title);   // setState during render
+  ...
+};`,
+            },
           ),
           why: (
             <>
@@ -1701,6 +1742,12 @@ const NoteForm = ({ noteToEdit }) => {
 useEffect(() => {
   if (noteToEdit) { setTitle(noteToEdit.title); ... }
 }, []);`,
+            {
+              codeEn: `// ✗ dependencies written as [] — Edit does not prefill
+useEffect(() => {
+  if (noteToEdit) { setTitle(noteToEdit.title); ... }
+}, []);`,
+            },
           ),
           why: (
             <>
