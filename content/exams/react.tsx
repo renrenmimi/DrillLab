@@ -290,7 +290,9 @@ const ticketMock: MockExam = {
     {
       id: "m-diff",
       heading: "和真实 Q1 的对应关系",
+      headingEn: "How this maps to the real Q1",
       lede: "先看清哪些是原样搬过来的，哪些是新增的。",
+      ledeEn: "First see which parts are copied over unchanged, and which parts are new.",
       body: (
         <>
           <div className="table-wrap">
@@ -429,6 +431,7 @@ const ticketMock: MockExam = {
     {
       id: "m-select",
       heading: "唯一的新东西：受控的 select",
+      headingEn: "The only new piece: a controlled select",
       body: (
         <>
           <p>
@@ -504,7 +507,9 @@ const ticketMock: MockExam = {
     {
       id: "m-filter",
       heading: "筛选：一个 state + 一个派生数组",
+      headingEn: "Filtering: one state plus one derived array",
       lede: "这是本题唯一的新考点，也是这类题最常见的变式。",
+      ledeEn: "This is the only new topic in this question, and the most common variant of this question type.",
       body: (
         <>
           <p>
@@ -591,6 +596,7 @@ const handleClose = (id: number) => {
     {
       id: "m-checklist",
       heading: "交卷前自检清单",
+      headingEn: "Checklist before you submit",
       body: (
         <>
           <ol>
