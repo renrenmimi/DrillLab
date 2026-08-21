@@ -552,7 +552,28 @@ npm error Missing script: "test"        ← 没有这个 script，用 npx
 $ npm run build
 src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
 ...共 10 条                              ← 项目自带的配置缺陷，与你的实现无关`,
-              { filename: "本机实测", sourceFile: "react-notes-app" },
+              {
+                filename: "本机实测",
+                filenameEn: "Run on a real machine",
+                codeEn: `$ cd react-notes-app
+$ npm install
+$ npx vitest run
+
+ RUN  v4.1.10 react-notes-app
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Duration  1.19s
+
+# Two more things worth checking while you are here:
+$ npm test
+npm error Missing script: "test"        ← 没有这个 script，用 npx
+
+$ npm run build
+src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
+...共 10 条                              ← 项目自带的配置缺陷，与你的实现无关`,
+                sourceFile: "react-notes-app",
+              },
             ),
           ],
         },
@@ -1048,6 +1069,14 @@ const newNote = {
 onSubmit(newNote);`,
               {
                 filename: "src/components/NoteForm/index.tsx（节选）",
+                filenameEn: "src/components/NoteForm/index.tsx (excerpt)",
+                codeEn: `// Inside NoteForm: build the note and report it up
+const newNote = {
+  id: noteToEdit ? noteToEdit.id : Date.now(),
+  title: title.trim(),
+  content: content.trim(),
+};
+onSubmit(newNote);`,
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
               },
             ),
@@ -1057,9 +1086,14 @@ onSubmit(newNote);`,
 <NoteForm onSubmit={handleSubmitNote} noteToEdit={noteToEdit} />`,
               {
                 filename: "src/components/NoteManager/index.tsx（节选）",
+                filenameEn: "src/components/NoteManager/index.tsx (excerpt)",
+                codeEn: `// Inside NoteManager: wire handleSubmitNote up
+<NoteForm onSubmit={handleSubmitNote} noteToEdit={noteToEdit} />`,
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 explanation:
                   "所以 NoteForm 里那句 onSubmit(newNote)，实际执行的是 NoteManager 里的 handleSubmitNote(newNote)。这就是「props 传函数」这条链的全貌。",
+                explanationEn:
+                  "So the line onSubmit(newNote) inside NoteForm really runs handleSubmitNote(newNote) inside NoteManager. That is the whole chain of passing a function through props.",
               },
             ),
           ],
@@ -1156,7 +1190,14 @@ onSubmit(newNote);`,
 const handleSubmitNote = (submittedNote: Note) => {
   setNotes([...notes, submittedNote]);
 };`,
-              { filename: "推导过程 · 第一步" },
+              {
+                filename: "推导过程 · 第一步",
+                filenameEn: "Working it out · step one",
+                codeEn: `// Step one: the most direct version
+const handleSubmitNote = (submittedNote: Note) => {
+  setNotes([...notes, submittedNote]);
+};`,
+              },
             ),
             real(
               "tsx",
@@ -1170,6 +1211,14 @@ const handleSubmitNote = (submittedNote: Note) => {
 };`,
               {
                 filename: "src/components/NoteManager/index.tsx",
+                codeEn: `// The final shape (the half that belongs to Task 1)
+const handleSubmitNote = (submittedNote: Note) => {
+  if (noteToEdit) {
+    // Task 3 fills this in
+  } else {
+    setNotes((prev) => [...prev, submittedNote]);
+  }
+};`,
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 highlight: [6],
               },
