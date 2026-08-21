@@ -2599,7 +2599,25 @@ const handleSelectCab = (cab) => {
 // 测试 3：getByTestId("loading") 能过
 // 但如果两个页面里有同名 testid，就会报
 // "Found multiple elements by: [data-testid=...]"`,
-                { filename: "四个 boolean 的下场（示意）" },
+                {
+                  filename: "四个 boolean 的下场（示意）",
+                  filenameEn: "Where four booleans lead (illustration)",
+                  codeEn: `// ✕ using four booleans for the page
+const [isHome, setIsHome] = useState(true);
+const [isOptions, setIsOptions] = useState(false);
+const [isLoading, setIsLoading] = useState(false);
+const [isConfirm, setIsConfirm] = useState(false);
+
+const handleSelectCab = (cab) => {
+  updateBookedCabDetails(cab);
+  setIsLoading(true);          // setIsOptions(false) was forgotten
+};
+
+// result: cab-options and loading render at the same time
+// test 3: getByTestId("loading") still passes
+// but if the two pages share a testid name, you get
+// "Found multiple elements by: [data-testid=...]"`,
+                },
               ),
               why: (
                 <>
@@ -3037,10 +3055,18 @@ const handleSelectCab = (cab) => {
               kind: "recognition",
               level: 1,
               title: "哪个 key 在历史列表里会出问题？",
+              titleEn: "Which key goes wrong in the history list?",
               prompt: (
                 <>
                   用户连订了两次同一辆 Ford Fusion（<code>id: 1</code>）。
                   历史列表用下面哪个 key 会报「重复 key」警告？
+                </>
+              ),
+              promptEn: (
+                <>
+                  The user books the same Ford Fusion (<code>id: 1</code>) twice in a
+                  row. Which of these keys makes the history list warn about duplicate
+                  keys?
                 </>
               ),
               options: [
@@ -3069,16 +3095,44 @@ const handleSelectCab = (cab) => {
                   <strong>结论：id 提供身份，index 只用来消歧。</strong>
                 </>
               ),
+              explainEn: (
+                <>
+                  <strong>B.</strong> Both records have <code>ride.id</code> of 1, so
+                  React reports{" "}
+                  <code>Encountered two children with the same key, \`1\`</code>.
+                  <br />
+                  A and D both carry the <code>index</code>, so they never repeat. Plain
+                  index in C never repeats either — <strong>but it has a different
+                  problem</strong>: the history shows the newest first, so adding a record
+                  shifts the index of every older row by one, which means{" "}
+                  <strong>the data behind each key changes</strong> and React re-renders
+                  every row as if its content changed. This list has only three rows and
+                  no inputs, so nothing looks wrong; but give each row an{" "}
+                  <code>&lt;input&gt;</code> and what the user typed ends up on the wrong
+                  row.
+                  <br />
+                  <strong>So: the id supplies identity, and the index is only there to
+                  break ties.</strong>
+                </>
+              ),
             },
             {
               id: "cb-card-write",
               kind: "code-completion",
               level: 3,
               title: "从零写出 CabCard",
+              titleEn: "Write CabCard from an empty file",
               prompt: (
                 <>
                   只给你 props 签名。五个 testid 自己写出来，
                   别忘了 <code>alt</code> 和 <code>type=&quot;button&quot;</code>。
+                </>
+              ),
+              promptEn: (
+                <>
+                  You only get the props signature. Write the five testids yourself, and
+                  do not forget <code>alt</code> and{" "}
+                  <code>type=&quot;button&quot;</code>.
                 </>
               ),
               language: "jsx",
@@ -3096,6 +3150,19 @@ const handleSelectCab = (cab) => {
 
 const CabCard = ({ cab, onSelectCab }) => {
 `,
+              starterEn: `// props: { cab, onSelectCab }
+// cab = { id, name, type, price, image }
+//
+// Requirements:
+// 1. image: data-testid="cab-card-img", src from cab.image, alt from cab.name
+// 2. name: data-testid="cab-card-name"
+// 3. type: data-testid="cab-card-type", showing "Type: <type>"
+// 4. price: data-testid="cab-card-price", showing "Fare: $<price>"
+// 5. button: data-testid="cab-card-select-button", text Select,
+//    clicking calls onSelectCab(cab), and it needs type="button"
+
+const CabCard = ({ cab, onSelectCab }) => {
+`,
               requirements: [
                 "五个 data-testid 一个不少：cab-card-img / -name / -type / -price / -select-button",
                 "img 要有 alt（测试不查，但没有 alt 是真实的可访问性缺陷）",
@@ -3103,19 +3170,29 @@ const CabCard = ({ cab, onSelectCab }) => {
                 "onClick 里包一层箭头函数把 cab 传进去，不是直接传 onSelectCab",
                 "价格前面要有 $ —— 历史列表的断言查的是 \"$20\"",
               ],
+              requirementsEn: [
+                "All five data-testid values: cab-card-img / -name / -type / -price / -select-button",
+                "The img needs an alt (the tests do not check it, but a missing alt is a real accessibility defect)",
+                "The button needs type=\"button\" — without it, inside a <form> it becomes a submit button",
+                "Wrap the onClick in an arrow function that passes cab in; do not pass onSelectCab directly",
+                "The price needs a $ in front — the history assertion looks for \"$20\"",
+              ],
               checks: [
                 {
                   label: "五个 testid 都在",
+                  labelEn: "All five testids are there",
                   must: "cab-card-img[\\s\\S]*cab-card-name[\\s\\S]*cab-card-type[\\s\\S]*cab-card-price[\\s\\S]*cab-card-select-button",
                 },
-                { label: "img 有 alt", must: "<img[\\s\\S]{0,200}?alt=" },
-                { label: "按钮写了 type=\"button\"", must: "type=\"button\"" },
+                { label: "img 有 alt", labelEn: "The img has an alt", must: "<img[\\s\\S]{0,200}?alt=" },
+                { label: "按钮写了 type=\"button\"", labelEn: "The button has type=\"button\"", must: "type=\"button\"" },
                 {
                   label: "onClick 包了箭头函数，把 cab 传进去",
+                  labelEn: "onClick wraps an arrow function that passes cab in",
                   must: "onClick=\\{\\s*\\(\\s*\\)\\s*=>\\s*onSelectCab\\(\\s*cab\\s*\\)",
                 },
                 {
                   label: "没有直接把 onSelectCab 当 onClick（那样收到的是事件对象）",
+                  labelEn: "onSelectCab is not used as onClick directly (that would hand it the event object)",
                   mustNot: "onClick=\\{\\s*onSelectCab\\s*\\}",
                 },
               ],
@@ -3125,9 +3202,16 @@ const CabCard = ({ cab, onSelectCab }) => {
                 "结构：<article><img …/><div><p name/><p type/><p price/><button/></div></article>。价格那行是 Fare: ${cab.price}，注意 $ 在 JSX 里要转义成 \\${...} 还是直接写 —— 直接写 $ 再跟 {cab.price} 就行。",
                 "onClick={() => onSelectCab(cab)}；img 是 <img src={cab.image} alt={cab.name} data-testid=\"cab-card-img\" />。",
               ],
+              hintsEn: [
+                "A card is one article holding an image and a block of content. List the five elements first, then add a testid to each.",
+                "The button's onClick has to pass cab out, so you cannot write onClick={onSelectCab} — that would pass the click event instead.",
+                "Structure: <article><img …/><div><p name/><p type/><p price/><button/></div></article>. The price line is Fare: ${cab.price}; write the $ plainly and follow it with {cab.price}.",
+                "onClick={() => onSelectCab(cab)}; the image is <img src={cab.image} alt={cab.name} data-testid=\"cab-card-img\" />.",
+              ],
               solution: real("jsx", SRC_CARD, {
                 filename: "src/components/CabOptions/CabCard.jsx（参考答案 —— 源项目原文）",
-              filenameEn: "src/components/CabOptions/CabCard.jsx (reference answer — the source project text)",
+                filenameEn:
+                  "src/components/CabOptions/CabCard.jsx (reference answer — the source project text)",
                 sourceFile: "cab-booking-context/src/components/CabOptions/CabCard.jsx",
               }),
             },
