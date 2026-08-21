@@ -12,7 +12,10 @@ export function GET() {
     exams: EXAMS.map((e) => ({
       id: e.id,
       title: e.title,
+      titleEn: e.titleEn,
       shortTitle: e.shortTitle,
+      shortTitleEn: e.shortTitleEn,
+      descriptionEn: e.descriptionEn,
       description: e.description,
       category: e.category,
       tests: e.tests,
@@ -32,12 +35,15 @@ export function GET() {
       modules: e.modules.map((m) => ({
         id: m.id,
         title: m.title,
+        titleEn: m.titleEn,
         summary: m.summary,
+        summaryEn: m.summaryEn,
         stage: m.stage,
         // 【只放客户端首屏真的要用的】其余全部搬去下面的 searchIndex —— 见 nav-template 的注释
         lessons: m.lessons.map((l) => ({
           id: l.id,
           title: l.title,
+          titleEn: l.titleEn,
           blurb: l.blurb,
           minutes: l.minutes,
           exerciseCount: l.exercises?.length ?? 0,
