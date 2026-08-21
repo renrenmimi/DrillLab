@@ -1555,7 +1555,28 @@ console.log(new Map().get("toString")); // undefined ✓ 干净
 // Map 不能直接 JSON
 JSON.stringify(m);                    // "{}" ← 全丢了
 JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
-              { filename: "两个真实会踩的差别" },
+              {
+                filename: "两个真实会踩的差别",
+                filenameEn: "Two differences you will actually hit",
+                codeEn: `// Object keys are converted to strings
+const o = {};
+o[1] = "a";
+o["1"] = "b";
+console.log(o);          // { "1": "b" } ← only one key!
+
+const m = new Map();
+m.set(1, "a").set("1", "b");
+console.log(m.size);     // 2 ← the number 1 and the string "1" are different keys
+
+// Prototype pollution
+const dict = {};
+console.log(dict["toString"]);   // ƒ toString() ← a value appears from nowhere
+console.log(new Map().get("toString")); // undefined ✓ clean
+
+// A Map does not turn into JSON directly
+JSON.stringify(m);                    // "{}" ← everything is lost
+JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
+              },
             ),
           ],
         },
