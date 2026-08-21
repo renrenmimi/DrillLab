@@ -503,6 +503,8 @@ npm install
           title: "package.json 逐字段读一遍",
           titleEn: "package.json, field by field",
           blurb: "拿两个真实 assessment 的 package.json，一个字段一个字段地读懂。",
+          blurbEn:
+            "Take the package.json of both real exam projects and read them one field at a time.",
           minutes: 14,
           objectives: [
             "认得 name / version / private / type / main / scripts 各是干什么的",
@@ -510,8 +512,16 @@ npm install
             "能从一个陌生的 package.json 判断出这个项目怎么跑、用什么测试",
             "知道配置也可以内嵌在 package.json 里（subgraph 的 jest 配置就是）",
           ],
+          objectivesEn: [
+            "Recognise what name, version, private, type, main and scripts each control",
+            "Know how \"type\": \"module\" changes the way you write import",
+            "Work out from an unfamiliar package.json how the project runs and which test tool it uses",
+            "Know that configuration can also sit inside package.json, as the jest config of the subgraph does",
+          ],
           whyForAssessment:
             "考场上没人会告诉你「这个项目怎么跑」。package.json 就是答案本身。看懂它，等于拿到了考场地图。",
+          whyForAssessmentEn:
+            "In an exam nobody tells you how to run the project. package.json is the answer itself. Read it and you have the map of the exam.",
           sourceFiles: [
             { path: "react-notes-app/package.json", role: "React 考试" },
             { path: "graphql-federation-practice/node-subgraph/package.json", role: "Federation 考试的 Node 部分" },
@@ -520,7 +530,9 @@ npm install
             {
               id: "react-pkg",
               heading: "先读 React 考试的这一份",
+              headingEn: "Start with the one from the React exam",
               lede: "整个文件只有 7 个顶层字段。逐个看。",
+              ledeEn: "The whole file has only 7 top-level fields. Go through them one by one.",
               body: (
                 <>
                   <p>下面这份是<strong>原样</strong>从项目里拿出来的，一个字都没改：</p>
@@ -545,6 +557,7 @@ npm install
             {
               id: "fields",
               heading: "字段逐条解释",
+              headingEn: "Every field, one by one",
               body: (
                 <>
                   <div className="table-wrap">
@@ -668,7 +681,10 @@ npm install
             {
               id: "subgraph-pkg",
               heading: "再读 Federation 考试那一份",
+              headingEn: "Now the one from the Federation exam",
               lede: "同样的读法，但多了两个新东西：main 和内嵌配置。",
+              ledeEn:
+                "Read it the same way. Two things are new here: main, and configuration kept inside the file.",
               body: (
                 <>
                   <p>
@@ -711,6 +727,7 @@ npm install
             {
               id: "read-it-fast",
               heading: "拿到陌生 package.json 的三步读法",
+              headingEn: "Three steps for reading a package.json you have never seen",
               body: (
                 <>
                   <ol>
@@ -848,10 +865,30 @@ npm install
             },
           ],
           transfer: [
-            { signal: "不知道项目怎么跑", reachFor: "读 package.json 的 scripts" },
-            { signal: "不知道这题要考什么", reachFor: "读 dependencies，特殊的包就是考点" },
-            { signal: "找不到 jest / eslint 配置文件", reachFor: "看 package.json 里有没有同名内嵌字段" },
-            { signal: "import 报 Cannot use import statement", reachFor: "检查 \"type\": \"module\"" },
+            {
+              signal: "不知道项目怎么跑",
+              signalEn: "You do not know how to run the project",
+              reachFor: "读 package.json 的 scripts",
+              reachForEn: "Read the scripts field in package.json",
+            },
+            {
+              signal: "不知道这题要考什么",
+              signalEn: "You do not know what a question is testing",
+              reachFor: "读 dependencies，特殊的包就是考点",
+              reachForEn: "Read dependencies. An unusual package is the topic",
+            },
+            {
+              signal: "找不到 jest / eslint 配置文件",
+              signalEn: "You cannot find a jest or eslint config file",
+              reachFor: "看 package.json 里有没有同名内嵌字段",
+              reachForEn: "Check package.json for a field with the same name",
+            },
+            {
+              signal: "import 报 Cannot use import statement",
+              signalEn: "import fails with Cannot use import statement",
+              reachFor: "检查 \"type\": \"module\"",
+              reachForEn: "Check \"type\": \"module\"",
+            },
           ],
           recap: [
             "package.json 的 scripts 决定你能跑什么命令，是拿到项目第一个要读的字段。",
@@ -859,6 +896,13 @@ npm install
             "private: true 只是防止误发布，与能不能跑无关。",
             "配置可以内嵌：subgraph 的 jest 配置就在 package.json 里，不在单独文件。",
             "dependencies 里出现 dataloader 这种特征包，基本等于告诉你考点在哪。",
+          ],
+          recapEn: [
+            "The scripts in package.json decide which commands you can run. It is the first field to read.",
+            "\"type\": \"module\" decides whether the source uses ESM or CommonJS, so it decides whether you can write import.",
+            "private: true only stops the package from being published by mistake. It has nothing to do with running it.",
+            "Configuration can live inside package.json. The jest config of the subgraph is there, not in a separate file.",
+            "A telling package such as dataloader in dependencies almost always shows you what the exam will test.",
           ],
         },
 
