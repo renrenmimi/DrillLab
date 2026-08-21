@@ -2301,6 +2301,7 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
           kind: "recognition",
           id: "g-status-post",
           title: "POST 创建成功该返回什么",
+          titleEn: "What a successful POST should return",
           level: 1,
           prompt: (
             <p>
@@ -2308,11 +2309,17 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               该返回哪个状态码，怎么写？
             </p>
           ),
+          promptEn: (
+            <p>
+              <code>POST /api/orders</code> created an order successfully. Which
+              status code should it return, and how do you write that?
+            </p>
+          ),
           options: [
-            { id: "a", label: "ResponseEntity.ok(created) —— 200" },
-            { id: "b", label: "ResponseEntity.status(HttpStatus.CREATED).body(created) —— 201" },
-            { id: "c", label: "ResponseEntity.noContent().build() —— 204" },
-            { id: "d", label: "ResponseEntity.accepted().body(created) —— 202" },
+            { id: "a", label: "ResponseEntity.ok(created) —— 200", labelEn: "ResponseEntity.ok(created) — 200" },
+            { id: "b", label: "ResponseEntity.status(HttpStatus.CREATED).body(created) —— 201", labelEn: "ResponseEntity.status(HttpStatus.CREATED).body(created) — 201" },
+            { id: "c", label: "ResponseEntity.noContent().build() —— 204", labelEn: "ResponseEntity.noContent().build() — 204" },
+            { id: "d", label: "ResponseEntity.accepted().body(created) —— 202", labelEn: "ResponseEntity.accepted().body(created) — 202" },
           ],
           answer: ["b"],
           explain: (
@@ -2327,11 +2334,26 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               用于异步场景。
             </>
           ),
+          explainEn: (
+            <>
+              <strong>201 Created</strong> is the standard status code for a
+              successful create. The test asserts{" "}
+              <code>status().isCreated()</code> directly.
+              <br />
+              A is the most common mistake — <code>ResponseEntity.ok()</code> is
+              so familiar that your hands type it by themselves.{" "}
+              <strong>That test exists to catch exactly this.</strong>
+              <br />
+              C is for DELETE, and D (202 Accepted) means &ldquo;received, will
+              handle it later&rdquo;, which is for asynchronous work.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-null-passes",
           title: "为什么 return null 能骗过三个测试",
+          titleEn: "Why return null fools three of the tests",
           level: 1,
           prompt: (
             <p>
@@ -2339,11 +2361,17 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               五个测试却通过了三个。为什么？
             </p>
           ),
+          promptEn: (
+            <p>
+              At the baseline all six endpoints are just{" "}
+              <code>return null</code>, yet three of the five tests pass. Why?
+            </p>
+          ),
           options: [
-            { id: "a", label: "那三个测试写错了" },
-            { id: "b", label: "Spring 里控制器返回 null 会得到 200 + 空 body，而那三条测试断言的正好是 isOk()" },
-            { id: "c", label: "@MockBean 让所有断言都通过" },
-            { id: "d", label: "Maven 缓存了上次的结果" },
+            { id: "a", label: "那三个测试写错了", labelEn: "Those three tests are written wrong" },
+            { id: "b", label: "Spring 里控制器返回 null 会得到 200 + 空 body，而那三条测试断言的正好是 isOk()", labelEn: "In Spring, a controller returning null produces 200 with an empty body, and those three tests assert exactly isOk()" },
+            { id: "c", label: "@MockBean 让所有断言都通过", labelEn: "@MockBean makes every assertion pass" },
+            { id: "d", label: "Maven 缓存了上次的结果", labelEn: "Maven cached the previous result" },
           ],
           answer: ["b"],
           explain: (
@@ -2359,15 +2387,38 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               三个端点完全没实现，测试却是绿的。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              When a controller method returns <code>null</code>, Spring takes
+              it to mean &ldquo;you have handled the response yourself&rdquo;
+              and sends <strong>200 OK with an empty body</strong>.
+              <br />
+              The three tests that assert <code>isOk()</code> happen to match
+              that. Only the two asserting 201 and 204 catch the mistake.
+              <br />
+              <strong>
+                This is the most extreme case in the whole exam of a passing
+                test not meaning correct code: three endpoints are not
+                implemented at all and the tests are green.
+              </strong>
+            </>
+          ),
         },
         {
           kind: "fill-blank",
           id: "g-endpoints-blank",
           title: "补全三个关键端点的状态码与调用",
+          titleEn: "Fill in the status codes and calls of three key endpoints",
           level: 2,
           prompt: (
             <p>
               五个空。第 2、4、5 个是这道题真正的得分点。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Five blanks. Numbers 2, 4 and 5 are where the credit in this
+              question actually is.
             </p>
           ),
           language: "java",
@@ -2408,6 +2459,7 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
               n: 1,
               accept: ["ok"],
               hint: "成功且有内容返回。",
+              hintEn: "Success, and there is content to return.",
               why: (
                 <>
                   <code>ok</code> —— 200。
@@ -2419,12 +2471,25 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   自己 try/catch 反而会破坏它。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>ok</code> — 200.
+                  <br />
+                  Note you <strong>do not</strong> handle the not-found case
+                  here: <code>orderService.getOrderById</code> throws{" "}
+                  <code>EntityNotFoundException</code>, and{" "}
+                  <code>GlobalExceptionHandler</code> turns it into a 404. Your
+                  own try/catch would break that.
+                </>
+              ),
               width: 4,
             },
             {
               n: 2,
               accept: ["CREATED"],
               hint: "创建成功的标准状态码，测试断言 isCreated()。",
+              hintEn:
+                "The standard status code for a successful create. The test asserts isCreated().",
               why: (
                 <>
                   <code>CREATED</code> —— 201。
@@ -2435,12 +2500,26 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   <code>Status expected:&lt;201&gt; but was:&lt;200&gt;</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>CREATED</code> — 201.
+                  <br />
+                  <strong>
+                    This is one of the two mistakes the tests do catch.
+                  </strong>{" "}
+                  At the baseline <code>return null</code> produces 200, and the
+                  test reports{" "}
+                  <code>Status expected:&lt;201&gt; but was:&lt;200&gt;</code>.
+                </>
+              ),
               width: 9,
             },
             {
               n: 3,
               accept: ["BAD_REQUEST"],
               hint: "请求体里缺了必需字段，这是谁的错？",
+              hintEn:
+                "A required field is missing from the request body. Whose fault is that?",
               why: (
                 <>
                   <code>BAD_REQUEST</code> —— 400。客户端没给 status，
@@ -2454,12 +2533,28 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   测试没查这个，但它是明显的正确性问题。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>BAD_REQUEST</code> — 400. The client did not send a
+                  status, so the request itself is the problem.
+                  <br />
+                  <strong>What happens if you skip this check?</strong>{" "}
+                  <code>null.trim()</code> throws an NPE, the global handler
+                  does not handle NPE, so you get a{" "}
+                  <strong>500</strong> — the client&apos;s mistake reported as
+                  the server&apos;s.
+                  <br />
+                  No test checks this, but it is plainly a correctness problem.
+                </>
+              ),
               width: 14,
             },
             {
               n: 4,
               accept: ["valueOf"],
               hint: "Java enum 提供的「字符串转枚举」静态方法。",
+              hintEn:
+                "The static method a Java enum provides for turning a string into an enum value.",
               why: (
                 <>
                   <code>valueOf</code>。<strong>它大小写敏感</strong>，
@@ -2471,12 +2566,28 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   因为要把一种异常转成<strong>不同的</strong>状态码。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>valueOf</code>. <strong>It is case sensitive</strong>,
+                  which is why <code>toUpperCase()</code> comes first, and{" "}
+                  <strong>
+                    an invalid value throws IllegalArgumentException
+                  </strong>
+                  , which is why the real answer wraps it in a try/catch that
+                  turns it into a 400.
+                  <br />
+                  This is the one place in the whole question where a try/catch
+                  belongs, because it converts one kind of exception into a{" "}
+                  <strong>different</strong> status code.
+                </>
+              ),
               width: 9,
             },
             {
               n: 5,
               accept: ["noContent"],
               hint: "删除成功，没有任何内容可返回。",
+              hintEn: "The delete succeeded and there is nothing to return.",
               why: (
                 <>
                   <code>noContent</code> —— 204。
@@ -2489,6 +2600,22 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   <code>Status expected:&lt;204&gt; but was:&lt;200&gt;</code>。
                   注意后面还要 <code>.build()</code> ——
                   <code>noContent()</code> 返回的是 builder。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>noContent</code> — 204.
+                  <br />
+                  How you know: <code>orderService.deleteOrder</code> returns{" "}
+                  <code>void</code>, so there is nothing to return → 204.
+                  <br />
+                  <strong>
+                    This is the second mistake the tests catch.
+                  </strong>{" "}
+                  The test reports{" "}
+                  <code>Status expected:&lt;204&gt; but was:&lt;200&gt;</code>.
+                  Note you still need <code>.build()</code> afterwards, because{" "}
+                  <code>noContent()</code> returns a builder.
                 </>
               ),
               width: 12,
