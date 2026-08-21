@@ -1277,12 +1277,19 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
           kind: "fill-blank",
           id: "r-var-todo-blank",
           title: "补全翻转与批量操作",
+          titleEn: "Fill in the toggle and the bulk action",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 2 个是「只改一个字段」的写法，第 4 个考的是
               「全选」和「反选」的区别。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The second is how you change one field only. The fourth
+              is about the difference between select-all and invert-selection.
             </p>
           ),
           language: "tsx",
@@ -1307,9 +1314,16 @@ const toggleAll = () => {
               n: 1,
               accept: ["map"],
               hint: "长度不变、顺序不变，只是其中一条换了内容。",
+              hintEn: "Same length, same order, with one item's content replaced.",
               why: (
                 <>
                   <code>map</code>。翻转不改变条数，所以是 map 而不是 filter。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>map</code>. A toggle does not change how many items there
+                  are, so this is map, not filter.
                 </>
               ),
               width: 6,
@@ -1318,6 +1332,7 @@ const toggleAll = () => {
               n: 2,
               accept: ["...t", "... t"],
               hint: "旧字段全部照抄，只覆盖 done。",
+              hintEn: "Copy every old field over, and overwrite done only.",
               why: (
                 <>
                   <code>...t</code>。对象展开把 <code>id</code>、
@@ -1326,12 +1341,25 @@ const toggleAll = () => {
                   <strong>顺序很重要，覆盖字段必须写在展开后面。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>...t</code>. The object spread carries <code>id</code> and{" "}
+                  <code>text</code> across unchanged, and the{" "}
+                  <code>done: !t.done</code> after it overwrites the old value the
+                  spread brought in.{" "}
+                  <strong>
+                    The order matters: the field you overwrite has to come after
+                    the spread.
+                  </strong>
+                </>
+              ),
               width: 7,
             },
             {
               n: 3,
               accept: ["filter"],
               hint: "要「未完成的条数」，先筛出来再数。",
+              hintEn: "You want the count of unfinished items: select them first, then count.",
               why: (
                 <>
                   <code>filter</code> 再取 <code>.length</code>。
@@ -1340,12 +1368,21 @@ const toggleAll = () => {
                   重点是<strong>别把它做成 state</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>filter</code>, then read <code>.length</code>.
+                  <br />
+                  <code>reduce</code> works too, but filter plus length is easier
+                  to read. The point is: <strong>do not make this a state</strong>.
+                </>
+              ),
               width: 8,
             },
             {
               n: 4,
               accept: ["!allDone"],
               hint: "「全选」要给所有条目一个统一的目标值，不是各自翻转。",
+              hintEn: "Select-all gives every item one shared target value; it does not toggle each item on its own.",
               why: (
                 <>
                   <code>!allDone</code>。先算出一个统一目标值再整体套上去。
@@ -1353,6 +1390,17 @@ const toggleAll = () => {
                   如果写成每条 <code>!t.done</code>，混合状态下就变成了
                   <strong>反选</strong>而不是全选 —— 勾了的取消、没勾的勾上，
                   用户会觉得按钮坏了。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>!allDone</code>. Work out one shared target value first,
+                  then apply it to everything.
+                  <br />
+                  If you write <code>!t.done</code> per item, then with a mixed
+                  list you get <strong>invert selection</strong> instead of select
+                  all: the checked ones get unchecked and the unchecked ones get
+                  checked. Users read that as a broken button.
                 </>
               ),
               width: 10,
