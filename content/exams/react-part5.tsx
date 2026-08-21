@@ -1533,6 +1533,8 @@ const remove = (id: number) => {
       title: "变式二 · 计时器：useEffect 的清理函数",
       titleEn: "Variation 2 · a timer: the useEffect cleanup function",
       blurb: "这道题真正的考点只有一个 —— 你会不会写 return () => clearInterval(id)。",
+      blurbEn:
+        "This question really tests one thing: can you write return () => clearInterval(id).",
       minutes: 16,
       objectives: [
         "说清 useEffect 的清理函数什么时候跑、为什么必须有",
@@ -1540,13 +1542,23 @@ const remove = (id: number) => {
         "独立实现 start / pause / reset 的计时器",
         "看懂「忘了清理」造成的两种后果：越跳越快、卸载后泄漏",
       ],
+      objectivesEn: [
+        "Explain when the useEffect cleanup function runs, and why it has to be there",
+        "Explain why a stale closure, a callback holding an old value, freezes setSeconds(seconds + 1) at 1",
+        "Build a timer with start / pause / reset on your own",
+        "Recognise the two results of a missing cleanup: the count speeds up, and the timer keeps running after the component is gone",
+      ],
       whyForAssessment:
         "源项目里没有任何定时器，所以前面的课没讲过清理函数 —— 但它是 useEffect 的另一半，同类考试（计时器、轮询、订阅、事件监听、WebSocket）几乎必考。这道题是这个知识点最短的载体。",
+      whyForAssessmentEn:
+        "The source projects contain no timers, so no earlier lesson covered the cleanup function. It is the other half of useEffect, and exams of this kind almost always ask for it: timers, polling, subscriptions, event listeners, WebSocket. This question is the shortest way to carry that one idea.",
       concepts: [
         {
           id: "cleanup",
           heading: "清理函数：effect 的另一半",
+          headingEn: "The cleanup function: the other half of an effect",
           lede: "useEffect 里 return 出去的那个函数，React 会在「下一次执行之前」和「卸载时」调用它。",
+          ledeEn: "React calls the function you return from useEffect twice over: before the next run, and when the component is removed.",
           body: (
             <>
               <p>
@@ -1623,7 +1635,9 @@ const remove = (id: number) => {
         {
           id: "stale-closure",
           heading: "为什么必须用 setSeconds(s => s + 1)",
+          headingEn: "Why setSeconds(s => s + 1) is required",
           lede: "写成 setSeconds(seconds + 1) 会卡在 1 不动。这个坑叫「过期闭包」。",
+          ledeEn: "Write setSeconds(seconds + 1) and the display freezes at 1. The name for this is a stale closure: the callback still holds an old value.",
           body: (
             <>
               <p>
@@ -1695,7 +1709,9 @@ setSeconds((s) => s + 1);`,
         {
           id: "what-breaks",
           heading: "忘了清理会怎样：两种后果，都实测过",
+          headingEn: "What a missing cleanup does: two results, both measured",
           lede: "我把 clearInterval 那行删掉真跑了一遍，8 个测试挂了 4 个。",
+          ledeEn: "I deleted the clearInterval line and ran the suite for real: 4 of the 8 tests failed.",
           body: (
             <>
               <p>
@@ -1771,7 +1787,9 @@ $ npx vitest run src/Timer.test.tsx
         {
           id: "full",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "8 个测试全过，其中两条专门验证清理生效。",
+          ledeEn: "All 8 tests pass, and two of them exist only to prove the cleanup ran.",
           body: (
             <>
               <p>
@@ -1808,7 +1826,9 @@ $ npx vitest run src/Timer.test.tsx
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           lede: "定时器怎么测？把时间也 mock 掉。",
+          ledeEn: "How do you test a timer? Replace the clock with a fake one you control.",
           body: (
             <>
               <p>
@@ -2178,6 +2198,15 @@ const id = setInterval(() => {
               <strong>改成 <code>setSeconds(s =&gt; s + 1)</code>。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The callback captured the value <code>seconds</code> had at the moment the
+              effect was created. <code>seconds</code> is not in the dependency list, so
+              the effect is never rebuilt, and every second it computes{" "}
+              <code>0 + 1</code> again.{" "}
+              <strong>Change it to <code>setSeconds(s =&gt; s + 1)</code>.</strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2190,6 +2219,14 @@ const reset = () => setSeconds(0);`,
               <code>running</code> 还是 true，定时器还在跑 ——
               清零之后立刻又从 0 开始涨。用户点「重置」的预期是
               <strong>停下来并归零</strong>，两件事都要做。
+            </>
+          ),
+          whyEn: (
+            <>
+              <code>running</code> is still true and the interval is still going, so the
+              count starts climbing again from 0 right away. When a user presses reset
+              they expect it to <strong>stop and go back to zero</strong>. Both things
+              have to happen.
             </>
           ),
         },
@@ -2211,15 +2248,57 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
               <strong>让 effect + 清理函数管，代码更短也更难写错。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              This works, but it takes the lifetime of the side effect out of React&rsquo;s
+              hands and into yours, and then it is easy to forget the cleanup when the
+              component is removed.
+              <br />
+              The timer id is not data the render needs, so it should not be state in the
+              first place (if you must keep it, use <code>useRef</code>).{" "}
+              <strong>Let the effect and its cleanup function handle it: less code, and
+              fewer ways to get it wrong.</strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "effect 里出现 setInterval / setTimeout", reachFor: "return () => clear…" },
-        { signal: "effect 里 addEventListener", reachFor: "return () => removeEventListener（同一个函数引用）" },
-        { signal: "effect 里 subscribe / new WebSocket", reachFor: "return () => unsubscribe / close" },
-        { signal: "定时器回调里要用到 state", reachFor: "函数式更新，别读闭包里的值" },
-        { signal: "「数值卡在第一次的结果不动」", reachFor: "过期闭包" },
-        { signal: "「越跑越快」「重复触发」", reachFor: "漏了清理函数" },
+        {
+          signal: "effect 里出现 setInterval / setTimeout",
+          signalEn: "setInterval or setTimeout inside an effect",
+          reachFor: "return () => clear…",
+          reachForEn: "return () => clear…",
+        },
+        {
+          signal: "effect 里 addEventListener",
+          signalEn: "addEventListener inside an effect",
+          reachFor: "return () => removeEventListener（同一个函数引用）",
+          reachForEn: "return () => removeEventListener, with the same function reference",
+        },
+        {
+          signal: "effect 里 subscribe / new WebSocket",
+          signalEn: "subscribe or new WebSocket inside an effect",
+          reachFor: "return () => unsubscribe / close",
+          reachForEn: "return () => unsubscribe / close",
+        },
+        {
+          signal: "定时器回调里要用到 state",
+          signalEn: "A timer callback needs to read state",
+          reachFor: "函数式更新，别读闭包里的值",
+          reachForEn: "Use the updater function form; do not read the captured value",
+        },
+        {
+          signal: "「数值卡在第一次的结果不动」",
+          signalEn: "A number is stuck on the result of the first run",
+          reachFor: "过期闭包",
+          reachForEn: "A stale closure",
+        },
+        {
+          signal: "「越跑越快」「重复触发」",
+          signalEn: "It speeds up, or fires more than once",
+          reachFor: "漏了清理函数",
+          reachForEn: "The cleanup function is missing",
+        },
       ],
       recap: [
         "清理函数在「依赖变化前」和「卸载时」执行 —— 它负责拆掉这次 effect 建立的东西。",
@@ -2227,6 +2306,13 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
         "定时器回调必须用函数式更新，否则闭包里的 state 永远是旧的。",
         "漏掉 clearInterval 的实测后果：start/pause 四次得到 10 秒而不是 4 秒，卸载后定时器还活着。",
         "reset 要同时停表和清零；定时器 id 不该放 state。",
+      ],
+      recapEn: [
+        "The cleanup function runs before the dependencies change and when the component is removed. Its job is to take down whatever this effect set up.",
+        "If an effect starts a timer, a listener, a subscription, a connection, or a request, it must return a cleanup function.",
+        "A timer callback has to use the updater function form, or the state it captured stays old forever.",
+        "Measured result of a missing clearInterval: four start/pause cycles give 10 seconds instead of 4, and the timer is still alive after the component is gone.",
+        "reset has to stop the clock and zero it. The timer id does not belong in state.",
       ],
     },
 
