@@ -605,6 +605,98 @@ const Kanban: React.FC<{ initial: Board }> = ({ initial }) => {
 
 export default Kanban;`;
 
+const C_KANBAN_EN = `import React, { useState } from "react";
+import type { Board, Card, ColumnId } from "../../types/Card";
+
+export const COLUMNS: { id: ColumnId; label: string }[] = [
+  { id: "todo", label: "待办" },
+  { id: "doing", label: "进行中" },
+  { id: "done", label: "已完成" },
+];
+
+/**
+ * Move one card from one column to another and return a brand new board.
+ * The key point: one action changes two arrays, and both of them have to be new arrays.
+ */
+export function moveCard(
+  board: Board,
+  from: ColumnId,
+  to: ColumnId,
+  cardId: number,
+): Board {
+  if (from === to) return board;                       // nothing moved, so return it as it is
+
+  const card = board[from].find((c) => c.id === cardId);
+  if (!card) return board;                             // not found either, so return it as it is
+
+  return {
+    ...board,
+    [from]: board[from].filter((c) => c.id !== cardId), // drop it from the source column
+    [to]: [...board[to], card],                        // append it to the target column
+  };
+}
+
+const Kanban: React.FC<{ initial: Board }> = ({ initial }) => {
+  const [board, setBoard] = useState<Board>(initial);
+  const [text, setText] = useState("");
+
+  const add = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (text.trim() === "") return;
+    const card: Card = { id: Date.now(), title: text.trim() };
+    setBoard((prev) => ({ ...prev, todo: [...prev.todo, card] }));
+    setText("");
+  };
+
+  const move = (from: ColumnId, to: ColumnId, id: number) =>
+    setBoard((prev) => moveCard(prev, from, to, id));
+
+  return (
+    <div data-testid="kanban">
+      <form onSubmit={add}>
+        <input value={text} onChange={(e) => setText(e.target.value)} data-testid="card-input" />
+        <button type="submit" disabled={text.trim() === ""} data-testid="card-submit">
+          Add
+        </button>
+      </form>
+
+      {COLUMNS.map((col, ci) => (
+        <section key={col.id} data-testid={\`col-\${col.id}\`}>
+          <h3>
+            {col.label}
+            <span data-testid={\`count-\${col.id}\`}>{board[col.id].length}</span>
+          </h3>
+          <ul>
+            {board[col.id].map((c) => (
+              <li key={c.id} data-testid={\`card-\${c.id}\`} data-col={col.id}>
+                <span>{c.title}</span>
+                {ci > 0 && (
+                  <button
+                    aria-label={\`把 \${c.title} 左移\`}
+                    onClick={() => move(col.id, COLUMNS[ci - 1].id, c.id)}
+                  >
+                    ←
+                  </button>
+                )}
+                {ci < COLUMNS.length - 1 && (
+                  <button
+                    aria-label={\`把 \${c.title} 右移\`}
+                    onClick={() => move(col.id, COLUMNS[ci + 1].id, c.id)}
+                  >
+                    →
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+};
+
+export default Kanban;`;
+
 const C_TEST = `import { act, render, renderHook, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
@@ -4893,6 +4985,7 @@ export function addTodo(state: TodosState, todo: Todo) {
             tested("tsx", C_KANBAN, {
               filename: "src/components/Kanban/index.tsx（实测通过）",
               filenameEn: "src/components/Kanban/index.tsx (passes as measured)",
+              codeEn: C_KANBAN_EN,
               collapsible: true,
             }),
             demo(
@@ -4906,7 +4999,19 @@ const move = (from, to, id) => {
 
 // ✗ 没动也造新对象：白渲染一次
 if (from === to) return { ...board };`,
-              { filename: "两种错法" },
+              {
+                filename: "两种错法",
+                filenameEn: "Two wrong versions",
+                codeEn: `// ✗ two setState calls: risk of a half-updated state, and no way to unit-test it
+const move = (from, to, id) => {
+  const card = board[from].find((c) => c.id === id);
+  setBoard((b) => ({ ...b, [from]: b[from].filter((c) => c.id !== id) }));
+  setBoard((b) => ({ ...b, [to]: [...b[to], card] }));   // card came from the old board
+};
+
+// ✗ builds a new object even when nothing moved: one render for nothing
+if (from === to) return { ...board };`,
+              },
             ),
           ],
         },
