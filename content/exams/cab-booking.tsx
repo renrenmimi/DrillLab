@@ -2317,14 +2317,21 @@ const useCabContext = () => {
               kind: "ordering",
               level: 1,
               title: "把一次完整预订的六步排好",
+              titleEn: "Put the six steps of one full booking in order",
               prompt: <>从点「Book a Cab」到历史里出现记录，中间发生了什么？按顺序排。</>,
+              promptEn: (
+                <>
+                  What happens between pressing &ldquo;Book a Cab&rdquo; and the record
+                  appearing in the history? Put the steps in order.
+                </>
+              ),
               items: [
                 { id: "s1", label: "setCurrentPage(\"cab-options\")" },
-                { id: "s2", label: "updateBookedCabDetails(cab) —— 写 Context 的两个 state" },
+                { id: "s2", label: "updateBookedCabDetails(cab) —— 写 Context 的两个 state", labelEn: "updateBookedCabDetails(cab) — writes both states in the Context" },
                 { id: "s3", label: "setCurrentPage(\"loading\")" },
-                { id: "s4", label: "Loading 的 useEffect 里 setTimeout 1000ms 到期" },
+                { id: "s4", label: "Loading 的 useEffect 里 setTimeout 1000ms 到期", labelEn: "The setTimeout of 1000ms inside the useEffect of Loading fires" },
                 { id: "s5", label: "onComplete() → setCurrentPage(\"cab-confirmation\")" },
-                { id: "s6", label: "onConfirm() → setCurrentPage(\"home\")，首页读到新的 rideHistory" },
+                { id: "s6", label: "onConfirm() → setCurrentPage(\"home\")，首页读到新的 rideHistory", labelEn: "onConfirm() → setCurrentPage(\"home\"), and the home page reads the new rideHistory" },
               ],
               answer: ["s1", "s2", "s3", "s4", "s5", "s6"],
               explain: (
@@ -2346,6 +2353,29 @@ const useCabContext = () => {
                   <code>RideHistory</code> 重新挂载，
                   从 Context 里读到了已经更新的 <code>rideHistory</code> ——
                   <strong>它不需要任何人通知它</strong>。
+                </>
+              ),
+              explainEn: (
+                <>
+                  <strong>The order of steps 2 and 3 is worth a look.</strong>{" "}
+                  <code>handleSelectCab</code> calls{" "}
+                  <code>updateBookedCabDetails(cab)</code> first and{" "}
+                  <code>setCurrentPage(&quot;loading&quot;)</code> second.
+                  <br />
+                  <strong>In practice the order of those two makes no
+                  difference</strong> — React groups several setState calls from one
+                  event into a single re-render (this is called{" "}
+                  <strong>batching</strong>), so there is no renderable state in between
+                  where the Context is written but the page has not switched.
+                  <br />
+                  Writing the data first and switching the page second is an order for{" "}
+                  <strong>people</strong>: get the data ready, then move the interface
+                  forward.
+                  <br />
+                  <strong>Step 6 is the important one:</strong> back on the home page{" "}
+                  <code>RideHistory</code> mounts again and reads the already-updated{" "}
+                  <code>rideHistory</code> out of the Context —{" "}
+                  <strong>nobody has to notify it</strong>.
                 </>
               ),
             },
