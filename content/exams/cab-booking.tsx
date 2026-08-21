@@ -5931,9 +5931,30 @@ const value = useMemo(
 // 否则它每次都是新函数，useMemo 的依赖每次都变 —— 记忆化等于没做。`,
                   {
                     filename: "两处改法（示意 —— 不是源项目代码）",
-                  filenameEn: "Two ways to change it (illustration — not source project code)",
+                    filenameEn: "Two ways to change it (illustration — not source project code)",
+                    codeEn: `// what the source project writes — correct in this app
+const updateBookedCabDetails = (details) => {
+  setBookedCabDetails(details);
+  setRideHistory([...rideHistory, details]);   // reads the value in the closure
+};
+
+// the safer form — always use this when the update depends on the old value
+const updateBookedCabDetails = useCallback((details) => {
+  setBookedCabDetails(details);
+  setRideHistory((prev) => [...prev, details]);  // React hands you the latest value
+}, []);                                          // empty deps: the function identity never changes
+
+// memoising value
+const value = useMemo(
+  () => ({ bookedCabDetails, updateBookedCabDetails, rideHistory }),
+  [bookedCabDetails, updateBookedCabDetails, rideHistory],
+);
+// note: updateBookedCabDetails has to be held steady by useCallback first,
+// or it is a new function every time, the useMemo deps change every time, and memoising does nothing.`,
                     explanation:
                       "最后那句注释是这一组最容易踩的坑：useMemo 的依赖里放了一个每次都新建的函数，等于白写。useCallback 和 useMemo 通常成对出现，就是这个原因。",
+                    explanationEn:
+                      "That last comment is the easiest trap in this pair: put a function that is rebuilt every time into the useMemo dependencies and the memoising achieves nothing. That is why useCallback and useMemo usually appear together.",
                   },
                 ),
               ],
@@ -5967,12 +5988,21 @@ const value = useMemo(
               kind: "debug",
               level: 2,
               title: "Debug Lab：0 个测试跑起来",
+              titleEn: "Debug Lab: zero tests run",
               prompt: (
                 <>
                   README 说「先运行完整答案熟悉流程」。
                   <code>npm install</code> 成功，
                   <code>npx vitest run</code> 却是下面这个输出。
                   <strong>注意最后一行的「no tests」。</strong>
+                </>
+              ),
+              promptEn: (
+                <>
+                  The README says to run the finished answer first to get used to the
+                  flow. <code>npm install</code> succeeds, and{" "}
+                  <code>npx vitest run</code> gives the output below.{" "}
+                  <strong>Look at the &ldquo;no tests&rdquo; on the last line.</strong>
                 </>
               ),
               errorOutput: ` RUN  v2.1.8 /Users/you/cab-booking-context
@@ -5998,32 +6028,34 @@ Error: Failed to parse source for import analysis because the content contains i
       Tests  no tests`,
               broken: real("jsx", SRC_CONTEXT, {
                 filename: "src/context/CabContext.js ← 注意这个扩展名",
-              filenameEn: "src/context/CabContext.js ← look at that extension",
+                filenameEn: "src/context/CabContext.js ← look at that extension",
                 sourceFile: "cab-booking-context/src/context/CabContext.js",
                 highlight: [19],
               }),
               classify: {
                 options: [
-                  { id: "a", label: "语法错误 —— 代码里少了个括号或标签没闭合" },
-                  { id: "b", label: "构建配置问题 —— 文件里有 JSX，但扩展名让 esbuild 用了 js loader" },
-                  { id: "c", label: "依赖缺失 —— 忘了 npm install" },
-                  { id: "d", label: "测试写错了 —— App.test.jsx 里的 import 路径不对" },
+                  { id: "a", label: "语法错误 —— 代码里少了个括号或标签没闭合", labelEn: "Syntax error — a bracket is missing or a tag is not closed" },
+                  { id: "b", label: "构建配置问题 —— 文件里有 JSX，但扩展名让 esbuild 用了 js loader", labelEn: "Build setup problem — the file holds JSX, but the extension made esbuild pick the js loader" },
+                  { id: "c", label: "依赖缺失 —— 忘了 npm install", labelEn: "Missing dependencies — npm install was not run" },
+                  { id: "d", label: "测试写错了 —— App.test.jsx 里的 import 路径不对", labelEn: "The test is wrong — an import path in App.test.jsx is off" },
                 ],
                 answer: "b",
               },
               locate: {
                 question: "「Tests no tests」这一行说明什么？",
+                questionEn: "What does the \"Tests no tests\" line tell you?",
                 options: [
-                  { id: "a", label: "测试全跑了但断言都失败" },
-                  { id: "b", label: "一个测试都没跑起来 —— 挂在收集/转换阶段，去改组件是白费功夫" },
-                  { id: "c", label: "测试文件被 .gitignore 忽略了" },
-                  { id: "d", label: "vitest 版本太老，不认识 describe" },
+                  { id: "a", label: "测试全跑了但断言都失败", labelEn: "Every test ran but every assertion failed" },
+                  { id: "b", label: "一个测试都没跑起来 —— 挂在收集/转换阶段，去改组件是白费功夫", labelEn: "Not one test started — it failed while collecting and transforming, so editing components is wasted effort" },
+                  { id: "c", label: "测试文件被 .gitignore 忽略了", labelEn: "The test file is ignored by .gitignore" },
+                  { id: "d", label: "vitest 版本太老，不认识 describe", labelEn: "The vitest version is too old and does not know describe" },
                 ],
                 answer: "b",
               },
               fixed: real("jsx", SRC_CONTEXT, {
                 filename: "src/context/CabContext.jsx ← 只改了文件名，内容一个字没动",
-              filenameEn: "src/context/CabContext.jsx ← only the file name changed, not one character inside",
+                filenameEn:
+                  "src/context/CabContext.jsx ← only the file name changed, not one character inside",
                 sourceFile: "cab-booking-context/src/context/CabContext.js",
               }),
               rootCause: (
@@ -6076,7 +6108,60 @@ Error: Failed to parse source for import analysis because the content contains i
                   </p>
                 </>
               ),
+              rootCauseEn: (
+                <>
+                  <p>
+                    <strong>The cause: the file holds JSX but its extension is{" "}
+                    <code>.js</code>.</strong> Vite transforms with esbuild, and{" "}
+                    <strong>esbuild picks its loader from the extension</strong>. The js
+                    loader does not parse syntax like{" "}
+                    <code>&lt;CabContext.Provider&gt;</code>.
+                  </p>
+                  <p>
+                    <strong>Three pieces of evidence, any one of which is enough:</strong>
+                  </p>
+                  <ul>
+                    <li>
+                      the last line of the error <strong>says it outright</strong>:{" "}
+                      <code>make sure to name the file with the .jsx or .tsx
+                      extension</code>;
+                    </li>
+                    <li>
+                      <code>Plugin: vite:import-analysis</code> — the error comes from a{" "}
+                      <strong>build plugin</strong>, not from React and not from vitest;
+                    </li>
+                    <li>
+                      <code>Tests no tests</code> —{" "}
+                      <strong>it did not even get through collection</strong>. The test
+                      code never ran, so this cannot be an assertion or a component
+                      problem.
+                    </li>
+                  </ul>
+                  <p>
+                    <strong>The fix:{" "}
+                    <code>mv CabContext.js CabContext.jsx</code>.</strong> Every import
+                    writes <code>from &quot;./context/CabContext&quot;</code> with no
+                    extension, so the bundler resolves it and{" "}
+                    <strong>not one import line has to change</strong>.
+                  </p>
+                  <p>
+                    <strong>Do not edit <code>vite.config.mjs</code> to add{" "}
+                    <code>loader: {"{ \".js\": \"jsx\" }"}</code>.</strong> That makes
+                    every <code>.js</code> file in the project parse as JSX, which{" "}
+                    <strong>turns one badly named file into a project-wide rule</strong>,
+                    and it breaks again the moment you change build tools.
+                  </p>
+                  <p>
+                    <strong>The bigger lesson:</strong>{" "}
+                    <strong>when the error says &ldquo;no tests&rdquo;, do not edit your
+                    own code.</strong> First tell &ldquo;the tests ran and failed&rdquo;
+                    apart from &ldquo;the tests never ran&rdquo; — the two send you to
+                    completely different places.
+                  </p>
+                </>
+              ),
               verify: "npx vitest run   # 期望：Test Files 1 passed / Tests 4 passed",
+              verifyEn: "npx vitest run   # expected: Test Files 1 passed / Tests 4 passed",
             },
             {
               id: "cb-better-recognition",
