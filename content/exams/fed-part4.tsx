@@ -514,6 +514,7 @@ export const fedMastery: Module = {
         {
           path: "graphql-federation-practice/node-subgraph/src/",
           role: "所有故障都基于这个项目的真实代码",
+          roleEn: "Every fault is based on the real code of this project",
         },
       ],
       concepts: [
@@ -1841,6 +1842,7 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
         {
           path: "graphql-federation-practice/",
           role: "参考项目 —— 做完之后再对照，不要提前看",
+          roleEn: "The reference project — compare against it after you finish; do not look early",
         },
       ],
       concepts: [
