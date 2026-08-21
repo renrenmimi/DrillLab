@@ -140,8 +140,8 @@ export const reactQ2: Module = {
       whyForAssessmentEn:
         "This question has no assertion tests. It has one demo.ts that prints how many tasks are running at each moment. So the only check is whether you can read that output. If you cannot read it, you do not know whether your answer is right.",
       sourceFiles: [
-        { path: "react-notes-app/q2/taskRunner.ts", role: "题面 + 类型 + 要实现的函数", edit: true },
-        { path: "react-notes-app/q2/demo.ts", role: "验证台，打印实时并发数与最终结果" },
+        { path: "react-notes-app/q2/taskRunner.ts", role: "题面 + 类型 + 要实现的函数", roleEn: "The question, the types, and the function you must write", edit: true },
+        { path: "react-notes-app/q2/demo.ts", role: "验证台，打印实时并发数与最终结果", roleEn: "The check harness: it prints how many tasks run at each moment, then the final results" },
       ],
       concepts: [
         {
@@ -172,6 +172,7 @@ export const reactQ2: Module = {
           code: [
             real("ts", TASK_RUNNER_HEADER, {
               filename: "q2/taskRunner.ts（题面与签名）",
+              filenameEn: "q2/taskRunner.ts (the question and the signature)",
               sourceFile: "react-notes-app/q2/taskRunner.ts",
               highlight: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
             }),
@@ -619,6 +620,7 @@ runTasks(tasks, 2).then((results) => {
 });`,
               {
                 filename: "q2/demo.ts（全文）",
+                filenameEn: "q2/demo.ts (the whole file)",
                 sourceFile: "react-notes-app/q2/demo.ts",
                 collapsible: true,
               },
@@ -626,7 +628,11 @@ runTasks(tasks, 2).then((results) => {
             real(
               "bash",
               `$ npm run q2      # → tsx q2/demo.ts`,
-              { explanation: "package.json 里的 q2 script 用 tsx 直接跑 TypeScript，不需要先编译。" },
+              {
+                explanation: "package.json 里的 q2 script 用 tsx 直接跑 TypeScript，不需要先编译。",
+                explanationEn:
+                  "The q2 script in package.json uses tsx to run TypeScript directly, so there is no compile step first.",
+              },
             ),
           ],
         },
