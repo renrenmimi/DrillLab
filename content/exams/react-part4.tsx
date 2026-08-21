@@ -691,6 +691,7 @@ runTasks(tasks, 2).then((results) => {
       title: "实现：worker pool（工人池）",
       titleEn: "Building it: a worker pool, meaning a fixed number of workers sharing one queue",
       blurb: "别想复杂了。就是「开 limit 个工人，一起从同一个待办队列里抢活」。",
+      blurbEn: "Do not overthink it. You start limit workers, and they all take jobs from the same to-do queue.",
       minutes: 16,
       objectives: [
         "独立实现 runTasks，并解释每一行为什么这么写",
@@ -698,8 +699,16 @@ runTasks(tasks, 2).then((results) => {
         "说清「按下标写回」为什么天然保证了顺序",
         "会读 npm run q2 的输出并判断实现是否正确",
       ],
+      objectivesEn: [
+        "Implement runTasks without help, and explain why each line is written that way",
+        "Explain why one shared cursor already guarantees the concurrency limit",
+        "Explain why writing results back by index already guarantees the order",
+        "Read the output of npm run q2 and decide whether the implementation is correct",
+      ],
       whyForAssessment:
         "这是 Q2 的完整答案。而且 worker pool 是一个可迁移的模式 —— 任何「限制并发」的题都是这个骨架。",
+      whyForAssessmentEn:
+        "This is the full answer to Q2. The worker pool is also a pattern you can carry to other problems: every question about limiting concurrency has this same skeleton.",
       sourceFiles: [
         { path: "react-notes-app/q2/taskRunner.ts", role: "要实现的 runTasks", edit: true },
       ],
@@ -707,7 +716,9 @@ runTasks(tasks, 2).then((results) => {
         {
           id: "wrong-idea",
           heading: "先排除一个直觉上的错解：分批",
+          headingEn: "First rule out the answer that feels obvious: fixed batches",
           lede: "「6 个任务、上限 2，那就切成 3 批」—— 这个想法能跑，但不对。",
+          ledeEn: "Six tasks, a limit of 2, so cut them into 3 batches. That idea runs, but it is wrong.",
           body: (
             <>
               <p>
@@ -782,7 +793,9 @@ runTasks(tasks, 2).then((results) => {
         {
           id: "the-idea",
           heading: "worker pool 的四个零件",
+          headingEn: "The four parts of a worker pool",
           lede: "拆开看，一共只有四样东西。",
+          ledeEn: "Taken apart, there are only four things.",
           body: (
             <>
               <ol>
@@ -862,7 +875,9 @@ runTasks(tasks, 2).then((results) => {
         {
           id: "why-safe",
           heading: "游标不会被抢乱吗",
+          headingEn: "Can two workers grab the same cursor value?",
           lede: "不会。JavaScript 是单线程的。",
+          ledeEn: "No. JavaScript runs on one thread.",
           body: (
             <>
               <p>
@@ -922,6 +937,7 @@ nextIndex++;           // 立刻把游标推进，别人抢不到同一个
         {
           id: "step-by-step",
           heading: "分步写出来",
+          headingEn: "Writing it one step at a time",
           body: (
             <>
               <p><strong>第一步：结果数组和游标。</strong></p>
@@ -1017,7 +1033,9 @@ return results;`,
         {
           id: "full-solution",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "这就是项目里的实现，已实测跑通。",
+          ledeEn: "This is the implementation in the project, and it has been run and checked.",
           body: (
             <>
               <p>
@@ -1046,6 +1064,7 @@ return results;`,
         {
           id: "verify",
           heading: "验证：读懂这段输出",
+          headingEn: "Checking your work: how to read this output",
           body: (
             <>
               <p>本机实测的完整输出。三条验收标准逐条对照：</p>
@@ -1466,6 +1485,18 @@ try {
               <strong>正解是预分配数组 + 按原始下标 <code>results[i]</code> 写回。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              <code>push</code> appends in <strong>finish order</strong>. Task 2 (100ms)
+              lands before task 1 (300ms), so <code>#1</code> holds the result of task 2.
+              That breaks the requirement to return results IN THE SAME ORDER as tasks.
+              <br />
+              <strong>
+                The right answer: create the array up front and write each result to its
+                original index, <code>results[i]</code>.
+              </strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1490,6 +1521,18 @@ try {
               <strong>catch 里只记录，不中断循环。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              After task 3 fails, that worker exits. The remaining tasks are left to the
+              other worker alone, so the real concurrency drops to 1. And if both workers
+              hit a failure, the later tasks never run at all, which leaves{" "}
+              <code>undefined</code> holes in <code>results</code>.
+              <br />
+              <strong>
+                In the catch block, record what happened and let the loop continue.
+              </strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1510,14 +1553,27 @@ const worker = async () => {
               靠闭包被所有 worker 共享。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              With the cursor declared inside the worker, every worker gets{" "}
+              <strong>its own copy</strong>, so every worker starts at 0 and runs all the
+              tasks. With limit=2 each task runs twice, and the number running at once is
+              double what it should be.
+              <br />
+              <strong>
+                Declare the cursor outside the worker, so the closure shares one cursor
+                between all workers.
+              </strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「限制并发数」「连接池」「批量上传限速」", reachFor: "worker pool：共享游标 + limit 个 worker" },
-        { signal: "「结果顺序必须与输入一致」", reachFor: "预分配数组 + results[i] 写回，别用 push" },
-        { signal: "「失败也要继续」", reachFor: "try/catch 在循环体内，catch 里不 return" },
-        { signal: "结果里出现 [Function] 或 Promise {}", reachFor: "括号写少了或写多了" },
-        { signal: "任务被重复执行", reachFor: "游标是不是被声明在了 worker 内部" },
+        { signal: "「限制并发数」「连接池」「批量上传限速」", signalEn: "Wording like: limit concurrency, a connection pool, rate-limited bulk upload", reachFor: "worker pool：共享游标 + limit 个 worker", reachForEn: "A worker pool: one shared cursor plus limit workers" },
+        { signal: "「结果顺序必须与输入一致」", signalEn: "The wording: results must be in the same order as the input", reachFor: "预分配数组 + results[i] 写回，别用 push", reachForEn: "Create the array up front and write results[i]; do not use push" },
+        { signal: "「失败也要继续」", signalEn: "The wording: keep going even when one fails", reachFor: "try/catch 在循环体内，catch 里不 return", reachForEn: "Put try/catch inside the loop body, and do not return from the catch" },
+        { signal: "结果里出现 [Function] 或 Promise {}", signalEn: "A result prints as [Function] or as Promise {}", reachFor: "括号写少了或写多了", reachForEn: "You left out a pair of call parentheses, or added an extra pair" },
+        { signal: "任务被重复执行", signalEn: "A task runs more than once", reachFor: "游标是不是被声明在了 worker 内部", reachForEn: "Check whether the cursor was declared inside the worker" },
       ],
       recap: [
         "worker pool 四个零件：预分配结果数组、共享游标、循环抢活的 worker、limit 个 worker + Promise.all。",
@@ -1525,6 +1581,13 @@ const worker = async () => {
         "JavaScript 单线程，游标那两行之间没有 await，所以不需要加锁。",
         "await tasks[i]() 的括号是关键；少了它任务根本不会被执行，而且不报错。",
         "catch 里只记录不中断，这才叫「NEVER throws」。",
+      ],
+      recapEn: [
+        "The four parts of a worker pool: a result array created up front, one shared cursor, a worker that loops and takes the next job, and limit workers run with Promise.all.",
+        "The concurrency limit comes from how many workers you start. The order comes from writing each result to its original index. Neither needs extra code.",
+        "JavaScript runs on one thread, and there is no await between the two cursor lines, so no lock is needed.",
+        "The parentheses in await tasks[i]() matter. Without them the task never runs, and nothing reports an error.",
+        "The catch block records and keeps going. That is what NEVER throws means.",
       ],
     },
   ],
