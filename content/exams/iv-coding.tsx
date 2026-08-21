@@ -1398,6 +1398,81 @@ const TodoApp: React.FC = () => {
 
 export default TodoApp;`;
 
+const C_RTKAPP_EN = `import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  added,
+  clearedDone,
+  filterChanged,
+  removed,
+  selectFilter,
+  selectRemaining,
+  selectVisible,
+  toggled,
+  type Filter,
+} from "../../store/todosSlice";
+
+const TodoApp: React.FC = () => {
+  const dispatch = useDispatch();
+  // Three selectors, each subscribing to one small part: a re-render happens only when
+  // that part changes. Context cannot do this (one context change re-renders every consumer)
+  const visible = useSelector(selectVisible);
+  const remaining = useSelector(selectRemaining);
+  const filter = useSelector(selectFilter);
+
+  const [text, setText] = useState("");
+  const invalid = text.trim() === "";
+
+  return (
+    <div data-testid="todo-app">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (invalid) return;
+          dispatch(added(text));      // the id is built in prepare
+          setText("");
+        }}
+      >
+        <input value={text} onChange={(e) => setText(e.target.value)} data-testid="input" />
+        <button type="submit" disabled={invalid} data-testid="submit">Add</button>
+      </form>
+
+      <span data-testid="remaining">{remaining} left</span>
+      <button onClick={() => dispatch(clearedDone())} data-testid="clear-done">Clear done</button>
+
+      {(["all", "active", "done"] as Filter[]).map((f) => (
+        <button
+          key={f}
+          onClick={() => dispatch(filterChanged(f))}
+          aria-pressed={filter === f}
+          data-testid={\`filter-\${f}\`}
+        >
+          {f}
+        </button>
+      ))}
+
+      <ul data-testid="list">
+        {visible.map((t) => (
+          <li key={t.id} data-done={t.done}>
+            <input
+              type="checkbox"
+              checked={t.done}
+              onChange={() => dispatch(toggled(t.id))}
+              aria-label={\`toggle \${t.text}\`}
+            />
+            <span>{t.text}</span>
+            <button onClick={() => dispatch(removed(t.id))} aria-label={\`delete \${t.text}\`}>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default TodoApp;`;
+
 const C_RTKTEST = `import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
@@ -3903,6 +3978,8 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
           code: [
             tested("tsx", C_RTKAPP, {
               filename: "src/components/TodoApp/index.tsx（实测通过）",
+              filenameEn: "src/components/TodoApp/index.tsx (passes in a real run)",
+              codeEn: C_RTKAPP_EN,
               collapsible: true,
             }),
             demo(
@@ -3916,7 +3993,19 @@ const { visible, remaining } = useSelector((s) => ({
 // ✓ 拆开，各自比较各自的值
 const visible = useSelector(selectVisible);
 const remaining = useSelector(selectRemaining);`,
-              { filename: "useSelector 最常见的性能坑" },
+              {
+                filename: "useSelector 最常见的性能坑",
+                filenameEn: "The most common performance trap with useSelector",
+                codeEn: `// ✗ the selector returns a new object: every store change re-renders
+const { visible, remaining } = useSelector((s) => ({
+  visible: selectVisible(s),
+  remaining: selectRemaining(s),
+}));
+
+// ✓ split them, so each one is compared against its own value
+const visible = useSelector(selectVisible);
+const remaining = useSelector(selectRemaining);`,
+              },
             ),
           ],
         },
