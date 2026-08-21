@@ -1445,6 +1445,8 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`,
       title: "网络、安全与测试 · 六问",
       titleEn: "6 questions on networking, security and testing",
       blurb: "测试的种类、HTTPS vs HTTP、JWT、CORS、session vs cookie、HTTP 状态码。",
+      blurbEn:
+        "Kinds of tests, HTTPS vs HTTP, JWT, CORS, session vs cookie, HTTP status codes.",
       minutes: 24,
       objectives: [
         "说清 CORS 是谁在拦、预检请求什么时候发、以及为什么前端改不了",
@@ -1452,12 +1454,21 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`,
         "分清测试金字塔的三层各测什么",
         "按类别说出常用状态码及其语义",
       ],
+      objectivesEn: [
+        "Explain who blocks a request under CORS, when the preflight request is sent, and why the front end cannot fix it",
+        "Compare JWT and session on the two points that matter: where the data is stored, and whether you can revoke it",
+        "Say what each of the three levels of the testing pyramid tests",
+        "Name the common status codes by group, and what each one means",
+      ],
       whyForAssessment:
         "CORS 那道几乎人人遇到过，但能说清「是浏览器在拦、不是服务器拒绝、所以前端改不了」的人不多 —— 这是最有区分度的一道。JWT vs session 会追问「怎么让 JWT 提前失效」，答不出说明只是背过概念。",
+      whyForAssessmentEn:
+        "Almost everyone has hit a CORS error, but few can say clearly that the browser is the one blocking it, that the server did not refuse the request, and that the front end therefore cannot fix it. That makes it the question that separates people most. On JWT vs session the follow-up is how to revoke a JWT early, and not having an answer shows you only memorised the definition.",
       concepts: [
         {
           id: "q360",
           heading: "什么是 CORS，怎么解决 CORS 错误",
+          headingEn: "What is CORS, and how do you fix a CORS error?",
           lede: "#360 What is CORS and how to solve the CORS error",
           body: (
             <>
@@ -1788,6 +1799,7 @@ server: {
         {
           id: "q359",
           heading: "什么是 JWT",
+          headingEn: "What is a JWT?",
           lede: "#359 What is JWT",
           body: (
             <>
@@ -2184,6 +2196,7 @@ server: {
         {
           id: "q362",
           heading: "常见的 HTTP 状态码",
+          headingEn: "What are the common HTTP status codes?",
           lede: "#362 Give some HTTP response status codes",
           body: (
             <>
@@ -2445,6 +2458,7 @@ server: {
         {
           id: "q357",
           heading: "测试有哪几种",
+          headingEn: "What kinds of tests are there?",
           lede: "#357 What are the different kinds of tests",
           body: (
             <>
@@ -2587,13 +2601,48 @@ server: {
         },
       ],
       transfer: [
-        { signal: "CORS 报错", reachFor: "浏览器在拦，前端改不了；服务端加头或走代理" },
-        { signal: "「配了 cors 还是不行」", reachFor: "带 cookie 时 Allow-Origin 不能是 *" },
-        { signal: "「POST 前多了一个 OPTIONS」", reachFor: "application/json 触发了预检" },
-        { signal: "问怎么让 JWT 提前失效", reachFor: "短过期 + refresh token；黑名单会变回有状态" },
-        { signal: "「刷新一下就掉登录」", reachFor: "多实例下 session 存内存了，改存 Redis" },
-        { signal: "分不清 401 和 403", reachFor: "401 没认证，403 认证了没授权" },
-        { signal: "问覆盖率要多少", reachFor: "别给数字；说覆盖率不代表断言强，举「空实现也能过」的例子" },
+        {
+          signal: "CORS 报错",
+          signalEn: "A CORS error",
+          reachFor: "浏览器在拦，前端改不了；服务端加头或走代理",
+          reachForEn: "The browser is blocking it and the front end cannot fix it; add the header on the server, or go through a proxy",
+        },
+        {
+          signal: "「配了 cors 还是不行」",
+          signalEn: "CORS is configured and it still fails",
+          reachFor: "带 cookie 时 Allow-Origin 不能是 *",
+          reachForEn: "When the request carries a cookie, Allow-Origin cannot be *",
+        },
+        {
+          signal: "「POST 前多了一个 OPTIONS」",
+          signalEn: "An extra OPTIONS request appears before the POST",
+          reachFor: "application/json 触发了预检",
+          reachForEn: "application/json triggered the preflight request",
+        },
+        {
+          signal: "问怎么让 JWT 提前失效",
+          signalEn: "Asked how to revoke a JWT before it expires",
+          reachFor: "短过期 + refresh token；黑名单会变回有状态",
+          reachForEn: "A short expiry plus a refresh token; a blocklist makes the server stateful again",
+        },
+        {
+          signal: "「刷新一下就掉登录」",
+          signalEn: "A reload logs the user out",
+          reachFor: "多实例下 session 存内存了，改存 Redis",
+          reachForEn: "With several server instances the session is kept in memory; store it in Redis instead",
+        },
+        {
+          signal: "分不清 401 和 403",
+          signalEn: "Mixing up 401 and 403",
+          reachFor: "401 没认证，403 认证了没授权",
+          reachForEn: "401 means not signed in, 403 means signed in but not allowed",
+        },
+        {
+          signal: "问覆盖率要多少",
+          signalEn: "Asked what test coverage number to aim for",
+          reachFor: "别给数字；说覆盖率不代表断言强，举「空实现也能过」的例子",
+          reachForEn: "Do not give a number; say that coverage does not measure how strong the assertions are, and give the example of an empty function that still passes",
+        },
       ],
       recap: [
         "CORS 是浏览器在拦，请求可能已经执行了；前端无解，靠服务端加头或代理。",
@@ -2603,6 +2652,15 @@ server: {
         "cookie 是浏览器存储机制，session 是服务端状态方案，后者靠前者传 id；四个安全属性要会。",
         "401 没认证、403 没授权；201 创建、204 删除；GraphQL 一律 200 把错误放 errors。",
         "测试金字塔单元→集成→E2E；覆盖率不代表断言强 ——「空实现恰好通过」是实测过的。",
+      ],
+      recapEn: [
+        "CORS is the browser blocking the response, and the request may already have run. The front end cannot fix it; the server has to send the header, or you use a proxy.",
+        "application/json triggers an OPTIONS preflight; when a cookie is sent, Allow-Origin has to name the exact origin.",
+        "HTTPS gives you three things: encryption, proof of identity, and integrity. Keys are exchanged with asymmetric cryptography, then data is sent with symmetric.",
+        "The payload of a JWT is only Base64, not encrypted. Its biggest weakness is that you cannot revoke it, and the standard answer is a short expiry plus a refresh token.",
+        "A cookie is browser storage, a session is a server-side approach to state, and the session uses the cookie to carry its id. Know the four security attributes.",
+        "401 means not signed in, 403 means signed in but not allowed; 201 for created, 204 for deleted; GraphQL always returns 200 and puts problems in errors.",
+        "The testing pyramid goes unit, then integration, then end-to-end. Coverage does not measure how strong the assertions are: an empty function passing the test has really happened.",
       ],
     },
   ],
