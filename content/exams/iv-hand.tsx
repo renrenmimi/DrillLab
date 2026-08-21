@@ -1028,11 +1028,22 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           kind: "code-completion",
           level: 3,
           title: "手写 flatten（depth 语义对齐原生 flat）",
+          titleEn: "Write flatten by hand (depth behaves like the built-in flat)",
           prompt: (
             <>
               把「只做浅拷贝」的半成品写成真正的 flatten：默认压一层，
               depth 控制层数，Infinity 全压平，不改输入。
               <strong>不许调用原生 <code>.flat()</code>。</strong>
+            </>
+          ),
+          promptEn: (
+            <>
+              Grow this shallow-copy version into a real flatten: one level by default,
+              depth decides how many levels, Infinity flattens everything, and the input
+              is never changed.{" "}
+              <strong>
+                Calling the built-in <code>.flat()</code> is not allowed.
+              </strong>
             </>
           ),
           language: "ts",
@@ -1042,22 +1053,39 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
   // TODO: 遍历。是数组且 depth > 0 -> 递归展开（depth - 1）；否则原样收进结果。
   return [...arr];
 }`,
+          starterEn: `export function flatten(arr: unknown[], depth = 1): unknown[] {
+  void depth;
+  // TODO: walk the input. An array and depth > 0 -> recurse with depth - 1; otherwise push the item as it is.
+  return [...arr];
+}`,
           requirements: [
             "默认 depth 为 1，与 Array.prototype.flat 一致",
             "depth 控制展开层数，Infinity 全压平",
             "depth 0 返回浅拷贝，不是原数组引用",
             "不改输入数组；不许调用原生 .flat()",
           ],
+          requirementsEn: [
+            "depth is 1 by default, the same as Array.prototype.flat",
+            "depth decides how many levels are opened up; Infinity flattens everything",
+            "depth 0 returns a shallow copy, not a reference to the input array",
+            "The input array is never changed, and the built-in .flat() is not allowed",
+          ],
           checks: [
-            { label: "判断了「是数组且还有层数」", must: "Array\\.isArray[\\s\\S]*depth" },
-            { label: "递归时层数减一", must: "depth - 1" },
-            { label: "没有调用原生 flat", mustNot: "\\.flat\\(" },
+            { label: "判断了「是数组且还有层数」", labelEn: "Checks both that the item is an array and that depth is left", must: "Array\\.isArray[\\s\\S]*depth" },
+            { label: "递归时层数减一", labelEn: "Lowers depth by one when recursing", must: "depth - 1" },
+            { label: "没有调用原生 flat", labelEn: "Does not call the built-in flat", mustNot: "\\.flat\\(" },
           ],
           hints: [
             "外层一个结果数组，for...of 遍历输入。",
             "分支条件是「Array.isArray(item) && depth > 0」—— 两个条件缺一不可。",
             "递归展开用 out.push(...flatten(item, depth - 1))。",
             "否则 out.push(item) 原样收进去 —— 空数组会在展开分支里自然消失。",
+          ],
+          hintsEn: [
+            "Keep one result array on the outside, and walk the input with for...of.",
+            "The branch condition is Array.isArray(item) && depth > 0 — you need both halves.",
+            "To open up a level, write out.push(...flatten(item, depth - 1)).",
+            "Otherwise out.push(item) keeps the item as it is. An empty array simply disappears in the recursing branch.",
           ],
           solution: tested(
             "ts",
@@ -1072,7 +1100,10 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
   }
   return out;
 }`,
-            { filename: "flatten.ts（scratchpad vitest 6 / 6）" },
+            {
+              filename: "flatten.ts（scratchpad vitest 6 / 6）",
+              filenameEn: "flatten.ts (scratchpad vitest 6 / 6)",
+            },
           ),
         },
         {
