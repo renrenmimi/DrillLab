@@ -4723,7 +4723,26 @@ const latestRides = rideHistory.slice(-3).toReversed();
 // ✓ 或者先复制再翻
 const latestRides = [...rideHistory].reverse().slice(0, 3);
 //   注意这个顺序也对，但多复制了整个数组`,
-                  { filename: "四种写法对比（示意）" },
+                  {
+                    filename: "四种写法对比（示意）",
+                    filenameEn: "Four versions side by side (illustration)",
+                    codeEn: `// ✓ safe: slice built a new array first, so reverse changes that copy
+const latestRides = rideHistory.slice(-3).reverse();
+
+// ✕ dangerous: reversing the state itself
+const latestRides = rideHistory.reverse();
+//                              ↑ this changes the state array
+//   the reference did not change → React does not re-render
+//   the next append lands after the reversed items → the order falls apart
+//   it reverses once per render → twice under StrictMode, invisible in development
+
+// ✓ another safe form (ES2023)
+const latestRides = rideHistory.slice(-3).toReversed();
+
+// ✓ or copy first, then reverse
+const latestRides = [...rideHistory].reverse().slice(0, 3);
+//   this order is correct too, but it copies the whole array`,
+                  },
                 ),
               ],
             },
