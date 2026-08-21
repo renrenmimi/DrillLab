@@ -300,7 +300,27 @@ console.log({} === {});          // false（两个不同的地址）
 console.log("a" === "a");        // true （比的是值）
 console.log(typeof null);        // "object" ← 历史 bug
 console.log(Array.isArray([]));  // true  ← 判断数组要用这个`,
-              { filename: "值和地址" },
+              {
+                filename: "值和地址",
+                filenameEn: "Values and addresses",
+                codeEn: `// Primitive value: the value is copied
+let a = 1;
+let b = a;
+b = 2;
+console.log(a);        // 1 —— a did not change
+
+// Reference value: the address is copied
+let o1 = { n: 1 };
+let o2 = o1;           // a second remote control for the same object
+o2.n = 2;
+console.log(o1.n);     // 2 ← it changed!
+
+// Comparing
+console.log({} === {});          // false (two different addresses)
+console.log("a" === "a");        // true  (the values are compared)
+console.log(typeof null);        // "object" ← a historical bug
+console.log(Array.isArray([]));  // true  ← use this to test for an array`,
+              },
             ),
           ],
         },
