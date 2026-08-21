@@ -2109,6 +2109,7 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
           kind: "recognition",
           id: "r-derived-or-state",
           title: "哪个应该做成 state",
+          titleEn: "Which one should become state",
           level: 1,
           prompt: (
             <p>
@@ -2116,11 +2117,17 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
               这个数字应该怎么实现？
             </p>
           ),
+          promptEn: (
+            <p>
+              Say you have to add a line to Notes Manager that shows how many notes
+              there are right now. How should that number be produced?
+            </p>
+          ),
           options: [
-            { id: "a", label: "新增一个 useState<number>(0)，在增删时同步维护" },
-            { id: "b", label: "直接用 notes.length，不新增 state" },
-            { id: "c", label: "用 useEffect 监听 notes，把长度写进另一个 state" },
-            { id: "d", label: "存到 localStorage 里" },
+            { id: "a", label: "新增一个 useState<number>(0)，在增删时同步维护", labelEn: "Add a useState<number>(0) and keep it up to date on every add and delete" },
+            { id: "b", label: "直接用 notes.length，不新增 state", labelEn: "Use notes.length directly, with no new state" },
+            { id: "c", label: "用 useEffect 监听 notes，把长度写进另一个 state", labelEn: "Watch notes with useEffect and write the length into another state" },
+            { id: "d", label: "存到 localStorage 里", labelEn: "Keep it in localStorage" },
           ],
           answer: ["b"],
           explain: (
@@ -2134,11 +2141,25 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
               判断口诀：<strong>能从现有 state 算出来的，就别存。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              <code>notes.length</code> is the answer. It is <strong>always</strong>{" "}
+              in step with notes, because it is recomputed on every render.
+              <br />
+              A and C both store one fact twice, so the moment one side is not
+              updated the two disagree. C also costs an extra render, because the
+              setState inside the effect starts another round.
+              <br />
+              The rule of thumb: <strong>if you can compute it from state you already
+              have, do not store it.</strong>
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-where-state-lives",
           title: "这个 state 该住哪",
+          titleEn: "Where should this state live",
           level: 1,
           prompt: (
             <p>
@@ -2147,11 +2168,18 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
               搜索关键词这个 state 该放在哪？
             </p>
           ),
+          promptEn: (
+            <p>
+              Say you add a search box above NoteForm, as a direct child of
+              NoteManager. Once a keyword is typed, the table shows only the notes
+              that match. Where should the state holding that keyword go?
+            </p>
+          ),
           options: [
-            { id: "a", label: "NoteTable —— 它负责显示筛选结果" },
-            { id: "b", label: "NoteItem —— 每一行自己判断要不要显示" },
-            { id: "c", label: "NoteManager —— 搜索框和表格的共同祖先" },
-            { id: "d", label: "NoteForm —— 它已经管着输入了" },
+            { id: "a", label: "NoteTable —— 它负责显示筛选结果", labelEn: "NoteTable — it is the one showing the filtered result" },
+            { id: "b", label: "NoteItem —— 每一行自己判断要不要显示", labelEn: "NoteItem — each row decides for itself whether to show" },
+            { id: "c", label: "NoteManager —— 搜索框和表格的共同祖先", labelEn: "NoteManager — the common ancestor of the search box and the table" },
+            { id: "d", label: "NoteForm —— 它已经管着输入了", labelEn: "NoteForm — it already handles the inputs" },
           ],
           answer: ["c"],
           explain: (
@@ -2166,6 +2194,22 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
               <br />
               这也是最常见的 React 面试变式题：加筛选、加排序。
               解法都是「一个 state 存条件 + 一个派生数组」。
+            </>
+          ),
+          explainEn: (
+            <>
+              The search box produces the keyword and the table consumes it. Their
+              closest common ancestor is <code>NoteManager</code>.
+              <br />
+              Then, inside <code>NoteManager</code>, compute{" "}
+              <code>const visible = notes.filter(n =&gt; n.title.includes(keyword))</code>{" "}
+              as <strong>computed data</strong> and pass it to{" "}
+              <code>NoteTable</code>. <strong>Do not</strong> open a second{" "}
+              <code>filteredNotes</code> state for it.
+              <br />
+              This is also the most common React interview variation: add filtering,
+              add sorting. The answer is always one state for the condition plus one
+              computed array.
             </>
           ),
         },
