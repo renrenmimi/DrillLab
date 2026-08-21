@@ -3227,11 +3227,18 @@ task 6 DONE    (running now: 0)`,
               kind: "fill-blank",
               id: "f-async-blanks",
               title: "补全 DataLoader 的批量函数",
+              titleEn: "Fill in the batch function of the DataLoader",
               level: 2,
               prompt: (
                 <p>
                   这是 subgraph 里真实的 DataLoader 批量加载函数。
                   两个空都关系到「异步 + 数组」的固定套路。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  This is the real DataLoader batch function from the subgraph. Both
+                  blanks are part of the fixed pattern for async work over an array.
                 </p>
               ),
               language: "js",
@@ -3252,6 +3259,7 @@ task 6 DONE    (running now: 0)`,
                   n: 1,
                   accept: ["all"],
                   hint: "要等「一批」Promise 全部完成，而且这里希望任何一个失败都直接冒出去。",
+                  hintEn: "You wait for a whole batch of Promises, and here any failure should be allowed to surface.",
                   why: (
                     <>
                       <code>Promise.all</code>。DataLoader 的批量函数需要返回一个
@@ -3260,18 +3268,38 @@ task 6 DONE    (running now: 0)`,
                       try/catch 处理。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>Promise.all</code>. A DataLoader batch function has to return
+                      an array that is the same length as the keys it was given, in the
+                      same order, and <code>all</code> guarantees both. allSettled is
+                      wrong here — if the data source fails, the error should surface and
+                      be handled by the try/catch in the resolver.
+                    </>
+                  ),
                   width: 5,
                 },
                 {
                   n: 2,
                   accept: ["map"],
                   hint: "把每个 id 变成一个 Promise，数量不变。",
+                  hintEn: "Turn every id into a Promise, and keep the count the same.",
                   why: (
                     <>
                       <code>map</code>。一个 id 对一个 Promise，长度和顺序都不变 ——
                       这是 DataLoader 的硬要求，它靠<strong>位置</strong>把结果分发回各个
                       <code>load()</code> 调用方。如果你在这里用了 filter，或者调换了顺序，
                       就会出现「A 拿到了 B 的数据」这种极难查的 bug。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>map</code>. One id becomes one Promise, and both the length
+                      and the order stay the same. DataLoader requires this, because it
+                      uses <strong>position</strong> to hand each result back to the
+                      matching <code>load()</code> caller. Use filter here, or change the
+                      order, and you get bugs like &ldquo;A received B&rsquo;s
+                      data&rdquo;, which are very hard to track down.
                     </>
                   ),
                   width: 6,
