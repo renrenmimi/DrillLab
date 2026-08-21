@@ -2217,11 +2217,18 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
           kind: "code-completion",
           id: "r-write-derived",
           title: "写出派生数据与按钮文字",
+          titleEn: "Write the computed value and the button text",
           level: 3,
           prompt: (
             <p>
               补出 <code>isFormInvalid</code> 和按钮的两处动态部分。
               注意：只输入空格也应该算无效。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Fill in <code>isFormInvalid</code> and the two changing parts of the
+              button. Note: spaces only should also count as invalid.
             </p>
           ),
           language: "tsx",
@@ -2245,6 +2252,24 @@ return (
     </button>
   </form>
 );`,
+          starterEn: `const [title, setTitle] = useState("");
+const [content, setContent] = useState("");
+
+// 1. is the form invalid: title or content empty (spaces only counts as empty)
+const isFormInvalid =
+
+return (
+  <form onSubmit={handleSubmit} data-testid="note-form">
+    {/* ...the two inputs... */}
+    <button
+      type="submit"
+      /* 2. disable it while the form is invalid */
+      data-testid="form-submit-button"
+    >
+      {/* 3. show Update in edit mode, Add otherwise */}
+    </button>
+  </form>
+);`,
           requirements: [
             "isFormInvalid 是一个普通 const，不许用 useState",
             "只输入空格也要判定为无效（用 trim）",
@@ -2252,19 +2277,32 @@ return (
             "按钮文字：noteToEdit 存在时是 Update，否则是 Add（大小写必须一致）",
             "不许改动 data-testid",
           ],
+          requirementsEn: [
+            "isFormInvalid is a plain const; useState is not allowed",
+            "Spaces only must also count as invalid (use trim)",
+            "The button is disabled while the form is invalid",
+            "Button text: Update when noteToEdit exists, otherwise Add (the capitals must match)",
+            "Do not change any data-testid",
+          ],
           checks: [
-            { label: "isFormInvalid 用了 trim()", must: "isFormInvalid[^\\n]*trim\\s*\\(\\s*\\)" },
-            { label: "同时检查了 title 和 content", must: "isFormInvalid[^\\n]*title[^\\n]*content" },
-            { label: "没有把 isFormInvalid 做成 state", mustNot: "useState[^\\n]*[Ii]nvalid" },
-            { label: "按钮上有 disabled={isFormInvalid}", must: "disabled\\s*=\\s*\\{\\s*isFormInvalid\\s*\\}" },
-            { label: "按钮文字用了三元判断 noteToEdit", must: "noteToEdit\\s*\\?" },
-            { label: "文字是 \"Update\" 和 \"Add\"（大小写正确）", must: '"Update"[\\s\\S]*"Add"' },
-            { label: "data-testid 没被改动", must: 'data-testid="form-submit-button"' },
+            { label: "isFormInvalid 用了 trim()", labelEn: "isFormInvalid uses trim()", must: "isFormInvalid[^\\n]*trim\\s*\\(\\s*\\)" },
+            { label: "同时检查了 title 和 content", labelEn: "Both title and content are checked", must: "isFormInvalid[^\\n]*title[^\\n]*content" },
+            { label: "没有把 isFormInvalid 做成 state", labelEn: "isFormInvalid was not turned into state", mustNot: "useState[^\\n]*[Ii]nvalid" },
+            { label: "按钮上有 disabled={isFormInvalid}", labelEn: "The button carries disabled={isFormInvalid}", must: "disabled\\s*=\\s*\\{\\s*isFormInvalid\\s*\\}" },
+            { label: "按钮文字用了三元判断 noteToEdit", labelEn: "The button text uses a ternary on noteToEdit", must: "noteToEdit\\s*\\?" },
+            { label: "文字是 \"Update\" 和 \"Add\"（大小写正确）", labelEn: "The words are \"Update\" and \"Add\" with the right capitals", must: '"Update"[\\s\\S]*"Add"' },
+            { label: "data-testid 没被改动", labelEn: "No data-testid was changed", must: 'data-testid="form-submit-button"' },
           ],
           hints: [
             "「表单无效」= 标题空 或者 内容空。两个条件用 || 连起来。",
             "「只有空格也算空」意味着比较之前要先 trim()。按钮文字用三元表达式，写在 JSX 的花括号里。",
             "const isFormInvalid = 标题去空白后 === \"\" || 内容去空白后 === \"\";\n按钮里写 {条件 ? \"Update\" : \"Add\"}",
+            'const isFormInvalid = title.trim() === "" || content.trim() === "";\n<button type="submit" disabled={isFormInvalid} data-testid="form-submit-button">',
+          ],
+          hintsEn: [
+            "\"The form is invalid\" = the title is empty OR the content is empty. Join the two conditions with ||.",
+            "\"Spaces only counts as empty\" means you call trim() before comparing. The button text is a ternary expression, written inside JSX curly braces.",
+            "const isFormInvalid = title with whitespace removed === \"\" || content with whitespace removed === \"\";\nIn the button write {condition ? \"Update\" : \"Add\"}",
             'const isFormInvalid = title.trim() === "" || content.trim() === "";\n<button type="submit" disabled={isFormInvalid} data-testid="form-submit-button">',
           ],
           solution: real(
@@ -2280,6 +2318,7 @@ return (
 </button>`,
             {
               filename: "参考答案（与项目里的实现一致）",
+              filenameEn: "Reference answer (same as the implementation in the project)",
               sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
             },
           ),
