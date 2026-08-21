@@ -1772,10 +1772,19 @@ const handleSubmitNote = (submittedNote: Note) => {
 // NoteTableProps / NoteItemProps 的类型也说明了这件事
 onDelete: (id: number) => void;`,
               {
+                codeEn: `// NoteItem: it reports the id and nothing else
+<button onClick={() => onDelete(note.id)} className="danger">
+  Delete
+</button>
+
+// The types of NoteTableProps / NoteItemProps say the same thing
+onDelete: (id: number) => void;`,
                 sourceFile:
                   "react-notes-app/src/components/NoteItem/index.tsx 与 NoteTable/index.tsx",
                 explanation:
                   "类型签名 (id: number) => void 是一条硬约束：你只会收到 id，收不到整条 note。所以「按 title 删」这条路在类型层面就被堵住了一半 —— 你拿不到 title。",
+                explanationEn:
+                  "The type signature (id: number) => void is a hard limit: you receive the id, never the whole note. So deleting by title is already half blocked by the types — you never get the title.",
               },
             ),
           ],
@@ -2034,8 +2043,10 @@ onDelete: (id: number) => void;`,
           kind: "fill-blank",
           id: "r-t2-blank",
           title: "补全删除逻辑",
+          titleEn: "Fill in the delete logic",
           level: 2,
           prompt: <p>三个空。第三个空是这道题唯一会绕人的地方。</p>,
+          promptEn: <p>Three blanks. The third one is the only part that trips people up.</p>,
           language: "tsx",
           filename: "src/components/NoteManager/index.tsx",
           sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
@@ -2047,6 +2058,7 @@ onDelete: (id: number) => void;`,
               n: 1,
               accept: ["filter"],
               hint: "删除意味着结果可能变短。哪个方法会？",
+              hintEn: "Deleting means the result can get shorter. Which method does that?",
               why: (
                 <>
                   <code>filter</code>。三个常用方法里只有它会改变长度，
@@ -2056,12 +2068,25 @@ onDelete: (id: number) => void;`,
                   <code>splice</code> 会修改原数组（React 看不出变化）。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>filter</code>. Of the three common methods it is the only
+                  one that changes the length, and it returns a{" "}
+                  <strong>new array</strong>, which is exactly what an immutable
+                  update needs.
+                  <br />
+                  <code>map</code> keeps the same length (it leaves an undefined
+                  hole), and <code>splice</code> changes the original array, so
+                  React sees no change at all.
+                </>
+              ),
               width: 8,
             },
             {
               n: 2,
               accept: ["id"],
               hint: "题目原文：「该行按 ___ 被移除」。",
+              hintEn: "The task says: the row is removed by ___.",
               why: (
                 <>
                   <code>id</code>。题目明确写了「按 id」。
@@ -2070,12 +2095,22 @@ onDelete: (id: number) => void;`,
                   你根本拿不到 title。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>id</code>. The task says by id, in those words. Using{" "}
+                  <code>title</code> would delete every note with the same title
+                  at once. And the only parameter of{" "}
+                  <code>handleDelete</code> is the id, so you never have the title
+                  to compare with.
+                </>
+              ),
               width: 5,
             },
             {
               n: 3,
               accept: ["!==", "!="],
               hint: "filter 保留的是回调返回 true 的元素。要删掉相等的，就要保留……",
+              hintEn: "filter keeps the elements whose callback returns true. To drop the equal one, you keep the...",
               why: (
                 <>
                   <code>!==</code>。<code>filter</code> 的语义是「留下」。
@@ -2088,6 +2123,21 @@ onDelete: (id: number) => void;`,
                   总之：<code>filter</code> 想着「留谁」，别想着「删谁」。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>!==</code>. What <code>filter</code> means is
+                  &quot;keep&quot;. To remove the note whose id matches, you have
+                  to <strong>keep the ones that do not match</strong>.
+                  <br />
+                  Writing <code>===</code> instead{" "}
+                  <strong>keeps only the note you meant to delete</strong> and
+                  removes all the others. The third test asserts that ToDelete is
+                  gone after the delete, so <strong>that test turns red</strong>,
+                  and the failure points at the assertion rather than at your{" "}
+                  <code>filter</code>. In short: with <code>filter</code>, think
+                  about who stays, not about who goes.
+                </>
+              ),
               width: 5,
             },
           ],
@@ -2096,12 +2146,23 @@ onDelete: (id: number) => void;`,
           kind: "code-completion",
           id: "r-t2-write",
           title: "不看答案，自己写出 Task 2",
+          titleEn: "Write Task 2 yourself, without looking at the answer",
           level: 3,
           prompt: <p>一行代码的题。但要一次写对，不许用 push / splice。</p>,
+          promptEn: (
+            <p>
+              One line of code. But get it right the first time, and without push
+              or splice.
+            </p>
+          ),
           language: "tsx",
           filename: "src/components/NoteManager/index.tsx",
           sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
           starter: `// 要求：点某一行的 Delete 后，那条笔记按 id 从 notes 里移除
+const handleDelete = (id: number) => {
+
+};`,
+          starterEn: `// The requirement: after Delete on a row, that note is removed from notes by id
 const handleDelete = (id: number) => {
 
 };`,
@@ -2112,18 +2173,39 @@ const handleDelete = (id: number) => {
             "不许修改原数组（不许用 splice）",
             "不许按 title 或下标比较",
           ],
+          requirementsEn: [
+            "Remove the matching note by id",
+            "Keep every other note, in the same order",
+            "Use a functional update",
+            "Do not change the original array (no splice)",
+            "Do not compare by title or by index",
+          ],
           checks: [
-            { label: "用了 filter", must: "\\.filter\\s*\\(" },
-            { label: "用了函数式更新", must: "setNotes\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>" },
-            { label: "按 id 比较", must: "\\.id\\s*!==?\\s*id" },
-            { label: "条件用的是不等号（保留不匹配的）", must: "!==?\\s*id" },
-            { label: "没有 splice / push", mustNot: "\\.(splice|push)\\s*\\(" },
-            { label: "没有按 title 比较", mustNot: "\\.title\\s*[!=]==?" },
+            { label: "用了 filter", labelEn: "filter is used", must: "\\.filter\\s*\\(" },
+            {
+              label: "用了函数式更新",
+              labelEn: "A functional update is used",
+              must: "setNotes\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>",
+            },
+            { label: "按 id 比较", labelEn: "The comparison is by id", must: "\\.id\\s*!==?\\s*id" },
+            {
+              label: "条件用的是不等号（保留不匹配的）",
+              labelEn: "The condition uses not-equal (it keeps the ones that do not match)",
+              must: "!==?\\s*id",
+            },
+            { label: "没有 splice / push", labelEn: "No splice / push", mustNot: "\\.(splice|push)\\s*\\(" },
+            { label: "没有按 title 比较", labelEn: "No comparison by title", mustNot: "\\.title\\s*[!=]==?" },
           ],
           hints: [
             "「移除一条」等价于「保留其余全部」。换个角度想问题。",
             "filter 是唯一会让数组变短的方法，而且它返回新数组。参数里只有 id，所以只能按 id 比。",
             "setNotes(接收最新值 => 最新值.filter(每一条 => 这条的 id 不等于要删的 id))",
+            "setNotes((prev) => prev.filter((note) => note.id !== id));",
+          ],
+          hintsEn: [
+            "Removing one note is the same as keeping all the others. Turn the question around.",
+            "filter is the only method that makes an array shorter, and it returns a new array. The id is the only parameter you have, so id is the only thing you can compare.",
+            "setNotes(latest value => latest value.filter(each one => the id of this one is not the id to delete))",
             "setNotes((prev) => prev.filter((note) => note.id !== id));",
           ],
           solution: real(
@@ -2133,6 +2215,7 @@ const handleDelete = (id: number) => {
 };`,
             {
               filename: "参考答案",
+              filenameEn: "Reference answer",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
