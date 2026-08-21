@@ -443,11 +443,18 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           kind: "fill-blank",
           id: "r-controlled-blanks",
           title: "补全受控输入的闭环",
+          titleEn: "Complete the loop of a controlled input",
           level: 2,
           prompt: (
             <p>
               把 <code>NoteForm</code> 里 textarea 那一段补全。
               三个空构成一个完整的闭环。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Fill in the textarea part of <code>NoteForm</code>. The three blanks
+              together form one complete loop.
             </p>
           ),
           language: "tsx",
@@ -467,11 +474,19 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               n: 1,
               accept: ["useState"],
               hint: "让 React 替你记住这个值的那个 Hook。",
+              hintEn: "The Hook that asks React to remember this value for you.",
               why: (
                 <>
                   <code>useState</code>。初始值 <code>&quot;&quot;</code>
                   已经说明了类型是 string，所以这里<strong>不需要</strong>
                   写泛型参数。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>useState</code>. The initial value{" "}
+                  <code>&quot;&quot;</code> already says the type is string, so you{" "}
+                  <strong>do not need</strong> a generic parameter here.
                 </>
               ),
               width: 10,
@@ -480,11 +495,19 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               n: 2,
               accept: ["content"],
               hint: "显示什么，由 state 里的当前值决定。",
+              hintEn: "What is shown is decided by the current value in state.",
               why: (
                 <>
                   <code>content</code>。这条把「state → 界面」这半边接上了。
                   写成 <code>setContent</code> 是把函数塞进 value，
                   React 会警告并显示一堆奇怪的东西。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>content</code>. This connects the &ldquo;state →
+                  screen&rdquo; half. Writing <code>setContent</code> here puts a
+                  function into value; React warns and shows something strange.
                 </>
               ),
               width: 9,
@@ -493,6 +516,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               n: 3,
               accept: ["e.target.value", "event.target.value"],
               hint: "从事件对象里取出输入框此刻的内容。",
+              hintEn: "Take the input's current content out of the event object.",
               why: (
                 <>
                   <code>e.target.value</code>。<code>e.target</code>
@@ -501,6 +525,18 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
                   <br />
                   常见错写：<code>e.value</code>（<code>e</code> 是事件不是元素）、
                   <code>e.target.text</code>（textarea 也用 value，不是 text）。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>e.target.value</code>. <code>e.target</code> is the DOM
+                  element that fired the event, and <code>.value</code> is its
+                  current content. This connects the other half, &ldquo;screen →
+                  state&rdquo;, and the loop is complete.
+                  <br />
+                  Common wrong answers: <code>e.value</code> (<code>e</code> is the
+                  event, not the element) and <code>e.target.text</code> (a textarea
+                  also uses value, not text).
                 </>
               ),
               width: 17,
