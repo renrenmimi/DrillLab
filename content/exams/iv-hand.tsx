@@ -1185,7 +1185,19 @@ const clone = JSON.parse(JSON.stringify(source));
 // { d: new Date() }       -> { d: "2026-..." }（Date 变字符串）
 // { m: new Map([...]) }   -> { m: {} }     （Map/Set 变空对象）
 // a.self = a              -> TypeError     （循环引用直接抛错）`,
-            { filename: "JSON.parse(JSON.stringify(x)) 的全部代价" },
+            {
+              filename: "JSON.parse(JSON.stringify(x)) 的全部代价",
+              filenameEn: "Everything JSON.parse(JSON.stringify(x)) costs you",
+              codeEn: `// ✕ the JSON trick — giving this as your answer in an interview counts as not answering
+const clone = JSON.parse(JSON.stringify(source));
+
+// What it quietly drops or damages:
+// { a: undefined }        -> {}            (the key is simply gone)
+// { fn: () => {} }        -> {}            (the function is gone)
+// { d: new Date() }       -> { d: "2026-..." }(the Date became a string)
+// { m: new Map([...]) }   -> { m: {} }     (Map and Set became empty objects)
+// a.self = a              -> TypeError     (a circular reference throws)`,
+            },
           ),
           why: (
             <>
