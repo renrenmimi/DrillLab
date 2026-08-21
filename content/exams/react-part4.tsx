@@ -1538,11 +1538,19 @@ task 6 DONE    (running now: 0)
           kind: "code-completion",
           id: "r-q2-write",
           title: "从签名开始，自己写出整个 runTasks",
+          titleEn: "Start from the signature and write all of runTasks yourself",
           level: 3,
           prompt: (
             <p>
               只给签名。这是 Q2 的完整答案，写对了这道题就通了。
               写完可以在本机 <code>npm run q2</code> 验证。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You get only the signature. This is the complete answer to Q2:
+              get it right and the question is done. When you finish you can
+              check it here with <code>npm run q2</code>.
             </p>
           ),
           language: "ts",
@@ -1567,17 +1575,24 @@ export async function runTasks<T>(
             "返回数组的顺序必须与 tasks 一致",
             "成功写 { status: \"fulfilled\", value }，失败写 { status: \"rejected\", reason }",
           ],
+          requirementsEn: [
+            "At most limit tasks are running at the same time",
+            "As soon as one task finishes, start the next one (do not wait for a whole batch)",
+            "No failing task may make the whole call throw",
+            "The order of the returned array must match tasks",
+            "On success write { status: \"fulfilled\", value }; on failure write { status: \"rejected\", reason }",
+          ],
           checks: [
-            { label: "预分配了结果数组（new Array 或等价写法）", must: "new Array\\s*\\(|results\\s*:\\s*SettledResult" },
-            { label: "有一个共享游标（let 声明的下标变量）", must: "let\\s+\\w*[Ii]ndex" },
-            { label: "调用了任务函数（tasks[...] 后面有括号）", must: "tasks\\s*\\[[^\\]]+\\]\\s*\\(" },
-            { label: "用 try/catch 接住失败", must: "try[\\s\\S]*catch" },
-            { label: "按下标写回结果，保证顺序", must: "results\\s*\\[" },
-            { label: "没有用 push 收集结果（会打乱顺序）", mustNot: "results\\.push" },
-            { label: "写了 fulfilled 状态", must: '"fulfilled"' },
-            { label: "写了 rejected 状态", must: '"rejected"' },
-            { label: "用 Promise.all 等所有 worker 收工", must: "Promise\\.all" },
-            { label: "没有一次性全部启动（不是 tasks.map(t => t())）", mustNot: "tasks\\.map\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>\\s*\\w+\\s*\\(\\s*\\)" },
+            { label: "预分配了结果数组（new Array 或等价写法）", labelEn: "Allocates the result array up front (new Array or an equivalent)", must: "new Array\\s*\\(|results\\s*:\\s*SettledResult" },
+            { label: "有一个共享游标（let 声明的下标变量）", labelEn: "Has one shared cursor (an index variable declared with let)", must: "let\\s+\\w*[Ii]ndex" },
+            { label: "调用了任务函数（tasks[...] 后面有括号）", labelEn: "Calls the task function (parentheses after tasks[...])", must: "tasks\\s*\\[[^\\]]+\\]\\s*\\(" },
+            { label: "用 try/catch 接住失败", labelEn: "Catches failures with try/catch", must: "try[\\s\\S]*catch" },
+            { label: "按下标写回结果，保证顺序", labelEn: "Writes results back by index, which keeps the order", must: "results\\s*\\[" },
+            { label: "没有用 push 收集结果（会打乱顺序）", labelEn: "Does not collect results with push (that loses the order)", mustNot: "results\\.push" },
+            { label: "写了 fulfilled 状态", labelEn: "Writes the fulfilled status", must: '"fulfilled"' },
+            { label: "写了 rejected 状态", labelEn: "Writes the rejected status", must: '"rejected"' },
+            { label: "用 Promise.all 等所有 worker 收工", labelEn: "Waits for every worker with Promise.all", must: "Promise\\.all" },
+            { label: "没有一次性全部启动（不是 tasks.map(t => t())）", labelEn: "Does not start everything at once (not tasks.map(t => t()))", mustNot: "tasks\\.map\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>\\s*\\w+\\s*\\(\\s*\\)" },
           ],
           hints: [
             "并发上限怎么天然实现？如果你只开 limit 个「工人」，每个工人同时只做一件事，那同时在跑的任务自然不会超过 limit。",
@@ -1607,8 +1622,38 @@ const worker = async () => {
 };
 // 剩下的：开 worker、Promise.all、return`,
           ],
+          hintsEn: [
+            "How does the concurrency limit come out on its own? If you start only limit workers, and each worker does one thing at a time, then the number of tasks running at once can never go above limit.",
+            "You need four things: \u2460 a result array of fixed length \u2461 one cursor shared by all workers \u2462 an async function that loops and takes the next task \u2463 start limit of them and wait with Promise.all. The order is kept by writing each result back at its original index.",
+            `const results = an array of length tasks.length;
+let nextIndex = 0;
+const worker = async () => {
+  while (there is still work left) {
+    const i = nextIndex; nextIndex++;
+    try { results[i] = the success result } catch { results[i] = the failure result }
+  }
+};
+start min(limit, length) workers, await Promise.all, return results`,
+            `const results: SettledResult<T>[] = new Array(tasks.length);
+let nextIndex = 0;
+const worker = async () => {
+  while (nextIndex < tasks.length) {
+    const i = nextIndex;
+    nextIndex++;
+    try {
+      const value = await tasks[i]();
+      results[i] = { status: "fulfilled", value };
+    } catch (reason) {
+      results[i] = { status: "rejected", reason };
+    }
+  }
+};
+// what is left: start the workers, Promise.all, return`,
+          ],
           solution: real("ts", TASK_RUNNER_SOLUTION, {
             filename: "参考答案（与项目实现一致，npm run q2 实测通过）",
+            filenameEn:
+              "Reference answer (identical to the project implementation, checked here with npm run q2)",
             sourceFile: "react-notes-app/q2/taskRunner.ts",
           }),
         },
