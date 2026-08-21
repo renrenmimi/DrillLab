@@ -909,6 +909,8 @@ export const reactVariants: Module = {
       title: "变式一 · Todo List",
       titleEn: "Variation 1 · Todo List",
       blurb: "和 Notes Manager 同一套骨架，多了一个布尔字段、一个筛选、两个批量操作。",
+      blurbEn:
+        "The same skeleton as the Notes Manager, plus one boolean field, one filter, and two bulk actions.",
       minutes: 14,
       objectives: [
         "用 map + 对象展开就地翻转一条数据的布尔字段",
@@ -916,13 +918,23 @@ export const reactVariants: Module = {
         "实现全选 / 取消全选和「清除已完成」",
         "说清筛选态下的删除为什么必须作用于原始数据",
       ],
+      objectivesEn: [
+        "Flip the boolean field on one item using map plus object spread",
+        "Write how many are left, whether everything is done, and the filtered list as derived values",
+        "Implement select all / clear all, and clear completed",
+        "Explain why a delete under an active filter must act on the original data",
+      ],
       whyForAssessment:
         "Todo List 是 React 面试与 assessment 出现频率最高的一道题。它考的东西和真实 Q1 完全重合（受控输入、三种不可变更新、派生数据），只是多了 toggle 和 filter 两个变式。做完这道题，Q1 那类题就不会再有陌生感。",
+      whyForAssessmentEn:
+        "The Todo List is the question that shows up most often in React interviews and exams. What it tests overlaps completely with the real Q1: controlled inputs, the three ways to update data without changing the original, and derived values. It only adds two extra moves, toggle and filter. Once you have done this one, Q1 style questions no longer feel new.",
       concepts: [
         {
           id: "shape",
           heading: "数据形状：只比 Note 多一个布尔字段",
+          headingEn: "The shape of the data: one boolean field more than Note",
           lede: "先看类型，其余都是从它推出来的。",
+          ledeEn: "Start with the type. Everything else follows from it.",
           body: (
             <>
               <p>
@@ -970,7 +982,9 @@ export type Todo = {
         {
           id: "toggle",
           heading: "翻转一条：map + 对象展开",
+          headingEn: "Flipping one item: map plus object spread",
           lede: "这是三件套之外的第四个动作，但底层还是 map。",
+          ledeEn: "This is a fourth action beyond the usual three, but underneath it is still map.",
           body: (
             <>
               <p>
@@ -1046,6 +1060,7 @@ setTodos((prev) =>
         {
           id: "derived",
           heading: "三个派生数据，一个 state 都不加",
+          headingEn: "Three derived values, and not one new state",
           body: (
             <>
               <p>
@@ -1116,6 +1131,7 @@ const remove = (id: number) => {
         {
           id: "batch",
           heading: "两个批量操作",
+          headingEn: "The two bulk actions",
           body: (
             <>
               <p>
@@ -1167,7 +1183,9 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
         {
           id: "full",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "7 个测试全过。",
+          ledeEn: "All 7 tests pass.",
           body: (
             <>
               <p>
@@ -1196,7 +1214,9 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           lede: "这就是跑出 7/7 的那个测试文件，原样贴在这里。",
+          ledeEn: "This is the test file that produced 7 of 7, pasted exactly as it is.",
           body: (
             <>
               <p>
@@ -1429,6 +1449,13 @@ useEffect(() => {
               就会不一致。<strong>能算出来的别存。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The same fact is now stored twice, and there is one extra render. Miss a
+              single place that should trigger the sync and the two copies disagree.{" "}
+              <strong>If you can compute it, do not store it.</strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1446,13 +1473,41 @@ const remove = (id: number) => {
               <strong>写操作永远作用于完整数据。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              When the filter is set to done, <code>visible</code> holds only the finished
+              items. This line throws away <strong>every unfinished item as well</strong>.
+              <br />
+              <strong>A write always acts on the full data.</strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「翻转某一项的开关」", reachFor: "map + { ...item, flag: !item.flag }" },
-        { signal: "「显示剩余 N 项」", reachFor: "派生数据，filter().length" },
-        { signal: "「全选 / 全不选」", reachFor: "先算统一目标值，再整体套上去" },
-        { signal: "有筛选又有增删改", reachFor: "读用 visible，写一律用完整数据" },
+        {
+          signal: "「翻转某一项的开关」",
+          signalEn: "Flip the switch on one item",
+          reachFor: "map + { ...item, flag: !item.flag }",
+          reachForEn: "map + { ...item, flag: !item.flag }",
+        },
+        {
+          signal: "「显示剩余 N 项」",
+          signalEn: "Show how many items are left",
+          reachFor: "派生数据，filter().length",
+          reachForEn: "A derived value: filter().length",
+        },
+        {
+          signal: "「全选 / 全不选」",
+          signalEn: "Select all / clear all",
+          reachFor: "先算统一目标值，再整体套上去",
+          reachForEn: "Compute one shared target value, then apply it to every item",
+        },
+        {
+          signal: "有筛选又有增删改",
+          signalEn: "A filter plus add, delete, and edit",
+          reachFor: "读用 visible，写一律用完整数据",
+          reachForEn: "Read from visible, always write to the full data",
+        },
       ],
       recap: [
         "Todo 比 Note 只多一个布尔字段，于是多出「翻转」这个动作。",
@@ -1460,6 +1515,13 @@ const remove = (id: number) => {
         "visible / remaining / allDone 三个都是派生数据，一个 state 都不加。",
         "全选是「统一目标值」，不是「各自翻转」，否则变成反选。",
         "筛选态下的写操作必须作用于完整数据，否则会丢掉被筛掉的项。",
+      ],
+      recapEn: [
+        "Todo has exactly one field more than Note, a boolean, and that field adds the toggle action.",
+        "Toggle with map plus object spread. The new object has to go all the way down, not stop at the outer array.",
+        "visible, remaining, and allDone are all derived values. None of them needs its own state.",
+        "Select all means one shared target value, not flipping each item on its own. Flipping each item inverts the selection instead.",
+        "Under an active filter a write must act on the full data, or the filtered-out items are lost.",
       ],
     },
 
