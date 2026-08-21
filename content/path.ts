@@ -53,7 +53,7 @@ export const drillsOfExam = (examId: string): NavDrill[] =>
  *
  * 105 道题挂在 17 节课上，最多的一节 12 道。侧栏不可能把 105 条平铺出来，
  * 但可以在课文那一行标出「这节有几道」，再链到只筛这一节的题单 —— 这样
- * 八股才真正落在阶梯上，而不是只存在于顶栏那张全量表里。
+ * 八股才真正落在阶梯上，而不是只存在于「题库总表」那张全量表里。
  */
 export const drillsOfLesson = (lessonId: string): NavDrill[] =>
   DRILLS.filter((d) => d.lessonId === lessonId);

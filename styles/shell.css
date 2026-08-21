@@ -287,18 +287,40 @@
   color: var(--ink-3);
 }
 
-/* 「模拟考」那一块还是 div，不该长出箭头和 hover 底色 */
-div.side-mod > .side-mod-title {
+/* 「模拟考」那一块是个纯标题 div，不该长出箭头和 hover 底色。
+   排除 .side-mod-link —— 「课内练习」那一格也在 div.side-mod 里，
+   但它是个链接，箭头和 hover 都得留着。 */
+div.side-mod > .side-mod-title:not(.side-mod-link) {
   padding-right: 0;
   cursor: default;
 }
 
-div.side-mod > .side-mod-title::after {
+div.side-mod > .side-mod-title:not(.side-mod-link)::after {
   display: none;
 }
 
-div.side-mod > .side-mod-title:hover {
+div.side-mod > .side-mod-title:not(.side-mod-link):hover {
   background: transparent;
+}
+
+/* 「课内练习」：不是可折叠的清单（54 个练习平铺进侧栏没法看），
+   而是一格直接跳到 /practice?exam= 的链接。箭头因此指右，不是朝下。 */
+.side-mod-link {
+  display: block;
+  text-decoration: none;
+}
+
+.side-mod-link:hover {
+  background: var(--sunken);
+  text-decoration: none;
+}
+
+.side-mod-link:hover .side-mod-name {
+  color: var(--ink);
+}
+
+.side-mod-link[data-active] .side-mod-name {
+  color: var(--ink);
 }
 
 .side-mod-stage {

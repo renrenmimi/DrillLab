@@ -251,8 +251,31 @@ function ExamNode({
           );
         })}
 
-      {/* 课文之后是三个更高的难度档。哪一档没有内容就不出现 ——
-          给 foundations 挂一个「Coding 0」只是噪音。 */}
+      {/* 课文之后是三个更高的难度档，按 Ladder 的顺序摊开。
+          哪一档没有内容就不出现 —— 给 foundations 挂一个「Coding 0」只是噪音。 */}
+
+      {/* 第二档：课内练习。它们分散在各节课的正文里，没有单独的路由，
+          所以这里只给一个入口 —— /practice 已经支持 ?exam= 筛到一门课。
+          不做成 details 列清单：那会把 54 个练习平铺进侧栏。 */}
+      {isCurrent && exam.exerciseCount > 0 && (
+        <div className="side-mod">
+          <Link
+            className="side-mod-title side-mod-link"
+            href={`/practice?exam=${exam.id}`}
+            data-active={path.startsWith("/practice") || undefined}
+            onClick={onNavigate}
+          >
+            <span className="side-mod-stage">
+              <T zh="认得出" en="Spot it" />
+            </span>
+            <span className="side-mod-name">
+              <T zh="课内练习" en="Lesson exercises" />
+            </span>
+            <span className="side-mod-count tabular">{exam.exerciseCount}</span>
+          </Link>
+        </div>
+      )}
+
       {isCurrent && coding.length > 0 && (
         <details className="side-mod" open={path.startsWith("/code")}>
           <summary className="side-mod-title">
