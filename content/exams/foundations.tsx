@@ -846,11 +846,19 @@ npm install
               kind: "fill-blank",
               id: "f-pkg-blanks",
               title: "补全 subgraph 的 package.json 关键字段",
+              titleEn: "Fill in the key fields of the subgraph package.json",
               level: 2,
               prompt: (
                 <p>
                   下面是 <code>node-subgraph/package.json</code> 的骨架，挖掉了三个决定项目行为的值。
                   照真实文件补回来。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  Below is the skeleton of <code>node-subgraph/package.json</code> with
+                  three values removed. Each one decides how the project behaves. Put
+                  them back the way the real file has them.
                 </p>
               ),
               language: "json",
@@ -877,11 +885,20 @@ npm install
                   n: 1,
                   accept: ['"module"', "module", '\\"module\\"'],
                   hint: "这个值决定了源码里能用 import 而不是 require。",
+                  hintEn: "This value is what lets the source use import instead of require.",
                   why: (
                     <>
                       <code>&quot;type&quot;: &quot;module&quot;</code> 让 Node 把 .js 当 ES Module 解析。
                       这也是为什么 <code>index.js</code> 里能直接写 <code>import ... from</code>,
                       以及为什么跑 jest 需要 <code>--experimental-vm-modules</code>。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>&quot;type&quot;: &quot;module&quot;</code> makes Node parse
+                      .js files as ES Modules. That is also why <code>index.js</code>{" "}
+                      can write <code>import ... from</code> directly, and why running
+                      jest needs <code>--experimental-vm-modules</code>.
                     </>
                   ),
                   width: 10,
@@ -890,11 +907,21 @@ npm install
                   n: 2,
                   accept: ["jest"],
                   hint: "这个项目的测试运行器。看 devDependencies 就知道。",
+                  hintEn: "The test runner of this project. devDependencies tells you which one.",
                   why: (
                     <>
                       subgraph 用的是 <strong>jest</strong>（React 那边用的是 vitest，别混）。
                       前面那个 <code>NODE_OPTIONS=--experimental-vm-modules</code> 是为了让
                       jest 能处理 ES Module —— 少了它，jest 一遇到 <code>import</code> 就报错。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      The subgraph uses <strong>jest</strong> (the React side uses
+                      vitest — do not mix them up). The{" "}
+                      <code>NODE_OPTIONS=--experimental-vm-modules</code> in front of it
+                      is what lets jest handle ES Modules. Without it, jest fails as
+                      soon as it meets an <code>import</code>.
                     </>
                   ),
                   width: 8,
@@ -903,11 +930,22 @@ npm install
                   n: 3,
                   accept: ["dataloader"],
                   hint: "它的存在直接暗示了 resolver 那道题的解法。",
+                  hintEn: "Its presence points straight at the answer to the resolver question.",
                   why: (
                     <>
                       <code>dataloader</code> 出现在 dependencies 里，而 starter 代码里正好有个
                       TODO 要求「用 DataLoader 防 N+1 查询」。
                       <strong>依赖清单在泄题</strong> —— 拿到项目先读 dependencies，常常能猜出考点。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>dataloader</code> shows up in dependencies, and the starter
+                      code happens to carry a TODO asking you to &ldquo;use DataLoader
+                      to avoid N+1 queries&rdquo;.{" "}
+                      <strong>The dependency list leaks the questions</strong> — read
+                      dependencies first on any new project and you can often guess
+                      what is being tested.
                     </>
                   ),
                   width: 13,
