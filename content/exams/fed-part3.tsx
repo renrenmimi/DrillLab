@@ -634,6 +634,7 @@ public OrderController(OrderService orderService) {
 }`,
               {
                 filename: "OrderController.java（已给好）",
+                filenameEn: "OrderController.java (given to you)",
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/controller/OrderController.java",
               },
@@ -835,11 +836,14 @@ public void deleteOrder(Long id) {
 }`,
               {
                 filename: "OrderService.java（节选，PROVIDED）",
+                filenameEn: "OrderService.java (extract, PROVIDED)",
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/service/OrderService.java",
                 highlight: [5, 6, 11, 12],
                 explanation:
                   "orElseThrow 的意思是「Optional 里有值就取出来，没有就抛这个异常」。注意 service 已经自己打了日志、也自己读了 MDC —— 这是在给你示范控制器里该怎么做。",
+                explanationEn:
+                  "orElseThrow means \"take the value out of the Optional if there is one, otherwise throw this exception\". Note the service already logs and already reads the MDC itself. That is a demonstration of what your controller should do.",
               },
             ),
           ],
@@ -965,6 +969,7 @@ public class GlobalExceptionHandler {
 }`,
               {
                 filename: "GlobalExceptionHandler.java（全文，PROVIDED）",
+                filenameEn: "GlobalExceptionHandler.java (full file, PROVIDED)",
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/exception/GlobalExceptionHandler.java",
               },
@@ -1060,6 +1065,7 @@ public class OrderItemRequest {
 }`,
               {
                 filename: "两个 DTO（PROVIDED）",
+                filenameEn: "The two DTOs (PROVIDED)",
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/dto/",
               },
@@ -1507,11 +1513,13 @@ Implement REST endpoints in
 Use the provided \`OrderService\` for business logic.`,
               {
                 filename: "README.md（Task 2 原文）",
+                filenameEn: "README.md (the original Task 2 text)",
                 sourceFile: "graphql-federation-practice/README.md",
               },
             ),
             real("java", CONTROLLER_STARTER, {
               filename: "OrderController.java（starter）",
+              filenameEn: "OrderController.java (starter)",
               sourceFile:
                 "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/controller/OrderController.java",
               highlight: [24, 25, 30, 31, 36, 37, 43, 44, 51, 52, 57, 58],
@@ -1600,7 +1608,21 @@ Use the provided \`OrderService\` for business logic.`,
 #   ✓ shouldGetAllOrders      断言 isOk()  → return null 也是 200
 #   ✓ shouldGetOrderById      断言 isOk()  → 同上
 #   ✓ shouldUpdateOrderStatus 断言 isOk()  → 同上`,
-              { filename: "本机实测（scratchpad 副本，未改动源项目）" },
+              {
+                filename: "本机实测（scratchpad 副本，未改动源项目）",
+                filenameEn:
+                  "Measured locally (on a scratch copy; the source project was not touched)",
+                codeEn: `$ mvn test        # baseline: all six endpoints just return null
+
+[ERROR] Tests run: 5, Failures: 2, Errors: 0, Skipped: 0
+[ERROR]   OrderControllerTest.shouldCreateOrder:58 Status expected:<201> but was:<200>
+[ERROR]   OrderControllerTest.shouldDeleteOrder:74 Status expected:<204> but was:<200>
+
+# The three that pass:
+#   ✓ shouldGetAllOrders      asserts isOk()  → return null is a 200 too
+#   ✓ shouldGetOrderById      asserts isOk()  → same
+#   ✓ shouldUpdateOrderStatus asserts isOk()  → same`,
+              },
             ),
           ],
         },
@@ -1828,7 +1850,11 @@ public ResponseEntity<List<Order>> getAllOrders(
 
     return ResponseEntity.ok(orders);
 }`,
-              { filename: "第一个端点（参考答案）", highlight: [6, 7, 8] },
+              {
+                filename: "第一个端点（参考答案）",
+                filenameEn: "The first endpoint (reference answer)",
+                highlight: [6, 7, 8],
+              },
             ),
           ],
         },
@@ -1967,6 +1993,7 @@ public ResponseEntity<Order> updateOrderStatus(
 }`,
               {
                 filename: "PATCH 端点（参考答案）",
+                filenameEn: "The PATCH endpoint (reference answer)",
                 highlight: [9, 10, 11, 14, 15, 16, 17, 18],
               },
             ),
@@ -2035,7 +2062,21 @@ public ResponseEntity<Order> updateOrderStatus(
 INFO c.t.orders.controller.OrderController : DELETE /api/orders/1 correlationId=0e157516-...
 INFO c.t.orders.controller.OrderController : PATCH /api/orders/1/status status=SHIPPED, correlationId=7b441d8d-...
 INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correlationId=3bf0f9c5-...`,
-              { filename: "审计时的真实输出（参考解法）" },
+              {
+                filename: "审计时的真实输出（参考解法）",
+                filenameEn:
+                  "The real output from the audit (with the reference answer)",
+                codeEn: `$ mvn test
+
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  18.694 s
+
+# The logs show correlationId being injected correctly:
+INFO c.t.orders.controller.OrderController : DELETE /api/orders/1 correlationId=0e157516-...
+INFO c.t.orders.controller.OrderController : PATCH /api/orders/1/status status=SHIPPED, correlationId=7b441d8d-...
+INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correlationId=3bf0f9c5-...`,
+              },
             ),
           ],
         },
@@ -2145,6 +2186,7 @@ INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correl
           code: [
             real("java", CONTROLLER_TEST, {
               filename: "OrderControllerTest.java（全文，PROVIDED）",
+              filenameEn: "OrderControllerTest.java (full file, PROVIDED)",
               sourceFile:
                 "graphql-federation-practice/java-service/src/test/java/com/techflow/orders/OrderControllerTest.java",
               highlight: [1, 5, 6, 25, 26, 27, 28, 29, 30, 31, 32, 33],
@@ -2216,7 +2258,40 @@ curl -i -s -X DELETE localhost:8080/api/orders/1
 
 # 7. correlation id 透传（响应头里应该有同一个 id）
 curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
-              { filename: "手动自检" },
+              {
+                filename: "手动自检",
+                filenameEn: "Checking it by hand",
+                codeEn: `cd java-service
+mvn spring-boot:run     # starts on 8080
+
+# 1. All of them, plus the optional filter (no test covers the filter)
+curl -s localhost:8080/api/orders
+curl -s "localhost:8080/api/orders?userId=123"     # should return only user 123
+
+# 2. One that exists vs one that does not (no test covers the 404)
+curl -i -s localhost:8080/api/orders/1             # 200 + JSON
+curl -i -s localhost:8080/api/orders/999           # 404 + { timestamp, status, message }
+
+# 3. Create (should be 201)
+curl -i -s -X POST localhost:8080/api/orders \\
+  -H 'Content-Type: application/json' \\
+  -d '{"userId":"123","items":[{"productId":"prod-789","quantity":2}]}'
+
+# 4. Create with validation failing (should be 400, no test covers it)
+curl -i -s -X POST localhost:8080/api/orders \\
+  -H 'Content-Type: application/json' \\
+  -d '{"userId":"","items":[]}'
+
+# 5. PATCH with an unknown status (should be 400 not 500, no test covers it)
+curl -i -s -X PATCH localhost:8080/api/orders/1/status \\
+  -H 'Content-Type: application/json' -d '{"status":"FLYING"}'
+
+# 6. Delete (should be 204 with an empty body)
+curl -i -s -X DELETE localhost:8080/api/orders/1
+
+# 7. correlation id passed through (the same id should be in the response header)
+curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
+              },
             ),
           ],
         },
@@ -2563,7 +2638,11 @@ public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
         return null;
     }
 }`,
-            { filename: "有问题的实现", highlight: [4, 6, 7] },
+            {
+              filename: "有问题的实现",
+              filenameEn: "The broken implementation",
+              highlight: [4, 6, 7],
+            },
           ),
           classify: {
             options: [
@@ -2594,7 +2673,18 @@ public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
     // 由 GlobalExceptionHandler 转成带 JSON 体的 404
     return ResponseEntity.ok(orderService.getOrderById(id));
 }`,
-            { filename: "改对之后（实测 5/5 通过）" },
+            {
+              filename: "改对之后（实测 5/5 通过）",
+              filenameEn: "After the fix (measured 5/5 passing)",
+              codeEn: `@GetMapping("/api/orders/{id}")
+public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    logger.info("GET /api/orders/{} correlationId={}", id, correlationId());
+
+    // When it is not found the service throws EntityNotFoundException,
+    // and GlobalExceptionHandler turns it into a 404 with a JSON body
+    return ResponseEntity.ok(orderService.getOrderById(id));
+}`,
+            },
           ),
           rootCause: (
             <>
@@ -3004,6 +3094,7 @@ in a federated graph and describe one caching strategy to mitigate the
 performance impact.`,
               {
                 filename: "QUESTIONS.md（第 1 题原文）",
+                filenameEn: "QUESTIONS.md (the original text of question 1)",
                 sourceFile: "graphql-federation-practice/QUESTIONS.md",
               },
             ),
@@ -3022,7 +3113,10 @@ Orders subgraph 即使自己只要 10ms，也要等到 500ms 之后才被调用
 更糟的连锁：Router 的连接池 / 线程被长时间占用
    ↓ 一个慢 subgraph 拖住整个 Router 的吞吐
 所有查询（哪怕完全不碰 User）都开始变慢`,
-              { filename: "影响的传导路径" },
+              {
+                filename: "影响的传导路径",
+                filenameEn: "How the effect propagates",
+              },
             ),
           ],
         },
@@ -3109,6 +3203,7 @@ User.orders）的前置步骤，这两步必须串行。因此任何涉及 User 
   对高频组合查询考虑在 Router 前加响应级缓存。`,
               {
                 filename: "第 1 题参考答案（DrillLab 自出）",
+                filenameEn: "Reference answer to question 1 (written by DrillLab)",
                 collapsible: true,
               },
             ),
@@ -3176,6 +3271,7 @@ spring.datasource.password=\${DB_PASSWORD}
 management.endpoints.web.exposure.include=*`,
               {
                 filename: "QUESTIONS.md 里给的片段",
+                filenameEn: "The snippet given in QUESTIONS.md",
                 sourceFile: "graphql-federation-practice/QUESTIONS.md",
               },
             ),
@@ -3186,6 +3282,8 @@ server.address=0.0.0.0
 management.endpoints.web.exposure.include=*`,
               {
                 filename: "项目里真实的 application.properties（全文）",
+                filenameEn:
+                  "The real application.properties in the project (full file)",
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/resources/application.properties",
                 explanation:
@@ -3406,6 +3504,7 @@ spring.lifecycle.timeout-per-shutdown-phase=20s
 **理由**：配置是部署产物的一部分，需要和代码一样做审查与分环境管理。`,
               {
                 filename: "第 2 题参考答案（DrillLab 自出）",
+                filenameEn: "Reference answer to question 2 (written by DrillLab)",
                 collapsible: true,
               },
             ),
@@ -3654,6 +3753,7 @@ server.shutdown=graceful
 spring.lifecycle.timeout-per-shutdown-phase=20s`,
             {
               filename: "参考答案（DrillLab 自出）",
+              filenameEn: "Reference answer (written by DrillLab)",
               explanation:
                 "关键是「默认拒绝」这个思路：白名单而不是黑名单。另外 probes.enabled 那一条很多人不知道 —— liveness 和 readiness 的语义完全不同，共用一个 health 端点会导致「下游数据库抖动一下，Pod 被重启」这种事故。",
             },
