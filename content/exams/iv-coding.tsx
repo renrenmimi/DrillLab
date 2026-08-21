@@ -2147,6 +2147,7 @@ useEffect(() => {
           kind: "code-completion",
           id: "iv-coding-stars-write",
           title: "自己写出星级评分",
+          titleEn: "Write the star rating yourself",
           level: 3,
           generated: true,
           prompt: (
@@ -2154,6 +2155,13 @@ useEffect(() => {
               hover 预览 + 点击选中 + 再点清零。
               检查器会查 <code>??</code>、
               <code>onMouseLeave</code> 的位置和无障碍。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Hover to preview, click to pick, click the same star again to reset. The
+              checker looks at <code>??</code>, where <code>onMouseLeave</code> sits, and
+              accessibility.
             </p>
           ),
           language: "tsx",
@@ -2173,6 +2181,21 @@ useEffect(() => {
     </div>
   );
 };`,
+          starterEn: `const StarRating: React.FC<{ max?: number }> = ({ max = 5 }) => {
+  // 1. Two pieces of state: the picked value, and the star under the cursor (there may be none)
+
+
+  // 2. The shown value: the hovered one if there is a hover, otherwise the picked one
+
+
+  return (
+    <div data-testid="stars">
+      {/* 3. Render max stars: hover previews, click picks, clicking the same one resets */}
+
+      <output data-testid="stars-value">{/* the picked value */}</output>
+    </div>
+  );
+};`,
           requirements: [
             "hover 到第 n 颗时前 n 颗显示为选中样式（预览）",
             "鼠标移出整个组件后回到已选值",
@@ -2180,16 +2203,23 @@ useEffect(() => {
             "每颗星是 button，带 aria-label，键盘可用",
             "显示值必须是派生的，不许再开第三个 state",
           ],
+          requirementsEn: [
+            "Hovering star n shows the first n stars in the filled style (a preview)",
+            "Moving the mouse out of the whole component goes back to the picked value",
+            "Clicking star n sets the score to n; clicking the same star again resets to zero",
+            "Every star is a button with an aria-label, and works from the keyboard",
+            "The shown value has to be derived; a third piece of state is not allowed",
+          ],
           checks: [
-            { label: "hover 用 number | null（或初始 null）", must: "useState<number \\| null>|useState\\(\\s*null\\s*\\)" },
-            { label: "显示值用 ?? 而不是 ||", must: "\\?\\?" },
-            { label: "没有用 || 做兜底", mustNot: "hover\\s*\\|\\|" },
-            { label: "onMouseLeave 挂在容器上（出现在 map 之前）", must: "onMouseLeave[\\s\\S]{0,400}\\.map\\s*\\(|Array\\.from" },
-            { label: "用 Array.from 或类似方式渲染 max 颗", must: "Array\\.from|\\[\\s*\\.\\.\\.\\s*Array" },
-            { label: "星星是 button 元素", must: "<button" },
-            { label: "带 aria-label", must: "aria-label" },
-            { label: "再点同一颗清零", must: "===?\\s*current\\s*\\?\\s*0|current\\s*===?\\s*\\w+\\s*\\?\\s*0" },
-            { label: "没有为「显示值」再开一个 state", mustNot: "useState[^\\n]*shown|setShown" },
+            { label: "hover 用 number | null（或初始 null）", labelEn: "hover is number | null (or starts as null)", must: "useState<number \\| null>|useState\\(\\s*null\\s*\\)" },
+            { label: "显示值用 ?? 而不是 ||", labelEn: "The shown value uses ?? and not ||", must: "\\?\\?" },
+            { label: "没有用 || 做兜底", labelEn: "No || used as the fallback", mustNot: "hover\\s*\\|\\|" },
+            { label: "onMouseLeave 挂在容器上（出现在 map 之前）", labelEn: "onMouseLeave sits on the container, so it appears before the map", must: "onMouseLeave[\\s\\S]{0,400}\\.map\\s*\\(|Array\\.from" },
+            { label: "用 Array.from 或类似方式渲染 max 颗", labelEn: "Renders max stars with Array.from or something similar", must: "Array\\.from|\\[\\s*\\.\\.\\.\\s*Array" },
+            { label: "星星是 button 元素", labelEn: "Each star is a button element", must: "<button" },
+            { label: "带 aria-label", labelEn: "Has an aria-label", must: "aria-label" },
+            { label: "再点同一颗清零", labelEn: "Clicking the same star again resets to zero", must: "===?\\s*current\\s*\\?\\s*0|current\\s*===?\\s*\\w+\\s*\\?\\s*0" },
+            { label: "没有为「显示值」再开一个 state", labelEn: "No extra state added for the shown value", mustNot: "useState[^\\n]*shown|setShown" },
           ],
           hints: [
             "先想清楚：屏幕上「第 n 颗要不要点亮」这个判断，依据是哪个值？鼠标在星星上时和不在时，这个依据一样吗？如果不一样，你需要几个 state？",
@@ -2203,6 +2233,45 @@ const shown = hover ?? current
     <button
       onMouseEnter={() => 设 hover 为 n}
       onClick={() => 设 current 为「n 等于 current 就 0，否则 n」}
+      data-filled={n <= shown}
+      aria-label={\`\${n} 星\`}
+    >{n <= shown ? "★" : "☆"}</button>
+  ))
+</div>`,
+            `const [current, setCurrent] = useState(0);
+const [hover, setHover] = useState<number | null>(null);
+const shown = hover ?? current;
+
+return (
+  <div data-testid="stars" data-value={current} onMouseLeave={() => setHover(null)}>
+    {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
+      <button
+        key={n}
+        type="button"
+        aria-label={\`\${n} 星\`}
+        data-filled={n <= shown}
+        onMouseEnter={() => setHover(n)}
+        onClick={() => setCurrent(n === current ? 0 : n)}
+      >
+        {n <= shown ? "★" : "☆"}
+      </button>
+    ))}
+    <output data-testid="stars-value">{current}</output>
+  </div>
+);`,
+          ],
+          hintsEn: [
+            "Work this out first: when the screen decides whether star n is lit, which value is it reading? Is that the same value while the mouse is over the stars as when it is not? If it is not the same, how many pieces of state do you need?",
+            "Two pieces of state: current (the picked value) and hover (number | null). The shown value is shown = hover ?? current — it has to be ??, because when hover is 0, || would treat it as no hover. onMouseLeave goes on the outermost container, not on each star.",
+            `const [current, setCurrent] = useState(0)
+const [hover, setHover] = useState<number | null>(null)
+const shown = hover ?? current
+
+<div onMouseLeave={() => clear hover}>
+  Array.from({ length: max }, (_, i) => i + 1).map(n => (
+    <button
+      onMouseEnter={() => set hover to n}
+      onClick={() => set current to "0 if n equals current, otherwise n"}
       data-filled={n <= shown}
       aria-label={\`\${n} 星\`}
     >{n <= shown ? "★" : "☆"}</button>
