@@ -48,6 +48,7 @@ export interface NavModule {
 export interface NavMock {
   id: string;
   title: string;
+  titleEn?: string;
   scenario: string;
   mirrors: string;
   minutes: number;
@@ -582,6 +583,7 @@ const PAYLOAD: NavPayload = {
         {
           "id": "support-tickets",
           "title": "模拟考 A · Support Ticket Board",
+          "titleEn": "Mock exam A · Support Ticket Board",
           "scenario": "IT 支持工单看板。可以新建工单（标题 + 优先级）、关闭工单、改派（编辑）工单，还能按优先级筛选。业务场景换了，数据结构多了一个枚举字段和一个筛选状态，但底层要你会的东西和 Notes Manager 一模一样。",
           "mirrors": "与真实 Q1 完全相同的考点：受控输入、列表渲染与 key、useState 的三种不可变更新（增 / 删 / 就地替换）、useEffect 同步外部 prop、派生数据、状态提升、双模式按钮与 id 复用。额外增加一个「筛选」考点 —— 这是这类题最常见的变式方向。",
           "minutes": 75,
@@ -919,6 +921,7 @@ const PAYLOAD: NavPayload = {
         {
           "id": "book-reviews",
           "title": "模拟考 B · Book Reviews Subgraph",
+          "titleEn": "Mock exam B · Book Reviews Subgraph",
           "scenario": "图书评论 subgraph。它既不拥有 Author 也不拥有 Book —— 两者都由 Catalog subgraph 提供，本服务只往它们身上挂 reviews 和 averageRating。Book 用的是复合 key（isbn + edition），这是真实项目里很常见、但比单字段 key 更容易写错的情况。",
           "mirrors": "与真实 Task 1 相同的考点：entity 与 @key、__resolveReference、字段 resolver 的 parent、schema 可空性决定的兜底策略、DataLoader 防 N+1 及其长度/顺序契约、结构化错误与 correlation id、以及「catch 不要吞掉已结构化错误」。新增三个考点：复合 @key、可空标量字段（null 与 0 的区别）、以及一处「batch 函数用了 filter」的埋雷。",
           "minutes": 90,

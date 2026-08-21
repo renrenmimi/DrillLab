@@ -499,6 +499,8 @@ export interface CodingProblem {
   /** 题面：要做什么、验收标准 */
   brief: ReactNode;
   requirements: string[];
+  /** 英文版。长度必须和 requirements 一致 —— 理由见 Lesson.objectivesEn */
+  requirementsEn?: string[];
   /** React/JS 能在浏览器里跑；GraphQL/Java 不能 */
   runnable: boolean;
   /** runnable 时必填 */

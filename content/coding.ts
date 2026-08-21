@@ -1193,6 +1193,7 @@ function build(): CodingProblem[] {
 
     // 需求和答案的形状按练习类型取
     let requirements: string[] = [];
+    let requirementsEn: string[] | undefined;
     let solution: CodingProblem["solution"] = [];
 
     // 显式覆盖优先于一切派生 —— 见 Spec.requirements 的注释。
@@ -1204,19 +1205,25 @@ function build(): CodingProblem[] {
     // 自带题面的题就是「不从来源练习派生需求」的意思，所以它得先判。
     if (SELF_BRIEF.has(spec.id)) {
       requirements = REQUIREMENTS_FALLBACK[spec.id] ?? [];
+      requirementsEn = REQUIREMENTS_FALLBACK_EN[spec.id];
       solution = solutionFromLesson(spec.explain);
     } else if (ex.kind === "code-completion") {
       const cc = ex as CodeCompletionExercise;
       requirements = cc.requirements;
+      // 英文也要跟着派生 —— 只取中文的话，coding 题页面上的验收标准
+      // 在英文模式下会整段回落中文（spring-endpoints 就这么漏了 9 条）
+      requirementsEn = cc.requirementsEn;
       solution = [cc.solution];
     } else if (ex.kind === "from-scratch") {
       const fs = ex as FromScratchExercise;
       requirements = fs.requirements;
+      requirementsEn = fs.requirementsEn;
       solution = fs.solution;
     } else if (ex.kind === "fill-blank") {
       // Dropdown 和 RTK 那两道只有填空练习 —— 需求从它的空位说明里推不出来，
       // 所以显式在这里列，并从讲解那一节取参考答案。
       requirements = REQUIREMENTS_FALLBACK[spec.id] ?? [];
+      requirementsEn = REQUIREMENTS_FALLBACK_EN[spec.id];
       solution = solutionFromLesson(spec.explain);
     }
 
@@ -1240,6 +1247,8 @@ function build(): CodingProblem[] {
       // 自带题面优先；没写就用来源练习的 prompt
       brief: spec.brief ?? ex.prompt,
       requirements,
+      // spec 自带的优先；没有就用回落表的英文（目前只有 tabs 走这条）
+      requirementsEn: spec.requirementsEn ?? requirementsEn,
       runnable: spec.runnable,
       commands: spec.commands,
       explainLessonId: spec.explain,
@@ -1281,6 +1290,26 @@ const REQUIREMENTS_FALLBACK: Record<string, string[]> = {
     "context value 之外的派生数据用 selector，组件只订阅自己要的那部分",
     "筛选不能改底层数据 —— 切回 all 时全部条目都还在",
     "reducer 要能脱离 React 单独测",
+  ],
+};
+
+/**
+ * REQUIREMENTS_FALLBACK 的英文版。
+ *
+ * 【为什么只有 tabs】
+ * 上面那张表里只有 tabs 是活的：player / dropdown / rtk-todo 三个 spec 自带
+ * 显式 requirements，build() 里 `if (spec.requirements)` 会覆盖回落值，
+ * 所以那三条永远走不到。给死代码补英文只是增加维护面。
+ *
+ * 长度必须和中文那一份一致 —— 平行数组靠下标对齐。
+ */
+const REQUIREMENTS_FALLBACK_EN: Record<string, string[]> = {
+  tabs: [
+    "Clicking a tab switches the panel, and the first one is active by default",
+    "initialId can name which one starts active",
+    "Only one piece of state holds activeId; the visible panel and the highlight are both derived from it",
+    'role="tablist" / role="tab" with aria-selected, and role="tabpanel"',
+    "aria-controls and aria-labelledby tie each tab to its panel",
   ],
 };
 

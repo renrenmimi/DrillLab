@@ -48,6 +48,7 @@ export interface NavModule {
 export interface NavMock {
   id: string;
   title: string;
+  titleEn?: string;
   scenario: string;
   mirrors: string;
   minutes: number;

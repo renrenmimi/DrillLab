@@ -345,7 +345,9 @@ function ExamNode({
                     onClick={onNavigate}
                   >
                     <span className="side-lesson-n">·</span>
-                    <span>{a.title}</span>
+                    <span>
+                      <T zh={a.title} en={a.titleEn} />
+                    </span>
                   </Link>
                 </li>
               );
@@ -371,7 +373,9 @@ function ExamNode({
                     onClick={onNavigate}
                   >
                     <span className="side-lesson-n">·</span>
-                    <span>{m.title}</span>
+                    <span>
+                      <T zh={m.title} en={m.titleEn} />
+                    </span>
                   </Link>
                 </li>
               );

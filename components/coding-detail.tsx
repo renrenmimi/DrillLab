@@ -23,7 +23,7 @@ import type { CodeExample, CodingProblem, Lesson } from "@/content/types";
 import { CodeBlock } from "./code";
 import { CodingWorkspace } from "./coding-workspace";
 import { HintPanel, SolutionGate } from "./hint-panel";
-import { AnswerTabs, Section } from "./lesson-kit";
+import { AnswerTabs, Section, BilingualList } from "./lesson-kit";
 import { L, T, type LocalizedString } from "./t";
 
 /* ---------- 从现有内容里找东西，不复制 ---------- */
@@ -149,9 +149,10 @@ export function CodingDetail({ id }: { id: string }) {
             <T zh="验收标准" en="Acceptance criteria" />
           </div>
           <ul className="ws-req">
-            {problem.requirements.map((r, i) => (
-              <li key={i}>{r}</li>
-            ))}
+            <BilingualList
+              zh={problem.requirements}
+              en={problem.requirementsEn}
+            />
           </ul>
 
           <p className="dimmer" style={{ fontSize: 13.5 }}>

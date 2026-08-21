@@ -54,6 +54,7 @@ export function GET() {
       mockExams: e.mockExams.map((m) => ({
         id: m.id,
         title: m.title,
+        titleEn: m.titleEn,
         scenario: m.scenario,
         mirrors: m.mirrors,
         minutes: m.minutes,
