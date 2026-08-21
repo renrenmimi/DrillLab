@@ -198,6 +198,12 @@ const ticketMock: MockExam = {
         "优先级下拉默认选中 medium",
         "提交后清空表单（标题清空，优先级回到 medium）",
       ],
+      requirementEn: [
+        "Fill in a title, pick a priority, and after Create the new ticket appears at the end of the list",
+        "While the title is empty (spaces only counts as empty) the Create button must be disabled",
+        "The priority dropdown starts on medium",
+        "The form clears after submitting: the title empties and the priority goes back to medium",
+      ],
       rubric: [
         { points: 8, label: "两个表单控件都是受控的（value + onChange）" },
         { points: 6, label: "用不可变更新追加到末尾，没有 push" },
@@ -211,6 +217,10 @@ const ticketMock: MockExam = {
       requirement: [
         "点某一行的 Close，该工单按 id 从列表移除",
         "两条标题相同的工单，只移除被点的那一条",
+      ],
+      requirementEn: [
+        "Clicking Close on a row removes that ticket from the list by id",
+        "With two tickets that share a title, only the one that was clicked is removed",
       ],
       rubric: [
         { points: 8, label: "用 filter 并按 id 比较" },
@@ -227,6 +237,12 @@ const ticketMock: MockExam = {
         "改完提交：该工单在原位置被更新，顺序不变",
         "提交后退出改派模式：表单清空、按钮回到 Create",
         "改派时必须复用原 id",
+      ],
+      requirementEn: [
+        "Clicking Reassign on a row puts its title and priority back into the form, and the button now reads Save",
+        "Submitting the change updates that ticket in place; the order does not change",
+        "Submitting leaves reassign mode: the form clears and the button goes back to Create",
+        "Reassigning has to reuse the original id",
       ],
       rubric: [
         { points: 10, label: "用 map 就地替换，顺序不变（不是先删再加）" },
@@ -246,6 +262,12 @@ const ticketMock: MockExam = {
         "筛选不能影响底层数据 —— 切回 all 应该恢复全部",
         "筛选结果必须是派生数据，不许再开一个 state 存筛选后的数组",
       ],
+      requirementEn: [
+        "There is a filter dropdown at the top (data-testid=\"filter-priority\") with the options all / low / medium / high",
+        "Picking a priority shows only the tickets with that priority",
+        "Filtering must not touch the underlying data — switching back to all brings everything back",
+        "The filtered result has to be derived data; do not add a second piece of state holding the filtered array",
+      ],
       rubric: [
         { points: 8, label: "只用一个 state 存筛选条件" },
         { points: 8, label: "可见列表是派生出来的（不是第二份 state）" },
@@ -261,6 +283,12 @@ const ticketMock: MockExam = {
         "所有 data-testid 与需求一致",
         "npx tsc --noEmit 无错误",
         "五个测试全过",
+      ],
+      requirementEn: [
+        "The list is rendered with map, using ticket.id as the key",
+        "Every data-testid matches the requirements",
+        "npx tsc --noEmit reports no errors",
+        "All five tests pass",
       ],
       rubric: [
         { points: 5, label: "key 用了稳定 id，不是 index" },

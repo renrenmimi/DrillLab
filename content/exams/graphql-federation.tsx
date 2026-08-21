@@ -537,6 +537,12 @@ const reviewsMock: MockExam = {
         "两个都要 try/catch + 结构化错误 + correlationId 日志",
         "catch 第一行必须放行已经是 GraphQLError 的错误",
       ],
+      requirementEn: [
+        "Author.reviews: fetch all reviews by author.id. The schema says [Review!]!, so never return null",
+        "Author.averageRating: compute it with ratingDataSource.computeAverage. The schema says Float, which is nullable, so return null when there are no reviews",
+        "Both need try/catch, a structured error, and a correlationId in the log",
+        "The first line of the catch must let an error through if it is already a GraphQLError",
+      ],
       rubric: [
         { points: 6, label: "reviews 用了正确的数据源方法并兜底成 []" },
         { points: 6, label: "averageRating 返回 null 而不是 0（区分「没有数据」和「平均分是 0」）" },
@@ -553,6 +559,11 @@ const reviewsMock: MockExam = {
         "Book.reviews：必须同时按 isbn 和 edition 过滤 —— 只按 isbn 会把其他版本的评论混进来",
         "注意 edition 是 Int、isbn 是 String，别把类型搞混",
       ],
+      requirementEn: [
+        "Book.__resolveReference: the @key on Book is the two fields \"isbn edition\", so the object you return has to keep both",
+        "Book.reviews: filter by isbn and edition together — filtering by isbn alone mixes in reviews of other editions",
+        "Note that edition is an Int and isbn a String; do not mix the types up",
+      ],
       rubric: [
         { points: 8, label: "__resolveReference 返回了两个 key 字段（不是只有 isbn）" },
         { points: 8, label: "Book.reviews 同时用了 isbn 和 edition 过滤" },
@@ -567,6 +578,11 @@ const reviewsMock: MockExam = {
         "Review.reviewer：用 loaders.reviewerLoader 防 N+1，不许直接调数据源",
         "schema 里 reviewer 可空，找不到时返回 null（测试断言 toBeNull）",
         "修好 createReviewerLoader 里的两处问题：方法名，以及那个会破坏长度/顺序契约的 filter",
+      ],
+      requirementEn: [
+        "Review.reviewer: use loaders.reviewerLoader to avoid N+1; do not call the data source directly",
+        "reviewer is nullable in the schema, so return null when there is no match (the test asserts toBeNull)",
+        "Fix the two problems in createReviewerLoader: the method name, and the filter that breaks the length and order contract",
       ],
       rubric: [
         { points: 6, label: "走了 loader 而不是直接调 reviewerDataSource" },
@@ -584,6 +600,11 @@ const reviewsMock: MockExam = {
         "Query.reviews：校验 authorId；schema 是 [Review!]! 所以兜底 []",
         "两个都带 correlationId 日志",
       ],
+      requirementEn: [
+        "Query.review: use reviewLoader; when there is no match, throw a GraphQLError carrying the REVIEW_NOT_FOUND code",
+        "Query.reviews: validate authorId; the schema says [Review!]!, so fall back to []",
+        "Both need a correlationId in the log",
+      ],
       rubric: [
         { points: 5, label: "Query.review 用了 loader" },
         { points: 6, label: "找不到时抛 REVIEW_NOT_FOUND（不是 SERVICE_ERROR）" },
@@ -598,6 +619,11 @@ const reviewsMock: MockExam = {
         "它注释说「提供作参考」，但它是坏的 —— 自己找出并修好全部问题",
         "至少有三处：数据源键名、insertReview 的调用方式、以及 catch 吞掉结构化错误",
         "还有一处最隐蔽：insertReview 内部要用 reviewer.displayName 写审计日志，所以传进去之前必须先把 reviewer 查出来附上",
+      ],
+      requirementEn: [
+        "Its comment says it is provided for reference, but it is broken — find and fix everything wrong with it",
+        "There are at least three: the data source key name, the way insertReview is called, and a catch that swallows a structured error",
+        "One more is the least obvious: insertReview writes an audit log using reviewer.displayName, so the reviewer has to be looked up and attached before it is passed in",
       ],
       rubric: [
         { points: 5, label: "修对了数据源键名（reviewDataSource，不是 reviewAPI）" },
@@ -614,6 +640,11 @@ const reviewsMock: MockExam = {
         "npm test 全部 14 个测试通过",
         "自己写一个 verify 脚本：查 _service 的 SDL、用 _entities 分别解析 Author 和 Book（后者要传两个 key 字段）",
         "在日志里确认 reviewerLoader 的批量合并真的发生了（一行 Batching，N 大于 1）",
+      ],
+      requirementEn: [
+        "All 14 tests pass under npm test",
+        "Write a verify script yourself: read the SDL from _service, and resolve Author and Book separately through _entities (the second one takes two key fields)",
+        "Confirm in the log that reviewerLoader really did batch (one Batching line, with N greater than 1)",
       ],
       rubric: [
         { points: 8, label: "14 个测试全过" },

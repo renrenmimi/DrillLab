@@ -105,6 +105,7 @@ function build(): ArenaChallenge[] {
           out.push({
             id: fs.id,
             title: fs.title,
+            titleEn: fs.titleEn,
             scenario: meta.scenario,
             scenarioEn: meta.scenarioEn,
             minutes: meta.minutes,
