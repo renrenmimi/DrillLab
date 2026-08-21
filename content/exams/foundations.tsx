@@ -1036,7 +1036,13 @@ npm install
 npm run dev     # → vite                  起开发服务器
 npm run build   # → tsc && vite build     先类型检查，过了再打包
 npm run q2      # → tsx q2/demo.ts        用 tsx 直接跑 TypeScript 文件`,
-                  { sourceFile: "react-notes-app/package.json" },
+                  {
+                    sourceFile: "react-notes-app/package.json",
+                    codeEn: `# the three scripts of react-notes-app, and what each really runs:
+npm run dev     # → vite                  start the dev server
+npm run build   # → tsc && vite build     type-check first, bundle after it passes
+npm run q2      # → tsx q2/demo.ts        run a TypeScript file directly with tsx`,
+                  },
                 ),
               ],
             },
@@ -1436,7 +1442,7 @@ $ npx vitest run
 └── q2/                           ← Q2：并发任务调度器（与 React 无关）
     ├── taskRunner.ts             ★ 要实现的 runTasks
     └── demo.ts                   测试台，打印实时并发数`,
-                  { filename: "目录结构（实测）" },
+                  { filename: "目录结构（实测）", filenameEn: "Directory layout (as measured)" },
                 ),
               ],
             },
@@ -1585,7 +1591,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         │   ├── model/ dto/ exception/ config/   PROVIDED
         │   └── resources/application.properties PROVIDED（书面题 2 会用到）
         └── test/java/.../OrderControllerTest.java  PROVIDED:5 个测试`,
-                  { filename: "目录结构（实测）" },
+                  { filename: "目录结构（实测）", filenameEn: "Directory layout (as measured)" },
                 ),
               ],
             },
