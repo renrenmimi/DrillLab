@@ -183,6 +183,8 @@ export default App;`,
                 sourceFile: "react-notes-app/src/App.tsx",
                 explanation:
                   "这个文件唯一的作用是「把根组件指向 NoteManager」。Q1 的所有逻辑都不在这里 —— 别在这个文件里改东西。",
+                explanationEn:
+                  "This file does one thing: point the root component at NoteManager. None of the Q1 logic lives here, so do not change anything in it.",
               },
             ),
           ],
@@ -749,6 +751,8 @@ return (
                 highlight: [13, 16, 18, 19],
                 explanation:
                   "注意第 13 行的 data-testid=\"notes-list\" —— 判卷测试就是靠它找到表格主体的。README 明确写了「不得修改任何 data-testid」。",
+                explanationEn:
+                  "Look at data-testid=\"notes-list\" on line 13. That is how the grading test finds the table body. The README says plainly that no data-testid may be changed.",
               },
             ),
           ],
@@ -1042,6 +1046,11 @@ repeatedly calls setState inside componentWillUpdate or componentDidUpdate.
 React limits the number of nested updates to prevent infinite loops.
 
 （另一种表现：没有任何报错，但表格永远是空的）`,
+          errorOutputEn: `Warning: Maximum update depth exceeded. This can happen when a component
+repeatedly calls setState inside componentWillUpdate or componentDidUpdate.
+React limits the number of nested updates to prevent infinite loops.
+
+(Another symptom: no warning at all, but the table stays empty forever.)`,
           broken: demo(
             "tsx",
             `const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {
@@ -1386,6 +1395,8 @@ const NoteManager = () => {
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 explanation:
                   "noteToEdit 用 null 表示「现在不在编辑任何东西」。这个 state 是 Task 3 的核心 —— 它同时决定了「表单里显示什么」和「按钮上写 Add 还是 Update」。",
+                explanationEn:
+                  "A null value for noteToEdit means nothing is being edited right now. This piece of state is the center of Task 3: it decides both what the form shows and whether the button reads Add or Update.",
               },
             ),
           ],

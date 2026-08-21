@@ -273,6 +273,8 @@ const ticketMock: MockExam = {
       collapsible: true,
       explanation:
         "这是 DrillLab 自出的模拟题，不是源项目内容。把它拆成对应文件后自己实现。注意 data-testid 全部被测试依赖，不能改。",
+      explanationEn:
+        "DrillLab wrote this mock task; it does not come from the source project. Split it into the matching files and write the implementation yourself. Every data-testid is used by a test, so do not rename them.",
     }),
   ],
   tests: [
@@ -282,6 +284,8 @@ const ticketMock: MockExam = {
       collapsible: true,
       explanation:
         "第五个测试是真实 Q1 没有的 —— 它查筛选。注意 userEvent.selectOptions 用来操作 <select>，这是本模拟题新引入的 API。",
+      explanationEn:
+        "The fifth test is not part of the real Q1. It checks filtering. Note userEvent.selectOptions, the API for driving a <select>; this mock task is where it first appears.",
     }),
   ],
   commands: [
@@ -508,6 +512,8 @@ const ticketMock: MockExam = {
             filenameEn: "A controlled select",
             explanation:
               "as Priority 是必要的 —— e.target.value 只知道自己是 string。也可以把 state 类型放宽成 string，但那会失去联合类型的保护，不划算。",
+            explanationEn:
+              "The as Priority cast is needed: TypeScript only knows e.target.value is a string. You could widen the state type to string instead, but then you lose the protection the union type gives you. Not a good trade.",
           },
         ),
       ],
