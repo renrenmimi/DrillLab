@@ -3005,6 +3005,10 @@ public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
             "java",
             `// ✗ POST 用了 ok()
 return ResponseEntity.ok(orderService.createOrder(request));`,
+            {
+              codeEn: `// ✗ POST using ok()
+return ResponseEntity.ok(orderService.createOrder(request));`,
+            },
           ),
           why: (
             <>
@@ -3033,6 +3037,11 @@ return ResponseEntity.ok(orderService.createOrder(request));`,
             `// ✗ DELETE 返回了 200
 orderService.deleteOrder(id);
 return ResponseEntity.ok().build();`,
+            {
+              codeEn: `// ✗ DELETE returning 200
+orderService.deleteOrder(id);
+return ResponseEntity.ok().build();`,
+            },
           ),
           why: (
             <>
@@ -3060,6 +3069,11 @@ return ResponseEntity.ok().build();`,
             `// ✗ PATCH 直接 valueOf，没挡非法值
 OrderStatus status = OrderStatus.valueOf(statusUpdate.get("status"));
 return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
+            {
+              codeEn: `// ✗ PATCH calling valueOf directly, with no guard against invalid values
+OrderStatus status = OrderStatus.valueOf(statusUpdate.get("status"));
+return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
+            },
           ),
           why: (
             <>
@@ -3103,6 +3117,14 @@ public ResponseEntity<List<Order>> getAllOrders(
         @RequestParam(required = false) String userId) {
     return ResponseEntity.ok(orderService.getAllOrders());   // userId 白收了
 }`,
+            {
+              codeEn: `// ✗ ignoring the optional userId parameter
+@GetMapping("/api/orders")
+public ResponseEntity<List<Order>> getAllOrders(
+        @RequestParam(required = false) String userId) {
+    return ResponseEntity.ok(orderService.getAllOrders());   // userId accepted for nothing
+}`,
+            },
           ),
           why: (
             <>
@@ -3868,11 +3890,18 @@ spring.lifecycle.timeout-per-shutdown-phase=20s
           kind: "recognition",
           id: "g-written-worst",
           title: "哪一行是最严重的安全问题",
+          titleEn: "Which line is the most serious security problem",
           level: 1,
           prompt: (
             <p>
               题面给的六行配置里，哪一行能<strong>直接</strong>
               导致数据库口令泄漏？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Of the six configuration lines in the question, which one can{" "}
+              <strong>directly</strong> leak the database password?
             </p>
           ),
           code: real(
@@ -3909,11 +3938,33 @@ management.endpoints.web.exposure.include=*`,
               <strong>把它当成安全问题会暴露对容器网络的不理解。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              <code>include=*</code> opens <strong>every</strong> actuator
+              endpoint on the business port, and{" "}
+              <code>/actuator/env</code> prints all environment variables —{" "}
+              <code>DB_PASSWORD</code> in plain text.{" "}
+              <code>/actuator/heapdump</code> is worse still: the whole heap can
+              be downloaded.
+              <br />
+              B, using a placeholder, is <strong>correct in itself</strong> and
+              better than hardcoding. The question of who sets that variable is
+              a credential-management problem, not a problem with this line.
+              <br />
+              <strong>A is required inside a container</strong>: without
+              binding to 0.0.0.0 nothing outside the Pod can connect.{" "}
+              <strong>
+                Calling it a security problem shows you do not understand
+                container networking.
+              </strong>
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-written-serial",
           title: "为什么 User subgraph 慢会拖慢 Orders subgraph",
+          titleEn: "Why a slow User subgraph slows the Orders subgraph down",
           level: 1,
           prompt: (
             <p>
@@ -3923,11 +3974,19 @@ management.endpoints.web.exposure.include=*`,
               总延迟大约是多少，为什么？
             </p>
           ),
+          promptEn: (
+            <p>
+              A client asks for{" "}
+              <code>{"{ user(id:\"1\") { name orders { id } } }"}</code>. The
+              Accounts subgraph takes 500ms, the Orders subgraph only 10ms.
+              Roughly what is the total latency, and why?
+            </p>
+          ),
           options: [
-            { id: "a", label: "约 500ms —— 两个 subgraph 并行请求，取最慢的那个" },
-            { id: "b", label: "约 510ms —— Router 必须先拿到 User 的 id 才能去问 Orders，两步串行" },
-            { id: "c", label: "约 10ms —— Orders 有缓存" },
-            { id: "d", label: "约 250ms —— 平均值" },
+            { id: "a", label: "约 500ms —— 两个 subgraph 并行请求，取最慢的那个", labelEn: "About 500ms — both subgraphs are asked in parallel, so the slower one wins" },
+            { id: "b", label: "约 510ms —— Router 必须先拿到 User 的 id 才能去问 Orders，两步串行", labelEn: "About 510ms — the Router must have the User id before it can ask Orders, so the two steps run one after another" },
+            { id: "c", label: "约 10ms —— Orders 有缓存", labelEn: "About 10ms — Orders has a cache" },
+            { id: "d", label: "约 250ms —— 平均值", labelEn: "About 250ms — the average" },
           ],
           answer: ["b"],
           explain: (
@@ -3944,17 +4003,42 @@ management.endpoints.web.exposure.include=*`,
               这个「串行依赖」就是第 1 题要你解释的核心机制。
             </>
           ),
+          explainEn: (
+            <>
+              In the Router query plan these two steps{" "}
+              <strong>depend on each other</strong>: to send{" "}
+              <code>_entities(representations: [{'{ __typename: "User", id }'}])</code>{" "}
+              to Orders, it must first get that <code>id</code> from Accounts.{" "}
+              <strong>So they cannot run in parallel.</strong>
+              <br />
+              A only holds when the fields from the two subgraphs do not depend
+              on each other — asking for <code>user</code> and{" "}
+              <code>topProducts</code> together, for example.
+              <br />
+              This serial dependency is the mechanism Question 1 asks you to
+              explain.
+            </>
+          ),
         },
         {
           kind: "code-completion",
           id: "g-written-fix",
           title: "写出 actuator 那一条的修正配置",
+          titleEn: "Write the corrected configuration for the actuator line",
           level: 3,
           prompt: (
             <p>
               针对 <code>management.endpoints.web.exposure.include=*</code>，
               写出修正后的配置。至少要做到：白名单、管理端口分离、
               health 不泄漏细节、支持 k8s 探针。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Write the corrected configuration for{" "}
+              <code>management.endpoints.web.exposure.include=*</code>. At a
+              minimum: an allow list, management on its own port, a health
+              endpoint that leaks no detail, and support for Kubernetes probes.
             </p>
           ),
           generated: true,
@@ -3968,26 +4052,43 @@ management.endpoints.web.exposure.include=*`,
 #   4. 支持 k8s 的 liveness / readiness 探针
 
 `,
+          starterEn: `# Fix management.endpoints.web.exposure.include=*
+# Requirements:
+#   1. Replace * with an allow list
+#   2. Move the management endpoints to their own port
+#   3. health must not show downstream detail
+#   4. Support the Kubernetes liveness / readiness probes
+
+`,
           requirements: [
             "用白名单列出需要的端点，不用 *",
             "management.server.port 设成与业务端口不同的值",
             "health 端点不显示详情",
             "开启 health probes（liveness / readiness）",
           ],
+          requirementsEn: [
+            "List the endpoints you need in an allow list; do not use *",
+            "Set management.server.port to something other than the business port",
+            "The health endpoint shows no details",
+            "Turn on the health probes (liveness and readiness)",
+          ],
           checks: [
             {
               label: "用了白名单（include 后面不是 *）",
+              labelEn: "Uses an allow list (what follows include is not *)",
               must: "management\\.endpoints\\.web\\.exposure\\.include\\s*=\\s*[a-z]",
             },
-            { label: "没有留下 include=*", mustNot: "exposure\\.include\\s*=\\s*\\*" },
-            { label: "至少暴露了 health", must: "include[^\\n]*health" },
-            { label: "管理端点挪到了独立端口", must: "management\\.server\\.port\\s*=" },
+            { label: "没有留下 include=*", labelEn: "No include=* left behind", mustNot: "exposure\\.include\\s*=\\s*\\*" },
+            { label: "至少暴露了 health", labelEn: "Exposes at least health", must: "include[^\\n]*health" },
+            { label: "管理端点挪到了独立端口", labelEn: "Management endpoints moved to their own port", must: "management\\.server\\.port\\s*=" },
             {
               label: "health 不显示详情",
+              labelEn: "health shows no details",
               must: "management\\.endpoint\\.health\\.show-details\\s*=\\s*never",
             },
             {
               label: "开启了 k8s 探针支持",
+              labelEn: "Kubernetes probe support is turned on",
               must: "management\\.endpoint\\.health\\.probes\\.enabled\\s*=\\s*true",
             },
           ],
@@ -3999,6 +4100,19 @@ management.endpoint.health.show-details=never
 management.endpoint.health.probes.enabled=true
 management.server.port=另一个端口
 （可选）management.endpoints.web.base-path=/internal`,
+            `management.endpoints.web.exposure.include=health,info,prometheus
+management.endpoint.health.show-details=never
+management.endpoint.health.probes.enabled=true
+management.server.port=8081`,
+          ],
+          hintsEn: [
+            "Start by asking which actuator endpoints operations actually need. Everything else should be closed. Then think: if the management endpoints share a port with the business endpoints, can the Ingress separate them?",
+            "Four settings: exposure.include (the allow list), management.server.port (its own port), endpoint.health.show-details, and endpoint.health.probes.enabled.",
+            `management.endpoints.web.exposure.include=the few endpoints you need, comma separated
+management.endpoint.health.show-details=never
+management.endpoint.health.probes.enabled=true
+management.server.port=a different port
+(optional) management.endpoints.web.base-path=/internal`,
             `management.endpoints.web.exposure.include=health,info,prometheus
 management.endpoint.health.show-details=never
 management.endpoint.health.probes.enabled=true
@@ -4026,8 +4140,27 @@ spring.lifecycle.timeout-per-shutdown-phase=20s`,
             {
               filename: "参考答案（DrillLab 自出）",
               filenameEn: "Reference answer (written by DrillLab)",
+              codeEn: `# An allow list instead of a wildcard: deny by default, open only what operations need
+management.endpoints.web.exposure.include=health,info,prometheus
+
+# health shows no downstream detail, so the internal topology and dependency state stay private
+management.endpoint.health.show-details=never
+
+# Split liveness from readiness so the Kubernetes probes can use them separately
+# (a failed liveness restarts the Pod, a failed readiness only removes it from traffic)
+management.endpoint.health.probes.enabled=true
+
+# Management endpoints move to their own port: the Ingress exposes only 8080
+management.server.port=8081
+management.endpoints.web.base-path=/internal
+
+# While here: graceful shutdown, so a rolling update does not cut off in-flight requests
+server.shutdown=graceful
+spring.lifecycle.timeout-per-shutdown-phase=20s`,
               explanation:
                 "关键是「默认拒绝」这个思路：白名单而不是黑名单。另外 probes.enabled 那一条很多人不知道 —— liveness 和 readiness 的语义完全不同，共用一个 health 端点会导致「下游数据库抖动一下，Pod 被重启」这种事故。",
+              explanationEn:
+                "The important idea is deny by default: an allow list, not a block list. The probes.enabled line is also one many people do not know. liveness and readiness mean completely different things, and sharing one health endpoint leads to accidents like \"the downstream database wobbled for a second, so the Pod was restarted\".",
             },
           ),
         },
