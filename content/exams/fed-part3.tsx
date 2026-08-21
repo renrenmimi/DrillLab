@@ -1252,6 +1252,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
       title: "六个端点：状态码就是这道题的全部",
       titleEn: "Six endpoints: the status codes are the whole task",
       blurb: "五个测试只抓住两个错。另外三个端点全返回 null 也能过 —— 这一节讲怎么真的做对。",
+      blurbEn: "The five tests catch only two mistakes. Three endpoints can return null and still pass. This lesson is about getting them actually right.",
       minutes: 18,
       objectives: [
         "独立写出六个端点",
@@ -1259,8 +1260,16 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         "解释为什么 return null 能骗过三个测试",
         "写出 PATCH 端点里字符串转 enum 的安全处理",
       ],
+      objectivesEn: [
+        "Write all six endpoints without help",
+        "Say when each of 200 / 201 / 204 / 400 / 404 is used",
+        "Explain why returning null fools three of the tests",
+        "Write a safe string-to-enum conversion in the PATCH endpoint",
+      ],
       whyForAssessment:
         "审计实测：baseline 状态下六个端点全部 return null，五个测试通过了三个。只有 201 和 204 那两条抓住了错。这是整门考试「测试通过 ≠ 做对了」最夸张的一个实例。",
+      whyForAssessmentEn:
+        "Measured during the audit: in the baseline all six endpoints return null, and three of the five tests pass. Only the 201 check and the 204 check catch a mistake. This is the most extreme example in the whole exam of tests passing while the code is wrong.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/controller/OrderController.java",
@@ -1276,6 +1285,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         {
           id: "the-brief",
           heading: "题面与 starter",
+          headingEn: "The question and the starter code",
           body: (
             <>
               <p>README 里 Task 2 的原文：</p>
@@ -1331,7 +1341,9 @@ Use the provided \`OrderService\` for business logic.`,
         {
           id: "the-null-trap",
           heading: "实测：六个端点全返回 null，五个测试过了三个",
+          headingEn: "Measured: all six endpoints return null, and three of five tests pass",
           lede: "这是本项目最值得记住的一个事实。",
+          ledeEn: "This is the single fact from this project most worth remembering.",
           body: (
             <>
               <p>
@@ -1414,6 +1426,7 @@ Use the provided \`OrderService\` for business logic.`,
         {
           id: "status-codes",
           heading: "五个状态码，各自什么时候用",
+          headingEn: "Five status codes, and when each one is used",
           body: (
             <>
               <div className="table-wrap">
@@ -1570,6 +1583,7 @@ Use the provided \`OrderService\` for business logic.`,
         {
           id: "the-optional-filter",
           heading: "GET /api/orders 的可选过滤",
+          headingEn: "The optional filter on GET /api/orders",
           body: (
             <>
               <p>
@@ -1640,7 +1654,9 @@ public ResponseEntity<List<Order>> getAllOrders(
         {
           id: "patch-enum",
           heading: "PATCH 端点：字符串转 enum 是唯一需要动脑的地方",
+          headingEn: "The PATCH endpoint: turning a string into an enum is the only part that needs thought",
           lede: "这个端点收 Map 而不是 DTO，所以没有 Bean Validation 保护。",
+          ledeEn: "This endpoint takes a Map instead of a DTO, so Bean Validation does not protect it.",
           body: (
             <>
               <p>
@@ -1778,7 +1794,9 @@ public ResponseEntity<Order> updateOrderStatus(
         {
           id: "full-solution",
           heading: "六个端点的完整实现",
+          headingEn: "The complete implementation of all six endpoints",
           lede: "审计实测：这样写之后 5 个测试全过，BUILD SUCCESS。",
+          ledeEn: "Measured during the audit: with this code all 5 tests pass and the build reports BUILD SUCCESS.",
           body: (
             <>
               <p>
@@ -1840,6 +1858,7 @@ INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correl
         {
           id: "the-tests",
           heading: "五个测试怎么读",
+          headingEn: "How to read the five tests",
           body: (
             <>
               <p>
@@ -1952,6 +1971,7 @@ INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correl
         {
           id: "self-check",
           heading: "测试之外的自检清单",
+          headingEn: "A self-check list for what the tests do not cover",
           body: (
             <>
               <p>
@@ -2447,6 +2467,16 @@ return ResponseEntity.ok(orderService.createOrder(request));`,
               写 REST 时要专门停一下问「这是创建吗？」
             </>
           ),
+          whyEn: (
+            <>
+              Creating a resource should return <strong>201 Created</strong>. This is one
+              of the two mistakes the tests catch:{" "}
+              <code>Status expected:&lt;201&gt; but was:&lt;200&gt;</code>.
+              <br />
+              <code>ResponseEntity.ok()</code> is the one you type without thinking. When
+              you write REST, stop and ask: is this call creating something?
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2462,6 +2492,16 @@ return ResponseEntity.ok().build();`,
               <br />
               判据很简单：<code>deleteOrder</code> 返回
               <code>void</code>，那就是 204。
+            </>
+          ),
+          whyEn: (
+            <>
+              A successful delete has no content to return, so the standard answer is{" "}
+              <strong>204 No Content</strong>:{" "}
+              <code>ResponseEntity.noContent().build()</code>.
+              <br />
+              The rule is simple: <code>deleteOrder</code> returns <code>void</code>, so
+              the endpoint returns 204.
             </>
           ),
         },
@@ -2488,6 +2528,22 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
               但这是明显的正确性问题。
             </>
           ),
+          whyEn: (
+            <>
+              Two problems here:
+              <br />
+              1. When the body is <code>{"{}"}</code>, <code>get</code> returns null, and{" "}
+              <code>valueOf(null)</code> throws an NPE, which becomes a 500.
+              <br />
+              2. Sending <code>&quot;shipped&quot;</code> in lower case, or{" "}
+              <code>&quot;FLYING&quot;</code>, throws{" "}
+              <code>IllegalArgumentException</code>, which also becomes a 500.
+              <br />
+              Both cases should be <strong>400</strong>.{" "}
+              <strong>The tests do not check this</strong>, because they only send the
+              valid value SHIPPED. It is still plainly wrong.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2509,15 +2565,25 @@ public ResponseEntity<List<Order>> getAllOrders(
               但人工 review 会看到「收了一个参数却没用」。
             </>
           ),
+          whyEn: (
+            <>
+              A parameter in the signature <strong>is a request to use it</strong>. The
+              TODO text also says <em>request validation</em>.
+              <br />
+              The test calls <code>get(&quot;/api/orders&quot;)</code> with no parameter,
+              so it <strong>cannot catch this</strong>. But a human reviewer will see a
+              parameter that is accepted and then ignored.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "创建成功", reachFor: "201 Created" },
-        { signal: "service 方法返回 void", reachFor: "204 No Content + .build()" },
-        { signal: "项目里有全局异常处理器", reachFor: "别 try/catch，让异常冒出去" },
-        { signal: "要把某异常转成不同状态码", reachFor: "唯一该 try/catch 的场合，用 ResponseStatusException" },
-        { signal: "收 Map 而不是 DTO 的端点", reachFor: "没有 Bean Validation 保护，自己挡 null 和非法值" },
-        { signal: "签名里有个没用到的参数", reachFor: "那是提示：它要求你实现某个功能" },
+        { signal: "创建成功", signalEn: "Something was created successfully", reachFor: "201 Created" },
+        { signal: "service 方法返回 void", signalEn: "The service method returns void", reachFor: "204 No Content + .build()" },
+        { signal: "项目里有全局异常处理器", signalEn: "The project has a global exception handler", reachFor: "别 try/catch，让异常冒出去", reachForEn: "No try/catch; let the exception travel up" },
+        { signal: "要把某异常转成不同状态码", signalEn: "You need one exception to map to a different status code", reachFor: "唯一该 try/catch 的场合，用 ResponseStatusException", reachForEn: "The one place try/catch belongs; use ResponseStatusException" },
+        { signal: "收 Map 而不是 DTO 的端点", signalEn: "An endpoint that takes a Map instead of a DTO", reachFor: "没有 Bean Validation 保护，自己挡 null 和非法值", reachForEn: "Bean Validation does not protect it; reject null and invalid values yourself" },
+        { signal: "签名里有个没用到的参数", signalEn: "The signature has a parameter nothing uses", reachFor: "那是提示：它要求你实现某个功能", reachForEn: "It is a hint: you are being asked to implement that feature" },
       ],
       recap: [
         "六个端点全 return null 也能过 3/5 测试 —— Spring 里返回 null 会给出 200 + 空 body。",
@@ -2525,6 +2591,13 @@ public ResponseEntity<List<Order>> getAllOrders(
         "EntityNotFoundException 交给 GlobalExceptionHandler，控制器里不要 catch。",
         "PATCH 收 Map 没有校验保护：null 和非法枚举值都要自己挡成 400，valueOf 大小写敏感。",
         "测试用 @MockBean 替换了 service，所以完全不验证业务逻辑 —— 必须手动 curl 自检。",
+      ],
+      recapEn: [
+        "All six endpoints can return null and still pass 3 of 5 tests, because in Spring a null return produces 200 with an empty body.",
+        "201 Created for POST, 204 No Content for DELETE. These are the two points the tests do catch.",
+        "Let EntityNotFoundException reach GlobalExceptionHandler; do not catch it in the controller.",
+        "The PATCH endpoint takes a Map, so nothing validates it: turn null and invalid enum values into 400 yourself, and remember valueOf is case sensitive.",
+        "The tests replace the service with @MockBean, so they check no business logic at all. Check it yourself with curl.",
       ],
     },
   ],
