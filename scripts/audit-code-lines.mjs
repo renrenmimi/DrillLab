@@ -1,0 +1,125 @@
+// 校验双语代码片段的行数对齐。
+//
+// 【为什么必须有这个脚本】
+// CodeExample.highlight 是**行号**。codeEn 一旦比 code 多占或少占一行，
+// 高亮就指到别的行 —— 而且不报错、不崩、不留痕，只是默默指错。
+// 这比「英文没补」难发现得多，所以用脚本守住，不靠人眼。
+//
+// 顺带查两件事：
+//   · 可执行行是否逐字节相同（只有注释和面向读者的字符串允许不同）
+//   · codeEn 里还有没有中文（漏译）
+//
+//   node scripts/audit-code-lines.mjs
+import { readdirSync, readFileSync, statSync } from "fs";
+import { join } from "path";
+
+const ROOTS = ["content"];
+const CJK = /[一-鿿]/;
+
+function walk(dir, out = []) {
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (statSync(p).isDirectory()) walk(p, out);
+    else if (/\.tsx?$/.test(p)) out.push(p);
+  }
+  return out;
+}
+
+/** 取出反引号模板字符串，返回 [起点, 终点]（终点指向结尾的反引号） */
+function readTemplate(src, openTick) {
+  let i = openTick + 1;
+  while (i < src.length) {
+    if (src[i] === "\\") { i += 2; continue; }
+    if (src[i] === "`") return i;
+    i++;
+  }
+  return -1;
+}
+
+/**
+ * 一个 CodeExample 对象里的 code / codeEn 配对。
+ * 内容文件里两种写法都有：
+ *   real("ts", `…`, { codeEn: `…` })     ← 构造器 + opts
+ *   { language: "ts", code: `…`, codeEn: `…` }  ← 对象字面量
+ * 两种都靠「同一个对象里 code 与 codeEn 相邻」来配对，所以统一按
+ * 「找到一个 codeEn，往前找最近的 code」来处理。
+ */
+function pairs(src) {
+  const out = [];
+  const re = /\bcodeEn:\s*`/g;
+  let m;
+  while ((m = re.exec(src))) {
+    const enOpen = m.index + m[0].length - 1;
+    const enClose = readTemplate(src, enOpen);
+    if (enClose < 0) continue;
+    // 往前找最近的 code: ` 或 构造器的第二个参数
+    const before = src.slice(0, m.index);
+    const zhIdx = Math.max(
+      before.lastIndexOf("code: `"),
+      before.lastIndexOf('real('),
+      before.lastIndexOf('demo('),
+      before.lastIndexOf('tested('),
+    );
+    if (zhIdx < 0) continue;
+    const tick = src.indexOf("`", zhIdx);
+    if (tick < 0 || tick > m.index) continue;
+    const zhClose = readTemplate(src, tick);
+    if (zhClose < 0) continue;
+    out.push({
+      zh: src.slice(tick + 1, zhClose),
+      en: src.slice(enOpen + 1, enClose),
+      line: src.slice(0, m.index).split("\n").length,
+    });
+  }
+  return out;
+}
+
+/** 去掉行尾注释，用来比对「可执行部分」 */
+const stripComment = (l) =>
+  l.replace(/\/\/.*$/, "").replace(/#(?![0-9a-fA-F]{3,8}\b).*$/, "").trimEnd();
+
+let checked = 0;
+const problems = [];
+
+for (const root of ROOTS) {
+  for (const file of walk(root)) {
+    const src = readFileSync(file, "utf8");
+    for (const { zh, en, line } of pairs(src)) {
+      checked++;
+      const a = zh.split("\n");
+      const b = en.split("\n");
+      if (a.length !== b.length) {
+        problems.push(
+          `${file}:${line}  行数不一致：中文 ${a.length} 行，英文 ${b.length} 行。` +
+            `highlight 是行号，差一行就会指错。`,
+        );
+        continue; // 行数不同就没法逐行比了
+      }
+      for (let i = 0; i < a.length; i++) {
+        const ca = stripComment(a[i]);
+        const cb = stripComment(b[i]);
+        if (ca !== cb) {
+          problems.push(
+            `${file}:${line}  第 ${i + 1} 行去掉注释后不一致：\n` +
+              `      zh: ${ca}\n      en: ${cb}`,
+          );
+        }
+      }
+      if (CJK.test(en)) {
+        const bad = b.filter((l) => CJK.test(l)).slice(0, 2);
+        problems.push(
+          `${file}:${line}  codeEn 里还有中文（漏译）：\n      ${bad.join("\n      ")}`,
+        );
+      }
+    }
+  }
+}
+
+console.log(`检查了 ${checked} 对双语代码片段`);
+if (problems.length === 0) {
+  console.log("✓ 行数全部对齐，可执行行逐字节相同，codeEn 无残留中文");
+  process.exit(0);
+}
+console.error(`\n✗ ${problems.length} 个问题：\n`);
+for (const p of problems) console.error("  " + p);
+process.exit(1);
