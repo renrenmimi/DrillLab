@@ -5991,12 +5991,20 @@ $ npx vitest run src/Theme.test.tsx
           kind: "fill-blank",
           id: "r-var-theme-blank",
           title: "补全 ThemeContext 的四个关键位置",
+          titleEn: "Fill in the four key spots of ThemeContext",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 3 个是最容易漏的那一步，第 4 个决定「忘了套 Provider」
               时报错清不清楚。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The third is the step people miss most. The fourth
+              decides how clear the error is when somebody forgets to wrap things in
+              the Provider.
             </p>
           ),
           language: "tsx",
@@ -6025,12 +6033,22 @@ export function useTheme(): ThemeContextValue {
               n: 1,
               accept: ["createContext"],
               hint: "造管道的那个函数。",
+              hintEn: "The function that builds the pipe.",
               why: (
                 <>
                   <code>createContext</code>。
                   <br />
                   它返回一个对象，上面挂着 <code>.Provider</code>；
                   这个对象本身还要传给 <code>useContext</code> 才能取值。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>createContext</code>.
+                  <br />
+                  It returns an object that carries <code>.Provider</code>, and you
+                  also pass that same object to <code>useContext</code> to read the
+                  value back out.
                 </>
               ),
               width: 14,
@@ -6044,6 +6062,7 @@ export function useTheme(): ThemeContextValue {
                 '(prev) => prev === "light" ? "dark" : "light"',
               ],
               hint: "要读旧值算新值，别读闭包里的 theme。",
+              hintEn: "Compute the new value from the old one, and do not read the theme out of the closure.",
               why: (
                 <>
                   函数式更新：
@@ -6056,12 +6075,27 @@ export function useTheme(): ThemeContextValue {
                   <code>useCallback</code> 的依赖才能是空数组。
                 </>
               ),
+              whyEn: (
+                <>
+                  The updater form:{" "}
+                  <code>{'(prev) => (prev === "light" ? "dark" : "light")'}</code>.
+                  <br />
+                  Writing <code>theme === &quot;light&quot; ? …</code> reads the old
+                  value out of the closure. One click hides it, but{" "}
+                  <strong>
+                    call it twice inside one event and it only flips once
+                  </strong>
+                  . And it is exactly because it reads no outside variable that the{" "}
+                  <code>useCallback</code> above can have an empty dependency list.
+                </>
+              ),
               width: 44,
             },
             {
               n: 3,
               accept: ["useMemo"],
               hint: "让 theme 没变时 value 还是同一个对象。",
+              hintEn: "Keep value as the very same object while theme does not change.",
               why: (
                 <>
                   <code>useMemo</code>。<strong>这是这道题最容易漏的一步。</strong>
@@ -6074,12 +6108,28 @@ export function useTheme(): ThemeContextValue {
                   「value 不换新对象」会红。又一次「测试通过 ≠ 做对了」。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>useMemo</code>.{" "}
+                  <strong>This is the step people miss most in this question.</strong>
+                  <br />
+                  Without it, <code>{"{ theme, toggleTheme }"}</code> is a new object
+                  on every render. Context compares by reference, reads that as a
+                  change, and every consumer re-renders — even though the theme never
+                  moved.
+                  <br />
+                  And when it is missing, every functional test is{" "}
+                  <strong>still green</strong>; only the one about the value keeping
+                  its reference turns red. Once again, passing tests are not proof.
+                </>
+              ),
               width: 9,
             },
             {
               n: 4,
               accept: ["!ctx", "ctx === undefined", "!context", "ctx == null", "ctx === void 0"],
               hint: "没有 Provider 时 useContext 返回的就是默认值 undefined。",
+              hintEn: "With no Provider above it, useContext returns the default value, which is undefined.",
               why: (
                 <>
                   <code>!ctx</code>。
@@ -6088,6 +6138,19 @@ export function useTheme(): ThemeContextValue {
                   （而不是 <code>Cannot destructure property &apos;theme&apos;…</code>），
                   以及<strong>让 TS 把返回类型收窄到非 undefined</strong>，
                   消费者就不用到处写 <code>?.</code> 了。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>!ctx</code>.
+                  <br />
+                  It does two things: it gives a message a person can read, instead of{" "}
+                  <code>Cannot destructure property &apos;theme&apos;…</code>, and it{" "}
+                  <strong>
+                    narrows the return type so that undefined is no longer part of it
+                  </strong>
+                  , which means consumers do not have to write <code>?.</code>{" "}
+                  everywhere.
                 </>
               ),
               width: 10,
