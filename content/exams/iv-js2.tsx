@@ -1683,7 +1683,28 @@ const withTimeout = (p, ms) =>
 const c = new AbortController();
 setTimeout(() => c.abort(), 5000);
 await fetch(url, { signal: c.signal });`,
-              { filename: "四个方法与超时" },
+              {
+                filename: "四个方法与超时",
+                filenameEn: "The four methods, and timeouts",
+                codeEn: `// All of them have to succeed
+const [user, posts] = await Promise.all([getUser(), getPosts()]);
+
+// You need the result of each one
+const results = await Promise.allSettled(files.map(upload));
+const failed = results.filter((r) => r.status === "rejected");
+
+// Timeout: race only means "stop waiting"; the request is still in flight
+const withTimeout = (p, ms) =>
+  Promise.race([
+    p,
+    new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms)),
+  ]);
+
+// Better: AbortController really does cancel the request
+const c = new AbortController();
+setTimeout(() => c.abort(), 5000);
+await fetch(url, { signal: c.signal });`,
+              },
             ),
           ],
         },
