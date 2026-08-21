@@ -1748,6 +1748,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               kind: "recognition",
               id: "f-which-file",
               title: "Q1 的 state 应该放在哪个文件",
+              titleEn: "Which file should hold the state for Q1",
               level: 1,
               prompt: (
                 <p>
@@ -1756,11 +1757,19 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   那份笔记列表数据应该存在哪个组件里？
                 </p>
               ),
+              promptEn: (
+                <p>
+                  Q1 asks that a new note appears in the table after the form is
+                  submitted. The form is <code>NoteForm</code>, the table is{" "}
+                  <code>NoteTable</code>, and the two are siblings. Which component
+                  should hold the list of notes?
+                </p>
+              ),
               options: [
-                { id: "a", label: "NoteForm —— 数据是它产生的" },
-                { id: "b", label: "NoteTable —— 数据是它显示的" },
-                { id: "c", label: "NoteManager —— 它是两者共同的父组件" },
-                { id: "d", label: "NoteItem —— 每一行自己管自己" },
+                { id: "a", label: "NoteForm —— 数据是它产生的", labelEn: "NoteForm — it is the one producing the data" },
+                { id: "b", label: "NoteTable —— 数据是它显示的", labelEn: "NoteTable — it is the one showing the data" },
+                { id: "c", label: "NoteManager —— 它是两者共同的父组件", labelEn: "NoteManager — it is the parent of both" },
+                { id: "d", label: "NoteItem —— 每一行自己管自己", labelEn: "NoteItem — every row looks after itself" },
               ],
               answer: ["c"],
               explain: (
@@ -1773,13 +1782,31 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   和 <code>noteToEdit</code> 两个 state 就都在 NoteManager。
                 </>
               ),
+              explainEn: (
+                <>
+                  Data in React flows <strong>one way, downwards</strong>: a parent can
+                  pass data to a child, and siblings cannot pass anything to each other
+                  directly. Both <code>NoteForm</code> and <code>NoteTable</code> need
+                  to touch this list, so it has to sit in the parent they share,{" "}
+                  <code>NoteManager</code>. This is called{" "}
+                  <strong>lifting state up</strong>. In the real project both{" "}
+                  <code>notes</code> and <code>noteToEdit</code> live in NoteManager.
+                </>
+              ),
             },
             {
               kind: "recognition",
               id: "f-distractor",
               title: "哪个是干扰项",
+              titleEn: "Which one is the distractor",
               level: 1,
               prompt: <p>Federation 项目里，下面哪个文件与你要完成的任务完全无关？</p>,
+              promptEn: (
+                <p>
+                  In the Federation project, which of these files has nothing at all to
+                  do with the task you have to finish?
+                </p>
+              ),
               options: [
                 { id: "a", label: "node-subgraph/src/dataSources/orderDataSource.js" },
                 { id: "b", label: "java-service/orders.db" },
@@ -1792,6 +1819,15 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   <code>orders.db</code> 没有被任何代码引用，pom.xml 里也没有数据库依赖 ——
                   纯干扰项。另外三个都是必读：dataSource 决定你能调哪些方法、
                   OrderService 提供全部业务逻辑、schema.graphql 决定 resolver 要返回什么形状。
+                </>
+              ),
+              explainEn: (
+                <>
+                  <code>orders.db</code> is referenced by no code at all, and pom.xml
+                  has no database dependency — a pure distractor. The other three are
+                  all required reading: the dataSource decides which methods you can
+                  call, OrderService supplies all the business logic, and
+                  schema.graphql decides what shape each resolver has to return.
                 </>
               ),
             },
