@@ -46,6 +46,28 @@ const REF_DEBOUNCE = `export function debounce<T extends (...args: never[]) => v
   return debounced;
 }`;
 
+const REF_DEBOUNCE_EN = `export function debounce<T extends (...args: never[]) => void>(
+  fn: T,
+  delay: number,
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  const debounced = (...args: Parameters<T>) => {
+    if (timer !== null) clearTimeout(timer);   // The key line: clear the old timer, so the clock restarts
+    timer = setTimeout(() => {
+      timer = null;
+      fn(...args);                             // Only the last call's arguments get this far
+    }, delay);
+  };
+
+  debounced.cancel = () => {
+    if (timer !== null) clearTimeout(timer);
+    timer = null;
+  };
+
+  return debounced;
+}`;
+
 const REF_THROTTLE = `export function throttle<T extends (...args: never[]) => void>(
   fn: T,
   interval: number,
@@ -65,6 +87,35 @@ const REF_THROTTLE = `export function throttle<T extends (...args: never[]) => v
       lastArgs = args;                // 记住窗口内最后一次的参数
       if (timer === null) {
         timer = setTimeout(() => {    // trailing：窗口结束补一枪
+          timer = null;
+          lastTime = Date.now();
+          if (lastArgs !== null) fn(...lastArgs);
+          lastArgs = null;
+        }, remaining);
+      }
+    }
+  };
+}`;
+
+const REF_THROTTLE_EN = `export function throttle<T extends (...args: never[]) => void>(
+  fn: T,
+  interval: number,
+): (...args: Parameters<T>) => void {
+  let lastTime = 0;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let lastArgs: Parameters<T> | null = null;
+
+  return (...args: Parameters<T>) => {
+    const now = Date.now();
+    const remaining = interval - (now - lastTime);
+
+    if (remaining <= 0) {
+      lastTime = now;
+      fn(...args);                    // leading: the window is open, run now
+    } else {
+      lastArgs = args;                // keep the args of the last call inside the window
+      if (timer === null) {
+        timer = setTimeout(() => {    // trailing: run once more when the window closes
           timer = null;
           lastTime = Date.now();
           if (lastArgs !== null) fn(...lastArgs);
@@ -280,6 +331,8 @@ export const ivHand: Module = {
           code: [
             tested("ts", REF_DEBOUNCE, {
               filename: "debounce.ts（参考解法 —— scratchpad vitest 4 / 4）",
+              filenameEn: "debounce.ts (reference solution — scratchpad vitest 4 / 4)",
+              codeEn: REF_DEBOUNCE_EN,
             }),
           ],
         },
@@ -354,6 +407,8 @@ export const ivHand: Module = {
           code: [
             tested("ts", REF_THROTTLE, {
               filename: "throttle.ts（参考解法 —— scratchpad vitest 4 / 4）",
+              filenameEn: "throttle.ts (reference solution — scratchpad vitest 4 / 4)",
+              codeEn: REF_THROTTLE_EN,
             }),
           ],
         },
@@ -422,6 +477,8 @@ export const ivHand: Module = {
           ],
           solution: tested("ts", REF_DEBOUNCE, {
             filename: "debounce.ts（scratchpad vitest 4 / 4）",
+            filenameEn: "debounce.ts (scratchpad vitest 4 / 4)",
+            codeEn: REF_DEBOUNCE_EN,
           }),
         },
         {
@@ -467,6 +524,8 @@ export const ivHand: Module = {
           ],
           solution: tested("ts", REF_THROTTLE, {
             filename: "throttle.ts（scratchpad vitest 4 / 4）",
+            filenameEn: "throttle.ts (scratchpad vitest 4 / 4)",
+            codeEn: REF_THROTTLE_EN,
           }),
         },
       ],
