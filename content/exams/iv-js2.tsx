@@ -1011,7 +1011,21 @@ const [user, posts] = await Promise.all([fetchUser(), fetchPosts()]);
 // 有依赖时串行才是对的
 const user = await fetchUser();
 const posts = await fetchPosts(user.id);   // 必须先有 user.id`,
-              { filename: "async/await 最常见的性能错误" },
+              {
+                filename: "async/await 最常见的性能错误",
+                filenameEn: "The most common performance mistake with async/await",
+                codeEn: `// ✗ One after the other: total time = a + b
+const user = await fetchUser();      // wait 200ms
+const posts = await fetchPosts();    // wait another 200ms  -> 400ms in total
+
+// ✓ Side by side: total time = max(a, b)
+const [user, posts] = await Promise.all([fetchUser(), fetchPosts()]);
+//                                       ↑ both requests go out at once   -> 200ms total
+
+// When one depends on the other, going one at a time is correct
+const user = await fetchUser();
+const posts = await fetchPosts(user.id);   // user.id has to exist first`,
+              },
             ),
           ],
         },
