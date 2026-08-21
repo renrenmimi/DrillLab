@@ -4443,6 +4443,8 @@ const RideHistory = () => {
           title: "完整答案跑不起来 —— 一个扩展名的事",
           titleEn: "The complete answer does not run — the cause is one file extension",
           blurb: "README 说「先运行完整答案熟悉流程」。实测 0 个测试跑起来。",
+          blurbEn:
+            "The README says to run the complete answer first to get used to the flow. In practice 0 tests start.",
           minutes: 13,
           objectives: [
             "读懂「Failed to parse source for import analysis」这条报错",
@@ -4450,8 +4452,16 @@ const RideHistory = () => {
             "在两种修法里选对的那个，并说出为什么",
             "养成「先跑一次基线」的习惯",
           ],
+          objectivesEn: [
+            "Understand the error message \"Failed to parse source for import analysis\"",
+            "Explain why Vite does not parse JSX inside .js files by default",
+            "Pick the right one of the two fixes, and say why",
+            "Build the habit of running the project once as a baseline first",
+          ],
           whyForAssessment:
             "这是本站主线 ③「脚手架本身也会有问题」的又一个实例，而且这次踩得最狠 —— 不是某个测试失败，是 0 个测试跑起来。真实考试里遇到这种情况，能不能在两分钟内判断出「是环境问题不是我写错了」，直接决定你剩下的时间怎么花。",
+          whyForAssessmentEn:
+            "This is another example of theme 3 on this site: the project you are given can be broken itself. This case is the worst one. It is not that one test fails, it is that 0 tests start. In a real exam, being able to decide within two minutes that the setup is at fault and not your code decides how you spend the rest of your time.",
           sourceFiles: [
             { path: "cab-booking-context/src/context/CabContext.js", role: "缺陷本体：.js 扩展名 + 文件里有 JSX", edit: true },
             { path: "cab-booking-context/vite.config.mjs", role: "另一种（不推荐的）修法会改这里" },
@@ -4460,7 +4470,10 @@ const RideHistory = () => {
             {
               id: "cb-jsx-ext",
               heading: "为什么 .js 里的 JSX 会炸",
+              headingEn: "Why JSX inside a .js file fails",
               lede: "esbuild 默认按扩展名决定用哪个 loader",
+              ledeEn:
+                "By default esbuild picks the loader from the file extension",
               body: (
                 <>
                   <p>
@@ -4667,7 +4680,10 @@ Error: Failed to parse source for import analysis because the content contains i
             {
               id: "cb-two-fixes",
               heading: "两种修法，选哪个",
+              headingEn: "Two ways to fix it, and which one to pick",
               lede: "改扩展名，还是改构建配置",
+              ledeEn:
+                "Change the file extension, or change the build configuration",
               body: (
                 <>
                   <p>
@@ -4857,7 +4873,10 @@ Error: Failed to parse source for import analysis because the content contains i
             {
               id: "cb-better-writes",
               heading: "两处「测试能过但面试会问」的写法",
+              headingEn: "Two places that pass the tests but an interviewer will ask about",
               lede: "不是 bug。但你得知道它们的边界在哪",
+              ledeEn:
+                "They are not bugs. But you need to know where their limits are",
               body: (
                 <>
                   <p>
@@ -5279,6 +5298,25 @@ export default defineConfig({
                   <strong>判断标准很简单：改一个文件能解决的，别动全局配置。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <strong>It does make the tests run</strong> — and that is exactly what makes it
+                  dangerous.
+                  <br />
+                  The price comes in three parts: <strong>①</strong> from now on nobody notices when
+                  JSX is written in a <code>.js</code> file, so the problem spreads;{" "}
+                  <strong>②</strong> the next change of build tool breaks it again (Jest, Next, and a
+                  separate run of <code>tsc</code> all ignore this configuration);{" "}
+                  <strong>③</strong> a newcomer who opens <code>CabContext.js</code> and sees JSX
+                  will believe that JSX is allowed in <code>.js</code> files, and{" "}
+                  <strong>learns something that is wrong</strong>.
+                  <br />
+                  <strong>
+                    The rule is simple: when changing one file solves it, leave the global
+                    configuration alone.
+                  </strong>
+                </>
+              ),
             },
           ],
           transfer: [
@@ -5294,6 +5332,13 @@ export default defineConfig({
             "修法是改名 .jsx，一处 import 都不用改（import 都没写扩展名）。",
             "别用 vite.config 的 loader 覆盖来救一个文件 —— 那是拿长期换短期。",
             "两处「能过但可更好」：非函数式更新、value 未记忆化。它们不是 bug，要说清边界条件。",
+          ],
+          recapEn: [
+            "The baseline is 0 tests started. It is not that one test failed; collecting the tests never got through.",
+            "The cause: CabContext.js contains JSX, but esbuild picks the loader from the file extension.",
+            "The fix is to rename it to .jsx, and not one import has to change, because none of them write the extension.",
+            "Do not use a loader override in vite.config to rescue a single file. That buys a short-term gain with a long-term cost.",
+            "Two places that pass but could be better: an update that is not written as a function, and a value that is not memoised. They are not bugs, so be ready to state the conditions where they matter.",
           ],
         },
         {
