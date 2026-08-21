@@ -3482,6 +3482,11 @@ return [value, setValue] as const;`,
             `// ✗ 用 state 存 DOM 节点
 const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 <audio ref={setAudio} />`,
+            {
+              codeEn: `// ✗ keeping the DOM node in state
+const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+<audio ref={setAudio} />`,
+            },
           ),
           why: (
             <>
@@ -3513,6 +3518,11 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
             `// ✗ 忘了 onEnded
 <audio ref={audioRef} src={src} />
 // 播完之后按钮还显示 "Pause"`,
+            {
+              codeEn: `// ✗ onEnded was forgotten
+<audio ref={audioRef} src={src} />
+// After playback ends the button still reads "Pause"`,
+            },
           ),
           why: (
             <>
