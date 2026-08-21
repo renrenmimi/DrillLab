@@ -2838,6 +2838,7 @@ export type SettledResult<T> =
   | { status: "rejected";  reason: unknown };`,
                   {
                     filename: "q2/taskRunner.ts（顶部类型定义）",
+                    filenameEn: "q2/taskRunner.ts (the type definitions at the top)",
                     sourceFile: "react-notes-app/q2/taskRunner.ts",
                   },
                 ),
@@ -3358,7 +3359,15 @@ export default NoteManager;
 // 使用方：名字可以自己起，不用花括号
 import NoteManager from "./components/NoteManager";
 import type { Note } from "../../types/Note";      // 具名 + 只要类型`,
-                  { sourceFile: "react-notes-app/src/App.tsx 与各组件" },
+                  {
+                    sourceFile: "react-notes-app/src/App.tsx 与各组件",
+                    codeEn: `// the component: a default export
+export default NoteManager;
+
+// the caller: pick any name you like, no curly braces
+import NoteManager from "./components/NoteManager";
+import type { Note } from "../../types/Note";      // named, and types only`,
+                  },
                 ),
                 real(
                   "js",
@@ -3375,6 +3384,16 @@ import {
                   {
                     sourceFile:
                       "graphql-federation-practice/node-subgraph/src/index.js",
+                    codeEn: `// the subgraph: named exports, three of them
+export const resolvers = { ... };
+export { createShippingInfoLoader, createOrderLoader };
+
+// the caller: every name must match exactly, and curly braces are required
+import {
+  resolvers,
+  createShippingInfoLoader,
+  createOrderLoader,
+} from './resolvers/orderResolvers.js';`,
                   },
                 ),
               ],
