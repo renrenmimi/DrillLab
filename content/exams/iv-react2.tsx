@@ -201,7 +201,24 @@ function Good({ show }) {
     // ...
   }, [show]);
 }`,
-              { filename: "为什么不能写在条件里" },
+              {
+    codeEn: `// ✗ the order changes, and every hook after it shifts
+function Bad({ show }) {
+  if (show) {
+    const [a] = useState(1);     // called sometimes, skipped other times
+  }
+  const [b] = useState(2);       // b may end up in a's slot
+}
+
+// ✓ hooks at the top level, the condition inside
+function Good({ show }) {
+  const [a] = useState(1);
+  const [b] = useState(2);
+  useEffect(() => {
+    if (!show) return;           // put the condition inside the effect
+    // ...
+  }, [show]);
+}`, filename: "为什么不能写在条件里" },
             ),
           ],
         },
@@ -368,7 +385,19 @@ useCallback(fn, deps) === useMemo(() => fn, deps)
 // ✗ 常见误用：依赖每次都变，等于没缓存
 const onSave = useCallback(() => save(config), [{ ...config }]);
 //                                              ↑ 每次都是新对象`,
-              { filename: "两者的区别与等价关系" },
+              {
+    codeEn: `// useMemo caches a value
+const sorted = useMemo(() => items.sort(cmp), [items]);
+
+// useCallback caches a function
+const onPick = useCallback((id) => setPicked(id), []);
+
+// How the two relate
+useCallback(fn, deps) === useMemo(() => fn, deps)
+
+// ✗ a common mistake: the dependency changes every time, so nothing is cached
+const onSave = useCallback(() => save(config), [{ ...config }]);
+//                                              ↑ a new object every render`, filename: "两者的区别与等价关系" },
             ),
           ],
         },
@@ -648,7 +677,29 @@ function useLocalStorage(key, initial) {
 const [theme, setTheme] = useLocalStorage("theme", "light");
 
 // 注意：两个组件各调一次，得到的是两份独立状态，不是共享的`,
-              { filename: "自定义 hook 的形状" },
+              {
+    codeEn: `// One that is genuinely useful: a value together with storing it in localStorage
+function useLocalStorage(key, initial) {
+  const [value, setValue] = useState(() => {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : initial;
+    } catch {
+      return initial;              // private mode cannot read, so use the default
+    }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  }, [key, value]);
+
+  return [value, setValue];        // returns an array, the same shape as useState
+}
+
+// Using it
+const [theme, setTheme] = useLocalStorage("theme", "light");
+
+// Note: two components each calling it get two separate states, not a shared one`, filename: "自定义 hook 的形状" },
             ),
           ],
         },
@@ -1044,7 +1095,16 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
 
 // ✗ 行内写全套：没法写伪类和媒体查询，还每次新对象
 <div style={{ width: \`\${percent}%\`, background: "#2b6" }} />`,
-              { filename: "动态样式的正确做法" },
+              {
+    codeEn: `// Recommended: only the variable goes inline, the rules stay in CSS
+<div className="bar" style={{ "--pct": \`\${percent}%\` }} />
+
+/* In the CSS */
+.bar::after { width: var(--pct); }        /* pseudo-classes still work */
+@media (max-width: 480px) { .bar { height: 4px; } }
+
+// ✗ everything inline: no pseudo-classes, no media queries, and a new object each time
+<div style={{ width: \`\${percent}%\`, background: "#2b6" }} />`, filename: "动态样式的正确做法" },
             ),
           ],
         },
@@ -1194,7 +1254,22 @@ function onChange(e) {
   startTransition(() => setList(filter(e.target.value)));  // 不急
 }
 {isPending && <span>更新中…</span>}`,
-              { filename: "两个最能感知的变化" },
+              {
+    codeEn: `// React 17: this renders twice
+setTimeout(() => {
+  setA(1);
+  setB(2);
+}, 0);
+// React 18: renders once (automatic batching)
+
+// useTransition: the input stays responsive and the list catches up
+const [isPending, startTransition] = useTransition();
+
+function onChange(e) {
+  setQuery(e.target.value);                 // urgent: the input responds at once
+  startTransition(() => setList(filter(e.target.value)));  // not urgent
+}
+{isPending && <span>Updating…</span>}`, filename: "两个最能感知的变化" },
             ),
           ],
         },
@@ -1319,7 +1394,18 @@ function onChange(e) {
 // 预加载：悬停时就开始下载
 const preload = () => import("./pages/Settings");
 <Link to="/settings" onMouseEnter={preload}>设置</Link>`,
-              { filename: "lazy 的完整用法（含失败兜底）" },
+              {
+    codeEn: `const Settings = lazy(() => import("./pages/Settings"));
+
+<ErrorBoundary fallback={<p>Loading failed, please refresh</p>}>
+  <Suspense fallback={<Spinner />}>
+    <Settings />
+  </Suspense>
+</ErrorBoundary>
+
+// Preloading: start downloading on hover
+const preload = () => import("./pages/Settings");
+<Link to="/settings" onMouseEnter={preload}>Settings</Link>`, filename: "lazy 的完整用法（含失败兜底）" },
             ),
           ],
         },
@@ -1585,7 +1671,34 @@ const preload = () => import("./pages/Settings");
 // 按区块放，而不是只在根节点放一个
 <ErrorBoundary><Sidebar /></ErrorBoundary>
 <ErrorBoundary><Chart /></ErrorBoundary>`,
-              { filename: "错误边界" },
+              {
+    codeEn: `class ErrorBoundary extends React.Component {
+  state = { error: null };
+
+  static getDerivedStateFromError(error) {
+    return { error };                  // switch to the fallback UI
+  }
+
+  componentDidCatch(error, info) {
+    report(error, info.componentStack); // report it
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div>
+          <p>Something went wrong in this part</p>
+          <button onClick={() => this.setState({ error: null })}>Retry</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Put one per region rather than a single one at the root
+<ErrorBoundary><Sidebar /></ErrorBoundary>
+<ErrorBoundary><Chart /></ErrorBoundary>`, filename: "错误边界" },
             ),
           ],
         },
@@ -2304,7 +2417,28 @@ export const { add, toggle } = todos.actions;
 const list = useSelector((s) => s.todos);        // 只订阅这一部分
 const dispatch = useDispatch();
 dispatch(add({ id: Date.now(), text, done: false }));`,
-              { filename: "现在真正会写的 Redux" },
+              {
+    codeEn: `// An RTK slice generates the reducer and the actions together
+const todos = createSlice({
+  name: "todos",
+  initialState: [],
+  reducers: {
+    add(state, action) {
+      state.push(action.payload);   // it looks like a mutation; Immer produces a new state
+    },
+    toggle(state, action) {
+      const t = state.find((x) => x.id === action.payload);
+      if (t) t.done = !t.done;
+    },
+  },
+});
+
+export const { add, toggle } = todos.actions;
+
+// In the component
+const list = useSelector((s) => s.todos);        // subscribes to this part only
+const dispatch = useDispatch();
+dispatch(add({ id: Date.now(), text, done: false }));`, filename: "现在真正会写的 Redux" },
             ),
           ],
         },
@@ -2565,7 +2699,26 @@ const fetchUser = (id) => async (dispatch) => {
     dispatch({ type: "user/failed", payload: e.message });
   }
 };`,
-              { filename: "中间件的形状与 thunk" },
+              {
+    codeEn: `// Writing a logger middleware yourself: note the three levels of arrows
+const logger = (store) => (next) => (action) => {
+  console.log("dispatching:", action.type, action.payload);
+  const result = next(action);          // hand it to the next middleware or the reducer
+  console.log("new state:", store.getState());
+  return result;
+};
+
+// thunk lets dispatch accept a function
+const fetchUser = (id) => async (dispatch) => {
+  dispatch({ type: "user/loading" });
+  try {
+    const res = await fetch(\`/api/users/\${id}\`);
+    if (!res.ok) throw new Error(\`HTTP \${res.status}\`);   // do not forget this line
+    dispatch({ type: "user/loaded", payload: await res.json() });
+  } catch (e) {
+    dispatch({ type: "user/failed", payload: e.message });
+  }
+};`, filename: "中间件的形状与 thunk" },
             ),
           ],
         },
