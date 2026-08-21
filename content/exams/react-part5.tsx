@@ -3903,6 +3903,13 @@ useEffect(async () => {
   const res = await fetch(url);
   setUser(await res.json());
 }, [userId]);`,
+            {
+              codeEn: `// ✗ Making the effect itself async
+useEffect(async () => {
+  const res = await fetch(url);
+  setUser(await res.json());
+}, [userId]);`,
+            },
           ),
           why: (
             <>
@@ -3933,6 +3940,12 @@ useEffect(async () => {
 useEffect(() => {
   fetch(url).then((r) => r.json()).then(setUser);
 });`,
+            {
+              codeEn: `// ✗ Forgetting the dependency array
+useEffect(() => {
+  fetch(url).then((r) => r.json()).then(setUser);
+});`,
+            },
           ),
           why: (
             <>
@@ -3962,6 +3975,16 @@ try {
 } catch (e) {
   setError((e as Error).message);
 }`,
+            {
+              codeEn: `// ✗ Turning loading off only on the success path
+try {
+  const data = await res.json();
+  setUser(data);
+  setLoading(false);
+} catch (e) {
+  setError((e as Error).message);
+}`,
+            },
           ),
           why: (
             <>
