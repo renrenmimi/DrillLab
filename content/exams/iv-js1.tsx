@@ -1158,7 +1158,24 @@ b.x = 9;          console.log(a.x);        // 1  ✓ 独立
 b.inner.y = 9;    console.log(a.inner.y);  // 9  ✗ 还是共享的
 
 const c = structuredClone(a);   // 深拷贝，嵌套也独立`,
-              { filename: "改属性 vs 换指向" },
+              {
+                filename: "改属性 vs 换指向",
+                filenameEn: "Changing a property vs pointing somewhere else",
+                codeEn: `function mutate(o) { o.n = 2; }      // change a property
+function reassign(o) { o = { n: 3 }; } // point at something else
+
+const obj = { n: 1 };
+mutate(obj);    console.log(obj.n);  // 2 ← the outside changed
+reassign(obj);  console.log(obj.n);  // 2 ← the outside did not change (not 3)
+
+// A shallow copy only covers one level
+const a = { x: 1, inner: { y: 2 } };
+const b = { ...a };
+b.x = 9;          console.log(a.x);        // 1  ✓ independent
+b.inner.y = 9;    console.log(a.inner.y);  // 9  ✗ still shared
+
+const c = structuredClone(a);   // a deep copy, so nested objects are separate too`,
+              },
             ),
           ],
         },
