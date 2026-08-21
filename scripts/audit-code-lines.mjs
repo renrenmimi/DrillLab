@@ -74,9 +74,28 @@ function pairs(src) {
   return out;
 }
 
-/** 去掉行尾注释，用来比对「可执行部分」 */
-const stripComment = (l) =>
-  l.replace(/\/\/.*$/, "").replace(/#(?![0-9a-fA-F]{3,8}\b).*$/, "").trimEnd();
+/**
+ * 归一化一行，用来比对「代码结构」。
+ *
+ * 【为什么字符串内容要挖掉】
+ * 中文不只出现在注释里，也出现在字符串里，而字符串分两种：
+ *   · 给读者看的标签 —— `console.log("1 同步")`，这个**该译**
+ *   · 数据 —— `new Dog("旺财")`、`{ name: "小明" }`，这个**不该译**
+ * 一开始我要求「可执行行逐字节相同」，那会把第一种也判成失败。
+ * 真正必须守住的是**行数**（highlight 是行号）和**代码结构**，
+ * 字符串里写什么是内容问题，不是结构问题。
+ * 所以这里把注释删掉、把字符串内容替换成占位符，只比剩下的骨架。
+ */
+const normalize = (l) =>
+  l
+    // 先挖字符串内容（单引号 / 双引号 / 反引号），保留引号本身
+    .replace(/"(?:[^"\\]|\\.)*"/g, '"·"')
+    .replace(/'(?:[^'\\]|\\.)*'/g, "'·'")
+    .replace(/`(?:[^`\\]|\\.)*`/g, "`·`")
+    // 再删行尾注释（此时注释里的引号已经不会干扰了）
+    .replace(/\/\/.*$/, "")
+    .replace(/#(?![0-9a-fA-F]{3,8}\b).*$/, "")
+    .trimEnd();
 
 let checked = 0;
 const problems = [];
@@ -96,19 +115,28 @@ for (const root of ROOTS) {
         continue; // 行数不同就没法逐行比了
       }
       for (let i = 0; i < a.length; i++) {
-        const ca = stripComment(a[i]);
-        const cb = stripComment(b[i]);
+        const ca = normalize(a[i]);
+        const cb = normalize(b[i]);
         if (ca !== cb) {
           problems.push(
-            `${file}:${line}  第 ${i + 1} 行去掉注释后不一致：\n` +
+            `${file}:${line}  第 ${i + 1} 行的代码结构不一致（注释和字符串内容已忽略）：\n` +
               `      zh: ${ca}\n      en: ${cb}`,
           );
         }
       }
-      if (CJK.test(en)) {
-        const bad = b.filter((l) => CJK.test(l)).slice(0, 2);
+      // codeEn 里的**注释**不该还有中文。字符串里的中文可能是有意保留的数据
+      // （人名、车型、测试 fixture），所以只查注释部分。
+      const cjkComments = b
+        .map((l) => {
+          const c = l.match(/\/\/(.*)$/);
+          return c ? c[1] : "";
+        })
+        .filter((c) => CJK.test(c));
+      if (cjkComments.length) {
         problems.push(
-          `${file}:${line}  codeEn 里还有中文（漏译）：\n      ${bad.join("\n      ")}`,
+          `${file}:${line}  codeEn 的注释里还有中文（漏译）：\n      ${cjkComments
+            .slice(0, 2)
+            .join("\n      ")}`,
         );
       }
     }
