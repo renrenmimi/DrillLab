@@ -4030,6 +4030,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
           kind: "recognition",
           id: "r-test-blindspot",
           title: "哪个实现能骗过全部四个测试但其实是错的",
+          titleEn: "Which implementation passes all four tests and is still wrong",
           level: 1,
           prompt: (
             <p>
@@ -4037,11 +4038,18 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
               但明显违反题目要求？
             </p>
           ),
+          promptEn: (
+            <p>
+              Which <code>handleDelete</code> below makes{" "}
+              <strong>all four tests pass</strong> while clearly breaking what the
+              task asks for?
+            </p>
+          ),
           options: [
             { id: "a", label: "setNotes((prev) => prev.filter((n) => n.id !== id));" },
             { id: "b", label: "setNotes([]);" },
             { id: "c", label: "setNotes((prev) => prev.slice(0, -1));" },
-            { id: "d", label: "B 和 C 都能骗过测试" },
+            { id: "d", label: "B 和 C 都能骗过测试", labelEn: "Both B and C get past the tests" },
           ],
           answer: ["d"],
           explain: (
@@ -4057,11 +4065,29 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
               A 才是正确实现。
             </>
           ),
+          explainEn: (
+            <>
+              The tests add one note and then delete it. So:
+              <br />
+              B, &quot;empty the whole list&quot; — the only note is gone too, and
+              the assertion that ToDelete is absent passes.
+              <br />
+              C, &quot;drop the last note&quot; — the only note is also the last
+              one, so it passes too.
+              <br />
+              Both ignore the id completely, and the tests cannot tell.{" "}
+              <strong>
+                This is why you have to read the task and check by hand.
+              </strong>{" "}
+              A is the correct implementation.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-test-await",
           title: "这个测试失败是因为什么",
+          titleEn: "Why this test fails",
           level: 1,
           prompt: (
             <p>
@@ -4073,11 +4099,25 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
               最可能的原因？
             </p>
           ),
+          promptEn: (
+            <p>
+              Your <code>handleSubmitNote</code> is{" "}
+              <code>setNotes((prev) =&gt; [...prev, submittedNote])</code>, but the
+              test you added reports that My Title cannot be found. The test code
+              is{" "}
+              <code>userEvent.click(btn); expect(list).toHaveTextContent(&quot;My Title&quot;)</code>.
+              What is the most likely reason?
+            </p>
+          ),
           options: [
-            { id: "a", label: "handleSubmitNote 写错了" },
-            { id: "b", label: "userEvent.click 前面漏了 await，断言跑在重新渲染之前" },
-            { id: "c", label: "data-testid 拼错了" },
-            { id: "d", label: "jsdom 不支持 tbody" },
+            { id: "a", label: "handleSubmitNote 写错了", labelEn: "handleSubmitNote is written wrong" },
+            {
+              id: "b",
+              label: "userEvent.click 前面漏了 await，断言跑在重新渲染之前",
+              labelEn: "The await before userEvent.click is missing, so the assertion runs before the re-render",
+            },
+            { id: "c", label: "data-testid 拼错了", labelEn: "The data-testid is misspelled" },
+            { id: "d", label: "jsdom 不支持 tbody", labelEn: "jsdom does not support tbody" },
           ],
           answer: ["b"],
           explain: (
@@ -4092,6 +4132,23 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
               （C 也会导致失败，但报错会是
               <code>Unable to find an element by: [data-testid=...]</code>，
               指向元素而不是文字内容。）
+            </>
+          ),
+          explainEn: (
+            <>
+              Every method of <code>userEvent</code> returns a Promise, and React
+              batches its rendering asynchronously. Without the{" "}
+              <code>await</code>, the assertion runs before the screen updates, so
+              it reads the old DOM.
+              <br />
+              <strong>
+                The sign of this is: the implementation looks completely right, but
+                the test says it cannot find the text.
+              </strong>{" "}
+              When that happens, count your awaits first. (C also causes a
+              failure, but the message would be{" "}
+              <code>Unable to find an element by: [data-testid=...]</code>, which
+              points at the element rather than at the text.)
             </>
           ),
         },
