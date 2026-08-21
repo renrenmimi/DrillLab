@@ -1203,8 +1203,11 @@ $ npx vitest run
    Duration  1.19s`,
                   {
                     filename: "本机实测输出",
+                    filenameEn: "Output measured on this machine",
                     explanation:
                       "注意 npm 自己给了台阶：「运行 npm run 看有哪些 script」。这条提示值得记住 —— 任何项目里，光跑 npm run（不带名字）就会列出所有可用命令。",
+                    explanationEn:
+                      "Notice that npm offers the way out itself: run npm run to see which scripts exist. That is worth remembering — in any project, npm run with no name lists every available command.",
                   },
                 ),
               ],
@@ -1309,12 +1312,21 @@ $ npx vitest run
               kind: "recognition",
               id: "f-how-to-test",
               title: "怎么跑 react-notes-app 的测试",
+              titleEn: "How to run the tests of react-notes-app",
               level: 1,
               prompt: (
                 <p>
                   你在 <code>react-notes-app/</code> 目录下，想跑那 4 个判卷测试。
                   package.json 的 scripts 只有 <code>dev</code>、<code>build</code>、
                   <code>q2</code>。下面哪个命令能跑起来？
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  You are inside <code>react-notes-app/</code> and want to run those 4
+                  grading tests. The scripts in package.json are only{" "}
+                  <code>dev</code>, <code>build</code> and <code>q2</code>. Which
+                  command works?
                 </p>
               ),
               options: [
@@ -1332,23 +1344,48 @@ $ npx vitest run
                   <code>run</code> 表示跑一次就退出。
                 </>
               ),
+              explainEn: (
+                <>
+                  A and B are the same thing and both report{" "}
+                  <code>Missing script: &quot;test&quot;</code>. D runs the build,
+                  which in this project fails outright because tsc reports errors. Only
+                  C works — npx executes <code>node_modules/.bin/vitest</code> directly,
+                  and <code>run</code> means go once and exit.
+                </>
+              ),
             },
             {
               kind: "ordering",
               id: "f-debug-order",
               title: "script 报错了，按什么顺序排查",
+              titleEn: "A script failed: in what order do you check things",
               level: 1,
               prompt: <p>把排查顺序排对。从最外层（还没开始跑）到最里层（你的代码）。</p>,
+              promptEn: (
+                <p>
+                  Put the checks in order, from the outermost layer (nothing has started
+                  yet) to the innermost one (your own code).
+                </p>
+              ),
               items: [
-                { id: "c", label: "读报错里的具体类型/文件/行号，判断是业务代码还是项目配置" },
-                { id: "a", label: "确认命令名和当前目录对不对（npm run 列一下）" },
-                { id: "b", label: "确认 npm install 跑过、node_modules 在" },
+                { id: "c", label: "读报错里的具体类型/文件/行号，判断是业务代码还是项目配置", labelEn: "Read the exact type, file and line number in the error, and decide whether it is your code or the project config" },
+                { id: "a", label: "确认命令名和当前目录对不对（npm run 列一下）", labelEn: "Check the command name and the current directory (run npm run to list them)" },
+                { id: "b", label: "确认 npm install 跑过、node_modules 在", labelEn: "Check that npm install has run and node_modules exists" },
               ],
               answer: ["a", "b", "c"],
               explain: (
                 <>
                   先排除「命令没跑起来」（npm 层），再排除「工具没装」（依赖层），
                   最后才看代码。顺序反了就会出现「花两小时改 React，结果是没装依赖」这种事。
+                </>
+              ),
+              explainEn: (
+                <>
+                  First rule out &ldquo;the command never started&rdquo; (the npm
+                  layer), then &ldquo;the tool is not installed&rdquo; (the dependency
+                  layer), and only then look at the code. Reverse the order and you get
+                  two hours of editing React when the real problem was that the
+                  dependencies were never installed.
                 </>
               ),
             },
