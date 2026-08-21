@@ -1199,6 +1199,7 @@ return results;`,
           code: [
             real("ts", TASK_RUNNER_SOLUTION, {
               filename: "q2/taskRunner.ts（完整实现）",
+              filenameEn: "q2/taskRunner.ts (the complete implementation)",
               sourceFile: "react-notes-app/q2/taskRunner.ts",
               highlight: [5, 7, 11, 12, 15, 20, 26, 27, 28, 30],
             }),
@@ -1293,7 +1294,37 @@ task 6 DONE    (running now: 0)
 #4 { status: 'fulfilled', value: 'result of task 4' }
 #5 { status: 'fulfilled', value: 'result of task 5' }
 #6 { status: 'fulfilled', value: 'result of task 6' }`,
-              { filename: "本机实测输出", sourceFile: "react-notes-app" },
+              {
+                filename: "本机实测输出",
+                codeEn: `$ npm run q2
+
+task 1 START   (running now: 1)
+task 2 START   (running now: 2)     ← at the limit, task 3 waits
+task 2 DONE    (running now: 1)
+task 3 START   (running now: 2)     ← a slot opened, filled at once
+task 1 DONE    (running now: 1)
+task 4 START   (running now: 2)
+task 3 FAIL    (running now: 1)     ← a failure frees a slot too
+task 5 START   (running now: 2)
+task 4 DONE    (running now: 1)
+task 6 START   (running now: 2)
+task 5 DONE    (running now: 1)
+task 6 DONE    (running now: 0)
+
+=== FINAL RESULTS (must be in original order) ===
+#1 { status: 'fulfilled', value: 'result of task 1' }
+#2 { status: 'fulfilled', value: 'result of task 2' }
+#3 {
+  status: 'rejected',
+  reason: Error: task 3 failed
+      at Timeout._onTimeout (.../q2/demo.ts:18:18)
+}
+#4 { status: 'fulfilled', value: 'result of task 4' }
+#5 { status: 'fulfilled', value: 'result of task 5' }
+#6 { status: 'fulfilled', value: 'result of task 6' }`,
+                filenameEn: "The real output from running it here",
+                sourceFile: "react-notes-app",
+              },
             ),
           ],
         },
