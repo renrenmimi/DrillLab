@@ -1709,11 +1709,19 @@ export { CabProvider, useCabContext };`,
               kind: "code-completion",
               level: 3,
               title: "从签名写出整个 CabContext",
+              titleEn: "Write the whole CabContext from the signature",
               prompt: (
                 <>
                   只给你 import 和导出。三件套自己写出来，
                   包括那个守卫。检查器会查守卫、查不可变更新、
                   以及<strong>不许用 push</strong>。
+                </>
+              ),
+              promptEn: (
+                <>
+                  You only get the import and the export. Write the three parts
+                  yourself, including the guard. The checker looks for the guard, for an
+                  immutable update, and for <strong>no use of push</strong>.
                 </>
               ),
               language: "jsx",
@@ -1729,6 +1737,17 @@ export { CabProvider, useCabContext };`,
 // 5. 导出 CabProvider 和 useCabContext
 
 `,
+              starterEn: `import { createContext, useContext, useState } from "react";
+
+// Requirements:
+// 1. create the Context, with no default value
+// 2. CabProvider keeps two states: bookedCabDetails (starts null), rideHistory (starts [])
+// 3. updateBookedCabDetails(details): make it the current cab + append to history (immutably)
+// 4. useCabContext(): read the context, and throw when there is none
+//    "useCabContext must be used within a CabProvider"
+// 5. export CabProvider and useCabContext
+
+`,
               requirements: [
                 "createContext() 不传默认值 —— 这样没套 Provider 时是 undefined，守卫才抓得住",
                 "两个 state：bookedCabDetails 初始 null、rideHistory 初始 []",
@@ -1736,29 +1755,42 @@ export { CabProvider, useCabContext };`,
                 "useCabContext 里有 if 守卫 + throw，错误信息要出现 CabProvider",
                 "命名导出 CabProvider 和 useCabContext",
               ],
+              requirementsEn: [
+                "createContext() takes no default value — that way it is undefined with no Provider around, which is what the guard catches",
+                "Two states: bookedCabDetails starts null, rideHistory starts []",
+                "updateBookedCabDetails changes both states, and the history update is immutable (spread), never push",
+                "useCabContext has an if guard plus a throw, and the message mentions CabProvider",
+                "Named exports for CabProvider and useCabContext",
+              ],
               checks: [
                 {
                   label: "createContext 没传默认值",
+                  labelEn: "createContext takes no default value",
                   must: "createContext\\(\\s*\\)",
                 },
                 {
                   label: "两个 useState，初值分别是 null 和 []",
+                  labelEn: "Two useState calls, starting at null and []",
                   must: "useState\\(null\\)[\\s\\S]*useState\\(\\[\\]\\)",
                 },
                 {
                   label: "历史是不可变追加（展开运算符）",
+                  labelEn: "The history is appended immutably (spread)",
                   must: "\\.\\.\\.(rideHistory|prev)\\s*,",
                 },
                 {
                   label: "没有用 push（那是原地修改，React 看不到）",
+                  labelEn: "push is not used (it changes the array in place, and React sees nothing)",
                   mustNot: "\\.push\\(",
                 },
                 {
                   label: "守卫抛错，信息里有 CabProvider",
+                  labelEn: "The guard throws, and the message contains CabProvider",
                   must: "throw new Error\\([^)]*CabProvider",
                 },
                 {
                   label: "导出了 CabProvider 和 useCabContext",
+                  labelEn: "CabProvider and useCabContext are both exported",
                   must: "export\\s*\\{[^}]*CabProvider[^}]*useCabContext[^}]*\\}",
                 },
               ],
@@ -1768,9 +1800,16 @@ export { CabProvider, useCabContext };`,
                 "updateBookedCabDetails 里两句 set：一句 setBookedCabDetails(details)，一句 setRideHistory 追加。追加要造新数组。",
                 "守卫：const context = useContext(CabContext); if (!context) throw new Error(\"useCabContext must be used within a CabProvider\"); return context;",
               ],
+              hintsEn: [
+                "The order of the three parts: createContext → the Provider component → the custom hook. Work out which one needs which.",
+                "The Provider is an ordinary component. It takes { children } and returns a <CabContext.Provider value={...}>{children}</CabContext.Provider>.",
+                "updateBookedCabDetails has two set calls: setBookedCabDetails(details), and setRideHistory appending. The append has to build a new array.",
+                "The guard: const context = useContext(CabContext); if (!context) throw new Error(\"useCabContext must be used within a CabProvider\"); return context;",
+              ],
               solution: real("jsx", SRC_CONTEXT, {
                 filename: "src/context/CabContext.jsx（参考答案 —— 源项目原文，仅改扩展名）",
-              filenameEn: "src/context/CabContext.jsx (reference answer — the source project text, only the extension changed)",
+                filenameEn:
+                  "src/context/CabContext.jsx (reference answer — the source project text, only the extension changed)",
                 sourceFile: "cab-booking-context/src/context/CabContext.js",
               }),
             },
