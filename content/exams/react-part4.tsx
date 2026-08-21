@@ -1691,6 +1691,20 @@ const worker = async () => {
 #   - 一行 "task N START" 都没有
 #   - 应该 reject 的 task 3 也变成了 fulfilled
 #   - value 是函数，不是 "result of task N"`,
+          errorOutputEn: `$ npm run q2
+
+=== FINAL RESULTS (must be in original order) ===
+#1 { status: 'fulfilled', value: [Function (anonymous)] }
+#2 { status: 'fulfilled', value: [Function (anonymous)] }
+#3 { status: 'fulfilled', value: [Function (anonymous)] }
+#4 { status: 'fulfilled', value: [Function (anonymous)] }
+#5 { status: 'fulfilled', value: [Function (anonymous)] }
+#6 { status: 'fulfilled', value: [Function (anonymous)] }
+
+# Note:
+#   - not one "task N START" line was printed
+#   - task 3, which should reject, came back fulfilled
+#   - value is a function, not "result of task N"`,
           broken: demo(
             "ts",
             `const worker = async () => {
@@ -2392,6 +2406,15 @@ src/components/NoteTable/index.tsx(20,7): error TS2322: Type
   '{ key: number; note: Note; onRemove: (id: number) => void; onEdit: ... }'
   is not assignable to type 'IntrinsicAttributes & NoteItemProps'.
   Property 'onDelete' is missing in type ... but required in type 'NoteItemProps'.`,
+          errorOutputEn: `Uncaught TypeError: onDelete is not a function
+    at onClick (NoteItem/index.tsx:18:29)
+    at HTMLUnknownElement.callCallback
+
+# TypeScript is reporting something too:
+src/components/NoteTable/index.tsx(20,7): error TS2322: Type
+  '{ key: number; note: Note; onRemove: (id: number) => void; onEdit: ... }'
+  is not assignable to type 'IntrinsicAttributes & NoteItemProps'.
+  Property 'onDelete' is missing in type ... but required in type 'NoteItemProps'.`,
           broken: demo(
             "tsx",
             `// NoteTable 里传下去的名字：
@@ -2672,6 +2695,21 @@ console.log("after:", notes);
 # 但屏幕上还是 B。
 
 # 测试结果：
+#   ✕ edits a note in place`,
+          errorOutputEn: `# No error at all.
+# Repro: add "A" and "B" → click Edit on B → change it to "B2" → click Update
+# Expected: the list becomes A, B2
+# Actual: the list is still A, B
+
+# Logs added inside handleSubmitNote:
+console.log("submitted:", submittedNote);
+// → submitted: { id: 1785737900978, title: 'B2', content: '...' }   ← the data is right
+console.log("after:", notes);
+// → after: [ {title:'A'...}, {title:'B2'...} ]                       ← the array is right too!
+
+# But the screen still shows B.
+
+# Test result:
 #   ✕ edits a note in place`,
           broken: demo(
             "tsx",

@@ -569,6 +569,12 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
 #   - 地址栏从 http://localhost:5173/ 变成 http://localhost:5173/?
 #   - 输入框被清空，表格依然是空的
 #   - React DevTools 里所有 state 都回到了初始值`,
+          errorOutputEn: `# No JavaScript error.
+# Symptom: after clicking Add
+#   - the whole page reloaded once
+#   - the address bar changed from http://localhost:5173/ to http://localhost:5173/?
+#   - the inputs were cleared and the table is still empty
+#   - in React DevTools every piece of state is back to its initial value`,
           broken: demo(
             "tsx",
             `const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
