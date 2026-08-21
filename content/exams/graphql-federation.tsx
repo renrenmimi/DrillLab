@@ -623,6 +623,8 @@ const reviewsMock: MockExam = {
       collapsible: true,
       explanation:
         "四处先标出来：Author.reviews 和 Book.reviews 都是 [Review!]!（双重非空）；Author.averageRating 是 Float（可空）；Review.reviewer 可空；Book 的 @key 是两个字段。",
+      explanationEn:
+        "Mark four things before you start. Author.reviews and Book.reviews are both [Review!]! — a non-null list of non-null items. Author.averageRating is Float, so it may be null. Review.reviewer may be null. Book has a @key made of two fields.",
     }),
     demo("js", MOCK_DATASOURCE, {
       filename: "src/dataSources/reviewDataSource.js（PROVIDED —— 抄一张方法名表）",
@@ -630,6 +632,8 @@ const reviewsMock: MockExam = {
       collapsible: true,
       explanation:
         "真实方法名：fetchReview / fetchByAuthor / fetchByBook / insertReview / lookupReviewer / computeAverage。starter 里有一处调了不存在的方法。",
+      explanationEn:
+        "The real method names are fetchReview / fetchByAuthor / fetchByBook / insertReview / lookupReviewer / computeAverage. One call in the starter uses a method that does not exist.",
     }),
     tested("js", MOCK_STARTER, {
       filename: "src/resolvers/reviewResolvers.js（EDIT THIS —— 7 个 TODO + 6 处埋雷）",
@@ -637,6 +641,8 @@ const reviewsMock: MockExam = {
       collapsible: true,
       explanation:
         "这是 DrillLab 自出的模拟题，不是源项目内容。六处埋雷没有任何标注 —— 和真实考试一样，只有 README 里那句「可能存在集成问题」。",
+      explanationEn:
+        "DrillLab wrote this mock task; it does not come from the source project. None of the six planted bugs is marked. That matches the real exam, where the only warning is one README line saying integration problems may exist.",
     }),
   ],
   tests: [
@@ -646,6 +652,8 @@ const reviewsMock: MockExam = {
       collapsible: true,
       explanation:
         "比真实项目多了三条针对性测试：averageRating 的 toBeNull、Book.__resolveReference 的两个 key 字段、以及 reviewerLoader 的长度/顺序契约。这三条正是真实项目测不到但你该会的地方。",
+      explanationEn:
+        "Three tests here go past what the real project checks: toBeNull for averageRating, the two key fields of Book.__resolveReference, and the length and order contract of reviewerLoader. Those three cover exactly what the real project leaves untested but you are still expected to know.",
     }),
   ],
   commands: [
@@ -1293,6 +1301,8 @@ function createReviewerLoader(reviewerDataSource) {
       collapsible: true,
       explanation:
         "这份答案多了一个 wrap 高阶函数，把「catch 里放行 GraphQLError 再包装」这段重复逻辑抽掉了。真实考试里写不写都行 —— 但如果你自己想到了这一步，说明你真的理解了那个模式，而不是在复制粘贴。",
+      explanationEn:
+        "This answer adds one extra helper, wrap. It pulls out the repeated logic of letting an already structured GraphQLError pass through the catch block and wrapping everything else. In the real exam you can skip that helper. But if you reached for it yourself, you understand the pattern instead of copying it.",
     }),
   ],
 };
