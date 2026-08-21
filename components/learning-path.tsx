@@ -11,7 +11,7 @@
 
 import Link from "next/link";
 import { NAV, lessonPath, navStages } from "@/content/nav";
-import { pathGroups } from "@/content/path";
+import { pathGroups, stageEn } from "@/content/path";
 import { useProgress } from "@/lib/progress";
 import { T } from "./t";
 
@@ -135,7 +135,10 @@ export function LearningPath() {
                       {String(ei + 1).padStart(2, "0")}
                     </span>
                   )}
-                  {items[0]?.exam.shortTitle}
+                  <T
+                    zh={items[0]?.exam.shortTitle ?? ""}
+                    en={items[0]?.exam.shortTitleEn}
+                  />
                 </h2>
                 <ol className="road-nodes">
                   {items.map((s) => {
@@ -178,7 +181,9 @@ export function LearningPath() {
                               s.module.title
                             )}
                           </h3>
-                          <p className="road-summary">{s.module.summary}</p>
+                          <p className="road-summary">
+                            <T zh={s.module.summary} en={s.module.summaryEn} />
+                          </p>
                           <div className="road-lessons">
                             {s.module.lessons.map((l) => (
                               <Link

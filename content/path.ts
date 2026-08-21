@@ -102,3 +102,36 @@ export function pathGroups(): PathGroup[] {
   if (parallel.length) out.push({ kind: "parallel", exams: parallel });
   return out;
 }
+
+/* ============================================================
+   stage 的英文形式
+   ============================================================ */
+
+/**
+ * stage 里那两个中文课程名。别的三个（React / Federation / Cab Booking）
+ * 本来就是英文，原样带过去。
+ */
+const STAGE_COURSE_EN: Record<string, string> = {
+  地基: "Foundations",
+  面试: "Interview",
+};
+
+/**
+ * 把 "面试 · 第 2 部分" 变成 "Interview · Part 2"。
+ *
+ * 【为什么是派生而不是给每个模块加 stageEn 字段】
+ * stage 是「课程名 · 第 N 部分」这个固定格式 —— 全站 27 个值无一例外，
+ * 中文只有「第 N 部分」和上面那两个课程名。派生一次，加课不会漏，
+ * 也不会出现 stage 和 stageEn 各说一套的情况。
+ *
+ * 认不出格式（或课程名是个没登记的中文）就返回 undefined，
+ * <T> 会回落中文 —— 宁可显示中文，也不显示半个英文。
+ */
+export function stageEn(stage: string): string | undefined {
+  const m = /^(.+?) · 第 (\d+) 部分$/.exec(stage);
+  if (!m) return undefined;
+  const mapped = STAGE_COURSE_EN[m[1]];
+  const course = mapped ?? (/[一-鿿]/.test(m[1]) ? undefined : m[1]);
+  if (!course) return undefined;
+  return `${course} · Part ${m[2]}`;
+}

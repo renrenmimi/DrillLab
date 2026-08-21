@@ -27,6 +27,8 @@
 export interface NavLesson {
   id: string;
   title: string;
+  /** 英文标题。没补就是 undefined，<T> 会回落中文 —— 见 content/types.ts 的 Lesson.titleEn */
+  titleEn?: string;
   blurb: string;
   minutes: number;
   exerciseCount: number;
@@ -35,7 +37,9 @@ export interface NavLesson {
 export interface NavModule {
   id: string;
   title: string;
+  titleEn?: string;
   summary: string;
+  summaryEn?: string;
   stage?: string;
   lessons: NavLesson[];
 }
@@ -54,8 +58,11 @@ export interface NavMock {
 export interface NavExam {
   id: string;
   title: string;
+  titleEn?: string;
   shortTitle: string;
+  shortTitleEn?: string;
   description: string;
+  descriptionEn?: string;
   category: string;
   tests: string;
   stack: string[];

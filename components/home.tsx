@@ -212,7 +212,9 @@ export function Home() {
                   <span className="hero-cta-main">
                     <T zh="开始第一课" en="Start the first lesson" />
                   </span>
-                  <span className="hero-cta-sub">{firstLesson.lesson.title}</span>
+                  <span className="hero-cta-sub">
+                  <T zh={firstLesson.lesson.title} en={firstLesson.lesson.titleEn} />
+                </span>
                 </Link>
               )}
               <p className="hero-alt">
@@ -345,7 +347,9 @@ export function Home() {
                 const done = countLessons(exam.id);
                 return (
                   <div className="progress-row" key={exam.id}>
-                    <span>{exam.shortTitle}</span>
+                    <span>
+                      <T zh={exam.shortTitle} en={exam.shortTitleEn} />
+                    </span>
                     <span className="bar">
                       <i
                         style={{
