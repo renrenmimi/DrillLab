@@ -1985,6 +1985,8 @@ onDelete: (id: number) => void;`,
                 highlight: [6],
                 explanation:
                   "第 6 行 getByRole(\"button\", { name: \"Delete\" }) —— 因为只有一条数据，页面上只有一个 Delete 按钮，所以 getByRole 不会因为「找到多个」而报错。有两条数据时这句就会挂，这也是测试只放一条数据的原因。",
+                explanationEn:
+                  "Line 6 is getByRole(\"button\", { name: \"Delete\" }). There is only one note, so the page holds only one Delete button and getByRole will not fail with a found-more-than-one error. With two notes this line would fail. That is why the test adds a single note.",
               },
             ),
           ],
@@ -2254,6 +2256,14 @@ const handleDelete = (id: number) => {
 #   4. 点第 2 行的 Delete
 # 期望：只剩「内容1」「内容3」
 # 实际：表格全空`,
+          errorOutputEn: `# Tests: 4 passed (4)   ← every test passes!
+# Manual repro steps:
+#   1. Add "会议记录 / 内容1"
+#   2. Add "会议记录 / 内容2"
+#   3. Add "会议记录 / 内容3"
+#   4. Click Delete on the second row
+# Expected: only 内容1 and 内容3 are left
+# Actual: the table is empty`,
           broken: demo(
             "tsx",
             `const handleDelete = (id: number) => {
@@ -3266,6 +3276,20 @@ const handleEdit = (note: Note) => {
 # 实际：列表还是 Old，表单还留着 New，按钮还是 Update
 
 # 测试结果：
+#   ✓ adds a note
+#   ✓ submit button disabled when inputs empty
+#   ✓ deletes a note
+#   ✕ edits a note in place
+#       Unable to find text content "New" in element [data-testid="notes-list"]`,
+          errorOutputEn: `# No error at all.
+# Repro:
+#   1. Add "Old / c1"
+#   2. Click Edit → the inputs show Old / c1, the button reads Update  ✓ both fine
+#   3. Change the title to "New" and click Update
+# Expected: that row becomes New, the form clears, the button goes back to Add
+# Actual: the row is still Old, the form still holds New, the button still reads Update
+
+# Test results:
 #   ✓ adds a note
 #   ✓ submit button disabled when inputs empty
 #   ✓ deletes a note
