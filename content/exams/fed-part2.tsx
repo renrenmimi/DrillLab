@@ -1131,7 +1131,14 @@ Tests:       6 failed, 4 passed, 10 total`,
 async orders(user, _, { dataSources }) {
   return dataSources.orderDataSource.getOrdersByUserId(user.id);
 }`,
-              { filename: "推导 · 第一步" },
+              {
+                filename: "推导 · 第一步",
+                filenameEn: "Working it out · step one",
+                codeEn: `// Step one
+async orders(user, _, { dataSources }) {
+  return dataSources.orderDataSource.getOrdersByUserId(user.id);
+}`,
+              },
             ),
             demo(
               "js",
@@ -1148,7 +1155,23 @@ async orders(user, _, { dataSources, correlationId }) {
     });
   }
 }`,
-              { filename: "推导 · 第二、三步" },
+              {
+                filename: "推导 · 第二、三步",
+                filenameEn: "Working it out · steps two and three",
+                codeEn: `// Step two plus step three
+async orders(user, _, { dataSources, correlationId }) {
+  try {
+    console.log(\`[\${correlationId}] Resolving User.orders for userId: \${user.id}\`);
+    const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+    return orders ?? [];
+  } catch (error) {
+    console.error(\`[\${correlationId}] Error resolving User.orders:\`, error.message);
+    throw new GraphQLError('Failed to fetch orders for user', {
+      extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId, originalError: error.message }
+    });
+  }
+}`,
+              },
             ),
           ],
         },
@@ -1259,7 +1282,27 @@ try {
   if (error instanceof GraphQLError) throw error;
   throw new GraphQLError('Failed to fetch orders', { ... });
 }`,
-              { filename: "一行之差" },
+              {
+                filename: "一行之差",
+                filenameEn: "One line apart",
+                codeEn: `// ✗ no check: the INVALID_INPUT you threw gets swallowed by your own catch
+try {
+  if (!userId) throw new GraphQLError('userId is required', {
+    extensions: { code: 'INVALID_INPUT', correlationId }
+  });
+  ...
+} catch (error) {
+  throw new GraphQLError('Failed to fetch orders', {
+    extensions: { code: 'SERVICE_ERROR', correlationId }   // ← now it says SERVICE_ERROR
+  });
+}
+
+// ✓ let an already structured error through first
+} catch (error) {
+  if (error instanceof GraphQLError) throw error;
+  throw new GraphQLError('Failed to fetch orders', { ... });
+}`,
+              },
             ),
           ],
         },
@@ -1312,6 +1355,28 @@ try {
 }`,
               {
                 filename: "User.orders（参考答案，实测通过）",
+                filenameEn: "User.orders (reference answer, measured to pass)",
+                codeEn: `async orders(user, _, { dataSources, loaders, correlationId }) {
+  try {
+    console.log(\`[\${correlationId}] Resolving User.orders for userId: \${user.id}\`);
+
+    const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+
+    // the schema says [Order!]! -> never return null
+    return orders ?? [];
+  } catch (error) {
+    if (error instanceof GraphQLError) throw error;
+
+    console.error(\`[\${correlationId}] Error resolving User.orders:\`, error.message);
+    throw new GraphQLError('Failed to fetch orders for user', {
+      extensions: {
+        code: ErrorCodes.SERVICE_ERROR,
+        correlationId,
+        originalError: error.message
+      }
+    });
+  }
+}`,
                 highlight: [8, 10],
               },
             ),
@@ -1370,6 +1435,7 @@ try {
 });`,
               {
                 filename: "__tests__/resolvers.test.js（两个相关测试）",
+                filenameEn: "__tests__/resolvers.test.js (the two related tests)",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/__tests__/resolvers.test.js",
               },
@@ -1384,7 +1450,18 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
      {"id":"order-456","status":"SHIPPED"},
      {"id":"order-457","status":"DELIVERED"}]}]}
    errors: []`,
-              { filename: "federation 链路验证" },
+              {
+                filename: "federation 链路验证",
+                filenameEn: "Checking the federation path",
+                codeEn: `# Walking the federation path with _entities (output measured in the audit)
+query($r:[_Any!]!){ _entities(representations:$r){ ... on User { id orders { id status } } } }
+variables: { "r": [{ "__typename": "User", "id": "123" }] }
+
+→ {"_entities":[{"id":"123","orders":[
+     {"id":"order-456","status":"SHIPPED"},
+     {"id":"order-457","status":"DELIVERED"}]}]}
+   errors: []`,
+              },
             ),
           ],
         },
@@ -1394,11 +1471,19 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
           kind: "fill-blank",
           id: "g-t1-blank",
           title: "补全 User.orders",
+          titleEn: "Fill in User.orders",
           level: 2,
           prompt: (
             <p>
               四个空。第 2 个是数据源上的<strong>真实方法名</strong>，
               第 4 个是那行最容易漏的防御。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The second is the{" "}
+              <strong>method name that really exists</strong> on the data
+              source; the fourth is the guard people most often forget.
             </p>
           ),
           language: "js",
@@ -1426,6 +1511,8 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
               n: 1,
               accept: ["id"],
               hint: "__resolveReference 返回了什么？parent 上只有那一个属性。",
+              hintEn:
+                "What did __resolveReference return? The parent has only that one property.",
               why: (
                 <>
                   <code>id</code>。<code>__resolveReference</code> 返回的是
@@ -1434,12 +1521,22 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
                   会拿到 undefined。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>id</code>. <code>__resolveReference</code> returns{" "}
+                  <code>{'{ id: user.id }'}</code>, so the parent{" "}
+                  <strong>only has id</strong>. Reach for{" "}
+                  <code>user.email</code> and you get undefined.
+                </>
+              ),
               width: 4,
             },
             {
               n: 2,
               accept: ["getOrdersByUserId"],
               hint: "去 orderDataSource.js 核对真实方法名，别凭直觉写。",
+              hintEn:
+                "Check the real method name in orderDataSource.js. Do not write what feels right.",
               why: (
                 <>
                   <code>getOrdersByUserId</code>。
@@ -1452,12 +1549,26 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
                   这类「听起来很合理但不存在」的名字正是这个项目埋雷的手法。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>getOrdersByUserId</code>.{" "}
+                  <code>OrderDataSource</code> has only three methods:{" "}
+                  <code>getOrder</code>, <code>getOrdersByUserId</code> and{" "}
+                  <code>createOrder</code>.
+                  <br />
+                  <code>getOrders</code>, <code>findByUserId</code> and{" "}
+                  <code>getUserOrders</code> do not exist. Names that sound
+                  reasonable but are not there is exactly how this project
+                  plants its bugs.
+                </>
+              ),
               width: 20,
             },
             {
               n: 3,
               accept: ["??", "||"],
               hint: "schema 说这个字段是 [Order!]!。",
+              hintEn: "The schema says this field is [Order!]!.",
               why: (
                 <>
                   <code>??</code>。<code>[Order!]!</code> 双重非空，
@@ -1468,12 +1579,25 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
                   「没有订单」的正确表达是 <code>[]</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>??</code>. <code>[Order!]!</code> is non-null twice, so
+                  returning null triggers{" "}
+                  <code>Cannot return null for non-nullable field</code> and
+                  the error moves upward.
+                  <br />
+                  The right way to say &ldquo;no orders&rdquo; is{" "}
+                  <code>[]</code>.
+                </>
+              ),
               width: 4,
             },
             {
               n: 4,
               accept: ["instanceof"],
               hint: "怎么判断「这个错误已经是我构造过的结构化错误」？",
+              hintEn:
+                "How do you tell that this error is already a structured error you built?",
               why: (
                 <>
                   <code>instanceof</code>。
@@ -1487,6 +1611,22 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
                   <strong>这正是项目里埋雷 3 的病因。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>instanceof</code>.{" "}
+                  <code>if (error instanceof GraphQLError) throw error;</code>
+                  <br />
+                  Without that line, the{" "}
+                  <code>INVALID_INPUT</code> or <code>ORDER_NOT_FOUND</code>{" "}
+                  you threw yourself gets rewrapped by your own catch as{" "}
+                  <code>SERVICE_ERROR</code>, and the client is told something
+                  completely wrong.
+                  <br />
+                  <strong>
+                    This is precisely the cause of planted bug 3 in the project.
+                  </strong>
+                </>
+              ),
               width: 12,
             },
           ],
@@ -1495,11 +1635,19 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
           kind: "code-completion",
           id: "g-t1-write",
           title: "不看答案，自己写出 User.orders",
+          titleEn: "Write User.orders yourself, without looking at the answer",
           level: 3,
           prompt: (
             <p>
               按 TODO 的三条要求写完整实现。检查器会核对方法名、兜底、
               错误处理和 correlation id。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Write the full implementation against the three requirements in
+              the TODO. The checker looks at the method name, the fallback, the
+              error handling and the correlation id.
             </p>
           ),
           language: "js",
@@ -1508,6 +1656,16 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
             "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           starter: `// TODO: Implement orders resolver with proper error handling and correlation ID tracing
 // schema: orders: [Order!]!   （双重非空）
+// context: { dataSources: { orderDataSource, inventoryDataSource, shippingDataSource },
+//            loaders: { shippingInfoLoader, orderLoader },
+//            correlationId }
+// OrderDataSource: getOrder(id) / getOrdersByUserId(userId) / createOrder(userId, items)
+
+async orders(user, _, { dataSources, loaders, correlationId }) {
+
+}`,
+          starterEn: `// TODO: Implement orders resolver with proper error handling and correlation ID tracing
+// schema: orders: [Order!]!   (non-null twice)
 // context: { dataSources: { orderDataSource, inventoryDataSource, shippingDataSource },
 //            loaders: { shippingInfoLoader, orderLoader },
 //            correlationId }
@@ -1525,25 +1683,37 @@ async orders(user, _, { dataSources, loaders, correlationId }) {
             "已经是 GraphQLError 的错误要原样往上抛，不要重新包装",
             "日志里带上 correlationId",
           ],
+          requirementsEn: [
+            "Use user.id to fetch that user's orders",
+            "Call a method that really exists on the data source",
+            "Never return null or undefined (the schema says [Order!]!)",
+            "Wrap it in try/catch and throw a GraphQLError on failure",
+            "Put code and correlationId in the error's extensions",
+            "Rethrow an error that is already a GraphQLError untouched, without rewrapping it",
+            "Include correlationId in the log line",
+          ],
           checks: [
             {
               label: "调用了 getOrdersByUserId（真实存在的方法）",
+              labelEn: "Calls getOrdersByUserId, a method that exists",
               must: "getOrdersByUserId\\s*\\(",
             },
             {
               label: "没有调用不存在的方法（getOrders / findByUser 等）",
+              labelEn: "Calls no method that does not exist (getOrders, findByUser and so on)",
               mustNot: "\\.(getOrders|findByUser|getUserOrders|getOrderById)\\s*\\(",
             },
-            { label: "用了 user.id 作为参数", must: "user\\.id" },
-            { label: "对 null/undefined 做了兜底（？？ [] 或 || []）", must: "(\\?\\?|\\|\\|)\\s*\\[\\s*\\]" },
-            { label: "用 try/catch 包住", must: "try[\\s\\S]*catch" },
-            { label: "抛了 GraphQLError", must: "throw new GraphQLError" },
-            { label: "extensions 里带了 correlationId", must: "extensions[\\s\\S]{0,160}correlationId" },
+            { label: "用了 user.id 作为参数", labelEn: "Passes user.id as the argument", must: "user\\.id" },
+            { label: "对 null/undefined 做了兜底（？？ [] 或 || []）", labelEn: "Falls back for null and undefined (?? [] or || [])", must: "(\\?\\?|\\|\\|)\\s*\\[\\s*\\]" },
+            { label: "用 try/catch 包住", labelEn: "Wrapped in try/catch", must: "try[\\s\\S]*catch" },
+            { label: "抛了 GraphQLError", labelEn: "Throws a GraphQLError", must: "throw new GraphQLError" },
+            { label: "extensions 里带了 correlationId", labelEn: "extensions carries correlationId", must: "extensions[\\s\\S]{0,160}correlationId" },
             {
               label: "先放行已结构化的错误（instanceof GraphQLError）",
+              labelEn: "Lets an already structured error through first (instanceof GraphQLError)",
               must: "instanceof\\s+GraphQLError",
             },
-            { label: "日志里用了 correlationId", must: "(console\\.(log|error))[\\s\\S]{0,60}correlationId" },
+            { label: "日志里用了 correlationId", labelEn: "The log line uses correlationId", must: "(console\\.(log|error))[\\s\\S]{0,60}correlationId" },
           ],
           hints: [
             "先问三个问题：这个用户的 id 从哪个参数拿？该调哪个数据源的哪个方法？schema 说这个字段能不能是 null？",
@@ -1560,6 +1730,26 @@ async orders(user, _, { dataSources, loaders, correlationId }) {
             `const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
 return orders ?? [];
 // catch 里：
+if (error instanceof GraphQLError) throw error;
+throw new GraphQLError('Failed to fetch orders for user', {
+  extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId, originalError: error.message }
+});`,
+          ],
+          hintsEn: [
+            "Start with three questions: which argument holds this user's id? Which method on which data source should you call? Does the schema allow this field to be null?",
+            "user.id comes from what __resolveReference returned. Check the method name in orderDataSource.js (it is not getOrders). The schema says [Order!]!, so fall back to []. Wrap the whole thing in try/catch, and make the first line of the catch check error instanceof GraphQLError.",
+            `try {
+  log a line that includes correlationId
+  const orders = await dataSource.getOrdersByUserId(user.id)
+  return orders, falling back to []
+} catch (error) {
+  if error is already a GraphQLError, rethrow it untouched
+  log the error
+  throw a new GraphQLError with code and correlationId in extensions
+}`,
+            `const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+return orders ?? [];
+// inside the catch:
 if (error instanceof GraphQLError) throw error;
 throw new GraphQLError('Failed to fetch orders for user', {
   extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId, originalError: error.message }
@@ -1588,7 +1778,32 @@ throw new GraphQLError('Failed to fetch orders for user', {
     });
   }
 }`,
-            { filename: "参考答案（审计实测：相关测试通过）" },
+            {
+              filename: "参考答案（审计实测：相关测试通过）",
+              filenameEn:
+                "Reference answer (measured in the audit: the related tests pass)",
+              codeEn: `async orders(user, _, { dataSources, loaders, correlationId }) {
+  try {
+    console.log(\`[\${correlationId}] Resolving User.orders for userId: \${user.id}\`);
+
+    const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+
+    // the schema says [Order!]! -> never return null
+    return orders ?? [];
+  } catch (error) {
+    if (error instanceof GraphQLError) throw error;
+
+    console.error(\`[\${correlationId}] Error resolving User.orders:\`, error.message);
+    throw new GraphQLError('Failed to fetch orders for user', {
+      extensions: {
+        code: ErrorCodes.SERVICE_ERROR,
+        correlationId,
+        originalError: error.message
+      }
+    });
+  }
+}`,
+            },
           ),
         },
       ],
