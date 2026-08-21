@@ -1181,11 +1181,19 @@ errors: []
           kind: "debug",
           id: "g-lab-nonnull",
           title: "故障 2 · Cannot return null for non-nullable field",
+          titleEn: "Fault 2 · Cannot return null for non-nullable field",
           level: 2,
           prompt: (
             <p>
               查一个没有订单的用户，整个 <code>data</code> 变成了
               <code>null</code>，而且 errors 里有一条很长的消息。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You query a user who has no orders, the whole <code>data</code>{" "}
+              turns into <code>null</code>, and errors carries one very long
+              message.
             </p>
           ),
           errorOutput: `$ node verify-schema.mjs
@@ -1209,23 +1217,49 @@ errors: [{
 // type Query {
 //   orders(userId: ID!): [Order!]!   ← 双重非空
 // }`,
-            { filename: "src/resolvers/orderResolvers.js", highlight: [3] },
+            {
+              filename: "src/resolvers/orderResolvers.js",
+              highlight: [3],
+              codeEn: `async orders(_, { userId }, { dataSources, correlationId }) {
+  const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
+  return orders;                     // the data source may return undefined
+}
+
+// For reference, schema.graphql says:
+// type Query {
+//   orders(userId: ID!): [Order!]!   ← non-null twice
+// }`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "非空违约 —— schema 声明了非空，resolver 返回了 null/undefined" },
-              { id: "b", label: "名字不匹配" },
-              { id: "c", label: "composition 失败" },
-              { id: "d", label: "跨模块契约错误" },
+              {
+                id: "a",
+                label: "非空违约 —— schema 声明了非空，resolver 返回了 null/undefined",
+                labelEn:
+                  "A non-null violation — the schema declares non-null and the resolver returned null/undefined",
+              },
+              { id: "b", label: "名字不匹配", labelEn: "A name mismatch" },
+              { id: "c", label: "composition 失败", labelEn: "A composition failure" },
+              {
+                id: "d",
+                label: "跨模块契约错误",
+                labelEn: "A broken contract between modules",
+              },
             ],
             answer: "a",
           },
           locate: {
             question: "该怎么改？",
+            questionEn: "What should be changed?",
             options: [
               { id: "a", label: "return orders ?? [];" },
-              { id: "b", label: "把 schema 改成 orders(userId: ID!): [Order!]" },
-              { id: "c", label: "在外面套 try/catch" },
+              {
+                id: "b",
+                label: "把 schema 改成 orders(userId: ID!): [Order!]",
+                labelEn: "Change the schema to orders(userId: ID!): [Order!]",
+              },
+              { id: "c", label: "在外面套 try/catch", labelEn: "Wrap it in try/catch" },
               { id: "d", label: "return orders || null;" },
             ],
             answer: "a",
@@ -1234,7 +1268,12 @@ errors: [{
             "js",
             `const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
 return orders ?? [];        // 双重非空 -> 「没有」用空数组表达`,
-            { filename: "改对之后" },
+            {
+              filename: "改对之后",
+              filenameEn: "After the fix",
+              codeEn: `const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
+return orders ?? [];        // non-null twice -> say "none" with an empty array`,
+            },
           ),
           rootCause: (
             <>
@@ -1270,7 +1309,53 @@ return orders ?? [];        // 双重非空 -> 「没有」用空数组表达`,
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>[Order!]!</code> is non-null twice:{" "}
+                <strong>
+                  the list itself cannot be null, and neither can an element.
+                </strong>{" "}
+                But <strong>an empty array is valid</strong> — the correct way to
+                say &ldquo;this user has no orders&rdquo; is <code>[]</code>.
+              </p>
+              <p>
+                <strong>Why does the whole data turn into null?</strong> When a
+                non-null field returns null, the GraphQL executor{" "}
+                <strong>bubbles the null upward</strong>: it sets this field to
+                null, and if the parent field is also non-null the parent turns
+                to null as well, all the way up until it reaches a nullable
+                ancestor, or the root, where <code>data</code> becomes null.{" "}
+                <strong>
+                  So one resolver with no fallback can leave the client with no
+                  data at all.
+                </strong>
+              </p>
+              <p>
+                <strong>Option B, making the schema nullable,</strong> is the
+                classic fix that only makes the error message go away. The schema
+                is PROVIDED and it is the contract with the client, so editing it
+                pushes the problem onto every caller, who must all check for null
+                from now on.{" "}
+                <strong>
+                  When the schema says non-null, it is asking you to guarantee
+                  non-null.
+                </strong>
+              </p>
+              <p>
+                Note that the data source in this project is written with{" "}
+                <code>filter</code>, so it actually returns <code>[]</code>{" "}
+                rather than undefined, which means this bug{" "}
+                <strong>does not really fire</strong> in the current
+                implementation. But you should not depend on an implementation
+                detail of the data source —{" "}
+                <strong>write to the contract in the schema.</strong>
+              </p>
+            </>
+          ),
           verify: "node verify-schema.mjs   # orders 应该是 []，errors 为空",
+          verifyEn:
+            "node verify-schema.mjs   # orders should be [], and errors should be empty",
         },
         {
           kind: "debug",
