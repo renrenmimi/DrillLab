@@ -91,6 +91,82 @@ const Dropdown: React.FC<Props> = ({ options, onSelect }) => {
 
 export default Dropdown;`;
 
+const C_DROPDOWN_EN = `import React, { useEffect, useRef, useState } from "react";
+
+export interface Option { id: string; label: string }
+
+interface Props {
+  options: Option[];
+  onSelect?: (id: string) => void;
+}
+
+const Dropdown: React.FC<Props> = ({ options, onSelect }) => {
+  const [open, setOpen] = useState(false);
+  const [picked, setPicked] = useState<Option | null>(null);
+  // useRef holds the DOM node: used to tell whether a click landed on me
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;                   // Closed, so no listener needed — that saves one
+
+    const onDocClick = (e: MouseEvent) => {
+      // e.target is the node that was really clicked; contains asks whether it is inside my subtree
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    // Cleanup: without it, every open adds another pair of listeners, and after unmount they would setState on an unmounted component
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const choose = (o: Option) => {
+    setPicked(o);
+    setOpen(false);
+    onSelect?.(o.id);
+  };
+
+  return (
+    <div ref={boxRef} data-testid="dropdown">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        data-testid="dropdown-trigger"
+      >
+        {picked ? picked.label : "请选择"}
+      </button>
+
+      {open && (
+        <ul role="listbox" data-testid="dropdown-list">
+          {options.map((o) => (
+            <li key={o.id}>
+              <button
+                role="option"
+                aria-selected={picked?.id === o.id}
+                onClick={() => choose(o)}
+                data-testid={\`option-\${o.id}\`}
+              >
+                {o.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export default Dropdown;`;
+
 const C_TABS = `import React, { useState } from "react";
 
 export interface Tab { id: string; label: string; content: React.ReactNode }
@@ -1566,6 +1642,8 @@ export const ivCoding: Module = {
           code: [
             tested("tsx", C_DROPDOWN, {
               filename: "src/components/Dropdown/index.tsx（实测通过）",
+              filenameEn: "src/components/Dropdown/index.tsx (passes in a real run)",
+              codeEn: C_DROPDOWN_EN,
               collapsible: true,
             }),
           ],
