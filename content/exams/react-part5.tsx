@@ -2126,9 +2126,11 @@ $ npx vitest run src/Timer.test.tsx
           code: [
             tested("bash", "npx vitest run src/Timer.test.tsx   # 8 passed", {
               filename: "验证命令",
+              filenameEn: "The command that verifies it",
             }),
             tested("tsx", TIMER_TEST, {
               filename: "src/Timer.test.tsx（DrillLab 自出，本机跑过）",
+              filenameEn: "src/Timer.test.tsx (written for DrillLab, run here)",
               collapsible: true,
             }),
           ],
@@ -2139,12 +2141,20 @@ $ npx vitest run src/Timer.test.tsx
           kind: "fill-blank",
           id: "r-var-timer-blank",
           title: "补全计时器的 effect",
+          titleEn: "Fill in the effect of the timer",
           level: 2,
           generated: true,
           prompt: (
             <p>
               三个空，全在这九行里。第 2 个空漏了会「越跳越快」，
               第 3 个空写错会「卡在 1 不动」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Three blanks, all within these nine lines. Miss the second and the
+              clock speeds up with every start. Get the third wrong and the
+              display freezes at 1.
             </p>
           ),
           language: "tsx",
@@ -2163,6 +2173,7 @@ $ npx vitest run src/Timer.test.tsx
               n: 1,
               accept: ["running"],
               hint: "只有「跑还是不跑」变化时才需要重建定时器。",
+              hintEn: "The interval only needs rebuilding when running or not running changes.",
               why: (
                 <>
                   <code>running</code>。
@@ -2175,12 +2186,27 @@ $ npx vitest run src/Timer.test.tsx
                   不写依赖数组 → 每次渲染都重建，直接失控。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>running</code>.
+                  <br />
+                  With <code>[]</code>, clicking Start does nothing.
+                  <br />
+                  With <code>[running, seconds]</code>, the interval is destroyed
+                  and rebuilt every second. It runs, but the clock drifts, and
+                  there is no reason for it.
+                  <br />
+                  With no dependency array at all, it is rebuilt on every render
+                  and goes out of control.
+                </>
+              ),
               width: 9,
             },
             {
               n: 2,
               accept: ["clearInterval"],
               hint: "把这一次 effect 建立起来的东西拆掉。",
+              hintEn: "Take down whatever this run of the effect set up.",
               why: (
                 <>
                   <code>clearInterval</code>。
@@ -2193,12 +2219,27 @@ $ npx vitest run src/Timer.test.tsx
                   虽然多数浏览器里两者可以互换，但语义不对，review 会挑。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>clearInterval</code>.
+                  <br />
+                  <strong>This is what the whole task is testing.</strong> Without
+                  it, four rounds of start and pause give you 10 seconds instead of
+                  4 (measured), and the interval stays alive after the component
+                  unmounts.
+                  <br />
+                  Do not write <code>clearTimeout</code> instead. Most browsers
+                  treat the two interchangeably, but it says the wrong thing, and a
+                  reviewer will point it out.
+                </>
+              ),
               width: 15,
             },
             {
               n: 3,
               accept: ["(s) => s + 1", "s => s + 1", "(prev) => prev + 1", "prev => prev + 1"],
               hint: "回调是在某一次渲染里创建的，它闭包捕获的 seconds 不会更新。",
+              hintEn: "The callback was created inside one particular render, and the seconds its closure captured never updates.",
               why: (
                 <>
                   <code>(s) =&gt; s + 1</code> —— 函数式更新。
@@ -2207,6 +2248,18 @@ $ npx vitest run src/Timer.test.tsx
                   依赖是 <code>[running]</code>，<code>seconds</code> 变化不重建
                   effect，那个回调里的 <code>seconds</code> 永远是 0，
                   于是每秒都算出 1，显示卡在 <code>00:01</code>。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>(s) =&gt; s + 1</code>, the updater form.
+                  <br />
+                  Writing <code>seconds + 1</code> gives you a{" "}
+                  <strong>stale closure</strong>: the dependency is{" "}
+                  <code>[running]</code>, so a change to <code>seconds</code> does
+                  not rebuild the effect. The <code>seconds</code> inside that
+                  callback stays 0 forever, every second computes 1, and the display
+                  freezes at <code>00:01</code>.
                 </>
               ),
               width: 14,
