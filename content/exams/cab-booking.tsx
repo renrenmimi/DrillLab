@@ -5145,7 +5145,16 @@ const RideHistory = () => {
   const latestRides = rideHistory.reverse().slice(0, 3);
   …
 };`,
-                { filename: "原地翻转 state" },
+                {
+                  filename: "原地翻转 state",
+                  filenameEn: "Reversing the state in place",
+                  codeEn: `// ✕ calling reverse on the state itself
+const RideHistory = () => {
+  const { rideHistory } = useCabContext();
+  const latestRides = rideHistory.reverse().slice(0, 3);
+  …
+};`,
+                },
               ),
               why: (
                 <>
@@ -5191,7 +5200,18 @@ const RideHistory = () => {
 // 单独 render CabConfirmation 时（或任何 bookedCabDetails 还是 null 的时刻）：
 // TypeError: Cannot read properties of null (reading 'name')
 // → 整个组件树白屏，因为没有 error boundary`,
-                { filename: "少一个问号" },
+                {
+                  filename: "少一个问号",
+                  filenameEn: "One question mark missing",
+                  codeEn: `// ✕ the optional chain was left out
+<p data-testid="confirm-message">
+  {bookedCabDetails.name} is on the way and will arrive shortly.
+</p>
+
+// rendering CabConfirmation on its own (or any moment when bookedCabDetails is null):
+// TypeError: Cannot read properties of null (reading 'name')
+// → the whole component tree goes blank, because there is no error boundary`,
+                },
               ),
               why: (
                 <>
