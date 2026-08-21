@@ -4731,26 +4731,49 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
               kind: "fill-blank",
               id: "f-generic-blanks",
               title: "补全泛型参数",
+              titleEn: "Fill in the generic parameters",
               level: 2,
               prompt: <p>两处真实的泛型用法。想清楚「TypeScript 能不能自己推断出来」。</p>,
+              promptEn: (
+                <p>
+                  Two real uses of generics. For each one, work out whether TypeScript
+                  can infer it on its own.
+                </p>
+              ),
               language: "tsx",
               filename: "两个真实片段",
+              filenameEn: "Two real excerpts",
               template: `// NoteManager：两个 state
 const [notes, setNotes] = useState<___1___>([]);
 const [noteToEdit, setNoteToEdit] = useState<Note | ___2___>(null);
 
 // q2/taskRunner.ts：自定义泛型
 export type Task<T> = () => ___3___<T>;`,
+              templateEn: `// NoteManager: two pieces of state
+const [notes, setNotes] = useState<___1___>([]);
+const [noteToEdit, setNoteToEdit] = useState<Note | ___2___>(null);
+
+// q2/taskRunner.ts: a generic of your own
+export type Task<T> = () => ___3___<T>;`,
               blanks: [
                 {
                   n: 1,
                   accept: ["Note[]", "Array<Note>"],
                   hint: "初始值是空数组，推断不出装什么，所以必须显式写。",
+                  hintEn: "The initial value is an empty array, so nothing can be inferred and you must write it out.",
                   why: (
                     <>
                       <code>Note[]</code>。初始值 <code>[]</code> 让 TypeScript 只能推断出
                       <code>never[]</code>，后面往里塞 Note 就会报错。
                       <strong>空数组和 null 作初始值时，泛型参数必须显式写</strong>。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>Note[]</code>. With <code>[]</code> as the initial value, all
+                      TypeScript can infer is <code>never[]</code>, and putting a Note in
+                      later is an error. <strong>When the initial value is an empty array
+                      or null, the generic parameter has to be written out.</strong>
                     </>
                   ),
                   width: 9,
@@ -4759,6 +4782,7 @@ export type Task<T> = () => ___3___<T>;`,
                   n: 2,
                   accept: ["null"],
                   hint: "「现在没有在编辑任何笔记」用什么表示？",
+                  hintEn: "How do you say \"no note is being edited right now\"?",
                   why: (
                     <>
                       <code>null</code>。<code>Note | null</code> 表达的是
@@ -4768,18 +4792,38 @@ export type Task<T> = () => ___3___<T>;`,
                       真实代码里的 <code>if (noteToEdit)</code> 就是为此。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>null</code>. <code>Note | null</code> says &ldquo;either a
+                      note is being edited, or nothing is&rdquo;. In strict mode this{" "}
+                      <code>| null</code> has to be written out, and{" "}
+                      <code>noteToEdit</code> has to be checked before it is used — the{" "}
+                      <code>if (noteToEdit)</code> in the real code is there for that.
+                    </>
+                  ),
                   width: 6,
                 },
                 {
                   n: 3,
                   accept: ["Promise"],
                   hint: "一个 async 任务被调用后，返回的是什么？",
+                  hintEn: "Once an async task is called, what does it hand back?",
                   why: (
                     <>
                       <code>Promise</code>。<code>Task&lt;T&gt; = () =&gt; Promise&lt;T&gt;</code>
                       的意思是：一个不接参数的函数，调用它会得到一个「以后会给你 T」的 Promise。
                       注意<strong>它本身不是 Promise</strong> ——
                       这个区分是 Q2 能实现并发控制的前提。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>Promise</code>.{" "}
+                      <code>Task&lt;T&gt; = () =&gt; Promise&lt;T&gt;</code> means: a
+                      function that takes no arguments, and calling it gives you a Promise
+                      that will hand you a T later. Note that{" "}
+                      <strong>the task itself is not a Promise</strong> — that distinction
+                      is what makes concurrency control possible in Q2.
                     </>
                   ),
                   width: 9,
