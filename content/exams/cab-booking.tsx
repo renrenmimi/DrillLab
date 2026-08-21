@@ -1026,6 +1026,8 @@ const cabBooking: Exam = {
           title: "Context 放在哪一层 —— 这道题最容易死的地方",
           titleEn: "Which level the Context goes on — the most common way to fail this task",
           blurb: "Provider 必须包在 App 外面。包在里面，App 自己就用不了 Context。",
+          blurbEn:
+            "The Provider has to wrap App from the outside. Put it inside App and App itself cannot read the Context.",
           minutes: 16,
           objectives: [
             "写出 Context 三件套：createContext / Provider / 自定义 hook",
@@ -1033,8 +1035,16 @@ const cabBooking: Exam = {
             "知道自定义 hook 里那个 throw 守卫在防什么",
             "看懂测试为什么也要自己包一层 CabProvider",
           ],
+          objectivesEn: [
+            "Write the three parts of Context: createContext, the Provider, and a custom hook",
+            "Explain why the Provider must sit outside App and not inside it",
+            "Know what the throw guard in the custom hook protects you from",
+            "See why the test file also wraps its own CabProvider",
+          ],
           whyForAssessment:
             "这是这道题最容易一次死透的地方。App 里的 handleSelectCab 要调 updateBookedCabDetails，所以 App 本身就是一个消费者 —— 如果你把 Provider 写在 App 的 return 里，App 自己拿不到 context，那个 throw 守卫会立刻炸，四个测试全红。",
+          whyForAssessmentEn:
+            "This is the fastest way to fail the whole task. handleSelectCab lives in App and calls updateBookedCabDetails, so App itself is a reader of the Context. If you write the Provider inside the return of App, App cannot reach the context, the throw guard fires at once, and all four tests fail.",
           sourceFiles: [
             { path: "cab-booking-context/src/context/CabContext.js", role: "Context 三件套。注意扩展名是 .js 而里面有 JSX", edit: true },
             { path: "cab-booking-context/src/index.jsx", role: "Provider 包在 App 外面的那一层" },
@@ -1043,7 +1053,10 @@ const cabBooking: Exam = {
             {
               id: "cb-three-parts",
               heading: "Context 三件套",
+              headingEn: "The three parts of Context",
               lede: "createContext 造管道、Provider 灌数据、自定义 hook 取数据",
+              ledeEn:
+                "createContext makes the channel, the Provider fills it with data, and a custom hook reads the data",
               body: (
                 <>
                   <p>
@@ -1163,7 +1176,10 @@ const cabBooking: Exam = {
             {
               id: "cb-where-provider",
               heading: "Provider 必须在 App 外面",
+              headingEn: "The Provider must sit outside App",
               lede: "因为 App 自己就是一个消费者",
+              ledeEn:
+                "Because App itself is one of the readers",
               body: (
                 <>
                   <p>
@@ -1280,7 +1296,10 @@ const App = () => {
             {
               id: "cb-two-states",
               heading: "一个 action 同时改两个 state",
+              headingEn: "One action changes two pieces of state",
               lede: "选一辆车 = 设为当前 + 追加进历史",
+              ledeEn:
+                "Picking a cab means two things: set it as the current booking, and add it to the history",
               body: (
                 <>
                   <p>
@@ -1622,6 +1641,21 @@ const updateBookedCabDetails = (details) => {
                   <strong>必须造新数组：<code>[...rideHistory, details]</code>。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>push</code> changes <strong>the same array object</strong>, so the
+                  reference given to <code>setRideHistory(rideHistory)</code> has not changed.
+                  React compares old and new state with <code>Object.is</code> and{" "}
+                  <strong>skips the re-render when they are equal</strong>.
+                  <br />
+                  The symptom is confusing: the data really did change, but the screen does not
+                  update. Then some other state change causes a re-render and several history rows
+                  appear at once.{" "}
+                  <strong>
+                    You have to build a new array: <code>[...rideHistory, details]</code>.
+                  </strong>
+                </>
+              ),
             },
             {
               wrong: demo(
@@ -1646,6 +1680,21 @@ const useCabContext = () => {
                   那道题也考同一个点。
                 </>
               ),
+              whyEn: (
+                <>
+                  With this version, forgetting the Provider produces no error. The page{" "}
+                  <strong>quietly shows &ldquo;no ride history&rdquo;</strong>. You will go and look
+                  at why <code>RideHistory</code> shows no data, while the real cause is in{" "}
+                  <code>index.jsx</code>.
+                  <br />
+                  <strong>
+                    The whole point of the guard is to make a setup mistake fail at once, instead of
+                    looking like a bug in a feature.
+                  </strong>{" "}
+                  Interviewers ask about this often, and the theme switching task on this site
+                  (Context plus a memoised value) tests the same point.
+                </>
+              ),
             },
           ],
           transfer: [
@@ -1660,6 +1709,13 @@ const useCabContext = () => {
             "createContext 不给默认值 + 守卫抛错，是为了让「忘套 Provider」立刻暴露。",
             "updateBookedCabDetails 一次改两个 state，业务规则集中在一处。",
             "追加历史必须造新数组，push 会让 React 跳过重渲染。",
+          ],
+          recapEn: [
+            "The three parts of Context: createContext makes the channel, the Provider supplies the value, and the custom hook reads it and guards against a missing Provider.",
+            "The Provider must sit outside App, because App is a reader itself: handleSelectCab writes to the Context.",
+            "Calling createContext with no default value, plus a guard that throws, makes a forgotten Provider show up immediately.",
+            "updateBookedCabDetails changes two pieces of state in one call, which keeps the rule in one place.",
+            "Adding to the history has to build a new array; push makes React skip the re-render.",
           ],
         },
       ],
