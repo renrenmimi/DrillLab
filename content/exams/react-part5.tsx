@@ -5104,6 +5104,10 @@ const handleReply = (parentId: number, text: string) => {
             "tsx",
             `// ✗ 把 depth 存进数据
 type Comment = { id: number; body: string; depth: number; replies: Comment[] };`,
+            {
+              codeEn: `// ✗ Storing depth in the data
+type Comment = { id: number; body: string; depth: number; replies: Comment[] };`,
+            },
           ),
           why: (
             <>
@@ -5127,6 +5131,10 @@ type Comment = { id: number; body: string; depth: number; replies: Comment[] };`
             "tsx",
             `// ✗ 折叠状态提到顶层
 const [collapsed, setCollapsed] = useState<Set<number>>(new Set());`,
+            {
+              codeEn: `// ✗ Lifting the collapsed state to the top
+const [collapsed, setCollapsed] = useState<Set<number>>(new Set());`,
+            },
           ),
           why: (
             <>
@@ -5156,6 +5164,12 @@ const [collapsed, setCollapsed] = useState<Set<number>>(new Set());`,
 const next = structuredClone(comments);
 findNode(next, parentId).replies.push(reply);
 setComments(next);`,
+            {
+              codeEn: `// ✗ Reaching for a deep copy to save effort
+const next = structuredClone(comments);
+findNode(next, parentId).replies.push(reply);
+setComments(next);`,
+            },
           ),
           why: (
             <>
