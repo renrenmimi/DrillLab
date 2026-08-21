@@ -1381,7 +1381,25 @@ const App = () => {
 // 实际报错：
 // Error: useCabContext must be used within a CabProvider
 // → 四个测试全红，而且报错指向 App，很容易以为是 App 写错了`,
-                  { filename: "把 Provider 放错层级会怎样（示意）" },
+                  {
+                    filename: "把 Provider 放错层级会怎样（示意）",
+                    filenameEn: "What happens when the Provider sits on the wrong level (illustration)",
+                    codeEn: `// ✕ wrong: the Provider is written inside App
+const App = () => {
+  const [currentPage, setCurrentPage] = useState("home");
+  const { updateBookedCabDetails } = useCabContext();   // ← this line runs first
+                                                        //   the Provider below is not mounted yet
+  return (
+    <CabProvider>                                       {/* ← too late */}
+      <div className="App">…</div>
+    </CabProvider>
+  );
+};
+
+// the actual error:
+// Error: useCabContext must be used within a CabProvider
+// → all four tests fail, and the error points at App, so App looks like the culprit`,
+                  },
                 ),
               ],
             },
@@ -1824,7 +1842,16 @@ const updateBookedCabDetails = (details) => {
   rideHistory.push(details);        // 原地改了同一个数组
   setRideHistory(rideHistory);      // 传的还是同一个引用
 };`,
-                { filename: "原地修改" },
+                {
+                  filename: "原地修改",
+                  filenameEn: "Changed in place",
+                  codeEn: `// ✕ appending with push — React sees no change
+const updateBookedCabDetails = (details) => {
+  setBookedCabDetails(details);
+  rideHistory.push(details);        // the same array was changed in place
+  setRideHistory(rideHistory);      // the same reference goes back in
+};`,
+                },
               ),
               why: (
                 <>
@@ -1862,7 +1889,15 @@ const useCabContext = () => {
   const context = useContext(CabContext);
   return context ?? { rideHistory: [], bookedCabDetails: null };
 };`,
-                { filename: "把守卫改成兜底" },
+                {
+                  filename: "把守卫改成兜底",
+                  filenameEn: "The guard turned into a fallback",
+                  codeEn: `// ✕ the guard became a default fallback — the error is now hidden
+const useCabContext = () => {
+  const context = useContext(CabContext);
+  return context ?? { rideHistory: [], bookedCabDetails: null };
+};`,
+                },
               ),
               why: (
                 <>
