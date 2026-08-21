@@ -3799,7 +3799,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             "type and interface are interchangeable most of the time. Only type can express a union.",
             "(note: Note) => void is a function type. Note | null is a union type.",
             "With strict: true, null has to be handled explicitly and every parameter needs a type.",
-            "! is a non-null assertion. You are vouching for the value instead of the compiler, so a wrong one fails only when the code runs.",
+            "! is a non-null assertion. With it you tell the compiler that the value is not null, so it stops checking. If you are wrong, the failure appears only when the code runs.",
           ],
         },
 
