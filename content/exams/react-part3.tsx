@@ -3483,6 +3483,16 @@ if (noteToEdit) {
   ]);
   setNoteToEdit(null);
 }`,
+            {
+              codeEn: `// ✗ Doing the update as a delete followed by an add
+if (noteToEdit) {
+  setNotes((prev) => [
+    ...prev.filter((n) => n.id !== submittedNote.id),
+    submittedNote,
+  ]);
+  setNoteToEdit(null);
+}`,
+            },
           ),
           why: (
             <>
@@ -3891,6 +3901,16 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");
 // ✓
 await userEvent.click(screen.getByTestId("form-submit-button"));
 expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
+              {
+                codeEn: `// ✗ The await is missing: the assertion runs before the render
+userEvent.click(screen.getByTestId("form-submit-button"));
+expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");
+//  → Unable to find text content "My Title"  (the code is fine!)
+
+// ✓
+await userEvent.click(screen.getByTestId("form-submit-button"));
+expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
+              },
             ),
           ],
         },
