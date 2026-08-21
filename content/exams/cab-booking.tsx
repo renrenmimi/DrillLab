@@ -6168,29 +6168,43 @@ Error: Failed to parse source for import analysis because the content contains i
               kind: "recognition",
               level: 1,
               title: "下面哪些说法是对的？（多选）",
+              titleEn: "Which of these statements are correct? (more than one)",
               prompt: <>关于源项目那两处「能过但可以更好」的写法。</>,
+              promptEn: (
+                <>
+                  About the two places in the source project that pass the tests but
+                  could be better.
+                </>
+              ),
               options: [
                 {
                   id: "a",
                   label:
                     "setRideHistory([...rideHistory, details]) 在同一个事件里连调两次会丢一条记录",
+                  labelEn:
+                    "setRideHistory([...rideHistory, details]) loses one entry if it is called twice inside the same event",
                 },
                 {
                   id: "b",
                   label: "Provider 的 value 是字面量对象，所以每次 Provider 渲染都会让全部消费者重渲染",
+                  labelEn: "The Provider's value is an object literal, so every render of the Provider re-renders every consumer",
                 },
                 {
                   id: "c",
                   label: "给 value 套 React.memo 就能挡住消费者的重渲染",
+                  labelEn: "Wrapping value in React.memo stops consumers from re-rendering",
                 },
                 {
                   id: "d",
                   label:
                     "useMemo 的依赖里如果放了一个每次新建的函数，记忆化等于没做 —— 所以通常要先 useCallback",
+                  labelEn:
+                    "If the useMemo dependencies hold a function that is rebuilt every time, the memoising does nothing — which is why useCallback usually comes first",
                 },
                 {
                   id: "e",
                   label: "这两处都是 bug，测试没抓到是测试写得不够好",
+                  labelEn: "Both places are bugs, and the tests missing them means the tests are not good enough",
                 },
               ],
               answer: ["a", "b", "d"],
@@ -6224,6 +6238,38 @@ Error: Failed to parse source for import analysis because the content contains i
                   把正确代码说成 bug，在 code review 里是要挨批的。
                 </>
               ),
+              explainEn: (
+                <>
+                  <strong>A is correct.</strong> A closure reads the value from that
+                  render. This task never hits it, because every booking is separated by
+                  a full re-render.
+                  <br />
+                  <strong>B is correct.</strong> An object literal is a new reference
+                  every time, and <code>useContext</code> compares references to decide
+                  whether something changed.
+                  <br />
+                  <strong>C is wrong.</strong> <code>React.memo</code> only stops props
+                  changes; <strong>a context change goes straight through memo</strong>.
+                  This is a very common misunderstanding. To stop it you keep value
+                  itself from changing (<code>useMemo</code>), or you split the context
+                  into smaller pieces.
+                  <br />
+                  <strong>D is correct, and it is the easiest trap.</strong> In{" "}
+                  <code>useMemo(() =&gt; ({"{ fn }"}), [fn])</code>, <code>fn</code> is
+                  rebuilt every time, so the dependency changes every time and{" "}
+                  <code>useMemo</code> recomputes every time.{" "}
+                  <strong>That is why <code>useCallback</code> and{" "}
+                  <code>useMemo</code> usually appear together.</strong>
+                  <br />
+                  <strong>E is wrong, and this is the important one.</strong> They are{" "}
+                  <strong>not bugs</strong>: under the real conditions of this app (few
+                  consumers, a Provider that only re-renders because of its own state, no
+                  two calls inside one event), both versions are entirely correct.{" "}
+                  <strong>What you need is the condition under which each becomes a
+                  problem</strong> — calling correct code a bug is the sort of thing that
+                  gets picked up in code review.
+                </>
+              ),
             },
           ],
           mistakes: [
@@ -6239,7 +6285,19 @@ export default defineConfig({
   },
   test: { environment: "jsdom", setupFiles: "./src/test/setup.js", globals: true },
 });`,
-                { filename: "不推荐的修法" },
+                {
+                  filename: "不推荐的修法",
+                  filenameEn: "The fix we do not recommend",
+                  codeEn: `// ✕ hiding one file's problem behind a global setting
+// vite.config.mjs
+export default defineConfig({
+  plugins: [react()],
+  esbuild: {
+    loader: { ".js": "jsx" },     // parse every .js file as JSX
+  },
+  test: { environment: "jsdom", setupFiles: "./src/test/setup.js", globals: true },
+});`,
+                },
               ),
               why: (
                 <>
