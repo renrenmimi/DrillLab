@@ -156,6 +156,105 @@ public class OrderController {
     }
 }`;
 
+// English side of CONTROLLER_SOLUTION. The line count must match it exactly,
+// because highlight is a line number. audit:code only pairs inline template
+// literals, so it cannot see a codeEn passed by constant like this one.
+const CONTROLLER_SOLUTION_EN = `@RestController
+public class OrderController {
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
+    private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<Map<String, String>> getRoot() {
+        return ResponseEntity.ok(Map.of(
+                "message", "Welcome to TechFlow Order Service API",
+                "status", "running"
+        ));
+    }
+
+    @GetMapping("/api/orders")
+    public ResponseEntity<List<Order>> getAllOrders(
+            @RequestParam(required = false) String userId) {
+        logger.info("GET /api/orders userId={}, correlationId={}", userId, correlationId());
+
+        // Optional filter: ?userId=123 narrows the set instead of adding a route
+        List<Order> orders = (userId == null || userId.isBlank())
+                ? orderService.getAllOrders()
+                : orderService.getOrdersByUserId(userId);
+
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/api/orders/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+        logger.info("GET /api/orders/{} correlationId={}", id, correlationId());
+
+        // When it is not found the service throws EntityNotFoundException,
+        // and GlobalExceptionHandler turns that into a 404
+        return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    @GetMapping("/api/orders/user/{userId}")
+    public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable String userId) {
+        logger.info("GET /api/orders/user/{} correlationId={}", userId, correlationId());
+        return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
+    }
+
+    @PostMapping("/api/orders")
+    public ResponseEntity<Order> createOrder(
+            @Valid @RequestBody CreateOrderRequest request) {
+        logger.info("POST /api/orders userId={}, correlationId={}",
+                request.getUserId(), correlationId());
+
+        Order created = orderService.createOrder(request);
+
+        // A successful create returns 201, not 200
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PatchMapping("/api/orders/{id}/status")
+    public ResponseEntity<Order> updateOrderStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> statusUpdate) {
+        String raw = statusUpdate.get("status");
+        logger.info("PATCH /api/orders/{}/status status={}, correlationId={}",
+                id, raw, correlationId());
+
+        if (raw == null || raw.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
+        }
+
+        final OrderStatus status;
+        try {
+            status = OrderStatus.valueOf(raw.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown status: " + raw);
+        }
+
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
+    }
+
+    @DeleteMapping("/api/orders/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+        logger.info("DELETE /api/orders/{} correlationId={}", id, correlationId());
+
+        orderService.deleteOrder(id);
+
+        // Nothing to return -> 204
+        return ResponseEntity.noContent().build();
+    }
+
+    /** The correlation id CorrelationIdFilter put in the MDC, to tie logs together */
+    private String correlationId() {
+        return MDC.get("correlationId");
+    }
+}`;
+
 const CONTROLLER_TEST = `@WebMvcTest(OrderController.class)
 class OrderControllerTest {
     @Autowired
@@ -1837,6 +1936,9 @@ public ResponseEntity<Order> updateOrderStatus(
           code: [
             real("java", CONTROLLER_SOLUTION, {
               filename: "OrderController.java（完整参考答案，实测 5/5 通过）",
+              filenameEn:
+                "OrderController.java (the full reference answer, measured 5/5 passing)",
+              codeEn: CONTROLLER_SOLUTION_EN,
               collapsible: true,
             }),
             real(
@@ -2341,6 +2443,9 @@ private String correlationId() { return MDC.get("correlationId"); }`,
           ],
           solution: real("java", CONTROLLER_SOLUTION, {
             filename: "参考答案（审计实测：mvn test 5/5 通过，BUILD SUCCESS）",
+            filenameEn:
+              "Reference answer (measured in the audit: mvn test 5/5, BUILD SUCCESS)",
+            codeEn: CONTROLLER_SOLUTION_EN,
             collapsible: true,
           }),
         },
