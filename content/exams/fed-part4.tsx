@@ -1569,11 +1569,19 @@ return shippingInfos;`,
           kind: "debug",
           id: "g-lab-java-500",
           title: "故障 4 · PATCH 传了小写状态，返回 500",
+          titleEn: "Fault 4 · PATCH sends a lowercase status and gets a 500",
           level: 2,
           prompt: (
             <p>
               Java 那边。<code>mvn test</code> 全过，
               但客户端传小写的 <code>shipped</code> 时服务返回 500。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              This one is on the Java side. <code>mvn test</code> passes
+              everything, but the service returns 500 when the client sends the
+              lowercase <code>shipped</code>.
             </p>
           ),
           errorOutput: `$ curl -i -X PATCH localhost:8080/api/orders/1/status \\
@@ -1603,20 +1611,44 @@ public ResponseEntity<Order> updateOrderStatus(
           ),
           classify: {
             options: [
-              { id: "a", label: "状态码语义错误 —— 客户端输入问题被报成了服务器错误" },
-              { id: "b", label: "依赖注入错误" },
-              { id: "c", label: "路由错误" },
-              { id: "d", label: "全局异常处理器配置错误" },
+              {
+                id: "a",
+                label: "状态码语义错误 —— 客户端输入问题被报成了服务器错误",
+                labelEn:
+                  "Wrong status code meaning — a client input problem is reported as a server error",
+              },
+              { id: "b", label: "依赖注入错误", labelEn: "A dependency injection mistake" },
+              { id: "c", label: "路由错误", labelEn: "A routing mistake" },
+              {
+                id: "d",
+                label: "全局异常处理器配置错误",
+                labelEn: "A misconfigured global exception handler",
+              },
             ],
             answer: "a",
           },
           locate: {
             question: "第 5 行需要补什么？",
+            questionEn: "What needs to be added on line 5?",
             options: [
-              { id: "a", label: "toUpperCase() + try/catch 转成 400，另外还要挡 null" },
-              { id: "b", label: "把 Map 换成 String" },
-              { id: "c", label: "给 GlobalExceptionHandler 加一个 @ExceptionHandler(Exception.class)" },
-              { id: "d", label: "把 @RequestBody 改成 @RequestParam" },
+              {
+                id: "a",
+                label: "toUpperCase() + try/catch 转成 400，另外还要挡 null",
+                labelEn:
+                  "toUpperCase() plus try/catch to turn it into a 400, and also guard against null",
+              },
+              { id: "b", label: "把 Map 换成 String", labelEn: "Replace Map with String" },
+              {
+                id: "c",
+                label: "给 GlobalExceptionHandler 加一个 @ExceptionHandler(Exception.class)",
+                labelEn:
+                  "Add an @ExceptionHandler(Exception.class) to GlobalExceptionHandler",
+              },
+              {
+                id: "d",
+                label: "把 @RequestBody 改成 @RequestParam",
+                labelEn: "Change @RequestBody to @RequestParam",
+              },
             ],
             answer: "a",
           },
@@ -1635,7 +1667,7 @@ try {
 }
 
 return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
-            { filename: "改对之后" },
+            { filename: "改对之后", filenameEn: "After the fix" },
           ),
           rootCause: (
             <>
@@ -1673,8 +1705,57 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>Enum.valueOf</code> is{" "}
+                <strong>case sensitive</strong>, and it throws{" "}
+                <code>IllegalArgumentException</code> when it cannot find the
+                constant. <code>GlobalExceptionHandler</code> only handles{" "}
+                <code>EntityNotFoundException</code> and{" "}
+                <code>MethodArgumentNotValidException</code>, so this exception
+                travels all the way up to the default Spring handler, which
+                answers <strong>500</strong>.
+              </p>
+              <p>
+                <strong>Why does this matter?</strong> A 500 means &ldquo;the
+                server failed internally, it is not your fault, please try
+                again&rdquo;. The client will retry, and the retry will never
+                succeed.{" "}
+                <strong>
+                  The correct signal is 400: &ldquo;your input is wrong, fix it
+                  and come back&rdquo;.
+                </strong>
+              </p>
+              <p>
+                <strong>Why is option C a bad idea?</strong> Adding a catch-all{" "}
+                <code>@ExceptionHandler(Exception.class)</code> turns{" "}
+                <strong>every</strong> unexpected exception into the same status
+                code, which hides real server failures.{" "}
+                <strong>
+                  Handle the problem at the point closest to it, not in an outer
+                  layer that catches everything.
+                </strong>
+              </p>
+              <p>
+                Also note that <code>null</code> needs a guard: when the body is{" "}
+                <code>{"{}"}</code>, <code>get</code> returns null,{" "}
+                <code>valueOf(null)</code> throws an NPE, and that is a 500 as
+                well.
+              </p>
+              <p>
+                <strong>Why do the tests miss this?</strong> The tests only send
+                the valid uppercase <code>SHIPPED</code>.{" "}
+                <strong>
+                  One more problem that only a manual curl can find.
+                </strong>
+              </p>
+            </>
+          ),
           verify:
             "curl -i -X PATCH localhost:8080/api/orders/1/status -H 'Content-Type: application/json' -d '{\"status\":\"shipped\"}'   # 应该 200（大小写宽容）；传 FLYING 应该 400",
+          verifyEn:
+            "curl -i -X PATCH localhost:8080/api/orders/1/status -H 'Content-Type: application/json' -d '{\"status\":\"shipped\"}'   # should be 200 (case is accepted either way); sending FLYING should be 400",
         },
       ],
       transfer: [
