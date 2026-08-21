@@ -183,6 +183,8 @@ export const ivHand: Module = {
       title: "计时两兄弟：debounce 与 throttle",
       titleEn: "Two timing helpers: debounce and throttle",
       blurb: "先分清「等你停手」和「匀速放行」，再各写一个。",
+      blurbEn:
+        "First tell the two apart — wait until the calls stop, versus let one through at a steady rate — then write each one.",
       minutes: 30,
       objectives: [
         "一句话说清 debounce 和 throttle 的语义差别，并各举一个正确的使用场景",
@@ -190,12 +192,21 @@ export const ivHand: Module = {
         "手写 leading + trailing 的 throttle",
         "说清为什么两者都必须用闭包存状态",
       ],
+      objectivesEn: [
+        "Say in one sentence how debounce and throttle differ, and give one correct use case for each",
+        "Write a trailing debounce by hand, with a cancel method",
+        "Write a throttle by hand that fires on both the first and the last call",
+        "Explain why both of them have to keep their state in a closure",
+      ],
       whyForAssessment:
         "美国面试 phone screen 的头号手写题。考的不只是写出来 —— 面试官会先问「这俩有什么区别、各用在哪」，答错场景直接扣分：搜索框用 throttle、滚动埋点用 debounce 都是反着的。",
+      whyForAssessmentEn:
+        "This is the number one write-it-yourself question in a phone screen. Writing the code is not the whole test — the interviewer asks first how the two differ and where each one belongs, and naming the wrong scenario costs you points right away: a search box with throttle, or scroll tracking with debounce, are both the wrong way round.",
       concepts: [
         {
           id: "hd-debounce",
           heading: "debounce：把一串调用压成最后一次",
+          headingEn: "debounce: squeeze a burst of calls down to the last one",
           lede: "Write a debounce; when do you reach for it",
           body: (
             <>
@@ -275,6 +286,7 @@ export const ivHand: Module = {
         {
           id: "hd-throttle",
           heading: "throttle：不管多密，每个窗口最多一次",
+          headingEn: "throttle: however dense the calls, at most one per window",
           lede: "Write a throttle with leading and trailing calls",
           body: (
             <>
@@ -481,13 +493,46 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
               <strong>闭包状态必须声明在「造函数的那一层」。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              This is the most common way the debounce question fails.{" "}
+              <code>timer</code> is declared <strong>inside</strong> the returned
+              function, so every call gets a brand new <code>null</code> and{" "}
+              <code>clearTimeout</code> never reaches the previous timer. Every call
+              then fires on its own, exactly as if you had written no debounce at all.{" "}
+              <strong>
+                Closure state has to be declared in the outer function, the one that
+                builds the returned function.
+              </strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「停止输入后再搜索」「resize 结束后」", reachFor: "debounce —— 等你停手" },
-        { signal: "「滚动时持续上报」「拖拽跟随」", reachFor: "throttle —— 匀速放行" },
-        { signal: "手写题要在多次调用之间记住东西", reachFor: "闭包变量声明在「造函数的那一层」" },
-        { signal: "计时类测试在慢环境里抖", reachFor: "只断言「等待后已发生」，别断言「等待后还没发生」" },
+        {
+          signal: "「停止输入后再搜索」「resize 结束后」",
+          signalEn: "\"search after the typing stops\", \"after the resize ends\"",
+          reachFor: "debounce —— 等你停手",
+          reachForEn: "debounce — wait until the calls stop",
+        },
+        {
+          signal: "「滚动时持续上报」「拖拽跟随」",
+          signalEn: "\"report while scrolling\", \"follow the drag\"",
+          reachFor: "throttle —— 匀速放行",
+          reachForEn: "throttle — let one through at a steady rate",
+        },
+        {
+          signal: "手写题要在多次调用之间记住东西",
+          signalEn: "A write-it-yourself question has to remember something between calls",
+          reachFor: "闭包变量声明在「造函数的那一层」",
+          reachForEn: "Declare the closure variable in the outer function that builds the returned one",
+        },
+        {
+          signal: "计时类测试在慢环境里抖",
+          signalEn: "Timing tests come out flaky on a slow machine",
+          reachFor: "只断言「等待后已发生」，别断言「等待后还没发生」",
+          reachForEn: "Only assert that it has happened after the wait; never assert that it has not happened yet",
+        },
       ],
       recap: [
         "debounce = 等你停手：清旧 timer + 设新 timer 就是「重新计时」。",
@@ -495,6 +540,13 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
         "连续事件流里 debounce 可能永远不执行，throttle 保证节奏 —— 场景选错直接扣分。",
         "状态放闭包（造函数那一层），放进返回函数里就全废了。",
         "追问点：leading 选项、cancel vs flush、单变量简版的取舍。",
+      ],
+      recapEn: [
+        "debounce = wait until the calls stop: clearing the old timer and setting a new one is what restarts the clock.",
+        "throttle = let one through at a steady rate: a timestamp handles the first call, a timer plus lastArgs handles the last one.",
+        "In a continuous stream of events debounce may never run at all, while throttle keeps a fixed rate — picking the wrong one costs you points.",
+        "Keep the state in the closure, in the outer function; move it inside the returned function and nothing works.",
+        "Follow-ups: a leading option, cancel versus flush, and the trade-off of the short one-variable version.",
       ],
     },
 
