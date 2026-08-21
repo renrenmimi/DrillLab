@@ -1300,6 +1300,19 @@ ___3___ OrderItemInput {
 // ↑ shippingInfo 不在这里 → 必须自己写 resolver 去 ShippingDataSource 取`,
               {
                 filename: "为什么只有 shippingInfo 需要 resolver",
+                filenameEn: "Why only shippingInfo needs a resolver",
+                codeEn: `// The seed data of OrderDataSource — note there is no shippingInfo field
+{
+  id: 'order-456',
+  userId: '123',
+  status: 'SHIPPED',
+  totalAmount: 299.99,
+  items: [{ productId: 'prod-789', quantity: 2, price: 149.99 }],
+  createdAt: '2026-01-01T10:30:00Z'
+}
+// ↑ six fields: id / userId / status / totalAmount / items / createdAt.
+//   The default resolver reads them for you, so you write nothing
+// ↑ shippingInfo is not here → write a resolver that asks ShippingDataSource`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
               },
@@ -1386,6 +1399,7 @@ ___3___ OrderItemInput {
           code: [
             real("js", INDEX_JS, {
               filename: "src/index.js（全文）",
+              filenameEn: "src/index.js (full file)",
               sourceFile:
                 "graphql-federation-practice/node-subgraph/src/index.js",
               highlight: [33, 40, 41, 42, 44, 45, 47, 48, 49, 50, 51],
@@ -1408,8 +1422,24 @@ ___3___ OrderItemInput {
 }`,
               {
                 filename: "抄在纸上的那张表",
+                filenameEn: "The table to copy onto paper",
+                codeEn: `// The exact shape of context (read off lines 47–51 of index.js)
+{
+  dataSources: {
+    orderDataSource,       // getOrder(id) / getOrdersByUserId(userId) / createOrder(userId, items)
+    inventoryDataSource,   // getInventoryStatus(ids) / getProductPrice(productId)
+    shippingDataSource     // getShippingInfo(orderId)
+  },
+  loaders: {
+    shippingInfoLoader,    // .load(orderId)
+    orderLoader            // .load(orderId)
+  },
+  correlationId            // a string that ties together all logs of one request
+}`,
                 explanation:
                   "写 resolver 之前把这张表抄下来。三个埋雷里有两个就是「名字对不上」—— starter 代码里写了 dataSources.orderAPI（不存在）和 orderDataSource.getOrderById（不存在）。",
+                explanationEn:
+                  "Copy this table down before you write any resolver. Two of the three planted bugs are just names that do not match: the starter code writes dataSources.orderAPI (does not exist) and orderDataSource.getOrderById (does not exist).",
               },
             ),
           ],
@@ -1496,11 +1526,18 @@ ___3___ OrderItemInput {
           kind: "recognition",
           id: "g-context-key",
           title: "从 context 里取订单数据源，正确写法是",
+          titleEn: "The right way to read the order data source out of context",
           level: 1,
           prompt: (
             <p>
               照 <code>index.js</code> 里 context 的真实结构，
               哪个写法能拿到订单数据源？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Going by the real shape of context in <code>index.js</code>,
+              which of these reads the order data source?
             </p>
           ),
           options: [
@@ -1522,16 +1559,36 @@ ___3___ OrderItemInput {
               <code>Cannot read properties of undefined (reading &apos;createOrder&apos;)</code>。
             </>
           ),
+          explainEn: (
+            <>
+              What <code>index.js</code> returns is{" "}
+              <code>{"{ dataSources: { orderDataSource, ... }, loaders: {...}, correlationId }"}</code>
+              , so the path is{" "}
+              <code>context.dataSources.orderDataSource</code>.
+              <br />
+              <strong>Option A is a bug that really is in the project</strong>:
+              the starter&apos;s <code>Mutation.createOrder</code> writes{" "}
+              <code>dataSources.orderAPI</code>, and at run time it reports{" "}
+              <code>Cannot read properties of undefined (reading &apos;createOrder&apos;)</code>.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-which-param",
           title: "这个 resolver 该用哪个参数",
+          titleEn: "Which argument should this resolver use",
           level: 1,
           prompt: (
             <p>
               <code>Order.shippingInfo</code> 需要知道「是哪个 order 的物流」。
               这个 order 的 id 从哪个参数拿？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              <code>Order.shippingInfo</code> has to know which order the
+              shipping belongs to. Which argument holds that order&apos;s id?
             </p>
           ),
           options: [
@@ -1554,11 +1611,26 @@ ___3___ OrderItemInput {
               <code>loaders.shippingInfoLoader.load(parent.id)</code>。
             </>
           ),
+          explainEn: (
+            <>
+              <code>parent.id</code>. <code>shippingInfo</code> is a field on{" "}
+              <code>Order</code>, so when the executor calls it, it{" "}
+              <strong>passes that order object in as the first argument</strong>.
+              <br />
+              <code>args</code> is empty — in the schema,{" "}
+              <code>shippingInfo: ShippingInfo</code> declares no arguments at
+              all.
+              <br />
+              That is why the real answer is{" "}
+              <code>loaders.shippingInfoLoader.load(parent.id)</code>.
+            </>
+          ),
         },
         {
           kind: "ordering",
           id: "g-resolver-order",
           title: "把 resolver 的调用顺序排对",
+          titleEn: "Put the resolver calls in the right order",
           level: 1,
           prompt: (
             <p>
@@ -1567,12 +1639,20 @@ ___3___ OrderItemInput {
               数据源里 user 123 有两个订单。把服务端的动作排序。
             </p>
           ),
+          promptEn: (
+            <p>
+              The client sends{" "}
+              <code>{'{ orders(userId:"123") { id shippingInfo { status } } }'}</code>
+              , and in the data source user 123 has two orders. Put the
+              server&apos;s steps in order.
+            </p>
+          ),
           items: [
-            { id: "c", label: "对每个 order 分别调 Order.shippingInfo（共 2 次）" },
-            { id: "a", label: "用 schema 校验查询：字段存不存在、userId 类型对不对" },
-            { id: "d", label: "DataLoader 把 2 次 load 合并成 1 次批量请求" },
-            { id: "b", label: "调 Query.orders，拿到 [order-456, order-457]" },
-            { id: "e", label: "按查询形状组装 JSON 返回" },
+            { id: "c", label: "对每个 order 分别调 Order.shippingInfo（共 2 次）", labelEn: "Call Order.shippingInfo once per order (2 calls in total)" },
+            { id: "a", label: "用 schema 校验查询：字段存不存在、userId 类型对不对", labelEn: "Validate the query against the schema: do the fields exist, is the type of userId right" },
+            { id: "d", label: "DataLoader 把 2 次 load 合并成 1 次批量请求", labelEn: "DataLoader merges the 2 load calls into 1 batched request" },
+            { id: "b", label: "调 Query.orders，拿到 [order-456, order-457]", labelEn: "Call Query.orders and get back [order-456, order-457]" },
+            { id: "e", label: "按查询形状组装 JSON 返回", labelEn: "Assemble the JSON response in the shape of the query" },
           ],
           answer: ["a", "b", "c", "d", "e"],
           explain: (
@@ -1583,6 +1663,19 @@ ___3___ OrderItemInput {
               <br />
               <strong>第 3 步「对每个 order 分别调」就是 N+1 的来源</strong>，
               第 4 步是它的解药。
+            </>
+          ),
+          explainEn: (
+            <>
+              Validate first (this touches no data) → call the outermost
+              resolver → pass each element it returned down as the parent of
+              the field resolvers → DataLoader merges the calls inside the same
+              tick of the event loop → assemble the response last.
+              <br />
+              <strong>
+                Step 3, calling once per order, is where N+1 comes from
+              </strong>
+              . Step 4 is the cure.
             </>
           ),
         },
