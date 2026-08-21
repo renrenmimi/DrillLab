@@ -1602,6 +1602,135 @@ test("[371] 筛选不会丢数据，切回 all 两条都在", async () => {
   expect(screen.getByTestId("list")).toHaveTextContent("B");
 });`;
 
+const C_RTKTEST_EN = `import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Provider } from "react-redux";
+import { expect, test } from "vitest";
+import TodoApp from "./components/TodoApp";
+import { makeStore } from "./store";
+import reducer, {
+  added,
+  clearedDone,
+  filterChanged,
+  removed,
+  selectVisible,
+  toggled,
+  type TodosState,
+} from "./store/todosSlice";
+
+const empty: TodosState = { items: [], filter: "all" };
+
+/* ---------- a reducer is a pure function, so it can be unit-tested without React ---------- */
+
+test("[371] added appends one item and does not change the old state (Immer produces a new object)", () => {
+  const next = reducer(empty, added("买牛奶"));
+
+  expect(next.items).toHaveLength(1);
+  expect(next.items[0].text).toBe("买牛奶");
+  expect(next.items[0].done).toBe(false);
+  expect(empty.items).toHaveLength(0);      // the old state was not touched
+  expect(next).not.toBe(empty);             // it is a new object
+});
+
+test("[371] added trims, and the id is built in prepare (the reducer stays pure)", () => {
+  const next = reducer(empty, added("  写文档  "));
+  expect(next.items[0].text).toBe("写文档");
+  expect(next.items[0].id).toBeTruthy();
+
+  // dispatch the same text twice and the ids differ — proof the reducer does not compute the id
+  const a = added("x");
+  const b = added("x");
+  expect(a.payload.id).not.toBe(b.payload.id);
+});
+
+test("[371] toggled flips only the item it matched", () => {
+  let s = reducer(empty, added("A"));
+  s = reducer(s, added("B"));
+  const idA = s.items[0].id;
+
+  const next = reducer(s, toggled(idA));
+  expect(next.items[0].done).toBe(true);
+  expect(next.items[1].done).toBe(false);
+});
+
+test("[371] removed deletes by id; clearedDone deletes only the finished ones", () => {
+  let s = reducer(empty, added("A"));
+  s = reducer(s, added("B"));
+  const [a, b] = s.items;
+
+  expect(reducer(s, removed(a.id)).items.map((t) => t.text)).toEqual(["B"]);
+
+  s = reducer(s, toggled(b.id));
+  expect(reducer(s, clearedDone()).items.map((t) => t.text)).toEqual(["A"]);
+});
+
+test("[371] selectVisible derives from filter and does not change the underlying data", () => {
+  let s = reducer(empty, added("A"));
+  s = reducer(s, added("B"));
+  s = reducer(s, toggled(s.items[0].id));
+
+  const withFilter = (f: Parameters<typeof filterChanged>[0]) => ({
+    todos: reducer(s, filterChanged(f)),
+  });
+
+  expect(selectVisible({ todos: s }).map((t) => t.text)).toEqual(["A", "B"]);
+  expect(selectVisible(withFilter("done")).map((t) => t.text)).toEqual(["A"]);
+  expect(selectVisible(withFilter("active")).map((t) => t.text)).toEqual(["B"]);
+
+  // filtering only affects what you see; the underlying items are still two
+  expect(s.items).toHaveLength(2);
+});
+
+/* ---------- integration test: the component plus the Provider ---------- */
+
+const renderApp = () =>
+  render(
+    <Provider store={makeStore()}>
+      <TodoApp />
+    </Provider>,
+  );
+
+test("[371] adding through the UI updates both the list and the count", async () => {
+  renderApp();
+  expect(screen.getByTestId("submit")).toBeDisabled();
+
+  await userEvent.type(screen.getByTestId("input"), "买牛奶");
+  await userEvent.click(screen.getByTestId("submit"));
+
+  expect(screen.getByTestId("list")).toHaveTextContent("买牛奶");
+  expect(screen.getByTestId("remaining")).toHaveTextContent("1 left");
+  expect(screen.getByTestId("input")).toHaveValue("");
+});
+
+test("[371] ticking one item lowers remaining by one", async () => {
+  renderApp();
+  await userEvent.type(screen.getByTestId("input"), "A");
+  await userEvent.click(screen.getByTestId("submit"));
+  await userEvent.type(screen.getByTestId("input"), "B");
+  await userEvent.click(screen.getByTestId("submit"));
+
+  expect(screen.getByTestId("remaining")).toHaveTextContent("2 left");
+  await userEvent.click(screen.getByLabelText("toggle A"));
+  expect(screen.getByTestId("remaining")).toHaveTextContent("1 left");
+});
+
+test("[371] filtering loses no data; switch back to all and both items are there", async () => {
+  renderApp();
+  for (const t of ["A", "B"]) {
+    await userEvent.type(screen.getByTestId("input"), t);
+    await userEvent.click(screen.getByTestId("submit"));
+  }
+  await userEvent.click(screen.getByLabelText("toggle A"));
+
+  await userEvent.click(screen.getByTestId("filter-done"));
+  expect(screen.getByTestId("list")).toHaveTextContent("A");
+  expect(screen.getByTestId("list")).not.toHaveTextContent("B");
+
+  await userEvent.click(screen.getByTestId("filter-all"));
+  expect(screen.getByTestId("list")).toHaveTextContent("A");
+  expect(screen.getByTestId("list")).toHaveTextContent("B");
+});`;
+
 export const ivCoding: Module = {
   id: "iv-coding",
   stage: "面试 · 第 7 部分",
@@ -4156,6 +4285,8 @@ const remaining = useSelector(selectRemaining);`,
           code: [
             tested("tsx", C_RTKTEST, {
               filename: "src/Rtk.test.tsx（DrillLab 自出，本机跑过 8/8）",
+              filenameEn: "src/Rtk.test.tsx (written by DrillLab, 8/8 locally)",
+              codeEn: C_RTKTEST_EN,
               collapsible: true,
             }),
             tested(
@@ -4166,7 +4297,16 @@ $ npx vitest run
 
  Test Files  1 passed (1)
       Tests  8 passed (8)`,
-              { filename: "验证命令" },
+              {
+                filename: "验证命令",
+                filenameEn: "The command used to check it",
+                codeEn: `# This problem installs its own dependencies (the other problems here reuse the node_modules of react-notes-app)
+$ npm i @reduxjs/toolkit react-redux
+$ npx vitest run
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)`,
+              },
             ),
           ],
         },
@@ -4662,6 +4802,7 @@ export function addTodo(state: TodosState, todo: Todo) {
           code: [
             tested("tsx", C_KANBAN, {
               filename: "src/components/Kanban/index.tsx（实测通过）",
+              filenameEn: "src/components/Kanban/index.tsx (passes as measured)",
               collapsible: true,
             }),
             demo(
@@ -4777,6 +4918,7 @@ return {
 }`,
             {
               filename: "参考答案（实测通过，含深冻结与引用复用两条断言）",
+              filenameEn: "Reference answer (passes as measured, including the deep-freeze and reference-reuse assertions)",
               explanation:
                 "{ ...board } 只浅拷贝顶层，所以没被列出来的列复用的是原数组引用 —— 测试里用 expect(next.done).toBe(b.done) 验证了这一点。",
             },
