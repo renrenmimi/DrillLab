@@ -190,7 +190,16 @@ const foundations: Exam = {
 
 node -e "console.log(1 + 1)"
 # 2`,
-                  { explanation: "npm 一般跟着 Node.js 一起装，所以装完 Node 就有 npm 了。" },
+                  {
+                    codeEn: `node -v
+# v22.21.1   ← the version measured on this machine
+
+node -e "console.log(1 + 1)"
+# 2`,
+                    explanation: "npm 一般跟着 Node.js 一起装，所以装完 Node 就有 npm 了。",
+                    explanationEn:
+                      "npm is normally installed together with Node.js, so once Node is installed you already have npm.",
+                  },
                 ),
               ],
             },
@@ -254,8 +263,13 @@ node -e "console.log(1 + 1)"
 npm install
 # added 424 packages in 11s     ← 本机实测输出`,
                   {
+                    codeEn: `cd graphql-federation-practice/node-subgraph
+npm install
+# added 424 packages in 11s     ← measured on this machine`,
                     explanation:
                       "5 个直接依赖（@apollo/server、@apollo/subgraph、graphql、graphql-tag、dataloader）+ 2 个开发依赖，最后装出 424 个包 —— 中间那些都是依赖的依赖。",
+                    explanationEn:
+                      "5 direct dependencies (@apollo/server, @apollo/subgraph, graphql, graphql-tag, dataloader) plus 2 dev dependencies end up installing 424 packages. Everything in between is a dependency of a dependency.",
                   },
                 ),
               ],
