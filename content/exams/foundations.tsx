@@ -3810,6 +3810,8 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
           titleEn: "Generic parameters, and how to read a tsc error",
           blurb:
             "useState<Note[]> 那对尖括号在说什么，和 react-notes-app 那 10 个构建错误的真相。",
+          blurbEn:
+            "What the angle brackets in useState<Note[]> say, and the real cause of the 10 build errors in react-notes-app.",
           minutes: 12,
           objectives: [
             "看懂 useState<Note[]>([]) 和 Task<T> 里的尖括号",
@@ -3817,8 +3819,16 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             "能分辨「我的代码错了」和「项目配置本身有问题」",
             "知道常见错误码 TS2304 / TS2582 / TS2345 各是什么意思",
           ],
+          objectivesEn: [
+            "Read the angle brackets in useState<Note[]>([]) and in Task<T>",
+            "Read the four parts of a tsc error: file, position, error code, explanation",
+            "Tell the difference between a mistake in your code and a problem in the project setup",
+            "Know what the common codes TS2304, TS2582 and TS2345 each mean",
+          ],
           whyForAssessment:
             "react-notes-app 的 npm run build 在原始状态下就是失败的 —— 10 个 tsc 错误，全部来自测试文件的类型配置缺失。能不能认出「这不是我的问题」，直接决定你会不会浪费半小时。",
+          whyForAssessmentEn:
+            "In react-notes-app, npm run build fails as delivered. All 10 tsc errors come from missing type settings for the test files. Recognising that the fault is not yours is what decides whether you lose half an hour.",
           sourceFiles: [
             { path: "react-notes-app/tsconfig.json", role: "include 了 src，但没配 vitest 全局类型" },
             { path: "react-notes-app/src/NoteManager.test.tsx", role: "报错就出在这个文件" },
@@ -3827,7 +3837,10 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             {
               id: "generics",
               heading: "尖括号：告诉泛型「这次装的是什么」",
+              headingEn: "Angle brackets: telling a generic what it holds this time",
               lede: "泛型（generic）就是一个「留了洞的类型」，调用的人负责填。",
+              ledeEn:
+                "A generic is a type with a hole left in it. Whoever calls it fills the hole.",
               body: (
                 <>
                   <p>
@@ -3905,6 +3918,7 @@ export async function runTasks<T>(
             {
               id: "read-tsc-error",
               heading: "tsc 报错的四个部分",
+              headingEn: "The four parts of a tsc error",
               body: (
                 <>
                   <p>拿一条真实的报错拆开看：</p>
@@ -3955,7 +3969,10 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
             {
               id: "not-your-fault",
               heading: "实测：这 10 个错误不是你写的代码的问题",
+              headingEn: "Tried for real: these 10 errors are not caused by the code you wrote",
               lede: "这是 react-notes-app 自带的配置缺陷。认出它，别去改业务代码。",
+              ledeEn:
+                "It is a setup defect that ships with react-notes-app. Recognise it, and leave your own code alone.",
               body: (
                 <>
                   <p>
@@ -4065,6 +4082,7 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
             {
               id: "common-codes",
               heading: "几个会真的遇到的错误码",
+              headingEn: "The error codes you will actually meet",
               body: (
                 <>
                   <div className="table-wrap">
@@ -4253,10 +4271,30 @@ export type Task<T> = () => ___3___<T>;`,
             },
           ],
           transfer: [
-            { signal: "useState 初始值是 [] 或 null", reachFor: "显式写泛型参数" },
-            { signal: "一堆 tsc 报错", reachFor: "只看第一条，后面可能是连锁" },
-            { signal: "报错全在测试文件、说全局名字找不到", reachFor: "缺测试框架类型，不是你的逻辑问题" },
-            { signal: "TS2345 参数类型不匹配", reachFor: "回去看类型定义，通常是 id 的 number/string 搞混" },
+            {
+              signal: "useState 初始值是 [] 或 null",
+              signalEn: "The starting value of useState is [] or null",
+              reachFor: "显式写泛型参数",
+              reachForEn: "Write the generic parameter yourself",
+            },
+            {
+              signal: "一堆 tsc 报错",
+              signalEn: "A long list of tsc errors",
+              reachFor: "只看第一条，后面可能是连锁",
+              reachForEn: "Read only the first one. The rest may follow from it",
+            },
+            {
+              signal: "报错全在测试文件、说全局名字找不到",
+              signalEn: "Every error is in a test file and says a global name cannot be found",
+              reachFor: "缺测试框架类型，不是你的逻辑问题",
+              reachForEn: "The types of the test framework are missing. Your logic is not the problem",
+            },
+            {
+              signal: "TS2345 参数类型不匹配",
+              signalEn: "TS2345, an argument type does not match",
+              reachFor: "回去看类型定义，通常是 id 的 number/string 搞混",
+              reachForEn: "Go back to the type definition. Usually an id is a number where a string was expected, or the other way round",
+            },
           ],
           recap: [
             "泛型是「留洞的类型」，尖括号是你在填洞。",
@@ -4264,6 +4302,13 @@ export type Task<T> = () => ___3___<T>;`,
             "tsc 报错四件套：文件、行列、错误码、说明。永远先看第一条。",
             "react-notes-app 的 npm run build 原生失败，10 个错全在测试文件，与你的实现无关。",
             "分辨「我的错」和「项目的错」：看报错位置、报的是谁的名字、测试跑不跑得过。",
+          ],
+          recapEn: [
+            "A generic is a type with a hole in it. The angle brackets are you filling the hole.",
+            "When the starting value shows no type, as with an empty array or null, write the generic parameter yourself.",
+            "A tsc error has four parts: file, line and column, error code, explanation. Always read the first error first.",
+            "npm run build fails in react-notes-app as delivered. All 10 errors are in test files and have nothing to do with your work.",
+            "To tell your own mistake from a project defect, look at where the error points, whose name it complains about, and whether the tests still pass.",
           ],
         },
       ],
