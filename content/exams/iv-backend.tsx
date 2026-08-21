@@ -23,6 +23,8 @@ export const ivBackend: Module = {
       title: "Node 与 Express 四问",
       titleEn: "4 questions on Node and Express",
       blurb: "Node 的事件循环、请求响应周期、查询参数 vs 路径参数、CRUD。",
+      blurbEn:
+        "The Node.js event loop, the request and response cycle, query parameters vs path parameters, CRUD.",
       minutes: 18,
       objectives: [
         "说出 Node 事件循环的几个阶段以及 nextTick 的特殊位置",
@@ -30,12 +32,21 @@ export const ivBackend: Module = {
         "在路径参数和查询参数之间做出正确设计选择",
         "把 CRUD 映射到 HTTP 方法和状态码",
       ],
+      objectivesEn: [
+        "Name the phases of the Node.js event loop, and where nextTick sits apart from them",
+        "Describe, in order, what happens to a request from arrival to response",
+        "Choose correctly between a path parameter and a query parameter",
+        "Map CRUD onto HTTP methods and status codes",
+      ],
       whyForAssessment:
         "这四道直接对应 Federation 那门课里 Task 2 写的六个 Spring 端点 —— 那道题的评分点就是「方法对不对、状态码对不对、参数从哪来」。Node 事件循环那道会和浏览器的对比着问。",
+      whyForAssessmentEn:
+        "These four map straight onto the six Spring endpoints written in Task 2 of the Federation course, where the marks go to the right method, the right status code, and the right place to read each parameter from. The Node.js event loop question is usually asked side by side with the browser one.",
       concepts: [
         {
           id: "q313",
           heading: "Node.js 的事件循环是怎么工作的",
+          headingEn: "How does the Node.js event loop work?",
           lede: "#313 How does the event loop work in Node.js",
           body: (
             <>
@@ -214,6 +225,7 @@ console.log("6 同步");
         {
           id: "q314",
           heading: "请求 - 响应周期是怎样的",
+          headingEn: "What does the request and response cycle look like?",
           lede: "#314 Explain the request & response cycle",
           body: (
             <>
@@ -417,6 +429,7 @@ app.use((err, req, res, next) => {
         {
           id: "q315",
           heading: "查询参数 vs 路径参数",
+          headingEn: "Query parameters vs path parameters",
           lede: "#315 Query parameters vs Path parameters",
           body: (
             <>
@@ -581,6 +594,7 @@ app.use((err, req, res, next) => {
         {
           id: "q316",
           heading: "什么是 CRUD",
+          headingEn: "What is CRUD?",
           lede: "#316 What is CRUD",
           body: (
             <>
@@ -838,12 +852,42 @@ app.use((err, req, res, next) => {
         },
       ],
       transfer: [
-        { signal: "问 nextTick 和 Promise 谁先", reachFor: "nextTick 有独立队列，比所有 Promise 微任务优先" },
-        { signal: "「req.body 是 undefined」", reachFor: "漏了 express.json()" },
-        { signal: "请求一直转圈不返回", reachFor: "中间件忘了调 next()，或响应后没 return" },
-        { signal: "错误处理中间件不生效", reachFor: "必须四个参数 (err, req, res, next)" },
-        { signal: "设计接口纠结参数放哪", reachFor: "「去掉它还是同一个资源吗」" },
-        { signal: "创建资源返回什么码", reachFor: "201；删除用 204" },
+        {
+          signal: "问 nextTick 和 Promise 谁先",
+          signalEn: "Asked whether nextTick or a Promise runs first",
+          reachFor: "nextTick 有独立队列，比所有 Promise 微任务优先",
+          reachForEn: "nextTick has its own queue, which runs before every Promise microtask",
+        },
+        {
+          signal: "「req.body 是 undefined」",
+          signalEn: "req.body is undefined",
+          reachFor: "漏了 express.json()",
+          reachForEn: "express.json() is missing",
+        },
+        {
+          signal: "请求一直转圈不返回",
+          signalEn: "The request never comes back",
+          reachFor: "中间件忘了调 next()，或响应后没 return",
+          reachForEn: "A middleware forgot to call next(), or the code did not return after sending the response",
+        },
+        {
+          signal: "错误处理中间件不生效",
+          signalEn: "The error-handling middleware never runs",
+          reachFor: "必须四个参数 (err, req, res, next)",
+          reachForEn: "It has to take four parameters: (err, req, res, next)",
+        },
+        {
+          signal: "设计接口纠结参数放哪",
+          signalEn: "Unsure where a parameter belongs when designing an endpoint",
+          reachFor: "「去掉它还是同一个资源吗」",
+          reachForEn: "Ask: if you remove it, is it still the same resource?",
+        },
+        {
+          signal: "创建资源返回什么码",
+          signalEn: "Which status code to return after creating a resource",
+          reachFor: "201；删除用 204",
+          reachForEn: "201; use 204 for a delete",
+        },
       ],
       recap: [
         "Node 六个阶段：timers → pending → idle → poll → check → close；每阶段之间清微任务，nextTick 最优先。",
@@ -853,6 +897,15 @@ app.use((err, req, res, next) => {
         "路径参数标识资源、查询参数描述怎么取；敏感数据永远不放 URL。",
         "CRUD 映射：POST 201、GET 200/404、PUT 整体替换、PATCH 局部、DELETE 204。",
         "GET/PUT/DELETE 幂等，POST 不幂等 —— 防重复下单要用幂等键。",
+      ],
+      recapEn: [
+        "Six phases in Node.js: timers, pending, idle, poll, check, close. Microtasks are drained between phases, and nextTick goes first of all.",
+        "In the main module the order of setTimeout(0) and setImmediate is not guaranteed; inside an I/O callback setImmediate always runs first.",
+        "The Express request path: parse, then general middleware, then authentication, then routing, then your handler, then the response, with a 404 and an error handler at the end.",
+        "Middleware runs in the order you register it and must call next(); one request can be answered only once; an error handler must take four parameters.",
+        "A path parameter identifies a resource, a query parameter says how to fetch it; never put sensitive data in a URL.",
+        "CRUD mapping: POST returns 201, GET returns 200 or 404, PUT replaces the whole resource, PATCH changes part of it, DELETE returns 204.",
+        "GET, PUT and DELETE are idempotent, POST is not, so use an idempotency key to stop a duplicate order.",
       ],
     },
 
