@@ -3342,11 +3342,19 @@ export default NoteForm;`,
           kind: "from-scratch",
           id: "r-rebuild-q2",
           title: "从零重建 Q2 · 并发任务调度器",
+          titleEn: "Rebuild Q2 · the concurrent task runner",
           level: 4,
           prompt: (
             <p>
               只给类型定义和三条要求。自己写出 <code>runTasks</code>，
               并自己写一个验证台来证明它对。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You get only the type definitions and three requirements. Write{" "}
+              <code>runTasks</code> yourself, and write your own check harness to
+              show that it is right.
             </p>
           ),
           requirements: [
@@ -3357,22 +3365,33 @@ export default NoteForm;`,
             "成功写 { status: \"fulfilled\", value }，失败写 { status: \"rejected\", reason }",
             "自己写一个 demo：6 个任务（其中至少 1 个 reject）、limit = 2，打印实时并发数与最终结果",
           ],
+          requirementsEn: [
+            "runTasks(tasks, limit) takes an array of functions, and each function returns a Promise when it is called",
+            "At most limit tasks run at the same time; as soon as one finishes, start the next",
+            "No failing task may make runTasks throw",
+            "The order of the returned array must match tasks",
+            "On success write { status: \"fulfilled\", value }; on failure write { status: \"rejected\", reason }",
+            "Write your own demo: 6 tasks (at least 1 of which rejects), limit = 2, printing how many run at each moment and the final results",
+          ],
           fileList: [
-            { path: "package.json", role: "装 tsx 和 typescript，加一条跑 demo 的 script" },
-            { path: "tsconfig.json", role: "strict: true 就够了" },
-            { path: "q2/taskRunner.ts", role: "★ Task / SettledResult 类型 + runTasks 实现" },
-            { path: "q2/demo.ts", role: "★ 自己写验证台：一个 running 计数器 + 6 个任务 + 打印" },
+            { path: "package.json", role: "装 tsx 和 typescript，加一条跑 demo 的 script", roleEn: "Install tsx and typescript, and add one script that runs the demo" },
+            { path: "tsconfig.json", role: "strict: true 就够了", roleEn: "strict: true is enough" },
+            { path: "q2/taskRunner.ts", role: "★ Task / SettledResult 类型 + runTasks 实现", roleEn: "★ The Task / SettledResult types plus the runTasks implementation" },
+            { path: "q2/demo.ts", role: "★ 自己写验证台：一个 running 计数器 + 6 个任务 + 打印", roleEn: "★ Write the check harness yourself: one running counter, 6 tasks, and the printing" },
           ],
           commands: [
-            { cmd: "npm install", expect: "装好 tsx 和 typescript" },
+            { cmd: "npm install", expect: "装好 tsx 和 typescript", expectEn: "tsx and typescript are installed" },
             {
               cmd: "npm run q2",
               expect:
                 "输出里 running now 从不超过 2；最终 6 条结果顺序与输入一致；reject 的那条是 { status: 'rejected', reason: Error }",
+              expectEn:
+                "running now never goes above 2 in the output; the final 6 results are in the same order as the input; the rejected one is { status: 'rejected', reason: Error }",
             },
             {
               cmd: "npx tsc --noEmit",
               expect: "没有类型错误",
+              expectEn: "No type errors",
             },
           ],
           hints: [
@@ -3405,6 +3424,37 @@ const worker = async () => {
   }
 };
 // 剩下的：开 worker、Promise.all、return results`,
+          ],
+          hintsEn: [
+            "Ask yourself first: why is the parameter an array of functions and not an array of Promises? Once that is clear, the way to enforce the concurrency limit appears on its own.",
+            "The concurrency limit needs no counter. If you start only limit workers, and each worker does one thing at a time, then the number of tasks running at once can never go above limit. The order needs no sorting either: create the result array up front and write each result back at its original index.",
+            `create results up front (length = tasks.length)
+share one nextIndex = 0
+worker = async () => {
+  while (nextIndex < the total) {
+    take index i, nextIndex++
+    try { results[i] = success } catch { results[i] = failure }
+    // do not return; keep taking the next one
+  }
+}
+start min(limit, the total) workers
+await Promise.all(them)
+return results`,
+            `const results: SettledResult<T>[] = new Array(tasks.length);
+let nextIndex = 0;
+const worker = async () => {
+  while (nextIndex < tasks.length) {
+    const i = nextIndex;
+    nextIndex++;
+    try {
+      const value = await tasks[i]();   // ← the parentheses!
+      results[i] = { status: "fulfilled", value };
+    } catch (reason) {
+      results[i] = { status: "rejected", reason };
+    }
+  }
+};
+// what is left: start the workers, Promise.all, return results`,
           ],
           solution: [
             real("ts", TASK_RUNNER_SOLUTION, {
