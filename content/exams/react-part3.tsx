@@ -1547,6 +1547,16 @@ const NoteForm = ({ onSubmit }) => {
     onSubmit(newNote);
   };
 };`,
+            {
+              codeEn: `// ✗ Keeping a second copy of the list inside NoteForm
+const NoteForm = ({ onSubmit }) => {
+  const [myNotes, setMyNotes] = useState<Note[]>([]);
+  const handleSubmit = (e) => {
+    setMyNotes([...myNotes, newNote]);   // stored in NoteForm, the table never sees it
+    onSubmit(newNote);
+  };
+};`,
+            },
           ),
           why: (
             <>
@@ -1569,6 +1579,10 @@ const NoteForm = ({ onSubmit }) => {
             "tsx",
             `// ✗ 忘了三个点
 setNotes((prev) => [prev, submittedNote]);`,
+            {
+              codeEn: `// ✗ The three dots are missing
+setNotes((prev) => [prev, submittedNote]);`,
+            },
           ),
           why: (
             <>
@@ -1594,6 +1608,12 @@ setNotes((prev) => [prev, submittedNote]);`,
 const handleSubmitNote = (submittedNote: Note) => {
   setNotes((prev) => [...prev, { ...submittedNote, id: Date.now() }]);
 };`,
+            {
+              codeEn: `// ✗ Making a second id
+const handleSubmitNote = (submittedNote: Note) => {
+  setNotes((prev) => [...prev, { ...submittedNote, id: Date.now() }]);
+};`,
+            },
           ),
           why: (
             <>
