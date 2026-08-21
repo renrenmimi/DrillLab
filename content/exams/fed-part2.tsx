@@ -4626,6 +4626,18 @@ Tests:       10 passed, 10 total`,
   console.error
     [test-correlation-id] Error creating order: Cannot read properties of
     undefined (reading 'createOrder')`,
+          errorOutputEn: `● Order Resolvers › Mutation.createOrder resolver › should create a new order successfully
+
+    GraphQLError: Failed to create order
+
+      91 |       } catch (error) {
+      92 |         console.error(\`[\${correlationId}] Error creating order:\`, error.message);
+    > 93 |         throw new GraphQLError('Failed to create order', {
+
+# Scroll up: the raw error that console.error printed is
+  console.error
+    [test-correlation-id] Error creating order: Cannot read properties of
+    undefined (reading 'createOrder')`,
           broken: demo(
             "js",
             `const order = await dataSources.orderAPI.createOrder({ userId, items });
@@ -4818,6 +4830,21 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
 
 # 测试代码：
 #   const input = { userId: '789', items: [] };     ← 空 items，应该被校验拦下
+#   try {
+#     await resolvers.Mutation.createOrder({}, input, context);
+#     throw new Error('Should have thrown an error');
+#   } catch (error) {
+#     expect(error.extensions.code).toBe('INVALID_INPUT');
+#   }`,
+          errorOutputEn: `● Order Resolvers › Error handling › should return structured error for validation failures
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "INVALID_INPUT"
+    Received: "SERVICE_ERROR"
+
+# The test code:
+#   const input = { userId: '789', items: [] };     ← empty items, validation should stop it
 #   try {
 #     await resolvers.Mutation.createOrder({}, input, context);
 #     throw new Error('Should have thrown an error');

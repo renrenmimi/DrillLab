@@ -1216,6 +1216,16 @@ errors: [{
 }]
 
 # 更严重的情况：如果查询是嵌套的，整个 data 会变成 null`,
+          errorOutputEn: `$ node verify-schema.mjs
+Query.orders: {"orders":null}
+
+errors: [{
+  "message": "Cannot return null for non-nullable field Query.orders.",
+  "path": ["orders"],
+  "extensions": { "code": "INTERNAL_SERVER_ERROR" }
+}]
+
+# Worse case: if the query is nested, the whole data object turns into null`,
           broken: demo(
             "js",
             `async orders(_, { userId }, { dataSources, correlationId }) {
