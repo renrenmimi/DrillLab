@@ -778,6 +778,15 @@ const SPECS: Spec[] = [
       "值变了写回 localStorage",
       "返回 [value, setValue] 元组，setValue 支持函数式更新",
     ],
+    requirementsEn: [
+      "The name must start with use. ESLint only applies the hooks rules to functions with that prefix",
+      "Lazy initialization: read localStorage once on the first render, not on every render",
+      "When the key is not there, fall back to initial",
+      "What you store is JSON, and you read it back with JSON.parse, so objects and arrays come back unchanged",
+      "Two failures must be caught so the component keeps working: data that JSON.parse cannot read, and setItem throwing in private mode",
+      "When the value changes, write it back to localStorage",
+      "Return a [value, setValue] tuple, and setValue must accept the updater form",
+    ],
   },
   {
     id: "kanban",
@@ -826,6 +835,14 @@ const SPECS: Spec[] = [
       "播完靠 onEnded 把状态同步回 Play",
       "进度靠 onTimeUpdate 同步到界面（显示整秒）",
     ],
+    requirementsEn: [
+      "Use useRef to reach the <audio> node, and call its play() / pause() from the buttons",
+      "The button text switches between Play and Pause as the playback state changes",
+      "Stop calls pause(), sets currentTime back to zero, and puts the button back to Play. currentTime is written straight to the DOM, it does not go through state",
+      "play() can be refused by the browser autoplay policy. When it is refused, do not set the state to playing",
+      "When the audio reaches the end, onEnded puts the state back to Play",
+      "onTimeUpdate keeps the progress in sync on screen (shown in whole seconds)",
+    ],
   },
   {
     id: "dropdown",
@@ -845,6 +862,13 @@ const SPECS: Spec[] = [
       "按 Escape 关闭，别的键不关",
       "卸载时必须解绑 document 上的监听器；没展开时不该挂监听器",
       "触发器 aria-haspopup=\"listbox\" + aria-expanded；列表 role=\"listbox\"，每项 role=\"option\" + aria-selected",
+    ],
+    requirementsEn: [
+      "Clicking the trigger opens the list. Picking an option closes it and puts that option's label on the trigger",
+      "A click anywhere outside the component closes it. A click inside the component must not close it (useRef plus node.contains)",
+      "Escape closes it. No other key closes it",
+      "Remove the listener on document when the component unmounts, and do not attach one while the list is closed",
+      "The trigger has aria-haspopup=\"listbox\" and aria-expanded. The list has role=\"listbox\", and every item has role=\"option\" plus aria-selected",
     ],
   },
   {
