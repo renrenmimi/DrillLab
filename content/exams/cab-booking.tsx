@@ -2879,6 +2879,8 @@ const CabCard = ({ cab, onSelectCab }) => {
           title: "Loading：一秒之后自己跳走",
           titleEn: "Loading: it moves to the next page by itself after one second",
           blurb: "useEffect 里一个 setTimeout，return 里一个 clearTimeout。少了后者会出真问题。",
+          blurbEn:
+            "One setTimeout inside useEffect, one clearTimeout in the return. Leave the second one out and you get a real problem.",
           minutes: 14,
           objectives: [
             "在 useEffect 里写 setTimeout 并正确清理",
@@ -2886,8 +2888,16 @@ const CabCard = ({ cab, onSelectCab }) => {
             "看懂测试为什么要 vi.useFakeTimers() + advanceTimersByTime(1000)",
             "知道 act() 包住时间推进的原因",
           ],
+          objectivesEn: [
+            "Write a setTimeout inside useEffect and clear it correctly",
+            "Explain what the cleanup function prevents, and what really goes wrong without it",
+            "See why the test needs vi.useFakeTimers() together with advanceTimersByTime(1000)",
+            "Know why the time advance is wrapped in act()",
+          ],
           whyForAssessment:
             "这是 effect 清理的标准考法，也是本站 React 变式二「计时器」的同一个考点。测试用 fake timer 把 1 秒变成一行代码，所以延迟数字必须正好是 1000 —— 写 900 或 1200，advanceTimersByTime(1000) 之后页面状态就不对了。",
+          whyForAssessmentEn:
+            "This is the standard way effect cleanup gets examined, and the timer variant of the React task on this site tests the same point. The test uses a fake timer to turn the 1 second into a single line, so the delay has to be exactly 1000. Write 900 or 1200 and the page is in the wrong state after advanceTimersByTime(1000).",
           sourceFiles: [
             { path: "cab-booking-context/src/components/Loading/Loading.jsx", role: "setTimeout + clearTimeout", edit: true },
             { path: "cab-booking-context/src/test/App.test.jsx", role: "fake timer 的用法在 beforeEach / afterEach 里" },
@@ -2896,7 +2906,10 @@ const CabCard = ({ cab, onSelectCab }) => {
             {
               id: "cb-effect-timeout",
               heading: "为什么定时器必须在 useEffect 里",
+              headingEn: "Why the timer has to be inside useEffect",
               lede: "写在组件体里，每次渲染都会开一个新的",
+              ledeEn:
+                "Put it in the component body and every render starts another one",
               body: (
                 <>
                   <p>
@@ -3033,7 +3046,10 @@ const CabCard = ({ cab, onSelectCab }) => {
             {
               id: "cb-cleanup",
               heading: "清理函数在防什么",
+              headingEn: "What the cleanup function prevents",
               lede: "组件已经不在了，定时器还在替它调 setState",
+              ledeEn:
+                "The component is already gone, and the timer still calls setState for it",
               body: (
                 <>
                   <p>
@@ -3514,6 +3530,30 @@ useEffect(() => {
                   两者都必须清理。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  Two mistakes on top of each other.{" "}
+                  <strong>
+                    <code>setInterval</code> fires again and again
+                  </strong>
+                  , and{" "}
+                  <strong>with no cleanup function it does not even stop when the component is
+                  removed</strong>.
+                  <br />
+                  The interesting part is that <strong>test 3 still passes</strong> — it only checks
+                  that the confirmation page appeared, not whether the page changes again later.{" "}
+                  <strong>Test 4 fails</strong>: it books four cabs in a row, and the interval left
+                  over from the first round{" "}
+                  <strong>pulls the page back to the confirmation page</strong> during the later
+                  rounds, so the second round cannot find <code>book-button</code> any more.
+                  <br />
+                  <strong>
+                    Use <code>setTimeout</code> for something that runs once and{" "}
+                    <code>setInterval</code> only for something that repeats. Both of them have to be
+                    cleared.
+                  </strong>
+                </>
+              ),
             },
           ],
           transfer: [
@@ -3528,6 +3568,13 @@ useEffect(() => {
             "清理函数在这道题里不影响测试结果，但加个「取消」按钮它就是可见 bug。",
             "React 18 起不再警告「在已卸载组件上 setState」，所以漏清理毫无提示。",
             "漏写依赖数组 = 每次渲染都重开定时器，那 1 秒永远数不完。",
+          ],
+          recapEn: [
+            "setTimeout is a side effect, so it belongs in useEffect. In the component body it starts one more timer on every render.",
+            "The delay has to be 1000, because the test advances exactly 1000ms.",
+            "The cleanup function does not change the test result in this task, but add a cancel button and its absence becomes a visible bug.",
+            "Since React 18 there is no warning about calling setState on a component that is already removed, so a missing cleanup gives you no hint at all.",
+            "Leaving out the dependency array means the timer starts again on every render, so the 1 second never finishes.",
           ],
         },
         {
