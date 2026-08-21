@@ -711,6 +711,8 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
       title: "性能与新特性 · 八问",
       titleEn: "8 questions on performance and new features",
       blurb: "性能优化、写样式的几种方式、React 18 新变化、lazy、最佳实践、StrictMode、错误边界、Router。",
+      blurbEn:
+        "Performance work, the ways to write styles, what is new in React 18, lazy, best practices, StrictMode, error boundaries, Router.",
       minutes: 26,
       objectives: [
         "按「先测量再优化」的顺序列出 React 性能优化手段",
@@ -718,12 +720,21 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         "解释 StrictMode 为什么故意渲染两次",
         "说明错误边界能抓什么、不能抓什么",
       ],
+      objectivesEn: [
+        "List the ways to make React faster, in the right order: measure first, then optimise",
+        "Explain the real difference made by automatic batching and the concurrent features in React 18",
+        "Explain why StrictMode renders twice on purpose",
+        "Say what an error boundary catches and what it does not catch",
+      ],
       whyForAssessment:
         "性能优化那道是开放题，最能看出你有没有真调过 —— 先说「用 Profiler 找出问题」比直接列 API 高一个档。React 18 和 StrictMode 那两道会问到「为什么」，答得出并发和纯函数就说明理解了设计动机。",
+      whyForAssessmentEn:
+        "The performance question is open-ended, and it shows better than any other whether you have really tuned an app. Saying \"first I use the Profiler to find the problem\" ranks a level above listing APIs. For React 18 and StrictMode the interviewer asks why, and answering with concurrent rendering and pure functions shows you understand what the design is for.",
       concepts: [
         {
           id: "q343",
           heading: "怎么优化 React 性能",
+          headingEn: "How do you make a React app faster?",
           lede: "#343 How could you improve performance in React",
           body: (
             <>
@@ -886,6 +897,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         {
           id: "q342",
           heading: "React 里怎么写样式",
+          headingEn: "How do you write styles in React?",
           lede: "#342 How to use styles in React",
           body: (
             <>
@@ -1039,6 +1051,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         {
           id: "q344",
           heading: "React 18 有哪些新变化",
+          headingEn: "What is new in React 18?",
           lede: "#344 What are the new changes in react 18",
           body: (
             <>
@@ -1188,6 +1201,7 @@ function onChange(e) {
         {
           id: "q347",
           heading: "React.lazy 是干什么的",
+          headingEn: "What does React.lazy do?",
           lede: "#347 What is React lazy function",
           body: (
             <>
@@ -1312,6 +1326,7 @@ const preload = () => import("./pages/Settings");
         {
           id: "q332",
           heading: "什么是 StrictMode",
+          headingEn: "What is StrictMode?",
           lede: "#332 What is React strict mode",
           body: (
             <>
@@ -1426,6 +1441,7 @@ const preload = () => import("./pages/Settings");
         {
           id: "q333",
           heading: "什么是错误边界，有什么用",
+          headingEn: "What is an error boundary, and what is it for?",
           lede: "#333 What are error boundaries and How are they useful",
           body: (
             <>
@@ -1576,6 +1592,7 @@ const preload = () => import("./pages/Settings");
         {
           id: "q334",
           heading: "React Router 的意义是什么",
+          headingEn: "What is the point of React Router?",
           lede: "#334 React router, What is the point of it",
           body: (
             <>
@@ -1718,6 +1735,7 @@ const preload = () => import("./pages/Settings");
         {
           id: "q348",
           heading: "写 React 时你会注意哪些最佳实践",
+          headingEn: "Which best practices do you follow when writing React?",
           lede: "#348 When coding React, what are some best practices that you keep in mind",
           body: (
             <>
@@ -1842,14 +1860,54 @@ const preload = () => import("./pages/Settings");
         },
       ],
       transfer: [
-        { signal: "问性能优化", reachFor: "先说用 Profiler 测量，再分「少渲染/少下载/少算」三类" },
-        { signal: "长列表卡", reachFor: "虚拟化，收益远大于 memo" },
-        { signal: "频繁变的 state 拖累整棵树", reachFor: "state 下移，别提到顶层" },
-        { signal: "要动态样式", reachFor: "行内只放 CSS 变量，规则留在 CSS 文件" },
-        { signal: "「setState 两次只渲染一次了」", reachFor: "React 18 自动批处理；要立即渲染用 flushSync" },
-        { signal: "「effect 跑了两次 / 日志打两遍」", reachFor: "StrictMode 故意的，检查清理函数写了没" },
-        { signal: "「一个小组件报错整页白屏」", reachFor: "按区块放错误边界" },
-        { signal: "「刷新子路由 404」", reachFor: "服务端配 history fallback，或用 HashRouter" },
+        {
+          signal: "问性能优化",
+          signalEn: "Asked about performance work",
+          reachFor: "先说用 Profiler 测量，再分「少渲染/少下载/少算」三类",
+          reachForEn: "Start with measuring in the Profiler, then split the answer three ways: render less, download less, compute less",
+        },
+        {
+          signal: "长列表卡",
+          signalEn: "A long list feels slow",
+          reachFor: "虚拟化，收益远大于 memo",
+          reachForEn: "Render only the visible rows; this helps far more than memo",
+        },
+        {
+          signal: "频繁变的 state 拖累整棵树",
+          signalEn: "State that changes often slows down the whole tree",
+          reachFor: "state 下移，别提到顶层",
+          reachForEn: "Move that state down to the component that needs it instead of keeping it at the top",
+        },
+        {
+          signal: "要动态样式",
+          signalEn: "You need styles that change at runtime",
+          reachFor: "行内只放 CSS 变量，规则留在 CSS 文件",
+          reachForEn: "Put only CSS variables inline and keep the rules in the CSS file",
+        },
+        {
+          signal: "「setState 两次只渲染一次了」",
+          signalEn: "Two setState calls now cause only one render",
+          reachFor: "React 18 自动批处理；要立即渲染用 flushSync",
+          reachForEn: "React 18 batches them automatically; use flushSync if you need the render right away",
+        },
+        {
+          signal: "「effect 跑了两次 / 日志打两遍」",
+          signalEn: "The effect runs twice, or a log appears twice",
+          reachFor: "StrictMode 故意的，检查清理函数写了没",
+          reachForEn: "StrictMode does that on purpose; check that you wrote the cleanup function",
+        },
+        {
+          signal: "「一个小组件报错整页白屏」",
+          signalEn: "One small component throws and the whole page goes blank",
+          reachFor: "按区块放错误边界",
+          reachForEn: "Put an error boundary around each section of the page",
+        },
+        {
+          signal: "「刷新子路由 404」",
+          signalEn: "Reloading a nested route gives a 404",
+          reachFor: "服务端配 history fallback，或用 HashRouter",
+          reachForEn: "Configure a history fallback on the server, or use HashRouter",
+        },
       ],
       recap: [
         "性能优化先用 Profiler 测量；三类手段是少渲染、少下载、少算，长列表虚拟化收益最大。",
@@ -1860,6 +1918,16 @@ const preload = () => import("./pages/Settings");
         "错误边界抓不到事件回调、异步代码、SSR 的错误；要按区块放而不是只放根节点。",
         "Router 用 Link 不用 a；BrowserRouter 需要服务端 history fallback。",
         "最佳实践六条：不可变更新、别存派生数据、state 放刚好够用的层、清理副作用、稳定 key、先测量再优化。",
+      ],
+      recapEn: [
+        "Measure in the Profiler before you optimise. The three kinds of fix are render less, download less, compute less, and rendering only the visible rows of a long list pays off most.",
+        "For styles that change at runtime use a CSS variable rather than an inline style, so you keep pseudo-classes and media queries.",
+        "The core of React 18 is concurrent rendering. The change you notice first is automatic batching, and if the concurrent features do nothing for you it is usually because you did not switch to createRoot.",
+        "React.lazy needs Suspense around it, and also an error boundary in case the chunk fails to load.",
+        "StrictMode runs in development only. It renders and mounts twice on purpose, to expose a render that is not pure and a missing cleanup function.",
+        "An error boundary does not catch errors in event handlers, in async code, or during SSR. Place one per section of the page rather than only at the root.",
+        "With Router use Link, not a. BrowserRouter needs a history fallback on the server.",
+        "Six best practices: update without changing the original, do not store what you can compute, keep state at the lowest level that works, clean up side effects, use stable keys, measure before you optimise.",
       ],
     },
 
