@@ -1,0 +1,262 @@
+// 八股题库列表 —— 服务端组件。
+//
+// 【筛选的分工】（详见 components/drill-card.tsx 顶部那段）
+//   track + q  → 这里真筛，还分页，URL 可以分享、可以后退；
+//   mark       → 存在 localStorage 里，服务端读不到，只能由客户端小岛
+//                把不符合的整张卡摘掉。mark 生效时这里不分页。
+//
+// 【为什么是服务端】答案正文带 JSX。做成 "use client" 就会把 99 道题的正文
+// 打进客户端包（784 KB 那个坑）。所以正文在这里渲染，作为 children 交给
+// 客户端小岛 <DrillCard>，交互只包一层壳。
+
+import Link from "next/link";
+import { allDrills, drillTrackCounts, TRACK_LABEL, TRACK_ORDER } from "@/content/drills";
+import type { DrillTrack } from "@/content/types";
+import { DrillAnswer } from "./drill-answer";
+import { DrillCard, DrillEmptyIfNone, DrillListStatus, DrillSearchBox, type MarkFilter } from "./drill-card";
+import { DrillProgressStrip } from "./drill-marks";
+import { DRILL_PAGE, drillListHref, drillMatchesKeyword, type DrillQuery } from "./drill-query";
+import { T } from "./t";
+import { Ladder } from "./ladder";
+
+const MARK_FILTERS: { id: MarkFilter; zh: string; en: string }[] = [
+  { id: "all", zh: "全部", en: "All" },
+  { id: "none", zh: "还没做", en: "Not seen" },
+  { id: "unknown", zh: "不会", en: "No idea" },
+  { id: "fuzzy", zh: "模糊", en: "Shaky" },
+  { id: "known", zh: "会", en: "Got it" },
+];
+
+function readMark(v?: string): MarkFilter {
+  const hit = MARK_FILTERS.find((m) => m.id === v);
+  return hit ? hit.id : "all";
+}
+
+function readTrack(v?: string): DrillTrack | "all" {
+  return TRACK_ORDER.includes(v as DrillTrack) ? (v as DrillTrack) : "all";
+}
+
+export function DrillList({ query }: { query: DrillQuery }) {
+  const all = allDrills();
+  const track = readTrack(query.track);
+  const markFilter = readMark(query.mark);
+  const kw = (query.q ?? "").trim();
+
+  const matched = all.filter((q) => {
+    if (track !== "all" && q.track !== track) return false;
+    if (kw && !drillMatchesKeyword(kw, q)) return false;
+    return true;
+  });
+
+  // mark 生效时不分页：服务端不知道谁符合，算出来的页码只会是错的
+  const paging = markFilter === "all";
+  const pages = paging ? Math.max(1, Math.ceil(matched.length / DRILL_PAGE)) : 1;
+  const page = paging ? Math.min(Math.max(1, Number(query.page ?? "1") || 1), pages) : 1;
+  const visible = paging ? matched.slice((page - 1) * DRILL_PAGE, page * DRILL_PAGE) : matched;
+
+  const counts = drillTrackCounts();
+
+  return (
+    <main className="main">
+      <div className="content">
+        <div className="page-head">
+          <div className="eyebrow">
+            <T zh="八股题库" en="Question bank" />
+          </div>
+          <h1 className="page-title serif">
+            <T zh={`${all.length} 道问答题，一道一卡`} en={`${all.length} questions, one card each`} />
+          </h1>
+          <p className="page-lede">
+            <T
+              zh="默认只显示问题 —— 先自己在心里答一遍，再展开对答案。答不上来就标「不会」，下次抽认卡会先抽它。"
+              en="Only the question shows by default. Answer it in your head first, then open the answer. Mark the ones you miss; the flashcard round puts those first."
+            />
+          </p>
+        </div>
+
+        <Ladder current="drill" />
+
+        <DrillProgressStrip total={all.length} />
+
+        {/* 收起来：这段第一次读有用，回头客每次都得跨过它。
+            实测这一页在卡片之上堆了 713px 的前置块（页头 141 + 阶梯 + 进度条 109
+            + 这个 106 + 筛选 140），900px 视口下一道题都看不到。
+            纯 <details>，零 JS。 */}
+        <details className="callout callout-fold" data-tone="transfer">
+          <summary className="callout-title callout-fold-head">
+            <T zh="标记不是打分，是给下一轮排队" en="Marks are a queue, not a score" />
+          </summary>
+          <p style={{ marginBottom: 0, marginTop: 8 }}>
+            <T
+              zh={
+                <>
+                  标「不会」的题会排到抽认卡最前面，标「会」的进低频池排最后。所以别客气 ——
+                  觉得答得磕磕巴巴就标「模糊」。准备好了就去<Link href="/drill/session">抽认卡</Link>。
+                </>
+              }
+              en={
+                <>
+                  &ldquo;No idea&rdquo; jumps to the front of the next round; &ldquo;got it&rdquo; drops to the back.
+                  So be honest — if it came out shaky, mark it shaky. Then go{" "}
+                  <Link href="/drill/session">run a flashcard round</Link>.
+                </>
+              }
+            />
+          </p>
+        </details>
+
+        <div className="filters">
+          <span className="filter-label">
+            <T zh="方向" en="Track" />
+          </span>
+          <Link
+            className="filter-btn"
+            data-on={track === "all"}
+            href={drillListHref(query, { track: "all", page: "1" })}
+          >
+            <T zh={`全部 ${all.length}`} en={`All ${all.length}`} />
+          </Link>
+          {counts.map((c) => (
+            <Link
+              key={c.track}
+              className="filter-btn"
+              data-on={track === c.track}
+              href={drillListHref(query, { track: c.track, page: "1" })}
+            >
+              <T zh={TRACK_LABEL[c.track].zh} en={TRACK_LABEL[c.track].en} /> {c.count}
+            </Link>
+          ))}
+        </div>
+
+        <div className="filters">
+          <span className="filter-label">
+            <T zh="掌握状态" en="Mark" />
+          </span>
+          {MARK_FILTERS.map((m) => (
+            <Link
+              key={m.id}
+              className="filter-btn"
+              data-on={markFilter === m.id}
+              href={drillListHref(query, { mark: m.id, page: "1" })}
+            >
+              <T zh={m.zh} en={m.en} />
+            </Link>
+          ))}
+          <DrillSearchBox query={query} />
+        </div>
+
+        <DrillListStatus
+          ids={visible.map((q) => q.id)}
+          matched={matched.length}
+          total={all.length}
+          markFilter={markFilter}
+          page={page}
+          pages={pages}
+        />
+
+        {matched.length === 0 ? (
+          <p className="empty">
+            <T
+              zh={
+                kw
+                  ? `没有题面或编号能对上「${kw}」。换个词试试，或者直接输题库编号。`
+                  : "这个组合下没有题。"
+              }
+              en={kw ? `Nothing matches “${kw}”. Try another word, or a bank number.` : "Nothing here."}
+            />
+          </p>
+        ) : (
+          <>
+            <DrillEmptyIfNone ids={visible.map((q) => q.id)} markFilter={markFilter} />
+
+            <div className="drill-cards">
+              {visible.map((q) => (
+                <DrillCard key={q.id} id={q.id} markFilter={markFilter}>
+                  <DrillAnswer q={q} scope="list" />
+                </DrillCard>
+              ))}
+            </div>
+
+            {pages > 1 && (
+              <nav className="pager" aria-label="分页 / Pagination">
+                {page > 1 ? (
+                  <Link className="btn btn-sm" href={drillListHref(query, { page: String(page - 1) })}>
+                    <T zh="← 上一页" en="← Prev" />
+                  </Link>
+                ) : (
+                  <span />
+                )}
+                <span className="pager-nums">
+                  {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
+                    <Link
+                      key={n}
+                      className="pager-num"
+                      data-on={n === page || undefined}
+                      href={drillListHref(query, { page: String(n) })}
+                    >
+                      {n}
+                    </Link>
+                  ))}
+                </span>
+                {page < pages ? (
+                  <Link className="btn btn-sm" href={drillListHref(query, { page: String(page + 1) })}>
+                    <T zh="下一页 →" en="Next →" />
+                  </Link>
+                ) : (
+                  <span />
+                )}
+              </nav>
+            )}
+          </>
+        )}
+      </div>
+
+      <aside className="rail">
+        <div className="rail-block">
+          <div className="rail-head">
+            <T zh="抽认卡" en="Flashcards" />
+          </div>
+          <p style={{ fontSize: 12.5, color: "var(--ink-2)", margin: "0 0 10px" }}>
+            <T
+              zh="全屏一题一题过，键盘就能操作：空格翻面，1 / 2 / 3 自评。"
+              en="One card at a time, full screen. Keyboard only: space to flip, 1 / 2 / 3 to rate."
+            />
+          </p>
+          <Link className="btn btn-sm btn-primary" href="/drill/session">
+            <T zh="开始抽认卡" en="Start a round" />
+          </Link>
+        </div>
+
+        <div className="rail-block">
+          <div className="rail-head">
+            <T zh="按方向" en="By track" />
+          </div>
+          <div style={{ color: "var(--ink-2)", lineHeight: 1.9, fontSize: 12.5 }}>
+            {counts.map((c) => (
+              <div key={c.track}>
+                <Link href={drillListHref({}, { track: c.track })} style={{ color: "var(--ink-2)" }}>
+                  <T zh={TRACK_LABEL[c.track].zh} en={TRACK_LABEL[c.track].en} />
+                </Link>
+                <span className="dimmer tabular" style={{ float: "right" }}>
+                  {c.count}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rail-block">
+          <div className="rail-head">
+            <T zh="这些题从哪来" en="Where these come from" />
+          </div>
+          <p style={{ fontSize: 12.5, color: "var(--ink-2)", margin: 0 }}>
+            <T
+              zh="99 道来自面试题库 #269–#387；TypeScript 深度那 6 道是 DrillLab 自出的（senior 补强，卡片上有标注）。答案都是 DrillLab 写的，所以讲解里的代码块一律标「示意」。每道题都能点回它出处的那一节课。"
+              en="99 questions come from the interview bank (#269–#387); the 6 TypeScript deep-dive ones are DrillLab-made (marked on the card). All answers are written by DrillLab, so every code block here is labelled “demo”. Each card links back to the lesson it came from."
+            />
+          </p>
+        </div>
+      </aside>
+    </main>
+  );
+}
