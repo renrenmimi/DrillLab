@@ -417,6 +417,7 @@ export const gqlBasics: Module = {
           code: [
             real("graphql", SCHEMA_FULL, {
               filename: "src/schema.graphql（全文）",
+              filenameEn: "src/schema.graphql (full file)",
               sourceFile:
                 "graphql-federation-practice/node-subgraph/src/schema.graphql",
               collapsible: true,
@@ -1512,10 +1513,13 @@ ___3___ OrderItemInput {
   \`corr-\${Date.now()}-\${Math.random().toString(36).substring(2, 9)}\`;`,
               {
                 filename: "correlationId 的来源",
+                filenameEn: "Where correlationId comes from",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/index.js",
                 explanation:
                   "「有就用调用方的，没有就自己造」是这类可观测性字段的标准做法 —— 保证整条链路共用一个 id。",
+                explanationEn:
+                  "Use the caller's value if there is one, otherwise make your own. That is the standard pattern for this kind of observability field: it keeps one id across the whole chain of calls.",
               },
             ),
           ],
@@ -2660,7 +2664,12 @@ type User {            type Product {         type Review {
 type User { id name email reviews: [Review] }
 type Product { id name price reviews: [Review] }
 type Review { id body author: User product: Product }`,
-              { filename: "三个服务，一张图" },
+              // 这张图是纯 ASCII 排版，没有注释也没有字符串 —— 译了就过不了
+              // audit:code 的「代码结构必须一致」那一关，所以只给标题配英文。
+              {
+                filename: "三个服务，一张图",
+                filenameEn: "Three services, one picture",
+              },
             ),
             real(
               "graphql",
@@ -2670,10 +2679,17 @@ type Review { id body author: User product: Product }`,
 }`,
               {
                 filename: "本项目里的同一个模式",
+                filenameEn: "The same pattern in this project",
+                codeEn: `type User @key(fields: "id") {
+  id: ID! @external      # "another subgraph owns id; I only reference it"
+  orders: [Order!]!      # "orders is the field I contribute"
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/schema.graphql",
                 explanation:
                   "orderResolvers.js 的注释原文写着「extend User entity from Accounts subgraph」—— 那个 Accounts subgraph 不在这个仓库里，但 schema 已经在跟它对话了。",
+                explanationEn:
+                  "The comment in orderResolvers.js reads \"extend User entity from Accounts subgraph\". That Accounts subgraph is not in this repository, but the schema is already talking to it.",
               },
             ),
           ],
@@ -2892,13 +2908,20 @@ type Review { id body author: User product: Product }`,
           kind: "recognition",
           id: "g-fed-why",
           title: "Federation 主要解决的是什么问题",
+          titleEn: "What problem does Federation mainly solve",
           level: 1,
           prompt: <p>下面哪一条最准确地描述了 Federation 要解决的核心问题？</p>,
+          promptEn: (
+            <p>
+              Which of these describes most accurately the core problem
+              Federation sets out to solve?
+            </p>
+          ),
           options: [
-            { id: "a", label: "让 GraphQL 查询跑得更快" },
-            { id: "b", label: "让多个团队各自独立开发、部署、选技术栈，同时对客户端呈现一张完整的图" },
-            { id: "c", label: "替代 REST" },
-            { id: "d", label: "减少数据库查询次数" },
+            { id: "a", label: "让 GraphQL 查询跑得更快", labelEn: "Making GraphQL queries run faster" },
+            { id: "b", label: "让多个团队各自独立开发、部署、选技术栈，同时对客户端呈现一张完整的图", labelEn: "Letting several teams build, deploy and choose their stack independently, while the client still sees one complete graph" },
+            { id: "c", label: "替代 REST", labelEn: "Replacing REST" },
+            { id: "d", label: "减少数据库查询次数", labelEn: "Cutting down the number of database queries" },
           ],
           answer: ["b"],
           explain: (
@@ -2913,18 +2936,39 @@ type Review { id body author: User product: Product }`,
               （虽然这个项目里两者都考）。
             </>
           ),
+          explainEn: (
+            <>
+              Federation is first of all a{" "}
+              <strong>technical answer to an organizational problem</strong>:
+              splitting up who owns which part of the schema.
+              <br />
+              A is the opposite of the truth — one extra Router hop and a query
+              plan that may run its steps one after another usually make a
+              single query <strong>slower</strong>.
+              <br />
+              D is what DataLoader solves. That is a separate matter from
+              Federation, even though this project covers both.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-not-in-repo",
           title: "哪些东西不在这个仓库里",
+          titleEn: "What is not in this repository",
           level: 1,
           prompt: <p>下面哪些是这个 assessment 仓库里<strong>没有</strong>的？（多选）</p>,
+          promptEn: (
+            <p>
+              Which of these are <strong>not</strong> in this exam repository?
+              (Select all that apply.)
+            </p>
+          ),
           options: [
-            { id: "a", label: "Router / Gateway 的配置（supergraph.yaml 之类）" },
-            { id: "b", label: "拥有 User 类型的 Accounts subgraph" },
-            { id: "c", label: "node-subgraph 的 schema.graphql" },
-            { id: "d", label: "subgraph 调用 java-service 的 HTTP client" },
+            { id: "a", label: "Router / Gateway 的配置（supergraph.yaml 之类）", labelEn: "Router or Gateway configuration, such as a supergraph.yaml" },
+            { id: "b", label: "拥有 User 类型的 Accounts subgraph", labelEn: "The Accounts subgraph that owns the User type" },
+            { id: "c", label: "node-subgraph 的 schema.graphql", labelEn: "The schema.graphql of node-subgraph" },
+            { id: "d", label: "subgraph 调用 java-service 的 HTTP client", labelEn: "An HTTP client the subgraph uses to call java-service" },
           ],
           answer: ["a", "b", "d"],
           explain: (
@@ -2940,6 +2984,23 @@ type Review { id body author: User product: Product }`,
               别浪费时间找它。
               <br />
               C 在，而且是你必须精读的文件。
+            </>
+          ),
+          explainEn: (
+            <>
+              A, B and D are all missing.
+              <br />
+              A: there is no supergraph configuration and no{" "}
+              <code>@apollo/gateway</code> dependency.
+              <br />
+              B: it is only referenced from the schema, through{" "}
+              <code>@external</code>.
+              <br />
+              D: <strong>the subgraph uses mock data sources</strong> and sends
+              no HTTP to port 8080. The two services are unrelated in code, so
+              do not spend time looking for it.
+              <br />
+              C is there, and it is the file you have to read closely.
             </>
           ),
         },
