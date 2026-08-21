@@ -1828,7 +1828,22 @@ const obj = {
   arrow: () => console.log(this.name),      // undefined ← 外层是模块/window
   normal() { console.log(this.name); },     // "A"       ← 调用时决定
 };`,
-              { filename: "三种写法的实际差别" },
+              {
+                filename: "三种写法的实际差别",
+                filenameEn: "How the three forms actually differ",
+                codeEn: `sayHi();                              // ✓ runs —— a function declaration is hoisted whole
+function sayHi() { console.log("hi"); }
+
+sayHey();                             // ✗ TypeError: sayHey is not a function
+var sayHey = function () {};          // only the name was hoisted; it is still undefined here
+
+// An arrow function's this is the outer this at the place it was defined
+const obj = {
+  name: "A",
+  arrow: () => console.log(this.name),      // undefined ← the outside is the module/window
+  normal() { console.log(this.name); },     // "A"       ← decided at call time
+};`,
+              },
             ),
           ],
         },
