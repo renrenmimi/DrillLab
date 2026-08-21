@@ -1111,11 +1111,19 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           kind: "code-completion",
           level: 3,
           title: "手写 curry（部分应用可复用）",
+          titleEn: "Write curry by hand (partial applications stay reusable)",
           prompt: (
             <>
               把「直接返回 fn」的半成品写成真正的 curry：参数攒够
               <code>fn.length</code> 就执行，可任意分组，
               部分应用复用互不污染。
+            </>
+          ),
+          promptEn: (
+            <>
+              Grow this return-fn-directly version into a real curry: run as soon as{" "}
+              <code>fn.length</code> arguments have arrived, accept them in any grouping,
+              and let a partial application be reused without one call affecting another.
             </>
           ),
           language: "ts",
@@ -1125,21 +1133,37 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
   //       (...more) => curried(...args, ...more)。
   return fn as (...args: unknown[]) => unknown;
 }`,
+          starterEn: `export function curry<T extends (...args: never[]) => unknown>(fn: T) {
+  // TODO: recurse. Enough args -> fn(...args); not enough -> return
+  //       (...more) => curried(...args, ...more).
+  return fn as (...args: unknown[]) => unknown;
+}`,
           requirements: [
             "攒够 fn.length 个参数就执行",
             "参数可以任意分组：c(1)(2)(3) / c(1, 2)(3) / c(1)(2, 3)",
             "部分应用可复用：const add1 = c(1) 之后多次调用互不污染",
           ],
+          requirementsEn: [
+            "Runs as soon as fn.length arguments have arrived",
+            "Arguments may come in any grouping: c(1)(2)(3), c(1, 2)(3), c(1)(2, 3)",
+            "A partial application is reusable: after const add1 = c(1), calling add1 many times gives independent results",
+          ],
           checks: [
-            { label: "用 fn.length 判断攒够没有", must: "fn\\.length" },
-            { label: "攒参数是拼新数组（展开），不是 push", must: "\\.\\.\\.args" },
-            { label: "没有往共享数组上 push", mustNot: "\\.push\\(" },
+            { label: "用 fn.length 判断攒够没有", labelEn: "Uses fn.length to decide whether enough arguments have arrived", must: "fn\\.length" },
+            { label: "攒参数是拼新数组（展开），不是 push", labelEn: "Collects arguments by building a new array with spread, not by push", must: "\\.\\.\\.args" },
+            { label: "没有往共享数组上 push", labelEn: "Never pushes onto a shared array", mustNot: "\\.push\\(" },
           ],
           hints: [
             "写一个内部递归函数 curried(...args)。",
             "args.length >= fn.length 就 return fn(...args)。",
             "不够就 return (...more) => curried(...args, ...more) —— 注意是拼出新数组。",
             "共 6 行。写完自测一下 const add1 = c(1); add1(2,3); add1(10,20) 两次结果对不对。",
+          ],
+          hintsEn: [
+            "Write an inner recursive function, curried(...args).",
+            "If args.length >= fn.length, return fn(...args).",
+            "If not, return (...more) => curried(...args, ...more) — note that this builds a new array.",
+            "Six lines in total. When you are done, check yourself: const add1 = c(1); add1(2,3); add1(10,20) — are both results right?",
           ],
           solution: tested("ts", REF_CURRY, {
             filename: "curry.ts（scratchpad vitest 3 / 3）",
