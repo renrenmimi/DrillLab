@@ -2944,11 +2944,20 @@ const handleEdit = (note: Note) => {
           kind: "fill-blank",
           id: "r-t3-blank",
           title: "补全编辑逻辑的四个关键位置",
+          titleEn: "Fill in the four key spots of the edit logic",
           level: 2,
           prompt: (
             <p>
               四个空横跨两个函数。第 4 个空是最容易漏的那一行 ——
               漏了它测试<strong>照样能过</strong>，但行为明显不对。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks across two functions. The fourth is the line people
+              forget most often — without it{" "}
+              <strong>the tests still pass</strong>, but the behavior is clearly
+              wrong.
             </p>
           ),
           language: "tsx",
@@ -2975,6 +2984,7 @@ const handleEdit = (note: Note) => {
               n: 1,
               accept: ["map"],
               hint: "要求「原位置」更新 —— 长度和顺序都不能变。",
+              hintEn: "The update has to happen in place — neither the length nor the order may change.",
               why: (
                 <>
                   <code>map</code>。它长度不变、顺序不变，
@@ -2984,12 +2994,23 @@ const handleEdit = (note: Note) => {
                   但被编辑的那条会跳到末尾，违反题目要求。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>map</code>. It keeps the length and the order, and decides
+                  item by item whether to replace this one. That is exactly what
+                  updating in place means.
+                  <br />
+                  A <code>filter</code> plus an append also passes the tests, but
+                  the edited note jumps to the end, which breaks the requirement.
+                </>
+              ),
               width: 6,
             },
             {
               n: 2,
               accept: ["===", "=="],
               hint: "map 是「是它就换、不是就留」。这里要找的是匹配的那一条。",
+              hintEn: "map replaces the one that matches and keeps the rest. What you are looking for here is the match.",
               why: (
                 <>
                   <code>===</code>。和 <code>filter</code> 那题正好相反 ——
@@ -2999,17 +3020,39 @@ const handleEdit = (note: Note) => {
                   <strong>filter 想「留谁」用 !==，map 想「换谁」用 ===。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>===</code>. This is the opposite of the{" "}
+                  <code>filter</code> exercise. The conditional inside{" "}
+                  <code>map</code> asks &quot;is this the one I want to
+                  replace?&quot;, so it uses equals.
+                  <br />
+                  <strong>
+                    filter asks who stays, so it uses !==. map asks who gets
+                    replaced, so it uses ===.
+                  </strong>
+                </>
+              ),
               width: 5,
             },
             {
               n: 3,
               accept: ["submittedNote"],
               hint: "匹配上了就换成……什么？",
+              hintEn: "When it matches, replace it with... what?",
               why: (
                 <>
                   <code>submittedNote</code> —— 提交上来的新版本。
                   它带着<strong>和旧的一样的 id</strong>
                   （NoteForm 复用了），所以替换后 map 依然能找到它。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>submittedNote</code>, the newly submitted version. It
+                  carries <strong>the same id as the old one</strong> (NoteForm
+                  reuses it), so <code>map</code> can still find it after the
+                  replacement.
                 </>
               ),
               width: 15,
@@ -3018,6 +3061,7 @@ const handleEdit = (note: Note) => {
               n: 4,
               accept: ["setNoteToEdit(null)"],
               hint: "「退出编辑模式」。noteToEdit 该变成什么？",
+              hintEn: "Leave edit mode. What should noteToEdit become?",
               why: (
                 <>
                   <code>setNoteToEdit(null)</code>。这一行同时做了四件事的收尾：
@@ -3030,6 +3074,22 @@ const handleEdit = (note: Note) => {
                   <strong>漏了它，第 4 个测试依然会通过</strong>
                   （它没检查提交后的状态），但行为明显是坏的：
                   表单还留着内容、按钮还写 Update、再改一次还是更新同一条。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>setNoteToEdit(null)</code>. This one line closes out four
+                  things at once:
+                  <br />
+                  1. the else branch of the effect fires and clears the form; 2.
+                  the button text goes back to Add; 3. the next submit generates a
+                  new id; 4. the next submit takes the append branch.
+                  <br />
+                  <strong>Leave it out and the fourth test still passes</strong>{" "}
+                  (it never checks the state after the submit), but the behavior
+                  is plainly broken: the form still holds the old content, the
+                  button still says Update, and the next edit updates the same
+                  note again.
                 </>
               ),
               width: 22,
