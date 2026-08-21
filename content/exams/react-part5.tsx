@@ -2324,6 +2324,8 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
       title: "变式三 · fetch 取数：loading、error 与竞态",
       titleEn: "Variation 3 · fetching data: loading, error, and the race between two requests",
       blurb: "三个状态好写，难的是「用户切换很快时，慢的旧请求把新数据覆盖了」。",
+      blurbEn:
+        "The three states are easy. The hard part is when the user switches quickly and a slow old request overwrites the new data.",
       minutes: 18,
       objectives: [
         "写出 loading / error / data 三态的标准骨架",
@@ -2331,13 +2333,23 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
         "解释竞态（race condition）怎么发生，并用清理函数解决",
         "分清 AbortController 和 ignore 标志各解决什么",
       ],
+      objectivesEn: [
+        "Write the standard skeleton for the three states: loading, error, data",
+        "Know that fetch does not reject on a 404, so you have to check res.ok yourself",
+        "Explain how a race condition happens, and fix it with a cleanup function",
+        "Say what AbortController solves and what an ignore flag solves, and why they are different",
+      ],
       whyForAssessment:
         "原始需求里就写了「API request / loading state / error state」，但源项目里没有任何网络请求，所以前面没讲。这道题补上，而且直接给到「竞态」这一层 —— 只写三态谁都会，竞态才是区分度所在。",
+      whyForAssessmentEn:
+        "The original requirements already list API request, loading state, and error state, but the source projects make no network calls, so no earlier lesson covered this. This question fills that gap and goes one level further, to the race between two requests. Anyone can write the three states; the race is what tells answers apart.",
       concepts: [
         {
           id: "three-states",
           heading: "三态骨架",
+          headingEn: "The three-state skeleton",
           lede: "loading / error / data。顺序和优先级都有讲究。",
+          ledeEn: "loading, error, data. Both the order and which one wins matter.",
           body: (
             <>
               <p>
@@ -2403,7 +2415,9 @@ return <article data-testid="user">…</article>;`,
         {
           id: "res-ok",
           heading: "fetch 的第一个坑：404 不会 reject",
+          headingEn: "The first trap in fetch: a 404 does not reject",
           lede: "这是所有 fetch 题的必考点。",
+          ledeEn: "Every fetch question checks this one.",
           body: (
             <>
               <p>
@@ -2463,7 +2477,9 @@ const data: User = await res.json();`,
         {
           id: "race",
           heading: "真正的考点：竞态",
+          headingEn: "What is really being tested: the race between two requests",
           lede: "用户飞快切换 id，两个请求同时在飞，谁后回来谁说话 —— 而后回来的可能是旧的。",
+          ledeEn: "The user switches id quickly, two requests are in flight, and whichever answers last wins. The one that answers last may be the older one.",
           body: (
             <>
               <p>
@@ -2553,7 +2569,9 @@ t=200  用户 1 的响应回来 -> ignore#1 是 true  -> 直接丢掉 ✓
         {
           id: "abort",
           heading: "AbortController 和 ignore 解决的不是同一件事",
+          headingEn: "AbortController and the ignore flag do not solve the same problem",
           lede: "两个都要，各管一头。",
+          ledeEn: "You want both. Each one covers a different end.",
           body: (
             <>
               <div className="table-wrap">
@@ -2673,7 +2691,9 @@ return () => {
         {
           id: "full",
           heading: "完整答案",
+          headingEn: "The complete answer",
           lede: "6 个测试全过，包含竞态和 abort 两条。",
+          ledeEn: "All 6 tests pass, including one for the race and one for abort.",
           body: (
             <>
               <p>
@@ -2715,7 +2735,9 @@ return () => {
         {
           id: "verify",
           heading: "怎么验证",
+          headingEn: "How to check it",
           lede: "竞态这种「偶尔才出现」的 bug，怎么稳定地测出来？答案是自己控制谁先回来。",
+          ledeEn: "How do you reliably test a bug that only appears now and then? You decide yourself which request answers first.",
           body: (
             <>
               <p>
@@ -3133,6 +3155,17 @@ useEffect(async () => {
               正解是在 effect 内部包一个立即执行的 async 箭头函数。
             </>
           ),
+          whyEn: (
+            <>
+              An effect must return <strong>a cleanup function or undefined</strong>, and
+              an async function returns a <code>Promise</code>. React warns{" "}
+              <code>useEffect must not return anything besides a function</code>, and this
+              way there is no place to put a cleanup function at all.
+              <br />
+              The fix is to define an async arrow function inside the effect and call it
+              immediately.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -3148,6 +3181,14 @@ useEffect(() => {
               <strong>无限请求循环</strong>。
               开发时表现为网络面板疯狂刷屏，接口被打爆。
               这是 fetch 题最经典的事故。
+            </>
+          ),
+          whyEn: (
+            <>
+              Every render sends a request, and <code>setUser</code> causes another
+              render — <strong>an endless request loop</strong>. In development the
+              network panel never stops scrolling and the endpoint is flooded. This is the
+              classic accident in fetch questions.
             </>
           ),
         },
@@ -3172,15 +3213,54 @@ try {
               <strong>关 loading 要放在 <code>finally</code> 里。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              When the request fails, <code>loading</code> stays true forever, so the
+              screen sits on Loading… and the error message never gets a chance to show
+              (because <code>if (loading)</code> returned first).
+              <br />
+              <strong>Turn loading off inside <code>finally</code>.</strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「按 id 取数并展示」", reachFor: "三态 + effect 依赖 [id]" },
-        { signal: "用了 fetch", reachFor: "必须检查 res.ok，404 不会 reject" },
-        { signal: "「切换很快时数据错乱」", reachFor: "竞态，用 ignore 标志 + 清理函数" },
-        { signal: "「卸载后 setState 警告」", reachFor: "同一套 ignore 写法就解决了" },
-        { signal: "「网络面板疯狂刷屏」", reachFor: "effect 漏了依赖数组" },
-        { signal: "「出错后卡在 Loading」", reachFor: "setLoading(false) 要放 finally" },
+        {
+          signal: "「按 id 取数并展示」",
+          signalEn: "Fetch by id and show the result",
+          reachFor: "三态 + effect 依赖 [id]",
+          reachForEn: "The three states, plus an effect with [id] as its dependency",
+        },
+        {
+          signal: "用了 fetch",
+          signalEn: "The code uses fetch",
+          reachFor: "必须检查 res.ok，404 不会 reject",
+          reachForEn: "Check res.ok; a 404 does not reject",
+        },
+        {
+          signal: "「切换很快时数据错乱」",
+          signalEn: "The data comes out wrong when you switch quickly",
+          reachFor: "竞态，用 ignore 标志 + 清理函数",
+          reachForEn: "A race. Use an ignore flag plus a cleanup function",
+        },
+        {
+          signal: "「卸载后 setState 警告」",
+          signalEn: "A setState warning after the component is removed",
+          reachFor: "同一套 ignore 写法就解决了",
+          reachForEn: "The same ignore pattern fixes it",
+        },
+        {
+          signal: "「网络面板疯狂刷屏」",
+          signalEn: "The network panel never stops scrolling",
+          reachFor: "effect 漏了依赖数组",
+          reachForEn: "The effect is missing its dependency array",
+        },
+        {
+          signal: "「出错后卡在 Loading」",
+          signalEn: "It sticks on Loading after an error",
+          reachFor: "setLoading(false) 要放 finally",
+          reachForEn: "setLoading(false) belongs in finally",
+        },
       ],
       recap: [
         "三态骨架：loading 初始为 true，渲染顺序 loading → error → 空 → 数据。",
@@ -3188,6 +3268,13 @@ try {
         "竞态：慢的旧请求后回来会覆盖新数据。解法是每次 effect 一个 ignore 局部变量 + 清理函数置 true。",
         "AbortController 掐网络，ignore 挡 state 写入 —— 两个都要，AbortError 不算错误。",
         "effect 不能是 async；关 loading 放 finally；依赖数组里必须有 id。",
+      ],
+      recapEn: [
+        "The three-state skeleton: loading starts as true, and the render order is loading, then error, then empty, then data.",
+        "fetch only rejects when the network layer fails. For 404 and 500 you have to check res.ok yourself.",
+        "The race: a slow old request answers last and overwrites the new data. The fix is one local ignore variable per effect run, which the cleanup function sets to true.",
+        "AbortController stops the network call, ignore blocks the state write. You need both, and an AbortError does not count as an error.",
+        "An effect cannot be async. Turn loading off in finally. The dependency array must contain id.",
       ],
     },
 
