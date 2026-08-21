@@ -111,6 +111,8 @@ const foundations: Exam = {
           titleEn: "Node.js, npm, node_modules and the lockfile",
           blurb:
             "为什么装个 React 项目会多出几万个文件，以及为什么那个 lock 文件不能随便删。",
+          blurbEn:
+            "Why installing a React project adds tens of thousands of files, and why you must not delete that lock file.",
           minutes: 12,
           objectives: [
             "说清 Node.js 和浏览器里的 JavaScript 是什么关系",
@@ -118,8 +120,16 @@ const foundations: Exam = {
             "知道 lockfile 是什么、为什么不能随便删或换成别的包管理器",
             "知道 dependencies 和 devDependencies 的区别在哪里体现",
           ],
+          objectivesEn: [
+            "Explain how Node.js relates to the JavaScript that runs in a browser",
+            "Know what npm install actually does, and where node_modules comes from",
+            "Know what a lockfile is, and why you should not delete it or switch to another package manager",
+            "Know where the difference between dependencies and devDependencies shows up",
+          ],
           whyForAssessment:
             "两个 assessment 的第一步都是 npm install。装不上、装错版本、或者手滑生成了第二个 lockfile，后面全都跑不起来 —— 这时候不是你 React 写得不好，是根本没进考场。",
+          whyForAssessmentEn:
+            "The first step of both exams is npm install. If it fails, installs the wrong versions, or accidentally creates a second lockfile, nothing after it will run. The problem then is not your React code. You have not started the exam at all.",
           sourceFiles: [
             { path: "react-notes-app/package.json", role: "React 考试的依赖清单" },
             { path: "react-notes-app/package-lock.json", role: "锁定确切版本（139 KB）" },
@@ -129,7 +139,10 @@ const foundations: Exam = {
             {
               id: "node",
               heading: "Node.js：让 JavaScript 离开浏览器",
+              headingEn: "Node.js: running JavaScript outside the browser",
               lede: "JavaScript 最早只能在网页里跑。Node.js 把它搬到了你的终端里。",
+              ledeEn:
+                "At first JavaScript could only run inside a web page. Node.js lets it run in your terminal.",
               body: (
                 <>
                   <p>
@@ -184,7 +197,10 @@ node -e "console.log(1 + 1)"
             {
               id: "npm",
               heading: "npm：替你去把别人写好的代码搬回来",
+              headingEn: "npm: it fetches the code other people already wrote",
               lede: "npm 是 package manager（包管理器）。它管的是「这个项目需要哪些别人写的代码」。",
+              ledeEn:
+                "npm is a package manager. It keeps track of which code written by other people this project needs.",
               body: (
                 <>
                   <p>
@@ -247,7 +263,10 @@ npm install
             {
               id: "lockfile",
               heading: "lockfile：把「大概哪个版本」钉成「就是这个版本」",
+              headingEn: "The lockfile: it turns a version range into one exact version",
               lede: "package.json 写的是范围，lockfile 记的是事实。",
+              ledeEn:
+                "package.json states a range. The lockfile records what was actually installed.",
               body: (
                 <>
                   <p>
@@ -326,6 +345,7 @@ npm install
             {
               id: "dep-vs-dev",
               heading: "dependencies 和 devDependencies 差在哪",
+              headingEn: "Where dependencies and devDependencies differ",
               body: (
                 <>
                   <p>
@@ -442,9 +462,24 @@ npm install
           ],
           mistakes: [],
           transfer: [
-            { signal: "拿到一个新项目，不知道从哪开始", reachFor: "先看 package.json，再 npm install" },
-            { signal: "「我这里跑得过，他那里跑不过」", reachFor: "先比 Node 版本和 lockfile" },
-            { signal: "看到 node_modules 很大", reachFor: "正常，它是下载产物，不进版本库" },
+            {
+              signal: "拿到一个新项目，不知道从哪开始",
+              signalEn: "A new project, and you do not know where to start",
+              reachFor: "先看 package.json，再 npm install",
+              reachForEn: "Read package.json first, then run npm install",
+            },
+            {
+              signal: "「我这里跑得过，他那里跑不过」",
+              signalEn: "It runs on my machine but not on theirs",
+              reachFor: "先比 Node 版本和 lockfile",
+              reachForEn: "Compare the Node version and the lockfile first",
+            },
+            {
+              signal: "看到 node_modules 很大",
+              signalEn: "node_modules is very large",
+              reachFor: "正常，它是下载产物，不进版本库",
+              reachForEn: "Normal. It is downloaded output, and is not committed",
+            },
           ],
           recap: [
             "Node.js = 能在终端里跑 JavaScript 的运行时；npm 一般随它一起装。",
@@ -452,6 +487,13 @@ npm install
             "package.json 里的 ^18.3.1 是范围，lockfile 才是「实际装了哪个版本」的事实。",
             "别删 lockfile，别在有 package-lock.json 的项目里跑 pnpm/yarn。",
             "dependencies = 产品运行时要用；devDependencies = 只在开发/构建/测试时用。",
+          ],
+          recapEn: [
+            "Node.js is the runtime that runs JavaScript in a terminal. npm is usually installed with it.",
+            "npm install reads package.json and downloads the dependencies, and their dependencies, into node_modules.",
+            "In package.json, ^18.3.1 is a range. Only the lockfile records which version was actually installed.",
+            "Do not delete the lockfile, and do not run pnpm or yarn in a project that has a package-lock.json.",
+            "dependencies are needed while the product runs. devDependencies are needed only for development, building and testing.",
           ],
         },
 
