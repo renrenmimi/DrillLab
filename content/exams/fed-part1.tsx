@@ -3227,6 +3227,7 @@ const typeDefs = gql(readFileSync(join(__dirname, 'schema.graphql'), { encoding:
 const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);`,
               {
                 filename: "关键的两行",
+                filenameEn: "The two lines that matter",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/index.js",
               },
@@ -3297,7 +3298,20 @@ npm start
 curl -X POST http://localhost:4000/ \\
   -H 'Content-Type: application/json' \\
   -d '{"query":"{ _service { sdl } }"}'`,
-              { filename: "办法一" },
+              {
+                filename: "办法一",
+                filenameEn: "Way one",
+                codeEn: `cd node-subgraph
+npm install
+npm start
+# → Subgraph ready at http://0.0.0.0:4000/
+# → Federation SDL available at http://0.0.0.0:4000/?query={_service{sdl}}
+
+# In another terminal:
+curl -X POST http://localhost:4000/ \\
+  -H 'Content-Type: application/json' \\
+  -d '{"query":"{ _service { sdl } }"}'`,
+              },
             ),
             real(
               "js",
@@ -3345,9 +3359,54 @@ const q2 = await run(
 console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               {
                 filename: "办法二（审计时实际用的脚本）",
+                filenameEn: "Way two (the script actually used in the audit)",
+                codeEn: `// verify-schema.mjs — put it in node-subgraph/, run: node verify-schema.mjs
+import { buildSubgraphSchema } from '@apollo/subgraph';
+import { graphql } from 'graphql';
+import gql from 'graphql-tag';
+import { readFileSync } from 'fs';
+import { resolvers, createShippingInfoLoader, createOrderLoader } from './src/resolvers/orderResolvers.js';
+import { OrderDataSource, InventoryDataSource, ShippingDataSource } from './src/dataSources/orderDataSource.js';
+
+const typeDefs = gql(readFileSync('./src/schema.graphql', 'utf-8'));
+const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);
+
+function ctx() {
+  const orderDataSource = new OrderDataSource();
+  const inventoryDataSource = new InventoryDataSource();
+  const shippingDataSource = new ShippingDataSource();
+  return {
+    dataSources: { orderDataSource, inventoryDataSource, shippingDataSource },
+    loaders: {
+      shippingInfoLoader: createShippingInfoLoader(shippingDataSource),
+      orderLoader: createOrderLoader(orderDataSource),
+    },
+    correlationId: 'verify-1',
+  };
+}
+
+const run = (source, variableValues) =>
+  graphql({ schema, source, contextValue: ctx(), variableValues });
+
+// ① does the federation SDL come out
+const sdl = await run('{ _service { sdl } }');
+console.log('SDL:', !!sdl.data?._service?.sdl, '| errors:', sdl.errors?.length ?? 0);
+
+// ② a plain query
+const q1 = await run('{ orders(userId:"123") { id status shippingInfo { status } } }');
+console.log('orders:', JSON.stringify(q1.data), q1.errors ?? '');
+
+// ③ the request the Router will send: _entities
+const q2 = await run(
+  'query($r:[_Any!]!){ _entities(representations:$r) { ... on User { id orders { id } } } }',
+  { r: [{ __typename: 'User', id: '123' }] }
+);
+console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
                 collapsible: true,
                 explanation:
                   "注意 _entities 的参数类型是 [_Any!]!，每个 representation 必须带 __typename 和 @key 声明的字段。这段脚本在审计时真实跑通了全部三项。",
+                explanationEn:
+                  "Note the argument type of _entities is [_Any!]!, and every representation must carry __typename plus the fields named in @key. This script really ran all three checks during the audit.",
               },
             ),
             real(
@@ -3370,8 +3429,12 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
 == createOrder empty items code: [ 'INVALID_INPUT' ]`,
               {
                 filename: "审计时的真实输出（参考解法下）",
+                filenameEn:
+                  "The real output from the audit (with the reference answer)",
                 explanation:
                   "这是 DrillLab 用来确认参考答案正确的证据。做完 Task 1 之后，你的实现应该能得到同样的输出。",
+                explanationEn:
+                  "This is the evidence DrillLab used to confirm the reference answer is right. After you finish Task 1, your implementation should print the same thing.",
               },
             ),
           ],
@@ -3436,6 +3499,7 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
           kind: "recognition",
           id: "g-build-subgraph",
           title: "_entities 这个字段是谁加的",
+          titleEn: "Who adds the _entities field",
           level: 1,
           prompt: (
             <p>
@@ -3443,11 +3507,18 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               <code>_entities</code>，但 Router 能查它。它从哪来？
             </p>
           ),
+          promptEn: (
+            <p>
+              <code>_entities</code> appears nowhere in{" "}
+              <code>schema.graphql</code>, yet the Router can query it. Where
+              does it come from?
+            </p>
+          ),
           options: [
-            { id: "a", label: "需要自己在 schema.graphql 里加" },
-            { id: "b", label: "buildSubgraphSchema 自动加的" },
-            { id: "c", label: "ApolloServer 加的" },
-            { id: "d", label: "Router 注入的" },
+            { id: "a", label: "需要自己在 schema.graphql 里加", labelEn: "You have to add it to schema.graphql yourself" },
+            { id: "b", label: "buildSubgraphSchema 自动加的", labelEn: "buildSubgraphSchema adds it for you" },
+            { id: "c", label: "ApolloServer 加的", labelEn: "ApolloServer adds it" },
+            { id: "d", label: "Router 注入的", labelEn: "The Router injects it" },
           ],
           answer: ["b"],
           explain: (
@@ -3461,11 +3532,26 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               <strong>你不用写，也不该写。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              <code>buildSubgraphSchema</code>, from{" "}
+              <code>@apollo/subgraph</code>, adds the two fields{" "}
+              <code>_service</code> and <code>_entities</code> while it
+              assembles the schema, along with the federation directive
+              definitions.
+              <br />
+              That is also the main difference between it and a plain{" "}
+              <code>makeExecutableSchema</code>.{" "}
+              <strong>You do not write those fields, and you should
+              not.</strong>
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-verify-how",
           title: "本地怎么验证 federation 部分",
+          titleEn: "How to check the Federation part locally",
           level: 1,
           prompt: (
             <p>
@@ -3473,11 +3559,18 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               在 federation 链路里能被正确调用。最直接的办法？
             </p>
           ),
+          promptEn: (
+            <p>
+              There is no Router in the repository. You want to confirm your{" "}
+              <code>User.orders</code> is called correctly along the federation
+              path. What is the most direct way?
+            </p>
+          ),
           options: [
-            { id: "a", label: "只能等提交后由判卷系统验证" },
-            { id: "b", label: "自己装 @apollo/gateway 搭一个 Router" },
-            { id: "c", label: "直接查 _entities 字段，传一个 { __typename: \"User\", id: \"123\" } 的 representation" },
-            { id: "d", label: "查 Query.orders 就够了，它们是同一条路径" },
+            { id: "a", label: "只能等提交后由判卷系统验证", labelEn: "You cannot; you have to submit and let the grader check it" },
+            { id: "b", label: "自己装 @apollo/gateway 搭一个 Router", labelEn: "Install @apollo/gateway yourself and stand up a Router" },
+            { id: "c", label: "直接查 _entities 字段，传一个 { __typename: \"User\", id: \"123\" } 的 representation", labelEn: "Query the _entities field directly, passing a { __typename: \"User\", id: \"123\" } representation" },
+            { id: "d", label: "查 Query.orders 就够了，它们是同一条路径", labelEn: "Querying Query.orders is enough; it is the same path" },
           ],
           answer: ["c"],
           explain: (
@@ -3491,6 +3584,22 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               <code>__resolveReference</code>）。两个都要验。
               <br />
               B 可行但没必要，而且擅自加依赖在考试里是风险动作。
+            </>
+          ),
+          explainEn: (
+            <>
+              <code>_entities</code> is exactly the request the Router sends.
+              Querying it directly reproduces the key hop of the federation
+              path on your own machine.
+              <br />
+              D is wrong: <code>Query.orders</code> and{" "}
+              <code>User.orders</code> are{" "}
+              <strong>two different resolvers</strong> on two different paths
+              (the second one goes through <code>__resolveReference</code>
+              first). Check both.
+              <br />
+              B works but is unnecessary, and adding a dependency on your own
+              initiative is a risky move in an exam.
             </>
           ),
         },
