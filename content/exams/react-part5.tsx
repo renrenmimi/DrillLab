@@ -4142,7 +4142,15 @@ try {
   body: string;
   replies: Comment[];   // 自己引用自己 —— 这就是「树」
 };`,
-              { filename: "src/types/Comment.ts" },
+              {
+                filename: "src/types/Comment.ts",
+                codeEn: `export type Comment = {
+  id: number;
+  author: string;
+  body: string;
+  replies: Comment[];   // it refers to itself, and that is what makes it a tree
+};`,
+              },
             ),
           ],
         },
@@ -4231,7 +4239,24 @@ try {
     ))}
   </ul>
 )}`,
-              { filename: "递归那几行" },
+              {
+                filename: "递归那几行",
+                filenameEn: "The recursive lines",
+                codeEn: `{/* 递归：自己渲染自己。
+    终止条件不用写 if —— replies 为空时 map 什么都不产出，递归自然停。 */}
+{open && comment.replies.length > 0 && (
+  <ul>
+    {comment.replies.map((child) => (
+      <CommentNode
+        key={child.id}
+        comment={child}
+        depth={depth + 1}      // one level further down
+        onReply={onReply}
+      />
+    ))}
+  </ul>
+)}`,
+              },
             ),
           ],
         },
@@ -4288,7 +4313,17 @@ export function countComments(nodes: Comment[]): number {
 
 // countComments([]) === 0            <- 递归终止
 // 三层嵌套 + 两个旁支 === 5`,
-              { filename: "递归统计" },
+              {
+                filename: "递归统计",
+                filenameEn: "Counting with recursion",
+                codeEn: `/** 递归统计总条数（含所有层级的回复） */
+export function countComments(nodes: Comment[]): number {
+  return nodes.reduce((sum, n) => sum + 1 + countComments(n.replies), 0);
+}
+
+// countComments([]) === 0            <- where the recursion ends
+// three levels of nesting plus two side branches === 5`,
+              },
             ),
           ],
         },
