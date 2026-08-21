@@ -891,6 +891,14 @@ const SPECS: Spec[] = [
       "筛选不能改底层数据 —— 切回 all 时全部条目都还在",
       "reducer 要能脱离 React 单独测（所以这道题的测试里一行 render 都没有）",
     ],
+    requirementsEn: [
+      "Use createSlice to write added, toggled, removed, clearedDone and filterChanged",
+      "The id is generated in prepare, not in the reducer. A reducer has to be pure: running the same action twice must give the same result",
+      "Immer hands you a draft proxy, but the state object passed in must not be changed. The test proves it with a frozen state",
+      "Derived data goes through selectors: selectVisible, selectRemaining and selectFilter",
+      "Filtering must not change the underlying data. Switching back to all brings every item back",
+      "The reducer must be testable on its own, without React. That is why the tests for this problem never call render",
+    ],
   },
 
   /* ---- 真实 assessment 的两道大题 ---- */
@@ -970,6 +978,16 @@ const SPECS: Spec[] = [
       "编辑是原地替换 —— 位置不变、总数不变（「先删再加」会把它挪到末尾）",
       "更新完表单清空，按钮变回 Add",
       "连着点两条的 Edit，表单要跟着换 —— 查 effect 的依赖写对没有",
+    ],
+    requirementsEn: [
+      "Both fields need real content before you can submit. Spaces alone do not count, and the button stays disabled",
+      "A new note is appended to the end of the list, not inserted at the top",
+      "After a successful submit, both fields are cleared",
+      "Delete removes only the note you clicked. Use filter, not splice",
+      "Clicking Edit loads that note into the form, and the button text becomes Update",
+      "Editing replaces the note in place: same position, same total count. Deleting it and adding it again would move it to the end",
+      "After the update the form is cleared and the button reads Add again",
+      "Clicking Edit on one note and then on another must swap what the form shows. This checks that the effect has the right dependencies",
     ],
   },
   {
