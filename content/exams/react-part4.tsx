@@ -794,7 +794,7 @@ runTasks(tasks, 2).then((results) => {
       whyForAssessmentEn:
         "This is the full answer to Q2. The worker pool is also a pattern you can carry to other problems: every question about limiting concurrency has this same skeleton.",
       sourceFiles: [
-        { path: "react-notes-app/q2/taskRunner.ts", role: "要实现的 runTasks", edit: true },
+        { path: "react-notes-app/q2/taskRunner.ts", role: "要实现的 runTasks", roleEn: "The runTasks you have to write", edit: true },
       ],
       concepts: [
         {
@@ -2007,7 +2007,7 @@ export const reactMastery: Module = {
       whyForAssessmentEn:
         "During the exam most of your time is not spent writing new code. It is spent finding out why the code is wrong. With the same knowledge, someone who reads error messages well works about twice as fast as someone who does not.",
       sourceFiles: [
-        { path: "react-notes-app/src/", role: "所有故障都基于这个项目的真实代码" },
+        { path: "react-notes-app/src/", role: "所有故障都基于这个项目的真实代码", roleEn: "Every fault is based on the real code of this project" },
       ],
       concepts: [
         {
@@ -2847,7 +2847,7 @@ console.log("after:", notes);
       whyForAssessmentEn:
         "Filling in blanks and copying along only proves you followed the explanation. The real exam starts with an empty editor. This lesson recreates that moment, and it is harder than the real exam, because here you also set up the project yourself.",
       sourceFiles: [
-        { path: "react-notes-app/", role: "参考项目 —— 做完之后再对照，不要提前看" },
+        { path: "react-notes-app/", role: "参考项目 —— 做完之后再对照，不要提前看", roleEn: "The reference project — compare against it after you finish; do not look early" },
       ],
       concepts: [
         {
