@@ -357,7 +357,34 @@ class Btn extends React.Component {
   }
   handle() { console.log(this.props); }
 }`,
-              { filename: "四条规则与隐式丢失" },
+              {
+                filename: "四条规则与隐式丢失",
+                filenameEn: "The four rules, and losing the implicit binding",
+                codeEn: `const obj = {
+  name: "obj",
+  show() { console.log(this.name); },
+};
+
+obj.show();                    // "obj"      implicit binding: look left of the dot
+const f = obj.show;
+f();                           // undefined  the implicit binding is lost
+f.call({ name: "call" });      // "call"     explicit binding
+setTimeout(obj.show, 0);       // undefined  pass it out and the binding is gone
+setTimeout(() => obj.show(), 0); // "obj"    one wrapper keeps it
+
+// An arrow function ignores these rules, and call cannot change it either
+const arrow = () => console.log(this);
+arrow.call({ a: 1 });          // still the outer this
+
+// Why a React class component needs bind
+class Btn extends React.Component {
+  constructor(p) {
+    super(p);
+    this.handle = this.handle.bind(this);   // without bind, this is undefined in onClick
+  }
+  handle() { console.log(this.props); }
+}`,
+              },
             ),
           ],
         },
