@@ -520,8 +520,26 @@ Number("")       // 0   ← 注意，空字符串转数字是 0
 Number(" ")      // 0   ← 空白也是 0，校验输入要小心`,
               {
                 filename: "隐式转换速查",
+                filenameEn: "Coercion quick reference",
+                codeEn: `1 + "1"          // "11"    + with a string means concatenate
+"3" - 1          // 2       - always converts to number
+"3" * "4"        // 12
+1 + true         // 2       true -> 1
+1 + null         // 1       null -> 0
+1 + undefined    // NaN     undefined -> NaN
+
+[] + []          // ""      toString of an empty array is ""
+[] + {}          // "[object Object]"
+[1,2] + [3]      // "1,23"  join with commas, then concatenate
+
+Number("42px")   // NaN     the whole string has to be valid
+parseInt("42px") // 42      reads until it cannot read further
+Number("")       // 0   ← note: an empty string converts to 0
+Number(" ")      // 0   ← whitespace is 0 too, so validate input carefully`,
                 explanation:
                   "面试不会让你背全表，但会给两三个式子让你推。掌握「+ 看字符串、其他看数字」和「六个假值」就够推。",
+                explanationEn:
+                  "An interview will not ask you to recite the whole table, but it will give you two or three expressions to work out. Remember that + looks for a string while every other operator converts to number, plus the six falsy values, and that is enough.",
               },
             ),
           ],
