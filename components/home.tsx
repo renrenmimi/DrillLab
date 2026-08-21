@@ -14,6 +14,7 @@
 
 import Link from "next/link";
 import { ARENA, CODING, DRILLS, NAV, examPath, lessonPath, navLessonsOf } from "@/content/nav";
+import { pathGroups } from "@/content/path";
 import { useProgress } from "@/lib/progress";
 import { LayerMap } from "./lesson-kit";
 import { T } from "./t";
@@ -338,7 +339,9 @@ export function Home() {
               <T zh="你的进度" en="Your progress" />
             </h2>
             <div style={{ maxWidth: "var(--measure)" }}>
-              {NAV.map((exam) => {
+              {/* 顺序和侧栏、路线图取同一个来源 —— NAV 是登记顺序，
+                  会把平行支线排在 Cab Booking 前面，三处就又不一致了。 */}
+              {pathGroups().flatMap((g) => g.exams).map((exam) => {
                 const done = countLessons(exam.id);
                 return (
                   <div className="progress-row" key={exam.id}>

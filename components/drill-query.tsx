@@ -9,7 +9,7 @@
 // 如果把它写在 "use client" 文件里，服务端 import 到的会是一个客户端引用
 // 代理，调用时直接报错 —— 这是 RSC 的规则，不是风格问题。
 
-/** 列表页认的四个参数 */
+/** 列表页认的五个参数 */
 export interface DrillQuery {
   /** 方向：html / css / js / react / node / db / web，或 all */
   track?: string;
@@ -17,6 +17,15 @@ export interface DrillQuery {
   mark?: string;
   /** 关键词或题库编号（`#279` 和 `279` 都认） */
   q?: string;
+  /**
+   * 只看某一节课的题。侧栏用它。
+   *
+   * 【为什么需要】105 道八股挂在 17 节课上，但列表页原本只能按方向筛。
+   * 于是「我刚读完这一节，练这一节的题」这件事在界面上没有入口 ——
+   * 八股只存在于那张全量表里，跟正在学的那门课完全脱节。
+   * 有了这个参数，侧栏每一节课那行才能挂一个「八股 N」的链接。
+   */
+  lesson?: string;
   page?: string;
 }
 
@@ -36,6 +45,7 @@ export function drillListHref(q: DrillQuery, patch: DrillQuery) {
   if (next.track && next.track !== "all") p.set("track", next.track);
   if (next.mark && next.mark !== "all") p.set("mark", next.mark);
   if (next.q && next.q.trim()) p.set("q", next.q.trim());
+  if (next.lesson) p.set("lesson", next.lesson);
   if (next.page && next.page !== "1") p.set("page", next.page);
   const s = p.toString();
   return s ? `/drill?${s}` : "/drill";

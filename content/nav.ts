@@ -2845,7 +2845,7 @@ const PAYLOAD: NavPayload = {
       "minutes": 90,
       "runnable": false,
       "hasSandbox": false,
-      "explainLessonId": "g-task1-loader",
+      "explainLessonId": "g-read-task1",
       "requirementCount": 13
     },
     {
@@ -2856,7 +2856,7 @@ const PAYLOAD: NavPayload = {
       "minutes": 75,
       "runnable": false,
       "hasSandbox": false,
-      "explainLessonId": "g-task2-endpoints",
+      "explainLessonId": "g-endpoints",
       "requirementCount": 11
     }
   ],

@@ -11,6 +11,7 @@
 
 import Link from "next/link";
 import { NAV, lessonPath, navStages } from "@/content/nav";
+import { pathGroups } from "@/content/path";
 import { useProgress } from "@/lib/progress";
 import { T } from "./t";
 
@@ -25,13 +26,18 @@ export function LearningPath() {
   // 根子上的原因是：八股本来就是并行轨道，不是「走完 8 个阶段之后」。
   // 现在改成「按考试分组 + 组内序号」，stage 字段的值形如「React · 第 3 部分」。
   //
-  // 分组键用 examId，顺序直接用 NAV 的数组顺序 —— 不再解析数字排序
-  // （那会让各门课的「第 1 部分」全挤在一起）。
+  // 【顺序必须和侧栏一致】
+  // 这里原来用 NAV 的数组顺序，而侧栏按 prerequisites 排。两处于是互相矛盾：
+  // NAV 里 interview 排第 4、cab-booking 第 5，侧栏说 cab-booking 是 04、
+  // interview 是平行支线。同一个问题给两个答案，正是这次要修的毛病。
+  // 所以两处都从 content/path 的 pathGroups() 取顺序，只有一个来源。
   const grouped = all.reduce<Record<string, typeof all>>((acc, s) => {
     (acc[s.exam.id] ??= []).push(s);
     return acc;
   }, {});
-  const order = NAV.map((e) => e.id).filter((id) => grouped[id]);
+  const groups = pathGroups()
+    .map((g) => ({ ...g, exams: g.exams.filter((e) => grouped[e.id]) }))
+    .filter((g) => g.exams.length > 0);
 
   const totalLessons = all.reduce((n, s) => n + s.module.lessons.length, 0);
   const doneLessons = ready
@@ -49,18 +55,27 @@ export function LearningPath() {
        locked   current 之后的，视觉弱化 + 锁
      锁是**软锁**：链接照样能点（不挡想跳着学的人），
      只是视觉上告诉你「建议先走前面」。硬拦住会把已经有基础的人赶走。 */
-  const flat = order.flatMap((examId) => grouped[examId]);
-  const firstUndoneIdx = flat.findIndex(
-    (s) => !s.module.lessons.every((l) => lessonDone(s.exam.id, l.id)),
-  );
-  const stateOf = (idx: number): "done" | "current" | "locked" => {
-    if (!ready) return idx === 0 ? "current" : "locked";
-    if (firstUndoneIdx === -1) return "done";
-    if (idx < firstUndoneIdx) return "done";
-    if (idx === firstUndoneIdx) return "current";
-    return "locked";
-  };
-  let seq = 0;
+  // 【每组各自算状态，不能拉成一条】
+  // 原来是把所有模块拉平成一条算「第一个没读完的」。把平行支线排在主线之后，
+  // 它 9 个模块就会全部显示成「锁住」—— 而它恰恰是任何时候都能开始的那条。
+  // 所以主线和平行支线各算一次：每组内部有自己的「你在这」。
+  const stateMap = new Map<string, "done" | "current" | "locked">();
+  for (const g of groups) {
+    const flat = g.exams.flatMap((e) => grouped[e.id]);
+    const firstUndone = flat.findIndex(
+      (s) => !s.module.lessons.every((l) => lessonDone(s.exam.id, l.id)),
+    );
+    flat.forEach((s, i) => {
+      let st: "done" | "current" | "locked";
+      if (!ready) st = i === 0 ? "current" : "locked";
+      else if (firstUndone === -1) st = "done";
+      else if (i < firstUndone) st = "done";
+      else if (i === firstUndone) st = "current";
+      else st = "locked";
+      stateMap.set(s.module.id, st);
+    });
+  }
+  const flat = groups.flatMap((g) => g.exams.flatMap((e) => grouped[e.id]));
 
   return (
     <main className="main" data-rail="off">
@@ -91,16 +106,40 @@ export function LearningPath() {
           </div>
         )}
 
-        <ol className="road">
-          {order.map((examId) => {
+        {groups.map((g) => (
+          <div key={g.kind}>
+            {/* 平行支线单独起一组，并且不编号 —— 它没有前置课，也没有课依赖它，
+                编成 05 是在说一个不存在的顺序。措辞和侧栏保持一致。 */}
+            {g.kind === "parallel" && (
+              <div className="road-band">
+                <span className="road-band-title">
+                  <T zh="平行支线" en="Parallel track" />
+                </span>
+                <span className="road-band-note">
+                  <T
+                    zh="不依赖主线，任何时候都能开始 —— 下面的「你在这」是这条线自己的进度"
+                    en="No prerequisites, start any time — the marker below tracks this line on its own"
+                  />
+                </span>
+              </div>
+            )}
+            <ol className="road">
+              {g.exams.map((exam, ei) => {
+            const examId = exam.id;
             const items = grouped[examId];
             return (
               <li className="road-course" key={examId}>
-                <h2 className="road-course-title">{items[0]?.exam.shortTitle}</h2>
+                <h2 className="road-course-title">
+                  {g.kind === "main" && (
+                    <span className="road-course-idx tabular">
+                      {String(ei + 1).padStart(2, "0")}
+                    </span>
+                  )}
+                  {items[0]?.exam.shortTitle}
+                </h2>
                 <ol className="road-nodes">
                   {items.map((s) => {
-                    const idx = seq++;
-                    const st = stateOf(idx);
+                    const st = stateMap.get(s.module.id) ?? "locked";
                     const total = s.module.lessons.length;
                     const done = ready
                       ? s.module.lessons.filter((l) => lessonDone(s.exam.id, l.id)).length
@@ -161,8 +200,10 @@ export function LearningPath() {
                 </ol>
               </li>
             );
-          })}
-        </ol>
+              })}
+            </ol>
+          </div>
+        ))}
 
         <div className="road-end">
           <h2 className="home-sec-title">

@@ -989,7 +989,7 @@ const SPECS: Spec[] = [
     difficulty: 3,
     minutes: 90,
     from: "g-rebuild-subgraph",
-    explain: "g-task1-loader",
+    explain: "g-read-task1",
     runnable: false,
     commands: [
       { cmd: "npm test", expect: "10 passed" },
@@ -1003,7 +1003,7 @@ const SPECS: Spec[] = [
     difficulty: 3,
     minutes: 75,
     from: "g-rebuild-controller",
-    explain: "g-task2-endpoints",
+    explain: "g-endpoints",
     runnable: false,
     commands: [
       { cmd: "mvn test", expect: "Tests run: 5, Failures: 0" },
@@ -1027,8 +1027,25 @@ function findExercise(id: string): { ex: Exercise; examId: string } | undefined 
   return undefined;
 }
 
+function lessonExists(lessonId: string): boolean {
+  for (const exam of EXAMS)
+    for (const mod of exam.modules)
+      for (const lesson of mod.lessons) if (lesson.id === lessonId) return true;
+  return false;
+}
+
 function build(): CodingProblem[] {
   return SPECS.map((spec) => {
+    // explain 只有 SELF_BRIEF 和 fill-blank 两条分支会真去读它取参考答案，
+    // 其余分支从来源练习派生，于是一个写错的 lessonId 一路溜到线上：
+    // 页面不报错，只是「展开讲解」整块静默消失。orders-subgraph 和
+    // spring-endpoints 就这么坏了一阵，所以这里显式查一次。
+    if (!lessonExists(spec.explain)) {
+      throw new Error(
+        `[coding] ${spec.id} 的讲解引用 ${spec.explain} 找不到对应课文。` +
+          `「展开讲解」会静默消失，不会报错，所以必须在这里拦住。`,
+      );
+    }
     const found = findExercise(spec.from);
     if (!found) {
       throw new Error(

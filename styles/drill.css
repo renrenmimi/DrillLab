@@ -777,11 +777,58 @@
   color: var(--ink-3);
 }
 
+/* ---------- 「只看这一节」的范围提示 ----------
+   侧栏每节课那行的「八股 N」链到 /drill?lesson=…。落地时必须一眼看出
+   两件事：现在只看这一节（否则会以为题库只有 12 道），以及怎么回到全库。 */
+
+.lesson-scope {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  padding: 9px 13px;
+  margin-bottom: 20px;
+  font-size: 13.5px;
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-line);
+  border-radius: 8px;
+}
+
+.lesson-scope-label {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.lesson-scope > a {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.lesson-scope-n {
+  color: var(--ink-2);
+}
+
+/* 推到最右：回全库的出口和「只看这一节」分列两端，不混在一句话里 */
+.lesson-scope > a.lesson-scope-clear {
+  margin-left: auto;
+  color: var(--accent-ink);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 /* ============================================================
    窄屏（390px 也不许出横向滚动条）
    ============================================================ */
 
 @media (max-width: 700px) {
+  /* 挤在一行会把课文标题压成两三行，让「回全库」自己占一行 */
+  .lesson-scope-clear {
+    margin-left: 0;
+  }
+
   .drill-card {
     padding: 14px;
   }

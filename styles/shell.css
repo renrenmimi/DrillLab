@@ -10,18 +10,6 @@
   min-height: 100vh;
 }
 
-/* 首页 / 学习路径 / 练习场 / 模拟考索引 / 速查 —— 这些页面没有课程目录，
-   整个第一列收掉，内容全宽。见 app-shell.tsx 顶部的分工说明。 */
-.shell[data-nav="off"] {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-/* 桌面上没有课程目录就整块不渲染视觉；窄屏下面的媒体查询会把它放回来，
-   因为窄屏的抽屉里还装着主导航（顶栏在窄屏是隐藏的）。 */
-.shell[data-nav="off"] .sidebar {
-  display: none;
-}
-
 /* 抽屉里的主导航 —— 只在窄屏出现。
    之前窄屏下 .topbar-nav 被 display:none，而抽屉里只有课程目录，
    于是「练习场」「速查」这些页面在手机上根本到不了（踩过）。 */
@@ -299,18 +287,40 @@
   color: var(--ink-3);
 }
 
-/* 「模拟考」那一块还是 div，不该长出箭头和 hover 底色 */
-div.side-mod > .side-mod-title {
+/* 「模拟考」那一块是个纯标题 div，不该长出箭头和 hover 底色。
+   排除 .side-mod-link —— 「课内练习」那一格也在 div.side-mod 里，
+   但它是个链接，箭头和 hover 都得留着。 */
+div.side-mod > .side-mod-title:not(.side-mod-link) {
   padding-right: 0;
   cursor: default;
 }
 
-div.side-mod > .side-mod-title::after {
+div.side-mod > .side-mod-title:not(.side-mod-link)::after {
   display: none;
 }
 
-div.side-mod > .side-mod-title:hover {
+div.side-mod > .side-mod-title:not(.side-mod-link):hover {
   background: transparent;
+}
+
+/* 「课内练习」：不是可折叠的清单（54 个练习平铺进侧栏没法看），
+   而是一格直接跳到 /practice?exam= 的链接。箭头因此指右，不是朝下。 */
+.side-mod-link {
+  display: block;
+  text-decoration: none;
+}
+
+.side-mod-link:hover {
+  background: var(--sunken);
+  text-decoration: none;
+}
+
+.side-mod-link:hover .side-mod-name {
+  color: var(--ink);
+}
+
+.side-mod-link[data-active] .side-mod-name {
+  color: var(--ink);
 }
 
 .side-mod-stage {
@@ -337,8 +347,17 @@ div.side-mod > .side-mod-title:hover {
   border-left: 1px solid var(--rule);
 }
 
+/* 一行可能挂两个链接：课文本身，和这一节的八股题数。
+   让 li 负责排版，课文占满剩下的宽度，徽标贴右。 */
 .side-lessons li {
+  display: flex;
+  align-items: baseline;
   margin: 0;
+}
+
+.side-lesson {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .side-lesson {
@@ -388,6 +407,100 @@ div.side-mod > .side-mod-title:hover {
 .side-lesson[data-done="true"] .side-lesson-n::before {
   position: absolute;
   left: 0;
+}
+
+/* 这一节的八股题数。是个链接，指向只筛这一节的题单 ——
+   105 道题原来只在 /drill 那张全量表里，跟正在读的课完全没有连线。 */
+.side-drill-n {
+  flex: 0 0 auto;
+  margin-right: 8px;
+  padding: 1px 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--ink-3);
+  background: var(--sunken);
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.side-drill-n:hover {
+  color: var(--accent-ink);
+  background: var(--accent-wash);
+  text-decoration: none;
+}
+
+/* 「从这里开始 / 接着学」。
+   编号只说顺序，不说你走到哪了 —— 这个才回答「现在该进行哪一步」。 */
+.side-exam-next {
+  display: inline-block;
+  margin-top: 3px;
+  padding: 1px 7px;
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 100px;
+}
+
+.side-exam[data-next]:not([data-active="true"]) {
+  border-left-color: var(--accent-line);
+}
+
+/* 分组带：把「平行支线」「题库总表」和上面的主线隔开。
+   不是标题，是一句说明 —— 光写「平行支线」还是得猜它凭什么平行。 */
+.side-band {
+  margin: 22px 20px 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+
+.side-band-title {
+  display: block;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.side-band-note {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+/* 四张全量表 + 速查 */
+.side-banks a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 20px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  border-left: 2px solid transparent;
+}
+
+.side-banks a:hover {
+  color: var(--ink);
+  background: var(--sunken);
+  text-decoration: none;
+}
+
+.side-banks a[data-active] {
+  border-left-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.side-bank-n {
+  font-size: 11.5px;
+  color: var(--ink-3);
 }
 
 .side-foot {
@@ -541,11 +654,6 @@ div.side-mod > .side-mod-title:hover {
 @media (max-width: 900px) {
   .shell {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  /* 窄屏：抽屉永远可用，因为它同时承担主导航 */
-  .shell[data-nav="off"] .sidebar {
-    display: block;
   }
 
   .side-top-nav {
@@ -1166,6 +1274,37 @@ div.side-mod > .side-mod-title:hover {
   padding-bottom: 10px;
   margin-bottom: 4px;
   border-bottom: 1px solid var(--rule);
+}
+
+/* 课程序号：和侧栏一样 01 起，主线才有。两处必须对得上，
+   否则路线图和侧栏会给出两套顺序。 */
+.road-course-idx {
+  margin-right: 8px;
+  color: var(--accent-ink);
+}
+
+/* 平行支线的分组带。和侧栏的 .side-band 是同一件事，措辞也一样。 */
+.road-band {
+  margin: 34px 0 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.road-band-title {
+  display: block;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.road-band-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-2);
 }
 
 /* 节点：左边一条竖线把它们串起来 */
