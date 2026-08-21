@@ -3128,12 +3128,21 @@ task 6 DONE    (running now: 0)`,
               kind: "recognition",
               id: "f-async-all",
               title: "该用 all 还是 allSettled",
+              titleEn: "all or allSettled",
               level: 1,
               prompt: (
                 <p>
                   Q2 的要求原文：「The runner NEVER throws, even if some tasks reject.
                   It resolves with an array of results IN THE SAME ORDER as tasks.」
                   这描述的是哪个内置方法的语义？
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  The exact wording of the Q2 requirement: &ldquo;The runner NEVER
+                  throws, even if some tasks reject. It resolves with an array of
+                  results IN THE SAME ORDER as tasks.&rdquo; Which built-in method
+                  behaves like that?
                 </p>
               ),
               options: [
@@ -3153,11 +3162,24 @@ task 6 DONE    (running now: 0)`,
                   concurrency throttle.</em>
                 </>
               ),
+              explainEn: (
+                <>
+                  &ldquo;Never throws even when something fails, records each result as
+                  fulfilled or rejected, and keeps the input order&rdquo; is exactly{" "}
+                  <code>allSettled</code>. <code>all</code> rejects as a whole on the
+                  first failure. <code>race</code> returns whichever settles first and{" "}
+                  <code>any</code> returns whichever succeeds first — neither is what
+                  this asks for. The Q2 comments say it outright:{" "}
+                  <em>This mimics Promise.allSettled, but with a concurrency
+                  throttle.</em>
+                </>
+              ),
             },
             {
               kind: "recognition",
               id: "f-async-fn",
               title: "为什么 tasks 是「函数数组」而不是「Promise 数组」",
+              titleEn: "Why tasks is an array of functions, not an array of Promises",
               level: 1,
               prompt: (
                 <p>
@@ -3166,11 +3188,18 @@ task 6 DONE    (running now: 0)`,
                   会出什么问题？
                 </p>
               ),
+              promptEn: (
+                <p>
+                  <code>Task&lt;T&gt; = () =&gt; Promise&lt;T&gt;</code>. If the
+                  question passed in a <code>Promise&lt;T&gt;[]</code> instead, what
+                  would go wrong?
+                </p>
+              ),
               options: [
-                { id: "a", label: "结果顺序会乱掉" },
-                { id: "b", label: "Promise 创建的那一刻就开始跑了，并发上限根本无法实现" },
-                { id: "c", label: "TypeScript 编译不过" },
-                { id: "d", label: "没区别，写起来还更简单" },
+                { id: "a", label: "结果顺序会乱掉", labelEn: "The order of the results gets scrambled" },
+                { id: "b", label: "Promise 创建的那一刻就开始跑了，并发上限根本无法实现", labelEn: "A Promise starts running the moment it is created, so a concurrency limit cannot be built at all" },
+                { id: "c", label: "TypeScript 编译不过", labelEn: "TypeScript refuses to compile it" },
+                { id: "d", label: "没区别，写起来还更简单", labelEn: "No difference, and it is simpler to write" },
               ],
               answer: ["b"],
               explain: (
@@ -3180,6 +3209,17 @@ task 6 DONE    (running now: 0)`,
                   三个请求就已经同时发出去了。要控制并发，就必须控制
                   <strong>「什么时候开始」</strong>，所以传进来的必须是
                   <strong>还没调用的函数</strong>。这是整道题的设计核心。
+                </>
+              ),
+              explainEn: (
+                <>
+                  A Promise is something already in progress, and it has no pause
+                  button. The moment you write{" "}
+                  <code>[fetch(a), fetch(b), fetch(c)]</code>, all three requests have
+                  already gone out together. To control how many run at once you have to
+                  control <strong>when each one starts</strong>, so what is passed in has
+                  to be <strong>functions that have not been called yet</strong>. That is
+                  the core of the whole question.
                 </>
               ),
             },
