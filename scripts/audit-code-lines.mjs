@@ -273,7 +273,13 @@ for (const root of ROOTS) {
       // 它们**没有可执行代码**，所谓「结构」就是那些路径和缩进本身，
       // 而说明文字是裸文本、不带注释标记，归一化剥不掉。
       // 对这种块只守行数，不比结构。errorOutput 同理：那是机器输出，不是代码。
-      if (lang !== "text" && field !== "errorOutputEn") {
+      // 【哪些块不比结构】
+      //   text  目录树、对齐表格 —— 「结构」就是路径和缩进本身
+      //   bash  终端会话 —— 命令加输出，说明文字是裸的 ← 标注
+      //   errorOutput 机器输出，同理
+      // 这几种都没有可执行代码要保护，只守行数。
+      const PROSE_LANGS = new Set(["text", "bash", "sh", "shell", "console"]);
+      if (!PROSE_LANGS.has(lang) && field !== "errorOutputEn") {
         for (let i = 0; i < a.length; i++) {
           const ca = normalize(a[i]);
           const cb = normalize(b[i]);
@@ -285,6 +291,35 @@ for (const root of ROOTS) {
           }
         }
       }
+      // 【纯文本块里的整行漏译】
+      // 上面那条只查 // 注释，可是目录树、命令输出这类 text 块没有注释语法，
+      // 里面的中文标注（`← 没有这个 script，用 npx`）一个都查不出来 ——
+      // react-part3 有 4 行就这么漏了。
+      //
+      // 判断标准：英文侧这一行**和中文侧逐字节相同**且含中文，就是没动过。
+      // 但「有意保留的数据」也长这样（`new Dog("旺财")`、`"会议" / "内容A"`），
+      // 所以排除掉带引号的、以及看起来像代码的行 —— 剩下的是纯中文说明。
+      const untouched = [];
+      for (let i = 0; i < b.length; i++) {
+        if (b[i] !== a[i] || !CJK.test(b[i])) continue;
+        const t = b[i].trim();
+        if (/["'`]/.test(t)) continue;                 // 引号 → 很可能是数据
+        if (/[{}();=]|=>/.test(t)) continue;            // 代码符号 → 是代码行
+        // 【测试结果行是机器输出，不能译】
+        // 测试名同时出现在源码里和报错输出里，两边必须逐字一致 ——
+        // 译了输出这一边，就和源码里的 test("…") 对不上了。
+        // 实测这些名字各出现 4 次（中英代码各一份 + 报错块各一份）。
+        if (/^[✓✕×√]|^Expected\b|^Received\b|^Unable to find\b|^AssertionError\b/.test(t)) continue;
+        untouched.push(t.slice(0, 70));
+      }
+      if (untouched.length) {
+        problems.push(
+          `${file}:${line}  [${field}] 有 ${untouched.length} 行中文原样留在英文侧（漏译）：\n      ${untouched
+            .slice(0, 3)
+            .join("\n      ")}`,
+        );
+      }
+
       // 英文侧的**注释**不该还有中文。字符串里的中文可能是有意保留的数据
       // （人名、车型、测试 fixture），所以只查注释部分。
       // 【注释里被引号括起来的中文不算漏译】

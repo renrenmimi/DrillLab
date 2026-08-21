@@ -792,7 +792,7 @@ const ThemeApp: React.FC = () => (
   <ThemeProvider>
     <ThemeToggleButton />
     <ThemedCard>
-      <p>卡片内容</p>
+      <p>Card content</p>
     </ThemedCard>
   </ThemeProvider>
 );
@@ -5194,7 +5194,7 @@ export function countComments(nodes: Comment[]): number {
               {
                 filename: "递归统计",
                 filenameEn: "Counting with recursion",
-                codeEn: `/** 递归统计总条数（含所有层级的回复） */
+                codeEn: `/** Count everything recursively, replies at every level included */
 export function countComments(nodes: Comment[]): number {
   return nodes.reduce((sum, n) => sum + 1 + countComments(n.replies), 0);
 }

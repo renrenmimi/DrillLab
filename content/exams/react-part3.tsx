@@ -575,7 +575,7 @@ npm error Missing script: "test"        ← 没有这个 script，用 npx
 
 $ npm run build
 src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
-...共 10 条                              ← 项目自带的配置缺陷，与你的实现无关`,
+...10 in total                          ← a defect in the given setup, nothing to do with your code`,
                 sourceFile: "react-notes-app",
               },
             ),
