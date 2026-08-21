@@ -3590,7 +3590,11 @@ Did you mean to import "./resolvers/orderResolvers.js"?`,
                   "tsx",
                   `import React, { useState, useEffect } from "react";   // 运行时要用
 import type { Note } from "../../types/Note";        // 只要类型`,
-                  { sourceFile: "react-notes-app/src/components/NoteForm/index.tsx" },
+                  {
+                    sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
+                    codeEn: `import React, { useState, useEffect } from "react";   // needed at runtime
+import type { Note } from "../../types/Note";        // the type only`,
+                  },
                 ),
               ],
             },
@@ -3670,11 +3674,19 @@ import type { Note } from "../../types/Note";        // 只要类型`,
               kind: "debug",
               id: "f-debug-esm",
               title: "Debug Lab · ERR_MODULE_NOT_FOUND",
+              titleEn: "Debug Lab · ERR_MODULE_NOT_FOUND",
               level: 2,
               prompt: (
                 <p>
                   你在 <code>node-subgraph/</code> 里跑 <code>npm start</code>,
                   服务器起不来。报错很长，但关键信息只有两行。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  You run <code>npm start</code> inside{" "}
+                  <code>node-subgraph/</code> and the server does not come up. The error
+                  is long, but only two lines of it matter.
                 </p>
               ),
               errorOutput: `$ npm start
@@ -3689,24 +3701,25 @@ Did you mean to import "./dataSources/orderDataSource.js"?`,
                 "js",
                 `import { resolvers } from './resolvers/orderResolvers.js';
 import { OrderDataSource } from './dataSources/orderDataSource';`,
-                { filename: "src/index.js（第 2 行有问题）", highlight: [2] },
+                { filename: "src/index.js（第 2 行有问题）", filenameEn: "src/index.js (line 2 is the problem)", highlight: [2] },
               ),
               classify: {
                 options: [
-                  { id: "a", label: "文件真的不存在 —— 路径拼错了" },
-                  { id: "b", label: "模块解析错误 —— ESM 要求相对路径带扩展名" },
-                  { id: "c", label: "依赖没装 —— 要 npm install" },
-                  { id: "d", label: "导出名字对不上 —— 应该是 default export" },
+                  { id: "a", label: "文件真的不存在 —— 路径拼错了", labelEn: "The file really is not there — the path is misspelled" },
+                  { id: "b", label: "模块解析错误 —— ESM 要求相对路径带扩展名", labelEn: "Module resolution error — ESM requires the file ending on a relative path" },
+                  { id: "c", label: "依赖没装 —— 要 npm install", labelEn: "The dependencies are not installed — run npm install" },
+                  { id: "d", label: "导出名字对不上 —— 应该是 default export", labelEn: "The export name does not match — it should be a default export" },
                 ],
                 answer: "b",
               },
               locate: {
                 question: "第 2 行少了什么？",
+                questionEn: "What is line 2 missing?",
                 options: [
-                  { id: "a", label: "少了 .js 扩展名" },
-                  { id: "b", label: "少了 type 关键字" },
-                  { id: "c", label: "花括号该去掉" },
-                  { id: "d", label: "路径该写成 ../dataSources/" },
+                  { id: "a", label: "少了 .js 扩展名", labelEn: "The .js ending is missing" },
+                  { id: "b", label: "少了 type 关键字", labelEn: "The type keyword is missing" },
+                  { id: "c", label: "花括号该去掉", labelEn: "The curly braces should be removed" },
+                  { id: "d", label: "路径该写成 ../dataSources/", labelEn: "The path should be ../dataSources/" },
                 ],
                 answer: "a",
               },
@@ -3716,6 +3729,7 @@ import { OrderDataSource } from './dataSources/orderDataSource';`,
 import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                 {
                   filename: "改对之后",
+                  filenameEn: "After the fix",
                   sourceFile:
                     "graphql-federation-practice/node-subgraph/src/index.js",
                   highlight: [2],
@@ -3735,7 +3749,25 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   </p>
                 </>
               ),
+              rootCauseEn: (
+                <>
+                  <p>
+                    <code>package.json</code> declares{" "}
+                    <code>&quot;type&quot;: &quot;module&quot;</code>, so Node resolves
+                    with native ESM rules. Native ESM{" "}
+                    <strong>does not guess file endings</strong>, and a relative path has
+                    to be written in full.
+                  </p>
+                  <p>
+                    Line 1 works because it does write <code>.js</code>. That is also the
+                    trick for finding this: <strong>compare the imports that work with
+                    the one that fails inside the same file, and the difference is
+                    usually obvious.</strong>
+                  </p>
+                </>
+              ),
               verify: "npm start   # 应该打印 Subgraph ready at http://0.0.0.0:4000/",
+              verifyEn: "npm start   # should print Subgraph ready at http://0.0.0.0:4000/",
             },
           ],
           transfer: [
