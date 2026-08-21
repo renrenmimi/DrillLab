@@ -3582,6 +3582,8 @@ useEffect(() => {
           title: "历史与确认页：两个小而致命的细节",
           titleEn: "The history and confirmation pages: two small details that decide pass or fail",
           blurb: "slice(-3).reverse() 一个字符都不能错；bookedCabDetails?.name 少个问号就白屏。",
+          blurbEn:
+            "slice(-3).reverse() has to be exact, character for character; drop the question mark in bookedCabDetails?.name and the screen goes blank.",
           minutes: 15,
           objectives: [
             "说清 slice(-3) 和 slice(0, 3) 的区别",
@@ -3589,8 +3591,16 @@ useEffect(() => {
             "写出「最新三条、最新在最上」的取法",
             "说清为什么 bookedCabDetails 后面必须有可选链",
           ],
+          objectivesEn: [
+            "Explain the difference between slice(-3) and slice(0, 3)",
+            "Know that reverse() changes the array in place, and why it is safe here",
+            "Write the code for the three newest rides with the newest at the top",
+            "Explain why bookedCabDetails needs optional chaining after it",
+          ],
           whyForAssessment:
             "测试 4 是这道题唯一会「看起来做对了但实际全错」的地方：它同时查数量、顺序、和最旧那条真的消失。slice 方向写反、忘了 reverse、或者直接 reverse 到 state 上，三种错法都只在这一条测试里暴露。",
+          whyForAssessmentEn:
+            "Test 4 is the one place in this task where your work can look correct and be completely wrong. It checks the count, the order, and that the oldest entry really disappeared, all at the same time. A slice in the wrong direction, a missing reverse, or a reverse applied to the state array: all three show up only in this single test.",
           sourceFiles: [
             { path: "cab-booking-context/src/components/Home/RideHistory.jsx", role: "取最新三条并反转", edit: true },
             { path: "cab-booking-context/src/components/CabConfirmation/CabConfirmation.jsx", role: "可选链在这里", edit: true },
@@ -3599,7 +3609,10 @@ useEffect(() => {
             {
               id: "cb-slice-negative",
               heading: "slice(-3) 是「最后三个」",
+              headingEn: "slice(-3) means the last three",
               lede: "负数从尾巴数起。方向写反，测试 4 直接红",
+              ledeEn:
+                "A negative number counts from the end. Get the direction wrong and test 4 fails",
               body: (
                 <>
                   <p>
@@ -3779,7 +3792,10 @@ history.slice(-3).reverse();
             {
               id: "cb-reverse-mutates",
               heading: "reverse() 原地修改 —— 这里为什么安全",
+              headingEn: "reverse() changes the array in place, and why that is safe here",
               lede: "因为 slice 已经给了你一个新数组",
+              ledeEn:
+                "Because slice has already given you a new array",
               body: (
                 <>
                   <p>
@@ -3993,7 +4009,10 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
             {
               id: "cb-optional-chain",
               heading: "bookedCabDetails?.name —— 那个问号不能省",
+              headingEn: "bookedCabDetails?.name: you cannot drop that question mark",
               lede: "初始值是 null，而 null 上取属性会抛错",
+              ledeEn:
+                "The initial value is null, and reading a property of null throws an error",
               body: (
                 <>
                   <p>
@@ -4317,6 +4336,22 @@ const RideHistory = () => {
                   <strong>把「读」和「改」分清楚 —— 渲染函数里只许读。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <strong>The result is right this time and wrong the next time.</strong>{" "}
+                  <code>reverse()</code> turns the state array itself into newest to oldest, and
+                  React does not notice, because the reference did not change.
+                  <br />
+                  The next <code>[...rideHistory, details]</code> then adds the new entry to the end
+                  of <strong>an array that is already reversed</strong>, which is the oldest end, and
+                  from that point the order is broken.
+                  <br />
+                  Worse, <strong>it reverses once on every render</strong>. Under{" "}
+                  <code>StrictMode</code> development renders twice, the two reversals cancel each
+                  other out, and <strong>you see nothing wrong while developing</strong>.{" "}
+                  <strong>Keep reading and changing apart: a render function may only read.</strong>
+                </>
+              ),
             },
             {
               wrong: demo(
@@ -4347,6 +4382,23 @@ const RideHistory = () => {
                   <strong>初始值是 null 的 state，读它的属性就该配 <code>?.</code>。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  The initial value of <code>useState(null)</code> is <code>null</code>.{" "}
+                  <strong>The complete flow never reaches it</strong>, because by the time you are on
+                  the confirmation page a cab has been chosen, so all four tests pass. This is{" "}
+                  <strong>another case where passing tests does not mean correct code</strong>.
+                  <br />
+                  But as soon as somebody writes a component test for{" "}
+                  <code>CabConfirmation</code>, or a &ldquo;view last ride&rdquo; entry point is added
+                  later, <strong>the screen is blank</strong>. React has no default error boundary,
+                  and an error thrown during render <strong>removes the whole tree</strong>.
+                  <br />
+                  <strong>
+                    When a state starts as null, reading its properties needs <code>?.</code>.
+                  </strong>
+                </>
+              ),
             },
           ],
           transfer: [
@@ -4362,6 +4414,13 @@ const RideHistory = () => {
             "直接 rideHistory.reverse() 会翻掉 state，且 StrictMode 下开发时看不出来。",
             "sort / reverse / splice / push 都是原地改；slice / map / filter / concat 返回新数组。",
             "bookedCabDetails 初始 null，所以 ?.name 那个问号不能省。",
+          ],
+          recapEn: [
+            "slice(-3) is the last three, slice(0, 3) is the first three. Only test 4 catches the wrong direction.",
+            "reverse() changes the array in place; slice(-3).reverse() is safe because slice returns a new array first.",
+            "Calling rideHistory.reverse() reverses the state itself, and under StrictMode you cannot see it while developing.",
+            "sort, reverse, splice and push all change the array in place; slice, map, filter and concat return a new array.",
+            "bookedCabDetails starts as null, so the question mark in ?.name cannot be dropped.",
           ],
         },
       ],
