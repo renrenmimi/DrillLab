@@ -519,10 +519,18 @@ export const ivHand: Module = {
           kind: "code-completion",
           level: 3,
           title: "手写 throttle（leading + trailing）",
+          titleEn: "Write throttle by hand (leading + trailing)",
           prompt: (
             <>
               把「直接透传」的半成品改成真正的 throttle：窗口开头立刻执行，
               窗口内压住，窗口结束用最后一次的参数补一枪。
+            </>
+          ),
+          promptEn: (
+            <>
+              Turn this pass-everything-through version into a real throttle: run once
+              at the start of the window, hold back the calls inside it, then run once
+              more at the end of the window with the arguments of the last call.
             </>
           ),
           language: "ts",
@@ -538,22 +546,45 @@ export const ivHand: Module = {
     fn(...args);
   };
 }`,
+          starterEn: `export function throttle<T extends (...args: never[]) => void>(
+  fn: T,
+  interval: number,
+): (...args: Parameters<T>) => void {
+  void interval;
+  // TODO: keep a lastTime and a trailing timer.
+  //       Window still open -> store the args and set a timer that runs when it closes.
+  return (...args: Parameters<T>) => {
+    fn(...args);
+  };
+}`,
           requirements: [
             "第一次调用立刻执行（leading）",
             "窗口内的后续调用不执行",
             "窗口结束时用窗口内最后一次的参数补执行（trailing）",
             "窗口过了之后再调用，又立刻执行",
           ],
+          requirementsEn: [
+            "The first call runs immediately (leading)",
+            "Later calls inside the same window do not run",
+            "When the window closes, run once more with the arguments of the last call in it (trailing)",
+            "A call after the window has passed runs immediately again",
+          ],
           checks: [
-            { label: "用时间戳判断窗口", must: "Date\\.now\\(\\)" },
-            { label: "trailing 用 setTimeout 补执行", must: "setTimeout\\(" },
-            { label: "存了窗口内最后一次的参数", must: "lastArgs|latest" },
+            { label: "用时间戳判断窗口", labelEn: "Uses a timestamp to decide where the window is", must: "Date\\.now\\(\\)" },
+            { label: "trailing 用 setTimeout 补执行", labelEn: "The trailing run goes through setTimeout", must: "setTimeout\\(" },
+            { label: "存了窗口内最后一次的参数", labelEn: "Stores the arguments of the last call in the window", must: "lastArgs|latest" },
           ],
           hints: [
             "三个闭包变量：lastTime（上次执行的时间戳）、timer、lastArgs。",
             "每次调用算 remaining = interval - (Date.now() - lastTime)。remaining <= 0 就立刻执行并更新 lastTime。",
             "remaining > 0：lastArgs = args；如果 timer 还没挂，setTimeout(补枪, remaining)。",
             "补枪回调里：timer = null、lastTime = Date.now()、fn(...lastArgs)、lastArgs = null。",
+          ],
+          hintsEn: [
+            "Three closure variables: lastTime (the timestamp of the last run), timer, and lastArgs.",
+            "On every call compute remaining = interval - (Date.now() - lastTime). If remaining <= 0, run now and update lastTime.",
+            "If remaining > 0: set lastArgs = args, and if no timer is pending, setTimeout(the trailing run, remaining).",
+            "Inside the trailing callback: timer = null, lastTime = Date.now(), fn(...lastArgs), lastArgs = null.",
           ],
           solution: tested("ts", REF_THROTTLE, {
             filename: "throttle.ts（scratchpad vitest 4 / 4）",
