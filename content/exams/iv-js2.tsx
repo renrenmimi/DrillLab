@@ -564,8 +564,30 @@ Function.prototype.myBind = function (ctx, ...preset) {
 };`,
               {
                 filename: "三者对比与手写 bind",
+                filenameEn: "The three compared, and bind written by hand",
+                codeEn: `function greet(greeting, mark) {
+  return \`\${greeting}, \${this.name}\${mark}\`;
+}
+const who = { name: "小明" };
+
+greet.call(who, "你好", "！");       // the greeting, then the name, then the mark
+greet.apply(who, ["你好", "！"]);    // the same, but the arguments arrive as an array
+const hi = greet.bind(who, "你好"); // returns a new function with the first argument preset
+hi("？");                            // the same string, ending in a question mark
+
+// Write bind by hand (a very common live-coding question)
+Function.prototype.myBind = function (ctx, ...preset) {
+  const fn = this;
+  return function bound(...args) {
+    // With new, this is the new object and ctx must be ignored —— the spec requires it
+    const isNew = this instanceof bound;
+    return fn.apply(isNew ? this : ctx, [...preset, ...args]);
+  };
+};`,
                 explanation:
                   "手写 bind 的加分项就是那个 isNew 判断：规范规定 new 一个 bound 函数时，绑定的 this 应该被忽略。多数人会漏。",
+                explanationEn:
+                  "What earns extra credit when you write bind by hand is that isNew check: the spec says that when a bound function is called with new, the bound this must be ignored. Most people leave it out.",
               },
             ),
           ],
