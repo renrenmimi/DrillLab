@@ -4149,11 +4149,19 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
               kind: "fill-blank",
               id: "f-ts-props",
               title: "补全 NoteTable 的 props 类型",
+              titleEn: "Fill in the props type of NoteTable",
               level: 2,
               prompt: (
                 <p>
                   这是 <code>NoteTable</code> 真实的 props 类型。
                   三个空：一个数组类型、一个函数类型的参数、一个函数类型的返回值。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  This is the real props type of <code>NoteTable</code>. Three blanks:
+                  an array type, a parameter of a function type, and the return value of
+                  a function type.
                 </p>
               ),
               language: "tsx",
@@ -4169,11 +4177,19 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   n: 1,
                   accept: ["Note[]", "Array<Note>"],
                   hint: "一整个笔记列表。",
+                  hintEn: "A whole list of notes.",
                   why: (
                     <>
                       <code>Note[]</code> 就是「Note 组成的数组」。
                       也可以写 <code>Array&lt;Note&gt;</code>，含义完全一样，
                       但这个项目里统一用 <code>Note[]</code> 这种写法。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>Note[]</code> means &ldquo;an array made of Note&rdquo;. You
+                      can also write <code>Array&lt;Note&gt;</code>, which means exactly
+                      the same, but this project writes <code>Note[]</code> everywhere.
                     </>
                   ),
                   width: 9,
@@ -4182,6 +4198,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   n: 2,
                   accept: ["number"],
                   hint: "回头看 type Note 里 id 是什么类型。",
+                  hintEn: "Look back at type Note and check what type id has.",
                   why: (
                     <>
                       <code>number</code>。因为 <code>Note.id</code> 是
@@ -4192,12 +4209,24 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                       它把整条链上的类型都决定了。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>number</code>, because <code>Note.id</code> is a{" "}
+                      <code>number</code> (the project generates it with{" "}
+                      <code>Date.now()</code>). Write <code>string</code> and{" "}
+                      <code>onDelete(note.id)</code> inside <code>NoteItem</code>{" "}
+                      reports a type mismatch. <strong>This is also why you read the type
+                      definitions first</strong> — they decide the types along the whole
+                      chain.
+                    </>
+                  ),
                   width: 8,
                 },
                 {
                   n: 3,
                   accept: ["void"],
                   hint: "这个回调不需要返回任何东西。",
+                  hintEn: "This callback does not have to return anything.",
                   why: (
                     <>
                       <code>void</code> 表示「没有返回值」。
