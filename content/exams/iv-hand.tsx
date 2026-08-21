@@ -977,6 +977,8 @@ const clone = JSON.parse(JSON.stringify(source));
       title: "异步与结构：Promise.all、EventEmitter、LRU",
       titleEn: "Async and structure: Promise.all, EventEmitter, LRU",
       blurb: "下标写入保顺序、拷贝列表再遍历、Map 的插入序当链表用。",
+      blurbEn:
+        "Write by index to keep the order, copy the list before you walk it, and use the insertion order of a Map as a linked list.",
       minutes: 35,
       objectives: [
         "手写 Promise.all：按输入顺序收结果、首个失败立刻整体失败",
@@ -984,12 +986,21 @@ const clone = JSON.parse(JSON.stringify(source));
         "手写 EventEmitter：on / off / once / emit，once 不挤掉邻居",
         "手写 LRUCache：利用 Map 的插入序，不手搓双向链表",
       ],
+      objectivesEn: [
+        "Write Promise.all by hand: results in input order, and the first failure fails the whole thing at once",
+        "Write Promise.allSettled by hand, and say how it differs from all",
+        "Write an EventEmitter by hand with on / off / once / emit, where once does not drop its neighbours",
+        "Write an LRUCache by hand using the insertion order of a Map, with no hand-built doubly linked list",
+      ],
       whyForAssessment:
         "Promise.all 是异步手写题的第一名，考点全在两个细节：结果顺序和短路失败。EventEmitter 考「遍历中修改列表」这个老陷阱。LRU 是数据结构题里最常见的一道 —— 知道 Map 按插入序遍历，就能把它从 40 行压到 15 行。",
+      whyForAssessmentEn:
+        "Promise.all is the most common async write-it-yourself question, and it turns on two details: the order of the results, and failing immediately on the first error. EventEmitter tests an old trap, changing a list while you walk it. LRU is the data structure question you see most often — once you know a Map iterates in insertion order, it drops from 40 lines to 15.",
       concepts: [
         {
           id: "hd-pall",
           heading: "Promise.all：下标写入 + 计数器",
+          headingEn: "Promise.all: write by index, and count how many are done",
           lede: "Implement Promise.all and Promise.allSettled by hand",
           body: (
             <>
@@ -1075,6 +1086,7 @@ const clone = JSON.parse(JSON.stringify(source));
         {
           id: "hd-emitter",
           heading: "EventEmitter：拷贝一份再遍历",
+          headingEn: "EventEmitter: copy the list, then walk the copy",
           lede: "Implement an EventEmitter with on, off, once and emit",
           body: (
             <>
@@ -1142,6 +1154,7 @@ const clone = JSON.parse(JSON.stringify(source));
         {
           id: "hd-lru",
           heading: "LRU：Map 的插入序就是现成的链表",
+          headingEn: "LRU: the insertion order of a Map is already the linked list you need",
           lede: "Implement an LRU cache without writing a linked list",
           body: (
             <>
@@ -1435,13 +1448,46 @@ items.forEach((item) => {
               <code>results[i] = value</code> 按下标写。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The contract of <code>Promise.all</code> is that{" "}
+              <strong>the results come back in input order</strong>, no matter which one
+              finishes first — the caller matches input to output by index. The push
+              version gives a random order once the calls really run in parallel, and
+              this bug often does not show up in a local test where every call takes the
+              same time, so it only appears in production.{" "}
+              <strong>
+                Always write by index with <code>results[i] = value</code>.
+              </strong>
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「结果要和输入对得上」的并发题", reachFor: "下标写入 + 计数器，别 push" },
-        { signal: "回调 / 监听器列表在触发中会变", reachFor: "遍历前拷贝一份（[...list]）" },
-        { signal: "要 O(1) 的「最近使用」语义", reachFor: "JS 里先想 Map 的插入序，再讲教科书的哈希 + 链表" },
-        { signal: "「XX 和 XX 的语义差别」式追问", reachFor: "一败即停 vs 逐项报告 —— 用场景答，不用定义答" },
+        {
+          signal: "「结果要和输入对得上」的并发题",
+          signalEn: "A parallel problem where the results have to line up with the input",
+          reachFor: "下标写入 + 计数器，别 push",
+          reachForEn: "Write by index and keep a counter; do not push",
+        },
+        {
+          signal: "回调 / 监听器列表在触发中会变",
+          signalEn: "A list of callbacks or listeners changes while it is being run",
+          reachFor: "遍历前拷贝一份（[...list]）",
+          reachForEn: "Copy it before you walk it ([...list])",
+        },
+        {
+          signal: "要 O(1) 的「最近使用」语义",
+          signalEn: "You need O(1) most-recently-used behaviour",
+          reachFor: "JS 里先想 Map 的插入序，再讲教科书的哈希 + 链表",
+          reachForEn: "In JavaScript reach for the insertion order of a Map first, then explain the textbook hash map plus linked list",
+        },
+        {
+          signal: "「XX 和 XX 的语义差别」式追问",
+          signalEn: "A follow-up of the form \"how do X and Y differ\"",
+          reachFor: "一败即停 vs 逐项报告 —— 用场景答，不用定义答",
+          reachForEn: "Stop on the first failure versus report on every item — answer with a scenario, not a definition",
+        },
       ],
       recap: [
         "Promise.all 三件套：下标写入、空数组先判、reject 直接当 then 的第二参 —— 短路失败。",
@@ -1449,6 +1495,13 @@ items.forEach((item) => {
         "EventEmitter 唯一的坑：emit 拷贝列表再遍历，once 的自删才不会挤掉邻居。",
         "LRU 用 Map 的插入序：删掉再放回 = 刷新，迭代器第一个键 = 最旧。",
         "教科书版哈希表 + 双向链表是语言无关的答案 —— 两个版本都要会讲。",
+      ],
+      recapEn: [
+        "Three parts to Promise.all: write by index, check for an empty array first, and pass reject as the second argument of then so the first failure ends it.",
+        "allSettled = wrap every item so it always succeeds and carries a status, then hand them to all; answer the difference with an example.",
+        "The one trap in EventEmitter: emit copies the list before walking it, so a once listener removing itself does not drop its neighbours.",
+        "LRU with the insertion order of a Map: delete then set again to refresh, and the first key from the iterator is the oldest.",
+        "The textbook hash map plus doubly linked list is the language-independent answer — be able to explain both versions.",
       ],
     },
   ],
