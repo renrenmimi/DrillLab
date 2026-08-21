@@ -3760,7 +3760,30 @@ it("completes a booking …", () => {
     "Ford Fusion is on the way and will arrive shortly.",
   );
 });`,
-                  { filename: "fake timer 三步（摘自源项目测试，加注释）" },
+                  {
+                    filename: "fake timer 三步（摘自源项目测试，加注释）",
+                    filenameEn: "Three steps with fake timers (from the source project tests, annotated)",
+                    codeEn: `// the three steps that control time in the tests (as used in App.test.jsx)
+beforeEach(() => {
+  vi.useFakeTimers();                 // ① freeze the clock
+});
+
+afterEach(() => {
+  vi.runOnlyPendingTimers();          // ③ drain the timers that have not fired
+  vi.useRealTimers();                 //    restore the real clock
+});
+
+it("completes a booking …", () => {
+  // …select a cab…
+  expect(screen.getByTestId("loading")).toBeInTheDocument();
+
+  act(() => { vi.advanceTimersByTime(1000); });   // ② move the clock 1 second by hand
+
+  expect(screen.getByTestId("confirm-message")).toHaveTextContent(
+    "Ford Fusion is on the way and will arrive shortly.",
+  );
+});`,
+                  },
                 ),
               ],
             },
@@ -3792,7 +3815,14 @@ it("completes a booking …", () => {
               kind: "fill-blank",
               level: 2,
               title: "补齐 Loading 的四个空",
+              titleEn: "Fill in the four blanks of Loading",
               prompt: <>第 3 个空是这道题的送分点，第 4 个空是这道题的良心。</>,
+              promptEn: (
+                <>
+                  Blank 3 is the one that earns the marks. Blank 4 is the one that is
+                  simply the right thing to do.
+                </>
+              ),
               language: "jsx",
               filename: "src/components/Loading/Loading.jsx",
               template: `import { useEffect } from "react";
@@ -3819,6 +3849,7 @@ const Loading = ({ onComplete }) => {
                   n: 1,
                   accept: ["useEffect"],
                   hint: "副作用要放在哪里",
+                  hintEn: "Where does a side effect belong?",
                   why: (
                     <>
                       <code>setTimeout</code> 是副作用，
@@ -3826,11 +3857,19 @@ const Loading = ({ onComplete }) => {
                       <code>StrictMode</code> 下一次挂载就开两个。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>setTimeout</code> is a side effect. Written in the component
+                      body it <strong>starts a new one on every render</strong>, and under{" "}
+                      <code>StrictMode</code> a single mount starts two.
+                    </>
+                  ),
                 },
                 {
                   n: 2,
                   accept: ["setTimeout"],
                   hint: "只跑一次，不是反复跑",
+                  hintEn: "It runs once, not over and over.",
                   why: (
                     <>
                       <strong>是 <code>setTimeout</code> 不是
@@ -3841,11 +3880,22 @@ const Loading = ({ onComplete }) => {
                       要是忘了清理，它会<strong>每秒把用户拽回确认页一次</strong>。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <strong>It is <code>setTimeout</code>, not{" "}
+                      <code>setInterval</code></strong> — all you need is one jump after
+                      one second. With <code>setInterval</code> it only stops once the
+                      component unmounts and the cleanup runs; forget the cleanup and it{" "}
+                      <strong>drags the user back to the confirmation page once a
+                      second</strong>.
+                    </>
+                  ),
                 },
                 {
                   n: 3,
                   accept: ["1000"],
                   hint: "测试拨的是多少毫秒？",
+                  hintEn: "How many milliseconds do the tests move the clock?",
                   why: (
                     <>
                       测试写的是 <code>vi.advanceTimersByTime(1000)</code>，
@@ -3857,11 +3907,22 @@ const Loading = ({ onComplete }) => {
                       <strong>测试 3 和 4 全红</strong>。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      The tests write <code>vi.advanceTimersByTime(1000)</code>, so the
+                      delay <strong>has to be 1000 or less</strong>, and 1000 fits the
+                      task best (it asks for a simulated delay of one second).
+                      <br />
+                      Write 1200 and after one second the timer has not fired, the page
+                      is still loading, and <strong>tests 3 and 4 both fail</strong>.
+                    </>
+                  ),
                 },
                 {
                   n: 4,
                   accept: ["clearTimeout(timer)"],
                   hint: "组件走了，定时器也得走",
+                  hintEn: "The component leaves, so the timer has to leave too.",
                   why: (
                     <>
                       <strong>四个测试都不会因为少了这一句而失败</strong> ——
@@ -3875,6 +3936,22 @@ const Loading = ({ onComplete }) => {
                       所以你不会收到任何提示。
                       <br />
                       <strong>该写的清理就写上，别等测试来逼你。</strong>
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <strong>None of the four tests fails without this line</strong> —
+                      in this task <code>Loading</code> has no other way out.
+                      <br />
+                      But add a Cancel button and leaving it out gives you &ldquo;the user
+                      is already back on the home page, and one second later the page
+                      jumps to the confirmation screen by itself&rdquo;. From React 18
+                      onwards there is also{" "}
+                      <strong>no warning about updating state on an unmounted
+                      component</strong>, so you get no hint at all.
+                      <br />
+                      <strong>Write the cleanup because it belongs there, not because a
+                      test forced you to.</strong>
                     </>
                   ),
                 },
