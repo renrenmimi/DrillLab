@@ -4482,10 +4482,14 @@ async shippingInfo(parent, _, { dataSources }) {
 }`,
               {
                 filename: "src/resolvers/orderResolvers.js（这个 loader 是对的）",
+                filenameEn:
+                  "src/resolvers/orderResolvers.js (this loader is correct)",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
                 explanation:
                   "注意：这里仍然是 N 次 getShippingInfo 调用（用 Promise.all 并发）。真实系统里 batch 函数应该调一个「批量接口」（比如 WHERE id IN (...)）。这个项目的数据源没有批量接口，所以只能这样 —— 但合并的结构是对的，考点也在结构上。",
+                explanationEn:
+                  "Note this is still N calls to getShippingInfo, run concurrently with Promise.all. In a real system the batch function would call one batch API, such as WHERE id IN (...). The data source in this project has no batch API, so this is as far as you can go — but the structure of the merge is right, and the structure is what is being graded.",
               },
             ),
           ],
