@@ -682,6 +682,16 @@ const SPECS: Spec[] = [
       "同一个 parent 连加两条，按加入顺序排在后面",
       "不许 push / splice / 直接赋值，也不许 JSON.parse(JSON.stringify(...)) 深拷贝",
     ],
+    requirementsEn: [
+      "countComments counts every comment recursively. nodes.length is wrong because it only counts the top level",
+      "maxDepth returns the depth of the deepest path. An empty array gives 0",
+      "addReply finds the node where id === parentId and appends reply to the end of its replies",
+      "The target node can sit at any depth, so search downwards recursively. A top-level node must work too",
+      "Return a brand new tree and leave the original completely untouched. The test deep-freezes it, so any change throws",
+      "When parentId does not exist anywhere, the contents of the tree stay the same",
+      "Adding two replies to the same parent keeps them in the order they were added",
+      "Do not use push, splice or direct assignment, and do not deep-copy with JSON.parse(JSON.stringify(...))",
+    ],
   },
   {
     id: "theme-context",
@@ -703,6 +713,15 @@ const SPECS: Spec[] = [
       "toggleTheme 引用稳定：theme 变了它也不变（useCallback）",
       "theme 没变时 context value 不换新对象（useMemo）",
       "一次事件里连调两次 toggleTheme 要回到原点 —— 必须用函数式更新",
+    ],
+    requirementsEn: [
+      "The default is light: the card shows light and the button reads Switch to Dark. After switching to dark the button reads Switch to Light",
+      "The card background follows the theme: light uses #fff, dark uses #222",
+      "Several consumers under the same Provider all change together. That is the whole reason Context exists",
+      "Calling useTheme() with no Provider around it must throw immediately, and the message must contain ThemeProvider",
+      "toggleTheme keeps a stable identity: it stays the same function when theme changes (useCallback)",
+      "While theme has not changed, the context value must not be a new object (useMemo)",
+      "Calling toggleTheme twice inside one event must land back on the starting theme. That needs the updater form",
     ],
   },
 
@@ -727,6 +746,15 @@ const SPECS: Spec[] = [
       "只有两个 state（已选值 + hover），要显示几颗亮是派生的",
       "传了 value 就是受控：内部不留自己的值，点击只调 onChange",
       "max 决定画几颗星",
+    ],
+    requirementsEn: [
+      "Hovering star n lights up the first n stars. This is only a preview, so the selected value must not change",
+      "When the mouse leaves the whole component, the display goes back to the selected value",
+      "Clicking star n sets the rating to n. Clicking that same star again clears it to 0",
+      "Every star is a button, aria-label is `${n} star`, and aria-pressed marks the selected one",
+      "There are only two pieces of state (the selected value and the hovered one). How many stars light up is derived",
+      "Passing value makes the component controlled: keep no value of your own inside, and a click only calls onChange",
+      "max decides how many stars are drawn",
     ],
   },
   {
