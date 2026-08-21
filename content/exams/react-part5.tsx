@@ -2270,12 +2270,20 @@ $ npx vitest run src/Timer.test.tsx
           kind: "code-completion",
           id: "r-var-timer-write",
           title: "自己写出整个计时器",
+          titleEn: "Write the whole timer yourself",
           level: 3,
           generated: true,
           prompt: (
             <p>
               两个 state、一个 effect、一个 reset、一个 mm:ss 格式化。
               检查器会专门查清理函数和函数式更新。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Two states, one effect, one reset, and one mm:ss formatter. The
+              checker looks specifically for the cleanup function and the updater
+              form.
             </p>
           ),
           language: "tsx",
@@ -2302,6 +2310,28 @@ const Timer: React.FC = () => {
 };
 
 export default Timer;`,
+          starterEn: `import React, { useEffect, useState } from "react";
+
+// 1. format the seconds as mm:ss (00:00 / 00:09 / 01:05 / 10:00)
+export const format = (totalSeconds: number) =>
+
+const Timer: React.FC = () => {
+  // 2. two states: the seconds gone by, and whether it is running
+
+  // 3. effect: add one every second while running is true; remember the cleanup
+
+  // 4. reset: stop and go back to zero
+
+  return (
+    <div data-testid="timer">
+      <output data-testid="display">{/* 格式化后的时间 */}</output>
+      <button data-testid="toggle">{/* Start / Pause */}</button>
+      <button data-testid="reset">Reset</button>
+    </div>
+  );
+};
+
+export default Timer;`,
           requirements: [
             "format(65) 要返回 \"01:05\"，个位数补零",
             "点 Start 开始每秒加一，点 Pause 停下并保留当前值",
@@ -2310,15 +2340,43 @@ export default Timer;`,
             "必须用函数式更新，避免过期闭包",
             "按钮文字：跑着显示 Pause，停着显示 Start",
           ],
+          requirementsEn: [
+            'format(65) has to return "01:05", padding single digits with a zero',
+            "Start begins adding one per second; Pause stops and keeps the current value",
+            "Reset stops and goes back to zero (the button text returns to Start)",
+            "The effect has to return a cleanup function that clears the interval",
+            "Use the updater form, so there is no stale closure",
+            "Button text: Pause while running, Start while stopped",
+          ],
           checks: [
-            { label: "用了 setInterval", must: "setInterval\\s*\\(" },
-            { label: "effect 返回了清理函数并 clearInterval", must: "return\\s*\\(\\s*\\)\\s*=>[\\s\\S]{0,60}clearInterval" },
-            { label: "依赖数组里有 running（或等价的开关 state）", must: "\\}\\s*,\\s*\\[[^\\]]*running[^\\]]*\\]" },
-            { label: "用函数式更新加一，不是 seconds + 1", must: "set\\w*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>\\s*\\w+\\s*\\+\\s*1" },
-            { label: "没有直接用闭包里的值加一", mustNot: "set(Seconds|Time|Elapsed)\\s*\\(\\s*(seconds|time|elapsed)\\s*\\+" },
-            { label: "format 里做了补零", must: "padStart|padEnd|slice\\s*\\(\\s*-2" },
-            { label: "reset 同时停表并清零", must: "(setRunning|setIsRunning)\\s*\\(\\s*false\\s*\\)" },
-            { label: "按钮文字随状态切换", must: "\\?\\s*[\"'`]Pause|Pause[\"'`]\\s*:" },
+            { label: "用了 setInterval", labelEn: "setInterval is used", must: "setInterval\\s*\\(" },
+            {
+              label: "effect 返回了清理函数并 clearInterval",
+              labelEn: "The effect returns a cleanup function that calls clearInterval",
+              must: "return\\s*\\(\\s*\\)\\s*=>[\\s\\S]{0,60}clearInterval",
+            },
+            {
+              label: "依赖数组里有 running（或等价的开关 state）",
+              labelEn: "The dependency array holds running (or an equivalent on/off state)",
+              must: "\\}\\s*,\\s*\\[[^\\]]*running[^\\]]*\\]",
+            },
+            {
+              label: "用函数式更新加一，不是 seconds + 1",
+              labelEn: "The increment uses the updater form, not seconds + 1",
+              must: "set\\w*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>\\s*\\w+\\s*\\+\\s*1",
+            },
+            {
+              label: "没有直接用闭包里的值加一",
+              labelEn: "The increment does not read the value out of the closure",
+              mustNot: "set(Seconds|Time|Elapsed)\\s*\\(\\s*(seconds|time|elapsed)\\s*\\+",
+            },
+            { label: "format 里做了补零", labelEn: "format pads with a zero", must: "padStart|padEnd|slice\\s*\\(\\s*-2" },
+            {
+              label: "reset 同时停表并清零",
+              labelEn: "reset both stops the clock and clears it",
+              must: "(setRunning|setIsRunning)\\s*\\(\\s*false\\s*\\)",
+            },
+            { label: "按钮文字随状态切换", labelEn: "The button text follows the state", must: "\\?\\s*[\"'`]Pause|Pause[\"'`]\\s*:" },
           ],
           hints: [
             "先想清楚：定时器该在什么时候建立、什么时候拆掉？「拆掉」这件事在 useEffect 里由谁负责？另外，interval 的回调是在哪一次渲染里创建的，它看到的 state 是哪一次的？",
@@ -2346,8 +2404,35 @@ useEffect(() => {
   return () => clearInterval(id);
 }, [running]);`,
           ],
+          hintsEn: [
+            "Settle two things first: when should the interval be built, and when torn down? Inside useEffect, what is responsible for the tearing down? And which render created the interval callback, so which render's state does it see?",
+            'Two states: seconds and running. The effect depends on [running]: when running is false, return early and build no interval; when it is true, call setInterval and return a cleanup function. The increment has to be setSeconds(s => s + 1). Format with Math.floor(n/60) and n%60, each through String().padStart(2, "0").',
+            `const pad = n => String(n).padStart(2, "0")
+format = n => \`\${pad(Math.floor(n / 60))}:\${pad(n % 60)}\`
+
+useEffect(() => {
+  if (!running) return
+  const id = setInterval(() => setSeconds(previous value => previous value + 1), 1000)
+  return () => clear that id
+}, [running])
+
+reset = () => { stop the clock; zero it }
+button text = running ? "Pause" : "Start"`,
+            `const pad = (n: number) => String(n).padStart(2, "0");
+export const format = (totalSeconds: number) =>
+  \`\${pad(Math.floor(totalSeconds / 60))}:\${pad(totalSeconds % 60)}\`;
+
+useEffect(() => {
+  if (!running) return;
+  const id = setInterval(() => {
+    setSeconds((s) => s + 1);
+  }, 1000);
+  return () => clearInterval(id);
+}, [running]);`,
+          ],
           solution: tested("tsx", TIMER_SOLUTION, {
             filename: "参考答案（实测 8/8 通过）",
+            filenameEn: "Reference answer (8 of 8 tests pass here)",
             collapsible: true,
           }),
         },
