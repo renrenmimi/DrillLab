@@ -2440,12 +2440,19 @@ useEffect(() => {
           kind: "debug",
           id: "r-var-timer-debug",
           title: "Debug Lab · 计时器越跑越快",
+          titleEn: "Debug Lab · the timer keeps getting faster",
           level: 2,
           generated: true,
           prompt: (
             <p>
               点了几次 Start / Pause 之后，秒数开始一次跳好几秒。
               下面是真实的测试输出。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              After a few clicks of Start and Pause, the seconds start jumping
+              several at a time. Below is the real test output.
             </p>
           ),
           errorOutput: `$ npx vitest run src/Timer.test.tsx
@@ -2483,20 +2490,33 @@ useEffect(() => {
           ),
           classify: {
             options: [
-              { id: "a", label: "过期闭包 —— setSeconds 读到了旧的 seconds" },
-              { id: "b", label: "副作用未清理 —— effect 没有返回清理函数，旧定时器一直累积" },
-              { id: "c", label: "依赖数组错误 —— 应该把 seconds 也加进去" },
-              { id: "d", label: "状态更新错误 —— 改了原对象" },
+              { id: "a", label: "过期闭包 —— setSeconds 读到了旧的 seconds", labelEn: "A stale closure — setSeconds read an old seconds" },
+              {
+                id: "b",
+                label: "副作用未清理 —— effect 没有返回清理函数，旧定时器一直累积",
+                labelEn: "An uncleaned effect — it returns no cleanup function, so the old intervals pile up",
+              },
+              {
+                id: "c",
+                label: "依赖数组错误 —— 应该把 seconds 也加进去",
+                labelEn: "A dependency array error — seconds should be in there too",
+              },
+              { id: "d", label: "状态更新错误 —— 改了原对象", labelEn: "A state update error — the original object was changed" },
             ],
             answer: "b",
           },
           locate: {
             question: "该补什么？",
+            questionEn: "What has to be added?",
             options: [
-              { id: "a", label: "在 effect 末尾加 return () => clearInterval(id);" },
-              { id: "b", label: "把依赖数组改成 [running, seconds]" },
-              { id: "c", label: "把 setInterval 换成 setTimeout" },
-              { id: "d", label: "在 setSeconds 外面加一层 if (running)" },
+              {
+                id: "a",
+                label: "在 effect 末尾加 return () => clearInterval(id);",
+                labelEn: "Add return () => clearInterval(id); at the end of the effect",
+              },
+              { id: "b", label: "把依赖数组改成 [running, seconds]", labelEn: "Change the dependency array to [running, seconds]" },
+              { id: "c", label: "把 setInterval 换成 setTimeout", labelEn: "Replace setInterval with setTimeout" },
+              { id: "d", label: "在 setSeconds 外面加一层 if (running)", labelEn: "Wrap setSeconds in an if (running)" },
             ],
             answer: "a",
           },
@@ -2512,7 +2532,21 @@ useEffect(() => {
   // 清理函数：running 变化时先拆掉上一个定时器，卸载时也会拆
   return () => clearInterval(id);
 }, [running]);`,
-            { filename: "改对之后（8/8 通过）", highlight: [8, 9] },
+            {
+              filename: "改对之后（8/8 通过）",
+              filenameEn: "After the fix (8 of 8 pass)",
+              codeEn: `useEffect(() => {
+  if (!running) return;
+
+  const id = setInterval(() => {
+    setSeconds((s) => s + 1);
+  }, 1000);
+
+  // Cleanup: tear down the previous interval when running changes, and on unmount
+  return () => clearInterval(id);
+}, [running]);`,
+              highlight: [8, 9],
+            },
           ),
           rootCause: (
             <>
@@ -2546,7 +2580,46 @@ useEffect(() => {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                The dependency is <code>[running]</code>, so every time{" "}
+                <code>running</code> goes from false to true the effect runs again
+                and <code>setInterval</code> creates one more interval.{" "}
+                <strong>The old one is never cleared, and it keeps running.</strong>
+              </p>
+              <p>
+                After four rounds of start and pause, four intervals are adding one
+                to the same state. The first round adds 1 per second, the second 2,
+                the third 3, the fourth 4 — which totals{" "}
+                <strong>1+2+3+4 = 10</strong>. That matches the{" "}
+                <code>00:10</code> in the measured output exactly.
+              </p>
+              <p>
+                <strong>Why is option B not enough?</strong> Adding{" "}
+                <code>seconds</code> to the dependencies does remove the stale
+                closure, but it <strong>does not stop the leak</strong>. Each time
+                seconds changes and the interval is rebuilt, the old one is still
+                not cleared; only the rate of the pile-up changes.{" "}
+                <strong>The cleanup function is the only real fix.</strong>
+              </p>
+              <p>
+                <strong>Option C is wrong too:</strong> switching to{" "}
+                <code>setTimeout</code> makes it tick once and stop, so it is no
+                longer a timer at all.
+              </p>
+              <p>
+                Remember this rule of thumb:{" "}
+                <strong>
+                  whenever an effect sets up something that keeps existing — a
+                  timer, a listener, a subscription, a connection, a request in
+                  flight — it has to return a function that tears that thing down.
+                </strong>
+              </p>
+            </>
+          ),
           verify: "npx vitest run src/Timer.test.tsx   # 应该 8 passed，包含 unmount 那条",
+          verifyEn: "npx vitest run src/Timer.test.tsx   # should be 8 passed, including the unmount one",
         },
       ],
       mistakes: [
