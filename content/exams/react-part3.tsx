@@ -617,6 +617,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           kind: "recognition",
           id: "r-q1-forbidden",
           title: "哪一处改动会让测试挂掉",
+          titleEn: "Which change makes a test fail",
           level: 1,
           prompt: (
             <p>
@@ -624,11 +625,30 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               下面哪些改动<strong>也会</strong>让现有测试失败？（多选）
             </p>
           ),
+          promptEn: (
+            <p>
+              The README says only that no data-testid may be changed. Which of
+              the changes below <strong>also</strong> break the existing tests?
+              (more than one)
+            </p>
+          ),
           options: [
-            { id: "a", label: '把 NoteItem 里的按钮文字从 "Delete" 改成 "Remove"' },
-            { id: "b", label: "给 NoteTable 加一个 className" },
-            { id: "c", label: '给空列表加分支：notes.length === 0 时不渲染 <tbody data-testid="notes-list">' },
-            { id: "d", label: '把按钮文字从 "Update" 改成 "Save"' },
+            {
+              id: "a",
+              label: '把 NoteItem 里的按钮文字从 "Delete" 改成 "Remove"',
+              labelEn: 'Change the button text in NoteItem from "Delete" to "Remove"',
+            },
+            { id: "b", label: "给 NoteTable 加一个 className", labelEn: "Add a className to NoteTable" },
+            {
+              id: "c",
+              label: '给空列表加分支：notes.length === 0 时不渲染 <tbody data-testid="notes-list">',
+              labelEn: 'Add an empty-list branch: when notes.length === 0, do not render <tbody data-testid="notes-list">',
+            },
+            {
+              id: "d",
+              label: '把按钮文字从 "Update" 改成 "Save"',
+              labelEn: 'Change the button text from "Update" to "Save"',
+            },
           ],
           answer: ["a", "c", "d"],
           explain: (
@@ -647,11 +667,31 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               只有 B 是安全的：className 没有任何测试依赖它。
             </>
           ),
+          explainEn: (
+            <>
+              A — the third test finds the button with{" "}
+              <code>getByRole(&quot;button&quot;, {"{ name: \"Delete\" }"})</code>,
+              so changing the text means it is no longer found.
+              <br />
+              C — after the delete, the third test still asserts on{" "}
+              <code>getByTestId(&quot;notes-list&quot;)</code>, and a missing
+              element throws right there.{" "}
+              <strong>
+                Whether a testid element exists is part of the contract too.
+              </strong>
+              <br />
+              D — the fourth test asserts{" "}
+              <code>toHaveTextContent(&quot;Update&quot;)</code> directly.
+              <br />
+              Only B is safe: no test depends on className.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-q1-hidden-req",
           title: "题目没写但测试在查的是哪一条",
+          titleEn: "The requirement the task never states but a test checks",
           level: 1,
           prompt: (
             <p>
@@ -659,11 +699,21 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               但四个测试里有一条专门在查它。是哪个？
             </p>
           ),
+          promptEn: (
+            <p>
+              One requirement is never mentioned in the three Tasks of the README,
+              yet one of the four tests checks exactly that. Which one is it?
+            </p>
+          ),
           options: [
-            { id: "a", label: "笔记要按标题排序" },
-            { id: "b", label: "输入为空时提交按钮必须 disabled" },
-            { id: "c", label: "删除前要弹确认框" },
-            { id: "d", label: "笔记要存进 localStorage" },
+            { id: "a", label: "笔记要按标题排序", labelEn: "The notes have to be sorted by title" },
+            {
+              id: "b",
+              label: "输入为空时提交按钮必须 disabled",
+              labelEn: "The submit button has to be disabled while the inputs are empty",
+            },
+            { id: "c", label: "删除前要弹确认框", labelEn: "A confirmation dialog has to appear before a delete" },
+            { id: "d", label: "笔记要存进 localStorage", labelEn: "The notes have to be saved into localStorage" },
           ],
           answer: ["b"],
           explain: (
@@ -677,20 +727,53 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               自己加这些功能不加分，还可能破坏测试。
             </>
           ),
+          explainEn: (
+            <>
+              The second test,{" "}
+              <code>submit button disabled when inputs empty</code>, asserts that
+              the submit button is disabled on the first render. The three Tasks
+              in the README say nothing at all about it.
+              <br />
+              <strong>
+                The lesson: the README is one part of the requirements and the
+                tests are another part. Read both.
+              </strong>{" "}
+              A, C and D appear in neither the task nor the tests. Adding them
+              yourself earns nothing and may break a test.
+            </>
+          ),
         },
         {
           kind: "ordering",
           id: "r-q1-workflow",
           title: "把上手顺序排对",
+          titleEn: "Put the starting steps in order",
           level: 1,
           prompt: <p>拿到这个项目，最合理的动作顺序是什么？</p>,
+          promptEn: <p>You just received this project. What is the most sensible order to work in?</p>,
           items: [
-            { id: "e", label: "写代码：三个 handler 逐个实现" },
-            { id: "a", label: "npm install，然后 npx vitest run 拿到基线" },
-            { id: "c", label: "读 NoteForm / NoteTable / NoteItem，确认它们已经完整、不用改" },
-            { id: "b", label: "读 README + 读测试文件，抄下所有验收标准" },
-            { id: "f", label: "npx vitest run 验证，再 npm run dev 手动点一遍" },
-            { id: "d", label: "读 types/Note.ts，确认数据形状和 id 的类型" },
+            { id: "e", label: "写代码：三个 handler 逐个实现", labelEn: "Write the code: implement the three handlers one at a time" },
+            { id: "a", label: "npm install，然后 npx vitest run 拿到基线", labelEn: "npm install, then npx vitest run to get a baseline" },
+            {
+              id: "c",
+              label: "读 NoteForm / NoteTable / NoteItem，确认它们已经完整、不用改",
+              labelEn: "Read NoteForm / NoteTable / NoteItem and confirm they are already complete and need no change",
+            },
+            {
+              id: "b",
+              label: "读 README + 读测试文件，抄下所有验收标准",
+              labelEn: "Read the README and the test file, and write down every acceptance criterion",
+            },
+            {
+              id: "f",
+              label: "npx vitest run 验证，再 npm run dev 手动点一遍",
+              labelEn: "Verify with npx vitest run, then npm run dev and click through it by hand",
+            },
+            {
+              id: "d",
+              label: "读 types/Note.ts，确认数据形状和 id 的类型",
+              labelEn: "Read types/Note.ts to confirm the shape of the data and the type of id",
+            },
           ],
           answer: ["a", "b", "d", "c", "e", "f"],
           explain: (
@@ -702,6 +785,20 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               <strong>最后那步「手动点一遍」不能省</strong> ——
               测试只有一条数据，测不出「原位置更新」和「按 id 删除」，
               这两个恰恰是题目明确要求的。
+            </>
+          ),
+          explainEn: (
+            <>
+              Install and run the baseline first, so you know the starting point.
+              Then read the task and the tests, so you know the end point. Then
+              read the types, so you know what the data looks like. Then read the
+              existing components, so you know what not to touch. Only then write
+              the code, and finish with the tests plus a manual check.
+              <br />
+              <strong>That last manual pass is not optional.</strong> The tests
+              use a single note, so they cannot check &quot;update in place&quot;
+              or &quot;delete by id&quot; — and those two are exactly what the
+              task asks for.
             </>
           ),
         },
