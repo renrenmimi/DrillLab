@@ -2384,7 +2384,14 @@ const useCabContext = () => {
               kind: "fill-blank",
               level: 2,
               title: "补齐 App 的状态机",
+              titleEn: "Fill in the state machine of App",
               prompt: <>五个空。注意第 4 个空是这道题最容易写反的地方。</>,
+              promptEn: (
+                <>
+                  Five blanks. The fourth one is the easiest place in this exercise to
+                  get backwards.
+                </>
+              ),
               language: "jsx",
               filename: "src/App.jsx",
               template: `const App = () => {
@@ -2423,6 +2430,7 @@ const useCabContext = () => {
                   n: 1,
                   accept: ["\"home\"", "'home'"],
                   hint: "测试 1 一上来就查首页",
+                  hintEn: "Test 1 looks at the home page straight away.",
                   why: (
                     <>
                       初始页必须是 <code>home</code> —— 测试 1 <code>render</code>
@@ -2432,11 +2440,21 @@ const useCabContext = () => {
                       因为后面三个测试第一步都是点 <code>book-button</code>。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      The first page has to be <code>home</code> — test 1 looks for{" "}
+                      <code>book-button</code> right after <code>render</code>, with no
+                      click at all. <strong>Get the initial value wrong and all four
+                      tests fail</strong>, because the first step of the other three is
+                      also pressing <code>book-button</code>.
+                    </>
+                  ),
                 },
                 {
                   n: 2,
                   accept: ["updateBookedCabDetails"],
                   hint: "App 只需要写，不需要读",
+                  hintEn: "App only writes; it never reads.",
                   why: (
                     <>
                       <code>App</code> 是<strong>只写</strong>的消费者 ——
@@ -2448,11 +2466,25 @@ const useCabContext = () => {
                       才知道它用了 Context 的哪几样东西。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>App</code> is a <strong>write-only</strong> consumer — it
+                      shows neither the cab name nor the history.
+                      <br />
+                      One habit worth keeping: <strong>destructure only what you
+                      actually use</strong>. Writing{" "}
+                      <code>const ctx = useCabContext()</code> and then{" "}
+                      <code>ctx.xxx</code> everywhere works too, but anyone reading the
+                      code has to go through the whole component to find out which parts
+                      of the Context it touches.
+                    </>
+                  ),
                 },
                 {
                   n: 3,
                   accept: ["updateBookedCabDetails"],
                   hint: "和第 2 个空同一个函数",
+                  hintEn: "The same function as blank 2.",
                   why: (
                     <>
                       一句就够 —— 它内部已经同时改了
@@ -2463,11 +2495,22 @@ const useCabContext = () => {
                       测试 4 数出来 4 条而不是 3 条。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      One line is enough — inside itself it already changes both{" "}
+                      <code>bookedCabDetails</code> and <code>rideHistory</code>.
+                      <br />
+                      <strong>Add another <code>setRideHistory</code> here and the
+                      history gains a duplicate row</strong>, so test 4 counts 4 instead
+                      of 3.
+                    </>
+                  ),
                 },
                 {
                   n: 4,
                   accept: ["handleSelectCab"],
                   hint: "传函数本身，不是调用它",
+                  hintEn: "Pass the function itself, do not call it.",
                   why: (
                     <>
                       <strong>这里写 <code>handleSelectCab</code>，
@@ -2484,11 +2527,29 @@ const useCabContext = () => {
                       比如上面那几个 <code>{"() => setCurrentPage(\"...\")"}</code>。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <strong>Write <code>handleSelectCab</code> here, not{" "}
+                      <code>handleSelectCab()</code>.</strong> The parentheses make it run
+                      during render — <code>cab</code> is <code>undefined</code>, an empty
+                      row lands in the history right away, and calling{" "}
+                      <code>setCurrentPage</code> during render causes{" "}
+                      <strong>endless re-rendering</strong>.
+                      <br />
+                      There is also no need for{" "}
+                      <code>{"(cab) => handleSelectCab(cab)"}</code> — that passes the
+                      same argument straight through, so the extra wrapper buys nothing.{" "}
+                      <strong>Wrap it in an arrow function only when you have to supply
+                      an argument</strong>, as in those{" "}
+                      <code>{"() => setCurrentPage(\"...\")"}</code> above.
+                    </>
+                  ),
                 },
                 {
                   n: 5,
                   accept: ["setCurrentPage(\"home\")", "setCurrentPage('home')"],
                   hint: "点完确认回哪儿？",
+                  hintEn: "Where do you go after pressing confirm?",
                   why: (
                     <>
                       回首页。<strong>测试 3 和 4 都依赖这一条</strong> ——
@@ -2500,6 +2561,19 @@ const useCabContext = () => {
                       <strong>每一轮都要能从确认页回到首页再点一次
                       <code>book-button</code></strong>。
                       这一条写错，测试 4 第二轮就找不到按钮了。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      Back to the home page. <strong>Tests 3 and 4 both depend on
+                      this</strong> — after pressing <code>confirm-button</code> they look
+                      straight for <code>history-cabs</code>, and the history lives on the
+                      home page.
+                      <br />
+                      Test 4 is harder still: it books four cabs in a row, and{" "}
+                      <strong>every round has to get from the confirmation page back to
+                      the home page and press <code>book-button</code> again</strong>. Get
+                      this wrong and test 4 cannot find the button on its second round.
                     </>
                   ),
                 },
