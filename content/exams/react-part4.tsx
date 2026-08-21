@@ -1661,12 +1661,20 @@ const worker = async () => {
           kind: "debug",
           id: "r-debug-q2-no-parens",
           title: "Debug Lab · 一行 START 都没打印",
+          titleEn: "Debug Lab · not one START line prints",
           level: 2,
           prompt: (
             <p>
               跑 <code>npm run q2</code>，没有报错，但一行
               <code>task N START</code> 都没有，直接就出结果了 ——
               而且结果里的 value 长得很奇怪。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You run <code>npm run q2</code>. Nothing reports an error, but not
+              one <code>task N START</code> line appears; the results come out
+              right away. And the value in each result looks strange.
             </p>
           ),
           errorOutput: `$ npm run q2
@@ -1698,24 +1706,29 @@ const worker = async () => {
     }
   }
 };`,
-            { filename: "有问题的 worker", highlight: [7] },
+            {
+              filename: "有问题的 worker",
+              filenameEn: "The worker with the problem",
+              highlight: [7],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "并发控制错误 —— worker 数量算错了" },
-              { id: "b", label: "函数与返回值混淆 —— await 了函数本身，任务从未被调用" },
-              { id: "c", label: "顺序错误 —— 用了 push 而不是下标" },
-              { id: "d", label: "类型错误 —— SettledResult 写错了" },
+              { id: "a", label: "并发控制错误 —— worker 数量算错了", labelEn: "A concurrency mistake — the number of workers is computed wrong" },
+              { id: "b", label: "函数与返回值混淆 —— await 了函数本身，任务从未被调用", labelEn: "A function confused with its return value — the function itself was awaited, so the task was never called" },
+              { id: "c", label: "顺序错误 —— 用了 push 而不是下标", labelEn: "An order mistake — push was used instead of an index" },
+              { id: "d", label: "类型错误 —— SettledResult 写错了", labelEn: "A type mistake — SettledResult is written wrong" },
             ],
             answer: "b",
           },
           locate: {
             question: "第 7 行少了什么？",
+            questionEn: "What is missing on line 7?",
             options: [
-              { id: "a", label: "少了一对调用括号：应该是 await tasks[i]()" },
-              { id: "b", label: "少了 async 关键字" },
-              { id: "c", label: "少了 .then()" },
-              { id: "d", label: "应该写成 await Promise.resolve(tasks[i])" },
+              { id: "a", label: "少了一对调用括号：应该是 await tasks[i]()", labelEn: "A pair of call parentheses is missing: it should be await tasks[i]()" },
+              { id: "b", label: "少了 async 关键字", labelEn: "The async keyword is missing" },
+              { id: "c", label: "少了 .then()", labelEn: ".then() is missing" },
+              { id: "d", label: "应该写成 await Promise.resolve(tasks[i])", labelEn: "It should be await Promise.resolve(tasks[i])" },
             ],
             answer: "a",
           },
@@ -1725,6 +1738,9 @@ const worker = async () => {
 //                          ↑ 括号：调用它，任务才真的开始跑`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
+              codeEn: `const value = await tasks[i]();
+//                          ↑ the parentheses: calling it is what starts the task`,
               sourceFile: "react-notes-app/q2/taskRunner.ts",
             },
           ),
@@ -1757,7 +1773,43 @@ const worker = async () => {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                The type of <code>tasks[i]</code> is <code>Task&lt;T&gt;</code>,
+                which is <code>() =&gt; Promise&lt;T&gt;</code> —{" "}
+                <strong>a function</strong>, not a Promise.
+              </p>
+              <p>
+                When you <code>await</code> a value that is not a Promise, it{" "}
+                <strong>passes straight through and returns that value
+                unchanged</strong>. So <code>value</code> becomes the function
+                object, and the body of the function — the{" "}
+                <code>running++</code>, the <code>console.log</code>, the{" "}
+                <code>setTimeout</code> inside it —{" "}
+                <strong>never ran even once</strong>.
+              </p>
+              <p>
+                The three symptoms confirm each other: no START line printed
+                (the body never ran), task 3 never rejected (the reject is
+                inside the body), and value is a function (await returned it
+                unchanged).
+              </p>
+              <p>
+                <strong>This bug reports nothing at all</strong>, and
+                TypeScript does not stop it either, because awaiting a
+                non-Promise is legal and only raises a lint note. How to
+                recognize it:{" "}
+                <strong>
+                  a [Function] or a Promise object showing up in the results
+                  means a pair of parentheses is missing, or one pair too many.
+                </strong>
+              </p>
+            </>
+          ),
           verify: "npm run q2   # 应该看到 task N START，且 running now 不超过 2",
+          verifyEn:
+            "npm run q2   # you should see task N START, and running now should never go above 2",
         },
       ],
       mistakes: [
