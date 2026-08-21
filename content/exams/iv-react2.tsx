@@ -1939,6 +1939,8 @@ const preload = () => import("./pages/Settings");
       title: "Redux 与 TypeScript · 六问",
       titleEn: "6 questions on Redux and TypeScript",
       blurb: "Redux vs Context、结构与工作流、三大原则、中间件、JS vs TS、静态类型检查。",
+      blurbEn:
+        "Redux vs Context, the parts and the data flow, the three principles, middleware, JS vs TS, static type checking.",
       minutes: 22,
       objectives: [
         "说清 Redux 和 Context 解决的不是同一个问题",
@@ -1946,8 +1948,16 @@ const preload = () => import("./pages/Settings");
         "背出三大原则并解释每一条为什么必要",
         "说明静态类型检查在什么阶段发现什么问题",
       ],
+      objectivesEn: [
+        "Explain that Redux and Context do not solve the same problem",
+        "Draw the full path: action to middleware to reducer to store to view",
+        "State the three principles, and explain why each one is needed",
+        "Say at which stage static type checking finds a problem, and which kind of problem",
+      ],
       whyForAssessment:
         "只要简历上写了 Redux，这四道基本会连着问。「Redux vs Context」是最容易答错的一道 —— 说「Context 能替代 Redux」或者反过来都不对。TS 那两道是现在的标配题。",
+      whyForAssessmentEn:
+        "If Redux is on your resume, these four questions usually come one after another. \"Redux vs Context\" is the one people get wrong most often: saying Context can replace Redux is wrong, and so is the opposite. The two TypeScript questions are now standard.",
       concepts: [
         {
           id: "q349",
@@ -2119,6 +2129,7 @@ const preload = () => import("./pages/Settings");
         {
           id: "q350",
           heading: "Redux 的结构和工作流",
+          headingEn: "What are the parts of Redux and how does data flow through them?",
           lede: "#350 Redux structure and workflow",
           body: (
             <>
@@ -2300,6 +2311,7 @@ dispatch(add({ id: Date.now(), text, done: false }));`,
         {
           id: "q352",
           heading: "Redux 的三大原则",
+          headingEn: "What are the three principles of Redux?",
           lede: "#352 Redux 3 main principles",
           body: (
             <>
@@ -2423,6 +2435,7 @@ dispatch(add({ id: Date.now(), text, done: false }));`,
         {
           id: "q354",
           heading: "解释一下 Redux 中间件",
+          headingEn: "Explain Redux middleware",
           lede: "#354 explain Redux Middleware",
           body: (
             <>
@@ -2728,6 +2741,7 @@ const fetchUser = (id) => async (dispatch) => {
         {
           id: "q356",
           heading: "什么是静态类型检查，有什么好处",
+          headingEn: "What is static type checking, and what does it give you?",
           lede: "#356 What is static type checking and how can developers benefit from it",
           body: (
             <>
@@ -2858,12 +2872,42 @@ const fetchUser = (id) => async (dispatch) => {
         },
       ],
       transfer: [
-        { signal: "问 Redux vs Context", reachFor: "一个是传递方案一个是状态管理；Context 缺精细订阅、中间件、DevTools" },
-        { signal: "「context 一变全都重渲染」", reachFor: "拆 Context，或换 selector 型状态库" },
-        { signal: "reducer 里想发请求", reachFor: "挪到中间件或 thunk，reducer 必须纯" },
-        { signal: "问三大原则", reachFor: "串起来讲：可序列化 → 可记录 → 可重放 = 时间旅行" },
-        { signal: "问服务端数据怎么管", reachFor: "TanStack Query / SWR，别用 Redux 硬凑缓存" },
-        { signal: "以为 TS 类型能校验接口数据", reachFor: "运行时没有 TS，要用 zod" },
+        {
+          signal: "问 Redux vs Context",
+          signalEn: "Asked about Redux vs Context",
+          reachFor: "一个是传递方案一个是状态管理；Context 缺精细订阅、中间件、DevTools",
+          reachForEn: "One is a way to pass data down, the other is state management; Context has no per-field subscriptions, no middleware and no DevTools",
+        },
+        {
+          signal: "「context 一变全都重渲染」",
+          signalEn: "One Context change re-renders everything",
+          reachFor: "拆 Context，或换 selector 型状态库",
+          reachForEn: "Split the Context into smaller ones, or move to a state library where each component selects the fields it reads",
+        },
+        {
+          signal: "reducer 里想发请求",
+          signalEn: "You want to send a request from inside a reducer",
+          reachFor: "挪到中间件或 thunk，reducer 必须纯",
+          reachForEn: "Move it into middleware or a thunk; a reducer has to be pure",
+        },
+        {
+          signal: "问三大原则",
+          signalEn: "Asked for the three principles",
+          reachFor: "串起来讲：可序列化 → 可记录 → 可重放 = 时间旅行",
+          reachForEn: "Tell them as one chain: state can be serialised, so changes can be recorded, so they can be replayed, which is time travel",
+        },
+        {
+          signal: "问服务端数据怎么管",
+          signalEn: "Asked how to manage data from the server",
+          reachFor: "TanStack Query / SWR，别用 Redux 硬凑缓存",
+          reachForEn: "TanStack Query or SWR; do not build a cache out of Redux",
+        },
+        {
+          signal: "以为 TS 类型能校验接口数据",
+          signalEn: "Expecting a TypeScript type to validate data from an API",
+          reachFor: "运行时没有 TS，要用 zod",
+          reachForEn: "No TypeScript is left at runtime, so validate with something like zod",
+        },
       ],
       recap: [
         "Context 管传递，Redux 管状态管理；Context 缺精细订阅、中间件、DevTools 三样。",
@@ -2872,6 +2916,14 @@ const fetchUser = (id) => async (dispatch) => {
         "中间件签名 store => next => action，是专门给副作用留的位置；thunk 够用，saga 只在需要编排时值。",
         "TS 编译后运行时什么都不剩 —— 所以类型不能校验外部数据，as 只是「我保证」。",
         "静态检查最被低估的价值是重构有底气；但它只保证类型对不保证逻辑对，不能替代测试。",
+      ],
+      recapEn: [
+        "Context passes data down, Redux manages state. Context is missing three things: per-field subscriptions, middleware, and DevTools.",
+        "The one-way loop in Redux: dispatch, then middleware, then reducer, then store, then view. Today always write it with createSlice from RTK.",
+        "The three principles matter as a chain: one source of truth means the state can be serialised, read-only state means changes can be recorded, pure reducers mean they can be replayed.",
+        "Middleware has the signature store => next => action, and it is the place set aside for side effects. thunk is enough for most cases; saga is only worth it when you have to coordinate several steps.",
+        "Nothing of TypeScript is left after compiling, so a type cannot validate data from outside, and as only means \"trust me\".",
+        "The most underrated value of static checking is the confidence to refactor. But it only guarantees the types are right, not the logic, so it does not replace tests.",
       ],
     },
   ],
