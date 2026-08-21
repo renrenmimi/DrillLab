@@ -1823,6 +1823,15 @@ try {
 } catch (reason) {
   results.push({ status: "rejected", reason });
 }`,
+            {
+              codeEn: `// ✗ collecting results with push — the order follows finish time, not input order
+try {
+  const value = await tasks[i]();
+  results.push({ status: "fulfilled", value });
+} catch (reason) {
+  results.push({ status: "rejected", reason });
+}`,
+            },
           ),
           why: (
             <>
@@ -1858,6 +1867,16 @@ try {
   results[i] = { status: "rejected", reason };
   return;                       // ← 这个 worker 死了
 }`,
+            {
+              codeEn: `// ✗ returning after catch stops the whole worker on one failure
+try {
+  const value = await tasks[i]();
+  results[i] = { status: "fulfilled", value };
+} catch (reason) {
+  results[i] = { status: "rejected", reason };
+  return;                       // ← this worker is gone
+}`,
+            },
           ),
           why: (
             <>
@@ -1891,6 +1910,13 @@ const worker = async () => {
   let nextIndex = 0;            // ← let 写在了函数里面
   while (nextIndex < tasks.length) { ... }
 };`,
+            {
+              codeEn: `// ✗ every worker keeps its own cursor
+const worker = async () => {
+  let nextIndex = 0;            // ← the let is inside the function
+  while (nextIndex < tasks.length) { ... }
+};`,
+            },
           ),
           why: (
             <>
