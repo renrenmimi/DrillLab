@@ -2865,7 +2865,20 @@ if (loading) return <p data-testid="loading">Loading…</p>;
 if (error) return <p data-testid="error">出错了：{error}</p>;
 if (!user) return <p data-testid="empty">没有数据</p>;
 return <article data-testid="user">…</article>;`,
-              { filename: "三态与渲染优先级" },
+              {
+                filename: "三态与渲染优先级",
+                filenameEn: "The three states and the order they are checked in",
+                codeEn: `const [user, setUser] = useState<User | null>(null);
+const [loading, setLoading] = useState(true);   // true from the start
+const [error, setError] = useState<string | null>(null);
+
+// ...effect...
+
+if (loading) return <p data-testid="loading">Loading…</p>;
+if (error) return <p data-testid="error">出错了：{error}</p>;
+if (!user) return <p data-testid="empty">没有数据</p>;
+return <article data-testid="user">…</article>;`,
+              },
             ),
           ],
         },
@@ -2925,8 +2938,17 @@ if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
 const data: User = await res.json();`,
               {
                 filename: "必须自己检查 res.ok",
+                filenameEn: "You have to check res.ok yourself",
+                codeEn: `const res = await fetch(\`/api/users/\${userId}\`);
+
+// fetch only rejects when the network layer fails; a 404 or 500 is a failure response you received successfully
+if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+
+const data: User = await res.json();`,
                 explanation:
                   "测试里专门有一条 treats a 404 as an error：mock 一个 { ok: false, status: 404 }，断言界面显示 HTTP 404 而不是崩掉。",
+                explanationEn:
+                  "One test exists for exactly this, treats a 404 as an error: it mocks { ok: false, status: 404 } and asserts that the screen shows HTTP 404 instead of crashing.",
               },
             ),
           ],
