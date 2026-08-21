@@ -212,10 +212,23 @@ export const reactHooks: Module = {
 />`,
               {
                 filename: "src/components/NoteForm/index.tsx（节选）",
+                filenameEn: "src/components/NoteForm/index.tsx (excerpt)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 highlight: [6, 7],
+                codeEn: `const [title, setTitle] = useState("");
+
+<input
+  type="text"
+  placeholder="Title"
+  value={title}                                  // ① state decides what is shown
+  onChange={(e) => setTitle(e.target.value)}     // ② typing writes back to state
+  data-testid="form-input"
+  className="form-input"
+/>`,
                 explanation:
                   "e.target 就是那个 input 元素，e.target.value 是它此刻的内容。textarea 的写法完全一样 —— 项目里 content 就是这么做的。",
+                explanationEn:
+                  "e.target is that input element, and e.target.value is its content right now. A textarea is written the same way — that is how content is done in the project.",
               },
             ),
           ],
@@ -276,7 +289,7 @@ export const reactHooks: Module = {
               `Warning: You provided a \`value\` prop to a form field without an
 \`onChange\` handler. This will render a read-only field. If the field should
 be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnly\`.`,
-              { filename: "React 的警告" },
+              { filename: "React 的警告", filenameEn: "The warning from React" },
             ),
           ],
         },
@@ -378,6 +391,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
 };`,
               {
                 filename: "src/components/NoteForm/index.tsx（节选）",
+                filenameEn: "src/components/NoteForm/index.tsx (excerpt)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 highlight: [2, 5],
               },
@@ -416,6 +430,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           code: [
             real("tsx", NOTE_FORM_FULL, {
               filename: "src/components/NoteForm/index.tsx（全文）",
+              filenameEn: "src/components/NoteForm/index.tsx (whole file)",
               sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
               highlight: [10, 11, 23, 70],
               collapsible: true,
