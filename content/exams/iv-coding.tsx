@@ -1422,6 +1422,8 @@ export const ivCoding: Module = {
       title: "缺口一 · Dropdown、Tabs、星级评分",
       titleEn: "Gap 1 · dropdown, tabs and star rating",
       blurb: "三个小组件，考的是「组件自己的交互状态怎么管」—— 之前五道变式题一个都没覆盖到。",
+      blurbEn:
+        "Three small components. They test how a component manages its own interaction state, which none of the five earlier variant tasks covered.",
       minutes: 24,
       objectives: [
         "用 useRef + document 监听实现「点外面关掉」，并正确清理",
@@ -1429,13 +1431,23 @@ export const ivCoding: Module = {
         "把「hover 预览」和「已选值」叠成一个显示值",
         "实现同时支持受控和非受控的组件",
       ],
+      objectivesEn: [
+        "Close on a click outside using useRef plus a document listener, and clean the listener up correctly",
+        "Explain why Tabs needs only one piece of state",
+        "Combine a hover preview and a chosen value into one displayed value",
+        "Build a component that works both controlled and uncontrolled",
+      ],
       whyForAssessment:
         "这三道是 Easy / Medium 里出现频率最高的。它们代码量小，所以面试官会盯细节：点外面关不关、Escape 关不关、监听器解绑没有、ARIA 有没有、hover 移出后回不回到已选值。写得出来是及格，这些细节全中才是好。",
+      whyForAssessmentEn:
+        "These three come up most often among the easy and medium problems. There is little code, so the interviewer watches the details: does a click outside close it, does Escape close it, is the listener removed, are the ARIA attributes there, does it go back to the chosen value when the pointer leaves. Getting it to work is a pass; getting every detail right is a good answer.",
       concepts: [
         {
           id: "dropdown",
           heading: "Dropdown：点外面要关掉",
+          headingEn: "Dropdown: a click outside has to close it",
           lede: "这道题唯一的难点就是「怎么知道用户点的不是我」。",
+          ledeEn: "The only hard part here is telling that the click was not inside my own element.",
           body: (
             <>
               <p>
@@ -1561,7 +1573,9 @@ export const ivCoding: Module = {
         {
           id: "tabs",
           heading: "Tabs：只需要一个 state",
+          headingEn: "Tabs: one piece of state is enough",
           lede: "很多人会给每个 tab 存一个 isActive，那是多余的。",
+          ledeEn: "Many people keep an isActive flag on every tab. That is not needed.",
           body: (
             <>
               <p>
@@ -1658,7 +1672,9 @@ export const ivCoding: Module = {
         {
           id: "stars",
           heading: "星级评分：两个状态叠出一个显示值",
+          headingEn: "Star rating: two pieces of state produce one displayed value",
           lede: "已选值 + hover 预览，显示的是「有 hover 就用 hover」。",
+          ledeEn: "A chosen value plus a hover preview: show the hover value whenever there is one.",
           body: (
             <>
               <p>
@@ -1988,6 +2004,17 @@ const onDocClick = (e: MouseEvent) => {
               它会检查整棵子树。
             </>
           ),
+          whyEn: (
+            <>
+              Clicking an option inside also counts as a click outside, so{" "}
+              <strong>
+                it closes the moment it opens, or you can never select anything
+              </strong>
+              .
+              <br />
+              Use <code>contains()</code> — it checks the whole subtree.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2008,6 +2035,19 @@ useEffect(() => {
               <strong>必须先存成一个具名函数，绑和解都用它。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              The two arrow functions are <strong>different references</strong>, so{" "}
+              <code>removeEventListener</code>{" "}
+              <strong>removes nothing at all</strong> — and it reports no error, you
+              only notice that the listeners keep piling up.
+              <br />
+              <strong>
+                Store one named function first, and use that same function to add and to
+                remove.
+              </strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -2026,15 +2066,57 @@ const [tabs, setTabs] = useState(
               只存一个 <code>activeId</code>，其余全算出来。
             </>
           ),
+          whyEn: (
+            <>
+              One fact is now stored n times, switching means walking all of them and
+              rewriting each one, and{" "}
+              <strong>
+                it is easy to end up with two active tabs, or none at all
+              </strong>
+              .
+              <br />
+              Keep a single <code>activeId</code> and compute the rest from it.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「点外面要关掉」", reachFor: "useRef + document mousedown + contains + 清理" },
-        { signal: "解绑监听器没生效", reachFor: "绑和解必须是同一个函数引用" },
-        { signal: "「弹层要能按 Escape 关」", reachFor: "同一个 effect 里再加 keydown" },
-        { signal: "「哪一项被选中」", reachFor: "只存一个 id，其余派生" },
-        { signal: "hover 预览 + 已选值", reachFor: "shown = hover ?? current，别用 ||" },
-        { signal: "要同时支持受控和非受控", reachFor: "判断 prop !== undefined" },
+        {
+          signal: "「点外面要关掉」",
+          signalEn: "\"a click outside should close it\"",
+          reachFor: "useRef + document mousedown + contains + 清理",
+          reachForEn: "useRef, a mousedown listener on document, contains, plus cleanup",
+        },
+        {
+          signal: "解绑监听器没生效",
+          signalEn: "Removing the listener has no effect",
+          reachFor: "绑和解必须是同一个函数引用",
+          reachForEn: "Adding and removing must use the same function reference",
+        },
+        {
+          signal: "「弹层要能按 Escape 关」",
+          signalEn: "\"Escape should close the panel\"",
+          reachFor: "同一个 effect 里再加 keydown",
+          reachForEn: "Add a keydown listener in the same effect",
+        },
+        {
+          signal: "「哪一项被选中」",
+          signalEn: "\"which item is selected\"",
+          reachFor: "只存一个 id，其余派生",
+          reachForEn: "Store one id only, and derive the rest",
+        },
+        {
+          signal: "hover 预览 + 已选值",
+          signalEn: "A hover preview together with a chosen value",
+          reachFor: "shown = hover ?? current，别用 ||",
+          reachForEn: "shown = hover ?? current; do not use ||",
+        },
+        {
+          signal: "要同时支持受控和非受控",
+          signalEn: "It has to work both controlled and uncontrolled",
+          reachFor: "判断 prop !== undefined",
+          reachForEn: "Check whether the prop !== undefined",
+        },
       ],
       recap: [
         "点外面关掉三要素：useRef 拿节点、document 上 mousedown、contains 判断，外加清理。",
@@ -2042,6 +2124,13 @@ const [tabs, setTabs] = useState(
         "Tabs 只需要一个 activeId，其余全是派生；ARIA 三件套别漏。",
         "星级评分核心是 shown = hover ?? current；onMouseLeave 挂容器不挂每颗星。",
         "用 button 而不是 span，天然可聚焦可回车；受控判断用 !== undefined。",
+      ],
+      recapEn: [
+        "Three parts to closing on an outside click: useRef for the node, mousedown on document, contains for the test — plus the cleanup.",
+        "Removing a listener needs the same function reference; passing a new arrow function removes nothing and reports no error.",
+        "Tabs needs one activeId and derives everything else; do not leave out the three ARIA attributes.",
+        "The core of a star rating is shown = hover ?? current; put onMouseLeave on the container, not on each star.",
+        "Use a button rather than a span so it can be focused and used with Enter; test for controlled with !== undefined.",
       ],
     },
 
