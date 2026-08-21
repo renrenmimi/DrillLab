@@ -1895,10 +1895,26 @@ type Order {
 }`,
               {
                 filename: "四个 TODO 对应的返回类型",
+                filenameEn: "The return types behind the four TODOs",
+                codeEn: `type User @key(fields: "id") {
+  id: ID! @external
+  orders: [Order!]!          # ← non-null twice
+}
+
+type Query {
+  order(id: ID!): Order      # ← nullable: null when not found is legal
+  orders(userId: ID!): [Order!]!   # ← non-null twice
+}
+
+type Order {
+  shippingInfo: ShippingInfo # ← nullable: null when there is no shipping is legal
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/schema.graphql",
                 explanation:
                   "对照着看：两个列表字段必须 ?? [] 兜底；Query.order 和 Order.shippingInfo 可以返回 null。这四行决定了你四个 TODO 各自的兜底策略。",
+                explanationEn:
+                  "Read them side by side: the two list fields must fall back with ?? [], while Query.order and Order.shippingInfo are allowed to return null. These four lines decide the fallback for each of your four TODOs.",
               },
             ),
           ],
@@ -2079,6 +2095,11 @@ type Order {
 }
 # ↑ 没有 price`,
               {
+                codeEn: `input OrderItemInput {
+  productId: ID!
+  quantity: Int!
+}
+# ↑ no price`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/schema.graphql",
               },
@@ -2106,6 +2127,25 @@ type Order {
 }`,
               {
                 filename: "OrderDataSource.createOrder",
+                codeEn: `async createOrder(userId, items) {
+  await new Promise(resolve => setTimeout(resolve, 10));
+
+  const totalAmount = items.reduce((sum, item) => {
+    return sum + item.price * item.quantity;      // ← it needs price!
+  }, 0);
+
+  const newOrder = {
+    id: \`order-\${Date.now()}\`,
+    userId,
+    status: 'PENDING',
+    totalAmount,
+    items,
+    createdAt: new Date().toISOString()
+  };
+
+  this.orders.push(newOrder);
+  return newOrder;
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
                 highlight: [5],
@@ -2124,10 +2164,14 @@ type Order {
 }`,
               {
                 filename: "InventoryDataSource.getProductPrice —— 缺的那块拼图",
+                filenameEn:
+                  "InventoryDataSource.getProductPrice — the missing piece",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
                 explanation:
                   "注意它有兜底：未知商品返回 99.99。所以不会出现 undefined。",
+                explanationEn:
+                  "Note it has a fallback: an unknown product returns 99.99. So you never get undefined.",
               },
             ),
           ],
@@ -2138,12 +2182,19 @@ type Order {
           kind: "recognition",
           id: "g-nullable-return",
           title: "这个 resolver 找不到数据时该返回什么",
+          titleEn: "What should this resolver return when it finds nothing",
           level: 1,
           prompt: (
             <p>
               schema 写的是{" "}
               <code>orders(userId: ID!): [Order!]!</code>。
               user 999 没有任何订单。resolver 该返回什么？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The schema says <code>orders(userId: ID!): [Order!]!</code>. User
+              999 has no orders at all. What should the resolver return?
             </p>
           ),
           options: [
@@ -2168,11 +2219,29 @@ type Order {
               断言 <code>orders.length === 0</code>。
             </>
           ),
+          explainEn: (
+            <>
+              <code>[]</code>. <code>[Order!]!</code> is non-null twice: the
+              list itself cannot be null, and neither can an element.{" "}
+              <strong>But an empty list is legal</strong> — an empty array is
+              the right way to say &ldquo;no orders&rdquo;.
+              <br />
+              A and B trigger{" "}
+              <code>Cannot return null for non-nullable field</code> and the
+              error moves upward. D breaks the non-null constraint on the
+              elements.
+              <br />
+              There is a test for exactly this:{" "}
+              <code>should return empty array for user with no orders</code>,
+              which asserts <code>orders.length === 0</code>.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-price-trap",
           title: "createOrder 为什么必须查价格",
+          titleEn: "Why createOrder has to look up the price",
           level: 1,
           prompt: (
             <p>
@@ -2182,11 +2251,19 @@ type Order {
               <code>orderDataSource.createOrder</code>，会怎样？
             </p>
           ),
+          promptEn: (
+            <p>
+              The client calls{" "}
+              <code>createOrder(userId: &quot;789&quot;, items: [{"{ productId: \"prod-789\", quantity: 2 }"}])</code>
+              . What happens if the resolver hands items straight to{" "}
+              <code>orderDataSource.createOrder</code>?
+            </p>
+          ),
           options: [
-            { id: "a", label: "正常工作，数据源会自己查价格" },
-            { id: "b", label: "totalAmount 变成 NaN，因为 item.price 是 undefined" },
-            { id: "c", label: "GraphQL 校验阶段就会拒绝这个请求" },
-            { id: "d", label: "会抛 TypeError" },
+            { id: "a", label: "正常工作，数据源会自己查价格", labelEn: "It works; the data source looks up the price itself" },
+            { id: "b", label: "totalAmount 变成 NaN，因为 item.price 是 undefined", labelEn: "totalAmount becomes NaN, because item.price is undefined" },
+            { id: "c", label: "GraphQL 校验阶段就会拒绝这个请求", labelEn: "GraphQL rejects the request during validation" },
+            { id: "d", label: "会抛 TypeError", labelEn: "It throws a TypeError" },
           ],
           answer: ["b"],
           explain: (
@@ -2204,16 +2281,40 @@ type Order {
               客户端确实只该传这两个字段。
             </>
           ),
+          explainEn: (
+            <>
+              <code>OrderItemInput</code> has no <code>price</code>, so{" "}
+              <code>item.price</code> is <code>undefined</code>.{" "}
+              <code>undefined * 2 = NaN</code>, and{" "}
+              <code>0 + NaN = NaN</code>.
+              <br />
+              The data source does <strong>not</strong> look up the price
+              itself — it only does that one multiplication. Looking up the
+              price is the resolver&apos;s job, with{" "}
+              <code>inventoryDataSource.getProductPrice(productId)</code>.
+              <br />
+              C is wrong: schema validation only checks the shape of the input,
+              and the client really should send just those two fields.
+            </>
+          ),
         },
         {
           kind: "fill-blank",
           id: "g-nullable-blanks",
           title: "给四个 TODO 各自选对兜底策略",
+          titleEn: "Pick the right fallback for each of the four TODOs",
           level: 2,
           prompt: (
             <p>
               照 schema 的非空标记，给每个 resolver 填上正确的返回表达式。
               想清楚「这个字段能不能是 null」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Go by the non-null markers in the schema and write the right
+              return expression for each resolver. Decide first whether the
+              field is allowed to be null.
             </p>
           ),
           language: "js",
@@ -2247,6 +2348,8 @@ async order(_, { id }, { loaders, correlationId }) {
               n: 1,
               accept: ["??", "||"],
               hint: "数据源可能返回 undefined，但这个字段不能是 null。",
+              hintEn:
+                "The data source may return undefined, but this field cannot be null.",
               why: (
                 <>
                   <code>??</code>（空值合并运算符）。
@@ -2258,12 +2361,27 @@ async order(_, { id }, { loaders, correlationId }) {
                   对数组来说没区别，但 <code>??</code> 表达意图更准。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>??</code>, the nullish coalescing operator.{" "}
+                  <code>orders ?? []</code> means &ldquo;use [] when orders is
+                  null or undefined&rdquo;.
+                  <br />
+                  <code>||</code> also works, but it means something wider — it
+                  replaces falsy values such as <code>0</code> and{" "}
+                  <code>&quot;&quot;</code> as well. For an array there is no
+                  difference, but <code>??</code> states the intent more
+                  precisely.
+                </>
+              ),
               width: 4,
             },
             {
               n: 2,
               accept: ["null"],
               hint: "ShippingInfo 是可空的，「没有物流信息」怎么表达？",
+              hintEn:
+                "ShippingInfo is nullable. How do you say there is no shipping info?",
               why: (
                 <>
                   <code>null</code>。schema 里
@@ -2277,12 +2395,28 @@ async order(_, { id }, { loaders, correlationId }) {
                   所以必须显式 <code>?? null</code>，不能让 undefined 漏出去。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>null</code>. In the schema,{" "}
+                  <code>shippingInfo: ShippingInfo</code> has no{" "}
+                  <code>!</code>, so returning null is{" "}
+                  <strong>legal and correct</strong>.
+                  <br />
+                  A test asserts exactly this:{" "}
+                  <code>should return null for order without shipping info</code>
+                  , using <code>expect(shippingInfo).toBeNull()</code>.{" "}
+                  <strong>Note it is toBeNull, not toBeUndefined</strong> — so
+                  you must write <code>?? null</code> explicitly and not let
+                  undefined through.
+                </>
+              ),
               width: 6,
             },
             {
               n: 3,
               accept: ["!order"],
               hint: "loader 找不到时返回 undefined。",
+              hintEn: "The loader returns undefined when it finds nothing.",
               why: (
                 <>
                   <code>!order</code>。<code>orderLoader.load(id)</code>
@@ -2294,6 +2428,21 @@ async order(_, { id }, { loaders, correlationId }) {
                   但 TODO 原文要求
                   <em>structured error handling</em>，所以抛一个带
                   <code>ORDER_NOT_FOUND</code> code 的 GraphQLError 更符合题意。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>!order</code>. Underneath,{" "}
+                  <code>orderLoader.load(id)</code> calls{" "}
+                  <code>getOrder(id)</code>, which is written with{" "}
+                  <code>find</code> and returns <code>undefined</code> when it
+                  finds nothing.
+                  <br />
+                  <code>Query.order</code> is nullable in the schema, so a plain{" "}
+                  <code>return null</code> would not break the schema either.
+                  But the TODO asks for <em>structured error handling</em>, so
+                  throwing a GraphQLError carrying the{" "}
+                  <code>ORDER_NOT_FOUND</code> code matches what was asked.
                 </>
               ),
               width: 8,
