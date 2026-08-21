@@ -626,11 +626,18 @@ type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类
           kind: "recognition",
           id: "iv-ts-utility-recog",
           title: "认出这个 mapped type 在干什么",
+          titleEn: "Work out what this mapped type does",
           level: 1,
           generated: true,
           prompt: (
             <p>
               面试官给出下面这个类型，问它对 <code>T</code> 做了什么。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              An interviewer shows you the type below and asks what it does to{" "}
+              <code>T</code>.
             </p>
           ),
           code: demo(
@@ -641,10 +648,26 @@ type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类
             { filename: "Mystery.ts" },
           ),
           options: [
-            { id: "a", label: "把所有属性变成可选" },
-            { id: "b", label: "把所有属性变成必填（去掉可选修饰符）" },
-            { id: "c", label: "把所有属性变成只读" },
-            { id: "d", label: "只保留 T 里原本就可选的属性" },
+            {
+              id: "a",
+              label: "把所有属性变成可选",
+              labelEn: "Makes every property optional",
+            },
+            {
+              id: "b",
+              label: "把所有属性变成必填（去掉可选修饰符）",
+              labelEn: "Makes every property required, by removing the optional modifier",
+            },
+            {
+              id: "c",
+              label: "把所有属性变成只读",
+              labelEn: "Makes every property readonly",
+            },
+            {
+              id: "d",
+              label: "只保留 T 里原本就可选的属性",
+              labelEn: "Keeps only the properties that were already optional in T",
+            },
           ],
           answer: ["b"],
           explain: (
@@ -659,6 +682,23 @@ type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类
                 <code>readonly</code>（Readonly 的做法）；
                 D 那种「按条件挑属性」要靠键重映射（key remapping，
                 <code>as</code> 子句）配合条件类型，这一行里并没有出现。
+              </p>
+            </>
+          ),
+          explainEn: (
+            <>
+              <p>
+                <strong>B.</strong> <code>-?</code> removes the optional
+                modifier: as each property is mapped, the <code>?</code> it had
+                is taken off. This is exactly how the built-in{" "}
+                <code>Required</code> is written.
+              </p>
+              <p>
+                A would be <code>?</code>, which is what Partial does. C would be{" "}
+                <code>readonly</code>, which is what Readonly does. D means
+                picking properties by a condition, which needs key remapping (an{" "}
+                <code>as</code> clause) together with a conditional type, and
+                neither appears on this line.
               </p>
             </>
           ),
@@ -1217,6 +1257,7 @@ function fail(msg: string): never {
           kind: "recognition",
           id: "iv-ts-generics-recog",
           title: "unknown 参数该怎么用起来",
+          titleEn: "How to actually use an unknown parameter",
           level: 1,
           generated: true,
           prompt: (
@@ -1224,6 +1265,13 @@ function fail(msg: string): never {
               这个函数编译不过：
               <code>{"'e' is of type 'unknown'."}</code>
               下面哪种改法是对的？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              This function does not compile:{" "}
+              <code>{"'e' is of type 'unknown'."}</code> Which fix is the right
+              one?
             </p>
           ),
           code: demo(
@@ -1235,14 +1283,29 @@ function fail(msg: string): never {
             { filename: "report.ts" },
           ),
           options: [
-            { id: "a", label: "把参数类型改成 any，报错消失" },
+            {
+              id: "a",
+              label: "把参数类型改成 any，报错消失",
+              labelEn: "Change the parameter type to any and the error goes away",
+            },
             {
               id: "b",
               label:
                 "先 e instanceof Error 收窄再读 message，else 里用 String(e) 兜底",
+              labelEn:
+                "Narrow with e instanceof Error before reading message, and fall back to String(e) in the else",
             },
-            { id: "c", label: "改成 (e as Error).message，一行解决" },
-            { id: "d", label: "unknown 不能当参数类型，把它改成 Error" },
+            {
+              id: "c",
+              label: "改成 (e as Error).message，一行解决",
+              labelEn: "Write (e as Error).message and be done in one line",
+            },
+            {
+              id: "d",
+              label: "unknown 不能当参数类型，把它改成 Error",
+              labelEn:
+                "unknown cannot be a parameter type, so change it to Error",
+            },
           ],
           answer: ["b"],
           explain: (
@@ -1257,6 +1320,22 @@ function fail(msg: string): never {
                 throw 出来的可以是字符串，运行时照样 undefined。
                 D 把「调用方可能传任何东西」这个事实改没了 ——
                 类型应该描述事实，不是描述愿望。
+              </p>
+            </>
+          ),
+          explainEn: (
+            <>
+              <p>
+                <strong>B.</strong> It is the only one that buys type safety with
+                a real runtime check.
+              </p>
+              <p>
+                A compiles, but it switches the checking off entirely, and the
+                whole point of unknown is to make you write the check. C compiles
+                too, but <code>as</code> produces no runtime check: what was
+                thrown can be a string, and at runtime you still get undefined. D
+                edits away the fact that a caller can pass anything. A type
+                should describe what is true, not what you wish were true.
               </p>
             </>
           ),

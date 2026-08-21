@@ -4115,51 +4115,31 @@ Ignored nodes: comments, script, style
               rootCauseEn: (
                 <>
                   <p>
-                    <strong>The cause: the <code>useEffect</code> has no dependency
-                    array, which means it runs after every render.</strong>
+                    <strong>
+                      Root cause: the file contains JSX but its extension is{" "}
+                      <code>.js</code>.
+                    </strong>{" "}
+                    Vite transforms with esbuild, and{" "}
+                    <strong>esbuild picks its loader by file extension</strong>.
+                    The js loader does not parse syntax like{" "}
+                    <code>&lt;CabContext.Provider&gt;</code>.
                   </p>
                   <p>
-                    <code>useEffect(fn)</code> and <code>useEffect(fn, [])</code> differ
-                    by one argument and behave very differently:
+                    <strong>Three ways to tell, any one of them is enough:</strong>
                   </p>
                   <ul>
                     <li>
-                      <code>useEffect(fn, [])</code> — runs once, after mounting
+                      The last line of the error <strong>says it outright</strong>:{" "}
+                      <code>make sure to name the file with the .jsx or .tsx extension</code>.
                     </li>
                     <li>
-                      <code>useEffect(fn, [dep])</code> — runs again only when dep
-                      changes
+                      The error points at the line with the JSX tag, not at any
+                      logic.
                     </li>
                     <li>
-                      <code>useEffect(fn)</code> —{" "}
-                      <strong>runs again after every render</strong>, and runs the
-                      previous cleanup function first
+                      Renaming the file alone fixes it, with no change inside.
                     </li>
                   </ul>
-                  <p>
-                    So the sequence becomes: render → start the timer → render again →{" "}
-                    <strong><code>clearTimeout</code> throws it away</strong> → start a
-                    new one → render again → throw it away...{" "}
-                    <strong>As long as the component keeps re-rendering, that one second
-                    is never counted out.</strong>
-                  </p>
-                  <p>
-                    <strong>Why it keeps re-rendering in this task:</strong>{" "}
-                    <code>Loading</code> has no state of its own, but every time{" "}
-                    <code>App</code> re-renders it hands over a new{" "}
-                    <code>onComplete</code> (an inline arrow function), and{" "}
-                    <strong>with no dependency array there is not even a check for
-                    whether anything changed</strong> — it just runs.
-                  </p>
-                  <p>
-                    <strong>How to recognise this shape at a glance:</strong> the error
-                    says something that should be there cannot be found, and the DOM
-                    snapshot shows{" "}
-                    <strong>the page stuck in the previous state</strong>. That
-                    combination almost always means{" "}
-                    <strong>an async transition that should have happened did
-                    not</strong>, so go and look at that effect&rsquo;s dependency array.
-                  </p>
                 </>
               ),
               verify: "npx vitest run",
@@ -5544,7 +5524,8 @@ Error: Failed to parse source for import analysis because the content contains i
       Tests  no tests`,
                   {
                     filename: "npx vitest run 的真实输出（本机实测，路径已改短）",
-                  filenameEn: "The real output of npx vitest run (measured here, with paths shortened)",
+                    filenameEn:
+                      "The real output of npx vitest run (measured here, with paths shortened)",
                     explanation:
                       "「Tests no tests」这五个字是最重要的信号 —— 一个测试都没跑起来。这时候去改组件代码是白费功夫。",
                     explanationEn:

@@ -674,6 +674,8 @@ const reviewsMock: MockExam = {
       cmd: "node verify-schema.mjs",
       expect:
         "SDL 含两个 @key（单字段的 Author 和复合字段的 Book）；_entities 能分别解析两者；日志里 reviewerLoader 出现一行 Batching 且 N > 1",
+      expectEn:
+        "The SDL carries two @key directives, a single-field one on Author and a composite one on Book; _entities resolves both; the log shows one Batching line for reviewerLoader with N > 1",
     },
   ],
   walkthrough: [
