@@ -2822,11 +2822,19 @@ private String correlationId() { return MDC.get("correlationId"); }`,
           kind: "debug",
           id: "g-debug-404-swallowed",
           title: "Debug Lab · 查一个不存在的订单，返回了 200",
+          titleEn: "Debug Lab · Asking for an order that does not exist returns 200",
           level: 3,
           prompt: (
             <p>
               五个测试全过。但手动 curl 一个不存在的 id，
               得到 200 和一个空 body。期望是 404 加一段 JSON。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              All five tests pass. But curl an id that does not exist by hand
+              and you get a 200 with an empty body. It should be a 404 with a
+              piece of JSON.
             </p>
           ),
           errorOutput: `$ curl -i -s localhost:8080/api/orders/999
@@ -2853,25 +2861,35 @@ public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
             {
               filename: "有问题的实现",
               filenameEn: "The broken implementation",
+              codeEn: `@GetMapping("/api/orders/{id}")
+public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    logger.info("GET /api/orders/{} correlationId={}", id, correlationId());
+    try {
+        return ResponseEntity.ok(orderService.getOrderById(id));
+    } catch (EntityNotFoundException ex) {
+        return null;
+    }
+}`,
               highlight: [4, 6, 7],
             },
           ),
           classify: {
             options: [
-              { id: "a", label: "状态码写错了 —— ok 该换成别的" },
-              { id: "b", label: "异常处理错误 —— 自己 catch 掉了本该交给全局处理器的异常" },
-              { id: "c", label: "路由错误 —— @PathVariable 没绑上" },
-              { id: "d", label: "依赖注入错误 —— orderService 是 null" },
+              { id: "a", label: "状态码写错了 —— ok 该换成别的", labelEn: "The status code is wrong — ok should be something else" },
+              { id: "b", label: "异常处理错误 —— 自己 catch 掉了本该交给全局处理器的异常", labelEn: "Wrong error handling — it catches an exception that belongs to the global handler" },
+              { id: "c", label: "路由错误 —— @PathVariable 没绑上", labelEn: "A routing mistake — @PathVariable is not bound" },
+              { id: "d", label: "依赖注入错误 —— orderService 是 null", labelEn: "A dependency-injection mistake — orderService is null" },
             ],
             answer: "b",
           },
           locate: {
             question: "该怎么改？",
+            questionEn: "How should it be changed?",
             options: [
-              { id: "a", label: "整个 try/catch 删掉，让异常冒出去给 GlobalExceptionHandler" },
-              { id: "b", label: "catch 里改成 return ResponseEntity.notFound().build()" },
-              { id: "c", label: "catch 里改成 throw new RuntimeException(ex)" },
-              { id: "d", label: "把 @GetMapping 改成 @RequestMapping" },
+              { id: "a", label: "整个 try/catch 删掉，让异常冒出去给 GlobalExceptionHandler", labelEn: "Delete the whole try/catch and let the exception reach GlobalExceptionHandler" },
+              { id: "b", label: "catch 里改成 return ResponseEntity.notFound().build()", labelEn: "Change the catch to return ResponseEntity.notFound().build()" },
+              { id: "c", label: "catch 里改成 throw new RuntimeException(ex)", labelEn: "Change the catch to throw new RuntimeException(ex)" },
+              { id: "d", label: "把 @GetMapping 改成 @RequestMapping", labelEn: "Change @GetMapping to @RequestMapping" },
             ],
             answer: "a",
           },
@@ -2935,8 +2953,50 @@ public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                The project already has a <code>GlobalExceptionHandler</code>{" "}
+                marked <code>@RestControllerAdvice</code>, whose job is to turn{" "}
+                <code>EntityNotFoundException</code> into a{" "}
+                <strong>404 with a structured JSON body</strong>.
+              </p>
+              <p>
+                Once the controller catches it, the exception never reaches the
+                global handler. And <code>return null</code> makes Spring send a
+                200 with an empty body — <strong>the 404 became a 200.</strong>
+              </p>
+              <p>
+                <strong>Why is option B not good enough either?</strong>{" "}
+                <code>ResponseEntity.notFound().build()</code> gets the status
+                code right (404), but{" "}
+                <strong>the response body is gone</strong>. The global handler
+                returns <code>{"{ timestamp, status, message }"}</code>, and
+                clients use message to work out what happened. It also
+                reimplements something that already works: change the shape of
+                your 404 later and you have to change it in two places.
+              </p>
+              <p>
+                <strong>
+                  The general rule: when a project has a global exception
+                  handler, controllers do not try/catch
+                </strong>
+                , unless you are converting an exception into a{" "}
+                <strong>different</strong> status code — for example turning{" "}
+                <code>IllegalArgumentException</code> into a 400 inside PATCH.
+              </p>
+              <p>
+                <strong>Note that no test can catch this bug</strong>: in the
+                tests <code>orderService</code> is a mock and never throws{" "}
+                <code>EntityNotFoundException</code>. Only a manual curl finds
+                it.
+              </p>
+            </>
+          ),
           verify:
             "mvn spring-boot:run，然后 curl -i localhost:8080/api/orders/999 应该得到 404 + JSON",
+          verifyEn:
+            "mvn spring-boot:run, then curl -i localhost:8080/api/orders/999 should give 404 + JSON",
         },
       ],
       mistakes: [
