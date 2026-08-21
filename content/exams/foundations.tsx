@@ -1979,6 +1979,14 @@ setNotes(notes);
 
 // ✓ 造一个新数组 —— React 能看出变化
 setNotes([...notes, newNote]);`,
+                  {
+                    codeEn: `// ✗ changing the original array — React sees no change
+notes.push(newNote);
+setNotes(notes);
+
+// ✓ building a new array — React sees the change
+setNotes([...notes, newNote]);`,
+                  },
                 ),
               ],
             },
@@ -2064,7 +2072,18 @@ setNotes((prev) =>
 );`,
                   {
                     filename: "三个操作（摘自 NoteManager）",
+                    filenameEn: "The three operations (taken from NoteManager)",
                     sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
+                    codeEn: `// add: keep every old one, put one at the end
+setNotes((prev) => [...prev, submittedNote]);
+
+// delete: keep the ones whose id is not the target
+setNotes((prev) => prev.filter((note) => note.id !== id));
+
+// replace in place: swap the target, leave the rest untouched
+setNotes((prev) =>
+  prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),
+);`,
                   },
                 ),
               ],
@@ -2179,10 +2198,22 @@ async getOrdersByUserId(userId) {
 }`,
                   {
                     filename: "orderDataSource.js（节选）",
+                    filenameEn: "orderDataSource.js (excerpt)",
                     sourceFile:
                       "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
+                    codeEn: `async getOrder(id) {
+  await new Promise(resolve => setTimeout(resolve, 10));
+  return this.orders.find(order => order.id === id);      // one, or undefined
+}
+
+async getOrdersByUserId(userId) {
+  await new Promise(resolve => setTimeout(resolve, 10));
+  return this.orders.filter(order => order.userId === userId);  // an array, possibly empty
+}`,
                     explanation:
                       "注意 find 找不到时返回 undefined，而 filter 找不到时返回空数组 []。这个区别在写 resolver 时至关重要 —— schema 里写了 [Order!]! 的字段绝对不能返回 undefined。",
+                    explanationEn:
+                      "Note that find returns undefined when it finds nothing, while filter returns an empty array []. That difference matters a lot when you write a resolver — a field declared [Order!]! in the schema must never return undefined.",
                   },
                 ),
               ],
@@ -2232,8 +2263,19 @@ const pricedItems = await Promise.all(
 );`,
                   {
                     filename: "给每个 item 补上 price",
+                    filenameEn: "Adding price to every item",
+                    codeEn: `// my reference answer for the Federation question (10/10 tests pass)
+const pricedItems = await Promise.all(
+  items.map(async item => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    price: await dataSources.inventoryDataSource.getProductPrice(item.productId)
+  }))
+);`,
                     explanation:
                       "map 的回调是 async，所以返回的是「一堆 Promise」，必须用 Promise.all 等它们全部完成。这是 map + async 组合的固定套路 —— 只写 map 不加 Promise.all 是很常见的错。",
+                    explanationEn:
+                      "The callback of map is async, so it returns a set of Promises, and Promise.all is needed to wait for all of them. This is the fixed pattern for map plus async — writing map without Promise.all is a very common mistake.",
                   },
                 ),
               ],
