@@ -2523,10 +2523,17 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
           kind: "debug",
           id: "r-lab-testid-typo",
           title: "故障 3 · 测试找不到元素",
+          titleEn: "Fault 3 · the test cannot find the element",
           level: 2,
           prompt: (
             <p>
               代码看起来完全正确，手动点也没问题，但两个测试挂了。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The code looks entirely correct and clicking through it by hand
+              works, but two tests fail.
             </p>
           ),
           errorOutput: `FAIL  src/NoteManager.test.tsx > adds a note
@@ -2557,15 +2564,16 @@ Ignored nodes: comments, script, style
           ),
           classify: {
             options: [
-              { id: "a", label: "受控输入错误" },
-              { id: "b", label: "测试查询错误 —— data-testid 被改动了" },
-              { id: "c", label: "状态更新错误" },
-              { id: "d", label: "异步错误 —— 漏了 await" },
+              { id: "a", label: "受控输入错误", labelEn: "A controlled input mistake" },
+              { id: "b", label: "测试查询错误 —— data-testid 被改动了", labelEn: "A wrong query in the test — the data-testid was changed" },
+              { id: "c", label: "状态更新错误", labelEn: "A state update mistake" },
+              { id: "d", label: "异步错误 —— 漏了 await", labelEn: "An async mistake — a missing await" },
             ],
             answer: "b",
           },
           locate: {
             question: "第 6 行该是什么？",
+            questionEn: "What should line 6 be?",
             options: [
               { id: "a", label: 'data-testid="form-input"' },
               { id: "b", label: 'data-testid="input-title"' },
@@ -2579,6 +2587,7 @@ Ignored nodes: comments, script, style
             `data-testid="form-input"`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
             },
           ),
@@ -2600,6 +2609,30 @@ Ignored nodes: comments, script, style
               <p>
                 注意 <code>data-</code> 前缀不能省（选项 C），
                 <code>data-*</code> 是 HTML 的自定义属性规范。
+              </p>
+            </>
+          ),
+          rootCauseEn: (
+            <>
+              <p>
+                The README says plainly:{" "}
+                <strong>do not change any data-testid</strong>.{" "}
+                <code>form-input</code> was changed to{" "}
+                <code>title-input</code>, so the test&rsquo;s{" "}
+                <code>getByTestId(&quot;form-input&quot;)</code> naturally finds
+                nothing.
+              </p>
+              <p>
+                <strong>How to read this error:</strong> when Testing Library
+                fails it <strong>prints the whole DOM</strong>. Search that DOM
+                for the data-testid you expected. If it is not there but
+                something very similar is, that is the one that was renamed.
+                This is much faster than guessing.
+              </p>
+              <p>
+                Note that the <code>data-</code> prefix cannot be dropped
+                (option C): <code>data-*</code> is the HTML rule for custom
+                attributes.
               </p>
             </>
           ),
