@@ -1,0 +1,79 @@
+// 从真实内容重新生成 content/nav.ts。
+// 做法：临时起一个 next dev，打一个只在生成时存在的 route，取 JSON，再写文件。
+// 这样 nav.ts 永远是内容的派生物，不会和内容脱节。
+//
+//   npm run gen:nav
+import { spawn } from "child_process";
+import { writeFileSync, readFileSync, mkdirSync, rmSync } from "fs";
+
+const PORT = 3492;
+const ROUTE_DIR = "app/nav-dump";
+
+const routeSrc = readFileSync("scripts/nav-dump-route.txt", "utf8");
+mkdirSync(ROUTE_DIR, { recursive: true });
+writeFileSync(`${ROUTE_DIR}/route.ts`, routeSrc);
+
+const dev = spawn("npx", ["next", "dev", "-p", String(PORT)], { stdio: "ignore" });
+
+const cleanup = () => {
+  try { rmSync(ROUTE_DIR, { recursive: true, force: true }); } catch {}
+  dev.kill();
+};
+process.on("exit", cleanup);
+process.on("SIGINT", () => { cleanup(); process.exit(1); });
+
+let json = null;
+let lastError = null;
+for (let i = 0; i < 60; i++) {
+  await new Promise((r) => setTimeout(r, 1000));
+  try {
+    const res = await fetch(`http://localhost:${PORT}/nav-dump`);
+    if (!res.ok) {
+      // 500 通常是内容里的断言抛错了 —— 把正文打出来，别让人对着「没起来」瞎猜
+      lastError = (await res.text()).slice(0, 1200);
+      continue;
+    }
+    const body = await res.json();
+    // payload 是 { exams, drills, coding, arena } 这个对象，不再是数组
+    if (body && Array.isArray(body.exams)) {
+      json = body;
+      break;
+    }
+  } catch (e) {
+    lastError = String(e);
+  }
+}
+if (!json) {
+  console.error("取不到 nav 数据。最后一次的错误：\n" + (lastError ?? "（dev server 没起来）"));
+  process.exit(1);
+}
+
+// 搜索专用的重字段单独出一份 —— 见 nav-template 里 NavLesson 的注释。
+// 它有 130 KB 出头，进 nav.ts 会让每个页面都白下 80 kB（gzip 后）。
+const { searchIndex, ...navJson } = json;
+
+const tpl = readFileSync("scripts/nav-template.txt", "utf8");
+writeFileSync(
+  "content/nav.ts",
+  tpl.replace("__NAV_DATA__", JSON.stringify(navJson, null, 2)),
+);
+
+const searchTpl = readFileSync("scripts/search-index-template.txt", "utf8");
+writeFileSync(
+  "content/search-index.ts",
+  searchTpl.replace("__SEARCH_DATA__", JSON.stringify(searchIndex, null, 2)),
+);
+
+console.log(
+  `content/nav.ts + content/search-index.ts 已更新：${json.exams.length} 门考试 / ` +
+    `${json.exams.reduce((n, e) => n + e.lessonCount, 0)} 节课 / ` +
+    `${json.exams.reduce((n, e) => n + e.exerciseCount, 0)} 个练习 / ` +
+    `${json.drills.length} 道八股 / ` +
+    `${json.coding.length} 道 coding / ` +
+    `${json.arena.length} 道考场题 / ` +
+    `搜索索引 ${searchIndex.length} 条`,
+);
+
+// dev server 是 detached 的子进程，不显式退出的话这个脚本会一直挂着
+cleanup();
+process.exit(0);
