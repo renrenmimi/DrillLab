@@ -237,6 +237,244 @@ log('Mutation.createOrder:', JSON.stringify(q5.data), '| errors:', JSON.stringif
 const q6 = await run('mutation { createOrder(userId:"789", items:[]) { id } }');
 log('createOrder empty items code:', q6.errors?.map(e => e.extensions.code));`;
 
+// English side of FULL_RESOLVERS. The line count must match it exactly, because
+// highlight is a line number. audit:code only pairs inline template literals,
+// so it cannot see a codeEn passed by constant like this one.
+const FULL_RESOLVERS_EN = `import DataLoader from 'dataloader';
+import { GraphQLError } from 'graphql';
+
+const ErrorCodes = {
+  ORDER_NOT_FOUND: 'ORDER_NOT_FOUND',
+  INVALID_INPUT: 'INVALID_INPUT',
+  INVENTORY_ERROR: 'INVENTORY_ERROR',
+  SERVICE_ERROR: 'SERVICE_ERROR'
+};
+
+function createShippingInfoLoader(shippingDataSource) {
+  return new DataLoader(async orderIds => {
+    console.log(\`[DataLoader] Batching \${orderIds.length} shipping info requests\`);
+    const shippingInfos = await Promise.all(
+      orderIds.map(id => shippingDataSource.getShippingInfo(id))
+    );
+    return shippingInfos;
+  });
+}
+
+function createOrderLoader(orderDataSource) {
+  return new DataLoader(async orderIds => {
+    console.log(\`[DataLoader] Batching \${orderIds.length} order requests\`);
+    // FIX (planted bug 1): the data source exposes getOrder(id), not getOrderById(id)
+    const orders = await Promise.all(
+      orderIds.map(id => orderDataSource.getOrder(id))
+    );
+    return orders;
+  });
+}
+
+export const resolvers = {
+  User: {
+    __resolveReference(user, { dataSources, loaders }) {
+      return { id: user.id };
+    },
+
+    async orders(user, _, { dataSources, loaders, correlationId }) {
+      try {
+        console.log(\`[\${correlationId}] Resolving User.orders for userId: \${user.id}\`);
+        const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+        return orders ?? [];                     // schema: [Order!]!
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        console.error(\`[\${correlationId}] Error resolving User.orders:\`, error.message);
+        throw new GraphQLError('Failed to fetch orders for user', {
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            originalError: error.message
+          }
+        });
+      }
+    }
+  },
+
+  Order: {
+    async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
+      try {
+        // Going through the loader is what turns N calls into 1
+        const shippingInfo = await loaders.shippingInfoLoader.load(parent.id);
+        return shippingInfo ?? null;             // schema: ShippingInfo (nullable)
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        console.error(\`[\${correlationId}] Error resolving Order.shippingInfo:\`, error.message);
+        throw new GraphQLError('Failed to fetch shipping info', {
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            orderId: parent.id,
+            originalError: error.message
+          }
+        });
+      }
+    }
+  },
+
+  Query: {
+    async order(_, { id }, { dataSources, loaders, correlationId }) {
+      try {
+        console.log(\`[\${correlationId}] Query.order id: \${id}\`);
+        const order = await loaders.orderLoader.load(id);
+
+        if (!order) {
+          throw new GraphQLError(\`Order not found: \${id}\`, {
+            extensions: {
+              code: ErrorCodes.ORDER_NOT_FOUND,
+              correlationId,
+              orderId: id
+            }
+          });
+        }
+        return order;
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        console.error(\`[\${correlationId}] Error in Query.order:\`, error.message);
+        throw new GraphQLError('Failed to fetch order', {
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            originalError: error.message
+          }
+        });
+      }
+    },
+
+    async orders(_, { userId }, { dataSources, correlationId }) {
+      try {
+        console.log(\`[\${correlationId}] Query.orders userId: \${userId}\`);
+
+        if (!userId) {
+          throw new GraphQLError('userId is required', {
+            extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+          });
+        }
+
+        const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
+        return orders ?? [];
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        console.error(\`[\${correlationId}] Error in Query.orders:\`, error.message);
+        throw new GraphQLError('Failed to fetch orders', {
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            originalError: error.message
+          }
+        });
+      }
+    }
+  },
+
+  Mutation: {
+    async createOrder(_, { userId, items }, { dataSources, correlationId }) {
+      try {
+        console.log(\`[\${correlationId}] Creating order for userId: \${userId}\`);
+
+        if (!userId || !items || items.length === 0) {
+          throw new GraphQLError('Invalid order input', {
+            extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+          });
+        }
+
+        // OrderItemInput has only productId + quantity, while the data source
+        // computes item.price * item.quantity -> fetch the price first
+        const pricedItems = await Promise.all(
+          items.map(async item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: await dataSources.inventoryDataSource.getProductPrice(item.productId)
+          }))
+        );
+
+        // FIX (planted bug 2): in context it is orderDataSource, signature (userId, items)
+        const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);
+        console.log(\`[\${correlationId}] Order created: \${order.id}\`);
+
+        return order;
+      } catch (error) {
+        // FIX (planted bug 3): let an already structured error through untouched,
+        // otherwise INVALID_INPUT reaches the client as SERVICE_ERROR
+        if (error instanceof GraphQLError) throw error;
+
+        console.error(\`[\${correlationId}] Error creating order:\`, error.message);
+        throw new GraphQLError('Failed to create order', {
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            originalError: error.message
+          }
+        });
+      }
+    }
+  }
+};
+
+export { createShippingInfoLoader, createOrderLoader };`;
+
+// English side of VERIFY_SCRIPT. Same rule: the line count must match.
+const VERIFY_SCRIPT_EN = `// verify-schema.mjs — put it in node-subgraph/, run: node verify-schema.mjs
+import { buildSubgraphSchema } from '@apollo/subgraph';
+import { graphql } from 'graphql';
+import gql from 'graphql-tag';
+import { readFileSync } from 'fs';
+import { resolvers, createShippingInfoLoader, createOrderLoader } from './src/resolvers/orderResolvers.js';
+import { OrderDataSource, InventoryDataSource, ShippingDataSource } from './src/dataSources/orderDataSource.js';
+
+const typeDefs = gql(readFileSync('./src/schema.graphql', 'utf-8'));
+const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);
+
+function ctx() {
+  const orderDataSource = new OrderDataSource();
+  const inventoryDataSource = new InventoryDataSource();
+  const shippingDataSource = new ShippingDataSource();
+  return {
+    dataSources: { orderDataSource, inventoryDataSource, shippingDataSource },
+    loaders: {
+      shippingInfoLoader: createShippingInfoLoader(shippingDataSource),
+      orderLoader: createOrderLoader(orderDataSource),
+    },
+    correlationId: 'verify-1',
+  };
+}
+
+const run = (source, variableValues) =>
+  graphql({ schema, source, contextValue: ctx(), variableValues });
+
+const log = console.log;
+console.log = () => {};   // silence the resolver logs, show only results
+
+const sdl = await run('{ _service { sdl } }');
+log('SDL emitted:', !!sdl.data?._service?.sdl, '| errors:', sdl.errors?.length ?? 0);
+log('SDL has @key:', /@key\\(fields:\\s*"id"\\)/.test(sdl.data._service.sdl));
+
+const q1 = await run('{ orders(userId:"123") { id status totalAmount shippingInfo { status trackingNumber } } }');
+log('Query.orders + shippingInfo:', JSON.stringify(q1.data), '| errors:', JSON.stringify(q1.errors ?? []));
+
+const q2 = await run('{ order(id:"order-457") { id userId status } }');
+log('Query.order:', JSON.stringify(q2.data));
+
+const q3 = await run('{ order(id:"order-999") { id } }');
+log('Query.order not found code:', q3.errors?.map(e => e.extensions.code));
+
+const q4 = await run(
+  'query($r:[_Any!]!){ _entities(representations:$r) { ... on User { id orders { id status } } } }',
+  { r: [{ __typename: 'User', id: '123' }] }
+);
+log('_entities User.orders:', JSON.stringify(q4.data), '| errors:', JSON.stringify(q4.errors ?? []));
+
+const q5 = await run('mutation { createOrder(userId:"789", items:[{productId:"prod-789", quantity:2}]) { id totalAmount items { productId quantity price } } }');
+log('Mutation.createOrder:', JSON.stringify(q5.data), '| errors:', JSON.stringify(q5.errors ?? []));
+
+const q6 = await run('mutation { createOrder(userId:"789", items:[]) { id } }');
+log('createOrder empty items code:', q6.errors?.map(e => e.extensions.code));`;
+
 export const fedMastery: Module = {
   id: "fed-mastery",
   stage: "Federation · 第 6 部分",
@@ -740,6 +978,7 @@ export const fedMastery: Module = {
           code: [
             real("js", VERIFY_SCRIPT, {
               filename: "verify-schema.mjs",
+              codeEn: VERIFY_SCRIPT_EN,
               collapsible: true,
             }),
             real(
@@ -1545,6 +1784,9 @@ if (error instanceof GraphQLError) throw error;`,
           solution: [
             real("js", FULL_RESOLVERS, {
               filename: "src/resolvers/orderResolvers.js（完整参考答案，实测 10/10 通过）",
+              filenameEn:
+                "src/resolvers/orderResolvers.js (the full reference answer, measured 10/10 passing)",
+              codeEn: FULL_RESOLVERS_EN,
               collapsible: true,
             }),
             real(
@@ -1584,6 +1826,8 @@ if (error instanceof GraphQLError) throw error;`,
             ),
             real("js", VERIFY_SCRIPT, {
               filename: "verify-schema.mjs（自己写的验证脚本）",
+              filenameEn: "verify-schema.mjs (the check script you write yourself)",
+              codeEn: VERIFY_SCRIPT_EN,
               collapsible: true,
             }),
           ],
