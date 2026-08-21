@@ -4374,6 +4374,17 @@ async shippingInfo(parent, _, { dataSources }) {
 // getShippingInfo('order-1')
 // getShippingInfo('order-2')
 // ... 共 100 行`,
+              {
+                codeEn: `// ✗ passes the tests, but one request per order
+async shippingInfo(parent, _, { dataSources }) {
+  return dataSources.shippingDataSource.getShippingInfo(parent.id);
+}
+
+// Ask for 100 orders and the log reads:
+// getShippingInfo('order-1')
+// getShippingInfo('order-2')
+// ... 100 lines in all`,
+              },
             ),
           ],
         },
@@ -4573,8 +4584,19 @@ new DataLoader(async ids => {
 });`,
               {
                 filename: "长度与顺序的正确处理",
+                filenameEn: "Getting the length and the order right",
+                codeEn: `// The standard shape of a batch function in a real system
+new DataLoader(async ids => {
+  const rows = await db.query('SELECT * FROM shipping WHERE order_id IN (?)', [ids]);
+
+  // The database order is not guaranteed and missing rows never come back
+  const byId = new Map(rows.map(r => [r.order_id, r]));
+  return ids.map(id => byId.get(id) ?? null);   // length and order now both match
+});`,
                 explanation:
                   "这个项目里因为数据源没有批量接口，用 map + Promise.all 天然满足两条约束，不需要重排。但这个模式值得记住 —— 面试常问。",
+                explanationEn:
+                  "In this project the data source has no batch API, so map plus Promise.all satisfies both constraints on its own and no reordering is needed. The pattern is still worth remembering: interviewers ask about it often.",
               },
             ),
           ],
@@ -4661,6 +4683,16 @@ context: async ({ req }) => {
   return { dataSources: {...}, loaders: { shippingInfoLoader, orderLoader }, correlationId };
 }`,
               {
+                codeEn: `// ✓ what index.js does right: build them per request
+context: async ({ req }) => {
+  const orderDataSource = new OrderDataSource();
+  const shippingDataSource = new ShippingDataSource();
+
+  const shippingInfoLoader = createShippingInfoLoader(shippingDataSource);
+  const orderLoader = createOrderLoader(orderDataSource);
+
+  return { dataSources: {...}, loaders: { shippingInfoLoader, orderLoader }, correlationId };
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/index.js",
               },
@@ -4677,6 +4709,18 @@ export const resolvers = {
     }
   }
 };`,
+              {
+                codeEn: `// ✗ module top level: one cache shared by every request, stale and leaky
+const shippingInfoLoader = createShippingInfoLoader(new ShippingDataSource());
+
+export const resolvers = {
+  Order: {
+    async shippingInfo(parent) {
+      return shippingInfoLoader.load(parent.id);   // a global cache
+    }
+  }
+};`,
+              },
             ),
           ],
         },
@@ -4758,6 +4802,18 @@ export const resolvers = {
 }`,
               {
                 filename: "src/resolvers/orderResolvers.js（埋雷 1）",
+                filenameEn: "src/resolvers/orderResolvers.js (planted bug 1)",
+                codeEn: `function createOrderLoader(orderDataSource) {
+  return new DataLoader(async orderIds => {
+    console.log(\`[DataLoader] Batching \${orderIds.length} order requests\`);
+
+    const orders = await Promise.all(
+      orderIds.map(id => orderDataSource.getOrderById(id))   // ← no such method
+    );
+
+    return orders;
+  });
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
                 highlight: [6],
@@ -4771,13 +4827,15 @@ export const resolvers = {
           kind: "recognition",
           id: "g-dataloader-why",
           title: "DataLoader 靠什么把 N 次合并成 1 次",
+          titleEn: "How DataLoader turns N calls into 1",
           level: 1,
           prompt: <p>下面哪一条最准确？</p>,
+          promptEn: <p>Which of these is most accurate?</p>,
           options: [
-            { id: "a", label: "它在内部开了一个定时器，每 10ms 批量发一次" },
-            { id: "b", label: "它把同一个事件循环 tick 里的所有 load() 攒起来，tick 结束时调一次 batch 函数" },
-            { id: "c", label: "它把 SQL 查询改写成 JOIN" },
-            { id: "d", label: "它缓存了上一次请求的结果" },
+            { id: "a", label: "它在内部开了一个定时器，每 10ms 批量发一次", labelEn: "It runs a timer internally and sends a batch every 10ms" },
+            { id: "b", label: "它把同一个事件循环 tick 里的所有 load() 攒起来，tick 结束时调一次 batch 函数", labelEn: "It collects every load() made in the same event-loop tick and calls the batch function once when the tick ends" },
+            { id: "c", label: "它把 SQL 查询改写成 JOIN", labelEn: "It rewrites the SQL query as a JOIN" },
+            { id: "d", label: "它缓存了上一次请求的结果", labelEn: "It caches the result of the previous request" },
           ],
           answer: ["b"],
           explain: (
@@ -4794,11 +4852,28 @@ export const resolvers = {
               不是合并机制 —— 而且缓存不能跨请求，否则是 bug。
             </>
           ),
+          explainEn: (
+            <>
+              DataLoader uses the JavaScript microtask queue:{" "}
+              <code>load()</code> only records the key and returns a Promise,
+              and once all the synchronous code of the current tick has run, it
+              hands the collected keys to the batch function in one go.
+              <br />
+              The GraphQL executor happens to call <code>shippingInfo</code>{" "}
+              for every order inside the same tick, which is what makes the
+              merge possible.
+              <br />
+              D describes its <strong>other</strong> feature, caching within
+              one request, not the merging. And that cache must not cross
+              requests, or it is a bug.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-batch-rules",
           title: "batch 函数里哪种写法是错的",
+          titleEn: "Which return value from a batch function is wrong",
           level: 1,
           prompt: (
             <p>
@@ -4806,11 +4881,19 @@ export const resolvers = {
               其中 b 在数据库里不存在。下面哪种返回是<strong>错的</strong>?
             </p>
           ),
+          promptEn: (
+            <p>
+              The batch function receives{" "}
+              <code>ids = [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;]</code>,
+              and b does not exist in the database. Which of these return values
+              is <strong>wrong</strong>?
+            </p>
+          ),
           options: [
             { id: "a", label: "[rowA, null, rowC]" },
-            { id: "b", label: "[rowA, rowC]（把找不到的跳过）" },
+            { id: "b", label: "[rowA, rowC]（把找不到的跳过）", labelEn: "[rowA, rowC] (skip the one that was not found)" },
             { id: "c", label: "[rowA, new Error('not found'), rowC]" },
-            { id: "d", label: "A 和 C 都可以" },
+            { id: "d", label: "A 和 C 都可以", labelEn: "A and C are both fine" },
           ],
           answer: ["b"],
           explain: (
@@ -4827,16 +4910,42 @@ export const resolvers = {
               所以 batch 函数里<strong>永远不要 filter</strong>。
             </>
           ),
+          explainEn: (
+            <>
+              B breaks the hard rule that the length must equal the length of
+              keys. Worse, <strong>the order is now shifted</strong> —
+              DataLoader hands <code>rowC</code> to the <code>load()</code> that
+              asked for <code>b</code>, so b receives c&apos;s data.{" "}
+              <strong>
+                That kind of bug raises no error; the data is just wrong, and it
+                is very hard to track down.
+              </strong>
+              <br />
+              A and C are both legal: <code>null</code> means there is nothing,
+              and an <code>Error</code> object makes that one{" "}
+              <code>load()</code> promise reject.
+              <br />
+              So <strong>never filter inside a batch function</strong>.
+            </>
+          ),
         },
         {
           kind: "fill-blank",
           id: "g-loader-blanks",
           title: "修好 createOrderLoader 并写出 shippingInfo",
+          titleEn: "Fix createOrderLoader and write shippingInfo",
           level: 2,
           prompt: (
             <p>
               两个空。第一个要你填对数据源上<strong>真实存在</strong>的方法名，
               第二个要你用 loader 而不是数据源。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Two blanks. The first wants the name of a method that{" "}
+              <strong>really exists</strong> on the data source; the second
+              wants you to go through the loader rather than the data source.
             </p>
           ),
           language: "js",
@@ -4862,6 +4971,8 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
               n: 1,
               accept: ["getOrder"],
               hint: "去 orderDataSource.js 里数一数它到底有哪几个方法。",
+              hintEn:
+                "Open orderDataSource.js and count which methods it actually has.",
               why: (
                 <>
                   <code>getOrder</code>。<code>OrderDataSource</code> 上只有
@@ -4875,12 +4986,34 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
                   教训：<strong>写 resolver 前先把数据源的方法名抄一遍。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>getOrder</code>. <code>OrderDataSource</code> has only
+                  three methods: <code>getOrder</code>,{" "}
+                  <code>getOrdersByUserId</code> and <code>createOrder</code>.
+                  <br />
+                  <strong>
+                    The starter code writes <code>getOrderById</code>, and that
+                    method does not exist
+                  </strong>{" "}
+                  — one of the three planted bugs in the project. It produces{" "}
+                  <code>TypeError: ... is not a function</code>.
+                  <br />
+                  The lesson:{" "}
+                  <strong>
+                    copy out the method names of the data source before you
+                    write any resolver.
+                  </strong>
+                </>
+              ),
               width: 12,
             },
             {
               n: 2,
               accept: ["shippingInfoLoader"],
               hint: "context.loaders 里那两个 loader 的确切名字，看 index.js。",
+              hintEn:
+                "The exact names of the two loaders in context.loaders. Look in index.js.",
               why: (
                 <>
                   <code>shippingInfoLoader</code>。
@@ -4892,6 +5025,21 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
                   考点就是这个。绕过 loader 等于交白卷还得了分。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>shippingInfoLoader</code>.
+                  <br />
+                  <strong>
+                    Why must you use the loader rather than{" "}
+                    <code>dataSources.shippingDataSource.getShippingInfo</code>?
+                  </strong>{" "}
+                  The latter <strong>also passes the tests</strong>, but the
+                  TODO says plainly{" "}
+                  <em>using DataLoader to prevent N+1 queries</em> — that is
+                  what is being graded. Skipping the loader means passing the
+                  test without answering the question.
+                </>
+              ),
               width: 20,
             },
           ],
@@ -4900,11 +5048,18 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
           kind: "debug",
           id: "g-debug-loader-method",
           title: "Debug Lab · DataLoader 报 is not a function",
+          titleEn: "Debug Lab · DataLoader reports is not a function",
           level: 2,
           prompt: (
             <p>
               跑 <code>npm test</code>，其中一个 DataLoader 相关的测试挂了。
               报错指向 loader 内部。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You run <code>npm test</code> and one of the DataLoader tests
+              fails. The error points inside the loader.
             </p>
           ),
           errorOutput: `● Order Resolvers › DataLoader functionality › should batch multiple order requests
@@ -4939,24 +5094,43 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
 //   async getOrdersByUserId(userId) { ... }
 //   async createOrder(userId, items) { ... }
 // }`,
-            { filename: "src/resolvers/orderResolvers.js", highlight: [4] },
+            {
+              filename: "src/resolvers/orderResolvers.js",
+              highlight: [4],
+              codeEn: `function createOrderLoader(orderDataSource) {
+  return new DataLoader(async orderIds => {
+    const orders = await Promise.all(
+      orderIds.map(id => orderDataSource.getOrderById(id))
+    );
+    return orders;
+  });
+}
+
+// For reference: the methods OrderDataSource really has
+// class OrderDataSource {
+//   async getOrder(id) { ... }
+//   async getOrdersByUserId(userId) { ... }
+//   async createOrder(userId, items) { ... }
+// }`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "DataLoader 用法错误 —— batch 函数返回了错误的长度" },
-              { id: "b", label: "API 契约错误 —— 调用了数据源上不存在的方法" },
-              { id: "c", label: "异步错误 —— 少了 await" },
-              { id: "d", label: "schema 与 resolver 不匹配" },
+              { id: "a", label: "DataLoader 用法错误 —— batch 函数返回了错误的长度", labelEn: "Wrong DataLoader usage — the batch function returned the wrong length" },
+              { id: "b", label: "API 契约错误 —— 调用了数据源上不存在的方法", labelEn: "Broken API contract — it calls a method the data source does not have" },
+              { id: "c", label: "异步错误 —— 少了 await", labelEn: "An async mistake — a missing await" },
+              { id: "d", label: "schema 与 resolver 不匹配", labelEn: "The schema and the resolver do not match" },
             ],
             answer: "b",
           },
           locate: {
             question: "该改成什么？",
+            questionEn: "What should it be changed to?",
             options: [
               { id: "a", label: "orderDataSource.getOrder(id)" },
               { id: "b", label: "orderDataSource.getOrdersByUserId(id)" },
               { id: "c", label: "orderDataSource.orders.find(o => o.id === id)" },
-              { id: "d", label: "给 OrderDataSource 加一个 getOrderById 方法" },
+              { id: "d", label: "给 OrderDataSource 加一个 getOrderById 方法", labelEn: "Add a getOrderById method to OrderDataSource" },
             ],
             answer: "a",
           },
@@ -4976,6 +5150,20 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
 }`,
             {
               filename: "改对之后（审计时实测这样改后 10/10 通过）",
+              filenameEn:
+                "After the fix (measured in the audit: 10/10 tests pass)",
+              codeEn: `function createOrderLoader(orderDataSource) {
+  return new DataLoader(async orderIds => {
+    console.log(\`[DataLoader] Batching \${orderIds.length} order requests\`);
+
+    // FIX: OrderDataSource exposes getOrder(id), not getOrderById(id)
+    const orders = await Promise.all(
+      orderIds.map(id => orderDataSource.getOrder(id))
+    );
+
+    return orders;
+  });
+}`,
               highlight: [5, 6, 7, 8],
             },
           ),
@@ -5007,7 +5195,44 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>OrderDataSource</code> has only three methods:{" "}
+                <code>getOrder</code>, <code>getOrdersByUserId</code> and{" "}
+                <code>createOrder</code>. <code>getOrderById</code> does not
+                exist, so it is <code>undefined</code>, and calling undefined
+                throws a TypeError.
+              </p>
+              <p>
+                <strong>Why is this mistake so easy to make?</strong> Because{" "}
+                <code>getOrderById</code> is a{" "}
+                <strong>completely natural name</strong> — plenty of projects
+                do name it that. Whoever wrote the exam is counting on that:
+                you write what feels right instead of checking.
+              </p>
+              <p>
+                <strong>Why is option D not allowed?</strong> The README marks{" "}
+                <code>dataSources/orderDataSource.js</code> as{" "}
+                <strong>PROVIDED</strong>, meaning it is given to you and you
+                leave it alone. Change it and the grader may swap the original
+                back in, throwing away all your edits.{" "}
+                <strong>Only change files marked EDIT THIS.</strong>
+              </p>
+              <p>
+                The way to avoid this is plain:{" "}
+                <strong>
+                  before writing a resolver, open the data source file and copy
+                  every method name and signature onto paper.
+                </strong>{" "}
+                The lesson on reading the exam text gives you a ready-made
+                table.
+              </p>
+            </>
+          ),
           verify: "npm test   # should batch multiple order requests 应该通过",
+          verifyEn:
+            "npm test   # should batch multiple order requests must pass",
         },
       ],
       transfer: [
