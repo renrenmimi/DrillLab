@@ -2590,7 +2590,24 @@ var foo = function () {};
 
 bar();                       // ReferenceError: Cannot access 'bar' ...
 let bar = function () {};`,
-              { filename: "四种提升行为" },
+              {
+                filename: "四种提升行为",
+                filenameEn: "Four hoisting behaviours",
+                codeEn: `console.log(fn());   // "ok"      a function declaration is hoisted whole
+console.log(v);      // undefined var is hoisted as undefined
+console.log(l);      // ReferenceError (TDZ)
+
+function fn() { return "ok"; }
+var v = 1;
+let l = 2;
+
+// Tell the two "not a function" errors apart
+foo();                       // TypeError: foo is not a function
+var foo = function () {};
+
+bar();                       // ReferenceError: Cannot access 'bar' ...
+let bar = function () {};`,
+              },
             ),
           ],
         },
