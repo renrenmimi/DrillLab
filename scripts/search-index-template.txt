@@ -1,0 +1,44 @@
+// 这个文件是生成物，不要手改。生成器：scripts/gen-nav.mjs（模板在 search-index-template.txt）。
+//
+// 【它为什么单独一个文件】
+// 里面是搜索 haystack 需要的重字段：objectives / whyForAssessment /
+// conceptHeadings / conceptLedes / exerciseTitles / sourcePaths / recap / transfer。
+// 加起来 130 KB 出头，而唯一的消费者是 components/search.tsx。
+// 搜索要按 ⌘K 才打开，所以这份数据**不该进任何页面的首屏包** ——
+// search.tsx 用 await import() 在第一次打开搜索时才拉它。
+//
+// 实测：拆出去之前，装着这些字段的 nav chunk 在 /drill 上是 80 kB（gzip 后），
+// 占该页 JS 的 40%，而绝大多数访问根本不会打开搜索。
+//
+// 往这里加字段可以随意（它是懒加载的）；往 content/nav.ts 加要三思。
+
+export interface SearchLesson {
+  examId: string;
+  lessonId: string;
+  objectives: string[];
+  whyForAssessment: string;
+  conceptHeadings: string[];
+  conceptLedes: string[];
+  exerciseTitles: string[];
+  sourcePaths: string[];
+  recap: string[];
+  transfer: string[];
+}
+
+export const SEARCH_LESSONS: SearchLesson[] = __SEARCH_DATA__;
+
+/** 按 examId/lessonId 取那一节的全部可搜文本 */
+export function searchTextOf(examId: string, lessonId: string): string {
+  const l = SEARCH_LESSONS.find((x) => x.examId === examId && x.lessonId === lessonId);
+  if (!l) return "";
+  return [
+    l.whyForAssessment,
+    ...l.objectives,
+    ...l.recap,
+    ...l.conceptHeadings,
+    ...l.conceptLedes,
+    ...l.transfer,
+    ...l.exerciseTitles,
+    ...l.sourcePaths,
+  ].join(" ");
+}

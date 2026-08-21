@@ -1,0 +1,121 @@
+// 临时路由：把导航所需的轻量元数据 dump 成 JSON，用完即删。
+import {
+  EXAMS,
+  allArena,
+  allCodingProblems,
+  allDrills,
+  lessonsOf,
+} from "@/content/registry";
+
+export function GET() {
+  return Response.json({
+    exams: EXAMS.map((e) => ({
+      id: e.id,
+      title: e.title,
+      shortTitle: e.shortTitle,
+      description: e.description,
+      category: e.category,
+      tests: e.tests,
+      stack: e.stack,
+      status: e.status,
+      prerequisites: e.prerequisites,
+      sourceProjects: e.sourceProjects,
+      lessonCount: lessonsOf(e).length,
+      exerciseCount: lessonsOf(e).reduce((n, r) => n + (r.lesson.exercises?.length ?? 0), 0),
+      minutes: lessonsOf(e).reduce((n, r) => n + r.lesson.minutes, 0),
+      debugLabs: lessonsOf(e).reduce(
+        (n, r) => n + (r.lesson.exercises ?? []).filter((x) => x.kind === "debug").length, 0),
+      rebuilds: lessonsOf(e).reduce(
+        (n, r) => n + (r.lesson.exercises ?? []).filter((x) => x.kind === "from-scratch").length, 0),
+      rebuildIds: lessonsOf(e).flatMap((r) =>
+        (r.lesson.exercises ?? []).filter((x) => x.kind === "from-scratch").map((x) => x.id)),
+      modules: e.modules.map((m) => ({
+        id: m.id,
+        title: m.title,
+        summary: m.summary,
+        stage: m.stage,
+        // 【只放客户端首屏真的要用的】其余全部搬去下面的 searchIndex —— 见 nav-template 的注释
+        lessons: m.lessons.map((l) => ({
+          id: l.id,
+          title: l.title,
+          blurb: l.blurb,
+          minutes: l.minutes,
+          exerciseCount: l.exercises?.length ?? 0,
+        })),
+      })),
+      mockExams: e.mockExams.map((m) => ({
+        id: m.id,
+        title: m.title,
+        scenario: m.scenario,
+        mirrors: m.mirrors,
+        minutes: m.minutes,
+        taskCount: m.tasks.length,
+        taskTitles: m.tasks.map((t) => t.title),
+        outOf: m.tasks.reduce((n, t) => n + t.rubric.reduce((k, r) => k + r.points, 0), 0),
+      })),
+      checklist: e.checklist ?? [],
+    })),
+
+    // 八股题清单 —— 客户端的筛选、抽认卡、搜索只读这个，
+    // 绝对不许把 content/drills 拉进客户端组件（单 chunk 784 KB 的坑）。
+    drills: allDrills().map((q) => ({
+      id: q.id,
+      bank: q.bank,
+      zh: q.zh,
+      en: q.en,
+      track: q.track,
+      lessonId: q.lessonId,
+      examId: q.examId,
+      hasEn: !!q.answerEn,
+    })),
+
+    coding: allCodingProblems().map((p) => ({
+      id: p.id,
+      title: p.title,
+      track: p.track,
+      difficulty: p.difficulty,
+      minutes: p.minutes,
+      runnable: p.runnable,
+      hasSandbox: !!p.sandbox,
+      explainLessonId: p.explainLessonId,
+      requirementCount: p.requirements.length,
+    })),
+
+    arena: allArena().map((a) => ({
+      id: a.id,
+      title: a.title,
+      scenario: a.scenario,
+      minutes: a.minutes,
+      examId: a.sourceExamId,
+      fromMock: !!a.sourceMockId,
+      requirementCount: a.requirements.length,
+      commandCount: a.commands.length,
+      runnable: !!a.blankSandbox,
+    })),
+
+    /**
+     * 搜索专用的重字段 —— 单独一份，生成到 content/search-index.ts。
+     *
+     * 这些字段加起来 130 KB 出头，而它们只有一个消费者：搜索的 haystack。
+     * 放在 nav.ts 里会让每个页面都白下 80 kB（gzip 后）。
+     * search.tsx 在用户第一次打开搜索时才 import() 它。
+     */
+    searchIndex: EXAMS.flatMap((e) =>
+      e.modules.flatMap((m) =>
+        m.lessons.map((l) => ({
+          examId: e.id,
+          lessonId: l.id,
+          objectives: l.objectives,
+          whyForAssessment: l.whyForAssessment,
+          conceptHeadings: l.concepts.map((c) => c.heading),
+          // lede 里放的是英文原题和题库编号（面试八股那门课），搜索要能命中它
+          conceptLedes: l.concepts.map((c) => c.lede ?? "").filter(Boolean),
+          exerciseTitles: (l.exercises ?? []).map((x) => x.title),
+          sourcePaths: (l.sourceFiles ?? []).map((f) => f.path),
+          recap: l.recap ?? [],
+          transfer: (l.transfer ?? []).map((t) => `${t.signal} ${t.reachFor}`),
+        })),
+      ),
+    ),
+  });
+}

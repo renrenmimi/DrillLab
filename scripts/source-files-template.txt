@@ -1,0 +1,38 @@
+// 这个文件是生成物，不要手改。生成器：scripts/gen-source-files.mjs
+// 重新生成：npm run gen:src
+//
+// 【它是什么】
+// 课文里 sourceFiles 声明的那些真实文件的**原文快照**。页面上的
+// 「这节课要看的真实文件」每一行都能展开看到文件内容 ——
+// 课文说「这个 package.json 只有三个 script」，你能当场展开核对。
+//
+// 【它不包含什么】
+// 「从零重写」练习里那些要你自己建的文件（package.json、src/App.tsx 这种
+// 裸相对路径）。它们在源项目磁盘上恰好是做完的版本，收进来就是泄答案。
+// 生成器只收「第一段是三个源项目之一」的路径。
+//
+// 【目录也能收】路径以 / 结尾、或者是 exam 总览页那种项目根绝对路径的，
+// 收成一棵 tree(1) 风格的目录树（kind: "tree"）。只有文件名没有内容，不泄答案。
+// node_modules / dist / target / .git 这些装出来编出来的不进树。
+//
+// 【超过 120 行的会被截断】truncated: true，页面上会注明并给出总行数。
+
+import type { Lang } from "@/lib/highlight";
+
+export interface SourceFileSnapshot {
+  lang: Lang;
+  /** 文件总行数（截断前的真实行数） */
+  lines: number;
+  content: string;
+  /** 内容只到前 120 行 */
+  truncated?: boolean;
+  /** 这一条是目录树（只有文件名，没有内容），不是某个文件的原文 */
+  kind?: "tree";
+}
+
+export const SOURCE_FILES: Record<string, SourceFileSnapshot> = __SOURCE_FILES__;
+
+/** 这个路径有没有原文可展开 */
+export function snapshotOf(path: string): SourceFileSnapshot | undefined {
+  return SOURCE_FILES[path];
+}

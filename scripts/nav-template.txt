@@ -1,0 +1,191 @@
+// 导航用的轻量元数据 —— 由 content/registry 派生。
+//
+// 为什么要有这个文件：课程内容里带 JSX（ReactNode），只能在客户端组件里 import，
+// 而侧栏 / 首页 / 学习路径 / 搜索这些客户端组件只需要标题和计数。
+// 如果它们直接 import registry，全部课程的正文都会被打进客户端包（实测 784 KB）。
+// 所以这里放一份「只有文字和数字」的镜像，客户端组件只读这个。
+//
+// 【怎么保持同步】不要手改。改完内容后跑：
+//     npm run gen:nav
+// 它会重新从真实内容里 dump 一份覆盖这个文件。
+// 另外 assertNavInSync() 会在开发模式下检查两边是否一致，不一致直接抛错。
+
+/**
+ * 侧栏、首页、路线图这些客户端组件要用的最小课程信息。
+ *
+ * 【为什么这里这么瘦】
+ * 曾经这里还挂着 objectives / whyForAssessment / conceptHeadings /
+ * conceptLedes / exerciseTitles / sourcePaths / recap / transfer 八个字段。
+ * 它们只有一个消费者 —— 搜索的 haystack。而搜索是 ⌘K 才打开的，
+ * 那八个字段却让**每一个页面**都多下 80 kB（gzip 后，实测）。
+ * 现在它们搬去了 content/search-index.ts，由 search.tsx 在用户真的
+ * 打开搜索时才 import()。改完实测：/drill 首屏 199 kB → 见 README。
+ *
+ * 所以：**往这里加字段之前先问一句「客户端首屏真的需要它吗」**。
+ * 只给搜索用的，加到 search-index 那边去。
+ */
+export interface NavLesson {
+  id: string;
+  title: string;
+  blurb: string;
+  minutes: number;
+  exerciseCount: number;
+}
+
+export interface NavModule {
+  id: string;
+  title: string;
+  summary: string;
+  stage?: string;
+  lessons: NavLesson[];
+}
+
+export interface NavMock {
+  id: string;
+  title: string;
+  scenario: string;
+  mirrors: string;
+  minutes: number;
+  taskCount: number;
+  taskTitles: string[];
+  outOf: number;
+}
+
+export interface NavExam {
+  id: string;
+  title: string;
+  shortTitle: string;
+  description: string;
+  category: string;
+  tests: string;
+  stack: string[];
+  status: string;
+  prerequisites: string[];
+  sourceProjects: { path: string; role: string }[];
+  lessonCount: number;
+  exerciseCount: number;
+  minutes: number;
+  debugLabs: number;
+  rebuilds: number;
+  rebuildIds: string[];
+  modules: NavModule[];
+  mockExams: NavMock[];
+  checklist: { task: string; covered: string; tested: boolean }[];
+}
+
+/* ---------- 刷题层的轻量清单 ----------
+   客户端组件（筛选、抽认卡、搜索、列表）只读这几个数组。
+   题目正文不在这里 —— 正文由服务端组件从 content/drills 取。 */
+
+export type NavDrillTrack = "html" | "css" | "js" | "react" | "node" | "db" | "web" | "ts";
+
+export interface NavDrill {
+  id: string;
+  bank: number[];
+  zh: string;
+  en: string;
+  track: NavDrillTrack;
+  lessonId: string;
+  examId: string;
+  /** 这道题有没有英文答案 */
+  hasEn: boolean;
+}
+
+export interface NavCoding {
+  id: string;
+  title: string;
+  track: "react" | "js" | "graphql" | "java";
+  difficulty: 1 | 2 | 3;
+  minutes: number;
+  runnable: boolean;
+  /** 沙箱填好了没有 —— 没填就只显示「本机跑」卡片 */
+  hasSandbox: boolean;
+  explainLessonId?: string;
+  requirementCount: number;
+}
+
+export interface NavArena {
+  id: string;
+  title: string;
+  scenario: string;
+  minutes: number;
+  examId: string;
+  fromMock: boolean;
+  requirementCount: number;
+  commandCount: number;
+  runnable: boolean;
+}
+
+interface NavPayload {
+  exams: NavExam[];
+  drills: NavDrill[];
+  coding: NavCoding[];
+  arena: NavArena[];
+}
+
+const PAYLOAD: NavPayload = __NAV_DATA__;
+
+export const NAV: NavExam[] = PAYLOAD.exams;
+export const DRILLS: NavDrill[] = PAYLOAD.drills;
+export const CODING: NavCoding[] = PAYLOAD.coding;
+export const ARENA: NavArena[] = PAYLOAD.arena;
+
+export const DRILL_TRACK_ORDER: NavDrillTrack[] = [
+  "html",
+  "css",
+  "js",
+  "react",
+  "node",
+  "db",
+  "web",
+  "ts",
+];
+
+export const DRILL_TRACK_LABEL: Record<NavDrillTrack, { zh: string; en: string }> = {
+  html: { zh: "HTML", en: "HTML" },
+  css: { zh: "CSS", en: "CSS" },
+  js: { zh: "JavaScript", en: "JavaScript" },
+  react: { zh: "React 与生态", en: "React & ecosystem" },
+  node: { zh: "Node / Express", en: "Node / Express" },
+  db: { zh: "数据库", en: "Databases" },
+  web: { zh: "网络与安全", en: "Web & security" },
+  ts: { zh: "TypeScript 深度", en: "TypeScript deep dive" },
+};
+
+export const drillPath = (id: string) => `/drill/${id}`;
+export const codingPath = (id: string) => `/code/${id}`;
+export const arenaPath = (id: string) => `/arena/${id}`;
+
+/* ---------- 查找与聚合（和 registry 的同名函数保持一致的语义） ---------- */
+
+export const navExam = (id: string) => NAV.find((e) => e.id === id);
+
+export interface NavLessonRef {
+  exam: NavExam;
+  module: NavModule;
+  lesson: NavLesson;
+  index: number;
+  total: number;
+}
+
+export function navLessonsOf(exam: NavExam): NavLessonRef[] {
+  const flat: { module: NavModule; lesson: NavLesson }[] = [];
+  exam.modules.forEach((m) => m.lessons.forEach((l) => flat.push({ module: m, lesson: l })));
+  return flat.map((x, i) => ({ exam, ...x, index: i + 1, total: flat.length }));
+}
+
+export function navStages(): { stage: string; exam: NavExam; module: NavModule }[] {
+  const out: { stage: string; exam: NavExam; module: NavModule }[] = [];
+  for (const exam of NAV) {
+    for (const mod of exam.modules) {
+      if (mod.stage) out.push({ stage: mod.stage, exam, module: mod });
+    }
+  }
+  return out;
+}
+
+export const examPath = (examId: string) => `/exams/${examId}`;
+export const lessonPath = (examId: string, lessonId: string) =>
+  `/exams/${examId}/${lessonId}`;
+export const mockPath = (examId: string, mockId: string) =>
+  `/mock/${examId}/${mockId}`;
