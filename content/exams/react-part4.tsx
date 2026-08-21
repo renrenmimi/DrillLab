@@ -642,6 +642,7 @@ runTasks(tasks, 2).then((results) => {
           kind: "recognition",
           id: "r-q2-why-fn",
           title: "如果参数改成 Promise 数组会怎样",
+          titleEn: "What happens if the parameter becomes an array of Promises",
           level: 1,
           prompt: (
             <p>
@@ -651,11 +652,20 @@ runTasks(tasks, 2).then((results) => {
               会发生什么？
             </p>
           ),
+          promptEn: (
+            <p>
+              Suppose the signature becomes{" "}
+              <code>runTasks(promises: Promise&lt;T&gt;[], limit: number)</code>{" "}
+              and the caller writes{" "}
+              <code>runTasks([task1(), task2(), task3()], 2)</code>. What
+              happens?
+            </p>
+          ),
           options: [
-            { id: "a", label: "一样能工作，只是写法不同" },
-            { id: "b", label: "三个任务在调用 runTasks 之前就全开始跑了，并发上限无法实现" },
-            { id: "c", label: "结果顺序会乱" },
-            { id: "d", label: "TypeScript 会编译报错" },
+            { id: "a", label: "一样能工作，只是写法不同", labelEn: "It works the same way; only the spelling is different" },
+            { id: "b", label: "三个任务在调用 runTasks 之前就全开始跑了，并发上限无法实现", labelEn: "All three tasks start before runTasks is even called, so the concurrency limit cannot be applied" },
+            { id: "c", label: "结果顺序会乱", labelEn: "The results come back out of order" },
+            { id: "d", label: "TypeScript 会编译报错", labelEn: "TypeScript reports a compile error" },
           ],
           answer: ["b"],
           explain: (
@@ -668,11 +678,27 @@ runTasks(tasks, 2).then((results) => {
               所以参数必须是还没被调用的函数。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              The moment you write the parentheses in <code>task1()</code>, the
+              task starts. By the time <code>runTasks</code> receives the
+              parameter, all three are already running. No amount of queueing
+              inside the function can change the fact that they already started
+              together.
+              <br />
+              <strong>
+                Controlling concurrency requires that nothing starts until you
+                say so, so the parameter must be functions that have not been
+                called yet.
+              </strong>
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-q2-not-allsettled",
           title: "为什么不能直接用 Promise.allSettled",
+          titleEn: "Why Promise.allSettled on its own is not the answer",
           level: 1,
           prompt: (
             <p>
@@ -681,11 +707,18 @@ runTasks(tasks, 2).then((results) => {
               它满足几条要求？
             </p>
           ),
+          promptEn: (
+            <p>
+              Someone writes{" "}
+              <code>return Promise.allSettled(tasks.map((t) =&gt; t()))</code>.
+              How many of the requirements does it meet?
+            </p>
+          ),
           options: [
-            { id: "a", label: "三条全满足，这就是答案" },
-            { id: "b", label: "满足「不抛错」和「保序」，但违反「并发上限」" },
-            { id: "c", label: "满足「并发上限」，但顺序会乱" },
-            { id: "d", label: "一条都不满足" },
+            { id: "a", label: "三条全满足，这就是答案", labelEn: "All three, so this is the answer" },
+            { id: "b", label: "满足「不抛错」和「保序」，但违反「并发上限」", labelEn: "It meets never throwing and keeping the order, but it breaks the concurrency limit" },
+            { id: "c", label: "满足「并发上限」，但顺序会乱", labelEn: "It meets the concurrency limit, but the order is lost" },
+            { id: "d", label: "一条都不满足", labelEn: "None of them" },
           ],
           answer: ["b"],
           explain: (
@@ -697,6 +730,19 @@ runTasks(tasks, 2).then((results) => {
               <br />
               所以这道题的全部难点就在<strong>那个节流</strong>上：
               怎么做到「一次只开 limit 个」。
+            </>
+          ),
+          explainEn: (
+            <>
+              <code>allSettled</code> itself really does never throw and really
+              does keep the order. The problem is{" "}
+              <code>tasks.map((t) =&gt; t())</code>: that line{" "}
+              <strong>calls every task at once</strong>, so all 6 start
+              together and <code>running now</code> climbs to 6.
+              <br />
+              So the whole difficulty of this question is{" "}
+              <strong>the throttling</strong>: how to keep only limit tasks
+              running at a time.
             </>
           ),
         },
