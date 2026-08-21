@@ -117,6 +117,107 @@ const TodoList: React.FC = () => {
 };
 
 export default TodoList;`;
+const TODO_SOLUTION_EN = `import React, { useState } from "react";
+import type { Filter, Todo } from "../../types/Todo";
+
+const TodoList: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [text, setText] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+
+  // Three derived values: each computed from todos, none of them a state
+  const visible =
+    filter === "all"
+      ? todos
+      : todos.filter((t) => (filter === "done" ? t.done : !t.done));
+  const remaining = todos.filter((t) => !t.done).length;
+  const allDone = todos.length > 0 && remaining === 0;
+
+  const isInvalid = text.trim() === "";
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isInvalid) return;
+    setTodos((prev) => [...prev, { id: Date.now(), text: text.trim(), done: false }]);
+    setText("");
+  };
+
+  // Toggle one item in place: map plus an object spread, original untouched
+  const toggle = (id: number) => {
+    setTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
+    );
+  };
+
+  const remove = (id: number) => {
+    setTodos((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Check all / uncheck all: one shared target value from whether all are done
+  const toggleAll = () => {
+    const next = !allDone;
+    setTodos((prev) => prev.map((t) => ({ ...t, done: next })));
+  };
+
+  const clearDone = () => {
+    setTodos((prev) => prev.filter((t) => !t.done));
+  };
+
+  return (
+    <div data-testid="todo-app">
+      <form onSubmit={handleSubmit} data-testid="todo-form">
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          data-testid="todo-input"
+        />
+        <button type="submit" disabled={isInvalid} data-testid="todo-submit">
+          Add
+        </button>
+      </form>
+
+      <div>
+        <button onClick={toggleAll} data-testid="toggle-all">
+          {allDone ? "Uncheck all" : "Check all"}
+        </button>
+        <button onClick={clearDone} data-testid="clear-done">
+          Clear completed
+        </button>
+        <span data-testid="remaining">{remaining} left</span>
+      </div>
+
+      <div>
+        {(["all", "active", "done"] as Filter[]).map((f) => (
+          <button key={f} onClick={() => setFilter(f)} data-testid={\`filter-\${f}\`}
+                  aria-pressed={filter === f}>
+            {f}
+          </button>
+        ))}
+      </div>
+
+      <ul data-testid="todo-list">
+        {visible.map((todo) => (
+          <li key={todo.id} data-done={todo.done}>
+            <input
+              type="checkbox"
+              checked={todo.done}
+              onChange={() => toggle(todo.id)}
+              aria-label={\`toggle \${todo.text}\`}
+            />
+            <span>{todo.text}</span>
+            <button onClick={() => remove(todo.id)} aria-label={\`delete \${todo.text}\`}>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default TodoList;`;
+
 
 const TIMER_SOLUTION = `import React, { useEffect, useState } from "react";
 
@@ -163,6 +264,52 @@ const Timer: React.FC = () => {
 };
 
 export default Timer;`;
+const TIMER_SOLUTION_EN = `import React, { useEffect, useState } from "react";
+
+const pad = (n: number) => String(n).padStart(2, "0");
+export const format = (totalSeconds: number) =>
+  \`\${pad(Math.floor(totalSeconds / 60))}:\${pad(totalSeconds % 60)}\`;
+
+const Timer: React.FC = () => {
+  const [seconds, setSeconds] = useState(0);
+  const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    if (!running) return;          // not running, so build no interval
+
+    const id = setInterval(() => {
+      // The updater form is required. This callback was created in one render of
+      // the effect, so setSeconds(seconds + 1) would always read that render's
+      // seconds (a stale closure) and the count would freeze at 1.
+      setSeconds((s) => s + 1);
+    }, 1000);
+
+    // Cleanup: runs when running changes, and again when the component unmounts.
+    // Without it -> every switch to true adds one more interval and the count
+    //             speeds up; after unmount the interval runs on -> a memory leak.
+    return () => clearInterval(id);
+  }, [running]);
+
+  const reset = () => {
+    setRunning(false);
+    setSeconds(0);
+  };
+
+  return (
+    <div data-testid="timer">
+      <output data-testid="display">{format(seconds)}</output>
+      <button onClick={() => setRunning((r) => !r)} data-testid="toggle">
+        {running ? "Pause" : "Start"}
+      </button>
+      <button onClick={reset} data-testid="reset">
+        Reset
+      </button>
+    </div>
+  );
+};
+
+export default Timer;`;
+
 
 const FETCH_SOLUTION = `import React, { useEffect, useState } from "react";
 import type { User } from "../../types/User";
@@ -222,6 +369,65 @@ const UserCard: React.FC<{ userId: number }> = ({ userId }) => {
 };
 
 export default UserCard;`;
+const FETCH_SOLUTION_EN = `import React, { useEffect, useState } from "react";
+import type { User } from "../../types/User";
+
+const UserCard: React.FC<{ userId: number }> = ({ userId }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // ignore is the switch for whether this request still counts.
+    // When userId changes, the cleanup of the old effect sets it to true first,
+    // so a late old response cannot overwrite new data. That settles the race.
+    let ignore = false;
+    const controller = new AbortController();
+
+    setLoading(true);
+    setError(null);
+    setUser(null);
+
+    (async () => {
+      try {
+        const res = await fetch(\`/api/users/\${userId}\`, { signal: controller.signal });
+
+        // fetch only rejects when the network layer fails.
+        // A 404 or 500 is a failure response received successfully, so check
+        // res.ok yourself or you will use the error page as data.
+        if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+
+        const data: User = await res.json();
+        if (!ignore) setUser(data);
+      } catch (e) {
+        // Cancelling on purpose is not an error, so do not show it to the user
+        const err = e as Error;
+        if (!ignore && err.name !== "AbortError") setError(err.message);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+
+    return () => {
+      ignore = true;
+      controller.abort();   // also cut off the request in flight and save bandwidth
+    };
+  }, [userId]);
+
+  if (loading) return <p data-testid="loading">Loading…</p>;
+  if (error) return <p data-testid="error">出错了：{error}</p>;
+  if (!user) return <p data-testid="empty">没有数据</p>;
+
+  return (
+    <article data-testid="user">
+      <h2 data-testid="user-name">{user.name}</h2>
+      <p data-testid="user-email">{user.email}</p>
+    </article>
+  );
+};
+
+export default UserCard;`;
+
 
 const TREE_HELPERS = `import type { Comment } from "../../types/Comment";
 
@@ -245,6 +451,29 @@ export function addReply(nodes: Comment[], parentId: number, reply: Comment): Co
     return { ...node, replies: addReply(node.replies, parentId, reply) };
   });
 }`;
+const TREE_HELPERS_EN = `import type { Comment } from "../../types/Comment";
+
+/** Count every comment recursively, replies at every level included */
+export function countComments(nodes: Comment[]): number {
+  return nodes.reduce((sum, n) => sum + 1 + countComments(n.replies), 0);
+}
+
+/**
+ * Add one reply under a node of the tree, and return a brand new tree.
+ *
+ * The key point: every node on the path from the root to the target becomes a
+ * new object, but **do not** deep-copy the tree. Untouched branches are reused.
+ */
+export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
+  return nodes.map((node) => {
+    if (node.id === parentId) {
+      return { ...node, replies: [...node.replies, reply] };
+    }
+    // the target may be deeper down, so keep looking
+    return { ...node, replies: addReply(node.replies, parentId, reply) };
+  });
+}`;
+
 
 const TREE_SOLUTION = `interface NodeProps {
   comment: Comment;
@@ -334,6 +563,95 @@ const CommentTree: React.FC<{ initial: Comment[] }> = ({ initial }) => {
 };
 
 export default CommentTree;`;
+const TREE_SOLUTION_EN = `interface NodeProps {
+  comment: Comment;
+  depth: number;
+  onReply: (parentId: number, text: string) => void;
+}
+
+const CommentNode: React.FC<NodeProps> = ({ comment, depth, onReply }) => {
+  const [open, setOpen] = useState(true);
+  const [replying, setReplying] = useState(false);
+  const [text, setText] = useState("");
+
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (text.trim() === "") return;
+    onReply(comment.id, text.trim());
+    setText("");
+    setReplying(false);
+  };
+
+  return (
+    <li
+      data-testid={\`comment-\${comment.id}\`}
+      data-depth={depth}
+      style={{ marginLeft: depth * 16 }}
+    >
+      <span data-testid={\`author-\${comment.id}\`}>{comment.author}</span>
+      <span data-testid={\`body-\${comment.id}\`}>{comment.body}</span>
+
+      <button onClick={() => setReplying((v) => !v)} aria-label={\`reply to \${comment.author}\`}>
+        Reply
+      </button>
+
+      {comment.replies.length > 0 && (
+        <button onClick={() => setOpen((v) => !v)} aria-label={\`toggle \${comment.author}\`}>
+          {open ? \`Hide \${comment.replies.length}\` : \`Show \${comment.replies.length}\`}
+        </button>
+      )}
+
+      {replying && (
+        <form onSubmit={submit}>
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            data-testid={\`reply-input-\${comment.id}\`}
+          />
+          <button type="submit" data-testid={\`reply-submit-\${comment.id}\`}>Send</button>
+        </form>
+      )}
+
+      {/* Recursion: the component renders itself.
+          No if is needed to stop it: with empty replies, map produces nothing. */}
+      {open && comment.replies.length > 0 && (
+        <ul>
+          {comment.replies.map((child) => (
+            <CommentNode key={child.id} comment={child} depth={depth + 1} onReply={onReply} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
+
+const CommentTree: React.FC<{ initial: Comment[] }> = ({ initial }) => {
+  const [comments, setComments] = useState<Comment[]>(initial);
+
+  const handleReply = (parentId: number, text: string) => {
+    const reply: Comment = {
+      id: Date.now() + Math.random(),
+      author: "我",
+      body: text,
+      replies: [],
+    };
+    setComments((prev) => addReply(prev, parentId, reply));
+  };
+
+  return (
+    <div data-testid="comment-tree">
+      <span data-testid="total">{countComments(comments)}</span>
+      <ul>
+        {comments.map((c) => (
+          <CommentNode key={c.id} comment={c} depth={0} onReply={handleReply} />
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default CommentTree;`;
+
 
 /* ---------------- 主题切换（Context）：本机跑出 8/8 的那几个文件 ---------------- */
 
@@ -371,6 +689,41 @@ export function useTheme(): ThemeContextValue {
   if (!ctx) throw new Error("useTheme 必须在 <ThemeProvider> 里面用");
   return ctx;
 }`;
+const THEME_CONTEXT_EN = `import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+
+export type Theme = "light" | "dark";
+
+export interface ThemeContextValue {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+// The default value is undefined, to pair with the guard inside useTheme below:
+// a missing Provider fails at once instead of quietly using a made-up theme.
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<Theme>("light");
+
+  // Updater form: called twice inside one event, it still flips back correctly
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  }, []);
+
+  // The value has to be memoized. Otherwise every Provider render builds a new
+  // object and every component calling useTheme() re-renders, theme unchanged.
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme has to be used inside <ThemeProvider>");
+  return ctx;
+}`;
+
 
 const THEME_BUTTON = `import React from "react";
 import { useTheme } from "../../context/ThemeContext";
@@ -429,6 +782,23 @@ const ThemeApp: React.FC = () => (
 );
 
 export default ThemeApp;`;
+const THEME_APP_EN = `import React from "react";
+import { ThemeProvider } from "../../context/ThemeContext";
+import ThemeToggleButton from "../ThemeToggleButton";
+import ThemedCard from "../ThemedCard";
+
+// The whole App sits inside the Provider: only its subtree can call useTheme()
+const ThemeApp: React.FC = () => (
+  <ThemeProvider>
+    <ThemeToggleButton />
+    <ThemedCard>
+      <p>卡片内容</p>
+    </ThemedCard>
+  </ThemeProvider>
+);
+
+export default ThemeApp;`;
+
 
 const THEME_TEST = `import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -543,6 +913,120 @@ test("一次事件里连调两次 toggleTheme，应该原样回来（函数式�
   // 两次都读到同一个旧 theme，结果会停在 dark
   expect(screen.getByTestId("theme-name")).toHaveTextContent("light");
 });`;
+const THEME_TEST_EN = `import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { expect, test, vi } from "vitest";
+import ThemeApp from "./components/ThemeApp";
+import ThemedCard from "./components/ThemedCard";
+import ThemeToggleButton from "./components/ThemeToggleButton";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
+
+test("默认是 light，按钮说 Switch to Dark", () => {
+  render(<ThemeApp />);
+  expect(screen.getByTestId("theme-name")).toHaveTextContent("light");
+  expect(screen.getByTestId("theme-toggle")).toHaveTextContent("Switch to Dark");
+  expect(screen.getByTestId("themed-card")).toHaveStyle({ backgroundColor: "#fff" });
+});
+
+test("点一下变 dark：按钮文字和卡片底色一起变", async () => {
+  render(<ThemeApp />);
+  await userEvent.click(screen.getByTestId("theme-toggle"));
+
+  expect(screen.getByTestId("theme-name")).toHaveTextContent("dark");
+  expect(screen.getByTestId("theme-toggle")).toHaveTextContent("Switch to Light");
+  expect(screen.getByTestId("themed-card")).toHaveStyle({ backgroundColor: "#222" });
+});
+
+test("再点一下切回 light", async () => {
+  render(<ThemeApp />);
+  await userEvent.click(screen.getByTestId("theme-toggle"));
+  await userEvent.click(screen.getByTestId("theme-toggle"));
+
+  expect(screen.getByTestId("theme-name")).toHaveTextContent("light");
+  expect(screen.getByTestId("themed-card")).toHaveStyle({ backgroundColor: "#fff" });
+});
+
+test("同一个 Provider 下的多个消费者一起变（这才是 Context 的意义）", async () => {
+  render(
+    <ThemeProvider>
+      <ThemeToggleButton />
+      <div data-testid="a"><ThemedCard /></div>
+      <div data-testid="b"><ThemedCard /></div>
+    </ThemeProvider>,
+  );
+
+  const names = () => screen.getAllByTestId("theme-name").map((n) => n.textContent);
+  expect(names()).toEqual(["light", "light"]);
+
+  await userEvent.click(screen.getByTestId("theme-toggle"));
+  expect(names()).toEqual(["dark", "dark"]);
+});
+
+test("没套 Provider 就用 useTheme()，必须立刻报错", () => {
+  // React prints the expected error to console.error, so silence it here
+  const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+  expect(() => render(<ThemedCard />)).toThrow("useTheme has to be used inside <ThemeProvider>");
+  spy.mockRestore();
+});
+
+test("toggleTheme 是稳定引用：theme 变了它也不变", async () => {
+  const seen: (() => void)[] = [];
+  const Probe = () => {
+    const { toggleTheme } = useTheme();
+    seen.push(toggleTheme);
+    return <button onClick={toggleTheme} data-testid="probe">go</button>;
+  };
+
+  render(<ThemeProvider><Probe /></ThemeProvider>);
+  await userEvent.click(screen.getByTestId("probe"));
+
+  expect(seen.length).toBeGreaterThan(1);          // it really did re-render
+  expect(new Set(seen).size).toBe(1);              // but toggleTheme stayed one function
+});
+
+test("theme 没变时 context value 不换新对象（useMemo 生效）", () => {
+  const values: unknown[] = [];
+  const Probe = () => {
+    values.push(useTheme());
+    return null;
+  };
+
+  const { rerender } = render(<ThemeProvider><Probe /></ThemeProvider>);
+  rerender(<ThemeProvider><Probe /></ThemeProvider>);   // parent re-renders, theme unchanged
+
+  expect(values.length).toBeGreaterThan(1);
+  expect(new Set(values).size).toBe(1);
+});
+
+test("一次事件里连调两次 toggleTheme，应该原样回来（函数式更新的证据）", async () => {
+  const Twice = () => {
+    const { toggleTheme } = useTheme();
+    return (
+      <button
+        data-testid="twice"
+        onClick={() => {
+          toggleTheme();
+          toggleTheme();
+        }}
+      >
+        go
+      </button>
+    );
+  };
+
+  render(
+    <ThemeProvider>
+      <Twice />
+      <ThemedCard />
+    </ThemeProvider>,
+  );
+
+  await userEvent.click(screen.getByTestId("twice"));
+  // Two flips = back to the start. Written as setTheme(theme === "light" ? ... ),
+  // both calls read the same old theme and it stops on dark
+  expect(screen.getByTestId("theme-name")).toHaveTextContent("light");
+});`;
+
 
 /* ---------------- 配套测试（就是本机跑出 36/36 的那五个文件） ---------------- */
 
@@ -629,6 +1113,90 @@ test("clear completed removes only done todos", async () => {
   expect(screen.getByTestId("todo-list")).not.toHaveTextContent("A");
   expect(screen.getByTestId("todo-list")).toHaveTextContent("B");
 });`;
+const TODO_TEST_EN = `import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import TodoList from "./components/TodoList";
+
+const add = async (text: string) => {
+  await userEvent.type(screen.getByTestId("todo-input"), text);
+  await userEvent.click(screen.getByTestId("todo-submit"));
+};
+
+test("adds a todo and clears the input", async () => {
+  render(<TodoList />);
+  await add("买牛奶");
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("买牛奶");
+  expect(screen.getByTestId("todo-input")).toHaveValue("");
+});
+
+test("submit disabled when input is only whitespace", async () => {
+  render(<TodoList />);
+  expect(screen.getByTestId("todo-submit")).toBeDisabled();
+  await userEvent.type(screen.getByTestId("todo-input"), "   ");
+  expect(screen.getByTestId("todo-submit")).toBeDisabled();
+});
+
+test("toggles one todo without touching the others", async () => {
+  render(<TodoList />);
+  await add("A");
+  await add("B");
+  await userEvent.click(screen.getByLabelText("toggle A"));
+
+  const items = screen.getByTestId("todo-list").querySelectorAll("li");
+  expect(items[0].getAttribute("data-done")).toBe("true");
+  expect(items[1].getAttribute("data-done")).toBe("false");
+});
+
+test("remaining count is derived, not stored", async () => {
+  render(<TodoList />);
+  await add("A");
+  await add("B");
+  expect(screen.getByTestId("remaining")).toHaveTextContent("2 left");
+  await userEvent.click(screen.getByLabelText("toggle A"));
+  expect(screen.getByTestId("remaining")).toHaveTextContent("1 left");
+});
+
+test("filters without losing data", async () => {
+  render(<TodoList />);
+  await add("A");
+  await add("B");
+  await userEvent.click(screen.getByLabelText("toggle A"));
+
+  await userEvent.click(screen.getByTestId("filter-active"));
+  expect(screen.getByTestId("todo-list")).not.toHaveTextContent("A");
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("B");
+
+  await userEvent.click(screen.getByTestId("filter-done"));
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("A");
+  expect(screen.getByTestId("todo-list")).not.toHaveTextContent("B");
+
+  // Back to all and both are still there: filtering must not touch the data
+  await userEvent.click(screen.getByTestId("filter-all"));
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("A");
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("B");
+});
+
+test("toggle all then uncheck all", async () => {
+  render(<TodoList />);
+  await add("A");
+  await add("B");
+  await userEvent.click(screen.getByTestId("toggle-all"));
+  expect(screen.getByTestId("remaining")).toHaveTextContent("0 left");
+  await userEvent.click(screen.getByTestId("toggle-all"));
+  expect(screen.getByTestId("remaining")).toHaveTextContent("2 left");
+});
+
+test("clear completed removes only done todos", async () => {
+  render(<TodoList />);
+  await add("A");
+  await add("B");
+  await userEvent.click(screen.getByLabelText("toggle A"));
+  await userEvent.click(screen.getByTestId("clear-done"));
+
+  expect(screen.getByTestId("todo-list")).not.toHaveTextContent("A");
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("B");
+});`;
+
 
 const TIMER_TEST = `import { act, render, screen, fireEvent } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
@@ -704,6 +1272,81 @@ test("unmount clears the interval（不再有活着的定时器）", () => {
   unmount();
   expect(vi.getTimerCount()).toBe(0);
 });`;
+const TIMER_TEST_EN = `import { act, render, screen, fireEvent } from "@testing-library/react";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import Timer, { format } from "./components/Timer";
+
+beforeEach(() => vi.useFakeTimers());
+afterEach(() => vi.useRealTimers());
+
+const advance = (ms: number) => act(() => vi.advanceTimersByTime(ms));
+
+test("formats seconds as mm:ss", () => {
+  expect(format(0)).toBe("00:00");
+  expect(format(9)).toBe("00:09");
+  expect(format(65)).toBe("01:05");
+  expect(format(600)).toBe("10:00");
+});
+
+test("does not tick before start", () => {
+  render(<Timer />);
+  advance(5000);
+  expect(screen.getByTestId("display")).toHaveTextContent("00:00");
+});
+
+test("counts up once per second while running", () => {
+  render(<Timer />);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(3000);
+  expect(screen.getByTestId("display")).toHaveTextContent("00:03");
+});
+
+test("pause stops the clock and keeps the value", () => {
+  render(<Timer />);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(2000);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(5000);
+  expect(screen.getByTestId("display")).toHaveTextContent("00:02");
+});
+
+test("start/pause many times does not speed up（清理函数生效的证据）", () => {
+  render(<Timer />);
+  for (let i = 0; i < 4; i++) {
+    fireEvent.click(screen.getByTestId("toggle")); // start
+    advance(1000);
+    fireEvent.click(screen.getByTestId("toggle")); // pause
+  }
+  // Four rounds of 1 second each -> exactly 4. Without clearInterval: 1+2+3+4=10
+  expect(screen.getByTestId("display")).toHaveTextContent("00:04");
+});
+
+test("reset stops and zeroes", () => {
+  render(<Timer />);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(3000);
+  fireEvent.click(screen.getByTestId("reset"));
+  expect(screen.getByTestId("display")).toHaveTextContent("00:00");
+  expect(screen.getByTestId("toggle")).toHaveTextContent("Start");
+  advance(3000);
+  expect(screen.getByTestId("display")).toHaveTextContent("00:00");
+});
+
+test("crosses the minute boundary", () => {
+  render(<Timer />);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(61000);
+  expect(screen.getByTestId("display")).toHaveTextContent("01:01");
+});
+
+test("unmount clears the interval（不再有活着的定时器）", () => {
+  const { unmount } = render(<Timer />);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(1000);
+  unmount();
+  expect(vi.getTimerCount()).toBe(0);
+});`;
+
 
 const FETCH_TEST = `import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
@@ -794,6 +1437,96 @@ test("aborts the in-flight request on unmount", async () => {
   unmount();
   expect(signals[0].aborted).toBe(true);
 });`;
+const FETCH_TEST_EN = `import { render, screen, waitFor } from "@testing-library/react";
+import { afterEach, expect, test, vi } from "vitest";
+import UserCard from "./components/UserCard";
+
+type Deferred<T> = { promise: Promise<T>; resolve: (v: T) => void; reject: (e: unknown) => void };
+function deferred<T>(): Deferred<T> {
+  let resolve!: (v: T) => void;
+  let reject!: (e: unknown) => void;
+  const promise = new Promise<T>((res, rej) => { resolve = res; reject = rej; });
+  return { promise, resolve, reject };
+}
+
+const okRes = (body: unknown) => ({ ok: true, status: 200, json: async () => body });
+
+afterEach(() => { vi.unstubAllGlobals(); });
+
+test("shows loading first, then the data", async () => {
+  const d = deferred<unknown>();
+  vi.stubGlobal("fetch", vi.fn(() => d.promise));
+
+  render(<UserCard userId={1} />);
+  expect(screen.getByTestId("loading")).toBeInTheDocument();
+
+  d.resolve(okRes({ id: 1, name: "张三", email: "z@example.com" }));
+  expect(await screen.findByTestId("user-name")).toHaveTextContent("张三");
+  expect(screen.getByTestId("user-email")).toHaveTextContent("z@example.com");
+  expect(screen.queryByTestId("loading")).toBeNull();
+});
+
+test("treats a 404 as an error（fetch 不会因为 404 而 reject）", async () => {
+  vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 404, json: async () => ({}) })));
+
+  render(<UserCard userId={9} />);
+  expect(await screen.findByTestId("error")).toHaveTextContent("HTTP 404");
+});
+
+test("shows an error when the network fails", async () => {
+  vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("Failed to fetch"); }));
+
+  render(<UserCard userId={1} />);
+  expect(await screen.findByTestId("error")).toHaveTextContent("Failed to fetch");
+});
+
+test("refetches when userId changes", async () => {
+  const spy = vi.fn(async (url: string) =>
+    okRes({ id: Number(url.split("/").pop()), name: \`用户\${url.split("/").pop()}\`, email: "x@y.z" }),
+  );
+  vi.stubGlobal("fetch", spy);
+
+  const { rerender } = render(<UserCard userId={1} />);
+  expect(await screen.findByTestId("user-name")).toHaveTextContent("用户1");
+
+  rerender(<UserCard userId={2} />);
+  expect(await screen.findByTestId("user-name")).toHaveTextContent("用户2");
+  expect(spy).toHaveBeenCalledTimes(2);
+});
+
+test("a slow stale response must not overwrite the newer one（竞态）", async () => {
+  const slow = deferred<unknown>();   // userId 1, slow
+  const fast = deferred<unknown>();   // userId 2, fast
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((url: string) => (url.endsWith("/1") ? slow.promise : fast.promise)),
+  );
+
+  const { rerender } = render(<UserCard userId={1} />);
+  rerender(<UserCard userId={2} />);          // the user switched to 2 at once
+
+  fast.resolve(okRes({ id: 2, name: "用户2", email: "b@x.z" }));
+  expect(await screen.findByTestId("user-name")).toHaveTextContent("用户2");
+
+  // only now does the old request come back, and it has to be ignored
+  slow.resolve(okRes({ id: 1, name: "用户1", email: "a@x.z" }));
+  await waitFor(() => expect(screen.getByTestId("user-name")).toHaveTextContent("用户2"));
+  expect(screen.getByTestId("user-name")).not.toHaveTextContent("用户1");
+});
+
+test("aborts the in-flight request on unmount", async () => {
+  const signals: AbortSignal[] = [];
+  vi.stubGlobal("fetch", vi.fn((_url: string, init: RequestInit) => {
+    signals.push(init.signal as AbortSignal);
+    return new Promise(() => {});   // never settles
+  }));
+
+  const { unmount } = render(<UserCard userId={1} />);
+  expect(signals[0].aborted).toBe(false);
+  unmount();
+  expect(signals[0].aborted).toBe(true);
+});`;
+
 
 const TREE_TEST = `import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -890,6 +1623,102 @@ test("折叠只藏自己的子树，不影响别人", async () => {
   expect(screen.getByTestId("comment-1")).toBeInTheDocument();
   expect(screen.getByTestId("comment-5")).toBeInTheDocument();  // 另一个顶层还在
 });`;
+const TREE_TEST_EN = `import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { expect, test } from "vitest";
+import CommentTree, { addReply, countComments } from "./components/CommentTree";
+import type { Comment } from "./types/Comment";
+
+/** Three levels of nesting: 1 -> 2 -> 4, plus siblings 3 and 5 */
+const tree = (): Comment[] => [
+  {
+    id: 1, author: "A", body: "顶层", replies: [
+      { id: 2, author: "B", body: "二层", replies: [
+        { id: 4, author: "D", body: "三层", replies: [] },
+      ]},
+      { id: 3, author: "C", body: "二层旁边", replies: [] },
+    ],
+  },
+  { id: 5, author: "E", body: "另一个顶层", replies: [] },
+];
+
+/** Deep freeze: if the component changes the original tree, strict mode throws */
+function deepFreeze<T>(o: T): T {
+  Object.freeze(o);
+  Object.values(o as Record<string, unknown>).forEach((v) => {
+    if (v && typeof v === "object" && !Object.isFrozen(v)) deepFreeze(v);
+  });
+  return o;
+}
+
+test("countComments 递归数到所有层级", () => {
+  expect(countComments(tree())).toBe(5);
+  expect(countComments([])).toBe(0);
+});
+
+test("addReply 挂到深层节点，且不改原树", () => {
+  const original = deepFreeze(tree());
+  const next = addReply(original, 4, { id: 99, author: "F", body: "四层", replies: [] });
+
+  // it is attached in the new tree
+  expect(countComments(next)).toBe(6);
+  expect(next[0].replies[0].replies[0].replies[0].id).toBe(99);
+  // the original tree never moved
+  expect(countComments(original)).toBe(5);
+  expect(original[0].replies[0].replies[0].replies).toHaveLength(0);
+});
+
+test("addReply 只重建路径上的节点，旁边的分支保持同一个引用", () => {
+  const original = tree();
+  const next = addReply(original, 2, { id: 88, author: "F", body: "x", replies: [] });
+
+  // the nodes on the path have to be new objects
+  expect(next).not.toBe(original);
+  expect(next[0]).not.toBe(original[0]);
+  expect(next[0].replies[0]).not.toBe(original[0].replies[0]);
+  // the untouched leaf still holds the same content
+  expect(next[1].body).toBe(original[1].body);
+});
+
+test("渲染出三层，并按深度缩进", () => {
+  render(<CommentTree initial={tree()} />);
+  expect(screen.getByTestId("comment-1").getAttribute("data-depth")).toBe("0");
+  expect(screen.getByTestId("comment-2").getAttribute("data-depth")).toBe("1");
+  expect(screen.getByTestId("comment-4").getAttribute("data-depth")).toBe("2");
+  expect(screen.getByTestId("total")).toHaveTextContent("5");
+});
+
+test("空 replies 就是递归的终止条件（叶子不再往下渲染）", () => {
+  render(<CommentTree initial={[{ id: 7, author: "Z", body: "孤零零", replies: [] }]} />);
+  expect(screen.getByTestId("comment-7")).toBeInTheDocument();
+  // a leaf has no collapse button, because it has no children
+  expect(screen.queryByLabelText("toggle Z")).toBeNull();
+});
+
+test("给三层的评论再回复，落在正确的位置", async () => {
+  render(<CommentTree initial={tree()} />);
+
+  await userEvent.click(screen.getByLabelText("reply to D"));
+  await userEvent.type(screen.getByTestId("reply-input-4"), "第四层");
+  await userEvent.click(screen.getByTestId("reply-submit-4"));
+
+  expect(screen.getByTestId("total")).toHaveTextContent("6");
+  // the new node has depth 3 and sits in the subtree of comment-4
+  const added = screen.getByText("第四层").closest("li")!;
+  expect(added.getAttribute("data-depth")).toBe("3");
+  expect(screen.getByTestId("comment-4").contains(added)).toBe(true);
+});
+
+test("折叠只藏自己的子树，不影响别人", async () => {
+  render(<CommentTree initial={tree()} />);
+  await userEvent.click(screen.getByLabelText("toggle A"));
+
+  expect(screen.queryByTestId("comment-2")).toBeNull();
+  expect(screen.queryByTestId("comment-4")).toBeNull();
+  expect(screen.getByTestId("comment-1")).toBeInTheDocument();
+  expect(screen.getByTestId("comment-5")).toBeInTheDocument();  // the other top-level one is still there
+});`;
+
 
 export const reactVariants: Module = {
   id: "react-variants",
@@ -1257,7 +2086,10 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
           ),
           code: [
             tested("tsx", TODO_SOLUTION, {
+              codeEn: TODO_SOLUTION_EN,
+              codeEn: TODO_SOLUTION_EN,
               filename: "src/components/TodoList/index.tsx（实测 7/7 通过）",
+              filenameEn: "src/components/TodoList/index.tsx (7 of 7 pass here)",
               collapsible: true,
             }),
           ],
@@ -1317,7 +2149,10 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
               filename: "验证命令",
             }),
             tested("tsx", TODO_TEST, {
+              codeEn: TODO_TEST_EN,
+              codeEn: TODO_TEST_EN,
               filename: "src/TodoList.test.tsx（DrillLab 自出，本机跑过）",
+              filenameEn: "src/TodoList.test.tsx (written for DrillLab, run here)",
               collapsible: true,
             }),
           ],
@@ -2048,7 +2883,10 @@ $ npx vitest run src/Timer.test.tsx
           ),
           code: [
             tested("tsx", TIMER_SOLUTION, {
+              codeEn: TIMER_SOLUTION_EN,
+              codeEn: TIMER_SOLUTION_EN,
               filename: "src/components/Timer/index.tsx（实测 8/8 通过）",
+              filenameEn: "src/components/Timer/index.tsx (8 of 8 pass here)",
               collapsible: true,
             }),
           ],
@@ -2129,6 +2967,8 @@ $ npx vitest run src/Timer.test.tsx
               filenameEn: "The command that verifies it",
             }),
             tested("tsx", TIMER_TEST, {
+              codeEn: TIMER_TEST_EN,
+              codeEn: TIMER_TEST_EN,
               filename: "src/Timer.test.tsx（DrillLab 自出，本机跑过）",
               filenameEn: "src/Timer.test.tsx (written for DrillLab, run here)",
               collapsible: true,
@@ -2431,6 +3271,8 @@ useEffect(() => {
 }, [running]);`,
           ],
           solution: tested("tsx", TIMER_SOLUTION, {
+            codeEn: TIMER_SOLUTION_EN,
+            codeEn: TIMER_SOLUTION_EN,
             filename: "参考答案（实测 8/8 通过）",
             filenameEn: "Reference answer (8 of 8 tests pass here)",
             collapsible: true,
@@ -3238,7 +4080,10 @@ return () => {
           ),
           code: [
             tested("tsx", FETCH_SOLUTION, {
+              codeEn: FETCH_SOLUTION_EN,
+              codeEn: FETCH_SOLUTION_EN,
               filename: "src/components/UserCard/index.tsx（实测 6/6 通过）",
+              filenameEn: "src/components/UserCard/index.tsx (6 of 6 pass here)",
               collapsible: true,
             }),
           ],
@@ -3305,6 +4150,8 @@ return () => {
               filenameEn: "The command that verifies it",
             }),
             tested("tsx", FETCH_TEST, {
+              codeEn: FETCH_TEST_EN,
+              codeEn: FETCH_TEST_EN,
               filename: "src/UserCard.test.tsx（DrillLab 自出，本机跑过）",
               filenameEn: "src/UserCard.test.tsx (written for DrillLab, run here)",
               collapsible: true,
@@ -3664,6 +4511,8 @@ setLoading(true); setError(null); setUser(null);
 return () => { ignore = true; controller.abort(); };`,
           ],
           solution: tested("tsx", FETCH_SOLUTION, {
+            codeEn: FETCH_SOLUTION_EN,
+            codeEn: FETCH_SOLUTION_EN,
             filename: "参考答案（实测 6/6 通过，含竞态与 abort 两条）",
             filenameEn: "Reference answer (6 of 6 pass here, including the race and the abort)",
             collapsible: true,
@@ -4445,6 +5294,8 @@ export function countComments(nodes: Comment[]): number {
           ),
           code: [
             tested("ts", TREE_HELPERS, {
+              codeEn: TREE_HELPERS_EN,
+              codeEn: TREE_HELPERS_EN,
               filename: "src/components/CommentTree/index.tsx（两个纯函数）",
               filenameEn: "src/components/CommentTree/index.tsx (the two pure functions)",
             }),
@@ -4520,7 +5371,10 @@ const next = JSON.parse(JSON.stringify(comments));`,
           ),
           code: [
             tested("tsx", TREE_SOLUTION, {
+              codeEn: TREE_SOLUTION_EN,
+              codeEn: TREE_SOLUTION_EN,
               filename: "src/components/CommentTree/index.tsx（组件部分，实测 7/7 通过）",
+              filenameEn: "src/components/CommentTree/index.tsx (the component; 7 of 7 pass here)",
               collapsible: true,
             }),
           ],
@@ -4584,6 +5438,8 @@ const next = JSON.parse(JSON.stringify(comments));`,
               filenameEn: "The command that verifies it",
             }),
             tested("tsx", TREE_TEST, {
+              codeEn: TREE_TEST_EN,
+              codeEn: TREE_TEST_EN,
               filename: "src/CommentTree.test.tsx（DrillLab 自出，本机跑过）",
               filenameEn: "src/CommentTree.test.tsx (written for DrillLab, run here)",
               collapsible: true,
@@ -5899,10 +6755,15 @@ $ npx vitest run src/Theme.test.tsx
           ),
           code: [
             tested("tsx", THEME_CONTEXT, {
+              codeEn: THEME_CONTEXT_EN,
+              codeEn: THEME_CONTEXT_EN,
               filename: "src/context/ThemeContext.tsx（实测 8/8 通过）",
+              filenameEn: "src/context/ThemeContext.tsx (8 of 8 pass here)",
               collapsible: true,
             }),
             tested("tsx", THEME_APP, {
+              codeEn: THEME_APP_EN,
+              codeEn: THEME_APP_EN,
               filename: "src/components/ThemeApp/index.tsx",
             }),
           ],
@@ -5980,7 +6841,10 @@ $ npx vitest run src/Theme.test.tsx
               filename: "验证命令",
             }),
             tested("tsx", THEME_TEST, {
+              codeEn: THEME_TEST_EN,
+              codeEn: THEME_TEST_EN,
               filename: "src/Theme.test.tsx（DrillLab 自出，本机跑过）",
+              filenameEn: "src/Theme.test.tsx (written for DrillLab, run here)",
               collapsible: true,
             }),
           ],
@@ -6306,6 +7170,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 }`,
           ],
           solution: tested("tsx", THEME_CONTEXT, {
+            codeEn: THEME_CONTEXT_EN,
+            codeEn: THEME_CONTEXT_EN,
             filename: "参考答案（实测 8/8 通过）",
             filenameEn: "Reference answer (8 of 8 pass here)",
             collapsible: true,
