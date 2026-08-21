@@ -6593,10 +6593,18 @@ export default defineConfig({
               kind: "from-scratch",
               level: 4,
               title: "空文件夹里做出整个 Cab Booking",
+              titleEn: "Build the whole of Cab Booking from an empty folder",
               prompt: (
                 <>
                   只给需求和文件清单。<strong>不给任何代码。</strong>
                   卡住了按四级提示走，答案在最后一道门后面。
+                </>
+              ),
+              promptEn: (
+                <>
+                  You get the requirements and the file list only.{" "}
+                  <strong>No code at all.</strong> If you get stuck, work through the four
+                  levels of hints. The answer sits behind the last door.
                 </>
               ),
               requirements: [
@@ -6611,43 +6619,62 @@ export default defineConfig({
                 "状态必须放在 Context 里：createContext + Provider + 自定义 hook（hook 里带「不在 Provider 内就抛错」的守卫），Provider 包在 App 外面",
                 "数据用 data.json：三个类型各两辆车，Sedan 第一辆是 Ford Fusion / $20，SUV 两辆是 Toyota Highlander / Ford Explorer，Sedan 第二辆是 Honda Accord",
               ],
+              requirementsEn: [
+                "Home page: a big heading \"Book a Safe Ride with HackerRide\", a button with data-testid=\"book-button\", and the ride history area below it",
+                "Ride history: with no records show <p data-testid=\"no-ride-title\">No ride history yet.</p>; with records show one <li data-testid=\"history-cabs\"> per entry, holding the cab name and the $price",
+                "The ride history shows the three newest entries only, newest at the top",
+                "Pressing book-button opens the cab page: a container with data-testid=\"all-cabs-section\", three groups by type, each with one <h3 data-testid=\"car-type-heading\">, and the order has to be Sedan / SUV / Luxury",
+                "One card per cab, with five testids: cab-card-img / cab-card-name / cab-card-type / cab-card-price / cab-card-select-button. The type reads \"Type: X\" and the price reads \"Fare: $N\"",
+                "Pressing Select on a card: record that cab as the current booking, append it to the history, then go to the loading page with data-testid=\"loading\"",
+                "The loading page moves to the confirmation page after 1000ms; the confirmation page shows data-testid=\"confirm-message\" reading \"<cab name> is on the way and will arrive shortly.\"",
+                "The confirmation page has data-testid=\"confirm-button\"; pressing it returns to the home page, where the history now shows that cab",
+                "The state has to live in a Context: createContext + Provider + a custom hook (the hook carries a guard that throws when it is used outside the Provider), and the Provider wraps App",
+                "The data comes from data.json: two cabs per type, the first Sedan is Ford Fusion / $20, the two SUVs are Toyota Highlander / Ford Explorer, and the second Sedan is Honda Accord",
+              ],
               fileList: [
                 { path: "package.json", role: "vite + react + vitest + jsdom + @testing-library/react + @testing-library/jest-dom" },
-                { path: "vite.config.mjs", role: "plugins: [react()]，test 段配 environment: \"jsdom\" / globals / setupFiles" },
-                { path: "index.html", role: "一个 <div id=\"root\">" },
-                { path: "src/index.jsx", role: "createRoot，用 <CabProvider> 包住 <App />" },
-                { path: "src/App.jsx", role: "currentPage 状态机 + handleSelectCab" },
-                { path: "src/context/CabContext.jsx", role: "三件套。注意扩展名 —— 里面有 JSX" },
-                { path: "src/components/AppHeader.jsx", role: "只显示标题，没有 testid" },
+                { path: "vite.config.mjs", role: "plugins: [react()]，test 段配 environment: \"jsdom\" / globals / setupFiles", roleEn: "plugins: [react()], and a test section with environment: \"jsdom\" / globals / setupFiles" },
+                { path: "index.html", role: "一个 <div id=\"root\">", roleEn: "one <div id=\"root\">" },
+                { path: "src/index.jsx", role: "createRoot，用 <CabProvider> 包住 <App />", roleEn: "createRoot, with <CabProvider> wrapping <App />" },
+                { path: "src/App.jsx", role: "currentPage 状态机 + handleSelectCab", roleEn: "the currentPage state machine + handleSelectCab" },
+                { path: "src/context/CabContext.jsx", role: "三件套。注意扩展名 —— 里面有 JSX", roleEn: "the three parts. Watch the extension — this file holds JSX" },
+                { path: "src/components/AppHeader.jsx", role: "只显示标题，没有 testid", roleEn: "shows the title only, no testid" },
                 { path: "src/components/Home/Home.jsx", role: "hero + book-button + <RideHistory />" },
-                { path: "src/components/Home/RideHistory.jsx", role: "空状态 / 最新三条倒序" },
-                { path: "src/components/CabOptions/CabOptions.jsx", role: "Object.keys 分组" },
-                { path: "src/components/CabOptions/CabCard.jsx", role: "五个 testid" },
+                { path: "src/components/Home/RideHistory.jsx", role: "空状态 / 最新三条倒序", roleEn: "the empty state / the three newest in reverse" },
+                { path: "src/components/CabOptions/CabOptions.jsx", role: "Object.keys 分组", roleEn: "grouping with Object.keys" },
+                { path: "src/components/CabOptions/CabCard.jsx", role: "五个 testid", roleEn: "the five testids" },
                 { path: "src/components/Loading/Loading.jsx", role: "setTimeout 1000 + clearTimeout" },
                 { path: "src/components/CabConfirmation/CabConfirmation.jsx", role: "?.name + confirm-button" },
-                { path: "src/data/data.json", role: "三组六辆车，键顺序 Sedan → SUV → Luxury" },
+                { path: "src/data/data.json", role: "三组六辆车，键顺序 Sedan → SUV → Luxury", roleEn: "six cabs in three groups, with the key order Sedan → SUV → Luxury" },
                 { path: "src/test/setup.js", role: "import \"@testing-library/jest-dom\"" },
-                { path: "src/test/App.test.jsx", role: "把源项目那四个测试原样放进来 —— 这是你的判分依据" },
+                { path: "src/test/App.test.jsx", role: "把源项目那四个测试原样放进来 —— 这是你的判分依据", roleEn: "copy the source project's four tests in unchanged — this is what grades you" },
               ],
               commands: [
                 {
                   cmd: "npm install",
                   expect: "装完无报错。React 18/19 都可以，测试用的 API 没差别",
+                  expectEn: "It finishes with no errors. React 18 or 19 both work; the APIs the tests use are the same",
                 },
                 {
                   cmd: "npx vitest run",
                   expect:
                     "刚放进测试文件时应该是 4 failed / 4 total，报错都是 Unable to find an element by: [data-testid=...]。全部做完是 Test Files 1 passed / Tests 4 passed (4)",
+                  expectEn:
+                    "Right after you drop the test file in it should be 4 failed / 4 total, all reporting Unable to find an element by: [data-testid=...]. When everything is done it is Test Files 1 passed / Tests 4 passed (4)",
                 },
                 {
                   cmd: "npx vitest run 2>&1 | grep -c 'no tests'",
                   expect:
                     "0。如果不是 0，说明你也踩了 .js 里写 JSX 那个坑 —— 把带 JSX 的文件改名成 .jsx",
+                  expectEn:
+                    "0. Anything else means you hit the JSX-in-a-.js-file problem too — rename the files that hold JSX to .jsx",
                 },
                 {
                   cmd: "npm run dev",
                   expect:
                     "浏览器里手动走一遍：首页 → 选车 → 加载 1 秒 → 确认 → 回首页看到历史。连订四辆，历史应该只有三条且最新在最上",
+                  expectEn:
+                    "Walk through it by hand in the browser: home page → pick a cab → 1 second of loading → confirm → back to the home page with the history there. Book four in a row and the history should hold three, newest at the top",
                 },
               ],
               hints: [
@@ -6655,6 +6682,12 @@ export default defineConfig({
                 "两处结构性决定要先定：① Provider 包在哪一层 —— 注意 App 自己也要用 Context 里的写入函数，所以它不能是提供者；② 「页面」怎么表示 —— 没有 react-router，用一个字符串 state 加几个 && 就行，别用多个 boolean。定完这两个，剩下的都是填空。",
                 "Context：createContext() 不给默认值；Provider 里两个 useState（当前车初始 null、历史初始 []）；一个函数同时改这两个 state；自定义 hook 里 if (!context) throw。\nApp：useState(\"home\")；handleSelectCab 先写 Context 再切页面；四个 currentPage === \"...\" && <某页 />。\nRideHistory：先算 latestRides = 历史的最后三条再反转，然后三元决定渲染列表还是空状态。\nLoading：useEffect 里 setTimeout(onComplete, 1000)，return 里 clearTimeout。",
                 "两个最容易错的具体写法：\n① 历史取最新三条倒序 —— rideHistory.slice(-3).reverse()。slice 必须在前面，因为 reverse() 原地修改，直接 rideHistory.reverse() 会翻掉 state。\n② 确认页 —— {bookedCabDetails?.name} is on the way and will arrive shortly. 那个问号不能省，初始值是 null。\n另外：CabCard 的按钮是 onClick={() => onSelectCab(cab)}，不能直接传 onSelectCab（那样收到的是点击事件）；历史列表的 key 用 `${ride.id}-${index}`，同一辆车能被订两次。",
+              ],
+              hintsEn: [
+                "Do not write components yet. Read all four tests, then copy out a table: which component holds each of the 13 data-testid values, how many of each, and what text is inside. Then answer one question — which data has to be shared across components? (Two things: the cab currently booked, and the ride history. Everything else is local.)",
+                "Two structural decisions come first. ① Which level the Provider sits at — note that App itself uses the write function from the Context, so App cannot be the provider. ② How a \"page\" is represented — there is no react-router, so one string state plus a few && operators is enough; do not use several booleans. Once those two are settled, the rest is filling in blanks.",
+                "Context: createContext() with no default value; two useState calls in the Provider (current cab starts null, history starts []); one function that changes both states; and if (!context) throw inside the custom hook.\nApp: useState(\"home\"); handleSelectCab writes the Context first, then switches the page; four currentPage === \"...\" && <SomePage /> lines.\nRideHistory: compute latestRides as the last three of the history, reversed, then use a conditional to render either the list or the empty state.\nLoading: setTimeout(onComplete, 1000) inside useEffect, and clearTimeout in the returned function.",
+                "The two easiest places to get wrong:\n① The three newest in reverse — rideHistory.slice(-3).reverse(). slice has to come first, because reverse() changes the array in place, so rideHistory.reverse() would reverse the state.\n② The confirmation page — {bookedCabDetails?.name} is on the way and will arrive shortly. That question mark cannot be dropped; the initial value is null.\nAlso: the CabCard button is onClick={() => onSelectCab(cab)}, never onSelectCab directly (that hands it the click event); and the history list key is `${ride.id}-${index}`, because the same cab can be booked twice.",
               ],
               solution: [
                 real("jsx", SRC_CONTEXT, {
