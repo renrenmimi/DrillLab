@@ -426,11 +426,19 @@ npm install
               kind: "recognition",
               id: "f-dep-place",
               title: "这个包该放哪边？",
+              titleEn: "Which side does this package go on?",
               level: 1,
               prompt: (
                 <p>
                   下面是 <code>react-notes-app</code> 真实的依赖之一。它在真实的
                   <code>package.json</code> 里被放在哪个字段下？
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  Below is one of the real dependencies of{" "}
+                  <code>react-notes-app</code>. Which field of the real{" "}
+                  <code>package.json</code> is it under?
                 </p>
               ),
               code: demo("json", `"vitest": "^4.1.10"`),
@@ -449,18 +457,36 @@ npm install
                   这个项目的 <code>dependencies</code> 里只有两个东西：react 和 react-dom。
                 </>
               ),
+              explainEn: (
+                <>
+                  vitest is a test runner. It is used only while you develop and check
+                  your work, and the shipped product does not need it, so it belongs in{" "}
+                  <code>devDependencies</code>. The same goes for vite, typescript,
+                  jsdom, tsx and the three <code>@testing-library/*</code> packages.
+                  This project&rsquo;s <code>dependencies</code> hold exactly two
+                  things: react and react-dom.
+                </>
+              ),
             },
             {
               kind: "recognition",
               id: "f-lockfile-rule",
               title: "lockfile 该怎么对待",
+              titleEn: "How to treat the lockfile",
               level: 1,
               prompt: <p>项目里已经有 <code>package-lock.json</code>，你要安装依赖。下面哪些做法是对的？（多选）</p>,
+              promptEn: (
+                <p>
+                  The project already has a <code>package-lock.json</code> and you need
+                  to install the dependencies. Which of these are correct? (more than
+                  one)
+                </p>
+              ),
               options: [
                 { id: "a", label: "npm install" },
-                { id: "b", label: "pnpm install（更快）" },
-                { id: "c", label: "先 rm package-lock.json 再 npm install" },
-                { id: "d", label: "npm ci（严格照 lockfile 装）" },
+                { id: "b", label: "pnpm install（更快）", labelEn: "pnpm install (it is faster)" },
+                { id: "c", label: "先 rm package-lock.json 再 npm install", labelEn: "rm package-lock.json first, then npm install" },
+                { id: "d", label: "npm ci（严格照 lockfile 装）", labelEn: "npm ci (install strictly from the lockfile)" },
               ],
               answer: ["a", "d"],
               explain: (
@@ -470,6 +496,17 @@ npm install
                   <code>node_modules</code> —— CI 上常用。
                   <code>pnpm install</code> 会生成 <code>pnpm-lock.yaml</code>,
                   于是项目里出现两个互相矛盾的 lockfile。删 lockfile 则直接放弃了版本锁定。
+                </>
+              ),
+              explainEn: (
+                <>
+                  <code>npm install</code> installs according to the lockfile that is
+                  already there, so it is safe. <code>npm ci</code> is stricter: it
+                  follows the lockfile exactly and clears <code>node_modules</code>{" "}
+                  before installing — it is the common choice on CI.{" "}
+                  <code>pnpm install</code> writes a <code>pnpm-lock.yaml</code>, which
+                  leaves the project with two lockfiles that contradict each other.
+                  Deleting the lockfile gives up version pinning altogether.
                 </>
               ),
             },
