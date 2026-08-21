@@ -1711,8 +1711,9 @@ const useCabContext = () => {
                     The whole point of the guard is to make a setup mistake fail at once, instead of
                     looking like a bug in a feature.
                   </strong>{" "}
-                  Interviewers ask about this often, and the theme switching task on this site
-                  (Context plus a memoised value) tests the same point.
+                  Interviewers ask about this often, and the{" "}
+                  <strong>Theme switch (Context plus a memoised value)</strong> task on
+                  this site tests the same point.
                 </>
               ),
             },
@@ -2977,7 +2978,7 @@ const CabCard = ({ cab, onSelectCab }) => {
           whyForAssessment:
             "这是 effect 清理的标准考法，也是本站 React 变式二「计时器」的同一个考点。测试用 fake timer 把 1 秒变成一行代码，所以延迟数字必须正好是 1000 —— 写 900 或 1200，advanceTimersByTime(1000) 之后页面状态就不对了。",
           whyForAssessmentEn:
-            "This is the standard way effect cleanup gets examined, and the timer variant of the React task on this site tests the same point. The test uses a fake timer to turn the 1 second into a single line, so the delay has to be exactly 1000. Write 900 or 1200 and the page is in the wrong state after advanceTimersByTime(1000).",
+            "This is the standard way effect cleanup gets examined, and the Timer (useEffect cleanup) task on this site tests the same point. The test uses a fake timer to turn the 1 second into a single line, so the delay has to be exactly 1000. Write 900 or 1200 and the page is in the wrong state after advanceTimersByTime(1000).",
           sourceFiles: [
             { path: "cab-booking-context/src/components/Loading/Loading.jsx", role: "setTimeout + clearTimeout", edit: true },
             { path: "cab-booking-context/src/test/App.test.jsx", role: "fake timer 的用法在 beforeEach / afterEach 里" },
