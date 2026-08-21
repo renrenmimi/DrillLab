@@ -149,6 +149,29 @@ const REF_CLONE_CORE = `export function deepClone<T>(value: T, seen = new WeakMa
   return out as T;
 }`;
 
+const REF_CLONE_CORE_EN = `export function deepClone<T>(value: T, seen = new WeakMap<object, unknown>()): T {
+  if (value === null || typeof value !== "object") return value;
+
+  const obj = value as unknown as object;
+  if (seen.has(obj)) return seen.get(obj) as T;   // seen it -> hand back its clone (stops cycles)
+
+  if (value instanceof Date) return new Date(value.getTime()) as unknown as T;
+
+  if (Array.isArray(value)) {
+    const out: unknown[] = [];
+    seen.set(obj, out);               // [record first, recurse after] — this line is why a cycle does not recurse forever
+    for (const v of value) out.push(deepClone(v, seen));
+    return out as unknown as T;
+  }
+
+  const out: Record<string, unknown> = {};
+  seen.set(obj, out);
+  for (const key of Object.keys(value)) {
+    out[key] = deepClone((value as Record<string, unknown>)[key], seen);
+  }
+  return out as T;
+}`;
+
 const REF_PALL = `export function promiseAll<T>(items: (T | Promise<T>)[]): Promise<T[]> {
   return new Promise((resolve, reject) => {
     const results: T[] = new Array(items.length);
@@ -182,6 +205,16 @@ const REF_CURRY = `export function curry<T extends (...args: never[]) => unknown
       return fn(...(args as never[]));
     }
     // 每次都返回新函数、拼出新数组 —— add1 复用一百次也互不污染
+    return (...more: unknown[]) => curried(...args, ...more);
+  };
+}`;
+
+const REF_CURRY_EN = `export function curry<T extends (...args: never[]) => unknown>(fn: T) {
+  return function curried(...args: unknown[]): unknown {
+    if (args.length >= fn.length) {
+      return fn(...(args as never[]));
+    }
+    // Every step returns a new function and builds a new array — reuse add1 a hundred times and the calls stay separate
     return (...more: unknown[]) => curried(...args, ...more);
   };
 }`;
@@ -793,6 +826,9 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           code: [
             tested("ts", REF_CLONE_CORE, {
               filename: "deepClone.ts（核心分支 —— 完整版含 Map/Set，scratchpad vitest 6 / 6）",
+              filenameEn:
+                "deepClone.ts (the core branches — the full version also handles Map and Set; scratchpad vitest 6 / 6)",
+              codeEn: REF_CLONE_CORE_EN,
             }),
           ],
         },
@@ -905,6 +941,8 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           code: [
             tested("ts", REF_CURRY, {
               filename: "curry.ts（参考解法 —— scratchpad vitest 3 / 3）",
+              filenameEn: "curry.ts (reference solution — scratchpad vitest 3 / 3)",
+              codeEn: REF_CURRY_EN,
             }),
           ],
         },
@@ -952,6 +990,9 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           ],
           solution: tested("ts", REF_CLONE_CORE, {
             filename: "deepClone.ts（核心 —— 完整版含 Map/Set 分支，vitest 6 / 6）",
+            filenameEn:
+              "deepClone.ts (the core — the full version also has Map and Set branches; vitest 6 / 6)",
+            codeEn: REF_CLONE_CORE_EN,
           }),
         },
         {
@@ -1043,6 +1084,8 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           ],
           solution: tested("ts", REF_CURRY, {
             filename: "curry.ts（scratchpad vitest 3 / 3）",
+            filenameEn: "curry.ts (scratchpad vitest 3 / 3)",
+            codeEn: REF_CURRY_EN,
           }),
         },
       ],
