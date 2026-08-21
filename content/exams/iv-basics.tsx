@@ -29,6 +29,8 @@ export const ivBasics: Module = {
       title: "HTML 五问",
       titleEn: "5 questions on HTML",
       blurb: "块级与行内、事件冒泡与捕获、meta、语义化、无障碍。",
+      blurbEn:
+        "Block and inline elements, event bubbling and capturing, meta tags, semantic elements, accessibility.",
       minutes: 14,
       objectives: [
         "说清块级和行内元素的三处实际差别",
@@ -36,12 +38,21 @@ export const ivBasics: Module = {
         "说明语义化标签除了「好看」之外的两个真实收益",
         "举出无障碍（a11y）的具体做法，而不是空谈概念",
       ],
+      objectivesEn: [
+        "Explain three real differences between block and inline elements",
+        "Draw the full path of an event, from window down to the target and back up to window",
+        "Name two real benefits of semantic elements beyond tidier markup",
+        "Give concrete accessibility (a11y) practices instead of talking about the idea",
+      ],
       whyForAssessment:
         "HTML 题是筛人题：答不上来直接出局，答得好也拿不到加分。所以目标不是讲深，而是每道都能在 30 秒内说清楚，并且举得出一个例子。事件冒泡/捕获那道除外 —— 它常被追问到事件委托和 React 的合成事件，值得往深里准备。",
+      whyForAssessmentEn:
+        "HTML questions are filters: missing one takes you out, and answering one well earns no extra credit. So the goal is not depth. The goal is to answer each one clearly in 30 seconds and give one example. Bubbling and capturing is the exception — it often leads on to event delegation and React synthetic events, so prepare that one in depth.",
       concepts: [
         {
           id: "q269",
           heading: "块级元素 vs 行内元素",
+          headingEn: "Block elements vs inline elements",
           lede: "#269 Block element vs Inline element",
           body: (
             <>
@@ -130,6 +141,7 @@ export const ivBasics: Module = {
         {
           id: "q380",
           heading: "事件冒泡 vs 事件捕获",
+          headingEn: "Event bubbling vs event capturing",
           lede: "#380 Event bubbling vs Event capturing",
           body: (
             <>
@@ -250,6 +262,7 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
         {
           id: "q381",
           heading: "meta 标签有什么用",
+          headingEn: "What is the meta tag for?",
           lede: "#381 What is the importance of the meta tag?",
           body: (
             <>
@@ -347,6 +360,7 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
         {
           id: "q382",
           heading: "什么是语义化标签",
+          headingEn: "What are semantic elements?",
           lede: "#382 What are Semantic Elements?",
           body: (
             <>
@@ -426,6 +440,7 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
         {
           id: "q385",
           heading: "无障碍、可用性、包容性",
+          headingEn: "Accessibility, usability and inclusion",
           lede: "#385 Could you explain accessibility, usability, and inclusion? Give some examples of each one in terms of web design.",
           body: (
             <>
@@ -546,11 +561,36 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
         },
       ],
       transfer: [
-        { signal: "问「为什么行内元素设不了高」", reachFor: "行内跟文字流走；替换元素例外" },
-        { signal: "问事件顺序", reachFor: "捕获从外到内 → 目标 → 冒泡从内到外" },
-        { signal: "混淆 stopPropagation / preventDefault", reachFor: "一个管传播，一个管默认行为" },
-        { signal: "问语义化的好处", reachFor: "读屏能导航 + 搜索引擎分得清正文，别答「好看」" },
-        { signal: "问无障碍", reachFor: "举具体例子：alt、label、键盘焦点、对比度" },
+        {
+          signal: "问「为什么行内元素设不了高」",
+          signalEn: "Asked why you cannot set the height of an inline element",
+          reachFor: "行内跟文字流走；替换元素例外",
+          reachForEn: "Inline elements follow the text flow; replaced elements are the exception",
+        },
+        {
+          signal: "问事件顺序",
+          signalEn: "Asked about the order events fire in",
+          reachFor: "捕获从外到内 → 目标 → 冒泡从内到外",
+          reachForEn: "Capture goes outside in, then the target, then bubbling goes inside out",
+        },
+        {
+          signal: "混淆 stopPropagation / preventDefault",
+          signalEn: "stopPropagation and preventDefault get mixed up",
+          reachFor: "一个管传播，一个管默认行为",
+          reachForEn: "One stops the event from travelling, the other stops the default action",
+        },
+        {
+          signal: "问语义化的好处",
+          signalEn: "Asked what semantic elements are good for",
+          reachFor: "读屏能导航 + 搜索引擎分得清正文，别答「好看」",
+          reachForEn: "Screen readers can navigate and search engines can tell where the main text is; do not answer that it looks tidier",
+        },
+        {
+          signal: "问无障碍",
+          signalEn: "Asked about accessibility",
+          reachFor: "举具体例子：alt、label、键盘焦点、对比度",
+          reachForEn: "Give concrete examples: alt text, label, keyboard focus, contrast",
+        },
       ],
       recap: [
         "块级 vs 行内看三处：换行、宽高、上下 margin；img/input 是替换元素所以能设宽高。",
@@ -559,6 +599,14 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
         "meta 里真正重要的是 charset（防乱码）和 viewport（移动端前提）。",
         "语义化的收益是读屏导航和搜索权重，不是「代码好看」。",
         "无障碍 ⊂ 包容性；答题一定要给具体例子和测试工具。",
+      ],
+      recapEn: [
+        "Block and inline differ in three places: starting a new line, width and height, and top and bottom margin; img and input are replaced elements, so they do take a width and height.",
+        "An event has three phases: capture (outside in), target, then bubbling (inside out); a listener runs in the bubbling phase by default.",
+        "stopPropagation stops the event from travelling, preventDefault stops the default action; they are two different things.",
+        "The two meta tags that matter are charset, which keeps text from rendering as garbled characters, and viewport, without which mobile layout does not work.",
+        "Semantic elements pay off in screen reader navigation and search ranking, not in tidier code.",
+        "Accessibility is one part of inclusion; always answer with concrete examples and the tools you test with.",
       ],
     },
 
@@ -570,6 +618,7 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
       title: "CSS 八问",
       titleEn: "8 questions on CSS",
       blurb: "盒模型、margin vs padding、Flex vs Grid、选择器、预处理器、响应式。",
+      blurbEn: "The box model, margin vs padding, Flex vs Grid, selectors, preprocessors, responsive design.",
       minutes: 18,
       objectives: [
         "说清标准盒模型和 border-box 的差别，并解释为什么大家都改成后者",
@@ -577,12 +626,21 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
         "背出选择器优先级的计算规则",
         "说明预处理器解决了什么、以及今天它的哪些功能已经被原生 CSS 取代",
       ],
+      objectivesEn: [
+        "Explain the difference between the standard box model and border-box, and why almost everyone switches to border-box",
+        "Choose between Flex and Grid correctly: one direction, or rows and columns at the same time",
+        "State the rule for computing selector specificity",
+        "Say what a preprocessor solved, and which of its features plain CSS now covers",
+      ],
       whyForAssessment:
         "CSS 题里只有两道有区分度：盒模型（考你有没有真的调过布局）和 Flex vs Grid（考你选型的判断）。其余几道是背诵题，但答错了很掉分。响应式那道常被追问到 rem / vw / 媒体查询断点怎么定。",
+      whyForAssessmentEn:
+        "Only two CSS questions really separate candidates: the box model, which shows whether you have ever had to fix a layout, and Flex vs Grid, which shows your judgement about which tool to pick. The rest are recall questions, but getting one wrong costs a lot. The responsive design question often leads on to rem, vw, and how you choose media query breakpoints.",
       concepts: [
         {
           id: "q271",
           heading: "什么是盒模型",
+          headingEn: "What is the box model?",
           lede: "#271 What is the Box Model",
           body: (
             <>
@@ -959,6 +1017,7 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
         {
           id: "q383",
           heading: "CSS 选择器有哪些类型",
+          headingEn: "What types of CSS selectors are there?",
           lede: "#383 What are the different types of CSS selectors?",
           body: (
             <>
@@ -1115,6 +1174,7 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
         {
           id: "q270",
           heading: "有几种方式引入 CSS",
+          headingEn: "How many ways are there to include CSS in a project?",
           lede: "#270 How many ways to import CSS in your project",
           body: (
             <>
@@ -1208,6 +1268,7 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
         {
           id: "q275",
           heading: "什么是 SCSS",
+          headingEn: "What is SCSS?",
           lede: "#275 What is SCSS",
           body: (
             <>
@@ -1299,6 +1360,7 @@ $brand: #2b6cb0;
         {
           id: "q384",
           heading: "CSS 预处理器的优缺点",
+          headingEn: "What are the advantages and disadvantages of a CSS preprocessor?",
           lede: "#384 What is a CSS preprocessor? What are the advantages and disadvantages, if any, to using them over plain CSS?",
           body: (
             <>
@@ -1395,6 +1457,7 @@ $brand: #2b6cb0;
         {
           id: "q274",
           heading: "什么是响应式设计，怎么做",
+          headingEn: "What is responsive web design, and how do you build it?",
           lede: "#274 What is responsive web design and how to achieve this",
           body: (
             <>
@@ -1516,13 +1579,48 @@ h1 { font-size: clamp(24px, 5vw, 44px); }
         },
       ],
       transfer: [
-        { signal: "「三列 33.3% 一加 padding 就换行」", reachFor: "box-sizing: border-box" },
-        { signal: "「间距怎么调都差一点」", reachFor: "margin 折叠，改用 padding 或 gap" },
-        { signal: "要同时对齐行和列", reachFor: "Grid；只排一行/一列用 Flex" },
-        { signal: "「固定侧栏 + 自适应主体」", reachFor: "flex: 0 0 240px 配 flex: 1" },
-        { signal: "样式覆盖不掉", reachFor: "先算 (id, class, 标签) 优先级，别直接上 !important" },
-        { signal: "问要不要用 SCSS", reachFor: "变量和嵌套原生已有，剩 mixin 和循环生成还值钱" },
-        { signal: "问断点怎么定", reachFor: "按内容定，不按设备型号定" },
+        {
+          signal: "「三列 33.3% 一加 padding 就换行」",
+          signalEn: "Three columns at 33.3% wrap onto a new line as soon as you add padding",
+          reachFor: "box-sizing: border-box",
+          reachForEn: "box-sizing: border-box",
+        },
+        {
+          signal: "「间距怎么调都差一点」",
+          signalEn: "The spacing stays slightly off no matter what you set",
+          reachFor: "margin 折叠，改用 padding 或 gap",
+          reachForEn: "Margins are collapsing; use padding or gap instead",
+        },
+        {
+          signal: "要同时对齐行和列",
+          signalEn: "You need to align rows and columns at the same time",
+          reachFor: "Grid；只排一行/一列用 Flex",
+          reachForEn: "Grid; use Flex when there is only one row or one column",
+        },
+        {
+          signal: "「固定侧栏 + 自适应主体」",
+          signalEn: "A fixed-width sidebar next to a main area that fills the rest",
+          reachFor: "flex: 0 0 240px 配 flex: 1",
+          reachForEn: "flex: 0 0 240px on one side, flex: 1 on the other",
+        },
+        {
+          signal: "样式覆盖不掉",
+          signalEn: "A style will not override another one",
+          reachFor: "先算 (id, class, 标签) 优先级，别直接上 !important",
+          reachForEn: "Count specificity as (id, class, tag) first; do not reach for !important",
+        },
+        {
+          signal: "问要不要用 SCSS",
+          signalEn: "Asked whether to use SCSS",
+          reachFor: "变量和嵌套原生已有，剩 mixin 和循环生成还值钱",
+          reachForEn: "Plain CSS already has variables and nesting; mixins and generating rules in a loop are what is still worth it",
+        },
+        {
+          signal: "问断点怎么定",
+          signalEn: "Asked how to choose breakpoints",
+          reachFor: "按内容定，不按设备型号定",
+          reachForEn: "Choose them by where the content breaks, not by device model",
+        },
       ],
       recap: [
         "盒模型四层 content/padding/border/margin；border-box 让 width 包含 padding 和 border，margin 永远在外面。",
@@ -1532,6 +1630,15 @@ h1 { font-size: clamp(24px, 5vw, 44px); }
         "@import 会串行请求拖慢首屏，用 link 或构建工具合并。",
         "SCSS 的变量和嵌套已被原生 CSS 取代，mixin 和循环生成还有价值。",
         "响应式四件套：viewport meta、弹性单位、媒体查询、弹性布局；断点按内容定。",
+      ],
+      recapEn: [
+        "The box model has four layers: content, padding, border, margin. With border-box, width includes padding and border; margin is always outside the width.",
+        "Margin collapses vertically, can be negative, and is not clickable; padding never collapses, cannot be negative, and is part of the clickable area.",
+        "Flex works in one direction and follows the content; Grid works in two and follows the layout. In practice: Grid for the page frame, Flex for the content inside it.",
+        "Specificity compares three numbers, (id, class, tag), from left to right; a higher number wins outright, and on a tie the rule written later wins.",
+        "@import makes requests one after another and slows the first paint; use link, or let the build tool merge the files.",
+        "Plain CSS has taken over SCSS variables and nesting; mixins and generating rules in a loop are still worth having.",
+        "Responsive design has four parts: the viewport meta tag, relative units, media queries, and a flexible layout; choose breakpoints by where the content breaks.",
       ],
     },
   ],

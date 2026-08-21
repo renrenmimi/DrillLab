@@ -34,7 +34,9 @@ export function ArenaReview({ id }: { id: string }) {
           <span className="crumb-sep" aria-hidden>
             /
           </span>
-          <Link href={arenaPath(a.id)}>{a.title}</Link>
+          <Link href={arenaPath(a.id)}>
+            <T zh={a.title} en={a.titleEn} />
+          </Link>
         </nav>
 
         <div className="page-head">
@@ -122,7 +124,9 @@ export function ArenaReview({ id }: { id: string }) {
               )}
               {exam && (
                 <li>
-                  <Link href={examPath(exam.id)}>{exam.title}</Link>
+                  <Link href={examPath(exam.id)}>
+                    <T zh={exam.title} en={exam.titleEn} />
+                  </Link>
                 </li>
               )}
             </ul>

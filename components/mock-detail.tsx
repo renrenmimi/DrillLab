@@ -13,7 +13,7 @@ import { examPath } from "@/content/nav";
 import { CodeBlock } from "./code";
 import { SolutionGate } from "./hint-panel";
 import { L, T } from "./t";
-import { AnswerTabs, Section } from "./lesson-kit";
+import { AnswerTabs, BilingualList, Section } from "./lesson-kit";
 import { LocalSetup } from "./local-setup";
 import { MockScore } from "./mock-score";
 
@@ -39,8 +39,12 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
         </nav>
 
         <div className="page-head">
-          <h1 className="page-title serif">{mock.title}</h1>
-          <p className="page-lede">{mock.scenario}</p>
+          <h1 className="page-title serif">
+            <T zh={mock.title} en={mock.titleEn} />
+          </h1>
+          <p className="page-lede">
+            <T zh={mock.scenario} en={mock.scenarioEn} />
+          </p>
           <div className="lesson-meta" style={{ marginTop: 14 }}>
             <span className="tag" data-tone="warn">
               <T en="Written by DrillLab" zh="DrillLab 自出" />
@@ -65,7 +69,7 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
             <div className="ws-brief-head">
               <T en="What this paper tests" zh="这套题在考什么" />
             </div>
-            <p style={{ fontSize: 15.5, color: "var(--ink-2)", margin: 0 }}>{mock.mirrors}</p>
+            <p style={{ fontSize: 15.5, color: "var(--ink-2)", margin: 0 }}><T zh={mock.mirrors} en={mock.mirrorsEn} /></p>
           </div>
 
           <div className="minihead">
@@ -77,15 +81,15 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
               <div className="ws-task" key={task.id}>
                 <div className="ws-task-head">
                   <span className="ws-task-n">TASK {i + 1}</span>
-                  <span className="ws-task-title">{task.title}</span>
+                  <span className="ws-task-title">
+                    <T zh={task.title} en={task.titleEn} />
+                  </span>
                   <span className="tag" style={{ marginLeft: "auto" }}>
                     <T en={`${pts} pts`} zh={`${pts} 分`} />
                   </span>
                 </div>
                 <ul className="ws-req">
-                  {task.requirement.map((r, j) => (
-                    <li key={j}>{r}</li>
-                  ))}
+                  <BilingualList zh={task.requirement} en={task.requirementEn} />
                 </ul>
                 <div className="rubric">
                   {task.rubric.map((r, j) => (
@@ -197,7 +201,7 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
                 <span
                   style={{ display: "block", padding: "3px 0 3px 11px", color: "var(--ink-2)" }}
                 >
-                  {i + 1}. {t.title}
+                  {i + 1}. <T zh={t.title} en={t.titleEn} />
                 </span>
               </li>
             ))}
@@ -208,7 +212,9 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
           <div className="rail-head">
             <T en="The real exam it mirrors" zh="对应的真实考试" />
           </div>
-          <Link href={examPath(exam.id)}>{exam.title}</Link>
+          <Link href={examPath(exam.id)}>
+            <T zh={exam.title} en={exam.titleEn} />
+          </Link>
           <p className="dimmer" style={{ fontSize: 12.5, marginTop: 8, lineHeight: 1.6 }}>
             <T
               en="Stuck? Go back to the matching lesson — every point this paper tests is covered in that course."

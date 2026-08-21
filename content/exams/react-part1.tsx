@@ -89,6 +89,7 @@ export const reactMentalModel: Module = {
       title: "组件就是一个返回界面的函数",
       titleEn: "A component is a function that returns what you see on screen",
       blurb: "从这个项目最短的两个文件开始：App.tsx 只有 5 行。",
+      blurbEn: "Start with the two shortest files in this project: App.tsx is only 5 lines.",
       minutes: 11,
       objectives: [
         "说清「组件」在 React 里到底是什么",
@@ -96,8 +97,16 @@ export const reactMentalModel: Module = {
         "知道组件名必须大写开头，以及为什么",
         "能画出这个项目的组件树",
       ],
+      objectivesEn: [
+        "Explain what a component actually is in React",
+        "Read the tags, the curly braces, and className in JSX",
+        "Know that a component name must start with a capital letter, and why",
+        "Draw the component tree of this project",
+      ],
       whyForAssessment:
         "Q1 的四个组件是给好的骨架，你要在里面填逻辑。填之前必须先看懂「谁渲染谁、数据从哪来」，否则会把代码写在错误的组件里。",
+      whyForAssessmentEn:
+        "In Q1 the four components are already written for you, and you add the logic inside them. Before you add anything, you have to see which component renders which, and where the data comes from. Otherwise you put the code in the wrong component.",
       sourceFiles: [
         { path: "react-notes-app/src/App.tsx", role: "整个应用的根组件，只有 5 行" },
         { path: "react-notes-app/src/components/NoteItem/index.tsx", role: "最简单的展示型组件" },
@@ -106,7 +115,9 @@ export const reactMentalModel: Module = {
         {
           id: "what-is-component",
           heading: "一个组件 = 一个返回 JSX 的函数",
+          headingEn: "A component is a function that returns JSX",
           lede: "没有别的了。它不是类、不是模板、不是配置。",
+          ledeEn: "That is all it is. Not a class, not a template, not a config file.",
           body: (
             <>
               <p>
@@ -178,6 +189,7 @@ export default App;`,
         {
           id: "jsx-rules",
           heading: "JSX 的几条硬规则",
+          headingEn: "The rules JSX always enforces",
           body: (
             <>
               <p>
@@ -286,7 +298,9 @@ export default NoteItem;`,
         {
           id: "component-tree",
           heading: "这个项目的组件树",
+          headingEn: "The component tree of this project",
           lede: "四个组件，一条主干。记住这张图，Q1 的三道题就都有落点了。",
+          ledeEn: "Four components, one main line. Remember this picture and each of the three Q1 tasks has a place to go.",
           body: (
             <>
               <p>
@@ -334,6 +348,7 @@ export default NoteItem;`,
         {
           id: "react-fc",
           heading: "React.FC 是什么",
+          headingEn: "What React.FC is",
           body: (
             <>
               <p>
@@ -451,6 +466,16 @@ export default function App() {
               看到「组件不显示但控制台干净」时，先检查首字母。
             </>
           ),
+          whyEn: (
+            <>
+              JSX uses the first letter to tell an HTML tag apart from a
+              component of your own. A lowercase name is read as an HTML
+              element that does not exist, and the browser ignores it without
+              saying anything. <strong>This kind of bug produces no error, only
+              an empty area</strong> — when a component does not appear and the
+              console is clean, check the first letter first.
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -469,13 +494,42 @@ return (
               或者空标签 <code>&lt;&gt;...&lt;/&gt;</code> 包起来。
             </>
           ),
+          whyEn: (
+            <>
+              JSX can return only one root element. This code fails to compile
+              with <code>JSX expressions must have one parent element</code>.
+              Fix it by wrapping the elements in a real parent (here that is
+              <code>&lt;tr&gt;</code>) or in an empty tag
+              <code>&lt;&gt;...&lt;/&gt;</code>.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "组件不显示但控制台干净", reachFor: "检查组件名是否大写开头" },
-        { signal: "变量名原样显示在页面上", reachFor: "漏了花括号" },
-        { signal: "不知道逻辑该写在哪个组件", reachFor: "找持有相关 state 的那个组件" },
-        { signal: "JSX expressions must have one parent", reachFor: "用 <>…</> 包住多个同级元素" },
+        {
+          signal: "组件不显示但控制台干净",
+          signalEn: "Component does not appear, but the console is clean",
+          reachFor: "检查组件名是否大写开头",
+          reachForEn: "Check that the component name starts with a capital letter",
+        },
+        {
+          signal: "变量名原样显示在页面上",
+          signalEn: "The variable name itself is printed on the page",
+          reachFor: "漏了花括号",
+          reachForEn: "The curly braces are missing",
+        },
+        {
+          signal: "不知道逻辑该写在哪个组件",
+          signalEn: "Not sure which component the logic belongs in",
+          reachFor: "找持有相关 state 的那个组件",
+          reachForEn: "Find the component that holds the related state",
+        },
+        {
+          signal: "JSX expressions must have one parent",
+          signalEn: "JSX expressions must have one parent",
+          reachFor: "用 <>…</> 包住多个同级元素",
+          reachForEn: "Wrap the sibling elements in <>…</>",
+        },
       ],
       recap: [
         "组件就是返回 JSX 的普通函数，名字必须大写开头。",
@@ -483,6 +537,13 @@ return (
         "JSX 只能返回一个根元素，需要并列时用 <>…</>。",
         "这个项目的组件树：App → NoteManager →（NoteForm + NoteTable → NoteItem）。",
         "NoteManager 是唯一能同时影响表单和表格的地方，三道题都落在它里面。",
+      ],
+      recapEn: [
+        "A component is a plain function that returns JSX, and its name must start with a capital letter.",
+        "Curly braces switch back to JavaScript; write className, not class.",
+        "JSX can return only one root element. Use <>…</> when you need several elements side by side.",
+        "The component tree here: App → NoteManager → (NoteForm + NoteTable → NoteItem).",
+        "NoteManager is the only place that can affect the form and the table at the same time, so all three tasks land inside it.",
       ],
     },
 
@@ -492,6 +553,7 @@ return (
       title: "props：数据往下流，事件往上报",
       titleEn: "props: data flows down, events go back up",
       blurb: "为什么 NoteItem 里的 Delete 按钮，最终改的是 NoteManager 里的数据。",
+      blurbEn: "Why the Delete button inside NoteItem ends up changing data that lives in NoteManager.",
       minutes: 12,
       objectives: [
         "说清 props 是什么、方向是什么",
@@ -499,8 +561,16 @@ return (
         "分清 onClick={fn} 和 onClick={fn()} 的区别",
         "知道为什么子组件不能直接改父组件的数据",
       ],
+      objectivesEn: [
+        "Explain what props are and which direction they travel",
+        "Read the pattern of passing a function down as props",
+        "Tell onClick={fn} apart from onClick={fn()}",
+        "Know why a child component cannot change the parent's data directly",
+      ],
       whyForAssessment:
         "Q1 的三个任务全都是「子组件报告事件 → 父组件改 state」。props 传函数这个模式如果没想通，Delete 和 Edit 两题都会卡住。",
+      whyForAssessmentEn:
+        "All three Q1 tasks have the same shape: the child reports an event, then the parent changes state. If passing a function through props is not clear to you, both the Delete task and the Edit task will stop you.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteTable/index.tsx", role: "把 props 原样往下传" },
         { path: "react-notes-app/src/components/NoteItem/index.tsx", role: "调用 props 里的函数上报" },
@@ -509,7 +579,9 @@ return (
         {
           id: "props-are-args",
           heading: "props 就是函数参数",
+          headingEn: "props are just function arguments",
           lede: "组件是函数，props 是传给它的那个对象。",
+          ledeEn: "A component is a function, and props is the object you pass to it.",
           body: (
             <>
               <p>
@@ -556,6 +628,7 @@ return (
         {
           id: "one-way",
           heading: "数据单向往下：NoteTable 只是个中转站",
+          headingEn: "Data goes one way, downward: NoteTable only passes it along",
           body: (
             <>
               <p>
@@ -636,7 +709,9 @@ return (
         {
           id: "callback-props",
           heading: "事件往上报：把函数当 props 传下去",
+          headingEn: "Events are reported upward: pass a function down as props",
           lede: "这是 React 里子组件影响父组件的唯一正当方式。",
+          ledeEn: "This is the only correct way for a child to affect its parent in React.",
           body: (
             <>
               <p>
@@ -713,7 +788,9 @@ const handleDelete = (id: number) => {
         {
           id: "fn-vs-call",
           heading: "onClick={fn} 和 onClick={fn()}：差一对括号，行为天差地别",
+          headingEn: "onClick={fn} and onClick={fn()}: one pair of parentheses apart, and the behavior is completely different",
           lede: "这是新手最高频的错误之一，而且症状很奇怪。",
+          ledeEn: "This is one of the most common beginner mistakes, and the symptom looks strange.",
           body: (
             <>
               <p>
@@ -942,10 +1019,30 @@ React limits the number of nested updates to prevent infinite loops.
         },
       ],
       transfer: [
-        { signal: "子组件要影响父组件的数据", reachFor: "父组件传一个 onXxx 函数下去" },
-        { signal: "事件处理器要传参数", reachFor: "包一层箭头函数 () => fn(arg)" },
-        { signal: "Maximum update depth exceeded", reachFor: "先查有没有在渲染时调用了处理函数" },
-        { signal: "点了按钮毫无反应", reachFor: "查 onClick 里是不是写成了 fn() 而不是 fn" },
+        {
+          signal: "子组件要影响父组件的数据",
+          signalEn: "A child needs to change the parent's data",
+          reachFor: "父组件传一个 onXxx 函数下去",
+          reachForEn: "The parent passes an onXxx function down",
+        },
+        {
+          signal: "事件处理器要传参数",
+          signalEn: "An event handler needs an argument",
+          reachFor: "包一层箭头函数 () => fn(arg)",
+          reachForEn: "Wrap it in an arrow function: () => fn(arg)",
+        },
+        {
+          signal: "Maximum update depth exceeded",
+          signalEn: "Maximum update depth exceeded",
+          reachFor: "先查有没有在渲染时调用了处理函数",
+          reachForEn: "First check whether a handler is called during render",
+        },
+        {
+          signal: "点了按钮毫无反应",
+          signalEn: "Clicking the button does nothing at all",
+          reachFor: "查 onClick 里是不是写成了 fn() 而不是 fn",
+          reachForEn: "Check whether onClick says fn() instead of fn",
+        },
       ],
       recap: [
         "props 就是传给组件函数的那个对象，只读，只能从上往下传。",
@@ -953,6 +1050,13 @@ React limits the number of nested updates to prevent infinite loops.
         "命名习惯：props 叫 onXxx，父组件里的实现叫 handleXxx。",
         "需要传参数就包一层箭头函数；onClick={fn()} 会在渲染时立刻执行。",
         "props 名字是契约，两边必须一致 —— 好在 TypeScript 会替你检查。",
+      ],
+      recapEn: [
+        "props is the object passed to the component function. It is read-only, and it only travels downward.",
+        "A child reports an event by calling the onXxx function its parent passed down.",
+        "Naming convention: the prop is called onXxx, and the implementation in the parent is called handleXxx.",
+        "Wrap the call in an arrow function when you need to pass an argument; onClick={fn()} runs the moment the component renders.",
+        "The prop name is a contract and has to match on both sides. TypeScript checks that for you.",
       ],
     },
 
@@ -962,6 +1066,7 @@ React limits the number of nested updates to prevent infinite loops.
       title: "useState：让界面跟着数据变",
       titleEn: "useState: making the screen follow the data",
       blurb: "两个 state 撑起了整道 Q1：notes 和 noteToEdit。",
+      blurbEn: "Two pieces of state carry the whole of Q1: notes and noteToEdit.",
       minutes: 14,
       objectives: [
         "说清 useState 返回的两个东西各是什么",
@@ -969,8 +1074,16 @@ React limits the number of nested updates to prevent infinite loops.
         "会用函数式更新 setX(prev => ...) 并说清它比 setX(newValue) 好在哪",
         "看懂一次点击是怎么最终变成新界面的",
       ],
+      objectivesEn: [
+        "Explain what each of the two things useState returns is",
+        "Know why you have to use the setter instead of assigning a new value",
+        "Use the updater form setX(prev => ...) and say what makes it safer than setX(newValue)",
+        "Follow how one click turns into a new screen",
+      ],
       whyForAssessment:
         "Q1 的判卷标准就是「点了按钮之后界面对不对」。state 用错，四个测试全挂。这是整门考试最核心的一节。",
+      whyForAssessmentEn:
+        "Q1 is graded on one thing: is the screen correct after the button is clicked. Use state wrong and all four tests fail. This is the most important lesson in the whole exam.",
       sourceFiles: [
         {
           path: "react-notes-app/src/components/NoteManager/index.tsx",
@@ -981,7 +1094,9 @@ React limits the number of nested updates to prevent infinite loops.
         {
           id: "why-state",
           heading: "普通变量为什么不行",
+          headingEn: "Why a plain variable does not work",
           lede: "组件函数每次渲染都会重新执行一遍。普通变量活不过这一遍。",
+          ledeEn: "The component function runs again on every render. A plain variable does not survive that.",
           body: (
             <>
               <p>
@@ -1043,6 +1158,7 @@ const NoteManager = () => {
         {
           id: "usestate-shape",
           heading: "useState 返回一个数组，里面两样东西",
+          headingEn: "useState returns an array with two things in it",
           body: (
             <>
               <p>
@@ -1124,7 +1240,9 @@ const NoteManager = () => {
         {
           id: "functional-update",
           heading: "为什么用 setNotes(prev => ...) 而不是 setNotes([...notes, n])",
+          headingEn: "Why setNotes(prev => ...) and not setNotes([...notes, n])",
           lede: "两种都能用。但前者在一种情况下明显更安全。",
+          ledeEn: "Both forms work. But the first one is clearly safer in one situation.",
           body: (
             <>
               <p>
@@ -1183,7 +1301,9 @@ setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
         {
           id: "render-flow",
           heading: "一次点击的完整旅程",
+          headingEn: "The full path of one click",
           lede: "把这条链走通，你就真的懂 React 了。",
+          ledeEn: "Once you can follow this chain end to end, you really do understand React.",
           body: (
             <>
               <p>
@@ -1342,6 +1462,14 @@ notes = [...notes, newNote];`,
               <strong>唯一的修改途径是 setNotes。</strong>
             </>
           ),
+          whyEn: (
+            <>
+              <code>notes</code> is declared with <code>const</code>, so this
+              line does not even compile. Even as a <code>let</code>, React
+              would not know the value changed — it only watches for setter
+              calls. <strong>setNotes is the only way to change it.</strong>
+            </>
+          ),
         },
         {
           wrong: demo(
@@ -1358,13 +1486,42 @@ console.log(notes.length);   // 还是旧的长度！`,
               想在更新后做点什么，用 <code>useEffect</code>（下一节讲）。
             </>
           ),
+          whyEn: (
+            <>
+              <code>setNotes</code> only asks React for one more render. It
+              does not change the <code>notes</code> variable on the spot. The
+              new value is visible on the <strong>next render</strong>. To do
+              something after the update, use <code>useEffect</code> (the next
+              lesson).
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "「界面要跟着某个数据变」", reachFor: "把它做成 useState" },
-        { signal: "初始值是 [] 或 null", reachFor: "显式写泛型参数" },
-        { signal: "「基于当前值算出新值」", reachFor: "setX(prev => ...)" },
-        { signal: "setState 之后 console.log 是旧值", reachFor: "正常，新值在下次渲染才有" },
+        {
+          signal: "「界面要跟着某个数据变」",
+          signalEn: "The screen has to follow some piece of data",
+          reachFor: "把它做成 useState",
+          reachForEn: "Put that data in useState",
+        },
+        {
+          signal: "初始值是 [] 或 null",
+          signalEn: "The initial value is [] or null",
+          reachFor: "显式写泛型参数",
+          reachForEn: "Write the generic type argument explicitly",
+        },
+        {
+          signal: "「基于当前值算出新值」",
+          signalEn: "The new value is computed from the current one",
+          reachFor: "setX(prev => ...)",
+          reachForEn: "setX(prev => ...)",
+        },
+        {
+          signal: "setState 之后 console.log 是旧值",
+          signalEn: "console.log after setState shows the old value",
+          reachFor: "正常，新值在下次渲染才有",
+          reachForEn: "That is expected. The new value arrives on the next render",
+        },
       ],
       recap: [
         "组件函数会被反复执行，所以普通变量存不住数据 —— 这是 useState 存在的原因。",
@@ -1372,6 +1529,13 @@ console.log(notes.length);   // 还是旧的长度！`,
         "setter 是唯一合法的修改途径，调用它等于「预约一次重新渲染」。",
         "setX(prev => ...) 比 setX(新值) 稳，项目里统一用前者。",
         "你只管改数据，DOM 由 React 对比后自动更新 —— 不要自己操作 DOM。",
+      ],
+      recapEn: [
+        "The component function runs again and again, so a plain variable cannot hold data. That is the reason useState exists.",
+        "useState returns [current value, setter]. The initial value is used only on the first render.",
+        "The setter is the only legal way to change the value. Calling it asks React for one more render.",
+        "setX(prev => ...) is safer than setX(newValue), and this project uses the first form everywhere.",
+        "You change the data, and React compares and updates the DOM for you. Do not touch the DOM yourself.",
       ],
     },
   ],

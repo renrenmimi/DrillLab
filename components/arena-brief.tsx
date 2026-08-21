@@ -44,8 +44,12 @@ export function ArenaBrief({ id }: { id: string }) {
           <div className="eyebrow">
             <T zh="开考前" en="Before you start" />
           </div>
-          <h1 className="page-title serif">{a.title}</h1>
-          <p className="page-lede">{a.scenario}</p>
+          <h1 className="page-title serif">
+            <T zh={a.title} en={a.titleEn} />
+          </h1>
+          <p className="page-lede">
+            <T zh={a.scenario} en={a.scenarioEn} />
+          </p>
           <div className="lesson-meta" style={{ marginTop: 14 }}>
             <span className="tag" data-tone="danger">
               <T zh={`限时 ${a.minutes} 分钟`} en={`${a.minutes} min limit`} />
@@ -113,7 +117,9 @@ export function ArenaBrief({ id }: { id: string }) {
           {exam && (
             <p>
               <T zh="还没准备好？先回去过一遍" en="Not ready yet? Go back through" />{" "}
-              <Link href={examPath(exam.id)}>{exam.title}</Link>
+              <Link href={examPath(exam.id)}>
+            <T zh={exam.title} en={exam.titleEn} />
+          </Link>
               <T
                 zh="。考场里没有提示按钮，卡住了只能靠已经会的东西。"
                 en=". There is no hint button in here; if you get stuck, you get stuck with what you already know."

@@ -134,9 +134,11 @@ export function ArenaList() {
                 <span className="exam-idx">{String(i + 1).padStart(2, "0")}</span>
                 <div>
                   <Link className="exam-name" href={arenaPath(r.nav.id)}>
-                    {r.nav.title}
+                    <T zh={r.nav.title} en={r.nav.titleEn} />
                   </Link>
-                  <p className="exam-desc">{r.nav.scenario}</p>
+                  <p className="exam-desc">
+                    <T zh={r.nav.scenario} en={r.nav.scenarioEn} />
+                  </p>
                   <div className="exam-tags">
                     {r.fresh && (
                       <span className="tag" data-tone="accent">

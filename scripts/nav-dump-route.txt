@@ -46,6 +46,7 @@ export function GET() {
           title: l.title,
           titleEn: l.titleEn,
           blurb: l.blurb,
+          blurbEn: l.blurbEn,
           minutes: l.minutes,
           exerciseCount: l.exercises?.length ?? 0,
         })),
@@ -92,6 +93,8 @@ export function GET() {
     arena: allArena().map((a) => ({
       id: a.id,
       title: a.title,
+      titleEn: a.titleEn,
+      scenarioEn: a.scenarioEn,
       scenario: a.scenario,
       minutes: a.minutes,
       examId: a.sourceExamId,

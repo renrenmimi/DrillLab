@@ -80,7 +80,7 @@ export function LessonHeader({
  * 第 3 条中文配第 4 条的英文，看起来还挺像那么回事，但说的是别的事。
  * 这种错比缺英文难发现得多，所以宁可全中文。
  */
-function BilingualList({ zh, en }: { zh: string[]; en?: string[] }) {
+export function BilingualList({ zh, en }: { zh: string[]; en?: string[] }) {
   const paired = en && en.length === zh.length ? en : undefined;
   return (
     <>

@@ -331,9 +331,13 @@ export type Bilingual = { zh: string; en: string };
 export interface MockExam {
   id: string;
   title: string;
+  /** 见 Lesson.titleEn */
+  titleEn?: string;
   /** 换了业务场景，但核心技能一致 —— 这里写清是哪些技能 */
   mirrors: string;
+  mirrorsEn?: string;
   scenario: string;
+  scenarioEn?: string;
   minutes: number;
   /** 怎么在本机跑起来。见 MockSetup 的注释 */
   setup: MockSetup;
@@ -341,7 +345,10 @@ export interface MockExam {
   tasks: {
     id: string;
     title: string;
+    titleEn?: string;
     requirement: string[];
+    /** 英文版。长度必须和 requirement 一致 —— 理由见 Lesson.objectivesEn */
+    requirementEn?: string[];
     /** 评分点 */
     rubric: { points: number; label: string }[];
   }[];
@@ -474,7 +481,17 @@ export interface SandboxSpec {
 export interface ArenaChallenge {
   id: string;
   title: string;
+  /**
+   * 英文标题。
+   *
+   * 【为什么有的有、有的没有】
+   * 考场题全部派生：2 道来自模拟考（MockExam.titleEn 补了就有），
+   * 4 道来自 from-scratch 练习（Exercise 类型还没有英文字段，所以还没有）。
+   * 缺的那几道由 <T> 回落中文，不是 bug，是那一层还没做。
+   */
+  titleEn?: string;
   scenario: string;
+  scenarioEn?: string;
   /** 真实时限，诚实估 */
   minutes: number;
   /** 用户视角的需求，不给代码 */
