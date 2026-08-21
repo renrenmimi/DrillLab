@@ -3302,9 +3302,11 @@ return () => {
           code: [
             tested("bash", "npx vitest run src/UserCard.test.tsx   # 6 passed", {
               filename: "验证命令",
+              filenameEn: "The command that verifies it",
             }),
             tested("tsx", FETCH_TEST, {
               filename: "src/UserCard.test.tsx（DrillLab 自出，本机跑过）",
+              filenameEn: "src/UserCard.test.tsx (written for DrillLab, run here)",
               collapsible: true,
             }),
           ],
@@ -3315,11 +3317,18 @@ return () => {
           kind: "fill-blank",
           id: "r-var-fetch-blank",
           title: "补全取数 effect 的四个关键位置",
+          titleEn: "Fill in the four key spots of the fetching effect",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 1 和第 4 个合起来解决竞态，第 2 个是 fetch 的经典坑。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The first and the fourth together settle the race. The
+              second is the classic fetch trap.
             </p>
           ),
           language: "tsx",
@@ -3351,6 +3360,7 @@ return () => {
               n: 1,
               accept: ["ignore"],
               hint: "一个「这次请求还算不算数」的普通局部变量。",
+              hintEn: "A plain local variable that says whether this request still counts.",
               why: (
                 <>
                   <code>ignore</code>。它是<strong>普通局部变量</strong>，
@@ -3359,12 +3369,23 @@ return () => {
                   清理函数通过闭包改的正是它自己那一次的那一份。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>ignore</code>. It is a{" "}
+                  <strong>plain local variable</strong>, not a state and not a ref,
+                  because every run of the effect needs{" "}
+                  <strong>its own copy</strong>, and a state or a ref is shared.
+                  Through the closure, a cleanup changes exactly the copy that
+                  belongs to its own run.
+                </>
+              ),
               width: 8,
             },
             {
               n: 2,
               accept: ["ok"],
               hint: "fetch 遇到 404 不会 reject，得自己判断。",
+              hintEn: "A 404 does not make fetch reject, so you have to check it yourself.",
               why: (
                 <>
                   <code>ok</code>。<code>res.ok</code> 在状态码
@@ -3376,12 +3397,27 @@ return () => {
                   这一点和 axios 相反（axios 会自己抛），所以特别容易漏。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>ok</code>. <code>res.ok</code> is true for status codes 200
+                  to 299.
+                  <br />
+                  <strong>
+                    Not checking it is the most common mistake in fetch questions.
+                  </strong>{" "}
+                  On a 404, <code>res.json()</code> parses the error page, and then
+                  you render that as data: it shows undefined, or it crashes. This is
+                  the opposite of axios, which throws on its own, so people miss it
+                  especially often.
+                </>
+              ),
               width: 5,
             },
             {
               n: 3,
               accept: ["true"],
               hint: "清理函数要宣布「这次请求作废」。",
+              hintEn: "The cleanup has to declare that this request no longer counts.",
               why: (
                 <>
                   <code>true</code>。清理函数在
@@ -3391,12 +3427,22 @@ return () => {
                   一个 state 都不会被写。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>true</code>. The cleanup runs just before{" "}
+                  <code>userId</code> changes, and again on unmount. It sets the{" "}
+                  <code>ignore</code> of that run to true, so when its response
+                  arrives every <code>if (!ignore)</code> is false and not one state
+                  gets written.
+                </>
+              ),
               width: 6,
             },
             {
               n: 4,
               accept: ["userId"],
               hint: "换了哪个值就要重新取数？",
+              hintEn: "Which value, when it changes, means you have to fetch again?",
               why: (
                 <>
                   <code>userId</code>。
@@ -3405,6 +3451,19 @@ return () => {
                   <br />
                   不写依赖数组 → 每次渲染都发请求，而 <code>setUser</code>
                   又触发渲染 → <strong>无限请求</strong>，这是 fetch 题的经典事故。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>userId</code>.
+                  <br />
+                  With <code>[]</code>, switching users never refetches and the first
+                  user is shown forever.
+                  <br />
+                  With no dependency array, every render sends a request, and{" "}
+                  <code>setUser</code> triggers another render:{" "}
+                  <strong>requests without end</strong>, the classic accident in fetch
+                  questions.
                 </>
               ),
               width: 8,
