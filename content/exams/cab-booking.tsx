@@ -1738,6 +1738,8 @@ const useCabContext = () => {
           title: "用一个 state 管四个页面",
           titleEn: "Controlling four pages with one piece of state",
           blurb: "没有 react-router。currentPage 是个字符串状态机，四个 && 决定谁显示。",
+          blurbEn:
+            "There is no react-router. currentPage is a string state machine, and four && checks decide which page shows.",
           minutes: 15,
           objectives: [
             "用一个 currentPage state 管四个页面",
@@ -1745,8 +1747,16 @@ const useCabContext = () => {
             "知道为什么 handleSelectCab 必须写在 App 里，而不是 CabCard 里",
             "看懂四个页面之间的转移图",
           ],
+          objectivesEn: [
+            "Control four pages with a single currentPage state",
+            "Explain the difference between && and a ternary in conditional rendering, and why && fits here",
+            "Know why handleSelectCab has to live in App and not in CabCard",
+            "Read the transition diagram between the four pages",
+          ],
           whyForAssessment:
             "题目没给路由，所以你得自己决定「页面」怎么表示。写成四个 boolean（isHome / isLoading …）能跑，但两个同时为 true 时会同时渲染两个页面，测试 3 的 getByTestId 会因为找到多个而抛错。一个字符串 state 从根上排除了这种状态。",
+          whyForAssessmentEn:
+            "The task gives you no router, so you have to decide how a page is represented. Four booleans (isHome, isLoading and so on) can work, but when two of them are true at the same time two pages render together, and the getByTestId in test 3 throws because it finds more than one match. A single string state rules that situation out from the start.",
           sourceFiles: [
             { path: "cab-booking-context/src/App.jsx", role: "状态机本体，四个页面的开关都在这里", edit: true },
             { path: "cab-booking-context/src/components/Home/Home.jsx", role: "首页，把 onBookClick 往上抛" },
@@ -1755,7 +1765,10 @@ const useCabContext = () => {
             {
               id: "cb-state-machine",
               heading: "四个页面 = 一个字符串 state",
+              headingEn: "Four pages, one string state",
               lede: "转移图画出来，代码就是照抄",
+              ledeEn:
+                "Draw the transition diagram and the code just copies it",
               body: (
                 <>
                   <p>
@@ -1909,7 +1922,10 @@ const useCabContext = () => {
             {
               id: "cb-lift-handler",
               heading: "为什么 handleSelectCab 在 App 里",
+              headingEn: "Why handleSelectCab lives in App",
               lede: "因为它要同时干两件事，而其中一件只有 App 知道",
+              ledeEn:
+                "Because it has to do two things at once, and only App can do one of them",
               body: (
                 <>
                   <p>
@@ -2238,6 +2254,18 @@ const handleSelectCab = (cab) => {
                   这不是「写法更漂亮」，是把一整类 bug 从可能变成不可能。
                 </>
               ),
+              whyEn: (
+                <>
+                  Four booleans have <strong>16 combinations</strong>, and only 4 of them are
+                  valid. On every page change you have to remember to turn one on and one off, and{" "}
+                  <strong>if you forget one, two pages are on the screen at the same time</strong>.
+                  <br />
+                  A single string state has only 4 possible values, so{" "}
+                  <code>setCurrentPage(&quot;loading&quot;)</code>{" "}
+                  <strong>turns the other pages off by itself</strong>. This is not about code that
+                  reads better. It moves a whole class of bug from possible to impossible.
+                </>
+              ),
             },
           ],
           transfer: [
@@ -2252,6 +2280,13 @@ const handleSelectCab = (cab) => {
             "handleSelectCab 放在 App 里，因为「切页面」只有 App 做得到。",
             "onSelectCab={handleSelectCab} 不能加括号 —— 加了会在渲染时执行并无限重渲染。",
             "RideHistory 挂在首页里，所以点完确认回首页就能看到新记录。",
+          ],
+          recapEn: [
+            "One currentPage string controls the four pages, with one && check for each.",
+            "Draw the transition table first: the four transitions become four callbacks, and the code follows the table.",
+            "handleSelectCab goes in App, because only App can change the page.",
+            "onSelectCab={handleSelectCab} must have no parentheses. With them the function runs during render and the component re-renders without end.",
+            "RideHistory sits on the home page, so when you confirm and come back home the new entry is there.",
           ],
         },
         {
