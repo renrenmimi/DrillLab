@@ -86,13 +86,17 @@ export const reactHooks: Module = {
   id: "react-hooks",
   stage: "React · 第 2 部分",
   title: "受控输入、列表渲染与 useEffect",
+  titleEn: "Controlled inputs, rendering lists, and useEffect",
   summary:
     "把 NoteForm 从头到尾读懂 —— 它一个文件里就用到了受控输入、useEffect 同步、派生数据和表单提交四件事。",
+  summaryEn:
+    "Read NoteForm from top to bottom. That one file already does four things: controlled inputs, syncing with useEffect, derived data, and form submission.",
   lessons: [
     /* ---------- 2.4 ---------- */
     {
       id: "r-controlled-input",
       title: "受控输入：value + onChange 的闭环",
+      titleEn: "Controlled inputs: the loop between value and onChange",
       blurb: "输入框里的字，其实存在 React 的 state 里，不在 DOM 里。",
       minutes: 13,
       objectives: [
@@ -609,6 +613,7 @@ onSubmit(newNote);
     {
       id: "r-lists-keys",
       title: "列表渲染与 key",
+      titleEn: "Rendering a list, and the key prop",
       blurb: "notes.map(...) 那三行，以及为什么 key 不能用数组下标。",
       minutes: 10,
       objectives: [
@@ -958,6 +963,7 @@ for more information.`,
     {
       id: "r-useeffect",
       title: "useEffect：把 props 的变化同步进 state",
+      titleEn: "useEffect: copying a change in props into state",
       blurb: "Task 3 的「点 Edit 后内容回填到表单」，靠的就是这 9 行。",
       minutes: 15,
       objectives: [
@@ -1426,6 +1432,7 @@ useEffect(() => {
     {
       id: "r-derived-lifting",
       title: "派生数据与状态提升：什么不该做成 state",
+      titleEn: "Values you can compute, and lifting state up: what should not be state",
       blurb: "isFormInvalid 为什么是一行普通变量，而不是第三个 useState。",
       minutes: 11,
       objectives: [

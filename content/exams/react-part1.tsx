@@ -77,13 +77,17 @@ export const reactMentalModel: Module = {
   id: "react-mental-model",
   stage: "React · 第 1 部分",
   title: "React 心智模型",
+  titleEn: "The React mental model",
   summary:
     "组件、props、state、事件、渲染。每一条都用 react-notes-app 里真实的组件当例子，不用虚构的 Counter。",
+  summaryEn:
+    "Components, props, state, events, rendering. Every example is a real component from react-notes-app, never an invented Counter.",
   lessons: [
     /* ---------- 2.1 ---------- */
     {
       id: "r-component",
       title: "组件就是一个返回界面的函数",
+      titleEn: "A component is a function that returns what you see on screen",
       blurb: "从这个项目最短的两个文件开始：App.tsx 只有 5 行。",
       minutes: 11,
       objectives: [
@@ -486,6 +490,7 @@ return (
     {
       id: "r-props",
       title: "props：数据往下流，事件往上报",
+      titleEn: "props: data flows down, events go back up",
       blurb: "为什么 NoteItem 里的 Delete 按钮，最终改的是 NoteManager 里的数据。",
       minutes: 12,
       objectives: [
@@ -955,6 +960,7 @@ React limits the number of nested updates to prevent infinite loops.
     {
       id: "r-state",
       title: "useState：让界面跟着数据变",
+      titleEn: "useState: making the screen follow the data",
       blurb: "两个 state 撑起了整道 Q1：notes 和 noteToEdit。",
       minutes: 14,
       objectives: [

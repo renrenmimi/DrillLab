@@ -138,13 +138,17 @@ export const reactQ1: Module = {
   id: "react-q1",
   stage: "React · 第 3 部分",
   title: "Q1 Notes Manager · 逐题拆解",
+  titleEn: "Q1 Notes Manager · one task at a time",
   summary:
     "严格对应 react-notes-app README 的三个 Task。每一题都走同一套流程：读懂题 → 考什么 → 先想再写 → 分步实现 → 完整答案 → 为什么成立 → 常见错法 → 迁移。",
+  summaryEn:
+    "Follows the three tasks in the react-notes-app README exactly. Every task takes the same route: read the wording → see what is being tested → think before you type → build it step by step → read the full answer → understand why it works → look at the common mistakes → apply the same shape elsewhere.",
   lessons: [
     /* ---------- 3.1 ---------- */
     {
       id: "r-read-q1",
       title: "先读题：三个任务、一条硬约束、四个测试",
+      titleEn: "Read the question first: three tasks, one rule you must not break, four tests",
       blurb: "在写第一行代码之前，把题目、约束和判卷标准全部摸清。",
       minutes: 13,
       objectives: [
@@ -719,6 +723,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
     {
       id: "r-task1-add",
       title: "Task 1 · Add：提交表单，新笔记进入表格",
+      titleEn: "Task 1 · Add: submit the form and the new note appears in the table",
       blurb: "三道题里最简单的一道，但它建立了后两道题的全部结构。",
       minutes: 12,
       objectives: [
@@ -1314,6 +1319,7 @@ const handleSubmitNote = (submittedNote: Note) => {
     {
       id: "r-task2-delete",
       title: "Task 2 · Delete：点 Delete，该行按 id 被移除",
+      titleEn: "Task 2 · Delete: click Delete and that one row is removed by id",
       blurb: "一行 filter。但「按 id」这三个字是有分量的。",
       minutes: 11,
       objectives: [
@@ -1854,6 +1860,7 @@ const handleDelete = (id: number) => {
     {
       id: "r-task3-edit",
       title: "Task 3 · Edit：回填、改文字、就地更新、退出编辑",
+      titleEn: "Task 3 · Edit: refill the form, change the button text, update the row where it is, leave edit mode",
       blurb: "四个要求串成一条链。这是整道 Q1 的压轴题。",
       minutes: 18,
       objectives: [
@@ -2744,6 +2751,7 @@ if (noteToEdit) {
     {
       id: "r-tests",
       title: "四个测试逐条读，以及它们的盲区",
+      titleEn: "The four tests read line by line, and what they fail to catch",
       blurb: "判卷器长什么样，它查什么，它查不到什么。",
       minutes: 12,
       objectives: [
