@@ -3753,6 +3753,15 @@ type Order {                     # ← 不是 entity：没有 @key
   ...
 }`,
               {
+                codeEn: `type User @key(fields: "id") {   # ← an entity: id is how you identify it
+  id: ID! @external
+  orders: [Order!]!
+}
+
+type Order {                     # ← not an entity: no @key
+  id: ID!
+  ...
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/schema.graphql",
               },
@@ -3925,6 +3934,7 @@ type Order {                     # ← 不是 entity：没有 @key
 },`,
               {
                 filename: "src/resolvers/orderResolvers.js（User 部分）",
+                filenameEn: "src/resolvers/orderResolvers.js (the User part)",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
                 highlight: [3, 4, 5],
@@ -3943,10 +3953,22 @@ type Order {                     # ← 不是 entity：没有 @key
 });`,
               {
                 filename: "测试怎么调它",
+                filenameEn: "How the test calls it",
+                codeEn: `it('should return orders for a user', async () => {
+  const user = { id: '123' };                              // ← that is all it takes
+  const orders = await resolvers.User.orders(user, {}, context);
+
+  expect(orders).toBeDefined();
+  expect(Array.isArray(orders)).toBe(true);
+  expect(orders.length).toBeGreaterThan(0);
+  expect(orders[0]).toHaveProperty('userId', '123');
+});`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/__tests__/resolvers.test.js",
                 explanation:
                   "测试直接调 resolver 函数，手工构造 parent 和 context。这意味着：你的 resolver 只要参数用法正确就能过测试，不需要整个 GraphQL 服务器跑起来。",
+                explanationEn:
+                  "The test calls the resolver function directly and builds parent and context by hand. That means your resolver passes as long as it uses its arguments correctly; you do not need the whole GraphQL server running.",
               },
             ),
           ],
@@ -3981,17 +4003,24 @@ type Order {                     # ← 不是 entity：没有 @key
           kind: "recognition",
           id: "g-key-meaning",
           title: "@key 在声明什么",
+          titleEn: "What @key declares",
           level: 1,
           prompt: (
             <p>
               <code>type User @key(fields: &quot;id&quot;)</code> 最准确的含义是？
             </p>
           ),
+          promptEn: (
+            <p>
+              What does <code>type User @key(fields: &quot;id&quot;)</code> mean,
+              most precisely?
+            </p>
+          ),
           options: [
-            { id: "a", label: "id 是数据库主键" },
-            { id: "b", label: "别的 subgraph 只要给出 id，就能定位到同一个 User" },
-            { id: "c", label: "id 字段不能为空" },
-            { id: "d", label: "查询 User 时必须传 id 参数" },
+            { id: "a", label: "id 是数据库主键", labelEn: "id is the database primary key" },
+            { id: "b", label: "别的 subgraph 只要给出 id，就能定位到同一个 User", labelEn: "Another subgraph only has to supply an id to locate the same User" },
+            { id: "c", label: "id 字段不能为空", labelEn: "The id field cannot be null" },
+            { id: "d", label: "查询 User 时必须传 id 参数", labelEn: "Querying User requires passing an id argument" },
           ],
           answer: ["b"],
           explain: (
@@ -4006,11 +4035,31 @@ type Order {                     # ← 不是 entity：没有 @key
               D 是 <code>Query</code> 字段参数的事，都和 @key 无关。
             </>
           ),
+          explainEn: (
+            <>
+              <code>@key</code> declares{" "}
+              <strong>how an object is identified across services</strong>. It
+              has <strong>no necessary connection</strong> to a database primary
+              key — it can be any combination of fields that identifies the
+              object uniquely.
+              <br />
+              A rule of thumb:{" "}
+              <strong>
+                when you see @key, do not start from the syntax. Ask which field
+                another service needs in order to find this object.
+              </strong>
+              <br />
+              C is what the exclamation mark in <code>ID!</code> says, and D is
+              about the arguments of a <code>Query</code> field. Neither has
+              anything to do with @key.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-parent-of-orders",
           title: "User.orders 里的 user 参数上有什么",
+          titleEn: "What the user argument of User.orders carries",
           level: 1,
           prompt: (
             <p>
@@ -4019,11 +4068,19 @@ type Order {                     # ← 不是 entity：没有 @key
               上有哪些属性？
             </p>
           ),
+          promptEn: (
+            <p>
+              <code>__resolveReference</code> returns{" "}
+              <code>{'{ id: user.id }'}</code>. So which properties does{" "}
+              <code>user</code> have inside{" "}
+              <code>User.orders(user, ...)</code>?
+            </p>
+          ),
           options: [
-            { id: "a", label: "id、name、email —— 完整的用户对象" },
-            { id: "b", label: "只有 id" },
-            { id: "c", label: "id 和 orders" },
-            { id: "d", label: "什么都没有，是空对象" },
+            { id: "a", label: "id、name、email —— 完整的用户对象", labelEn: "id, name and email — the complete user object" },
+            { id: "b", label: "只有 id", labelEn: "Only id" },
+            { id: "c", label: "id 和 orders", labelEn: "id and orders" },
+            { id: "d", label: "什么都没有，是空对象", labelEn: "Nothing at all; it is an empty object" },
           ],
           answer: ["b"],
           explain: (
@@ -4041,16 +4098,41 @@ type Order {                     # ← 不是 entity：没有 @key
               想用 <code>user.email</code> 去做什么，会拿到 undefined。
             </>
           ),
+          explainEn: (
+            <>
+              <strong>Only id.</strong> Whatever{" "}
+              <code>__resolveReference</code> returns becomes the{" "}
+              <code>parent</code> of the field resolvers below it. It returns{" "}
+              <code>{'{ id: user.id }'}</code> — one property.
+              <br />
+              That is a reasonable design here: this project has no user table,
+              and name and email belong to the Accounts subgraph.
+              <br />
+              <strong>
+                What that means in practice: your orders resolver can only use{" "}
+                <code>user.id</code>.
+              </strong>{" "}
+              Reach for <code>user.email</code> and you get undefined.
+            </>
+          ),
         },
         {
           kind: "fill-blank",
           id: "g-entity-blanks",
           title: "补全 entity 声明与引用解析",
+          titleEn: "Fill in the entity declaration and the reference resolver",
           level: 2,
           prompt: (
             <p>
               三个空。第一个是 directive，第二个是标记「这不是我的字段」，
               第三个是引用解析要返回什么。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Three blanks. The first is a directive, the second marks a field
+              as not belonging to this service, and the third is what the
+              reference resolver returns.
             </p>
           ),
           language: "graphql",
@@ -4075,6 +4157,8 @@ type User ___1___(fields: "id") {
               n: 1,
               accept: ["@key"],
               hint: "声明「靠哪个字段跨服务认人」的 directive。",
+              hintEn:
+                "The directive that says which field identifies the object across services.",
               why: (
                 <>
                   <code>@key</code>。它让 <code>User</code> 成为一个 entity，
@@ -4083,12 +4167,24 @@ type User ___1___(fields: "id") {
                   注意它必须写在<strong>类型名后面</strong>，不是字段上。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>@key</code>. It turns <code>User</code> into an entity,
+                  which is how the Router knows that an id is enough to find a
+                  User in this subgraph.
+                  <br />
+                  Note it goes <strong>after the type name</strong>, not on a
+                  field.
+                </>
+              ),
               width: 6,
             },
             {
               n: 2,
               accept: ["@external"],
               hint: "这个字段由别的 subgraph 提供，本服务只是引用。",
+              hintEn:
+                "Another subgraph provides this field; this service only references it.",
               why: (
                 <>
                   <code>@external</code>。表示 <code>id</code> 不是本 subgraph
@@ -4099,12 +4195,27 @@ type User ___1___(fields: "id") {
                   这一个对比就能看出「哪个字段是我的责任」。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>@external</code>. It says <code>id</code> is not
+                  defined by this subgraph, so you write no resolver for it.
+                  <br />
+                  <strong>
+                    And <code>orders</code> does not have it
+                  </strong>{" "}
+                  — that field is contributed by this subgraph, so you must
+                  implement it. That one contrast tells you which fields are
+                  your responsibility.
+                </>
+              ),
               width: 11,
             },
             {
               n: 3,
               accept: ["user.id"],
               hint: "Router 传进来的 representation 上有 __typename 和 @key 字段。",
+              hintEn:
+                "The representation the Router passes in carries __typename and the @key fields.",
               why: (
                 <>
                   <code>user.id</code>。传进来的 <code>user</code> 是
@@ -4114,6 +4225,20 @@ type User ___1___(fields: "id") {
                   <strong>返回值会成为下游所有字段 resolver 的 parent</strong> ——
                   所以你的 <code>orders</code> resolver 里
                   <code>user.id</code> 就是从这来的。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>user.id</code>. The <code>user</code> passed in is{" "}
+                  <code>{'{ __typename: "User", id: "123" }'}</code>, so take
+                  the id and return it as is.
+                  <br />
+                  <strong>
+                    The return value becomes the parent of every field resolver
+                    below
+                  </strong>{" "}
+                  — that is where <code>user.id</code> in your{" "}
+                  <code>orders</code> resolver comes from.
                 </>
               ),
               width: 9,
