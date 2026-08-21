@@ -1,6 +1,11 @@
 "use client";
 
-// 语言（中文 / English）—— 默认中文，选择存 localStorage。
+// 语言（English / 中文）—— **默认英文**，选择存 localStorage。
+//
+// 【为什么默认英文】
+// 另外七个同系列的 app 都是英文默认。这个 app 最初只有中文，所以默认是中文；
+// 正文、代码注释、练习都补完英文之后，继续默认中文就等于让英文读者
+// 每次进来都要先点一下开关。
 //
 // 【为什么不用 /en/... 这种路由前缀，也不用 cookie】
 // 课程正文是在服务端渲染的（见 README 里那段 784 KB 的教训）。
@@ -34,20 +39,20 @@ interface Ctx {
 }
 
 const Ctx = createContext<Ctx>({
-  locale: "zh",
+  locale: "en",
   setLocale: () => {},
   toggle: () => {},
 });
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  // 初始值必须和服务端一致（zh），挂载后再从 <html lang> 读回真实值。
+  // 初始值必须和服务端一致（en），挂载后再从 <html lang> 读回真实值。
   // 注意：正文靠 CSS 切换，所以这里读晚一点也不会闪 —— 页面上的文字
   // 早就由 bootstrap 脚本设好的 lang 决定了。
-  const [locale, setLocaleState] = useState<Locale>("zh");
+  const [locale, setLocaleState] = useState<Locale>("en");
 
   useEffect(() => {
     const attr = document.documentElement.getAttribute("lang");
-    if (attr && attr.startsWith("en")) setLocaleState("en");
+    if (attr && attr.startsWith("zh")) setLocaleState("zh");
   }, []);
 
   const setLocale = useCallback((next: Locale) => {
@@ -92,4 +97,4 @@ export function useT() {
 }
 
 /** 注入到 <head>，在 React 接管前就把 <html lang> 定下来 */
-export const LOCALE_BOOTSTRAP = `(function(){try{var l=localStorage.getItem("${KEY}");document.documentElement.setAttribute("lang",l==="en"?"en":"zh-CN");}catch(e){document.documentElement.setAttribute("lang","zh-CN");}})();`;
+export const LOCALE_BOOTSTRAP = `(function(){try{var l=localStorage.getItem("${KEY}");document.documentElement.setAttribute("lang",l==="zh"?"zh-CN":"en");}catch(e){document.documentElement.setAttribute("lang","en");}})();`;
