@@ -4179,7 +4179,21 @@ useEffect(() => {
 // setCurrentPage("cab-confirmation")
 // 用户点了 Okay 想回首页 —— 1 秒后被拽回确认页
 // 而且这个定时器永远不会停`,
-                { filename: "setInterval + 无清理" },
+                {
+                  filename: "setInterval + 无清理",
+                  filenameEn: "setInterval with no cleanup",
+                  codeEn: `// ✕ using setInterval, and forgetting the cleanup
+useEffect(() => {
+  setInterval(() => {
+    if (onComplete) onComplete();
+  }, 1000);
+}, [onComplete]);
+
+// symptom: after the jump to the confirmation page, once a second it calls
+// setCurrentPage("cab-confirmation") again
+// the user presses Okay to go home — one second later they are dragged back
+// and this timer never stops`,
+                },
               ),
               why: (
                 <>
@@ -4473,7 +4487,26 @@ history.slice(-3).reverse();
 // slice 越界是安全的：
 ["A"].slice(-3);   // ["A"]
 [].slice(-3);      // []`,
-                  { filename: "四条记录走一遍（示意）" },
+                  {
+                    filename: "四条记录走一遍（示意）",
+                    filenameEn: "Four records, step by step (illustration)",
+                    codeEn: `const history = ["Ford Fusion", "Honda Accord", "Toyota Highlander", "Ford Explorer"];
+//                     ↑ oldest (booking 1)                        newest (booking 4) ↑
+
+history.slice(-3);
+// ["Honda Accord", "Toyota Highlander", "Ford Explorer"]   ← the three newest ✓
+
+history.slice(0, 3);
+// ["Ford Fusion", "Honda Accord", "Toyota Highlander"]     ← the three oldest ✕
+
+history.slice(-3).reverse();
+// ["Ford Explorer", "Toyota Highlander", "Honda Accord"]   ← newest at the top ✓
+//    this is exactly the order test 4 asserts
+
+// slice is safe out of range:
+["A"].slice(-3);   // ["A"]
+[].slice(-3);      // []`,
+                  },
                 ),
               ],
             },
