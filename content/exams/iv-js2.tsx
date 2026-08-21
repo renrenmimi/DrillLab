@@ -2861,7 +2861,30 @@ async function request(url, opts = {}) {
     clearTimeout(t);
   }
 }`,
-              { filename: "两者的核心差别与自制 wrapper" },
+              {
+                filename: "两者的核心差别与自制 wrapper",
+                filenameEn: "The main difference, and a wrapper of your own",
+                codeEn: `// fetch: a 404 also counts as "success", so you have to check it yourself
+const res = await fetch(url);
+if (!res.ok) throw new Error(\`HTTP \${res.status}\`);   // ← leave this line out and you get a bug
+const data = await res.json();
+
+// axios: it throws on anything that is not 2xx, and data is already parsed
+const { data } = await axios.get(url);
+
+// Wrap fetch yourself and you close most of the gap
+async function request(url, opts = {}) {
+  const c = new AbortController();
+  const t = setTimeout(() => c.abort(), opts.timeout ?? 10000);
+  try {
+    const res = await fetch(url, { ...opts, signal: c.signal });
+    if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+    return await res.json();
+  } finally {
+    clearTimeout(t);
+  }
+}`,
+              },
             ),
           ],
         },
