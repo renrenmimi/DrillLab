@@ -24,6 +24,8 @@ export const ivReactBasics: Module = {
       title: "React 是什么 · 七问",
       titleEn: "7 questions on what React is",
       blurb: "React vs Angular、优势、SPA、JSX、虚拟 DOM 与 diff、reconciliation、babel 与 webpack。",
+      blurbEn:
+        "React vs Angular, the selling points, SPA, JSX, the virtual DOM and diffing, reconciliation, babel and webpack.",
       minutes: 22,
       objectives: [
         "说清虚拟 DOM 为什么快，以及它「不一定比手写 DOM 快」这层真相",
@@ -31,12 +33,21 @@ export const ivReactBasics: Module = {
         "分清 SPA 的优点和它带来的三个新问题",
         "说明 JSX 编译成了什么",
       ],
+      objectivesEn: [
+        "Explain why the virtual DOM is fast, and also why it is not always faster than writing DOM calls yourself",
+        "Explain the three shortcuts the diffing algorithm takes, and say why key matters",
+        "Tell the benefits of a SPA apart from the three new problems it creates",
+        "Say what JSX compiles into",
+      ],
       whyForAssessment:
         "这一组考的是「心智模型」。虚拟 DOM 和 diff 答得空洞（只说「快」）会掉分，答得出「批量 + 最小化真实操作，代价是内存和一次 diff 计算」才算过关。key 那条会直接连到 Q1 里列表渲染的真实代码。",
+      whyForAssessmentEn:
+        "This group tests your mental model. Answering \"the virtual DOM is fast\" and nothing more will cost you points. To pass you have to say what it actually does: it batches updates and keeps real DOM work to a minimum, and it pays for that with memory and one diffing pass. The point about key connects straight to the list rendering code in Q1.",
       concepts: [
         {
           id: "q321",
           heading: "什么是 SPA",
+          headingEn: "What is a SPA?",
           lede: "#321 What is a SPA",
           body: (
             <>
@@ -149,6 +160,7 @@ export const ivReactBasics: Module = {
         {
           id: "q320",
           heading: "React 的优势是什么",
+          headingEn: "What are the advantages of React?",
           lede: "#320 React advantage",
           body: (
             <>
@@ -385,6 +397,7 @@ export const ivReactBasics: Module = {
         {
           id: "q326",
           heading: "什么是 JSX",
+          headingEn: "What is JSX?",
           lede: "#326 What is JSX",
           body: (
             <>
@@ -522,6 +535,7 @@ const el = React.createElement(
         {
           id: "q330",
           heading: "虚拟 DOM 和 diff 算法",
+          headingEn: "What are the virtual DOM and the diffing algorithm?",
           lede: "#330 Virtual DOM and diffing algorithm",
           body: (
             <>
@@ -688,6 +702,7 @@ const el = React.createElement(
         {
           id: "q353",
           heading: "什么是 reconciliation",
+          headingEn: "What is reconciliation?",
           lede: "#353 What is reconciliation",
           body: (
             <>
@@ -803,6 +818,7 @@ const el = React.createElement(
         {
           id: "q337",
           heading: "React 项目里 babel 和 webpack 干什么",
+          headingEn: "What do babel and webpack do in a React project?",
           lede: "#337 What do we use babel and web pack for in React applications",
           body: (
             <>
@@ -903,11 +919,36 @@ const el = React.createElement(
         },
       ],
       transfer: [
-        { signal: "问虚拟 DOM 为什么快", reachFor: "批量 + 最小化；并主动说「不一定比手写快」" },
-        { signal: "问 key", reachFor: "同层认身份；index 会导致误更新和输入串行" },
-        { signal: "问 Fiber", reachFor: "render 可中断、commit 不可中断" },
-        { signal: "问 SPA 缺点", reachFor: "首屏慢、SEO 差、路由自管、监听器要自己清" },
-        { signal: "「刷新页面 404」", reachFor: "服务端没配 history fallback" },
+        {
+          signal: "问虚拟 DOM 为什么快",
+          signalEn: "Asked why the virtual DOM is fast",
+          reachFor: "批量 + 最小化；并主动说「不一定比手写快」",
+          reachForEn: "It batches updates and keeps real DOM work small; add on your own that it is not always faster than hand-written DOM calls",
+        },
+        {
+          signal: "问 key",
+          signalEn: "Asked about key",
+          reachFor: "同层认身份；index 会导致误更新和输入串行",
+          reachForEn: "It identifies siblings at the same level; using the index updates the wrong row and moves typed input to the wrong field",
+        },
+        {
+          signal: "问 Fiber",
+          signalEn: "Asked about Fiber",
+          reachFor: "render 可中断、commit 不可中断",
+          reachForEn: "The render phase can be interrupted, the commit phase cannot",
+        },
+        {
+          signal: "问 SPA 缺点",
+          signalEn: "Asked for the downsides of a SPA",
+          reachFor: "首屏慢、SEO 差、路由自管、监听器要自己清",
+          reachForEn: "Slow first paint, weak SEO, routing you manage yourself, listeners you have to clean up",
+        },
+        {
+          signal: "「刷新页面 404」",
+          signalEn: "Reloading the page gives a 404",
+          reachFor: "服务端没配 history fallback",
+          reachForEn: "The server has no history fallback configured",
+        },
       ],
       recap: [
         "SPA 的代价是首屏慢、SEO 差、路由自己管、监听器不会自动清。",
@@ -917,6 +958,15 @@ const el = React.createElement(
         "diff 三规则：只比同层、类型不同整棵重建、同层用 key 认身份。",
         "reconciliation 是完整流程，Fiber 把它拆成可中断的 render 和不可中断的 commit。",
         "Babel 只转语法（新 API 靠 polyfill），Webpack 管打包；Babel 是 Webpack 流水线的一环。",
+      ],
+      recapEn: [
+        "What a SPA costs you: a slow first paint, weak SEO, routing you have to manage yourself, and listeners that are never cleaned up for you.",
+        "Three things React sells you: a declarative style, components, and one-way data flow. The downsides are picking your own libraries and tuning performance by hand.",
+        "JSX compiles into createElement, or _jsx since React 17; only an expression can go inside {}; text is escaped by default, which blocks XSS.",
+        "The virtual DOM is fast because it batches and keeps real DOM work small, but it is a trade between maintainability and speed, not a guaranteed win.",
+        "Three rules for diffing: compare only within the same level, rebuild the whole subtree when the type changes, and use key to identify siblings at the same level.",
+        "Reconciliation is the whole process; Fiber splits it into a render phase that can be interrupted and a commit phase that cannot.",
+        "Babel only converts syntax, so a new API still needs a polyfill; Webpack does the bundling, and Babel is one step in the Webpack pipeline.",
       ],
     },
 
