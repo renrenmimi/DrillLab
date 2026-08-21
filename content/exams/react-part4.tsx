@@ -2368,11 +2368,19 @@ function App() {
           kind: "debug",
           id: "r-lab-props-undefined",
           title: "故障 2 · props 名字对不上",
+          titleEn: "Fault 2 · the prop names do not match",
           level: 2,
           prompt: (
             <p>
               重构时把父组件传的 prop 名改了，子组件忘了跟着改。
               页面能显示，但点 Delete 直接崩。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              During a refactor the prop name passed by the parent was changed,
+              and the child component was not changed to match. The page still
+              renders, but clicking Delete crashes it.
             </p>
           ),
           errorOutput: `Uncaught TypeError: onDelete is not a function
@@ -2401,24 +2409,44 @@ export interface NoteItemProps {
   onEdit: (note: Note) => void;
 }
 const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
-            { filename: "两处不一致", highlight: [5, 12] },
+            {
+              filename: "两处不一致",
+              filenameEn: "The two places that disagree",
+              highlight: [5, 12],
+              codeEn: `// The name NoteTable passes down:
+<NoteItem
+  key={note.id}
+  note={note}
+  onRemove={onDelete}       // ← it passes onRemove
+  onEdit={onEdit}
+/>
+
+// The props interface of NoteItem, and how it destructures them:
+export interface NoteItemProps {
+  note: Note;
+  onDelete: (id: number) => void;   // ← it expects onDelete
+  onEdit: (note: Note) => void;
+}
+const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "模块解析错误" },
-              { id: "b", label: "类型 / 契约错误 —— props 名字两边不一致" },
-              { id: "c", label: "渲染循环" },
-              { id: "d", label: "测试查询错误" },
+              { id: "a", label: "模块解析错误", labelEn: "A module resolution error" },
+              { id: "b", label: "类型 / 契约错误 —— props 名字两边不一致", labelEn: "A type or contract error — the prop names differ on the two sides" },
+              { id: "c", label: "渲染循环", labelEn: "A render loop" },
+              { id: "d", label: "测试查询错误", labelEn: "A wrong query in the test" },
             ],
             answer: "b",
           },
           locate: {
             question: "该改哪一边？",
+            questionEn: "Which side should change?",
             options: [
-              { id: "a", label: "改 NoteTable：把 onRemove 改回 onDelete（子组件接口是契约，不该为调用方妥协）" },
-              { id: "b", label: "改 NoteItem 的接口，把 onDelete 改成 onRemove" },
-              { id: "c", label: "两边都保留，在 NoteItem 里写 onDelete ?? onRemove" },
-              { id: "d", label: "把 NoteItemProps 里的 onDelete 改成可选的" },
+              { id: "a", label: "改 NoteTable：把 onRemove 改回 onDelete（子组件接口是契约，不该为调用方妥协）", labelEn: "Change NoteTable: rename onRemove back to onDelete (the child interface is a contract and should not bend for the caller)" },
+              { id: "b", label: "改 NoteItem 的接口，把 onDelete 改成 onRemove", labelEn: "Change the NoteItem interface, renaming onDelete to onRemove" },
+              { id: "c", label: "两边都保留，在 NoteItem 里写 onDelete ?? onRemove", labelEn: "Keep both, and write onDelete ?? onRemove inside NoteItem" },
+              { id: "d", label: "把 NoteItemProps 里的 onDelete 改成可选的", labelEn: "Make onDelete optional in NoteItemProps" },
             ],
             answer: "a",
           },
@@ -2432,6 +2460,7 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
 />`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteTable/index.tsx",
             },
           ),
@@ -2458,7 +2487,37 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <strong>
+                  The names of the props are the interface contract of the
+                  component.
+                </strong>{" "}
+                <code>NoteItemProps</code> declares that it needs{" "}
+                <code>onDelete</code>, so the caller must pass{" "}
+                <code>onDelete</code>.
+              </p>
+              <p>
+                Now look at <strong>the order the errors arrive in</strong>: the
+                TypeScript TS2322 is reported{" "}
+                <strong>at compile time</strong>, while{" "}
+                <code>onDelete is not a function</code> only breaks{" "}
+                <strong>at run time</strong>.{" "}
+                <strong>Read the compile-time error first</strong> — it points
+                more precisely at the line that passes the wrong name.
+              </p>
+              <p>
+                Option D, making <code>onDelete</code> optional, is the classic
+                fix that just silences the compiler: the type error disappears,
+                the runtime crash stays, and now it is harder to find.{" "}
+                <strong>A type error is helping you. Do not go around it.</strong>
+              </p>
+            </>
+          ),
           verify: "npx tsc --noEmit   # 不应再有 TS2322；然后 npx vitest run",
+          verifyEn:
+            "npx tsc --noEmit   # TS2322 should be gone; then npx vitest run",
         },
         {
           kind: "debug",
