@@ -3,6 +3,7 @@
 // 课程页里需要交互的三小块。其余（讲解正文、代码、错例、迁移表）都在服务端渲染，
 // 这样 42 节课的全文不会被打进客户端包。
 
+import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { useProgress } from "@/lib/progress";
 import { useActiveHeading } from "@/lib/use-active-heading";
@@ -73,7 +74,9 @@ export function LessonDoneBar({
 export function LessonToc({
   items,
 }: {
-  items: { id: string; label: string }[];
+  // label 只用来渲染，所以收 ReactNode —— 段标题是双语的，
+  // 传进来的是 <T zh en />。用「中文 / English」斜杠格式会让每条目录长一倍。
+  items: { id: string; label: ReactNode }[];
 }) {
   const active = useActiveHeading(items.map((i) => i.id));
 

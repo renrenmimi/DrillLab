@@ -55,7 +55,11 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
   const tocItems = [
     ...lesson.concepts.map((c, i) => ({
       id: c.id,
-      label: `${String(i + 1).padStart(2, "0")} ${c.heading}`,
+      label: (
+        <>
+          {String(i + 1).padStart(2, "0")} <T zh={c.heading} en={c.headingEn} />
+        </>
+      ),
     })),
     ...(lesson.exercises?.length ? [{ id: "exercises", label: "练习 · 动手做 / Practice" }] : []),
     ...(lesson.mistakes?.length ? [{ id: "mistakes", label: "常见错误 / Common mistakes" }] : []),
@@ -79,7 +83,7 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
           index={index}
           total={total}
           title={<T zh={lesson.title} en={lesson.titleEn} />}
-          blurb={lesson.blurb}
+          blurb={<T zh={lesson.blurb} en={lesson.blurbEn} />}
           minutes={lesson.minutes}
           tags={
             <>
@@ -102,7 +106,9 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
 
         <LearningObjective
           objectives={lesson.objectives}
+          objectivesEn={lesson.objectivesEn}
           whyForAssessment={lesson.whyForAssessment}
+          whyForAssessmentEn={lesson.whyForAssessmentEn}
         />
 
         {lesson.sourceFiles && lesson.sourceFiles.length > 0 && (
@@ -118,8 +124,8 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
             key={c.id}
             id={c.id}
             n={String(i + 1).padStart(2, "0")}
-            title={c.heading}
-            lede={c.lede}
+            title={<T zh={c.heading} en={c.headingEn} />}
+            lede={c.lede ? <T zh={c.lede} en={c.ledeEn} /> : undefined}
           >
             {c.bodyEn ? (
               <AnswerTabs id={c.id} zh={c.body} en={c.bodyEn} />
@@ -198,7 +204,9 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
           </section>
         )}
 
-        {lesson.recap && lesson.recap.length > 0 && <Recap items={lesson.recap} />}
+        {lesson.recap && lesson.recap.length > 0 && (
+          <Recap items={lesson.recap} itemsEn={lesson.recapEn} />
+        )}
 
         <LessonDoneBar examId={examId} lessonId={lessonId} />
 

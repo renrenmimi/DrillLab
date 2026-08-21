@@ -63,8 +63,10 @@ export interface ConceptSection {
   /** 段内锚点 id，用于右侧目录 */
   id: string;
   heading: string;
+  headingEn?: string;
   /** 一句话副标，写「这一段到底在解决什么」 */
   lede?: string;
+  ledeEn?: string;
   body: ReactNode;
   /**
    * 英文版正文。给了它，这一段就会长出「中文 / English」两个 tab。
@@ -233,23 +235,42 @@ export interface Lesson {
   titleEn?: string;
   /** 侧栏用的一行钩子 */
   blurb: string;
+  blurbEn?: string;
   /** 阅读时长（分钟，诚实估） */
   minutes: number;
   /** 「学完这节你会…」 */
   objectives: string[];
+  /**
+   * 英文版。
+   *
+   * 【长度必须和中文一致】
+   * 这是两个平行数组，不是一个双语数组。逐项对齐靠的是下标，
+   * 所以长度一旦不等，第 3 条中文就会配上第 3 条不存在的英文。
+   * 渲染那一侧（components/lesson-kit.tsx 的 LearningObjective）
+   * 发现长度不等就**整段回落中文** —— 宁可全中文，也不要错位。
+   */
+  objectivesEn?: string[];
   /** 「这在考试里考什么」—— 没有考点的课不该存在 */
   whyForAssessment: string;
+  whyForAssessmentEn?: string;
   concepts: ConceptSection[];
   /** 涉及的源项目文件。edit: true 表示「这个文件需要你动手改」，页面上会高亮 */
   sourceFiles?: { path: string; role: string; edit?: boolean }[];
   callouts?: Callout[];
   exercises?: Exercise[];
   /** 常见错误 */
-  mistakes?: { wrong: CodeExample; why: ReactNode }[];
+  mistakes?: { wrong: CodeExample; why: ReactNode; whyEn?: ReactNode }[];
   /** 迁移模式：看到什么信号 → 想到什么解法 */
-  transfer?: { signal: string; reachFor: string }[];
+  transfer?: {
+    signal: string;
+    reachFor: string;
+    signalEn?: string;
+    reachForEn?: string;
+  }[];
   /** 要点回顾 */
   recap?: string[];
+  /** 英文版。长度必须和 recap 一致 —— 理由见 objectivesEn */
+  recapEn?: string[];
 }
 
 export interface Module {
