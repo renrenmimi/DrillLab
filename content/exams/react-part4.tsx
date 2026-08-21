@@ -1613,6 +1613,7 @@ export const reactMastery: Module = {
       title: "Debug Lab · React 十种典型故障",
       titleEn: "Debug Lab · ten typical React failures",
       blurb: "每一种都给真实报错（或真实的「没有报错」），你来判断、定位、修复、验证。",
+      blurbEn: "Each failure comes with the real error message, or with the real silence. You decide what it is, find it, fix it, and check the fix.",
       minutes: 20,
       objectives: [
         "看到报错能先判断类型，再决定去哪个文件找",
@@ -1620,8 +1621,16 @@ export const reactMastery: Module = {
         "养成「改完必须跑一遍验证」的习惯",
         "把错误信息和根因建立稳定的对应关系",
       ],
+      objectivesEn: [
+        "See an error and first decide its type, then decide which file to open",
+        "Recognise the symptoms of the bugs that report no error at all",
+        "Build the habit of running a check after every fix",
+        "Build a reliable link between an error message and its root cause",
+      ],
       whyForAssessment:
         "考场上大部分时间不是在写新代码，是在查为什么不对。会读报错的人和不会读的人，同样的知识水平能差出一倍速度。",
+      whyForAssessmentEn:
+        "During the exam most of your time is not spent writing new code. It is spent finding out why the code is wrong. With the same knowledge, someone who reads error messages well works about twice as fast as someone who does not.",
       sourceFiles: [
         { path: "react-notes-app/src/", role: "所有故障都基于这个项目的真实代码" },
       ],
@@ -1629,7 +1638,9 @@ export const reactMastery: Module = {
         {
           id: "triage",
           heading: "先分诊：这个报错属于哪一类",
+          headingEn: "Sort it first: which kind of error is this?",
           lede: "拿到报错的第一件事不是改代码，是归类。",
+          ledeEn: "The first thing to do with an error is not to change code. It is to put the error in a category.",
           body: (
             <>
               <p>React 项目的故障基本就这五类。归对类，排查范围立刻缩小：</p>
@@ -1732,6 +1743,7 @@ export const reactMastery: Module = {
         {
           id: "no-error-bugs",
           heading: "「不报错」的四种 bug，记住它们的症状",
+          headingEn: "Four bugs that report no error: learn their symptoms",
           body: (
             <>
               <div className="table-wrap">
@@ -1808,6 +1820,7 @@ export const reactMastery: Module = {
         {
           id: "verify-habit",
           heading: "改完必须验证 —— 而且要验证到题面要求那一层",
+          headingEn: "Always check a fix, and check it against what the question asked for",
           body: (
             <>
               <p>
@@ -2228,11 +2241,11 @@ console.log("after:", notes);
         },
       ],
       transfer: [
-        { signal: "Failed to resolve import", reachFor: "路径拼写 / 大小写 / 文件是否存在" },
-        { signal: "TS2322 Property 'x' is missing", reachFor: "props 名字两边对不上，改调用方" },
-        { signal: "Unable to find an element by [data-testid=…]", reachFor: "在报错打印的 DOM 里搜相似 testid" },
-        { signal: "没报错 + 日志对 + 屏幕不动", reachFor: "改了原对象：push / splice / arr[i]= / obj.x=" },
-        { signal: "Maximum update depth exceeded", reachFor: "useEffect 依赖，或 onClick 写成了 fn()" },
+        { signal: "Failed to resolve import", reachFor: "路径拼写 / 大小写 / 文件是否存在", reachForEn: "Check the spelling of the path, the upper and lower case, and whether the file exists" },
+        { signal: "TS2322 Property 'x' is missing", reachFor: "props 名字两边对不上，改调用方", reachForEn: "The prop names do not match on the two sides; fix the caller" },
+        { signal: "Unable to find an element by [data-testid=…]", reachFor: "在报错打印的 DOM 里搜相似 testid", reachForEn: "Search the DOM printed with the error for a similar data-testid" },
+        { signal: "没报错 + 日志对 + 屏幕不动", signalEn: "No error, the logs look right, and the screen does not change", reachFor: "改了原对象：push / splice / arr[i]= / obj.x=", reachForEn: "You changed the original object: push / splice / arr[i]= / obj.x=" },
+        { signal: "Maximum update depth exceeded", reachFor: "useEffect 依赖，或 onClick 写成了 fn()", reachForEn: "Look at the useEffect dependencies, or an onClick written as fn()" },
       ],
       recap: [
         "先分诊后动手：模块路径 / 类型 / 渲染循环 / 状态更新 / 测试查询。",
@@ -2240,6 +2253,13 @@ console.log("after:", notes);
         "Testing Library 失败时会打印整个 DOM —— 在里面搜你期望的 testid。",
         "编译期报错比运行时报错更精确，先修编译期的。",
         "验证要到题面那一层：测试过 ≠ 做对，还得手动跑三个场景。",
+      ],
+      recapEn: [
+        "Sort the error before you touch anything: module path, type, render loop, state update, or test query.",
+        "Bugs with no error message are found by their symptoms, and the most common one is changing the original object.",
+        "When Testing Library fails it prints the whole DOM. Search that output for the data-testid you expected.",
+        "A compile-time error is more precise than a runtime one, so fix the compile-time errors first.",
+        "Check your work against the question, not against the tests: passing tests do not mean it is right, so run the three cases by hand.",
       ],
     },
 
