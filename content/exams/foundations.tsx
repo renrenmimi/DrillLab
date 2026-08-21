@@ -2966,6 +2966,7 @@ await task();    // ✓ right: call it first, then wait for what it returns`,
 }`,
                   {
                     filename: "真实项目里的 Promise.all",
+                    filenameEn: "Promise.all in a real project",
                     sourceFile:
                       "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
                     explanation:
@@ -3115,6 +3116,7 @@ task 6 DONE    (running now: 0)`,
 }`,
                   {
                     filename: "Q2 里的 try/catch（参考答案节选）",
+                    filenameEn: "try/catch in Q2 (excerpt of the reference answer)",
                     sourceFile: "react-notes-app/q2/taskRunner.ts",
                     explanation:
                       "关键点：catch 之后 worker 没有退出，循环继续。所以一个任务失败不会连累其他任务 —— 这正是「NEVER throws」的实现方式。",
@@ -3532,6 +3534,7 @@ import {
 Did you mean to import "./resolvers/orderResolvers.js"?`,
                   {
                     filename: "漏写 .js 的报错",
+                    filenameEn: "The error when .js is left off",
                     explanation:
                       "好消息是 Node 现在会给出 Did you mean 提示。看到 ERR_MODULE_NOT_FOUND，第一反应应该是「后缀漏了」，而不是「路径写错了」。",
                   },
@@ -4397,6 +4400,7 @@ export async function runTasks<T>(
 ): Promise<SettledResult<T>[]> { ... }`,
                   {
                     filename: "q2/taskRunner.ts：自己定义泛型",
+                    filenameEn: "q2/taskRunner.ts: defining your own generic",
                     sourceFile: "react-notes-app/q2/taskRunner.ts",
                     explanation:
                       "这里的 T 是「任务成功时返回什么类型」。runTasks 自己不关心 T 到底是什么，它只负责保证：你给我 Task<string>[]，我还你 SettledResult<string>[]。这就是泛型的价值 —— 同一份实现服务所有类型。",
