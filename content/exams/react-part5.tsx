@@ -5369,7 +5369,27 @@ setComments(next);`,
     </Sidebar>
   </Layout>
 </ThemeProvider>`,
-              { filename: "两种传法" },
+              {
+                filename: "两种传法",
+                filenameEn: "Two ways to pass it down",
+                codeEn: `// ✗ prop drilling: the three middle layers never use theme, they just hand it on
+<App theme={theme}>
+  <Layout theme={theme}>
+    <Sidebar theme={theme}>
+      <ThemedCard theme={theme} />   {/* 只有这里真的要用 */}
+    </Sidebar>
+  </Layout>
+</App>
+
+// ✓ Context: the middle layers have nothing to do
+<ThemeProvider>
+  <Layout>
+    <Sidebar>
+      <ThemedCard />                 {/* 自己去 context 里取 */}
+    </Sidebar>
+  </Layout>
+</ThemeProvider>`,
+              },
             ),
           ],
         },
@@ -5532,7 +5552,18 @@ export function useTheme(): ThemeContextValue {
   if (!ctx) throw new Error("useTheme 必须在 <ThemeProvider> 里面用");
   return ctx;
 }`,
-              { filename: "自定义 hook + 守卫" },
+              {
+                filename: "自定义 hook + 守卫",
+                filenameEn: "A custom hook plus a guard",
+                codeEn: `const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  // The guard does two things: gives a readable error, and narrows the type away from undefined
+  if (!ctx) throw new Error("useTheme has to be used inside <ThemeProvider>");
+  return ctx;
+}`,
+              },
             ),
           ],
         },
@@ -5603,7 +5634,12 @@ export function useTheme(): ThemeContextValue {
               `const toggleTheme = useCallback(() => {
   setTheme((prev) => (prev === "light" ? "dark" : "light"));
 }, []);   // 空依赖：内部不读任何外部变量，所以永远不用重建`,
-              { filename: "toggleTheme" },
+              {
+                filename: "toggleTheme",
+                codeEn: `const toggleTheme = useCallback(() => {
+  setTheme((prev) => (prev === "light" ? "dark" : "light"));
+}, []);   // empty deps: the body reads no outside variable, so it never needs rebuilding`,
+              },
             ),
             demo(
               "tsx",
@@ -5615,6 +5651,16 @@ const toggleTheme = () => {
 // 单次点击看不出问题，但：
 onClick={() => { toggleTheme(); toggleTheme(); }}
 // 期望回到 light，实际停在 dark —— 两次都读到同一个旧值`,
+              {
+                codeEn: `// ✗ Reading theme out of the closure
+const toggleTheme = () => {
+  setTheme(theme === "light" ? "dark" : "light");
+};
+
+// One click hides the problem, but:
+onClick={() => { toggleTheme(); toggleTheme(); }}
+// You expect light again; it stops on dark, because both calls read the same old value`,
+              },
             ),
           ],
         },
@@ -5693,6 +5739,14 @@ return (
     {children}
   </ThemeContext.Provider>
 );`,
+              {
+                codeEn: `// ✗ A new object on every render -> every consumer re-renders with it
+return (
+  <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    {children}
+  </ThemeContext.Provider>
+);`,
+              },
             ),
             tested(
               "tsx",
@@ -5700,7 +5754,14 @@ return (
 const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
 
 return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;`,
-              { filename: "记忆化之后" },
+              {
+                filename: "记忆化之后",
+                filenameEn: "After memoizing it",
+                codeEn: `// ✓ While theme does not change, value stays the very same object
+const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+
+return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;`,
+              },
             ),
             tested(
               "bash",
@@ -5714,7 +5775,20 @@ $ npx vitest run src/Theme.test.tsx
 
 # 注意：功能测试全都还是绿的 —— 主题该切也切，颜色该变也变。
 # 挂掉的只有这条性能相关的。这正是「测试通过 ≠ 做对了」。`,
-              { filename: "本机实测：漏掉 useMemo 的后果" },
+              {
+                filename: "本机实测：漏掉 useMemo 的后果",
+                filenameEn: "Measured here: what a missing useMemo costs",
+                codeEn: `# The real output after deleting useMemo and passing the object literal straight through
+$ npx vitest run src/Theme.test.tsx
+
+ ✕ theme 没变时 context value 不换新对象（useMemo 生效）
+   AssertionError: expected 2 to be 1 // Object.is equality
+
+ Tests  1 failed | 7 passed (8)
+
+# Note: every functional test is still green. The theme switches, the colours change.
+# The only failure is the one about performance. That is exactly why passing tests are not proof.`,
+              },
             ),
           ],
         },
