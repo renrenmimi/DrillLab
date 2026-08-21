@@ -3048,8 +3048,28 @@ const warn = log("WARN");
 warn("磁盘快满了");     // [WARN] 磁盘快满了`,
               {
                 filename: "柯里化",
+                filenameEn: "Currying",
+                codeEn: `// A generic curry by hand: if there are enough arguments, run; otherwise keep collecting
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) return fn.apply(this, args);
+    return (...rest) => curried.apply(this, [...args, ...rest]);
+  };
+}
+
+const add = curry((a, b, c) => a + b + c);
+add(1)(2)(3);      // 6
+add(1, 2)(3);      // 6
+add(1)(2, 3);      // 6
+
+// A real use: reusing an argument
+const log = (level) => (msg) => console.log(\`[\${level}] \${msg}\`);
+const warn = log("WARN");
+warn("disk almost full");   // [WARN] disk almost full`,
                 explanation:
                   "关键是 fn.length —— 函数声明时的形参个数。注意带默认值或 ...rest 的参数不计入 length，所以这个通用实现对它们不适用。",
+                explanationEn:
+                  "The key is fn.length —— the number of parameters the function declares. Note that a parameter with a default value, and a ...rest parameter, do not count towards length, so this generic implementation does not work for them.",
               },
             ),
           ],
