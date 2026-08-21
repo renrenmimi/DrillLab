@@ -2267,12 +2267,23 @@ if (error instanceof GraphQLError) throw error;`,
           kind: "from-scratch",
           id: "g-rebuild-controller",
           title: "从零重建 Task 2 · Spring Boot 控制器",
+          titleEn: "Rebuild Task 2 · the Spring Boot controller",
           level: 4,
           prompt: (
             <p>
               给你 <code>OrderService</code> 的方法签名和五个测试。
               自己搭一个 Spring Boot 项目，写出六个端点。
               <strong>不要打开源项目的 OrderController.java。</strong>
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You are given the method signatures of <code>OrderService</code>{" "}
+              and five tests. Set up a Spring Boot project yourself and write six
+              endpoints.{" "}
+              <strong>
+                Do not open OrderController.java from the source project.
+              </strong>
             </p>
           ),
           requirements: [
@@ -2288,27 +2299,44 @@ if (error instanceof GraphQLError) throw error;`,
             "自己写一个 CorrelationIdFilter：读 X-Correlation-ID 头，没有就生成 UUID，放进 MDC，finally 里清理",
             "自己写 GlobalExceptionHandler：EntityNotFoundException → 404，MethodArgumentNotValidException → 400",
           ],
+          requirementsEn: [
+            "Spring Boot 3.3 + Java 17, with the web / validation / actuator / test dependencies",
+            "One @RestController, with OrderService injected through the constructor",
+            "GET /api/orders: filter by user when ?userId= is given, return everything when it is not; 200",
+            "GET /api/orders/{id}: 200; when nothing is found, the global exception handler answers 404 (do not catch it in the controller)",
+            "GET /api/orders/user/{userId}: 200",
+            "POST /api/orders: validate the request body with @Valid; on success return 201 Created",
+            'PATCH /api/orders/{id}/status: the body is {"status":"..."}; convert it to OrderStatus; a missing or invalid value returns 400; on success 200',
+            "DELETE /api/orders/{id}: 204 No Content",
+            "All six endpoints log through SLF4J and carry the correlationId from MDC",
+            "Write your own CorrelationIdFilter: read the X-Correlation-ID header, generate a UUID when it is absent, put it in MDC, and clear it in finally",
+            "Write your own GlobalExceptionHandler: EntityNotFoundException → 404, MethodArgumentNotValidException → 400",
+          ],
           fileList: [
             {
               path: "pom.xml",
               role: "parent 用 spring-boot-starter-parent 3.3.2，java.version 17，四个依赖 + spring-boot-maven-plugin",
+              roleEn:
+                "The parent is spring-boot-starter-parent 3.3.2, java.version is 17, four dependencies + spring-boot-maven-plugin",
             },
-            { path: "src/main/resources/application.properties", role: "server.port=8080 就够（顺便按书面题的结论收紧 actuator）" },
+            { path: "src/main/resources/application.properties", role: "server.port=8080 就够（顺便按书面题的结论收紧 actuator）", roleEn: "server.port=8080 is enough (and tighten actuator while you are here, following the written question)" },
             { path: "src/main/java/.../OrderServiceApplication.java", role: "@SpringBootApplication + main" },
-            { path: "src/main/java/.../model/Order.java、OrderItem.java、OrderStatus.java", role: "★ 抄源项目的（这是题目）" },
-            { path: "src/main/java/.../dto/CreateOrderRequest.java、OrderItemRequest.java", role: "★ 抄源项目的：带 @NotBlank / @NotEmpty / @Min / @Valid" },
-            { path: "src/main/java/.../repository/OrderRepository.java、InMemoryOrderRepository.java", role: "★ 抄源项目的：接口 + 内存实现（含一条种子数据）" },
-            { path: "src/main/java/.../service/OrderService.java", role: "★ 抄源项目的（这是题目）：六个方法，三个会抛 EntityNotFoundException" },
-            { path: "src/main/java/.../exception/EntityNotFoundException.java、GlobalExceptionHandler.java", role: "★ 自己写：两个 @ExceptionHandler" },
-            { path: "src/main/java/.../config/CorrelationIdFilter.java", role: "★ 自己写：OncePerRequestFilter + MDC" },
-            { path: "src/main/java/.../controller/OrderController.java", role: "★★ 自己写：六个端点" },
-            { path: "src/test/java/.../OrderControllerTest.java", role: "★ 抄源项目的（这是判卷器）：@WebMvcTest + @MockBean + 五个测试" },
+            { path: "src/main/java/.../model/Order.java、OrderItem.java、OrderStatus.java", role: "★ 抄源项目的（这是题目）", roleEn: "★ Copy it from the source project (this is the question)" },
+            { path: "src/main/java/.../dto/CreateOrderRequest.java、OrderItemRequest.java", role: "★ 抄源项目的：带 @NotBlank / @NotEmpty / @Min / @Valid", roleEn: "★ Copy it from the source project: it carries @NotBlank / @NotEmpty / @Min / @Valid" },
+            { path: "src/main/java/.../repository/OrderRepository.java、InMemoryOrderRepository.java", role: "★ 抄源项目的：接口 + 内存实现（含一条种子数据）", roleEn: "★ Copy it from the source project: the interface + an in-memory implementation (with one seed record)" },
+            { path: "src/main/java/.../service/OrderService.java", role: "★ 抄源项目的（这是题目）：六个方法，三个会抛 EntityNotFoundException", roleEn: "★ Copy it from the source project (this is the question): six methods, three of which throw EntityNotFoundException" },
+            { path: "src/main/java/.../exception/EntityNotFoundException.java、GlobalExceptionHandler.java", role: "★ 自己写：两个 @ExceptionHandler", roleEn: "★ You write it: two @ExceptionHandler methods" },
+            { path: "src/main/java/.../config/CorrelationIdFilter.java", role: "★ 自己写：OncePerRequestFilter + MDC", roleEn: "★ You write it: OncePerRequestFilter + MDC" },
+            { path: "src/main/java/.../controller/OrderController.java", role: "★★ 自己写：六个端点", roleEn: "★★ You write it: six endpoints" },
+            { path: "src/test/java/.../OrderControllerTest.java", role: "★ 抄源项目的（这是判卷器）：@WebMvcTest + @MockBean + 五个测试", roleEn: "★ Copy it from the source project (this is what grades you): @WebMvcTest + @MockBean + five tests" },
           ],
           commands: [
             { cmd: "mvn test", expect: "Tests run: 5, Failures: 0, Errors: 0 — BUILD SUCCESS" },
             {
               cmd: "mvn spring-boot:run",
               expect: "服务起在 8080，日志里能看到 Started OrderServiceApplication",
+              expectEn:
+                "The service starts on 8080, and the log shows Started OrderServiceApplication",
             },
             {
               cmd: 'curl -i -s localhost:8080/api/orders/999',
@@ -2317,22 +2345,28 @@ if (error instanceof GraphQLError) throw error;`,
             {
               cmd: `curl -i -s -X POST localhost:8080/api/orders -H 'Content-Type: application/json' -d '{"userId":"123","items":[{"productId":"prod-789","quantity":2}]}'`,
               expect: "201 Created + 订单 JSON（totalAmount 应为 299.98）",
+              expectEn: "201 Created + the order JSON (totalAmount should be 299.98)",
             },
             {
               cmd: `curl -i -s -X POST localhost:8080/api/orders -H 'Content-Type: application/json' -d '{"userId":"","items":[]}'`,
               expect: "400 Bad Request（Bean Validation 生效）",
+              expectEn: "400 Bad Request (Bean Validation is working)",
             },
             {
               cmd: `curl -i -s -X PATCH localhost:8080/api/orders/1/status -H 'Content-Type: application/json' -d '{"status":"FLYING"}'`,
               expect: "400 Bad Request（不是 500）",
+              expectEn: "400 Bad Request (not 500)",
             },
             {
               cmd: "curl -i -s -X DELETE localhost:8080/api/orders/1",
               expect: "204 No Content，body 为空",
+              expectEn: "204 No Content, with an empty body",
             },
             {
               cmd: `curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               expect: "响应头里有同一个 X-Correlation-ID；服务端日志里也是它",
+              expectEn:
+                "The response header carries the same X-Correlation-ID, and so does the server log",
             },
           ],
           hints: [
@@ -2370,6 +2404,52 @@ orderService.deleteOrder(id);
 return ResponseEntity.noContent().build();
 
 // ③ PATCH 的安全转换
+String raw = statusUpdate.get("status");
+if (raw == null || raw.isBlank()) {
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
+}
+final OrderStatus status;
+try {
+    status = OrderStatus.valueOf(raw.trim().toUpperCase());
+} catch (IllegalArgumentException ex) {
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown status: " + raw);
+}`,
+          ],
+          hintsEn: [
+            'Answer two questions for each of the six endpoints first: "on success, is there content to return?" and "did it create a new resource?" Those two answers settle the status code. Then ask one more: "when nothing is found, whose job is it?"',
+            'For 201 use ResponseEntity.status(HttpStatus.CREATED).body(...); for 204 use ResponseEntity.noContent().build(). Hand EntityNotFoundException to @RestControllerAdvice and do not catch it in the controller. The only place that should try/catch is the enum conversion in PATCH, because IllegalArgumentException has to become a 400. Read correlationId with MDC.get("correlationId") instead of passing it down as a parameter.',
+            `getAllOrders(userId):
+  userId is null or blank -> service.getAllOrders(), otherwise service.getOrdersByUserId(userId)
+  ok(result)
+
+getOrderById(id):  ok(service.getOrderById(id))       // do not catch; let the 404 travel up
+getOrdersByUserId: ok(service.getOrdersByUserId(userId))
+createOrder:       status(CREATED).body(service.createOrder(request))
+
+updateOrderStatus(id, map):
+  raw = map.get("status")
+  raw is empty -> throw ResponseStatusException(BAD_REQUEST, ...)
+  try { status = OrderStatus.valueOf(raw.trim().toUpperCase()) }
+  catch (IllegalArgumentException) -> throw ResponseStatusException(BAD_REQUEST, ...)
+  ok(service.updateOrderStatus(id, status))
+
+deleteOrder(id):   service.deleteOrder(id); noContent().build()
+
+CorrelationIdFilter:
+  extends OncePerRequestFilter
+  read the header, use UUID.randomUUID() when empty
+  MDC.put + response.setHeader
+  try { chain.doFilter } finally { MDC.remove }   // threads are reused, so it must be cleared`,
+            `// The three points that lose the most marks, given to you directly:
+
+// ① the status code for POST
+return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request));
+
+// ② the status code for DELETE
+orderService.deleteOrder(id);
+return ResponseEntity.noContent().build();
+
+// ③ the safe conversion in PATCH
 String raw = statusUpdate.get("status");
 if (raw == null || raw.isBlank()) {
     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
@@ -2464,6 +2544,86 @@ public class OrderController {
 }`,
               {
                 filename: "OrderController.java（参考答案，实测 mvn test 5/5 通过）",
+                filenameEn:
+                  "OrderController.java (reference answer, measured with mvn test 5/5 passing)",
+                codeEn: `@RestController
+public class OrderController {
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
+    private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @GetMapping("/api/orders")
+    public ResponseEntity<List<Order>> getAllOrders(
+            @RequestParam(required = false) String userId) {
+        logger.info("GET /api/orders userId={}, correlationId={}", userId, correlationId());
+
+        List<Order> orders = (userId == null || userId.isBlank())
+                ? orderService.getAllOrders()
+                : orderService.getOrdersByUserId(userId);
+
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/api/orders/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+        logger.info("GET /api/orders/{} correlationId={}", id, correlationId());
+        // When nothing is found the service throws EntityNotFoundException -> GlobalExceptionHandler turns it into 404
+        return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    @GetMapping("/api/orders/user/{userId}")
+    public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable String userId) {
+        logger.info("GET /api/orders/user/{} correlationId={}", userId, correlationId());
+        return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
+    }
+
+    @PostMapping("/api/orders")
+    public ResponseEntity<Order> createOrder(
+            @Valid @RequestBody CreateOrderRequest request) {
+        logger.info("POST /api/orders userId={}, correlationId={}",
+                request.getUserId(), correlationId());
+
+        Order created = orderService.createOrder(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);   // 201
+    }
+
+    @PatchMapping("/api/orders/{id}/status")
+    public ResponseEntity<Order> updateOrderStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> statusUpdate) {
+        String raw = statusUpdate.get("status");
+        logger.info("PATCH /api/orders/{}/status status={}, correlationId={}",
+                id, raw, correlationId());
+
+        if (raw == null || raw.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
+        }
+
+        final OrderStatus status;
+        try {
+            status = OrderStatus.valueOf(raw.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown status: " + raw);
+        }
+
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
+    }
+
+    @DeleteMapping("/api/orders/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+        logger.info("DELETE /api/orders/{} correlationId={}", id, correlationId());
+        orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();                        // 204
+    }
+
+    private String correlationId() {
+        return MDC.get("correlationId");
+    }
+}`,
                 collapsible: true,
               },
             ),
@@ -2522,6 +2682,28 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 }`,
               {
                 filename: "CorrelationIdFilter.java",
+                codeEn: `@Component
+public class CorrelationIdFilter extends OncePerRequestFilter {
+    private static final String HEADER = "X-Correlation-ID";
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String correlationId = request.getHeader(HEADER);
+        if (correlationId == null || correlationId.isBlank()) {
+            correlationId = UUID.randomUUID().toString();
+        }
+
+        MDC.put("correlationId", correlationId);
+        response.setHeader(HEADER, correlationId);
+
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            MDC.remove("correlationId");   // threads are reused, so this must be cleared
+        }
+    }
+}`,
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/config/CorrelationIdFilter.java",
                 collapsible: true,
