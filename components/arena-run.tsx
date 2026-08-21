@@ -112,7 +112,12 @@ export function ArenaRun({ id }: { id: string }) {
         <div className="minihead">
           <T zh="验收命令 —— 交卷后要逐条自评" en="Acceptance commands — you will self-assess each one" />
         </div>
-        <TerminalCommand steps={a.commands.map((c) => ({ cmd: c.cmd, out: c.expect }))} />
+        <TerminalCommand
+          steps={a.commands.map((c) => ({
+            cmd: c.cmd,
+            out: c.expectEn ? { zh: c.expect, en: c.expectEn } : c.expect,
+          }))}
+        />
 
         <div className="callout" data-tone="note">
           <strong className="callout-title">

@@ -833,6 +833,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         {
           tone: "warn",
           title: "这个项目磁盘上的代码已经是做完的版本",
+          titleEn: "The code on disk for this project is already the finished version",
           body: (
             <p>
               审计发现：<code>react-notes-app/src/components/</code> 里

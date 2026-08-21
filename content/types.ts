@@ -413,7 +413,7 @@ export interface MockExam {
   }[];
   starter: CodeExample[];
   tests?: CodeExample[];
-  commands?: { cmd: string; expect: string }[];
+  commands?: { cmd: string; expect: string; expectEn?: string }[];
   /** 交卷后才展示 */
   walkthrough: ConceptSection[];
   solution: CodeExample[];
@@ -504,7 +504,7 @@ export interface CodingProblem {
   /** runnable 时必填 */
   sandbox?: SandboxSpec;
   /** 不可运行时给终端命令 */
-  commands?: { cmd: string; expect: string }[];
+  commands?: { cmd: string; expect: string; expectEn?: string }[];
   /** 「展开讲解」引用哪一节 */
   explainLessonId?: string;
   /** 参考答案，放在门后 */
@@ -557,7 +557,7 @@ export interface ArenaChallenge {
   requirements: string[];
   fileList: { path: string; role: string }[];
   /** 本机验收命令 */
-  commands: { cmd: string; expect: string }[];
+  commands: { cmd: string; expect: string; expectEn?: string }[];
   /** 从哪个 from-scratch / mock 派生（复用现有内容，不新写） */
   sourceExerciseId?: string;
   sourceMockId?: string;

@@ -979,6 +979,7 @@ Tests:       6 failed, 4 passed, 10 total`,
         {
           tone: "note",
           title: "这个项目是重建版",
+          titleEn: "This project is a rebuild",
           body: (
             <p>
               这个参考项目是<strong>为练习专门搭的</strong>：结构、TODO、测试、

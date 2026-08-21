@@ -55,7 +55,7 @@ export function ArenaCheckoff({
   id: string;
   title: string;
   minutes: number;
-  commands: { cmd: string; expect: string }[];
+  commands: { cmd: string; expect: string; expectEn?: string }[];
   /** 提示 + 参考答案 + 讲解链接。自评完成前**不渲染**，不是隐藏。 */
   children: ReactNode;
 }) {
@@ -129,7 +129,7 @@ export function ArenaCheckoff({
               <span className="arena-check-cmd mono">{c.cmd}</span>
               <span className="arena-check-exp">
                 <T zh="期望：" en="expected: " />
-                {c.expect}
+                <T zh={c.expect} en={c.expectEn} />
               </span>
             </label>
           ))}
@@ -276,7 +276,7 @@ export function ArenaCheckoff({
                     <span className="arena-check-cmd mono">{c.cmd}</span>
                     <span className="arena-check-exp">
                       <T zh="期望：" en="expected: " />
-                      {c.expect}
+                      <T zh={c.expect} en={c.expectEn} />
                     </span>
                   </label>
                 ))}

@@ -530,6 +530,7 @@ const reviewsMock: MockExam = {
     {
       id: "t1",
       title: "Task 1 · Author 上的两个字段",
+      titleEn: "Task 1 · The two fields on Author",
       requirement: [
         "Author.reviews：按 author.id 取全部评论。schema 是 [Review!]!，绝不返回 null",
         "Author.averageRating：用 ratingDataSource.computeAverage 计算。schema 是 Float（可空），没有评论时返回 null",
@@ -546,6 +547,7 @@ const reviewsMock: MockExam = {
     {
       id: "t2",
       title: "Task 2 · 复合 key 的 entity",
+      titleEn: "Task 2 · An entity with a composite key",
       requirement: [
         'Book.__resolveReference：Book 的 @key 是 "isbn edition" 两个字段，返回的对象必须同时保留这两个',
         "Book.reviews：必须同时按 isbn 和 edition 过滤 —— 只按 isbn 会把其他版本的评论混进来",
@@ -560,6 +562,7 @@ const reviewsMock: MockExam = {
     {
       id: "t3",
       title: "Task 3 · Review.reviewer 与 DataLoader 契约",
+      titleEn: "Task 3 · Review.reviewer and the DataLoader contract",
       requirement: [
         "Review.reviewer：用 loaders.reviewerLoader 防 N+1，不许直接调数据源",
         "schema 里 reviewer 可空，找不到时返回 null（测试断言 toBeNull）",
@@ -575,6 +578,7 @@ const reviewsMock: MockExam = {
     {
       id: "t4",
       title: "Task 4 · 两个 Query",
+      titleEn: "Task 4 · The two queries",
       requirement: [
         "Query.review：用 reviewLoader；找不到抛带 REVIEW_NOT_FOUND code 的 GraphQLError",
         "Query.reviews：校验 authorId；schema 是 [Review!]! 所以兜底 []",
@@ -589,6 +593,7 @@ const reviewsMock: MockExam = {
     {
       id: "t5",
       title: "Task 5 · 修好 Mutation.createReview",
+      titleEn: "Task 5 · Fix Mutation.createReview",
       requirement: [
         "它注释说「提供作参考」，但它是坏的 —— 自己找出并修好全部问题",
         "至少有三处：数据源键名、insertReview 的调用方式、以及 catch 吞掉结构化错误",
@@ -604,6 +609,7 @@ const reviewsMock: MockExam = {
     {
       id: "t6",
       title: "Task 6 · 验证",
+      titleEn: "Task 6 · Verify",
       requirement: [
         "npm test 全部 14 个测试通过",
         "自己写一个 verify 脚本：查 _service 的 SDL、用 _entities 分别解析 Author 和 Book（后者要传两个 key 字段）",
@@ -657,8 +663,13 @@ const reviewsMock: MockExam = {
     }),
   ],
   commands: [
-    { cmd: "npm install", expect: "依赖装好" },
-    { cmd: "npm test", expect: "Tests: 14 passed, 14 total（starter 状态下的基线是 10 failed / 4 passed）" },
+    { cmd: "npm install", expect: "依赖装好", expectEn: "Dependencies installed" },
+    {
+      cmd: "npm test",
+      expect: "Tests: 14 passed, 14 total（starter 状态下的基线是 10 failed / 4 passed）",
+      expectEn:
+        "Tests: 14 passed, 14 total (the baseline in the starter state is 10 failed / 4 passed)",
+    },
     {
       cmd: "node verify-schema.mjs",
       expect:

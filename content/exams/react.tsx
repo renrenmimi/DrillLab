@@ -221,6 +221,7 @@ const ticketMock: MockExam = {
     {
       id: "t3",
       title: "Task 3 · Reassign（就地编辑）",
+      titleEn: "Task 3 · Reassign (edit in place)",
       requirement: [
         "点某一行的 Reassign：标题和优先级回填进表单，按钮文字变成 Save",
         "改完提交：该工单在原位置被更新，顺序不变",
@@ -238,6 +239,7 @@ const ticketMock: MockExam = {
     {
       id: "t4",
       title: "Task 4 · Filter by priority（新增考点）",
+      titleEn: "Task 4 · Filter by priority (a point the real Q1 does not have)",
       requirement: [
         '顶部有一个筛选下拉（data-testid="filter-priority"），选项：all / low / medium / high',
         "选中某个优先级后，列表只显示该优先级的工单",
@@ -253,6 +255,7 @@ const ticketMock: MockExam = {
     {
       id: "t5",
       title: "Task 5 · 工程质量",
+      titleEn: "Task 5 · Engineering quality",
       requirement: [
         "列表用 map 渲染，key 用 ticket.id",
         "所有 data-testid 与需求一致",
@@ -289,12 +292,14 @@ const ticketMock: MockExam = {
     }),
   ],
   commands: [
-    { cmd: "npm install", expect: "依赖装好" },
+    { cmd: "npm install", expect: "依赖装好", expectEn: "Dependencies installed" },
     { cmd: "npx vitest run", expect: "Tests 5 passed (5)" },
     {
       cmd: "npm run dev",
       expect:
         "手动验证：① 建三条同名工单，关闭中间那条，只消失一条 ② 改派中间那条，位置不变 ③ 筛选到 high 之后再切回 all，数据完整",
+      expectEn:
+        "Check by hand: (1) create three tickets with the same title, close the middle one, and only one disappears; (2) reassign the middle one and it stays in place; (3) filter to high, switch back to all, and nothing is lost",
     },
   ],
   walkthrough: [
