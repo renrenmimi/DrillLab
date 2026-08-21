@@ -10,10 +10,19 @@ import type { CodeExample, CodeLang } from "./types";
 
 interface Opts {
   filename?: string;
+  /** 见 CodeExample.filenameEn —— filename 常被当代码窗标题用，不只是路径 */
+  filenameEn?: string;
   sourceFile?: string;
   highlight?: number[];
   explanation?: React.ReactNode;
+  explanationEn?: React.ReactNode;
   collapsible?: boolean;
+  /**
+   * 英文版代码。**只有注释不同，可执行行必须逐字节相同，行数必须一致** ——
+   * highlight 是行号，差一行就默默指错。用 `npm run audit:code` 查。
+   * 详见 content/types.ts 的 CodeExample.codeEn。
+   */
+  codeEn?: string;
 }
 
 /**
