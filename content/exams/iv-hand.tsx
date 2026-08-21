@@ -558,6 +558,8 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
       title: "数据与函数：deepClone、flatten、curry",
       titleEn: "Data and functions: deepClone, flatten, curry",
       blurb: "三道递归题。递归的出口、防循环的登记、不污染的攒参数。",
+      blurbEn:
+        "Three recursion problems: where recursion stops, the record that guards against cycles, and collecting arguments without leaking them.",
       minutes: 35,
       objectives: [
         "手写 deepClone：分支覆盖 Date / Map / Set / 数组 / 对象，循环引用不爆栈",
@@ -565,12 +567,21 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
         "手写 flatten，depth 语义与 Array.prototype.flat 一致",
         "手写 curry，部分应用可复用、互不污染",
       ],
+      objectivesEn: [
+        "Write deepClone by hand, with branches for Date / Map / Set / array / object, and no stack overflow on a circular reference",
+        "Explain why JSON.parse(JSON.stringify(x)) does not count as an answer to deep clone",
+        "Write flatten by hand, with depth behaving the same way as Array.prototype.flat",
+        "Write curry by hand, so a partly applied function can be reused and does not affect the others",
+      ],
       whyForAssessment:
         "deepClone 是「递归 + 分支 + 防循环」三合一的经典题，面试官用它一次看三个能力。flatten 考递归出口的干净程度。curry 考闭包攒参数 —— 写成共享数组就会在「复用部分应用」这一问上当场翻车。",
+      whyForAssessmentEn:
+        "deepClone packs three things into one classic problem — recursion, type branches, and guarding against cycles — so the interviewer sees three skills at once. flatten tests how cleanly you stop the recursion. curry tests collecting arguments in a closure: write it with one shared array and you fail on the spot when asked to reuse a partly applied function.",
       concepts: [
         {
           id: "hd-clone",
           heading: "deepClone：先登记，再递归",
+          headingEn: "deepClone: record it first, then recurse",
           lede: "Write a deepClone that survives circular references",
           body: (
             <>
@@ -640,6 +651,7 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
         {
           id: "hd-flatten",
           heading: "flatten：递归的出口就是 depth",
+          headingEn: "flatten: depth is what stops the recursion",
           lede: "Write a flatten with a depth parameter",
           body: (
             <>
@@ -690,6 +702,7 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
         {
           id: "hd-curry",
           heading: "curry：攒参数必须造新数组",
+          headingEn: "curry: collecting arguments means building a new array each time",
           lede: "Write a curry; why must partial applications not share state",
           body: (
             <>
@@ -908,12 +921,37 @@ const clone = JSON.parse(JSON.stringify(source));
               坏了都没报错。练习的检查器直接把它列为禁用写法。
             </>
           ),
+          whyEn: (
+            <>
+              In an interview this is not a short answer, it{" "}
+              <strong>shows you have never written a deep clone</strong>. Every cost on
+              that list can turn into data that is quietly wrong in production — above
+              all the two where a <code>undefined</code> key disappears and a{" "}
+              <code>Date</code> becomes a string, because neither reports an error. The
+              checker in the exercise rejects this form outright.
+            </>
+          ),
         },
       ],
       transfer: [
-        { signal: "克隆 / 序列化类题目提到「循环引用」", reachFor: "WeakMap 登记「原对象 → 结果」，先登记再递归" },
-        { signal: "「和原生 API 行为一致」", reachFor: "先把原生的默认值和边界抄下来（flat 默认 1、depth 0 浅拷贝）" },
-        { signal: "闭包攒东西 + 要求可复用", reachFor: "造新数组 / 新对象，绝不 push 共享的" },
+        {
+          signal: "克隆 / 序列化类题目提到「循环引用」",
+          signalEn: "A clone or serialize problem mentions circular references",
+          reachFor: "WeakMap 登记「原对象 → 结果」，先登记再递归",
+          reachForEn: "Record source object to result in a WeakMap; record first, then recurse",
+        },
+        {
+          signal: "「和原生 API 行为一致」",
+          signalEn: "\"behave the same way as the built-in API\"",
+          reachFor: "先把原生的默认值和边界抄下来（flat 默认 1、depth 0 浅拷贝）",
+          reachForEn: "Write down the built-in defaults and edge cases first (flat defaults to 1, depth 0 is a shallow copy)",
+        },
+        {
+          signal: "闭包攒东西 + 要求可复用",
+          signalEn: "A closure collects values and the result has to be reusable",
+          reachFor: "造新数组 / 新对象，绝不 push 共享的",
+          reachForEn: "Build a new array or object every time; never push into a shared one",
+        },
       ],
       recap: [
         "deepClone 的灵魂：先登记再递归。分支顺序：原始值 → seen → Date → Map/Set → 数组 → 对象。",
@@ -921,6 +959,13 @@ const clone = JSON.parse(JSON.stringify(source));
         "flatten 的出口就是 depth；默认 1、depth 0 浅拷贝，语义对齐原生。",
         "curry 攒参数必须拼新数组 —— push 版会污染部分应用，有测试专门抓。",
         "fn.length 数不到默认参数和 rest 参数 —— 说得出这句就答干净了。",
+      ],
+      recapEn: [
+        "The heart of deepClone: record first, then recurse. Branch order: primitive value, then seen, then Date, then Map/Set, then array, then object.",
+        "Memorise the five things JSON.parse(JSON.stringify(x)) breaks — the follow-up on this always comes.",
+        "depth is what stops flatten; the default is 1, depth 0 is a shallow copy, matching the built-in.",
+        "curry has to join arguments into a new array — the push version leaks into other partly applied functions, and a test looks for exactly that.",
+        "fn.length does not count default parameters or a rest parameter — saying that line finishes the answer cleanly.",
       ],
     },
 
