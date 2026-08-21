@@ -2853,6 +2853,16 @@ Content-Length: 0
 # { "timestamp": "...", "status": 404, "message": "Order not found with id: 999" }
 
 # mvn test：Tests run: 5, Failures: 0   ← 测试全过！`,
+          errorOutputEn: `$ curl -i -s localhost:8080/api/orders/999
+
+HTTP/1.1 200
+Content-Length: 0
+
+# Expected:
+# HTTP/1.1 404
+# { "timestamp": "...", "status": 404, "message": "Order not found with id: 999" }
+
+# mvn test: Tests run: 5, Failures: 0   ← every test passes!`,
           broken: demo(
             "java",
             `@GetMapping("/api/orders/{id}")

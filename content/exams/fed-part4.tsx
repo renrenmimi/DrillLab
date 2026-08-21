@@ -1037,6 +1037,15 @@ errors: []
 
 # 你在 resolver 第一行加的 console.log('>>> shippingInfo called')
 # 一次都没打印。`,
+          errorOutputEn: `# No error at all.
+$ node verify-schema.mjs
+Query.orders + shippingInfo: {"orders":[
+  {"id":"order-456","status":"SHIPPED","shippingInfo":null},
+  {"id":"order-457","status":"DELIVERED","shippingInfo":null}]}
+errors: []
+
+# The console.log('>>> shippingInfo called') you added as the resolver's first line
+# never printed, not once.`,
           broken: demo(
             "js",
             `export const resolvers = {
@@ -1389,6 +1398,18 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
 #   order-457 -> null
 
 # 日志：[DataLoader] Batching 2 shipping info requests   ← 合并是生效的`,
+          errorOutputEn: `# No error at all.
+# Query: { orders(userId:"123") { id shippingInfo { trackingNumber } } }
+#
+# Expected:
+#   order-456 -> TRACK123456
+#   order-457 -> TRACK123457
+#
+# Actual:
+#   order-456 -> TRACK123457     ← got the other one's number!
+#   order-457 -> null
+
+# Log: [DataLoader] Batching 2 shipping info requests   ← the batching does work`,
           broken: demo(
             "js",
             `function createShippingInfoLoader(shippingDataSource) {
@@ -1599,6 +1620,20 @@ java.lang.IllegalArgumentException: No enum constant
     at c.t.orders.controller.OrderController.updateOrderStatus(OrderController.java:71)
 
 # mvn test：Tests run: 5, Failures: 0   ← 测试全过`,
+          errorOutputEn: `$ curl -i -X PATCH localhost:8080/api/orders/1/status \\
+    -H 'Content-Type: application/json' -d '{"status":"shipped"}'
+
+HTTP/1.1 500
+{"timestamp":"...","status":500,"error":"Internal Server Error"}
+
+# Server log:
+java.lang.IllegalArgumentException: No enum constant
+  com.techflow.orders.model.OrderStatus.shipped
+    at java.base/java.lang.Enum.valueOf(Enum.java:293)
+    at com.techflow.orders.model.OrderStatus.valueOf(OrderStatus.java:3)
+    at c.t.orders.controller.OrderController.updateOrderStatus(OrderController.java:71)
+
+# mvn test: Tests run: 5, Failures: 0   ← every test passes`,
           broken: demo(
             "java",
             `@PatchMapping("/api/orders/{id}/status")
