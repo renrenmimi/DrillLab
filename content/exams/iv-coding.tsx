@@ -2315,6 +2315,12 @@ return (
 const onDocClick = (e: MouseEvent) => {
   if (e.target !== boxRef.current) setOpen(false);
 };`,
+            {
+              codeEn: `// ✗ testing with e.target === ref.current
+const onDocClick = (e: MouseEvent) => {
+  if (e.target !== boxRef.current) setOpen(false);
+};`,
+            },
           ),
           why: (
             <>
@@ -2345,6 +2351,13 @@ useEffect(() => {
   document.addEventListener("mousedown", (e) => handle(e));
   return () => document.removeEventListener("mousedown", (e) => handle(e));
 }, [open]);`,
+            {
+              codeEn: `// ✗ a brand new function is passed when removing
+useEffect(() => {
+  document.addEventListener("mousedown", (e) => handle(e));
+  return () => document.removeEventListener("mousedown", (e) => handle(e));
+}, [open]);`,
+            },
           ),
           why: (
             <>
@@ -2377,6 +2390,12 @@ useEffect(() => {
 const [tabs, setTabs] = useState(
   raw.map((t, i) => ({ ...t, isActive: i === 0 })),
 );`,
+            {
+              codeEn: `// ✗ storing an isActive flag on every tab
+const [tabs, setTabs] = useState(
+  raw.map((t, i) => ({ ...t, isActive: i === 0 })),
+);`,
+            },
           ),
           why: (
             <>
