@@ -1959,7 +1959,18 @@ const shown = hover || current;
 
 // ✗ 用 span：键盘用不了
 <span onClick={...}>★</span>`,
-              { filename: "三种常见错法" },
+              {
+                filename: "三种常见错法",
+                filenameEn: "Three common wrong versions",
+                codeEn: `// ✗ using || : this goes wrong once 0 stars is allowed
+const shown = hover || current;
+
+// ✗ onMouseLeave on every star: moving between stars makes it flicker
+<button onMouseEnter={...} onMouseLeave={() => setHover(null)} />
+
+// ✗ using span: the keyboard cannot reach it
+<span onClick={...}>★</span>`,
+              },
             ),
           ],
         },
@@ -1969,12 +1980,19 @@ const shown = hover || current;
           kind: "fill-blank",
           id: "iv-coding-dropdown-blank",
           title: "补全「点外面关掉」",
+          titleEn: "Fill in \"click outside closes it\"",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 2 个用错会导致「点自己内部也关掉」，
               第 4 个漏了会泄漏监听器。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. Get the 2nd one wrong and a click inside the dropdown closes
+              it too; miss the 4th one and you leak a listener.
             </p>
           ),
           language: "tsx",
@@ -1998,6 +2016,7 @@ useEffect(() => {
               n: 1,
               accept: ["useRef"],
               hint: "要拿到一个 DOM 节点，而且它不参与渲染。",
+              hintEn: "You need to hold a DOM node, and it takes no part in rendering.",
               why: (
                 <>
                   <code>useRef</code>。
@@ -2008,12 +2027,24 @@ useEffect(() => {
                   用 <code>useState</code> 存 DOM 节点会造成多余渲染。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>useRef</code>.
+                  <br />
+                  A DOM node is not data that rendering reads, and changing it should not
+                  cause a re-render — that is exactly what <code>useRef</code> is for.
+                  Keeping a DOM node in <code>useState</code> causes renders you do not
+                  need.
+                </>
+              ),
               width: 8,
             },
             {
               n: 2,
               accept: ["contains"],
               hint: "用户点的可能是容器内部的按钮，不是容器本身。",
+              hintEn:
+                "What the user clicked may be a button inside the container, not the container itself.",
               why: (
                 <>
                   <code>contains</code>。
@@ -2027,12 +2058,28 @@ useEffect(() => {
                   <strong>要处理「点在子元素上」的情况</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>contains</code>.
+                  <br />
+                  Write <code>e.target === boxRef.current</code> instead and{" "}
+                  <strong>
+                    a click on any element inside counts as a click outside
+                  </strong>
+                  , so the list closes the moment it opens.
+                  <br />
+                  This is the same reason event delegation uses{" "}
+                  <code>e.target.closest()</code>:{" "}
+                  <strong>you have to handle a click that landed on a child</strong>.
+                </>
+              ),
               width: 10,
             },
             {
               n: 3,
               accept: ["mousedown", "click", "pointerdown"],
               hint: "比 click 更早的那个鼠标事件更合适。",
+              hintEn: "The mouse event that comes before click is the better fit.",
               why: (
                 <>
                   <code>mousedown</code>（<code>click</code> 也能过，
@@ -2046,12 +2093,25 @@ useEffect(() => {
                   关闭反应也更快。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>mousedown</code> (<code>click</code> also passes, but it is the
+                  weaker choice).
+                  <br />
+                  The problem with <code>click</code>: it fires{" "}
+                  <strong>between press and release</strong>, and if the DOM changes in
+                  between (say the element you pressed on is removed),{" "}
+                  <code>click</code> may never fire at all. <code>mousedown</code> comes
+                  earlier, is more reliable, and closes the list faster.
+                </>
+              ),
               width: 12,
             },
             {
               n: 4,
               accept: ["removeEventListener"],
               hint: "把这一次 effect 建立的东西拆掉。",
+              hintEn: "Take down whatever this run of the effect set up.",
               why: (
                 <>
                   <code>removeEventListener</code>。
@@ -2062,6 +2122,21 @@ useEffect(() => {
                   <br />
                   漏了它：每次展开多绑一对，
                   卸载后监听器还活着并对已卸载组件 setState。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>removeEventListener</code>.
+                  <br />
+                  <strong>
+                    The first argument has to match the one you registered with exactly
+                  </strong>
+                  , and the second has to be <strong>the same function reference</strong>{" "}
+                  — passing a fresh arrow function removes nothing, which is the classic
+                  mistake here.
+                  <br />
+                  Miss it and every open adds another pair of listeners; after unmount
+                  they are still alive and call setState on an unmounted component.
                 </>
               ),
               width: 21,
