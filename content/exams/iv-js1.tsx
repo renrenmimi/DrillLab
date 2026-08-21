@@ -3183,7 +3183,29 @@ function () {}();     // ✗ SyntaxError —— 被当成函数声明
 (function () {})();   // ✓ 括号让它变成表达式
 !function () {}();    // ✓ 一元运算符也行
 void function () {}();// ✓`,
-              { filename: "IIFE 与它今天的位置" },
+              {
+                filename: "IIFE 与它今天的位置",
+                filenameEn: "The IIFE and where it fits today",
+                codeEn: `// The classic form
+(function () {
+  var private = "not visible from outside";
+})();
+
+// Where it is still genuinely used: when you need an async scope
+useEffect(() => {
+  (async () => {
+    const res = await fetch(url);
+    // ...
+  })();
+  return () => { /* cleanup */ };
+}, [url]);
+
+// Why the parentheses are needed
+function () {}();     // ✗ SyntaxError —— read as a function declaration
+(function () {})();   // ✓ the parentheses turn it into an expression
+!function () {}();    // ✓ a unary operator works too
+void function () {}();// ✓`,
+              },
             ),
           ],
         },
