@@ -4501,11 +4501,36 @@ const RideHistory = () => {
             },
           ],
           transfer: [
-            { signal: "要「最新 N 条」", reachFor: "slice(-N)；越界安全，不足 N 条也不报错" },
-            { signal: "要倒序显示", reachFor: "先 slice 出副本再 reverse，或用 toReversed()" },
-            { signal: "看到 sort / reverse / splice 作用在 state 上", reachFor: "立刻停 —— 它们原地改，先复制" },
-            { signal: "某个 state 初始值是 null", reachFor: "读它的属性配 ?.；只在真会为空的地方加" },
-            { signal: "测试只断言了「有几个」", reachFor: "补一条「该消失的真的消失了」—— 数量对内容错抓不住" },
+            {
+              signal: "要「最新 N 条」",
+              signalEn: "You need the newest N entries",
+              reachFor: "slice(-N)；越界安全，不足 N 条也不报错",
+              reachForEn: "slice(-N); it is safe past the end and does not fail with fewer than N items",
+            },
+            {
+              signal: "要倒序显示",
+              signalEn: "You need them shown in reverse order",
+              reachFor: "先 slice 出副本再 reverse，或用 toReversed()",
+              reachForEn: "slice a copy first and then reverse, or use toReversed()",
+            },
+            {
+              signal: "看到 sort / reverse / splice 作用在 state 上",
+              signalEn: "You see sort, reverse or splice used on state",
+              reachFor: "立刻停 —— 它们原地改，先复制",
+              reachForEn: "Stop there: they change the array in place, so copy it first",
+            },
+            {
+              signal: "某个 state 初始值是 null",
+              signalEn: "A piece of state starts out as null",
+              reachFor: "读它的属性配 ?.；只在真会为空的地方加",
+              reachForEn: "Read its properties with ?.; add it only where the value really can be empty",
+            },
+            {
+              signal: "测试只断言了「有几个」",
+              signalEn: "The test only checks how many items there are",
+              reachFor: "补一条「该消失的真的消失了」—— 数量对内容错抓不住",
+              reachForEn: "Add a check that what should be gone is gone; a right count with wrong content slips through",
+            },
           ],
           recap: [
             "slice(-3) 是最后三条，slice(0, 3) 是最前三条 —— 方向写反测试 4 才抓得住。",
@@ -5419,11 +5444,36 @@ export default defineConfig({
             },
           ],
           transfer: [
-            { signal: "报错里出现「Tests no tests」/「0 test」", reachFor: "挂在收集阶段，别改业务代码 —— 去看构建/转换层" },
-            { signal: "「Failed to parse source for import analysis」", reachFor: "十有八九是 .js 里写了 JSX，改扩展名" },
-            { signal: "报错最后一句给了具体建议", reachFor: "先照着做 —— 这类工具报错常常直接给答案" },
-            { signal: "想加一条全局配置来救一个文件", reachFor: "先问「改那个文件行不行」" },
-            { signal: "面试问「这段代码有什么问题」", reachFor: "先说清它在什么条件下是对的，再说什么条件下会坏" },
+            {
+              signal: "报错里出现「Tests no tests」/「0 test」",
+              signalEn: "The output says \"Tests no tests\" or \"0 test\"",
+              reachFor: "挂在收集阶段，别改业务代码 —— 去看构建/转换层",
+              reachForEn: "It failed while collecting the tests: leave the feature code alone and look at the build and transform layer",
+            },
+            {
+              signal: "「Failed to parse source for import analysis」",
+              signalEn: "\"Failed to parse source for import analysis\"",
+              reachFor: "十有八九是 .js 里写了 JSX，改扩展名",
+              reachForEn: "Almost always JSX written in a .js file: change the extension",
+            },
+            {
+              signal: "报错最后一句给了具体建议",
+              signalEn: "The last line of the error gives a concrete suggestion",
+              reachFor: "先照着做 —— 这类工具报错常常直接给答案",
+              reachForEn: "Follow it first; errors from tools like this often state the answer",
+            },
+            {
+              signal: "想加一条全局配置来救一个文件",
+              signalEn: "You are about to add a global setting to rescue one file",
+              reachFor: "先问「改那个文件行不行」",
+              reachForEn: "Ask first whether changing that one file is enough",
+            },
+            {
+              signal: "面试问「这段代码有什么问题」",
+              signalEn: "An interviewer asks what is wrong with a piece of code",
+              reachFor: "先说清它在什么条件下是对的，再说什么条件下会坏",
+              reachForEn: "Say under which conditions it is correct first, then under which conditions it breaks",
+            },
           ],
           recap: [
             "基线是 0 个测试跑起来 —— 不是某个测试失败，是连收集都没过。",
