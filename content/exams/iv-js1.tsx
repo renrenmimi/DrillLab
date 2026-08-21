@@ -676,7 +676,20 @@ NaN == NaN        // false  和自己都不相等
 
 0 === "0"         // false  类型不同，到此为止
 Object.is(NaN, NaN) // true  ← React 用它判断 state 变没变`,
-              { filename: "为什么别用 ==" },
+              {
+                filename: "为什么别用 ==",
+                filenameEn: "Why you should not use ==",
+                codeEn: `0 == "0"          // true   the string converts to a number
+0 == ""           // true   "" -> 0
+0 == false        // true   false -> 0
+null == undefined // true   a special case
+null == 0         // false  null only equals undefined
+[] == false       // true   [] -> "" -> 0
+NaN == NaN        // false  not even equal to itself
+
+0 === "0"         // false  different types, so it stops there
+Object.is(NaN, NaN) // true  ← React uses this to decide whether state changed`,
+              },
             ),
           ],
         },
