@@ -2722,7 +2722,31 @@ function run() {
   show();                   // "定义时的 x" ← 不是调用处那个
 }
 run();`,
-              { filename: "由内到外，且在定义时确定" },
+              {
+                filename: "由内到外，且在定义时确定",
+                filenameEn: "From inside out, and fixed where the function is defined",
+                codeEn: `const g = "global";
+
+function outer() {
+  const o = "outer";
+  function inner() {
+    const i = "inner";
+    console.log(i, o, g);   // all three are found: inner -> outer -> global
+  }
+  inner();
+  // console.log(i);        // ✗ the outer scope cannot see the inner one
+}
+
+// Lexical scope: the chain follows where it was defined, not where it is called
+const x = "the x at the definition site";
+function show() { console.log(x); }
+
+function run() {
+  const x = "the x at the call site";
+  show();                   // "the x at the definition site" ← not the call-site one
+}
+run();`,
+              },
             ),
           ],
         },
