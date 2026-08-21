@@ -32,12 +32,18 @@ import { ivTs } from "./iv-ts";
 const interview: Exam = {
   id: "interview",
   title: "前端面试八股 · 99 问 + 16 道 coding",
+  titleEn: "Frontend interview preparation · 99 questions + 16 coding problems",
   shortTitle: "面试八股",
+  shortTitleEn: "Interview questions",
   description:
     "一份作者做过的前端面试题整理，按 HTML / CSS / JavaScript / React / Node / 数据库 / 网络分好组，每道题给「一句话答案 + 展开 + 会被追问什么」。最后一节把 16 道 coding 题逐题对照本站已有的练习，指出哪些已经写过、哪些是缺口。",
+  descriptionEn:
+    "A set of frontend interview questions the author went through, grouped by HTML / CSS / JavaScript / React / Node / databases / networking. Every question gets a one-sentence answer, a longer explanation, and the follow-up questions to expect. The last part compares the 16 coding problems one by one against the exercises already on this site, and points out which ones are already written up and which ones are gaps.",
   category: "全栈",
   tests:
     "八股考的是「你有没有想过为什么」。同一道题，说出结论是及格，说出取舍和边界才是好答案 —— 所以每道题都写了「会追问什么」，那才是真正拉开差距的地方。coding 题考的东西和另外两门的真题高度重合，所以这里只补真正的缺口，不重复出题。",
+  testsEn:
+    "These questions test whether you have thought about why, not only what. On any single question, stating the conclusion is a pass; naming the trade-offs and the edge cases is a good answer. That is why every question also lists what the interviewer will ask next — that is where answers really differ. The coding problems overlap heavily with the real tasks in the other two exams, so this course only fills the real gaps instead of repeating problems.",
   sourceProjects: [],
   prerequisites: [],
   stack: [

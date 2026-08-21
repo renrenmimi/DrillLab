@@ -9,8 +9,11 @@ export const ivJsCore: Module = {
   id: "iv-js-core",
   stage: "面试 · 第 2 部分",
   title: "JavaScript · 引擎、类型与函数",
+  titleEn: "JavaScript · the engine, types and functions",
   summary:
     "22 道题。这一组是 JS 面试的地基：值怎么存、类型怎么转、变量怎么提升、闭包到底是什么。闭包、hoisting、== vs === 这三道几乎每场都问。",
+  summaryEn:
+    "22 questions. This group is the base of every JavaScript interview: how values are stored, how types convert, how variables are hoisted, and what a closure actually is. The questions on closure, hoisting, and == vs === come up in almost every interview.",
   lessons: [
     /* ============================================================
        引擎与类型（10 题）
@@ -18,6 +21,7 @@ export const ivJsCore: Module = {
     {
       id: "iv-js-types",
       title: "引擎与类型十问",
+      titleEn: "10 questions on the engine and types",
       blurb: "引擎、REPL、原始值 vs 引用值、类型转换、== vs ===、短路、var/let/const、传值传引用、Set、Map。",
       minutes: 22,
       objectives: [
@@ -1438,6 +1442,7 @@ JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
     {
       id: "iv-js-fn",
       title: "函数与作用域十二问",
+      titleEn: "12 questions on functions and scope",
       blurb: "定义方式、一等/一阶/高阶函数、纯函数、use strict、作用域、hoisting、作用域链、闭包、柯里化、IIFE。",
       minutes: 26,
       objectives: [

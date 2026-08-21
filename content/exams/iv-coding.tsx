@@ -926,8 +926,11 @@ export const ivCoding: Module = {
   id: "iv-coding",
   stage: "面试 · 第 7 部分",
   title: "Coding 题：对照与补缺",
+  titleEn: "Coding problems: what is covered and what is missing",
   summary:
     "16 道 coding 题逐题对照本站已有的练习：9 道已经被 Q1、Q2、五道变式题和两套模拟考覆盖，7 道是真缺口。缺口题的参考解法都在本机跑过测试（24 / 24 加 8 / 8）。",
+  summaryEn:
+    "The 16 coding problems compared one by one against the exercises already on this site: 9 are already covered by Q1, Q2, the five variant tasks and the two mock exams, and 7 are real gaps. The reference solutions for the gap problems were all run against tests on a local machine (24 / 24 plus 8 / 8).",
   lessons: [
     /* ============================================================
        对照表
@@ -935,6 +938,7 @@ export const ivCoding: Module = {
     {
       id: "iv-coding-map",
       title: "16 道题逐题对照",
+      titleEn: "The 16 problems, compared one by one",
       blurb: "哪些已经写过、哪些是缺口、缺的那道到底在考什么。",
       minutes: 12,
       objectives: [
@@ -1397,6 +1401,7 @@ export const ivCoding: Module = {
     {
       id: "iv-coding-widgets",
       title: "缺口一 · Dropdown、Tabs、星级评分",
+      titleEn: "Gap 1 · dropdown, tabs and star rating",
       blurb: "三个小组件，考的是「组件自己的交互状态怎么管」—— 之前五道变式题一个都没覆盖到。",
       minutes: 24,
       objectives: [
@@ -2027,6 +2032,7 @@ const [tabs, setTabs] = useState(
     {
       id: "iv-coding-ref-hook",
       title: "缺口二 · useRef 操作 DOM，与写一个自定义 hook",
+      titleEn: "Gap 2 · using useRef on the DOM, and writing a custom hook",
       blurb: "useRef 的第二种用法（拿 DOM 调命令式 API），以及把 state + effect 打包成可复用的 hook。",
       minutes: 22,
       objectives: [
@@ -2595,6 +2601,7 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
     {
       id: "iv-coding-rtk",
       title: "缺口三 · 同一个 Todo 换成 Redux Toolkit",
+      titleEn: "Gap 3 · the same Todo app, moved to Redux Toolkit",
       blurb: "业务和变式一完全一样，换成 createSlice + selector —— 正好能对比出 Redux 到底多给了什么。",
       minutes: 24,
       objectives: [
@@ -3178,6 +3185,7 @@ export function addTodo(state: TodosState, todo: Todo) {
     {
       id: "iv-coding-kanban",
       title: "缺口四 · Kanban 看板：一次改两个数组",
+      titleEn: "Gap 4 · a Kanban board: changing two arrays in one update",
       blurb: "跨列移动是 CRUD 的升级版 —— 源列删、目标列加，必须在一次操作里完成。",
       minutes: 20,
       objectives: [

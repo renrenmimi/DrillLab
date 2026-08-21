@@ -9,8 +9,11 @@ export const ivJsAsync: Module = {
   id: "iv-js-async",
   stage: "面试 · 第 3 部分",
   title: "JavaScript · this、异步与工具链",
+  titleEn: "JavaScript · this, async and tooling",
   summary:
     "16 道题。事件循环那道是 JS 面试最能分层次的题 —— 说得出宏任务微任务的执行顺序就上一个档。this 与 call/apply/bind 是老题但仍必问，DOM 事件委托会连到 React 的合成事件。",
+  summaryEn:
+    "16 questions. The event loop question separates candidates more than any other JavaScript question: if you can state the order in which macrotasks and microtasks run, you move up a level. this with call/apply/bind is an old question that is still always asked, and DOM event delegation connects to React synthetic events.",
   lessons: [
     /* ============================================================
        this 与 OOP（3 题）
@@ -18,6 +21,7 @@ export const ivJsAsync: Module = {
     {
       id: "iv-js-this",
       title: "this 与面向对象三问",
+      titleEn: "3 questions on this and object-oriented programming",
       blurb: "OOP、this 指向的四条规则、call/apply/bind。",
       minutes: 16,
       objectives: [
@@ -531,6 +535,7 @@ Function.prototype.myBind = function (ctx, ...preset) {
     {
       id: "iv-js-loop",
       title: "异步与事件循环六问",
+      titleEn: "6 questions on async and the event loop",
       blurb: "事件循环、async/await vs Promise、回调地狱、finally、错误处理、异步方案总览。",
       minutes: 24,
       objectives: [
@@ -1480,6 +1485,7 @@ await fetch(url, { signal: c.signal });`,
     {
       id: "iv-js-tooling",
       title: "DOM、模块与工具链七问",
+      titleEn: "7 questions on the DOM, modules and tooling",
       blurb: "DOM 与 DOM 事件、事件委托、ES6 新特性、ES6 模块、npm、Webpack、fetch vs axios。",
       minutes: 20,
       objectives: [

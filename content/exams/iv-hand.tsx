@@ -168,8 +168,11 @@ const REF_LRU = `export class LRUCache<K, V> {
 export const ivHand: Module = {
   id: "iv-hand",
   title: "手写题",
+  titleEn: "Implement it yourself",
   summary:
     "Phone screen 的主菜：现场手写 debounce、Promise.all、EventEmitter 这类工具函数。8 道题全部带浏览器沙箱，参考解法 40 / 40 实测。DrillLab 自出，不在原题库里。",
+  summaryEn:
+    "The main item in a phone screen: writing utility functions such as debounce, Promise.all and EventEmitter on the spot. All 8 problems come with a browser sandbox, and the reference solutions passed 40 / 40 in a real run. Written by DrillLab; these are not in the original question bank.",
   stage: "面试 · 第 8 部分",
   lessons: [
     /* ============================================================
@@ -178,6 +181,7 @@ export const ivHand: Module = {
     {
       id: "iv-hand-timing",
       title: "计时两兄弟：debounce 与 throttle",
+      titleEn: "Two timing helpers: debounce and throttle",
       blurb: "先分清「等你停手」和「匀速放行」，再各写一个。",
       minutes: 30,
       objectives: [
@@ -500,6 +504,7 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
     {
       id: "iv-hand-data",
       title: "数据与函数：deepClone、flatten、curry",
+      titleEn: "Data and functions: deepClone, flatten, curry",
       blurb: "三道递归题。递归的出口、防循环的登记、不污染的攒参数。",
       minutes: 35,
       objectives: [
@@ -873,6 +878,7 @@ const clone = JSON.parse(JSON.stringify(source));
     {
       id: "iv-hand-async",
       title: "异步与结构：Promise.all、EventEmitter、LRU",
+      titleEn: "Async and structure: Promise.all, EventEmitter, LRU",
       blurb: "下标写入保顺序、拷贝列表再遍历、Map 的插入序当链表用。",
       minutes: 35,
       objectives: [

@@ -15,8 +15,11 @@ export const ivBasics: Module = {
   id: "iv-basics",
   stage: "面试 · 第 1 部分",
   title: "HTML 与 CSS",
+  titleEn: "HTML and CSS",
   summary:
     "13 道题。这两块最容易被轻视 —— 前端面试第一轮几乎必问，而且问的都是「你平时到底有没有想过为什么」。盒模型、Flex 与 Grid 的分工、事件冒泡与捕获、语义化标签、无障碍。",
+  summaryEn:
+    "13 questions. These two areas are the easiest to underestimate. The first round of a frontend interview almost always covers them, and the questions all check whether you have ever asked why. The box model, the division of work between Flex and Grid, event bubbling and capturing, semantic tags, and accessibility.",
   lessons: [
     /* ============================================================
        HTML
@@ -24,6 +27,7 @@ export const ivBasics: Module = {
     {
       id: "iv-html",
       title: "HTML 五问",
+      titleEn: "5 questions on HTML",
       blurb: "块级与行内、事件冒泡与捕获、meta、语义化、无障碍。",
       minutes: 14,
       objectives: [
@@ -564,6 +568,7 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
     {
       id: "iv-css",
       title: "CSS 八问",
+      titleEn: "8 questions on CSS",
       blurb: "盒模型、margin vs padding、Flex vs Grid、选择器、预处理器、响应式。",
       minutes: 18,
       objectives: [

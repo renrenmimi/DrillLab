@@ -10,8 +10,11 @@ export const ivReactBasics: Module = {
   id: "iv-react-basics",
   stage: "面试 · 第 4 部分",
   title: "React · 基础与组件",
+  titleEn: "React · basics and components",
   summary:
     "18 道题。虚拟 DOM 与 diff、reconciliation 这几道是「你到底懂不懂 React 在干什么」的分水岭；props vs state、受控 vs 非受控、状态提升三道直接对应 Q1 那道真题里写过的代码。",
+  summaryEn:
+    "18 questions. The questions on the virtual DOM, diffing and reconciliation are the dividing line for whether you understand what React is doing; props vs state, controlled vs uncontrolled, and lifting state up map directly onto the code written for the real Q1 task.",
   lessons: [
     /* ============================================================
        React 是什么（7 题）
@@ -19,6 +22,7 @@ export const ivReactBasics: Module = {
     {
       id: "iv-react-what",
       title: "React 是什么 · 七问",
+      titleEn: "7 questions on what React is",
       blurb: "React vs Angular、优势、SPA、JSX、虚拟 DOM 与 diff、reconciliation、babel 与 webpack。",
       minutes: 22,
       objectives: [
@@ -922,6 +926,7 @@ const el = React.createElement(
     {
       id: "iv-react-comp",
       title: "组件与通信 · 十一问",
+      titleEn: "11 questions on components and how they communicate",
       blurb: "函数 vs 类组件、生命周期、useEffect 对应关系、props vs state、组件通信、受控 vs 非受控、props drilling、PureComponent、Fragment、状态提升、HOC。",
       minutes: 28,
       objectives: [
