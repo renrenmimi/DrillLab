@@ -1334,11 +1334,19 @@ task 6 DONE    (running now: 0)
           kind: "fill-blank",
           id: "r-q2-blanks",
           title: "补全 worker pool 的五个关键位置",
+          titleEn: "Fill in the five key spots of the worker pool",
           level: 2,
           prompt: (
             <p>
               五个空。第 2 个和第 4 个是最容易写错的 ——
               一个关系到「顺序」，一个关系到「任务到底有没有被启动」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Five blanks. Numbers 2 and 4 are the ones most often written
+              wrong: one decides the order, the other decides whether the task
+              was started at all.
             </p>
           ),
           language: "ts",
@@ -1378,6 +1386,7 @@ task 6 DONE    (running now: 0)
               n: 1,
               accept: ["<"],
               hint: "游标从 0 开始，最后一个有效下标是 length - 1。",
+              hintEn: "The cursor starts at 0, so the last valid index is length - 1.",
               why: (
                 <>
                   <code>&lt;</code>。下标从 0 到 <code>length - 1</code>，
@@ -1390,12 +1399,30 @@ task 6 DONE    (running now: 0)
                   <strong>一个不报错但结果多一条的 bug。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>&lt;</code>. Indexes run from 0 to{" "}
+                  <code>length - 1</code>, so the condition is{" "}
+                  <code>nextIndex &lt; tasks.length</code>.
+                  <br />
+                  Writing <code>&lt;=</code> runs one extra round.{" "}
+                  <code>tasks[length]</code> is <code>undefined</code>, and
+                  calling it throws{" "}
+                  <code>TypeError: tasks[i] is not a function</code>, which the
+                  catch then swallows, quietly producing one extra rejected
+                  result.{" "}
+                  <strong>
+                    A bug that reports nothing but returns one result too many.
+                  </strong>
+                </>
+              ),
               width: 4,
             },
             {
               n: 2,
               accept: ["tasks[i]()"],
               hint: "tasks[i] 是一个函数。要让它开始跑，还差什么？",
+              hintEn: "tasks[i] is a function. What is still missing before it starts running?",
               why: (
                 <>
                   <code>tasks[i]()</code> —— <strong>括号不能少</strong>。
@@ -1408,12 +1435,27 @@ task 6 DONE    (running now: 0)
                   结果里全是函数。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>tasks[i]()</code> —{" "}
+                  <strong>the parentheses are required</strong>.
+                  <br />
+                  <code>await tasks[i]</code>, without parentheses, awaits a
+                  function object. <code>await</code> passes a non-Promise
+                  straight through, so <code>value</code> becomes the function
+                  itself and the task{" "}
+                  <strong>was never executed at all</strong>. The symptom:{" "}
+                  <code>npm run q2</code> prints no START line, and the results
+                  are all functions.
+                </>
+              ),
               width: 12,
             },
             {
               n: 3,
               accept: ["i"],
               hint: "顺序保证的秘密就在这里。结果要写到哪个位置？",
+              hintEn: "This is where the order guarantee lives. Which position does the result go into?",
               why: (
                 <>
                   <code>i</code> —— 也就是这个任务在<strong>输入数组里的原始下标</strong>。
@@ -1423,12 +1465,27 @@ task 6 DONE    (running now: 0)
                   顺序就乱了。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>i</code>, which is this task&rsquo;s{" "}
+                  <strong>original index in the input array</strong>.
+                  <br />
+                  <strong>
+                    That single letter is the entire implementation of
+                    &ldquo;results in the same order as the input&rdquo;.
+                  </strong>{" "}
+                  Switch to <code>results.push(...)</code> and the order
+                  becomes &ldquo;whoever finishes first comes first&rdquo;,
+                  which loses the original order.
+                </>
+              ),
               width: 4,
             },
             {
               n: 4,
               accept: ["rejected"],
               hint: "看 SettledResult 类型定义里失败分支的 status 字面量。",
+              hintEn: "Look at the status literal on the failure branch of the SettledResult type.",
               why: (
                 <>
                   <code>rejected</code>。必须<strong>一字不差</strong> ——
@@ -1437,12 +1494,22 @@ task 6 DONE    (running now: 0)
                   <code>&quot;failed&quot;</code> 都会类型报错。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>rejected</code>. It must be{" "}
+                  <strong>exactly that word</strong>, because it is the
+                  discriminant tag of the union. Writing{" "}
+                  <code>&quot;reject&quot;</code> or{" "}
+                  <code>&quot;failed&quot;</code> is a type error.
+                </>
+              ),
               width: 10,
             },
             {
               n: 5,
               accept: ["min"],
               hint: "3 个任务、上限 10，应该开几个 worker?",
+              hintEn: "3 tasks with a cap of 10: how many workers should start?",
               why: (
                 <>
                   <code>min</code>。开 <code>Math.min(limit, tasks.length)</code> 个。
@@ -1450,6 +1517,17 @@ task 6 DONE    (running now: 0)
                   用 <code>max</code> 就成了「3 个任务开 10 个 worker」——
                   多出来的 7 个会立刻发现队列空了然后退出，
                   结果仍然正确，但白开了 7 个。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>min</code>. Start{" "}
+                  <code>Math.min(limit, tasks.length)</code> of them.
+                  <br />
+                  With <code>max</code> you would start 10 workers for 3 tasks.
+                  The extra 7 immediately find the queue empty and exit, so the
+                  result is still correct, but those 7 were started for
+                  nothing.
                 </>
               ),
               width: 5,
