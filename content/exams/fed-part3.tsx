@@ -3582,6 +3582,8 @@ management.endpoints.web.exposure.include=*`,
                   "graphql-federation-practice/java-service/src/main/resources/application.properties",
                 explanation:
                   "只有三行，没有数据源配置 —— 因为这个项目用的是内存仓库。这也再次印证 orders.db 是干扰项。",
+                explanationEn:
+                  "Only three lines, and no data-source configuration, because this project uses an in-memory repository. That is one more confirmation that orders.db is a distractor.",
               },
             ),
           ],
