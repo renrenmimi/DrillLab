@@ -1614,6 +1614,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                     sourceFile: "react-notes-app/src/main.tsx",
                     explanation:
                       "那个 ! 是 TypeScript 的非空断言：「我保证 getElementById 不会返回 null」。StrictMode 是 React 的开发期严格模式，它会故意把组件渲染两次来帮你发现副作用问题 —— 所以开发时看到 console.log 打两遍是正常的。",
+                    explanationEn:
+                      "The ! is a TypeScript non-null assertion. It means: I promise getElementById will not return null. StrictMode is React's strict development mode. It renders each component twice on purpose so that side-effect problems show up early, which is why a console.log prints twice during development.",
                   },
                 ),
               ],
@@ -2488,6 +2490,13 @@ const handleDelete = (id: number) => {
 notes.length before: 0
 notes.length after : 1     ← 数据真的进去了
 （但 <NoteTable /> 渲染出来的行数始终是 0）`,
+              errorOutputEn: `# No error at all. The console is clean.
+# Symptom: fill in the form, click Add, and nothing shows up in the table.
+# Add console.log(notes) inside handleSubmitNote — the length really does grow.
+
+notes.length before: 0
+notes.length after : 1     ← the data really did go in
+(But <NoteTable /> always renders 0 rows.)`,
               broken: demo(
                 "tsx",
                 `const handleSubmitNote = (submittedNote: Note) => {
@@ -2971,6 +2980,8 @@ await task();    // ✓ right: call it first, then wait for what it returns`,
                       "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
                     explanation:
                       "map 把每个 id 变成一个 Promise,Promise.all 等它们全部完成。顺序与 orderIds 一致 —— 这对 DataLoader 是硬要求，因为它靠位置把结果发回给各个调用方。",
+                    explanationEn:
+                      "map turns each id into a Promise, and Promise.all waits for all of them to finish. The result order matches orderIds. DataLoader requires that, because it uses position to send each result back to the caller that asked for it.",
                   },
                 ),
               ],
@@ -3120,6 +3131,8 @@ task 6 DONE    (running now: 0)`,
                     sourceFile: "react-notes-app/q2/taskRunner.ts",
                     explanation:
                       "关键点：catch 之后 worker 没有退出，循环继续。所以一个任务失败不会连累其他任务 —— 这正是「NEVER throws」的实现方式。",
+                    explanationEn:
+                      "The key point: after the catch the worker does not exit, the loop keeps going. So one failed task does not affect the others. That is how the NEVER throws requirement is met.",
                   },
                 ),
               ],
@@ -3537,6 +3550,8 @@ Did you mean to import "./resolvers/orderResolvers.js"?`,
                     filenameEn: "The error when .js is left off",
                     explanation:
                       "好消息是 Node 现在会给出 Did you mean 提示。看到 ERR_MODULE_NOT_FOUND，第一反应应该是「后缀漏了」，而不是「路径写错了」。",
+                    explanationEn:
+                      "Node now prints a Did you mean hint, which helps. When you see ERR_MODULE_NOT_FOUND, your first guess should be a missing file extension, not a wrong path.",
                   },
                 ),
               ],
@@ -3667,6 +3682,8 @@ import type { Note } from "../../types/Note";        // the type only`,
                       "graphql-federation-practice/node-subgraph/package.json",
                     explanation:
                       "testMatch 说明测试文件必须放在 __tests__ 目录下、以 .test.js 结尾。放错位置 jest 就发现不了它 —— 「我写了测试但 jest 说 No tests found」多半是这个原因。",
+                    explanationEn:
+                      "testMatch says a test file must sit inside a __tests__ directory and end in .test.js. Put it anywhere else and jest will not find it. That is the usual reason for \"I wrote a test but jest says No tests found\".",
                   },
                 ),
               ],
@@ -4060,6 +4077,8 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                     sourceFile: "react-notes-app/q2/taskRunner.ts",
                     explanation:
                       "这叫「可辨识联合」：两个分支都有 status 字段，而且值是不同的字面量。于是你写 if (r.status === \"fulfilled\") 之后，TypeScript 就知道这个分支里一定有 value 而没有 reason。",
+                    explanationEn:
+                      "This is a discriminated union: both branches carry a status field, and each one holds a different literal value. So once you write if (r.status === \"fulfilled\"), TypeScript knows that inside that branch there is a value and no reason.",
                   },
                 ),
               ],
@@ -4404,6 +4423,8 @@ export async function runTasks<T>(
                     sourceFile: "react-notes-app/q2/taskRunner.ts",
                     explanation:
                       "这里的 T 是「任务成功时返回什么类型」。runTasks 自己不关心 T 到底是什么，它只负责保证：你给我 Task<string>[]，我还你 SettledResult<string>[]。这就是泛型的价值 —— 同一份实现服务所有类型。",
+                    explanationEn:
+                      "Here T is the type a task returns when it succeeds. runTasks does not care what T actually is. It only guarantees one thing: hand it Task<string>[] and it hands back SettledResult<string>[]. That is what a generic buys you — one implementation that serves every type.",
                   },
                 ),
               ],
