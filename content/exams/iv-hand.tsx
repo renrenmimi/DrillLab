@@ -417,6 +417,7 @@ export const ivHand: Module = {
         {
           tone: "trap",
           title: "测试环境的一个真实限制",
+          titleEn: "A real limit of the test environment",
           body: (
             <>
               浏览器沙箱里没有 fake timer，而且每个 <code>setTimeout</code>
@@ -425,6 +426,19 @@ export const ivHand: Module = {
                 只在充分等待之后断言「已经发生」，从不在等待之后断言「还没发生」
               </strong>
               —— 后者在慢环境里必然抖。你自己写计时类测试时也该这么设计。
+            </>
+          ),
+          bodyEn: (
+            <>
+              The browser sandbox has no fake timers, and every <code>setTimeout</code>
+              really does land a few hundred milliseconds late. So the tests for these
+              two problems{" "}
+              <strong>
+                only assert that something has happened, after waiting long enough, and
+                never assert that something has not happened yet
+              </strong>{" "}
+              — the second kind is bound to be flaky on a slow machine. Design your own
+              timing tests the same way.
             </>
           ),
         },
