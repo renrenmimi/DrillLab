@@ -339,7 +339,11 @@ const norm = (s: string) => s.trim().replace(/\s+/g, " ");
 function FillBlank({ ex, examId }: { ex: FillBlankExercise; examId: string }) {
   const t = useT();
   const { markExercise } = useProgress();
-  const lines = useMemo(() => parseTemplate(ex.template), [ex.template]);
+  // 空位是靠 ___n___ 占位符对齐的，所以英文模板必须占位符一致。
+  // 这里用 t() 而不是 <T> 双份渲染：模板要先解析成空位再渲染，
+  // 渲染两份等于出现两套输入框，一套是隐藏的 —— 那会让 Tab 键走进看不见的框。
+  const template = t(ex.template, ex.templateEn ?? ex.template);
+  const lines = useMemo(() => parseTemplate(template), [template]);
   const [vals, setVals] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
   const [showHints, setShowHints] = useState(false);
@@ -359,7 +363,11 @@ function FillBlank({ ex, examId }: { ex: FillBlankExercise; examId: string }) {
       <div className="blank-code">
         <div className="codewin-bar">
           <span className="codewin-lang">{ex.language.toUpperCase()}</span>
-          {ex.filename && <span className="codewin-name">{ex.filename}</span>}
+          {ex.filename && (
+            <span className="codewin-name">
+              <T zh={ex.filename} en={ex.filenameEn} />
+            </span>
+          )}
           <span className="codewin-bar-right">
             <span className="codewin-flag">
               <T en={`${ex.blanks.length} blanks`} zh={`${ex.blanks.length} 个空`} />

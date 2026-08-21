@@ -99,7 +99,9 @@ export interface ConceptSection {
 export interface Callout {
   tone: ConceptTone;
   title: string;
+  titleEn?: string;
   body: ReactNode;
+  bodyEn?: ReactNode;
 }
 
 /* ============================================================
@@ -154,9 +156,16 @@ export interface FillBlankExercise extends ExerciseBase {
   kind: "fill-blank";
   level: 2;
   language: CodeLang;
+  /** 常被当标题用（「两个真实片段」），不只是路径，所以要英文版 */
   filename?: string;
+  filenameEn?: string;
   /** 含 ___n___ 占位符的代码 */
   template: string;
+  /**
+   * 英文版模板。约束和 CodeExample.codeEn 一样：**行数必须一致**，
+   * 而且 ___n___ 占位符的**个数、编号、位置都不能变** —— 空位是靠它们对齐的。
+   */
+  templateEn?: string;
   blanks: {
     n: number;
     /** 可接受的答案（去空白后比较，大小写敏感）；第一个是展示用的标准答案 */
@@ -294,7 +303,7 @@ export interface Lesson {
   whyForAssessmentEn?: string;
   concepts: ConceptSection[];
   /** 涉及的源项目文件。edit: true 表示「这个文件需要你动手改」，页面上会高亮 */
-  sourceFiles?: { path: string; role: string; edit?: boolean }[];
+  sourceFiles?: { path: string; role: string; roleEn?: string; edit?: boolean }[];
   callouts?: Callout[];
   exercises?: Exercise[];
   /** 常见错误 */

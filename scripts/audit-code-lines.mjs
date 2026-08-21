@@ -65,9 +65,14 @@ function pairs(src) {
     if (tick < 0 || tick > m.index) continue;
     const zhClose = readTemplate(src, tick);
     if (zhClose < 0) continue;
+    // 取这一段的 language（real("text", `…`) 的第一个参数）
+    const langMatch = /\b(?:real|demo|tested)\(\s*"([\w-]+)"/.exec(
+      src.slice(Math.max(0, zhIdx - 4), tick),
+    );
     out.push({
       zh: src.slice(tick + 1, zhClose),
       en: src.slice(enOpen + 1, enClose),
+      lang: langMatch ? langMatch[1] : "",
       line: src.slice(0, m.index).split("\n").length,
     });
   }
@@ -92,7 +97,12 @@ const normalize = (l) =>
     .replace(/"(?:[^"\\]|\\.)*"/g, '"·"')
     .replace(/'(?:[^'\\]|\\.)*'/g, "'·'")
     .replace(/`(?:[^`\\]|\\.)*`/g, "`·`")
-    // 再删行尾注释（此时注释里的引号已经不会干扰了）
+    // 再删注释（此时注释里的引号已经不会干扰了）
+    // {/* … */} 是 JSX 块注释，/* … */ 是普通块注释 —— 两种都算注释，
+    // 里面的中文该译。踩过一次：cab-booking 的 {/* ← 太晚了 */} 因为
+    // 归一化没剥它，被迫在英文片段里留了一句中文。
+    .replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, "")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/.*$/, "")
     .replace(/#(?![0-9a-fA-F]{3,8}\b).*$/, "")
     .trimEnd();
@@ -103,7 +113,7 @@ const problems = [];
 for (const root of ROOTS) {
   for (const file of walk(root)) {
     const src = readFileSync(file, "utf8");
-    for (const { zh, en, line } of pairs(src)) {
+    for (const { zh, en, lang, line } of pairs(src)) {
       checked++;
       const a = zh.split("\n");
       const b = en.split("\n");
@@ -114,6 +124,12 @@ for (const root of ROOTS) {
         );
         continue; // 行数不同就没法逐行比了
       }
+      // language: "text" 的块是目录树、对齐表格、命令输出这类东西 ——
+      // 它们**没有可执行代码**，所谓「结构」就是那些路径和缩进本身，
+      // 而说明文字是裸文本、不带注释标记，归一化剥不掉。
+      // 对这种块只守行数，不比结构；否则整块就没法译（踩过：foundations
+      // 的两棵目录树因此一直是中文）。
+      if (lang === "text") continue;
       for (let i = 0; i < a.length; i++) {
         const ca = normalize(a[i]);
         const cb = normalize(b[i]);

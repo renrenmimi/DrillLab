@@ -226,13 +226,23 @@ const TONE_LABEL: Record<ConceptTone, { zh: string; en: string }> = {
   transfer: { zh: "换个题也能用", en: "Transfers to other problems" },
 };
 
-export function Callout({ tone, title, body }: CalloutData) {
+export function Callout({ tone, title, titleEn, body, bodyEn }: CalloutData) {
   return (
     <aside className="callout" data-tone={tone}>
       <strong className="callout-title">
-        {title || <T en={TONE_LABEL[tone].en} zh={TONE_LABEL[tone].zh} />}
+        {title ? (
+          <T zh={title} en={titleEn} />
+        ) : (
+          <T en={TONE_LABEL[tone].en} zh={TONE_LABEL[tone].zh} />
+        )}
       </strong>
-      {typeof body === "string" ? <p>{body}</p> : body}
+      {typeof body === "string" ? (
+        <p>
+          <T zh={body} en={bodyEn} />
+        </p>
+      ) : (
+        <T zh={body} en={bodyEn} />
+      )}
     </aside>
   );
 }
