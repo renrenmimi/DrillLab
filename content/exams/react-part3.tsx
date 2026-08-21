@@ -4156,6 +4156,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
           kind: "code-completion",
           id: "r-write-own-test",
           title: "自己补一个测试，覆盖「按 id 删除」这个盲区",
+          titleEn: "Write a test of your own to cover the delete-by-id blind spot",
           level: 3,
           prompt: (
             <p>
@@ -4167,6 +4168,19 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
                 提示：两条数据时页面上有两个 Delete 按钮，
                 <code>getByRole</code> 会因为「找到多个」而抛错 ——
                 得用 <code>getAllByRole</code>。
+              </span>
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The existing tests cannot check the delete by id. Write a new test:
+              add <strong>two notes with the same title</strong>, delete one of
+              them, and assert that the other is still there.
+              <br />
+              <span className="dimmer">
+                A note: with two notes there are two Delete buttons on the page,
+                and <code>getByRole</code> throws because it found more than one.
+                Use <code>getAllByRole</code>.
               </span>
             </p>
           ),
@@ -4184,6 +4198,17 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
 
   // 4. 断言：内容A 不在了，内容B 还在
 });`,
+          starterEn: `test("deletes only the clicked note when titles are identical", async () => {
+  render(<NoteManager />);
+
+  // 1. Add the first note: "会议" / "内容A"
+
+  // 2. Add the second note: "会议" / "内容B"
+
+  // 3. Click the first Delete button
+
+  // 4. Assert: 内容A is gone, 内容B is still there
+});`,
           requirements: [
             "添加两条 title 完全相同、content 不同的笔记",
             "用 getAllByRole 拿到 Delete 按钮数组，点第一个",
@@ -4191,19 +4216,52 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
             "断言 notes-list 仍然含「内容B」",
             "所有 userEvent 调用都要 await",
           ],
+          requirementsEn: [
+            "Add two notes with exactly the same title and different content",
+            "Use getAllByRole to get the array of Delete buttons, then click the first one",
+            "Assert that notes-list no longer holds 内容A",
+            "Assert that notes-list still holds 内容B",
+            "Put an await on every userEvent call",
+          ],
           checks: [
-            { label: "用了 getAllByRole 处理多个 Delete 按钮", must: "getAllByRole\\s*\\(" },
-            { label: "点了第一个 Delete 按钮（用了下标 [0]）", must: "\\[\\s*0\\s*\\]" },
-            { label: "断言其中一条消失了（not.toHaveTextContent）", must: "not\\.toHaveTextContent" },
-            { label: "断言另一条还在（toHaveTextContent）", must: "expect[\\s\\S]*[^t]\\.toHaveTextContent" },
-            { label: "userEvent 都加了 await", must: "await\\s+userEvent" },
-            { label: "没有用 getByRole 找 Delete（两个会抛错）", mustNot: 'getByRole\\s*\\(\\s*"button"\\s*,\\s*\\{\\s*name:\\s*"Delete"' },
+            {
+              label: "用了 getAllByRole 处理多个 Delete 按钮",
+              labelEn: "getAllByRole is used for the several Delete buttons",
+              must: "getAllByRole\\s*\\(",
+            },
+            {
+              label: "点了第一个 Delete 按钮（用了下标 [0]）",
+              labelEn: "The first Delete button is clicked (index [0] is used)",
+              must: "\\[\\s*0\\s*\\]",
+            },
+            {
+              label: "断言其中一条消失了（not.toHaveTextContent）",
+              labelEn: "One note is asserted gone (not.toHaveTextContent)",
+              must: "not\\.toHaveTextContent",
+            },
+            {
+              label: "断言另一条还在（toHaveTextContent）",
+              labelEn: "The other note is asserted present (toHaveTextContent)",
+              must: "expect[\\s\\S]*[^t]\\.toHaveTextContent",
+            },
+            { label: "userEvent 都加了 await", labelEn: "Every userEvent call has an await", must: "await\\s+userEvent" },
+            {
+              label: "没有用 getByRole 找 Delete（两个会抛错）",
+              labelEn: "getByRole is not used to find Delete (two matches would throw)",
+              mustNot: 'getByRole\\s*\\(\\s*"button"\\s*,\\s*\\{\\s*name:\\s*"Delete"',
+            },
           ],
           hints: [
             "两条数据 → 两个 Delete 按钮 → getBy* 会因为「找到多个」抛错。Testing Library 提供了处理多个元素的另一套查询。",
             "用 getAllByRole(\"button\", { name: \"Delete\" }) 拿到数组，再用下标点第一个。断言用 toHaveTextContent 和它的 not 形式。",
             "先 type 两次 + click 两次添加两条；\nconst buttons = getAllByRole(...);\nawait userEvent.click(buttons[0]);\nexpect(list).not.toHaveTextContent(\"内容A\");\nexpect(list).toHaveTextContent(\"内容B\");",
             'await userEvent.type(screen.getByTestId("form-input"), "会议");\nawait userEvent.type(screen.getByTestId("form-textarea"), "内容A");\nawait userEvent.click(screen.getByTestId("form-submit-button"));\n// 第二条同理，content 写 "内容B"\nconst deleteButtons = screen.getAllByRole("button", { name: "Delete" });\nawait userEvent.click(deleteButtons[0]);',
+          ],
+          hintsEn: [
+            'Two notes means two Delete buttons, and getBy* throws because it found more than one. Testing Library has a second set of queries for several matching elements.',
+            'Use getAllByRole("button", { name: "Delete" }) to get an array, then click the first one by index. Assert with toHaveTextContent and its not form.',
+            'Add two notes with two type calls and two click calls, then:\nconst buttons = getAllByRole(...);\nawait userEvent.click(buttons[0]);\nexpect(list).not.toHaveTextContent("内容A");\nexpect(list).toHaveTextContent("内容B");',
+            'await userEvent.type(screen.getByTestId("form-input"), "会议");\nawait userEvent.type(screen.getByTestId("form-textarea"), "内容A");\nawait userEvent.click(screen.getByTestId("form-submit-button"));\n// the second note is the same, with "内容B" as the content\nconst deleteButtons = screen.getAllByRole("button", { name: "Delete" });\nawait userEvent.click(deleteButtons[0]);',
           ],
           solution: demo(
             "tsx",
@@ -4230,8 +4288,32 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
 });`,
             {
               filename: "参考答案（DrillLab 自己写的测试，不是源项目自带的）",
+              filenameEn: "Reference answer (a DrillLab test, not one the project ships with)",
+              codeEn: `test("deletes only the clicked note when titles are identical", async () => {
+  render(<NoteManager />);
+
+  // The first note
+  await userEvent.type(screen.getByTestId("form-input"), "会议");
+  await userEvent.type(screen.getByTestId("form-textarea"), "内容A");
+  await userEvent.click(screen.getByTestId("form-submit-button"));
+
+  // The second note: same title, different content
+  await userEvent.type(screen.getByTestId("form-input"), "会议");
+  await userEvent.type(screen.getByTestId("form-textarea"), "内容B");
+  await userEvent.click(screen.getByTestId("form-submit-button"));
+
+  // Two notes means two Delete buttons, so getAllByRole is required
+  const deleteButtons = screen.getAllByRole("button", { name: "Delete" });
+  await userEvent.click(deleteButtons[0]);
+
+  const list = screen.getByTestId("notes-list");
+  expect(list).not.toHaveTextContent("内容A");
+  expect(list).toHaveTextContent("内容B");
+});`,
               explanation:
                 "这个测试能抓住「按 title 删」和「清空列表」两种错误实现 —— 前者会把两条都删掉，后者更明显。把它加进 src/NoteManager.test.tsx 后跑 npx vitest run 就能验证。",
+              explanationEn:
+                "This test catches both wrong implementations: deleting by title, which removes both notes, and emptying the list, which is even more obvious. Add it to src/NoteManager.test.tsx and run npx vitest run to check.",
             },
           ),
         },
