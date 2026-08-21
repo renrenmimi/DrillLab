@@ -989,7 +989,7 @@ const SPECS: Spec[] = [
     difficulty: 3,
     minutes: 90,
     from: "g-rebuild-subgraph",
-    explain: "g-task1-loader",
+    explain: "g-read-task1",
     runnable: false,
     commands: [
       { cmd: "npm test", expect: "10 passed" },
@@ -1003,7 +1003,7 @@ const SPECS: Spec[] = [
     difficulty: 3,
     minutes: 75,
     from: "g-rebuild-controller",
-    explain: "g-task2-endpoints",
+    explain: "g-endpoints",
     runnable: false,
     commands: [
       { cmd: "mvn test", expect: "Tests run: 5, Failures: 0" },
