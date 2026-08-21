@@ -684,8 +684,31 @@ export const gqlBasics: Module = {
 }`,
               {
                 filename: "同一个入口，两种形状",
+                filenameEn: "One entry point, two shapes",
+                codeEn: `# Only id and status — the server never looks up shipping
+{
+  orders(userId: "123") {
+    id
+    status
+  }
+}
+
+# Ask for shipping — only now does the Order.shippingInfo resolver run
+{
+  orders(userId: "123") {
+    id
+    status
+    totalAmount
+    shippingInfo {
+      status
+      trackingNumber
+    }
+  }
+}`,
                 explanation:
                   "第二个查询是审计时进程内真实执行过的，返回了 order-456（IN_TRANSIT / TRACK123456）和 order-457（DELIVERED / TRACK123457）。",
+                explanationEn:
+                  "The second query really ran in-process during the audit. It returned order-456 (IN_TRANSIT / TRACK123456) and order-457 (DELIVERED / TRACK123457).",
               },
             ),
           ],
@@ -720,11 +743,19 @@ export const gqlBasics: Module = {
           kind: "recognition",
           id: "g-which-is-scalar",
           title: "哪些字段是标量",
+          titleEn: "Which fields are scalars",
           level: 1,
           prompt: (
             <p>
               看真实 schema 里的 <code>type Order</code>。
               下面哪些字段的类型是<strong>标量</strong>（不能再往下展开）？（多选）
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Look at <code>type Order</code> in the real schema. Which of
+              these fields have a <strong>scalar</strong> type — one that
+              cannot be expanded any further? (Select all that apply.)
             </p>
           ),
           code: real(
@@ -766,11 +797,30 @@ export const gqlBasics: Module = {
               但类型确实是 <code>String</code> —— GraphQL 没有内置日期标量。
             </>
           ),
+          explainEn: (
+            <>
+              The scalars are the five built-in leaf types: <code>ID</code>,{" "}
+              <code>String</code>, <code>Int</code>, <code>Float</code> and{" "}
+              <code>Boolean</code>.
+              <br />
+              <code>status</code> is an <strong>enum</strong>. It is also a
+              leaf — you cannot expand it — but it is not a scalar.
+              <br />
+              <code>items</code> is a <strong>list of an object type</strong>,
+              so you can keep querying{" "}
+              <code>{"{ productId quantity price }"}</code> inside it.
+              <br />
+              <code>createdAt</code> means a point in time, but its type
+              really is <code>String</code> — GraphQL has no built-in date
+              scalar.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-query-vs-mutation",
           title: "这个操作该放哪",
+          titleEn: "Where does this operation belong",
           level: 1,
           prompt: (
             <p>
@@ -779,11 +829,18 @@ export const gqlBasics: Module = {
               <code>type Query</code> 下会怎样？
             </p>
           ),
+          promptEn: (
+            <p>
+              In the real schema, <code>createOrder</code> sits under{" "}
+              <code>type Mutation</code>. What happens if you move it under{" "}
+              <code>type Query</code>?
+            </p>
+          ),
           options: [
-            { id: "a", label: "语法错误，GraphQL 不允许" },
-            { id: "b", label: "技术上能跑，但违反约定；而且 Query 的字段是并行执行的，写操作会有并发风险" },
-            { id: "c", label: "完全一样，没有任何区别" },
-            { id: "d", label: "resolver 会收不到 args" },
+            { id: "a", label: "语法错误，GraphQL 不允许", labelEn: "A syntax error. GraphQL does not allow it." },
+            { id: "b", label: "技术上能跑，但违反约定；而且 Query 的字段是并行执行的，写操作会有并发风险", labelEn: "It runs, but it breaks the convention. And because Query fields run in parallel, two writes can race each other." },
+            { id: "c", label: "完全一样，没有任何区别", labelEn: "Exactly the same. There is no difference at all." },
+            { id: "d", label: "resolver 会收不到 args", labelEn: "The resolver will not receive args." },
           ],
           answer: ["b"],
           explain: (
@@ -799,16 +856,37 @@ export const gqlBasics: Module = {
               写操作放 Query 里，同一个请求里的多个写会并发跑，可能互相踩。
             </>
           ),
+          explainEn: (
+            <>
+              GraphQL does <strong>not</strong> stop you at the syntax level
+              from putting a write under Query. But two things matter:
+              <br />① <strong>Convention</strong>: every tool, cache and
+              client library assumes that a Query is safe, cacheable and safe
+              to retry. Putting a write there breaks that assumption.
+              <br />② <strong>The execution semantics differ</strong>: the
+              top-level fields of a Query run <strong>in parallel</strong>,
+              the fields of a Mutation run <strong>one after another</strong>.
+              Put writes under Query and several writes in the same request
+              run at the same time, so they can overwrite each other.
+            </>
+          ),
         },
         {
           kind: "fill-blank",
           id: "g-schema-blanks",
           title: "补全 schema 的关键声明",
+          titleEn: "Fill in the key declarations of the schema",
           level: 2,
           prompt: (
             <p>
               照真实 <code>schema.graphql</code> 补全。
               三个空分别关系到「入口类型」「枚举」「输入类型」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Fill this in from the real <code>schema.graphql</code>. The three
+              blanks are the entry type, the enum and the input type.
             </p>
           ),
           language: "graphql",
@@ -837,11 +915,21 @@ ___3___ OrderItemInput {
               n: 1,
               accept: ["enum"],
               hint: "值只能是列出来的那几个之一。",
+              hintEn: "The value can only be one of the ones listed.",
               why: (
                 <>
                   <code>enum</code>。它限定了 <code>status</code> 字段的取值范围。
                   resolver 返回一个不在这五个里的字符串（比如小写的
                   <code>&quot;shipped&quot;</code>）会被执行器拒绝并报错。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>enum</code>. It limits which values the{" "}
+                  <code>status</code> field may hold. If a resolver returns a
+                  string that is not one of these five — lowercase{" "}
+                  <code>&quot;shipped&quot;</code>, for example — the executor
+                  rejects it and reports an error.
                 </>
               ),
               width: 6,
@@ -850,6 +938,8 @@ ___3___ OrderItemInput {
               n: 2,
               accept: ["Query"],
               hint: "客户端读数据的入口类型，名字是约定好的。",
+              hintEn:
+                "The entry type the client reads data through. Its name is fixed by convention.",
               why: (
                 <>
                   <code>Query</code>。它是<strong>约定的读入口</strong>，
@@ -858,12 +948,23 @@ ___3___ OrderItemInput {
                   <code>resolvers.Query.orders</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>Query</code>. It is the{" "}
+                  <strong>agreed read entry point</strong>, and you do not
+                  rename it. (In theory you can rename it in the schema
+                  definition, but nobody does.) In the resolvers it maps to{" "}
+                  <code>resolvers.Query.orders</code>.
+                </>
+              ),
               width: 7,
             },
             {
               n: 3,
               accept: ["input"],
               hint: "这个类型只用来当参数，不会被查询返回。",
+              hintEn:
+                "This type is only used as an argument. A query never returns it.",
               why: (
                 <>
                   <code>input</code>。它和 <code>type</code> 的区别：
@@ -872,6 +973,19 @@ ___3___ OrderItemInput {
                   <strong>顺便记住这个 input 只有两个字段 ——
                   没有 <code>price</code>。</strong>
                   这个细节后面会坑死很多人。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>input</code>. How it differs from <code>type</code>:
+                  it can only be used as an argument, its fields can only be
+                  scalars, enums or other inputs, and it cannot have resolvers.
+                  <br />
+                  <strong>
+                    Also remember this input has only two fields — there is no{" "}
+                    <code>price</code>.
+                  </strong>{" "}
+                  That detail costs a lot of people a lot of time later.
                 </>
               ),
               width: 7,
