@@ -2050,7 +2050,32 @@ const withLogger = (Comp) => (props) => {
   console.log("render", Comp.name);
   return <Comp {...props} />;
 };`,
-              { filename: "高阶函数的三种典型形态" },
+              {
+                filename: "高阶函数的三种典型形态",
+                filenameEn: "Three typical shapes of a higher-order function",
+                codeEn: `// Returning a function: a counter that remembers its count
+function makeCounter() {
+  let n = 0;                    // kept alive by the closure
+  return () => ++n;
+}
+const next = makeCounter();
+next(); next();                 // 2
+
+// A very common live-coding question: debounce
+function debounce(fn, delay = 300) {
+  let timer = null;                        // state that lives in the closure
+  return function (...args) {
+    clearTimeout(timer);                   // every call first cancels the previous one
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };                                       // use function, not an arrow, to forward this
+}
+
+// A React HOC is a higher-order function too: takes a component, returns a component
+const withLogger = (Comp) => (props) => {
+  console.log("render", Comp.name);
+  return <Comp {...props} />;
+};`,
+              },
             ),
           ],
         },
