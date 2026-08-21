@@ -1352,8 +1352,15 @@ const handleSubmitNote = (submittedNote: Note) => {
           kind: "fill-blank",
           id: "r-t1-blank",
           title: "补全新增逻辑",
+          titleEn: "Fill in the add logic",
           level: 2,
           prompt: <p>两个空。想清楚「旧的要不要留」和「用哪种更新形式」。</p>,
+          promptEn: (
+            <p>
+              Two blanks. Decide whether the old notes have to stay, and which
+              form of update to use.
+            </p>
+          ),
           language: "tsx",
           filename: "src/components/NoteManager/index.tsx",
           sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
@@ -1369,6 +1376,7 @@ const handleSubmitNote = (submittedNote: Note) => {
               n: 1,
               accept: ["prev", "prevNotes", "p"],
               hint: "函数式更新的回调参数，React 会把最新的值交给它。",
+              hintEn: "The parameter of the functional-update callback. React hands the latest value to it.",
               why: (
                 <>
                   <code>prev</code>（名字随你，项目里用的是 <code>prev</code>）。
@@ -1377,12 +1385,22 @@ const handleSubmitNote = (submittedNote: Note) => {
                   可以避免拿到过期快照。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>prev</code> (the name is up to you; the project uses{" "}
+                  <code>prev</code>). It is the newest value of notes, handed to
+                  you by React. Using it instead of the outer{" "}
+                  <code>notes</code> variable keeps you from reading a value that
+                  is already out of date.
+                </>
+              ),
               width: 7,
             },
             {
               n: 2,
               accept: ["...prev", "... prev"],
               hint: "旧的每一条都要留下来。用什么把数组「铺开」？",
+              hintEn: "Every old note has to stay. What spreads an array out?",
               why: (
                 <>
                   <code>...prev</code>。展开语法把旧数组的每个元素铺进新数组。
@@ -1393,6 +1411,20 @@ const handleSubmitNote = (submittedNote: Note) => {
                   TypeScript 也会报类型错。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>...prev</code>. The spread syntax lays every element of
+                  the old array into the new one.
+                  <br />
+                  <strong>
+                    What happens if you write <code>prev</code> without the three
+                    dots?
+                  </strong>{" "}
+                  You get <code>[[the old array], the new note]</code>, a nested
+                  array. <code>map</code> then renders something meaningless, and
+                  TypeScript reports a type error too.
+                </>
+              ),
               width: 9,
             },
           ],
@@ -1401,11 +1433,19 @@ const handleSubmitNote = (submittedNote: Note) => {
           kind: "code-completion",
           id: "r-t1-write",
           title: "不看答案，自己写出 Task 1",
+          titleEn: "Write Task 1 yourself, without looking at the answer",
           level: 3,
           prompt: (
             <p>
               只给你函数签名和要求。自己写完整实现。
               写完点「检查我的代码」，它会用文本规则检查你有没有踩坑。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You get the function signature and the requirements. Write the whole
+              implementation yourself. When you are done, use the check button:
+              it applies text rules to see whether you fell into a known trap.
             </p>
           ),
           language: "tsx",
@@ -1418,6 +1458,13 @@ const handleSubmitNote = (submittedNote: Note) => {
 const handleSubmitNote = (submittedNote: Note) => {
 
 };`,
+          starterEn: `// notes and setNotes already exist:
+//   const [notes, setNotes] = useState<Note[]>([]);
+// noteToEdit exists too (Task 3 uses it; here write only the add branch)
+
+const handleSubmitNote = (submittedNote: Note) => {
+
+};`,
           requirements: [
             "把 submittedNote 追加到 notes 的末尾",
             "原有的笔记全部保留",
@@ -1425,18 +1472,43 @@ const handleSubmitNote = (submittedNote: Note) => {
             "不许用 push / splice / unshift 修改原数组",
             "留出 if (noteToEdit) 分支的位置（Task 3 会填）",
           ],
+          requirementsEn: [
+            "Append submittedNote to the end of notes",
+            "Keep every note that was already there",
+            "Use a functional update: setNotes(prev => ...)",
+            "Do not change the original array with push / splice / unshift",
+            "Leave room for the if (noteToEdit) branch (Task 3 fills it in)",
+          ],
           checks: [
-            { label: "调用了 setNotes", must: "setNotes\\s*\\(" },
-            { label: "用了函数式更新（回调形式）", must: "setNotes\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>" },
-            { label: "用了展开语法保留旧数据", must: "\\.\\.\\.\\s*\\w+" },
-            { label: "新笔记追加在末尾（展开在前）", must: "\\[\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*submittedNote\\s*\\]" },
-            { label: "没有 push / splice / unshift", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
-            { label: "留了 noteToEdit 分支", must: "noteToEdit" },
+            { label: "调用了 setNotes", labelEn: "setNotes is called", must: "setNotes\\s*\\(" },
+            {
+              label: "用了函数式更新（回调形式）",
+              labelEn: "A functional update is used (the callback form)",
+              must: "setNotes\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>",
+            },
+            { label: "用了展开语法保留旧数据", labelEn: "Spread syntax keeps the old data", must: "\\.\\.\\.\\s*\\w+" },
+            {
+              label: "新笔记追加在末尾（展开在前）",
+              labelEn: "The new note goes at the end (the spread comes first)",
+              must: "\\[\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*submittedNote\\s*\\]",
+            },
+            {
+              label: "没有 push / splice / unshift",
+              labelEn: "No push / splice / unshift",
+              mustNot: "\\.(push|splice|unshift)\\s*\\(",
+            },
+            { label: "留了 noteToEdit 分支", labelEn: "The noteToEdit branch is left in place", must: "noteToEdit" },
           ],
           hints: [
             "问自己：新的 notes 数组和旧的是什么关系？「旧的全部 + 一条新的」。",
             "改 state 只能通过 setNotes。要「旧的全部」就得把旧数组铺开 —— 用展开语法。",
             "setNotes(接收最新值的回调 => [把旧的铺开， 新的那条])\n外面再包一层 if (noteToEdit) { } else { 这里 }",
+            "if (noteToEdit) {\n  // Task 3\n} else {\n  setNotes((prev) => [...prev, submittedNote]);\n}",
+          ],
+          hintsEn: [
+            "Ask yourself: how does the new notes array relate to the old one? All of the old ones, plus one new one.",
+            "setNotes is the only way to change the state. To get all of the old ones you have to spread the old array out.",
+            "setNotes(callback that receives the latest value => [spread the old ones out, the new one])\nthen wrap that in if (noteToEdit) { } else { here }",
             "if (noteToEdit) {\n  // Task 3\n} else {\n  setNotes((prev) => [...prev, submittedNote]);\n}",
           ],
           solution: real(
@@ -1450,6 +1522,14 @@ const handleSubmitNote = (submittedNote: Note) => {
 };`,
             {
               filename: "参考答案",
+              filenameEn: "Reference answer",
+              codeEn: `const handleSubmitNote = (submittedNote: Note) => {
+  if (noteToEdit) {
+    // the in-place replace of Task 3 goes here
+  } else {
+    setNotes((prev) => [...prev, submittedNote]);
+  }
+};`,
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
