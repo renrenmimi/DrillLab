@@ -5346,6 +5346,8 @@ export default defineConfig({
           title: "从零重写：空文件夹里做出来",
           titleEn: "Rewrite it: build the whole app in an empty folder",
           blurb: "这一节没有新知识。只有一个要求：不看答案，把整个应用写出来。",
+          blurbEn:
+            "There is nothing new to learn here. There is one requirement: write the whole app without looking at the answer.",
           minutes: 55,
           objectives: [
             "在空文件夹里搭出 Vite + React + Vitest 的测试环境",
@@ -5353,8 +5355,16 @@ export default defineConfig({
             "自己发现并修掉 .js / .jsx 那个坑",
             "跑到 4 passed / 4 total",
           ],
+          objectivesEn: [
+            "Set up a Vite, React and Vitest test environment in an empty folder",
+            "Write the Context and the six components from what the four tests ask for",
+            "Find and fix the .js and .jsx problem yourself",
+            "Reach 4 passed / 4 total",
+          ],
           whyForAssessment:
             "真实考试就是这样：一个仓库、一份 README、一套测试，没有答案。前面三个部分你都是「跟着看」，这一节是「自己做」。做不出来不代表白学了 —— 卡在哪一步，那一步就是你真正的薄弱点。",
+          whyForAssessmentEn:
+            "A real exam looks exactly like this: one repository, one README, one set of tests, and no answer. In the first three parts you were reading along. In this lesson you do it yourself. Not finishing does not mean the earlier work was wasted. Wherever you get stuck is your real weak point.",
           sourceFiles: [
             { path: "cab-booking-context/src/test/App.test.jsx", role: "唯一允许看的东西：四个测试" },
             { path: "cab-booking-context/src/data/data.json", role: "数据可以照抄，那不是考点" },
@@ -5363,7 +5373,10 @@ export default defineConfig({
             {
               id: "cb-rewrite-order",
               heading: "按什么顺序写",
+              headingEn: "What order to write it in",
               lede: "让测试一条一条变绿，而不是全写完再跑",
+              ledeEn:
+                "Make the tests pass one at a time, instead of writing everything and running them at the end",
               body: (
                 <>
                   <p>
@@ -5676,6 +5689,24 @@ $ npx vitest run
                   <strong>调试时间比写代码时间更容易失控</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <strong>Four failing tests carry almost no information.</strong> A Provider on the
+                  wrong level, a misspelled testid, and a state machine that is not connected are
+                  three completely different causes that produce <strong>the same output</strong>.
+                  <br />
+                  If you work through the tests in order,{" "}
+                  <strong>each step has only one variable</strong>: you have just written{" "}
+                  <code>RideHistory</code> and test 1 is still failing, so the problem can only be in
+                  the lines you just wrote or in the level of the Provider.
+                  <br />
+                  <strong>
+                    This is not a teaching suggestion, it is time management in a real exam.
+                  </strong>{" "}
+                  The exam is timed, and{" "}
+                  <strong>debugging time gets out of control more easily than writing time</strong>.
+                </>
+              ),
             },
           ],
           transfer: [
@@ -5690,6 +5721,13 @@ $ npx vitest run
             "带 JSX 的文件从一开始就叫 .jsx，别重复那个坑。",
             "两个最容易错的点：slice(-3).reverse() 的顺序、确认页的 ?.name。",
             "提示分四级，先自己想 15 分钟 —— 你练的是没提示时自己找路。",
+          ],
+          recapEn: [
+            "Write in test order: make test 1 pass, then write what test 2 needs, so every step has only one variable.",
+            "The first step is to get the tests running and all failing. That alone is better than the baseline of the source project.",
+            "Give every file that contains JSX the .jsx extension from the start, so the same problem does not come back.",
+            "The two easiest things to get wrong: the order of slice(-3).reverse(), and ?.name on the confirmation page.",
+            "The hints come in four levels. Think for 15 minutes on your own first, because what you are practising is finding the way without hints.",
           ],
         },
       ],
