@@ -815,8 +815,30 @@ console.log("6 同步");
 //   · await 之后的代码等价于 .then 里的代码，是微任务`,
               {
                 filename: "必须能推出来的那道题",
+                filenameEn: "The question you have to be able to work out",
+                codeEn: `console.log("1 sync");
+
+setTimeout(() => console.log("2 macrotask"), 0);
+
+Promise.resolve().then(() => console.log("3 microtask"));
+
+(async () => {
+  console.log("4 sync (everything before await is sync)");
+  await null;
+  console.log("5 microtask (after await)");
+})();
+
+console.log("6 sync");
+
+// Output: 1 sync -> 4 sync -> 6 sync -> 3 microtask -> 5 microtask -> 2 macrotask
+//
+// The two key points:
+//   · the body of an async function runs synchronously until the first await
+//   · the code after await is the same as code inside .then, so it is a microtask`,
                 explanation:
                   "面试给的题基本是这个变体。抓住两条：同步先跑完；微任务在宏任务前，且一次清空。",
+                explanationEn:
+                  "The question you get in an interview is almost always a variant of this one. Hold on to two rules: all synchronous code runs first; microtasks run before macrotasks, and the whole microtask queue is drained at once.",
               },
             ),
           ],
