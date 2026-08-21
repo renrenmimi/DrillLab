@@ -226,6 +226,7 @@ export const fedTask2: Module = {
       title: "先看懂给你的东西：Spring 的几个注解和一条请求链路",
       titleEn: "Understand what you are given: a few Spring annotations and the path one request takes",
       blurb: "没写过 Java 也能看懂 —— 这一节只讲这道题真正需要的那几个概念。",
+      blurbEn: "You do not need Java experience. This lesson covers only the few ideas this task actually needs.",
       minutes: 16,
       objectives: [
         "认得 @RestController / @GetMapping / @PathVariable / @RequestBody 等注解",
@@ -233,8 +234,16 @@ export const fedTask2: Module = {
         "读懂 OrderService 提供了哪些方法、抛什么异常",
         "说清 GlobalExceptionHandler 和 CorrelationIdFilter 各自在做什么",
       ],
+      objectivesEn: [
+        "Recognise the annotations @RestController / @GetMapping / @PathVariable / @RequestBody",
+        "Explain what constructor injection is, and how OrderService gets into the controller",
+        "Read which methods OrderService gives you and which exceptions it throws",
+        "Explain what GlobalExceptionHandler and CorrelationIdFilter each do",
+      ],
       whyForAssessment:
         "业务逻辑全部 PROVIDED。你要写的只是「调用 + 选状态码 + 记日志」。所以读懂已给的部分，这道题就做完一半了。",
+      whyForAssessmentEn:
+        "All the business logic is marked PROVIDED. All you write is: call a method, pick a status code, write a log line. So reading the given code is already half of this task.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/service/OrderService.java",
@@ -258,7 +267,9 @@ export const fedTask2: Module = {
         {
           id: "annotations",
           heading: "这道题会用到的注解，一张表说完",
+          headingEn: "One table covers every annotation this task uses",
           lede: "Java 的注解就是「贴在代码上的标签」，框架读这些标签决定怎么处理。",
+          ledeEn: "A Java annotation is a label attached to code. The framework reads the label and decides how to handle that code.",
           body: (
             <>
               <div className="table-wrap">
@@ -444,7 +455,9 @@ export const fedTask2: Module = {
         {
           id: "constructor-injection",
           heading: "OrderService 是怎么进到控制器里的",
+          headingEn: "How OrderService gets into the controller",
           lede: "构造器注入 —— 一行代码就能理解。",
+          ledeEn: "Constructor injection. One line of code is enough to understand it.",
           body: (
             <>
               <p>
@@ -531,7 +544,9 @@ public OrderController(OrderService orderService) {
         {
           id: "the-service",
           heading: "OrderService 给了你什么",
+          headingEn: "What OrderService gives you",
           lede: "这张表就是你的工具箱。写代码前抄一遍。",
+          ledeEn: "This table is your toolbox. Copy it out before you write any code.",
           body: (
             <>
               <div className="table-wrap">
@@ -733,7 +748,9 @@ public void deleteOrder(Long id) {
         {
           id: "global-exception-handler",
           heading: "GlobalExceptionHandler：为什么你不该 try/catch",
+          headingEn: "GlobalExceptionHandler: why you should not write try/catch",
           lede: "这是这道题最容易做反的一处设计。",
+          ledeEn: "This is the design decision people most often get backwards in this task.",
           body: (
             <>
               <p>
@@ -858,6 +875,7 @@ public class GlobalExceptionHandler {
         {
           id: "validation",
           heading: "@Valid 与 DTO 上的约束",
+          headingEn: "@Valid and the constraints on the DTO",
           body: (
             <>
               <p>
@@ -952,6 +970,7 @@ public class OrderItemRequest {
         {
           id: "correlation-filter",
           heading: "CorrelationIdFilter：Java 版的 correlation id",
+          headingEn: "CorrelationIdFilter: the Java version of a correlation id",
           body: (
             <>
               <p>
@@ -1055,6 +1074,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         {
           id: "distractors",
           heading: "两个干扰项",
+          headingEn: "Two distractors",
           body: (
             <>
               <ul>
@@ -1204,11 +1224,11 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         },
       ],
       transfer: [
-        { signal: "项目里有 @RestControllerAdvice", reachFor: "控制器里不要 try/catch，让异常冒出去" },
-        { signal: "参数上有 @Valid", reachFor: "格式校验交给 Bean Validation，别自己写" },
-        { signal: "service 方法返回 void", reachFor: "端点大概该返回 204" },
-        { signal: "看到一个可疑的资源文件（.db 之类）", reachFor: "查 pom.xml 有没有对应依赖，没有就是干扰项" },
-        { signal: "需要 correlation id", reachFor: "Java 用 MDC.get()，别自己一层层传参" },
+        { signal: "项目里有 @RestControllerAdvice", signalEn: "The project has an @RestControllerAdvice", reachFor: "控制器里不要 try/catch，让异常冒出去", reachForEn: "No try/catch in the controller; let the exception travel up" },
+        { signal: "参数上有 @Valid", signalEn: "A parameter is marked @Valid", reachFor: "格式校验交给 Bean Validation，别自己写", reachForEn: "Leave format checks to Bean Validation; do not write them yourself" },
+        { signal: "service 方法返回 void", signalEn: "The service method returns void", reachFor: "端点大概该返回 204", reachForEn: "The endpoint probably returns 204" },
+        { signal: "看到一个可疑的资源文件（.db 之类）", signalEn: "You see a suspicious resource file, such as a .db file", reachFor: "查 pom.xml 有没有对应依赖，没有就是干扰项", reachForEn: "Check pom.xml for a matching dependency; if there is none, it is a distractor" },
+        { signal: "需要 correlation id", signalEn: "You need a correlation id", reachFor: "Java 用 MDC.get()，别自己一层层传参", reachForEn: "In Java use MDC.get(); do not pass it down through every method" },
       ],
       recap: [
         "构造器注入已经写好，orderService 随时可用，不要 new。",
@@ -1216,6 +1236,13 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         "deleteOrder 返回 void，暗示端点该返回 204。",
         "@Valid 必须保留，格式校验靠它；MDC.get(\"correlationId\") 用来打结构化日志。",
         "orders.db 和 MetricsConfig 都是干扰项 —— pom.xml 里没有数据库依赖。",
+      ],
+      recapEn: [
+        "Constructor injection is already written. orderService is ready to use; never create it with new.",
+        "Three OrderService methods throw EntityNotFoundException. Do not try/catch them; the global handler turns them into 404.",
+        "deleteOrder returns void, which hints the endpoint should return 204.",
+        "Keep @Valid; it does the format checks. Use MDC.get(\"correlationId\") for structured log lines.",
+        "orders.db and MetricsConfig are both distractors. pom.xml has no database dependency.",
       ],
     },
 
