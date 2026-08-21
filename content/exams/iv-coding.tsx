@@ -402,6 +402,55 @@ const Player: React.FC<{ src: string }> = ({ src }) => {
 
 export default Player;`;
 
+const C_PLAYER_EN = `import React, { useRef, useState } from "react";
+
+const Player: React.FC<{ src: string }> = ({ src }) => {
+  // The other use of useRef: hold a DOM node so you can call its imperative API
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [time, setTime] = useState(0);
+
+  const toggle = async () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+      setPlaying(false);
+    } else {
+      await el.play();          // play() returns a Promise, and browser policy may refuse it
+      setPlaying(true);
+    }
+  };
+
+  const stop = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    el.pause();
+    el.currentTime = 0;         // Set the DOM property directly, without going through state
+    setPlaying(false);
+    setTime(0);
+  };
+
+  return (
+    <div data-testid="player">
+      <audio
+        ref={audioRef}
+        src={src}
+        onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
+        onEnded={() => setPlaying(false)}
+        data-testid="audio"
+      />
+      <button onClick={toggle} data-testid="toggle">
+        {playing ? "Pause" : "Play"}
+      </button>
+      <button onClick={stop} data-testid="stop">Stop</button>
+      <output data-testid="time">{Math.floor(time)}</output>
+    </div>
+  );
+};
+
+export default Player;`;
+
 const C_HOOK = `import { useEffect, useState } from "react";
 
 /**
@@ -428,6 +477,34 @@ export function useLocalStorage<T>(key: string, initial: T) {
   }, [key, value]);
 
   return [value, setValue] as const;   // as const 让返回类型是元组而不是数组
+}`;
+
+const C_HOOK_EN = `import { useEffect, useState } from "react";
+
+/**
+ * Tie a value to localStorage.
+ * The name has to start with use — ESLint checks the hooks rules only for that prefix.
+ */
+export function useLocalStorage<T>(key: string, initial: T) {
+  // Lazy initialisation: localStorage is read once on the first render, not on every render
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const raw = window.localStorage.getItem(key);
+      return raw === null ? initial : (JSON.parse(raw) as T);
+    } catch {
+      return initial;          // Private mode or bad data: fall back to the default instead of breaking the component
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      /* A failed write only affects persistence, not this session */
+    }
+  }, [key, value]);
+
+  return [value, setValue] as const;   // as const makes the return type a tuple instead of an array
 }`;
 
 const C_CARD_T = `export type ColumnId = "todo" | "doing" | "done";
@@ -2636,6 +2713,8 @@ const [tabs, setTabs] = useState(
           code: [
             tested("tsx", C_PLAYER, {
               filename: "src/components/Player/index.tsx（实测通过）",
+              filenameEn: "src/components/Player/index.tsx (passes in a real run)",
+              codeEn: C_PLAYER_EN,
               collapsible: true,
             }),
           ],
@@ -2841,6 +2920,8 @@ test("点 Play 调 audio.play()，再点调 pause()", async () => {
           code: [
             tested("ts", C_HOOK, {
               filename: "src/hooks/useLocalStorage.ts（实测通过）",
+              filenameEn: "src/hooks/useLocalStorage.ts (passes in a real run)",
+              codeEn: C_HOOK_EN,
             }),
             demo(
               "ts",
@@ -3000,6 +3081,8 @@ return [value, setValue] as const;`,
           ],
           solution: tested("ts", C_HOOK, {
             filename: "参考答案（实测通过）",
+            filenameEn: "Reference answer (passes in a real run)",
+            codeEn: C_HOOK_EN,
           }),
         },
       ],
