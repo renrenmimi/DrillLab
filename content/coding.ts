@@ -932,6 +932,20 @@ const SPECS: Spec[] = [
       "历史只显示最新三条、最新的排最上面；reverse() 原地修改，别翻到 state 上",
       "有记录时每条一个 <li data-testid=\"history-cabs\">（含车名和 $价格）；没记录时只显示 <p data-testid=\"no-ride-title\">No ride history yet.</p>，两者互斥",
     ],
+    requirementsEn: [
+      "The Context holds two things: bookedCabDetails (the current booking, starts as null) and rideHistory (every ride, starts as [])",
+      "updateBookedCabDetails(cab) does two things in one call: it sets the current booking and appends to the history. The append has to build a new array, never push",
+      "The custom hook useCabContext() carries a guard: with no Provider around it, it throws, and the message contains CabProvider. Do not cover up that error by giving createContext a fake default value",
+      "One string state drives all four pages (home / cab-options / loading / cab-confirmation) and starts at home. Do not use several booleans",
+      "Clicking book-button goes to cab-options, and the home page must disappear. Only one page is on screen at a time",
+      "Clicking Select on a card writes to the Context first and then moves to loading. Both happen inside the same handler",
+      "Loading calls onComplete 1000ms after it mounts. Use setTimeout, not setInterval",
+      "The effect in Loading must have a cleanup function. Once it has unmounted it must not call onComplete",
+      "On the confirmation page, confirm-message reads \"<cab name> is on the way and will arrive shortly.\" bookedCabDetails starts as null, so you need ?.",
+      "Clicking confirm-button returns to the home page, and the ride you just booked is visible in the history",
+      "The history shows only the newest three rides, newest at the top. reverse() changes the array in place, so do not run it on the state array",
+      "With rides in the history, each one is a <li data-testid=\"history-cabs\"> holding the cab name and the $ price. With none, the only thing on screen is <p data-testid=\"no-ride-title\">No ride history yet.</p>. The two never appear together",
+    ],
     solution: [
     tested("tsx", "import { createContext, useContext, useState } from \"react\";\nimport type { ReactNode } from \"react\";\nimport type { Cab } from \"./data\";\n\nexport interface CabContextValue {\n  bookedCabDetails: Cab | null;\n  rideHistory: Cab[];\n  updateBookedCabDetails: (cab: Cab) => void;\n}\n\nconst CabContext = createContext<CabContextValue | undefined>(undefined);\n\nexport function CabProvider({ children }: { children: ReactNode }) {\n  const [bookedCabDetails, setBookedCabDetails] = useState<Cab | null>(null);\n  const [rideHistory, setRideHistory] = useState<Cab[]>([]);\n\n  const updateBookedCabDetails = (cab: Cab) => {\n    setBookedCabDetails(cab);\n    setRideHistory((prev) => [...prev, cab]);\n  };\n\n  const value = { bookedCabDetails, rideHistory, updateBookedCabDetails };\n\n  return <CabContext.Provider value={value}>{children}</CabContext.Provider>;\n}\n\nexport function useCabContext(): CabContextValue {\n  const context = useContext(CabContext);\n\n  if (!context) {\n    throw new Error(\"useCabContext must be used within a CabProvider\");\n  }\n\n  return context;\n}\n", {
       filename: "/CabContext.tsx",
