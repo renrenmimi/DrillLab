@@ -1336,7 +1336,26 @@ new Set([{ id: 1 }, { id: 1 }]).size;   // 2 ← 引用不同
 // 按内容去重要用 Map
 const byId = new Map(items.map((i) => [i.id, i]));
 const deduped = [...byId.values()];`,
-              { filename: "Set 的两个真实用途" },
+              {
+                filename: "Set 的两个真实用途",
+                filenameEn: "Two real uses for Set",
+                codeEn: `// Dedupe in one line
+const unique = [...new Set([1, 2, 2, 3])];   // [1, 2, 3]
+
+// Checking for duplicates in a loop: O(n²) -> O(n)
+const seen = new Set();
+for (const x of list) {
+  if (seen.has(x)) continue;   // O(1); arr.includes here would be O(n)
+  seen.add(x);
+}
+
+// It cannot dedupe objects
+new Set([{ id: 1 }, { id: 1 }]).size;   // 2 ← different references
+
+// To dedupe by content, use a Map
+const byId = new Map(items.map((i) => [i.id, i]));
+const deduped = [...byId.values()];`,
+              },
             ),
           ],
         },
