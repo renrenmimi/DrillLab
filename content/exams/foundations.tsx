@@ -2466,11 +2466,19 @@ const handleDelete = (id: number) => {
               kind: "debug",
               id: "f-debug-push",
               title: "Debug Lab · 数据加进去了，界面没反应",
+              titleEn: "Debug Lab · the data went in, the screen did not move",
               level: 2,
               prompt: (
                 <p>
                   这一类 bug 最难查，因为<strong>它不报错</strong>。
                   先看现象，判断类型，再找病灶 —— 别跳步。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  This kind of bug is the hardest to find, because{" "}
+                  <strong>it reports no error</strong>. Read the symptom, classify it,
+                  then locate it. Do not skip a step.
                 </p>
               ),
               errorOutput: `# 没有任何报错。控制台干净。
@@ -2486,24 +2494,25 @@ notes.length after : 1     ← 数据真的进去了
   notes.push(submittedNote);
   setNotes(notes);
 };`,
-                { filename: "有问题的写法" },
+                { filename: "有问题的写法", filenameEn: "The broken version" },
               ),
               classify: {
                 options: [
-                  { id: "a", label: "语法错误 —— 代码写得不合法" },
-                  { id: "b", label: "类型错误 —— TypeScript 不让过" },
-                  { id: "c", label: "状态更新错误 —— 改了原对象，React 认为没变化" },
-                  { id: "d", label: "异步错误 —— 少了 await" },
+                  { id: "a", label: "语法错误 —— 代码写得不合法", labelEn: "Syntax error — the code is not valid" },
+                  { id: "b", label: "类型错误 —— TypeScript 不让过", labelEn: "Type error — TypeScript refuses it" },
+                  { id: "c", label: "状态更新错误 —— 改了原对象，React 认为没变化", labelEn: "State update error — the original object was changed, so React sees no change" },
+                  { id: "d", label: "异步错误 —— 少了 await", labelEn: "Async error — an await is missing" },
                 ],
                 answer: "c",
               },
               locate: {
                 question: "哪一行是病灶？",
+                questionEn: "Which line is the cause?",
                 options: [
                   { id: "a", label: "notes.push(submittedNote);" },
                   { id: "b", label: "setNotes(notes);" },
-                  { id: "c", label: "函数签名 (submittedNote: Note)" },
-                  { id: "d", label: "两行都要改，但根源在 push" },
+                  { id: "c", label: "函数签名 (submittedNote: Note)", labelEn: "The function signature (submittedNote: Note)" },
+                  { id: "d", label: "两行都要改，但根源在 push", labelEn: "Both lines change, but push is the root of it" },
                 ],
                 answer: "d",
               },
@@ -2514,6 +2523,7 @@ notes.length after : 1     ← 数据真的进去了
 };`,
                 {
                   filename: "改对之后",
+                  filenameEn: "After the fix",
                   sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 },
               ),
@@ -2532,6 +2542,25 @@ notes.length after : 1     ← 数据真的进去了
                   </p>
                 </>
               ),
+              rootCauseEn: (
+                <>
+                  <p>
+                    <code>push</code> changed the original array itself. The contents are
+                    different, but <code>notes</code> still points at{" "}
+                    <strong>the same array object</strong>. After{" "}
+                    <code>setNotes(notes)</code> React compares &ldquo;is this the same
+                    thing?&rdquo;, finds that it is, decides the state did not change,
+                    and skips the re-render.
+                  </p>
+                  <p>
+                    This kind of bug is hard to find because{" "}
+                    <strong>nothing reports an error</strong> and{" "}
+                    <code>console.log</code> even tells you the data is right. Remember
+                    the signature: <strong>the data is right but the screen does not
+                    move → nine times out of ten the original object was changed.</strong>
+                  </p>
+                </>
+              ),
               verify: "npx vitest run",
             },
           ],
@@ -2544,6 +2573,13 @@ setNotes((prev) => [
   ...prev.filter((n) => n.id !== submittedNote.id),
   submittedNote,
 ]);`,
+                {
+                  codeEn: `// ✗ deleting then adding on update — the order changes
+setNotes((prev) => [
+  ...prev.filter((n) => n.id !== submittedNote.id),
+  submittedNote,
+]);`,
+                },
               ),
               why: (
                 <>
@@ -2568,6 +2604,10 @@ setNotes((prev) => [
                 "tsx",
                 `// ✗ filter 条件写反了
 setNotes((prev) => prev.filter((note) => note.id === id));`,
+                {
+                  codeEn: `// ✗ the filter condition is backwards
+setNotes((prev) => prev.filter((note) => note.id === id));`,
+                },
               ),
               why: (
                 <>
