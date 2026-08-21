@@ -2642,12 +2642,20 @@ Ignored nodes: comments, script, style
           kind: "debug",
           id: "r-lab-silent-mutation",
           title: "故障 4 · 编辑后列表毫无变化（综合题）",
+          titleEn: "Fault 4 · the list does not change after an edit (mixed question)",
           level: 3,
           prompt: (
             <p>
               这一题不告诉你是哪一类。控制台干净，
               <code>console.log</code> 显示数据是对的。
               自己分诊。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              This one does not tell you which category it is. The console is
+              clean, and <code>console.log</code> shows the data is correct. Sort
+              it yourself.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -2677,24 +2685,29 @@ console.log("after:", notes);
     setNotes((prev) => [...prev, submittedNote]);
   }
 };`,
-            { filename: "有问题的 handleSubmitNote", highlight: [4, 5] },
+            {
+              filename: "有问题的 handleSubmitNote",
+              filenameEn: "The handleSubmitNote with the problem",
+              highlight: [4, 5],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "模块解析错误" },
-              { id: "b", label: "渲染循环" },
-              { id: "c", label: "状态更新错误 —— 改了原数组，React 认为值没变" },
-              { id: "d", label: "测试查询错误 —— 漏了 await" },
+              { id: "a", label: "模块解析错误", labelEn: "A module resolution error" },
+              { id: "b", label: "渲染循环", labelEn: "A render loop" },
+              { id: "c", label: "状态更新错误 —— 改了原数组，React 认为值没变", labelEn: "A state update mistake — the original array was changed, so React sees the same value" },
+              { id: "d", label: "测试查询错误 —— 漏了 await", labelEn: "A wrong query in the test — a missing await" },
             ],
             answer: "c",
           },
           locate: {
             question: "病灶是哪两行的组合？",
+            questionEn: "Which two lines together cause it?",
             options: [
-              { id: "a", label: "第 4、5 行：notes[i] = ... 改了原数组，setNotes(notes) 传的还是同一个引用" },
-              { id: "b", label: "第 3 行：findIndex 应该用 find" },
-              { id: "c", label: "第 6 行：setNoteToEdit(null) 应该在 setNotes 之前" },
-              { id: "d", label: "第 8 行：新增分支写错了" },
+              { id: "a", label: "第 4、5 行：notes[i] = ... 改了原数组，setNotes(notes) 传的还是同一个引用", labelEn: "Lines 4 and 5: notes[i] = ... changes the original array, and setNotes(notes) passes the same reference" },
+              { id: "b", label: "第 3 行：findIndex 应该用 find", labelEn: "Line 3: findIndex should be find" },
+              { id: "c", label: "第 6 行：setNoteToEdit(null) 应该在 setNotes 之前", labelEn: "Line 6: setNoteToEdit(null) should come before setNotes" },
+              { id: "d", label: "第 8 行：新增分支写错了", labelEn: "Line 8: the add branch is written wrong" },
             ],
             answer: "a",
           },
@@ -2714,6 +2727,7 @@ console.log("after:", notes);
 };`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -2746,7 +2760,43 @@ console.log("after:", notes);
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>notes[i] = submittedNote</code> changes{" "}
+                <strong>the original array itself</strong>. The content really
+                did change, which is why <code>console.log</code> looks correct,
+                and that is the most confusing part of this bug.
+              </p>
+              <p>
+                But <code>setNotes(notes)</code> still passes{" "}
+                <strong>the same array object</strong>. React compares the new
+                value with the old one, sees the same reference, decides nothing
+                changed, and skips the re-render.
+              </p>
+              <p>
+                <strong>This combination of symptoms is worth memorizing:</strong>{" "}
+                no error, plus correct data in the logs, plus a screen that does
+                not change, equals{" "}
+                <strong>the original object was changed</strong>. Go look for
+                these four spellings: <code>push</code>, <code>splice</code>,{" "}
+                <code>arr[i] =</code> and <code>obj.x =</code>.
+              </p>
+              <p>
+                One more note: writing <code>setNotes([...notes])</code> to force
+                a new array would also make this bug go away, but that treats the
+                symptom, not the cause. The original array is already spoiled,
+                and when several places hold a reference to the same data it will
+                cause problems that are even harder to find.{" "}
+                <strong>
+                  The right answer never touches the original array at all.
+                </strong>
+              </p>
+            </>
+          ),
           verify: "npx vitest run   # 然后 npm run dev 手动加三条，编辑中间那条，确认位置不变",
+          verifyEn:
+            "npx vitest run   # then npm run dev, add three by hand, edit the middle one, and confirm it stays in place",
         },
       ],
       transfer: [
