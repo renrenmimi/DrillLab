@@ -4468,6 +4468,7 @@ $ npx vitest run
               n: 4,
               accept: ["nanoid", "crypto.randomUUID"],
               hint: "Redux Toolkit 自带的 id 生成器。",
+              hintEn: "The id generator that comes with Redux Toolkit.",
               why: (
                 <>
                   <code>nanoid</code>（RTK 直接导出，
@@ -4476,6 +4477,18 @@ $ npx vitest run
                   <code>crypto.randomUUID()</code> 也行。
                   <strong>关键是它在
                   <code>prepare</code> 里调，不在 reducer 里调。</strong>
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>nanoid</code> (RTK exports it directly, so there is no extra
+                  package to install).
+                  <br />
+                  <code>crypto.randomUUID()</code> works too.{" "}
+                  <strong>
+                    What matters is that it is called inside <code>prepare</code>, not
+                    inside the reducer.
+                  </strong>
                 </>
               ),
               width: 8,
