@@ -652,6 +652,7 @@ const reviewsMock: MockExam = {
     {
       id: "m-diff",
       heading: "和真实 Task 1 的对应关系",
+      headingEn: "How this maps to the real Task 1",
       body: (
         <>
           <div className="table-wrap">
@@ -822,7 +823,9 @@ const reviewsMock: MockExam = {
     {
       id: "m-composite-key",
       heading: "新考点 1 · 复合 @key",
+      headingEn: "New topic 1 · Composite @key",
       lede: "只保留一个 key 字段是最常见的错法。",
+      ledeEn: "Keeping only one key field is the most common mistake here.",
       body: (
         <>
           <p>
@@ -904,6 +907,7 @@ __resolveReference(book) {
     {
       id: "m-nullable-scalar",
       heading: "新考点 2 · 可空标量：null 和 0 不是一回事",
+      headingEn: "New topic 2 · Nullable scalars: null and 0 mean different things",
       body: (
         <>
           <p>
@@ -983,6 +987,7 @@ return avg || null;`,
     {
       id: "m-loader-contract",
       heading: "新考点 3 · batch 函数里的 filter",
+      headingEn: "New topic 3 · A filter inside the batch function",
       body: (
         <>
           <p>
@@ -1092,6 +1097,7 @@ function createReviewerLoader(reviewerDataSource) {
     {
       id: "m-mutation",
       heading: "Mutation 的四处问题，其中一处最隐蔽",
+      headingEn: "Four problems in the Mutation, and one is hard to see",
       body: (
         <>
           <p>
@@ -1178,6 +1184,7 @@ function createReviewerLoader(reviewerDataSource) {
     {
       id: "m-checklist",
       heading: "交卷前自检清单",
+      headingEn: "Checklist before you submit",
       body: (
         <>
           <ol>
