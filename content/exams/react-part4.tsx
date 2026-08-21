@@ -394,9 +394,28 @@ const tasks = [
 ];`,
               {
                 filename: "q2/demo.ts 里 Task 是怎么造出来的",
+                filenameEn: "How Task is built inside q2/demo.ts",
+                codeEn: `// This is how the caller uses it in demo.ts (real code)
+const makeTask = (id: number, ms: number, shouldFail = false): Task<string> => {
+  return () =>                          // ← note that this returns a function
+    new Promise((resolve, reject) => {
+      running++;
+      console.log(\`task \${id} START   (running now: \${running})\`);
+      ...
+    });
+};
+
+const tasks = [
+  makeTask(1, 300),     // only builds the instructions; no request sent yet
+  makeTask(2, 100),
+  makeTask(3, 200, true),
+  ...
+];`,
                 sourceFile: "react-notes-app/q2/demo.ts",
                 explanation:
                   "makeTask 返回的是「一个函数」，而不是「一个 Promise」。里面的 new Promise 只有在这个函数被调用时才执行 —— 这就是为什么 running++ 那一行在你调 tasks[i]() 之前不会跑。",
+                explanationEn:
+                  "makeTask returns a function, not a Promise. The new Promise inside it runs only when that function is called. That is why the running++ line does not run until you call tasks[i]().",
               },
             ),
           ],
@@ -475,7 +494,20 @@ for (const r of results) {
     console.log(r.reason);    // ✓ 这个分支里有 reason
   }
 }`,
-              { filename: "可辨识联合怎么用" },
+              {
+                filename: "可辨识联合怎么用",
+                filenameEn: "How to use a discriminated union",
+                codeEn: `const results = await runTasks(tasks, 2);
+
+for (const r of results) {
+  if (r.status === "fulfilled") {
+    console.log(r.value);     // ✓ TypeScript knows value exists here
+    // console.log(r.reason); // ✗ error: this branch has no reason
+  } else {
+    console.log(r.reason);    // ✓ this branch has reason
+  }
+}`,
+              },
             ),
           ],
         },
