@@ -2087,7 +2087,6 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
           code: [
             tested("tsx", TODO_SOLUTION, {
               codeEn: TODO_SOLUTION_EN,
-              codeEn: TODO_SOLUTION_EN,
               filename: "src/components/TodoList/index.tsx（实测 7/7 通过）",
               filenameEn: "src/components/TodoList/index.tsx (7 of 7 pass here)",
               collapsible: true,
@@ -2149,7 +2148,6 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
               filename: "验证命令",
             }),
             tested("tsx", TODO_TEST, {
-              codeEn: TODO_TEST_EN,
               codeEn: TODO_TEST_EN,
               filename: "src/TodoList.test.tsx（DrillLab 自出，本机跑过）",
               filenameEn: "src/TodoList.test.tsx (written for DrillLab, run here)",
@@ -2884,7 +2882,6 @@ $ npx vitest run src/Timer.test.tsx
           code: [
             tested("tsx", TIMER_SOLUTION, {
               codeEn: TIMER_SOLUTION_EN,
-              codeEn: TIMER_SOLUTION_EN,
               filename: "src/components/Timer/index.tsx（实测 8/8 通过）",
               filenameEn: "src/components/Timer/index.tsx (8 of 8 pass here)",
               collapsible: true,
@@ -2967,7 +2964,6 @@ $ npx vitest run src/Timer.test.tsx
               filenameEn: "The command that verifies it",
             }),
             tested("tsx", TIMER_TEST, {
-              codeEn: TIMER_TEST_EN,
               codeEn: TIMER_TEST_EN,
               filename: "src/Timer.test.tsx（DrillLab 自出，本机跑过）",
               filenameEn: "src/Timer.test.tsx (written for DrillLab, run here)",
@@ -3271,7 +3267,6 @@ useEffect(() => {
 }, [running]);`,
           ],
           solution: tested("tsx", TIMER_SOLUTION, {
-            codeEn: TIMER_SOLUTION_EN,
             codeEn: TIMER_SOLUTION_EN,
             filename: "参考答案（实测 8/8 通过）",
             filenameEn: "Reference answer (8 of 8 tests pass here)",
@@ -4081,7 +4076,6 @@ return () => {
           code: [
             tested("tsx", FETCH_SOLUTION, {
               codeEn: FETCH_SOLUTION_EN,
-              codeEn: FETCH_SOLUTION_EN,
               filename: "src/components/UserCard/index.tsx（实测 6/6 通过）",
               filenameEn: "src/components/UserCard/index.tsx (6 of 6 pass here)",
               collapsible: true,
@@ -4150,7 +4144,6 @@ return () => {
               filenameEn: "The command that verifies it",
             }),
             tested("tsx", FETCH_TEST, {
-              codeEn: FETCH_TEST_EN,
               codeEn: FETCH_TEST_EN,
               filename: "src/UserCard.test.tsx（DrillLab 自出，本机跑过）",
               filenameEn: "src/UserCard.test.tsx (written for DrillLab, run here)",
@@ -4511,7 +4504,6 @@ setLoading(true); setError(null); setUser(null);
 return () => { ignore = true; controller.abort(); };`,
           ],
           solution: tested("tsx", FETCH_SOLUTION, {
-            codeEn: FETCH_SOLUTION_EN,
             codeEn: FETCH_SOLUTION_EN,
             filename: "参考答案（实测 6/6 通过，含竞态与 abort 两条）",
             filenameEn: "Reference answer (6 of 6 pass here, including the race and the abort)",
@@ -5295,7 +5287,6 @@ export function countComments(nodes: Comment[]): number {
           code: [
             tested("ts", TREE_HELPERS, {
               codeEn: TREE_HELPERS_EN,
-              codeEn: TREE_HELPERS_EN,
               filename: "src/components/CommentTree/index.tsx（两个纯函数）",
               filenameEn: "src/components/CommentTree/index.tsx (the two pure functions)",
             }),
@@ -5372,7 +5363,6 @@ const next = JSON.parse(JSON.stringify(comments));`,
           code: [
             tested("tsx", TREE_SOLUTION, {
               codeEn: TREE_SOLUTION_EN,
-              codeEn: TREE_SOLUTION_EN,
               filename: "src/components/CommentTree/index.tsx（组件部分，实测 7/7 通过）",
               filenameEn: "src/components/CommentTree/index.tsx (the component; 7 of 7 pass here)",
               collapsible: true,
@@ -5438,7 +5428,6 @@ const next = JSON.parse(JSON.stringify(comments));`,
               filenameEn: "The command that verifies it",
             }),
             tested("tsx", TREE_TEST, {
-              codeEn: TREE_TEST_EN,
               codeEn: TREE_TEST_EN,
               filename: "src/CommentTree.test.tsx（DrillLab 自出，本机跑过）",
               filenameEn: "src/CommentTree.test.tsx (written for DrillLab, run here)",
@@ -6756,13 +6745,11 @@ $ npx vitest run src/Theme.test.tsx
           code: [
             tested("tsx", THEME_CONTEXT, {
               codeEn: THEME_CONTEXT_EN,
-              codeEn: THEME_CONTEXT_EN,
               filename: "src/context/ThemeContext.tsx（实测 8/8 通过）",
               filenameEn: "src/context/ThemeContext.tsx (8 of 8 pass here)",
               collapsible: true,
             }),
             tested("tsx", THEME_APP, {
-              codeEn: THEME_APP_EN,
               codeEn: THEME_APP_EN,
               filename: "src/components/ThemeApp/index.tsx",
             }),
@@ -6841,7 +6828,6 @@ $ npx vitest run src/Theme.test.tsx
               filename: "验证命令",
             }),
             tested("tsx", THEME_TEST, {
-              codeEn: THEME_TEST_EN,
               codeEn: THEME_TEST_EN,
               filename: "src/Theme.test.tsx（DrillLab 自出，本机跑过）",
               filenameEn: "src/Theme.test.tsx (written for DrillLab, run here)",
@@ -7170,7 +7156,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 }`,
           ],
           solution: tested("tsx", THEME_CONTEXT, {
-            codeEn: THEME_CONTEXT_EN,
             codeEn: THEME_CONTEXT_EN,
             filename: "参考答案（实测 8/8 通过）",
             filenameEn: "Reference answer (8 of 8 pass here)",
