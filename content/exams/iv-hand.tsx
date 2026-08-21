@@ -435,11 +435,19 @@ export const ivHand: Module = {
           kind: "code-completion",
           level: 3,
           title: "手写 debounce（带 cancel）",
+          titleEn: "Write debounce by hand (with cancel)",
           prompt: (
             <>
               把「每次都立刻调用」的半成品改成真正的 debounce：
               连续调用只在停手 delay 毫秒后执行最后一次，
               <code>cancel()</code> 能取消挂着的那次。
+            </>
+          ),
+          promptEn: (
+            <>
+              Turn this half-finished version, which calls through immediately every
+              time, into a real debounce: a burst of calls runs only once, delay ms
+              after the last one, and <code>cancel()</code> drops the pending run.
             </>
           ),
           language: "ts",
@@ -457,23 +465,48 @@ export const ivHand: Module = {
   debounced.cancel = () => {};
   return debounced;
 }`,
+          starterEn: `export function debounce<T extends (...args: never[]) => void>(
+  fn: T,
+  delay: number,
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
+  void delay;
+  // TODO 1: keep a timer; on every call clear the old one and set a new one — that restarts the clock.
+  const debounced = (...args: Parameters<T>) => {
+    fn(...args);
+  };
+  // TODO 2: cancel clears the pending timer.
+  debounced.cancel = () => {};
+  return debounced;
+}`,
           requirements: [
             "调用 debounced() 不许立刻执行 fn",
             "一串连续调用只在停手 delay 毫秒后执行一次，参数用最后那次的",
             "两串隔开的调用各自触发一次",
             "cancel() 取消还没发生的那次调用",
           ],
+          requirementsEn: [
+            "Calling debounced() must not run fn right away",
+            "A burst of calls runs once, delay ms after the last call, with the arguments of that last call",
+            "Two bursts separated by a pause each fire once",
+            "cancel() drops the call that has not happened yet",
+          ],
           checks: [
-            { label: "有 timer 状态且先清后设（重新计时）", must: "clearTimeout" },
-            { label: "用 setTimeout 延迟执行", must: "setTimeout\\(" },
-            { label: "cancel 里也清 timer", must: "cancel[\\s\\S]*?clearTimeout" },
-            { label: "没有把 fn 直接同步调用留在外面", mustNot: "^\\s*fn\\(\\.\\.\\.args\\);\\s*$" },
+            { label: "有 timer 状态且先清后设（重新计时）", labelEn: "Keeps a timer, clears it before setting a new one (restarts the clock)", must: "clearTimeout" },
+            { label: "用 setTimeout 延迟执行", labelEn: "Uses setTimeout to delay the call", must: "setTimeout\\(" },
+            { label: "cancel 里也清 timer", labelEn: "cancel clears the timer too", must: "cancel[\\s\\S]*?clearTimeout" },
+            { label: "没有把 fn 直接同步调用留在外面", labelEn: "No leftover synchronous call to fn at the top level", mustNot: "^\\s*fn\\(\\.\\.\\.args\\);\\s*$" },
           ],
           hints: [
             "timer 必须存在返回的函数外面（闭包里），不然每次调用都是新的、清不掉旧的。",
             "debounced 里两步：if (timer !== null) clearTimeout(timer)，然后 timer = setTimeout(..., delay)。",
             "setTimeout 的回调里先把 timer 置回 null，再 fn(...args) —— args 是闭包捕获的最后一次参数。",
             "cancel：if (timer !== null) clearTimeout(timer); timer = null。",
+          ],
+          hintsEn: [
+            "The timer has to live outside the returned function, in the closure. Inside, every call gets a fresh one and the old one can never be cleared.",
+            "Two steps inside debounced: if (timer !== null) clearTimeout(timer), then timer = setTimeout(..., delay).",
+            "In the setTimeout callback, set timer back to null first, then call fn(...args) — args is the last set of arguments the closure captured.",
+            "cancel: if (timer !== null) clearTimeout(timer); timer = null.",
           ],
           solution: tested("ts", REF_DEBOUNCE, {
             filename: "debounce.ts（scratchpad vitest 4 / 4）",
