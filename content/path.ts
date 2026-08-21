@@ -135,3 +135,18 @@ export function stageEn(stage: string): string | undefined {
   if (!course) return undefined;
   return `${course} · Part ${m[2]}`;
 }
+
+/* ============================================================
+   页面标题
+   ============================================================ */
+
+/**
+ * `<title>` 只能是一个字符串，装不下 <T>。
+ * 站里静态页面早就用「中文 / English」这个斜杠格式了
+ * （见 app/drill/page.tsx 的 "八股题库 / Interview drills"），
+ * 动态页面沿用同一个格式，两种语言的读者都认得出自己那半。
+ *
+ * 英文还没补的就只有中文 —— 不拼一个「中文 / 中文」出来。
+ */
+export const slashTitle = (zh: string, en?: string) =>
+  en && en !== zh ? `${zh} / ${en}` : zh;

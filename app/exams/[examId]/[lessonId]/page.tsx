@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { LessonBody } from "@/components/lesson-body";
 import { EXAMS, findLesson, lessonsOf } from "@/content/registry";
+import { slashTitle } from "@/content/path";
 
 export function generateStaticParams() {
   return EXAMS.flatMap((exam) =>
@@ -16,7 +17,13 @@ export async function generateMetadata({
   const { examId, lessonId } = await params;
   const ref = findLesson(examId, lessonId);
   if (!ref) return {};
-  return { title: `${ref.lesson.title} · ${ref.exam.shortTitle}`, description: ref.lesson.blurb };
+  return {
+    title: `${slashTitle(ref.lesson.title, ref.lesson.titleEn)} · ${slashTitle(
+      ref.exam.shortTitle,
+      ref.exam.shortTitleEn,
+    )}`,
+    description: ref.lesson.blurb,
+  };
 }
 
 export default async function LessonPage({

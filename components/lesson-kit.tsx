@@ -25,11 +25,14 @@ export function LessonHeader({
   minutes,
   tags,
 }: {
-  crumbs: { label: string; href?: string }[];
+  // label / title / blurb 收 ReactNode，是为了能直接塞 <T zh en />。
+  // 课程和课文标题现在是双语的（content/types.ts 的 titleEn），
+  // 而 <T> 渲染的是两个 span，不是字符串。
+  crumbs: { label: ReactNode; href?: string }[];
   index: number;
   total: number;
-  title: string;
-  blurb: string;
+  title: ReactNode;
+  blurb: ReactNode;
   minutes: number;
   tags?: ReactNode;
 }) {
@@ -477,8 +480,9 @@ export function NextLesson({
   next,
   arenaHref,
 }: {
-  prev?: { href: string; title: string };
-  next?: { href: string; title: string };
+  // title 收 ReactNode —— 课文标题是双语的，传进来的是 <T zh en />
+  prev?: { href: string; title: ReactNode };
+  next?: { href: string; title: ReactNode };
   /** 没有下一节时，往哪儿去 */
   arenaHref?: string;
 }) {

@@ -50,9 +50,16 @@ export function PracticeFocus({ activeExam }: { activeExam: string }) {
 
   return (
     <p className="practice-focus">
+      {/* 课程名本身也是双语的，所以这句话不能用模板字符串拼 ——
+          英文那半必须用 shortTitleEn，否则一句英文里嵌一个中文课程名。 */}
       <T
-        en={`Filtered to ${exam.shortTitle} — the course you are on. Use “All” above to see everything.`}
-        zh={`已筛到你正在学的《${exam.shortTitle}》。想看全部就点上面的「全部」。`}
+        en={
+          <>
+            Filtered to {exam.shortTitleEn ?? exam.shortTitle} — the course you are
+            on. Use “All” above to see everything.
+          </>
+        }
+        zh={<>已筛到你正在学的《{exam.shortTitle}》。想看全部就点上面的「全部」。</>}
       />
     </p>
   );
