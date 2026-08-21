@@ -3673,12 +3673,20 @@ return () => { ignore = true; controller.abort(); };`,
           kind: "debug",
           id: "r-var-fetch-debug",
           title: "Debug Lab · URL 上是用户 2，界面显示用户 1",
+          titleEn: "Debug Lab · the URL says user 2 and the screen shows user 1",
           level: 3,
           generated: true,
           prompt: (
             <p>
               快速点两个用户，界面最后显示的是<strong>先点的那个</strong>。
               慢一点点就没问题。控制台干净。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Click two users quickly and the screen ends up showing{" "}
+              <strong>the one you clicked first</strong>. Click a little slower and
+              it is fine. The console is clean.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -3718,20 +3726,29 @@ $ npx vitest run src/UserCard.test.tsx
           ),
           classify: {
             options: [
-              { id: "a", label: "依赖数组错误 —— userId 没进依赖" },
-              { id: "b", label: "竞态 —— 旧请求晚回来，覆盖了新请求的结果；effect 没有清理函数作废旧请求" },
-              { id: "c", label: "fetch 没检查 res.ok" },
-              { id: "d", label: "过期闭包 —— setUser 读到了旧的 user" },
+              { id: "a", label: "依赖数组错误 —— userId 没进依赖", labelEn: "A dependency array error — userId is not in the list" },
+              {
+                id: "b",
+                label: "竞态 —— 旧请求晚回来，覆盖了新请求的结果；effect 没有清理函数作废旧请求",
+                labelEn: "A race — the old request comes back later and overwrites the newer result, because the effect has no cleanup to void it",
+              },
+              { id: "c", label: "fetch 没检查 res.ok", labelEn: "The fetch does not check res.ok" },
+              { id: "d", label: "过期闭包 —— setUser 读到了旧的 user", labelEn: "A stale closure — setUser read an old user" },
             ],
             answer: "b",
           },
           locate: {
             question: "该怎么改？",
+            questionEn: "How should it be changed?",
             options: [
-              { id: "a", label: "加 let ignore = false，写 state 前判断它，并 return () => { ignore = true }" },
-              { id: "b", label: "把 setUser 包进 setTimeout，延迟一点再写" },
-              { id: "c", label: "在 effect 开头加 setUser(null)" },
-              { id: "d", label: "把依赖数组改成 []" },
+              {
+                id: "a",
+                label: "加 let ignore = false，写 state 前判断它，并 return () => { ignore = true }",
+                labelEn: "Add let ignore = false, check it before writing state, and return () => { ignore = true }",
+              },
+              { id: "b", label: "把 setUser 包进 setTimeout，延迟一点再写", labelEn: "Wrap setUser in a setTimeout so it writes a little later" },
+              { id: "c", label: "在 effect 开头加 setUser(null)", labelEn: "Add setUser(null) at the top of the effect" },
+              { id: "d", label: "把依赖数组改成 []", labelEn: "Change the dependency array to []" },
             ],
             answer: "a",
           },
@@ -3764,7 +3781,38 @@ $ npx vitest run src/UserCard.test.tsx
     controller.abort();
   };
 }, [userId]);`,
-            { filename: "改对之后（6/6 通过）", highlight: [2, 15, 18, 23, 24, 25, 26] },
+            {
+              filename: "改对之后（6/6 通过）",
+              filenameEn: "After the fix (6 of 6 pass)",
+              codeEn: `useEffect(() => {
+  let ignore = false;                      // the does-this-run-still-count switch
+  const controller = new AbortController();
+
+  setLoading(true);
+  setError(null);
+  setUser(null);
+
+  (async () => {
+    try {
+      const res = await fetch(\`/api/users/\${userId}\`, { signal: controller.signal });
+      if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+      const data: User = await res.json();
+      if (!ignore) setUser(data);
+    } catch (e) {
+      const err = e as Error;
+      if (!ignore && err.name !== "AbortError") setError(err.message);
+    } finally {
+      if (!ignore) setLoading(false);
+    }
+  })();
+
+  return () => {
+    ignore = true;
+    controller.abort();
+  };
+}, [userId]);`,
+              highlight: [2, 15, 18, 23, 24, 25, 26],
+            },
           ),
           rootCause: (
             <>
@@ -3801,8 +3849,49 @@ $ npx vitest run src/UserCard.test.tsx
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                Two requests are in flight, and{" "}
+                <strong>whichever comes back last writes the state</strong>. But
+                &quot;last back&quot; and &quot;newest&quot; are not the same thing:
+                when the slow old request comes back last, what it writes is out of
+                date.
+              </p>
+              <p>
+                You almost never hit this in development, because a local endpoint
+                answers in a few milliseconds. It shows up in production, and{" "}
+                <strong>there is no error of any kind</strong>. Users just sometimes
+                see &quot;I clicked A and it shows B&quot;.
+              </p>
+              <p>
+                <code>ignore</code> works because it is a{" "}
+                <strong>local variable, separate for each run of the effect</strong>:
+                through the closure, a cleanup only changes the copy from its own run.
+                When the old request comes back, it sees that it has been voided.
+              </p>
+              <p>
+                <strong>Option C, setUser(null) at the top,</strong> is a useful
+                improvement, since it stops the old user showing during the load, but{" "}
+                <strong>it does not fix the race</strong>. The old response still
+                calls setUser when it arrives.
+              </p>
+              <p>
+                <strong>Option B, a setTimeout delay,</strong> is the classic
+                bet-on-timing fix, and it breaks again the moment the network is slow.
+              </p>
+              <p>
+                One more thing: this <code>ignore</code> pattern{" "}
+                <strong>also</strong> solves another common problem — a request that
+                returns after the component unmounts and calls setState on a component
+                that is gone. That is why it is the standard shape for code like this.
+              </p>
+            </>
+          ),
           verify:
             "npx vitest run src/UserCard.test.tsx   # 6 passed，竞态那条应该变绿",
+          verifyEn:
+            "npx vitest run src/UserCard.test.tsx   # 6 passed, and the race one should turn green",
         },
       ],
       mistakes: [
