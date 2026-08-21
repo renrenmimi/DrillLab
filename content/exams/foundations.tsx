@@ -3395,6 +3395,8 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
           title: "类型、type 与 interface",
           titleEn: "Types, type and interface",
           blurb: "Note 和 NoteFormProps 这两个真实类型，把该讲的都讲全了。",
+          blurbEn:
+            "Two real types from the project, Note and NoteFormProps, cover everything you need here.",
           minutes: 12,
           objectives: [
             "会给变量、函数参数、返回值标类型",
@@ -3402,8 +3404,16 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             "会写可选字段、联合类型、函数类型",
             "知道 strict: true 意味着什么",
           ],
+          objectivesEn: [
+            "Give a type to a variable, to a function parameter and to a return value",
+            "Know when type fits and when interface fits, and why this project uses both",
+            "Write an optional field, a union type and a function type",
+            "Know what strict: true means",
+          ],
           whyForAssessment:
             "react-notes-app 是 strict 模式的 TypeScript 项目。props 类型写错、少写一个字段，构建就过不去。而两个考试的核心数据结构（Note、Order）都是从类型定义读起的。",
+          whyForAssessmentEn:
+            "react-notes-app is a TypeScript project in strict mode. Get a props type wrong, or leave out one field, and the build fails. And in both exams the main data shapes, Note and Order, are read from their type definitions first.",
           sourceFiles: [
             { path: "react-notes-app/src/types/Note.ts", role: "整个 Q1 的数据形状" },
             { path: "react-notes-app/src/components/NoteForm/index.tsx", role: "props 类型的真实写法" },
@@ -3413,7 +3423,9 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             {
               id: "the-note-type",
               heading: "从这个项目最重要的 3 行代码开始",
+              headingEn: "Start with the 3 most important lines in this project",
               lede: "整个 Q1 的数据结构就这么多。",
+              ledeEn: "That is the whole data shape of Q1.",
               body: (
                 <>
                   <p>
@@ -3479,6 +3491,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             {
               id: "type-vs-interface",
               heading: "type 和 interface：这个项目里两个都用了",
+              headingEn: "type and interface: this project uses both",
               body: (
                 <>
                   <p>
@@ -3607,6 +3620,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             {
               id: "strict",
               heading: "strict: true 意味着什么",
+              headingEn: "What strict: true means",
               body: (
                 <>
                   <p>
@@ -3748,10 +3762,30 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             },
           ],
           transfer: [
-            { signal: "读一个陌生项目", reachFor: "先找 types/ 或 *.d.ts，类型比 README 准" },
-            { signal: "「要么是 X 要么没有」", reachFor: "X | null，用之前先 if 判断" },
-            { signal: "需要联合类型", reachFor: "只能用 type,interface 做不到" },
-            { signal: "Object is possibly 'null'", reachFor: "先判断，或者确实安全时用 !" },
+            {
+              signal: "读一个陌生项目",
+              signalEn: "Reading a project you have never seen",
+              reachFor: "先找 types/ 或 *.d.ts，类型比 README 准",
+              reachForEn: "Look for types/ or *.d.ts first. The types are more accurate than the README",
+            },
+            {
+              signal: "「要么是 X 要么没有」",
+              signalEn: "Either an X, or nothing",
+              reachFor: "X | null，用之前先 if 判断",
+              reachForEn: "X | null, with an if check before you use it",
+            },
+            {
+              signal: "需要联合类型",
+              signalEn: "You need a union type",
+              reachFor: "只能用 type,interface 做不到",
+              reachForEn: "Only type can do this. interface cannot",
+            },
+            {
+              signal: "Object is possibly 'null'",
+              signalEn: "Object is possibly 'null'",
+              reachFor: "先判断，或者确实安全时用 !",
+              reachForEn: "Check it first, or use ! when you are sure it is safe",
+            },
           ],
           recap: [
             "读项目先读类型定义：Note 的 3 行决定了 Q1 全部的数据操作。",
@@ -3759,6 +3793,13 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
             "(note: Note) => void 是函数类型；Note | null 是联合类型。",
             "strict: true 打开后，null 必须显式处理、参数必须有类型。",
             "! 是非空断言，是你在替编译器担保，用错了运行时才炸。",
+          ],
+          recapEn: [
+            "Read the type definitions first. The 3 lines of Note decide every data operation in Q1.",
+            "type and interface are interchangeable most of the time. Only type can express a union.",
+            "(note: Note) => void is a function type. Note | null is a union type.",
+            "With strict: true, null has to be handled explicitly and every parameter needs a type.",
+            "! is a non-null assertion. You are vouching for the value instead of the compiler, so a wrong one fails only when the code runs.",
           ],
         },
 
