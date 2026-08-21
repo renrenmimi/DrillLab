@@ -2664,8 +2664,9 @@ type User {            type Product {         type Review {
 type User { id name email reviews: [Review] }
 type Product { id name price reviews: [Review] }
 type Review { id body author: User product: Product }`,
-              // 这张图是纯 ASCII 排版，没有注释也没有字符串 —— 译了就过不了
-              // audit:code 的「代码结构必须一致」那一关，所以只给标题配英文。
+              // No codeEn: this block is pure ASCII layout with no comments and no
+              // string literals, so a translated version fails the "code structure
+              // must match" check in audit:code. Only the title gets English.
               {
                 filename: "三个服务，一张图",
                 filenameEn: "Three services, one picture",
