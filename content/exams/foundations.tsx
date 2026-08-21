@@ -69,9 +69,13 @@ const SUBGRAPH_PKG = `{
 const foundations: Exam = {
   id: "foundations",
   title: "地基 · 项目怎么跑起来，JS/TS 到底要会哪些",
+  titleEn: "Foundations · how a project runs, and the JS/TS you actually need",
   shortTitle: "地基 · 项目与语言",
+  shortTitleEn: "Foundations · project and language",
   description:
     "在动 React 和 GraphQL 之前，先把「一个 JavaScript 项目是怎么运行的」搞清楚：Node、npm、package.json、scripts、目录结构、怎么跑测试、报错该从哪看起。然后只补两门考试真正会用到的 JavaScript 与 TypeScript。",
+  descriptionEn:
+    "Before starting React or GraphQL, get clear on how a JavaScript project runs: Node, npm, package.json, scripts, the directory layout, how to run the tests, and where to look first when something fails. After that, only the JavaScript and TypeScript that the two exam projects actually use.",
   category: "基础",
   tests:
     "这一门本身不是考试，是另外两门的地基。考场上真正会卡住新手的往往不是 React 语法，而是「测试怎么跑」「这个报错是我写错了还是项目本来就坏的」「dependencies 和 devDependencies 有什么区别」这类问题。",
@@ -92,13 +96,17 @@ const foundations: Exam = {
       id: "how-projects-run",
       stage: "地基 · 第 1 部分",
       title: "一个 JavaScript 项目是怎么运行的",
+      titleEn: "How a JavaScript project runs",
       summary:
         "从 Node.js 是什么开始，一路讲到「我怎么知道这个项目支持哪些命令」。全部用两个真实 assessment 的文件当例子。",
+      summaryEn:
+        "Starts at what Node.js is and ends at how to find out which commands a project supports. Every example is a real file from one of the two exam projects.",
       lessons: [
         /* ---------- 0.1 ---------- */
         {
           id: "node-and-npm",
           title: "Node.js、npm、node_modules 和 lockfile",
+          titleEn: "Node.js, npm, node_modules and the lockfile",
           blurb:
             "为什么装个 React 项目会多出几万个文件，以及为什么那个 lock 文件不能随便删。",
           minutes: 12,
@@ -449,6 +457,7 @@ npm install
         {
           id: "package-json",
           title: "package.json 逐字段读一遍",
+          titleEn: "package.json, field by field",
           blurb: "拿两个真实 assessment 的 package.json，一个字段一个字段地读懂。",
           minutes: 14,
           objectives: [
@@ -813,6 +822,7 @@ npm install
         {
           id: "npm-scripts",
           title: "npm scripts：命令到底跑了什么",
+          titleEn: "npm scripts: what the command actually runs",
           blurb:
             "npm test 和 npm run test 有什么区别，以及 react-notes-app 为什么根本跑不了 npm test。",
           minutes: 13,
@@ -1161,6 +1171,7 @@ $ npx vitest run
         {
           id: "project-layout",
           title: "两个考试项目的目录，逐个说明",
+          titleEn: "The directory layout of both exam projects",
           blurb: "哪些文件是你要改的，哪些是给好的，哪些是干扰项。",
           minutes: 12,
           objectives: [
@@ -1525,6 +1536,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       id: "js-essentials",
       stage: "地基 · 第 2 部分",
       title: "JavaScript：只补考试真正会用的那几样",
+      titleEn: "JavaScript: only the parts the exams use",
       summary:
         "不做完整 JS 教程。只讲 CRUD 三件事（增删改）背后的数组与对象操作，以及 Q2 和 resolver 都离不开的异步。",
       lessons: [
@@ -1532,6 +1544,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         {
           id: "js-immutable-data",
           title: "数组与对象：不可变更新三件套",
+          titleEn: "Arrays and objects: three ways to update without changing the original",
           blurb:
             "增、删、改一个列表，在 React 里为什么必须「造新的」而不是「改旧的」。",
           minutes: 14,
@@ -2120,6 +2133,7 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
         {
           id: "js-async",
           title: "异步：Promise、await、all 和 allSettled",
+          titleEn: "Async: Promise, await, all and allSettled",
           blurb:
             "Q2 整道题就是异步，GraphQL resolver 每一个都是 async。这一节把它们讲透。",
           minutes: 15,
@@ -2661,6 +2675,7 @@ task 6 DONE    (running now: 0)`,
         {
           id: "js-modules",
           title: "ESM:import / export 与那些莫名其妙的报错",
+          titleEn: "ESM: import / export, and the errors that look strange at first",
           blurb:
             "为什么 subgraph 里 import 要写 .js 后缀，为什么 jest 要加一个实验性参数。",
           minutes: 10,
@@ -3035,6 +3050,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
       id: "ts-essentials",
       stage: "地基 · 第 3 部分",
       title: "TypeScript：够用就好",
+      titleEn: "TypeScript: just enough",
       summary:
         "只讲两个考试里真实出现的：基本类型、type 与 interface、组件 props 类型、泛型参数，以及怎么读 tsc 的报错。",
       lessons: [
@@ -3042,6 +3058,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
         {
           id: "ts-types",
           title: "类型、type 与 interface",
+          titleEn: "Types, type and interface",
           blurb: "Note 和 NoteFormProps 这两个真实类型，把该讲的都讲全了。",
           minutes: 12,
           objectives: [
@@ -3414,6 +3431,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
         {
           id: "ts-generics-and-errors",
           title: "泛型参数，以及怎么读 tsc 的报错",
+          titleEn: "Generic parameters, and how to read a tsc error",
           blurb:
             "useState<Note[]> 那对尖括号在说什么，和 react-notes-app 那 10 个构建错误的真相。",
           minutes: 12,

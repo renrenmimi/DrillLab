@@ -65,6 +65,7 @@ export interface NavExam {
   descriptionEn?: string;
   category: string;
   tests: string;
+  testsEn?: string;
   stack: string[];
   status: string;
   prerequisites: string[];

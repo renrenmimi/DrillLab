@@ -156,7 +156,10 @@ export function LearningPath() {
                         <div className="road-body">
                           <div className="road-node-head">
                             <span className="road-part">
-                              {s.stage.replace(/^.*· /, "")}
+                              <T
+                                zh={s.stage.replace(/^.*· /, "")}
+                                en={stageEn(s.stage)?.replace(/^.*· /, "")}
+                              />
                             </span>
                             {st === "current" && (
                               <span className="tag" data-tone="accent">
@@ -175,10 +178,10 @@ export function LearningPath() {
                           <h3 className="road-node-title">
                             {firstLesson ? (
                               <Link href={lessonPath(s.exam.id, firstLesson.id)}>
-                                {s.module.title}
+                                <T zh={s.module.title} en={s.module.titleEn} />
                               </Link>
                             ) : (
-                              s.module.title
+                              <T zh={s.module.title} en={s.module.titleEn} />
                             )}
                           </h3>
                           <p className="road-summary">
@@ -194,7 +197,7 @@ export function LearningPath() {
                                   ready && lessonDone(s.exam.id, l.id) ? "true" : undefined
                                 }
                               >
-                                {l.title}
+                                <T zh={l.title} en={l.titleEn} />
                               </Link>
                             ))}
                           </div>

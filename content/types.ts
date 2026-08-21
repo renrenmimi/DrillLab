@@ -349,6 +349,7 @@ export interface Exam {
   category: "基础" | "前端" | "后端" | "全栈";
   /** 一行说明这门考试考什么 */
   tests: string;
+  testsEn?: string;
   /** 源项目在本机的真实路径（可为空，如 Foundations） */
   sourceProjects: { path: string; role: string }[];
   /** 前置考试 id */
