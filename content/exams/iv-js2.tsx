@@ -179,14 +179,14 @@ new Dog("x") instanceof Animal;                              // true`,
                 codeEn: `class Animal {
   #secret = "a private field, unreachable from outside";   // encapsulation
   constructor(name) { this.name = name; }
-  speak() { return \`\${this.name} 发出声音\`; }   // "<name> makes a sound"
+  speak() { return \`\${this.name} makes a sound\`; }   // encapsulation
 }
 
 class Dog extends Animal {
-  speak() { return \`\${this.name} 汪汪\`; }   // polymorphism: overrides the parent, and barks
+  speak() { return \`\${this.name} woof\`; }   // polymorphism: overrides the parent
 }
 
-new Dog("旺财").speak();          // the dog's name, then its bark
+new Dog("旺财").speak();          // the name is data, so it stays: <name> woof
 
 // class is only syntax sugar; a prototype chain sits underneath
 Object.getPrototypeOf(Dog.prototype) === Animal.prototype;   // true
@@ -1488,7 +1488,7 @@ async function getUser(id) {
 
 // ✓ Let it throw, or throw an error that has a type
 class NotFoundError extends Error {}
-if (!row) throw new NotFoundError(\`user \${id} 不存在\`);   // "user <id> does not exist"
+if (!row) throw new NotFoundError(\`user \${id} not found\`);
 
 // A last line of defence
 window.addEventListener("unhandledrejection", (e) => report(e.reason));`,
