@@ -917,18 +917,27 @@ app.use((err, req, res, next) => {
       title: "数据库两问",
       titleEn: "2 questions on databases",
       blurb: "关系型 vs 非关系型、主键与外键。",
+      blurbEn: "Relational vs non-relational databases, primary keys and foreign keys.",
       minutes: 12,
       objectives: [
         "在关系型和文档型之间给出选型理由，而不是背优缺点",
         "说清主键和外键各自保证什么",
         "解释外键约束在删除时的几种行为",
       ],
+      objectivesEn: [
+        "Give a reason for choosing relational or document storage, instead of reciting pros and cons",
+        "Say exactly what a primary key guarantees and what a foreign key guarantees",
+        "Explain the ways a foreign key constraint can behave on a delete",
+      ],
       whyForAssessment:
         "这两道是全栈岗的入门筛选题。选型那道答「看数据形状和访问模式」比列表格好；主键外键那道会追问到索引和级联删除。",
+      whyForAssessmentEn:
+        "These two are screening questions for any full-stack role. For the choice of database, answering \"it depends on the shape of the data and how it is read\" beats reciting a comparison table. The keys question leads on to indexes and cascading deletes.",
       concepts: [
         {
           id: "q317",
           heading: "关系型数据库 vs 非关系型数据库",
+          headingEn: "Relational databases vs non-relational databases",
           lede: "#317 Relational database vs Non-relational database",
           body: (
             <>
@@ -1145,6 +1154,7 @@ app.use((err, req, res, next) => {
         {
           id: "q318",
           heading: "主键 vs 外键",
+          headingEn: "Primary key vs foreign key",
           lede: "#318 Primary key vs Foreign key",
           body: (
             <>
@@ -1388,16 +1398,42 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`,
         },
       ],
       transfer: [
-        { signal: "问数据库选型", reachFor: "看数据形状和访问模式，别背优缺点表" },
-        { signal: "JOIN 很慢", reachFor: "外键列可能没索引（PostgreSQL 不自动建）" },
-        { signal: "问删除时子记录怎么办", reachFor: "RESTRICT / CASCADE / SET NULL 三选一" },
-        { signal: "问自增 id 还是 UUID", reachFor: "提 ULID / UUIDv7 折中" },
+        {
+          signal: "问数据库选型",
+          signalEn: "Asked how to choose a database",
+          reachFor: "看数据形状和访问模式，别背优缺点表",
+          reachForEn: "Look at the shape of the data and how it is read; do not recite a comparison table",
+        },
+        {
+          signal: "JOIN 很慢",
+          signalEn: "A JOIN is slow",
+          reachFor: "外键列可能没索引（PostgreSQL 不自动建）",
+          reachForEn: "The foreign key column may have no index, because PostgreSQL does not create one for you",
+        },
+        {
+          signal: "问删除时子记录怎么办",
+          signalEn: "Asked what happens to child rows on a delete",
+          reachFor: "RESTRICT / CASCADE / SET NULL 三选一",
+          reachForEn: "Pick one of RESTRICT, CASCADE or SET NULL",
+        },
+        {
+          signal: "问自增 id 还是 UUID",
+          signalEn: "Asked whether to use an auto-increment id or a UUID",
+          reachFor: "提 ULID / UUIDv7 折中",
+          reachForEn: "Mention ULID or UUIDv7 as a middle ground",
+        },
       ],
       recap: [
         "关系型强在关联和事务，文档型强在灵活和横向扩展；选型看数据形状和访问模式。",
         "Postgres 的 jsonb 让界限变模糊，「先上 Postgres 需要时用 jsonb」是常见现实选择。",
         "主键唯一非空自动建索引；外键可重复可为空，且 PostgreSQL 不会自动给它建索引。",
         "外键的价值是引用完整性；删除行为 RESTRICT / CASCADE / SET NULL 要按业务选。",
+      ],
+      recapEn: [
+        "Relational storage is strong on relationships and transactions, document storage on flexibility and scaling out; choose by the shape of the data and how it is read.",
+        "jsonb in Postgres blurs the line, and \"start with Postgres and use jsonb when you need it\" is a common real-world choice.",
+        "A primary key is unique, cannot be null, and is indexed for you; a foreign key can repeat and can be null, and PostgreSQL does not index it for you.",
+        "What a foreign key gives you is referential integrity; choose RESTRICT, CASCADE or SET NULL on delete based on what the product needs.",
       ],
     },
 
