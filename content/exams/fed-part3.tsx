@@ -214,13 +214,17 @@ export const fedTask2: Module = {
   id: "fed-task2",
   stage: "Federation · 第 4 部分",
   title: "Task 2 · Spring Boot REST 控制器",
+  titleEn: "Task 2 · the Spring Boot REST controller",
   summary:
     "六个端点，业务逻辑全都给好了。真正考的是「HTTP 状态码选对了吗」和「异常该谁处理」—— 而这两点恰好是那五个测试只抓住一半的地方。",
+  summaryEn:
+    "Six endpoints, with all the business logic already written for you. What is really tested is whether you picked the right HTTP status code and who should handle the exceptions — and those are exactly the two things the five tests only check partly.",
   lessons: [
     /* ---------- 4.1 ---------- */
     {
       id: "g-spring-basics",
       title: "先看懂给你的东西：Spring 的几个注解和一条请求链路",
+      titleEn: "Understand what you are given: a few Spring annotations and the path one request takes",
       blurb: "没写过 Java 也能看懂 —— 这一节只讲这道题真正需要的那几个概念。",
       minutes: 16,
       objectives: [
@@ -1219,6 +1223,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
     {
       id: "g-endpoints",
       title: "六个端点：状态码就是这道题的全部",
+      titleEn: "Six endpoints: the status codes are the whole task",
       blurb: "五个测试只抓住两个错。另外三个端点全返回 null 也能过 —— 这一节讲怎么真的做对。",
       minutes: 18,
       objectives: [
@@ -2506,12 +2511,16 @@ export const fedWritten: Module = {
   id: "fed-written",
   stage: "Federation · 第 5 部分",
   title: "书面题",
+  titleEn: "The written questions",
   summary:
     "QUESTIONS.md 里的两道题。它们不考代码，考的是「你有没有在真实系统里想过这些问题」。这一节给出思考框架和一份可以照着写的参考答案。",
+  summaryEn:
+    "The two questions in QUESTIONS.md. They do not test code. They test whether you have thought about these problems in a real system. This module gives a structure for thinking them through, plus one reference answer you can follow.",
   lessons: [
     {
       id: "g-written",
       title: "两道书面题：延迟传播与生产配置",
+      titleEn: "The two written questions: how delay spreads, and production configuration",
       blurb: "写代码的题有测试兜底，这两道题只有你自己。给你一套可复用的答题结构。",
       minutes: 22,
       objectives: [

@@ -5,6 +5,7 @@
 
 import Link from "next/link";
 import { navExam, lessonPath, mockPath } from "@/content/nav";
+import { stageEn } from "@/content/path";
 import { useProgress } from "@/lib/progress";
 import { T } from "./t";
 import { FileExplorer } from "./lesson-kit";
@@ -44,8 +45,12 @@ export function ExamOverview({ examId }: { examId: string }) {
           <div className="eyebrow">
             {exam.category} · <T en="Course" zh="考试" />
           </div>
-          <h1 className="page-title serif">{exam.title}</h1>
-          <p className="page-lede">{exam.description}</p>
+          <h1 className="page-title serif">
+            <T zh={exam.title} en={exam.titleEn} />
+          </h1>
+          <p className="page-lede">
+            <T zh={exam.description} en={exam.descriptionEn} />
+          </p>
           <div className="lesson-meta" style={{ marginTop: 16 }}>
             {exam.stack.map((s) => (
               <span key={s} className="tag">
@@ -59,7 +64,9 @@ export function ExamOverview({ examId }: { examId: string }) {
           <div className="obj-head">
               <T en="What this exam actually tests" zh="这门考试到底考什么" />
             </div>
-          <p>{exam.tests}</p>
+          <p>
+            <T zh={exam.tests} en={exam.testsEn} />
+          </p>
         </div>
 
         {exam.sourceProjects.length > 0 && (
@@ -155,7 +162,11 @@ export function ExamOverview({ examId }: { examId: string }) {
         {exam.modules.map((mod, mi) => (
           <div className="stage" key={mod.id}>
             <div className="stage-label">
-              {mod.stage ?? `模块 ${mi + 1} / Module ${mi + 1}`}
+              {mod.stage ? (
+                <T zh={mod.stage} en={stageEn(mod.stage)} />
+              ) : (
+                `模块 ${mi + 1} / Module ${mi + 1}`
+              )}
               <div className="stage-exam">
                 <T
                   en={`${mod.lessons.length} lessons`}
@@ -164,8 +175,12 @@ export function ExamOverview({ examId }: { examId: string }) {
               </div>
             </div>
             <div>
-              <div className="stage-title">{mod.title}</div>
-              <p className="stage-summary">{mod.summary}</p>
+              <div className="stage-title">
+                <T zh={mod.title} en={mod.titleEn} />
+              </div>
+              <p className="stage-summary">
+                <T zh={mod.summary} en={mod.summaryEn} />
+              </p>
               <div className="stage-lessons">
                 {mod.lessons.map((l) => (
                   <Link
@@ -174,7 +189,7 @@ export function ExamOverview({ examId }: { examId: string }) {
                     href={lessonPath(exam.id, l.id)}
                     data-done={ready && lessonDone(exam.id, l.id) ? "true" : undefined}
                   >
-                    {l.title}
+                    <T zh={l.title} en={l.titleEn} />
                   </Link>
                 ))}
               </div>

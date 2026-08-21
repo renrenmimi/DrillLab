@@ -16,8 +16,11 @@ export const ivTs: Module = {
   id: "iv-ts",
   stage: "面试 · 第 9 部分",
   title: "TypeScript 深度",
+  titleEn: "TypeScript in depth",
   summary:
     "6 道题。senior 面试的 TS 深水区：utility types 不止会用还要会手写，再加泛型约束、判别联合与 unknown / any / never。这 6 道全部是 DrillLab 自出，不在原题库里。",
+  summaryEn:
+    "6 questions. The harder TypeScript topics that senior interviews go into: you have to write utility types yourself, not only use them, plus generic constraints, discriminated unions, and unknown / any / never. All 6 were written by DrillLab and are not in the original question bank.",
   lessons: [
     /* ============================================================
        Utility Types（3 题）
@@ -25,6 +28,7 @@ export const ivTs: Module = {
     {
       id: "iv-ts-utility",
       title: "Utility Types：会用，还要会手写",
+      titleEn: "Utility types: use them, and write them yourself",
       blurb:
         "Partial / Pick / Omit / Record 怎么选，mapped type 手写 MyPick 与 MyPartial，conditional type 配 infer 手写 MyReturnType。",
       minutes: 28,
@@ -572,6 +576,7 @@ type S = Unwrap<Promise<string>>;    // string`,
     {
       id: "iv-ts-generics",
       title: "泛型与收窄：把 any 赶出代码",
+      titleEn: "Generics and narrowing: getting any out of the code",
       blurb:
         "getProp 为什么必须约束 K extends keyof T，判别联合加 never 兜底做穷尽检查，unknown / any / never 的三种语义。",
       minutes: 26,

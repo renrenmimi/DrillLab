@@ -114,13 +114,17 @@ export const fedTask1: Module = {
   id: "fed-task1",
   stage: "Federation · 第 3 部分",
   title: "Task 1 · subgraph resolver 逐项拆解",
+  titleEn: "Task 1 · the subgraph resolvers, one at a time",
   summary:
     "四个 TODO 加三处埋雷。每个 TODO 都走同一套流程：读题 → 考什么 → 先想再写 → 分步实现 → 完整答案 → 为什么成立 → 常见错法 → 迁移。",
+  summaryEn:
+    "Four TODOs plus three planted bugs. Every TODO follows the same steps: read the task, see what it tests, think before writing, build it step by step, read the full answer, understand why it works, look at the common mistakes, then reuse the pattern elsewhere.",
   lessons: [
     /* ---------- 3.1 ---------- */
     {
       id: "g-read-task1",
       title: "先读题：四个 TODO、三处埋雷、十个测试",
+      titleEn: "Read the task first: four TODOs, three planted bugs, ten tests",
       blurb: "在写第一行 resolver 之前，把要改什么、别人给了什么、判卷标准是什么全摸清。",
       minutes: 15,
       objectives: [
@@ -793,6 +797,7 @@ Tests:       6 failed, 4 passed, 10 total`,
     {
       id: "g-user-orders",
       title: "TODO 1 · User.orders",
+      titleEn: "TODO 1 · User.orders",
       blurb: "Federation 链路的终点。三行代码，但每一行都有理由。",
       minutes: 13,
       objectives: [
@@ -1535,6 +1540,7 @@ async orders(user, _, { dataSources }) {
     {
       id: "g-shipping-info",
       title: "TODO 2 · Order.shippingInfo",
+      titleEn: "TODO 2 · Order.shippingInfo",
       blurb: "两行代码，但选错一行就答不到 N+1 这个考点。",
       minutes: 11,
       objectives: [
@@ -2085,6 +2091,7 @@ async shippingInfo(parent, _, { loaders }) {
     {
       id: "g-queries",
       title: "TODO 3 & 4 · Query.order 与 Query.orders",
+      titleEn: "TODO 3 & 4 · Query.order and Query.orders",
       blurb: "一个用 loader、一个用数据源；一个可空、一个非空。放一起讲差别最清楚。",
       minutes: 14,
       objectives: [
@@ -2944,6 +2951,7 @@ return order ?? null;`,
     {
       id: "g-planted-bugs",
       title: "三处埋雷：怎么系统地找出来",
+      titleEn: "The three planted bugs: how to find them systematically",
       blurb: "README 只说「有 integration issues」。这一节教你怎么把它们挖出来。",
       minutes: 16,
       objectives: [

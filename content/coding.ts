@@ -26,6 +26,7 @@ import { tested } from "./helpers";
 interface Spec {
   id: string;
   title: string;
+  titleEn?: string;
   track: CodingProblem["track"];
   difficulty: 1 | 2 | 3;
   minutes: number;
@@ -595,6 +596,7 @@ const SPECS: Spec[] = [
   {
     id: "timer",
     title: "计时器（useEffect 清理函数）",
+    titleEn: "Timer (useEffect cleanup)",
     track: "react",
     difficulty: 2,
     minutes: 25,
@@ -615,6 +617,7 @@ const SPECS: Spec[] = [
   {
     id: "fetch-user",
     title: "fetch 取数：loading、error 与竞态",
+    titleEn: "Fetching data: loading, error and race conditions",
     track: "react",
     difficulty: 3,
     minutes: 35,
@@ -633,6 +636,7 @@ const SPECS: Spec[] = [
   {
     id: "comment-tree",
     title: "递归评论树 + 树形不可变更新",
+    titleEn: "Recursive comment tree, updated without changing the original",
     track: "react",
     difficulty: 3,
     minutes: 35,
@@ -655,6 +659,7 @@ const SPECS: Spec[] = [
   {
     id: "theme-context",
     title: "主题切换（Context + value 记忆化）",
+    titleEn: "Theme switch (Context plus a memoised value)",
     track: "react",
     difficulty: 2,
     minutes: 30,
@@ -678,6 +683,7 @@ const SPECS: Spec[] = [
   {
     id: "star-rating",
     title: "星级评分（hover 预览 + 受控双模式）",
+    titleEn: "Star rating (hover preview, controlled and uncontrolled)",
     track: "react",
     difficulty: 2,
     minutes: 25,
@@ -699,6 +705,7 @@ const SPECS: Spec[] = [
   {
     id: "use-local-storage",
     title: "写一个自定义 hook：useLocalStorage",
+    titleEn: "Write a custom hook: useLocalStorage",
     track: "react",
     difficulty: 2,
     minutes: 25,
@@ -720,6 +727,7 @@ const SPECS: Spec[] = [
   {
     id: "kanban",
     title: "Kanban 看板：一次改两个数组",
+    titleEn: "Kanban board: changing two arrays at once",
     track: "react",
     difficulty: 3,
     minutes: 40,
@@ -731,6 +739,7 @@ const SPECS: Spec[] = [
   {
     id: "tabs",
     title: "Tabs 组件（只用一个 state）",
+    titleEn: "Tabs component (one piece of state only)",
     track: "react",
     difficulty: 1,
     minutes: 20,
@@ -744,6 +753,7 @@ const SPECS: Spec[] = [
   {
     id: "player",
     title: "播放器（useRef 操作 DOM）",
+    titleEn: "Media player (touching the DOM with useRef)",
     track: "react",
     difficulty: 2,
     minutes: 25,
@@ -765,6 +775,7 @@ const SPECS: Spec[] = [
   {
     id: "dropdown",
     title: "Dropdown：点外面要关掉",
+    titleEn: "Dropdown: close it on an outside click",
     track: "react",
     difficulty: 2,
     minutes: 25,
@@ -784,6 +795,7 @@ const SPECS: Spec[] = [
   {
     id: "rtk-todo",
     title: "Redux Toolkit 版 Todo",
+    titleEn: "Todo with Redux Toolkit",
     track: "react",
     difficulty: 3,
     minutes: 40,
@@ -806,6 +818,7 @@ const SPECS: Spec[] = [
   {
     id: "cab-booking-app",
     title: "Cab Booking（Context 版）",
+    titleEn: "Cab Booking (Context version)",
     track: "react",
     difficulty: 3,
     minutes: 45,
@@ -854,6 +867,7 @@ const SPECS: Spec[] = [
   {
     id: "notes-manager",
     title: "Notes Manager 增删改（React 考试 Q1）",
+    titleEn: "Notes Manager: add, edit and delete (React exam Q1)",
     track: "react",
     difficulty: 3,
     minutes: 60,
@@ -882,6 +896,7 @@ const SPECS: Spec[] = [
   {
     id: "run-tasks",
     title: "带并发上限的异步任务调度器（Q2）",
+    titleEn: "Async task scheduler with a concurrency limit (Q2)",
     track: "js",
     difficulty: 3,
     minutes: 45,
@@ -895,6 +910,7 @@ const SPECS: Spec[] = [
   {
     id: "hand-debounce",
     title: "手写 debounce（带 cancel）",
+    titleEn: "Write debounce yourself (with cancel)",
     track: "js",
     difficulty: 1,
     minutes: 15,
@@ -906,6 +922,7 @@ const SPECS: Spec[] = [
   {
     id: "hand-throttle",
     title: "手写 throttle（leading + trailing）",
+    titleEn: "Write throttle yourself (leading and trailing)",
     track: "js",
     difficulty: 2,
     minutes: 20,
@@ -917,6 +934,7 @@ const SPECS: Spec[] = [
   {
     id: "hand-deep-clone",
     title: "手写 deepClone（防循环）",
+    titleEn: "Write deepClone yourself (handling cycles)",
     track: "js",
     difficulty: 2,
     minutes: 25,
@@ -928,6 +946,7 @@ const SPECS: Spec[] = [
   {
     id: "hand-flatten",
     title: "手写 flatten（depth 语义对齐原生）",
+    titleEn: "Write flatten yourself (depth behaves like the built-in)",
     track: "js",
     difficulty: 1,
     minutes: 15,
@@ -939,6 +958,7 @@ const SPECS: Spec[] = [
   {
     id: "hand-curry",
     title: "手写 curry（部分应用可复用）",
+    titleEn: "Write curry yourself (reusable partial application)",
     track: "js",
     difficulty: 1,
     minutes: 15,
@@ -950,6 +970,7 @@ const SPECS: Spec[] = [
   {
     id: "hand-promise-all",
     title: "手写 Promise.all + allSettled",
+    titleEn: "Write Promise.all and allSettled yourself",
     track: "js",
     difficulty: 2,
     minutes: 25,
@@ -961,6 +982,7 @@ const SPECS: Spec[] = [
   {
     id: "hand-event-emitter",
     title: "手写 EventEmitter（on/off/once/emit）",
+    titleEn: "Write EventEmitter yourself (on / off / once / emit)",
     track: "js",
     difficulty: 2,
     minutes: 20,
@@ -972,6 +994,7 @@ const SPECS: Spec[] = [
   {
     id: "hand-lru",
     title: "手写 LRUCache（用 Map 的插入序）",
+    titleEn: "Write LRUCache yourself (using Map insertion order)",
     track: "js",
     difficulty: 2,
     minutes: 20,
@@ -985,6 +1008,7 @@ const SPECS: Spec[] = [
   {
     id: "orders-subgraph",
     title: "Orders subgraph：四个 resolver + DataLoader",
+    titleEn: "Orders subgraph: four resolvers and DataLoader",
     track: "graphql",
     difficulty: 3,
     minutes: 90,
@@ -999,6 +1023,7 @@ const SPECS: Spec[] = [
   {
     id: "spring-endpoints",
     title: "六个 Spring Boot REST 端点",
+    titleEn: "Six Spring Boot REST endpoints",
     track: "java",
     difficulty: 3,
     minutes: 75,
@@ -1097,6 +1122,7 @@ function build(): CodingProblem[] {
     return {
       id: spec.id,
       title: spec.title,
+      titleEn: spec.titleEn,
       track: spec.track,
       difficulty: spec.difficulty,
       minutes: spec.minutes,

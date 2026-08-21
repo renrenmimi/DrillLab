@@ -9,8 +9,11 @@ export const ivBackend: Module = {
   id: "iv-backend",
   stage: "面试 · 第 6 部分",
   title: "Node、数据库与网络",
+  titleEn: "Node, databases and networking",
   summary:
     "12 道题。全栈岗和前端岗都会问到这一层：Node 的事件循环、请求响应流程、REST 的 CRUD 映射、关系型 vs 文档型、以及 HTTPS / JWT / CORS / session 这四道安全常客。CORS 那道几乎人人都遇到过，但很多人说不清它到底是谁在拦。",
+  summaryEn:
+    "12 questions. Both full-stack and frontend roles ask about this layer: the Node event loop, the request and response flow, how CRUD maps onto REST, relational vs document databases, and the four regular security questions on HTTPS / JWT / CORS / session. Almost everyone has run into the CORS one, but many cannot say clearly which side is doing the blocking.",
   lessons: [
     /* ============================================================
        Node 与 Express（4 题）
@@ -18,6 +21,7 @@ export const ivBackend: Module = {
     {
       id: "iv-node",
       title: "Node 与 Express 四问",
+      titleEn: "4 questions on Node and Express",
       blurb: "Node 的事件循环、请求响应周期、查询参数 vs 路径参数、CRUD。",
       minutes: 18,
       objectives: [
@@ -858,6 +862,7 @@ app.use((err, req, res, next) => {
     {
       id: "iv-sql",
       title: "数据库两问",
+      titleEn: "2 questions on databases",
       blurb: "关系型 vs 非关系型、主键与外键。",
       minutes: 12,
       objectives: [
@@ -1349,6 +1354,7 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`,
     {
       id: "iv-web",
       title: "网络、安全与测试 · 六问",
+      titleEn: "6 questions on networking, security and testing",
       blurb: "测试的种类、HTTPS vs HTTP、JWT、CORS、session vs cookie、HTTP 状态码。",
       minutes: 24,
       objectives: [

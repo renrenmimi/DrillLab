@@ -150,7 +150,7 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
               data-on={exam === e.id}
               href={hrefWith(query, { exam: e.id, page: "1" })}
             >
-              {e.shortTitle}
+              <T zh={e.shortTitle} en={e.shortTitleEn} />
             </Link>
           ))}
         </div>
@@ -256,9 +256,11 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
               <div key={`${r.exam.id}-${r.exercise.id}`}>
                 <span className="ex-origin">
                   <T en="From" zh="来自" />{" "}
-                  <Link href={lessonPath(r.exam.id, r.lesson.id)}>{r.lesson.title}</Link>
+                  <Link href={lessonPath(r.exam.id, r.lesson.id)}>
+                    <T zh={r.lesson.title} en={r.lesson.titleEn} />
+                  </Link>
                   <span className="crumb-sep"> · </span>
-                  {r.exam.shortTitle}
+                  <T zh={r.exam.shortTitle} en={r.exam.shortTitleEn} />
                 </span>
                 <ExerciseView ex={r.exercise} examId={r.exam.id} />
               </div>

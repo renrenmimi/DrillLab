@@ -50,6 +50,7 @@ import {
   drillsOfExam,
   drillsOfLesson,
   pathGroups,
+  stageEn,
 } from "@/content/path";
 import { useLocale } from "@/lib/locale";
 import { useProgress } from "@/lib/progress";
@@ -162,7 +163,7 @@ function ExamNode({
           <span className="side-exam-idx tabular">
             {num === undefined ? "—" : String(num).padStart(2, "0")}
           </span>
-          {exam.shortTitle}
+          <T zh={exam.shortTitle} en={exam.shortTitleEn} />
           {exam.status === "draft" && (
             <span className="tag" style={{ fontSize: 10 }}>
               <T zh="草稿" en="Draft" />
@@ -205,8 +206,14 @@ function ExamNode({
           return (
             <details className="side-mod" key={mod.id} open={hasCurrent}>
               <summary className="side-mod-title">
-                {mod.stage && <span className="side-mod-stage">{mod.stage}</span>}
-                <span className="side-mod-name">{mod.title}</span>
+                {mod.stage && (
+                  <span className="side-mod-stage">
+                    <T zh={mod.stage} en={stageEn(mod.stage)} />
+                  </span>
+                )}
+                <span className="side-mod-name">
+                  <T zh={mod.title} en={mod.titleEn} />
+                </span>
                 <span className="side-mod-count tabular">
                   {doneInMod}/{mod.lessons.length}
                 </span>
@@ -227,7 +234,9 @@ function ExamNode({
                         onClick={onNavigate}
                       >
                         <span className="side-lesson-n">·</span>
-                        <span>{lesson.title}</span>
+                        <span>
+                          <T zh={lesson.title} en={lesson.titleEn} />
+                        </span>
                       </Link>
                       {n > 0 && (
                         <Link
@@ -302,7 +311,9 @@ function ExamNode({
                     onClick={onNavigate}
                   >
                     <span className="side-lesson-n">·</span>
-                    <span>{c.title}</span>
+                    <span>
+                      <T zh={c.title} en={c.titleEn} />
+                    </span>
                   </Link>
                 </li>
               );

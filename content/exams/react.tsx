@@ -820,12 +820,18 @@ export default TicketList;`,
 const reactExam: Exam = {
   id: "react",
   title: "React Capstone",
+  titleEn: "React Capstone",
   shortTitle: "React 考试",
+  shortTitleEn: "React exam",
   description:
     "对应 react-notes-app 这个真实项目：Q1 是一个 Notes Manager 的增删改（CRUD），Q2 是一个带并发上限的异步任务调度器。从「组件是什么」讲到能在空文件夹里重建整个项目。",
+  descriptionEn:
+    "Built on the real react-notes-app project: Q1 is a Notes Manager that adds, deletes and edits notes (CRUD), and Q2 is an async task runner that limits how many tasks run at the same time. It starts at what a component is and ends with rebuilding the whole project in an empty folder.",
   category: "前端",
   tests:
     "Q1 考的是 React 的数据流基本功：state 放在哪、怎么不可变更新、受控输入、useEffect 同步、列表 key、派生数据。Q2 完全不涉及 React，考的是 Promise 语义和并发控制。两道题共同的隐性考点是「能不能读清题」—— 「按 id」和「原位置」这两个词决定了一半的分数。",
+  testsEn:
+    "Q1 tests the basics of how data moves through React: where state lives, how to update it without changing the original, controlled inputs, syncing with useEffect, list keys, and derived data. Q2 has no React in it at all; it tests what a Promise actually does and how to limit how many things run at the same time. Both questions quietly test one more skill: reading the wording closely. Two phrases in the brief decide half the score — by id, and in the original position.",
   sourceProjects: [
     {
       path: "react-notes-app",

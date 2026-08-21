@@ -110,7 +110,9 @@ export function CodingDetail({ id }: { id: string }) {
         </nav>
 
         <div className="page-head">
-          <h1 className="page-title serif">{problem.title}</h1>
+          <h1 className="page-title serif">
+            <T zh={problem.title} en={problem.titleEn} />
+          </h1>
           <div className="lesson-meta" style={{ marginTop: 14 }}>
             <span className="tag">{CODING_TRACK_LABEL[problem.track]}</span>
             <span className="tag" data-tone={problem.difficulty === 3 ? "warn" : undefined}>
@@ -264,6 +266,7 @@ export function CodingDetail({ id }: { id: string }) {
           }
           spec={problem.sandbox}
           title={problem.title}
+          titleEn={problem.titleEn}
         />
 
         <nav className="lesson-foot" aria-label="上一道 / 下一道">

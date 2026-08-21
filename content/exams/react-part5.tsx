@@ -895,8 +895,11 @@ export const reactVariants: Module = {
   id: "react-variants",
   stage: "React · 第 5 部分",
   title: "五道高频变式题",
+  titleEn: "Five variations that come up often",
   summary:
     "TodoList、计时器、fetch 取数、递归评论树、主题切换（Context）。第一道是 Q1 的变式，后四道补的是源项目里没有但同类考试常考的东西：useEffect 清理函数、异步三态与竞态、递归组件与树形不可变更新、Context 与 value 记忆化。五道题的参考答案与测试都在本机跑过（36 / 36）。",
+  summaryEn:
+    "A TodoList, a timer, fetching data, a recursive comment tree, and theme switching with Context. The first is a variation on Q1. The other four cover what the source project does not have but exams like this often ask for: the useEffect cleanup function, the three states of an async request and the race between two of them, components that render themselves and updating tree data without changing the original, and Context with its value wrapped in useMemo. Every reference answer and test here was run on a real machine (36 / 36).",
   lessons: [
     /* ================================================================
        6.1 TodoList
@@ -904,6 +907,7 @@ export const reactVariants: Module = {
     {
       id: "r-var-todo",
       title: "变式一 · Todo List",
+      titleEn: "Variation 1 · Todo List",
       blurb: "和 Notes Manager 同一套骨架，多了一个布尔字段、一个筛选、两个批量操作。",
       minutes: 14,
       objectives: [
@@ -1465,6 +1469,7 @@ const remove = (id: number) => {
     {
       id: "r-var-timer",
       title: "变式二 · 计时器：useEffect 的清理函数",
+      titleEn: "Variation 2 · a timer: the useEffect cleanup function",
       blurb: "这道题真正的考点只有一个 —— 你会不会写 return () => clearInterval(id)。",
       minutes: 16,
       objectives: [
@@ -2169,6 +2174,7 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
     {
       id: "r-var-fetch",
       title: "变式三 · fetch 取数：loading、error 与竞态",
+      titleEn: "Variation 3 · fetching data: loading, error, and the race between two requests",
       blurb: "三个状态好写，难的是「用户切换很快时，慢的旧请求把新数据覆盖了」。",
       minutes: 18,
       objectives: [
@@ -3043,6 +3049,7 @@ try {
     {
       id: "r-var-comment-tree",
       title: "变式四 · 递归读取评论的评论",
+      titleEn: "Variation 4 · reading replies to replies with recursion",
       blurb: "组件自己渲染自己；难点其实不在渲染，而在「给第四层加一条回复」怎么不改原树。",
       minutes: 20,
       objectives: [
@@ -3861,6 +3868,7 @@ setComments(next);`,
     {
       id: "r-var-theme-context",
       title: "变式五 · 主题切换：Context 怎么用",
+      titleEn: "Variation 5 · theme switching: how to use Context",
       blurb: "createContext 三行就写完了。真正会挂的地方是「value 每次都是新对象」和「忘了套 Provider」。",
       minutes: 20,
       objectives: [

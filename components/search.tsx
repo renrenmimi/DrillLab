@@ -16,6 +16,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ARENA, CODING, DRILLS, NAV, arenaPath, codingPath, drillPath, examPath, lessonPath, mockPath, navLessonsOf } from "@/content/nav";
+import { stageEn } from "@/content/path";
 import { useT } from "@/lib/locale";
 import { allText, L, Loc, T, type LocalizedString } from "./t";
 
@@ -112,25 +113,48 @@ const PAGES: Hit[] = [
  * 标题和一句话简介 —— 用户敲第一个字就已经有结果，不会看到空白。
  */
 function buildIndex(deepText: (examId: string, lessonId: string) => string): Hit[] {
+  // 英文补上了就给双语，没补就退回中文字符串 —— 和 <T> 的回落行为一致。
+  const loc = (zh: string, en?: string) => (en ? { zh, en } : zh);
+
   const out: Hit[] = [...PAGES];
 
   for (const exam of NAV) {
     out.push({
       href: examPath(exam.id),
       kind: L("考试", "Course"),
-      title: exam.title,
-      sub: exam.description,
-      haystack: [exam.title, exam.shortTitle, exam.description, exam.tests, ...exam.stack].join(" "),
+      title: loc(exam.title, exam.titleEn),
+      sub: loc(exam.description, exam.descriptionEn),
+      // 两种语言都进 haystack —— 否则英文界面下用英文词搜不到东西
+      haystack: [
+        exam.title,
+        exam.titleEn,
+        exam.shortTitle,
+        exam.shortTitleEn,
+        exam.description,
+        exam.descriptionEn,
+        exam.tests,
+        exam.testsEn,
+        ...exam.stack,
+      ]
+        .filter(Boolean)
+        .join(" "),
     });
 
     for (const ref of navLessonsOf(exam)) {
       const l = ref.lesson;
       out.push({
         href: lessonPath(exam.id, l.id),
-        kind: `${exam.shortTitle} · ${ref.module.stage ?? "课程 / Lesson"}`,
-        title: l.title,
+        kind: {
+          zh: `${exam.shortTitle} · ${ref.module.stage ?? "课程"}`,
+          en: `${exam.shortTitleEn ?? exam.shortTitle} · ${
+            (ref.module.stage && stageEn(ref.module.stage)) ?? "Lesson"
+          }`,
+        },
+        title: loc(l.title, l.titleEn),
         sub: l.blurb,
-        haystack: [l.title, l.blurb, deepText(exam.id, l.id)].join(" "),
+        haystack: [l.title, l.titleEn, l.blurb, deepText(exam.id, l.id)]
+          .filter(Boolean)
+          .join(" "),
       });
     }
 
@@ -139,7 +163,7 @@ function buildIndex(deepText: (examId: string, lessonId: string) => string): Hit
         href: mockPath(exam.id, m.id),
         kind: {
           zh: `${exam.shortTitle} · 模拟考`,
-          en: `${exam.shortTitle} · Mock exam`,
+          en: `${exam.shortTitleEn ?? exam.shortTitle} · Mock exam`,
         },
         title: m.title,
         sub: m.scenario,

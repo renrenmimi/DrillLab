@@ -12,6 +12,7 @@
 
 import Link from "next/link";
 import { examPath, findLesson, lessonPath, prevNextLesson } from "@/content/registry";
+import { stageEn } from "@/content/path";
 import { CodeBlock } from "./code";
 import { ExerciseView } from "./exercise";
 import { LessonDoneBar, LessonToc, LessonVisit } from "./lesson-islands";
@@ -69,12 +70,15 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
         <LessonHeader
           crumbs={[
             { label: "路线图 / Roadmap", href: "/path" },
-            { label: exam.shortTitle, href: examPath(exam.id) },
-            { label: module.title },
+            {
+              label: <T zh={exam.shortTitle} en={exam.shortTitleEn} />,
+              href: examPath(exam.id),
+            },
+            { label: <T zh={module.title} en={module.titleEn} /> },
           ]}
           index={index}
           total={total}
-          title={lesson.title}
+          title={<T zh={lesson.title} en={lesson.titleEn} />}
           blurb={lesson.blurb}
           minutes={lesson.minutes}
           tags={
@@ -87,7 +91,11 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
                   />
                 </span>
               )}
-              {module.stage && <span className="tag">{module.stage}</span>}
+              {module.stage && (
+                <span className="tag">
+                  <T zh={module.stage} en={stageEn(module.stage)} />
+                </span>
+              )}
             </>
           }
         />
@@ -197,12 +205,18 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
         <NextLesson
           prev={
             prev
-              ? { href: lessonPath(examId, prev.lesson.id), title: prev.lesson.title }
+              ? {
+                  href: lessonPath(examId, prev.lesson.id),
+                  title: <T zh={prev.lesson.title} en={prev.lesson.titleEn} />,
+                }
               : undefined
           }
           next={
             next
-              ? { href: lessonPath(examId, next.lesson.id), title: next.lesson.title }
+              ? {
+                  href: lessonPath(examId, next.lesson.id),
+                  title: <T zh={next.lesson.title} en={next.lesson.titleEn} />,
+                }
               : undefined
           }
         />
@@ -236,7 +250,7 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
           </summary>
 
           <div style={{ color: "var(--ink-2)", marginTop: 8 }}>
-            {exam.shortTitle}
+            <T zh={exam.shortTitle} en={exam.shortTitleEn} />
             <br />
             <span className="dimmer">
               <T en={`Lesson ${index} of ${total}`} zh={`第 ${index} / ${total} 节`} />

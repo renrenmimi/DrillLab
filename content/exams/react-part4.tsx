@@ -109,13 +109,17 @@ export const reactQ2: Module = {
   id: "react-q2",
   stage: "React · 第 4 部分",
   title: "Q2 · 带并发上限的异步任务调度器",
+  titleEn: "Q2 · an async task runner that limits how many tasks run at the same time",
   summary:
     "react-notes-app 的第二道题，和 React 完全无关。纯 TypeScript + 异步。考的是「你能不能自己实现一个 Promise.allSettled 加节流」。",
+  summaryEn:
+    "The second question in react-notes-app, with no React in it at all. Pure TypeScript and async work. It asks whether you can write your own Promise.allSettled that also caps how many tasks are running at the same time.",
   lessons: [
     /* ---------- 4.1 ---------- */
     {
       id: "r-q2-read",
       title: "读题：三条要求，每一条都在指定一种写法",
+      titleEn: "Reading the question: three requirements, and each one decides how you write it",
       blurb: "题面就写在 taskRunner.ts 的文件头注释里。逐条翻译。",
       minutes: 12,
       objectives: [
@@ -661,6 +665,7 @@ runTasks(tasks, 2).then((results) => {
     {
       id: "r-q2-implement",
       title: "实现：worker pool（工人池）",
+      titleEn: "Building it: a worker pool, meaning a fixed number of workers sharing one queue",
       blurb: "别想复杂了。就是「开 limit 个工人，一起从同一个待办队列里抢活」。",
       minutes: 16,
       objectives: [
@@ -1509,13 +1514,17 @@ export const reactMastery: Module = {
   id: "react-mastery",
   stage: "React · 第 6 部分",
   title: "综合 Debug、从零重写与题型迁移",
+  titleEn: "Mixed debugging, a full rebuild, and the same skills on a new question",
   summary:
     "把前面的错误集中练一遍，然后在没有答案的情况下从空文件重建整个 Q1 和 Q2。这一模块是「会看」和「会做」的分界线。",
+  summaryEn:
+    "Practise all the earlier mistakes in one place, then rebuild the whole of Q1 and Q2 from empty files with no answer to look at. This module is the line between being able to follow along and being able to do it yourself.",
   lessons: [
     /* ---------- 5.1 ---------- */
     {
       id: "r-debug-lab",
       title: "Debug Lab · React 十种典型故障",
+      titleEn: "Debug Lab · ten typical React failures",
       blurb: "每一种都给真实报错（或真实的「没有报错」），你来判断、定位、修复、验证。",
       minutes: 20,
       objectives: [
@@ -2151,6 +2160,7 @@ console.log("after:", notes);
     {
       id: "r-rebuild",
       title: "从零重写：空文件夹到 4 个测试全过",
+      titleEn: "Write it again yourself: from an empty folder to 4 passing tests",
       blurb: "不给答案。给需求、文件清单、验证命令和四级提示。这一关是分界线。",
       minutes: 60,
       objectives: [

@@ -9,8 +9,11 @@ export const ivReactHooks: Module = {
   id: "iv-react-hooks",
   stage: "面试 · 第 5 部分",
   title: "React · Hooks、性能与生态",
+  titleEn: "React · Hooks, performance and the ecosystem",
   summary:
     "18 道题。useMemo / useCallback / React.memo 三兄弟的区别几乎每场必问，而且要答得出「什么时候不该用」；Redux 那四道是问 Redux 项目经验的固定套路。",
+  summaryEn:
+    "18 questions. The difference between useMemo, useCallback and React.memo is asked in almost every interview, and a full answer has to include when not to use them; the four Redux questions are the standard set asked of anyone who lists Redux experience.",
   lessons: [
     /* ============================================================
        Hooks（4 题）
@@ -18,6 +21,7 @@ export const ivReactHooks: Module = {
     {
       id: "iv-react-hook",
       title: "Hooks 四问",
+      titleEn: "4 questions on Hooks",
       blurb: "hooks 是什么与为什么、useMemo vs useCallback、React.memo vs useMemo、自定义 hook。",
       minutes: 20,
       objectives: [
@@ -660,6 +664,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
     {
       id: "iv-react-perf",
       title: "性能与新特性 · 八问",
+      titleEn: "8 questions on performance and new features",
       blurb: "性能优化、写样式的几种方式、React 18 新变化、lazy、最佳实践、StrictMode、错误边界、Router。",
       minutes: 26,
       objectives: [
@@ -1819,6 +1824,7 @@ const preload = () => import("./pages/Settings");
     {
       id: "iv-react-redux",
       title: "Redux 与 TypeScript · 六问",
+      titleEn: "6 questions on Redux and TypeScript",
       blurb: "Redux vs Context、结构与工作流、三大原则、中间件、JS vs TS、静态类型检查。",
       minutes: 22,
       objectives: [

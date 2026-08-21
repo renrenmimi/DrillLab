@@ -1287,12 +1287,18 @@ function createReviewerLoader(reviewerDataSource) {
 const fedExam: Exam = {
   id: "graphql-federation",
   title: "GraphQL Federation Capstone",
+  titleEn: "GraphQL Federation Capstone",
   shortTitle: "Federation 考试",
+  shortTitleEn: "Federation exam",
   description:
     "对应 graphql-federation-practice 这个真实项目：一个 Apollo Federation subgraph（Node.js）加一个 Spring Boot REST 微服务，再加两道书面题。从「GraphQL 是什么」讲到能在空目录里重建整个 subgraph。",
+  descriptionEn:
+    "Built on the real project graphql-federation-practice: one Apollo Federation subgraph (Node.js), one Spring Boot REST microservice, and two written questions. It starts at what GraphQL is and ends with rebuilding the whole subgraph in an empty directory.",
   category: "后端",
   tests:
     "Task 1 考 GraphQL 与 Federation 的基本功：schema 的可空性怎么决定 resolver 的兜底、parent 从哪来、entity 与 @key、DataLoader 防 N+1、结构化错误与 correlation id。Task 2 考 REST 语义：状态码选对没有、异常该谁处理。两道书面题考的是「有没有在真实系统里想过延迟传播和生产配置」。贯穿全题的隐性考点是「能不能核对而不是猜」—— starter 里有三处人为埋雷。",
+  testsEn:
+    "Task 1 covers the basics of GraphQL and Federation: how a nullable field in the schema decides what the resolver returns as a fallback, where parent comes from, entity and @key, using DataLoader to avoid N+1, and structured errors with a correlation id. Task 2 covers what the REST rules require: whether the status codes are right, and who should handle the exceptions. The two written questions ask whether you have thought about how delay spreads and how a service is configured in production. One point runs through the whole exam: can you check instead of guess — the starter has three bugs planted on purpose.",
   sourceProjects: [
     {
       path: "graphql-federation-practice",

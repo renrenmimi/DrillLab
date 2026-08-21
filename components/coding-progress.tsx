@@ -19,7 +19,16 @@ export function CodingDoneBadge({ id }: { id: string }) {
 }
 
 /** 详情页底部的打勾 */
-export function CodingDoneToggle({ id, title }: { id: string; title: string }) {
+export function CodingDoneToggle({
+  id,
+  title,
+  titleEn,
+}: {
+  id: string;
+  title: string;
+  /** 英文标题 —— 下面那句话把标题嵌进句子里，英文那半不能嵌中文标题 */
+  titleEn?: string;
+}) {
   const { ready, codingDone, toggleCoding } = useProgress();
   const done = ready && codingDone(id);
 
@@ -29,7 +38,7 @@ export function CodingDoneToggle({ id, title }: { id: string; title: string }) {
         {done ? (
           <T
             zh={`「${title}」已标记为完成。想再练一遍就点右边取消。`}
-            en={`"${title}" is marked done. Untick to run it again.`}
+            en={`"${titleEn ?? title}" is marked done. Untick to run it again.`}
           />
         ) : (
           <T

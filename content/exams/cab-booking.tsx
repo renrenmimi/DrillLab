@@ -385,12 +385,18 @@ describe("React: Cab Booking", () => {
 const cabBooking: Exam = {
   id: "cab-booking",
   title: "React Cab Booking（Context 版）",
+  titleEn: "React Cab Booking (Context version)",
   shortTitle: "Cab Booking",
+  shortTitleEn: "Cab Booking",
   description:
     "一个用 Context 管全局状态的打车小应用。四个页面、一个 Context、四个测试。练的是「Context 在一个真实多页应用里怎么用」—— Provider 放在哪一层、一个 action 同时改两个 state、消费者散在三个组件里。",
+  descriptionEn:
+    "A small cab booking app that keeps its global state in a Context. Four pages, one Context, four tests. The practice here is how to use Context in a real app with several pages: which level the Provider goes on, one action updating two pieces of state at once, and readers of the Context spread across three components.",
   category: "前端",
   tests:
     "Context 三件套与 Provider 的层级、一次更新两个 state、页面状态机、数组取尾部三条并反转、useEffect 的 setTimeout 清理、data-testid 契约。附带一个真实的脚手架缺陷：完整答案原样跑不起来。",
+  testsEn:
+    "The three parts of Context and the level the Provider sits at, updating two pieces of state in one action, the page state machine, taking the last three items of an array and reversing them, clearing a setTimeout inside useEffect, and the data-testid contract. Plus one real defect in the provided project: the complete answer does not run as given.",
   sourceProjects: [
     {
       path: "cab-booking-context",
@@ -420,13 +426,17 @@ const cabBooking: Exam = {
     {
       id: "cab-context",
       title: "Context 这一层：放在哪、存什么、怎么改",
+      titleEn: "The Context layer: where to put it, what to store, how to update it",
       summary:
         "先把四个测试读清楚，再搭 Context。这一部分的核心是一个位置问题：Provider 到底该包在哪一层 —— 答错这个，App 自己就用不了 Context。",
+      summaryEn:
+        "Read the four tests carefully first, then build the Context. The main point of this part is a question of position: which level of the tree the Provider should wrap. Get that wrong and App itself cannot read the Context.",
       stage: "Cab Booking · 第 1 部分",
       lessons: [
         {
           id: "cb-read-tests",
           title: "先读四个测试：它们到底要什么",
+          titleEn: "Read the four tests first: what exactly they ask for",
           blurb: "四个测试全靠 data-testid 找元素。先抄一张 testid 表出来，再动手。",
           minutes: 14,
           objectives: [
@@ -978,6 +988,7 @@ const cabBooking: Exam = {
         {
           id: "cb-provider-layer",
           title: "Context 放在哪一层 —— 这道题最容易死的地方",
+          titleEn: "Which level the Context goes on — the most common way to fail this task",
           blurb: "Provider 必须包在 App 外面。包在里面，App 自己就用不了 Context。",
           minutes: 16,
           objectives: [
@@ -1623,13 +1634,17 @@ const useCabContext = () => {
     {
       id: "cab-pages",
       title: "四个页面串起来：状态机、分组、一秒延迟",
+      titleEn: "Connecting the four pages: the state machine, grouping, and the one-second delay",
       summary:
         "没有路由，一个 currentPage state 管四个页面。这一部分把页面写出来，顺便撞上两个老考点：effect 的清理函数、和「取最新三条」的数组操作。",
+      summaryEn:
+        "No router: a single currentPage state controls four pages. This part builds the pages, and it also covers two points that come up again and again: the cleanup function of an effect, and the array operation that takes the three newest items.",
       stage: "Cab Booking · 第 2 部分",
       lessons: [
         {
           id: "cb-page-machine",
           title: "用一个 state 管四个页面",
+          titleEn: "Controlling four pages with one piece of state",
           blurb: "没有 react-router。currentPage 是个字符串状态机，四个 && 决定谁显示。",
           minutes: 15,
           objectives: [
@@ -2150,6 +2165,7 @@ const handleSelectCab = (cab) => {
         {
           id: "cb-options-grid",
           title: "按类型分组渲染六张卡",
+          titleEn: "Rendering the six cards grouped by type",
           blurb: "两层 map：外层 Object.keys 出三个类型，内层出每组的车。key 有个坑。",
           minutes: 13,
           objectives: [
@@ -2676,6 +2692,7 @@ const CabCard = ({ cab, onSelectCab }) => {
         {
           id: "cb-loading-timer",
           title: "Loading：一秒之后自己跳走",
+          titleEn: "Loading: it moves to the next page by itself after one second",
           blurb: "useEffect 里一个 setTimeout，return 里一个 clearTimeout。少了后者会出真问题。",
           minutes: 14,
           objectives: [
@@ -3331,6 +3348,7 @@ useEffect(() => {
         {
           id: "cb-history-three",
           title: "历史与确认页：两个小而致命的细节",
+          titleEn: "The history and confirmation pages: two small details that decide pass or fail",
           blurb: "slice(-3).reverse() 一个字符都不能错；bookedCabDetails?.name 少个问号就白屏。",
           minutes: 15,
           objectives: [
@@ -4122,13 +4140,17 @@ const RideHistory = () => {
     {
       id: "cab-verify",
       title: "验收：脚手架的坑、面试追问、从零重写",
+      titleEn: "Checking your work: the defect in the provided project, interview follow-up questions, and rewriting in an empty folder",
       summary:
         "三件事：修掉那个让「完整答案」原样跑不起来的缺陷；把源项目两处「测试能过但面试会被问」的写法说清楚；然后在空文件夹里重写一遍。",
+      summaryEn:
+        "Three things: fix the defect that stops the complete answer from running as given; explain two places in the source project where the code passes the tests but an interviewer would still ask about it; then write the whole app again in an empty folder.",
       stage: "Cab Booking · 第 3 部分",
       lessons: [
         {
           id: "cb-scaffold-bug",
           title: "完整答案跑不起来 —— 一个扩展名的事",
+          titleEn: "The complete answer does not run — the cause is one file extension",
           blurb: "README 说「先运行完整答案熟悉流程」。实测 0 个测试跑起来。",
           minutes: 13,
           objectives: [
@@ -4986,6 +5008,7 @@ export default defineConfig({
         {
           id: "cb-rewrite",
           title: "从零重写：空文件夹里做出来",
+          titleEn: "Rewrite it: build the whole app in an empty folder",
           blurb: "这一节没有新知识。只有一个要求：不看答案，把整个应用写出来。",
           minutes: 55,
           objectives: [

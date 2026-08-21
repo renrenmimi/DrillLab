@@ -219,6 +219,18 @@ export type Exercise =
 export interface Lesson {
   id: string;
   title: string;
+  /**
+   * 英文标题。
+   *
+   * 【为什么是旁挂字段而不是把 title 放宽成 string | Bilingual】
+   * 全站有 150 处直接读 .title，其中不少要的是纯字符串 ——
+   * generateMetadata 的 title、aria-label、排序键、搜索索引。
+   * 放宽联合类型等于在这 150 处都得插一次 pick()，改动面大、回归风险高。
+   * 旁挂之后：那 150 处一行不用动（继续拿中文），只有真正显示标题的地方
+   * 改成 <T zh={l.title} en={l.titleEn} />，而 <T> 缺 en 时自动回落中文。
+   * 于是英文可以一门课一门课地补，中间任何时刻站点都是可用的。
+   */
+  titleEn?: string;
   /** 侧栏用的一行钩子 */
   blurb: string;
   /** 阅读时长（分钟，诚实估） */
@@ -244,6 +256,9 @@ export interface Module {
   id: string;
   title: string;
   summary: string;
+  /** 见 Lesson.titleEn */
+  titleEn?: string;
+  summaryEn?: string;
   /** 学习路径里的阶段标签，如 "Stage 3" */
   stage?: string;
   lessons: Lesson[];
@@ -324,12 +339,17 @@ export interface MockExam {
 export interface Exam {
   id: string;
   title: string;
+  /** 见 Lesson.titleEn */
+  titleEn?: string;
   /** 侧栏/卡片上的短标题 */
   shortTitle: string;
+  shortTitleEn?: string;
   description: string;
+  descriptionEn?: string;
   category: "基础" | "前端" | "后端" | "全栈";
   /** 一行说明这门考试考什么 */
   tests: string;
+  testsEn?: string;
   /** 源项目在本机的真实路径（可为空，如 Foundations） */
   sourceProjects: { path: string; role: string }[];
   /** 前置考试 id */
@@ -384,6 +404,8 @@ export interface DrillQuestion {
 export interface CodingProblem {
   id: string;
   title: string;
+  /** 英文标题。见 Lesson.titleEn 里那段为什么是旁挂字段 */
+  titleEn?: string;
   track: "react" | "js" | "graphql" | "java";
   difficulty: 1 | 2 | 3;
   minutes: number;

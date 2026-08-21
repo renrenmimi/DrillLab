@@ -11,7 +11,7 @@
 
 import Link from "next/link";
 import { NAV, lessonPath, navStages } from "@/content/nav";
-import { pathGroups } from "@/content/path";
+import { pathGroups, stageEn } from "@/content/path";
 import { useProgress } from "@/lib/progress";
 import { T } from "./t";
 
@@ -135,7 +135,10 @@ export function LearningPath() {
                       {String(ei + 1).padStart(2, "0")}
                     </span>
                   )}
-                  {items[0]?.exam.shortTitle}
+                  <T
+                    zh={items[0]?.exam.shortTitle ?? ""}
+                    en={items[0]?.exam.shortTitleEn}
+                  />
                 </h2>
                 <ol className="road-nodes">
                   {items.map((s) => {
@@ -153,7 +156,10 @@ export function LearningPath() {
                         <div className="road-body">
                           <div className="road-node-head">
                             <span className="road-part">
-                              {s.stage.replace(/^.*· /, "")}
+                              <T
+                                zh={s.stage.replace(/^.*· /, "")}
+                                en={stageEn(s.stage)?.replace(/^.*· /, "")}
+                              />
                             </span>
                             {st === "current" && (
                               <span className="tag" data-tone="accent">
@@ -172,13 +178,15 @@ export function LearningPath() {
                           <h3 className="road-node-title">
                             {firstLesson ? (
                               <Link href={lessonPath(s.exam.id, firstLesson.id)}>
-                                {s.module.title}
+                                <T zh={s.module.title} en={s.module.titleEn} />
                               </Link>
                             ) : (
-                              s.module.title
+                              <T zh={s.module.title} en={s.module.titleEn} />
                             )}
                           </h3>
-                          <p className="road-summary">{s.module.summary}</p>
+                          <p className="road-summary">
+                            <T zh={s.module.summary} en={s.module.summaryEn} />
+                          </p>
                           <div className="road-lessons">
                             {s.module.lessons.map((l) => (
                               <Link
@@ -189,7 +197,7 @@ export function LearningPath() {
                                   ready && lessonDone(s.exam.id, l.id) ? "true" : undefined
                                 }
                               >
-                                {l.title}
+                                <T zh={l.title} en={l.titleEn} />
                               </Link>
                             ))}
                           </div>
