@@ -1361,11 +1361,19 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
           kind: "debug",
           id: "g-lab-loader-order",
           title: "故障 3 · A 拿到了 B 的数据",
+          titleEn: "Fault 3 · A receives B's data",
           level: 3,
           prompt: (
             <p>
               查两个订单的物流，返回的数据<strong>对上了错的订单</strong>。
               没有任何报错。这是 DataLoader 最阴险的一类误用。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You query the shipping info for two orders and the data comes back{" "}
+              <strong>attached to the wrong order</strong>. Nothing reports an
+              error. This is the hardest kind of DataLoader misuse to notice.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -1394,24 +1402,58 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
     return all.filter(info => info !== null);
   });
 }`,
-            { filename: "src/resolvers/orderResolvers.js", highlight: [10] },
+            {
+              filename: "src/resolvers/orderResolvers.js",
+              highlight: [10],
+              codeEn: `function createShippingInfoLoader(shippingDataSource) {
+  return new DataLoader(async orderIds => {
+    console.log(\`[DataLoader] Batching \${orderIds.length} shipping info requests\`);
+
+    const all = await Promise.all(
+      orderIds.map(id => shippingDataSource.getShippingInfo(id))
+    );
+
+    // "drop the ones with no shipping info" — this looks reasonable
+    return all.filter(info => info !== null);
+  });
+}`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "名字不匹配" },
-              { id: "b", label: "DataLoader 契约违约 —— batch 函数返回的数组长度/顺序必须与 keys 一一对应" },
-              { id: "c", label: "非空违约" },
-              { id: "d", label: "异步错误 —— 少了 await" },
+              { id: "a", label: "名字不匹配", labelEn: "A name mismatch" },
+              {
+                id: "b",
+                label: "DataLoader 契约违约 —— batch 函数返回的数组长度/顺序必须与 keys 一一对应",
+                labelEn:
+                  "A broken DataLoader contract — the array the batch function returns must match keys in both length and order",
+              },
+              { id: "c", label: "非空违约", labelEn: "A non-null violation" },
+              {
+                id: "d",
+                label: "异步错误 —— 少了 await",
+                labelEn: "An async mistake — a missing await",
+              },
             ],
             answer: "b",
           },
           locate: {
             question: "第 10 行错在哪？",
+            questionEn: "What is wrong on line 10?",
             options: [
-              { id: "a", label: "不能 filter —— 会改变长度，导致结果按下标错位分发" },
-              { id: "b", label: "应该改成 all.filter(info => info)" },
-              { id: "c", label: "应该改成 all.sort()" },
-              { id: "d", label: "应该在 filter 后面加 .reverse()" },
+              {
+                id: "a",
+                label: "不能 filter —— 会改变长度，导致结果按下标错位分发",
+                labelEn:
+                  "filter is not allowed here — it changes the length, so results are handed out to the wrong index",
+              },
+              { id: "b", label: "应该改成 all.filter(info => info)", labelEn: "It should be all.filter(info => info)" },
+              { id: "c", label: "应该改成 all.sort()", labelEn: "It should be all.sort()" },
+              {
+                id: "d",
+                label: "应该在 filter 后面加 .reverse()",
+                labelEn: "It should have .reverse() after filter",
+              },
             ],
             answer: "a",
           },
@@ -1423,7 +1465,16 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
 
 // 长度与顺序必须和 orderIds 一一对应，「没有」用 null 占位
 return shippingInfos;`,
-            { filename: "改对之后（这也是项目里原本正确的写法）" },
+            {
+              filename: "改对之后（这也是项目里原本正确的写法）",
+              filenameEn: "After the fix (this is also what the project had originally)",
+              codeEn: `const shippingInfos = await Promise.all(
+  orderIds.map(id => shippingDataSource.getShippingInfo(id))
+);
+
+// Length and order must match orderIds one to one; use null to hold "none"
+return shippingInfos;`,
+            },
           ),
           rootCause: (
             <>
@@ -1466,8 +1517,53 @@ return shippingInfos;`,
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <strong>DataLoader hands out results by index</strong>:{" "}
+                <code>results[0]</code> goes to <code>keys[0]</code>, and{" "}
+                <code>results[1]</code> goes to <code>keys[1]</code>.
+              </p>
+              <p>
+                <code>filter</code> turns <code>[info456, null]</code> into{" "}
+                <code>[info456]</code> if 457 has no shipping info — or, in this
+                example, turns <code>[null, info457]</code> into{" "}
+                <code>[info457]</code>, so <code>info457</code> is handed to{" "}
+                <code>orderIds[0]</code>, which is order-456, while order-457
+                reads past the end of the array and gets{" "}
+                <code>undefined</code>.
+              </p>
+              <p>
+                <strong>Why is this the hardest kind to notice?</strong> Because{" "}
+                <strong>nothing reports an error; only the data is wrong.</strong>{" "}
+                And &ldquo;drop the empty values&rdquo; looks like a perfectly
+                reasonable thing to do. Elsewhere it is reasonable. Inside a batch
+                function it is fatal.
+              </p>
+              <p>
+                <strong>
+                  Two hard rules for a batch function; memorize them:
+                </strong>
+                <br />① the length of the returned array === the length of keys;
+                <br />② result number i belongs to key number i.
+                <br />
+                Use <code>null</code> to hold the place of &ldquo;none&rdquo;, and
+                an <code>Error</code> object to hold the place of &ldquo;this one
+                failed&rdquo;. <strong>Never skip an entry.</strong>
+              </p>
+              <p>
+                In a real system, when you call a bulk endpoint (
+                <code>WHERE id IN (...)</code>), the database does not promise an
+                order and does not return the missing rows at all, so you have to
+                reorder with a Map:{" "}
+                <code>ids.map(id =&gt; byId.get(id) ?? null)</code>.
+              </p>
+            </>
+          ),
           verify:
             "node verify-schema.mjs   # order-456 应该对上 TRACK123456，457 对上 TRACK123457",
+          verifyEn:
+            "node verify-schema.mjs   # order-456 should match TRACK123456, and 457 should match TRACK123457",
         },
         {
           kind: "debug",
