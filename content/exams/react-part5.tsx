@@ -1808,7 +1808,19 @@ const remove = (id: number) => {
 
   return () => clearInterval(id);          // ← 这一行是整道题的答案
 }, [running]);`,
-              { filename: "计时器的核心九行" },
+              {
+                filename: "计时器的核心九行",
+                filenameEn: "The nine lines at the heart of the timer",
+                codeEn: `useEffect(() => {
+  if (!running) return;                    // not running, so build no interval
+
+  const id = setInterval(() => {
+    setSeconds((s) => s + 1);
+  }, 1000);
+
+  return () => clearInterval(id);          // ← this line is the answer to the whole task
+}, [running]);`,
+              },
             ),
           ],
         },
@@ -1883,6 +1895,20 @@ useEffect(() => {
 
 // ✓ 函数式更新：s 是 React 给的最新值
 setSeconds((s) => s + 1);`,
+              {
+                codeEn: `// ✗ Stale closure: seconds stays the value it had when the effect was created (0)
+useEffect(() => {
+  if (!running) return;
+  const id = setInterval(() => {
+    setSeconds(seconds + 1);   // 0 + 1 = 1, so every second computes 1
+  }, 1000);
+  return () => clearInterval(id);
+}, [running]);
+// Display: 00:01 and then nothing moves
+
+// ✓ Updater form: s is the latest value React gives you
+setSeconds((s) => s + 1);`,
+              },
             ),
           ],
         },
@@ -1960,7 +1986,31 @@ $ npx vitest run src/Timer.test.tsx
    + Received   1
 
  Tests  4 failed | 4 passed (8)`,
-              { filename: "本机实测：漏掉清理函数的后果" },
+              {
+                filename: "本机实测：漏掉清理函数的后果",
+                filenameEn: "Measured here: what a missing cleanup costs",
+                codeEn: `# The real output after deleting return () => clearInterval(id)
+$ npx vitest run src/Timer.test.tsx
+
+ ✕ pause stops the clock and keeps the value
+   Expected element to have text content: 00:02
+   Received:                              00:07
+
+ ✕ start/pause many times does not speed up（清理函数生效的证据）
+   Expected element to have text content: 00:04
+   Received:                              00:10        ← 1+2+3+4
+
+ ✕ reset stops and zeroes
+   Expected element to have text content: 00:00
+   Received:                              00:03
+
+ ✕ unmount clears the interval（不再有活着的定时器）
+   AssertionError: expected 1 to be +0 // Object.is equality
+   - Expected   0
+   + Received   1
+
+ Tests  4 failed | 4 passed (8)`,
+              },
             ),
           ],
         },
