@@ -3100,12 +3100,21 @@ const handleEdit = (note: Note) => {
           kind: "code-completion",
           id: "r-t3-write",
           title: "不看答案，自己写出完整的 Task 3",
+          titleEn: "Write all of Task 3 yourself, without looking at the answer",
           level: 3,
           prompt: (
             <p>
               把 <code>handleEdit</code> 和 <code>handleSubmitNote</code>
               两个函数完整写出来（含 Task 1 的分支）。
               这是 Q1 的完整答案，写对了这道题就通了。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Write both <code>handleEdit</code> and{" "}
+              <code>handleSubmitNote</code> in full, including the Task 1 branch.
+              This is the complete answer to Q1: get it right and the question is
+              done.
             </p>
           ),
           language: "tsx",
@@ -3123,6 +3132,18 @@ const handleSubmitNote = (submittedNote: Note) => {
 const handleEdit = (note: Note) => {
 
 };`,
+          starterEn: `// Already there:
+//   const [notes, setNotes] = useState<Note[]>([]);
+//   const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);
+// NoteForm already handles: reusing the old id when editing, the prefill, the button text
+
+const handleSubmitNote = (submittedNote: Note) => {
+
+};
+
+const handleEdit = (note: Note) => {
+
+};`,
           requirements: [
             "handleEdit：把这条笔记设为「正在编辑」，不要改动 notes",
             "handleSubmitNote 编辑分支：按 id 就地替换，位置和顺序不变",
@@ -3130,21 +3151,54 @@ const handleEdit = (note: Note) => {
             "handleSubmitNote 新增分支：追加到末尾",
             "全部使用函数式更新，不许修改原数组",
           ],
+          requirementsEn: [
+            "handleEdit: mark this note as the one being edited, and leave notes alone",
+            "handleSubmitNote, edit branch: replace by id in place, keeping the position and the order",
+            "handleSubmitNote, edit branch: leave edit mode once the replace is done",
+            "handleSubmitNote, add branch: append to the end",
+            "Use functional updates everywhere, and never change the original array",
+          ],
           checks: [
-            { label: "handleEdit 调用了 setNoteToEdit(note)", must: "setNoteToEdit\\s*\\(\\s*note\\s*\\)" },
-            { label: "handleEdit 没有改动 notes", mustNot: "handleEdit[\\s\\S]{0,120}setNotes" },
-            { label: "编辑分支用 map 就地替换", must: "\\.map\\s*\\(" },
-            { label: "map 里按 id 用 === 匹配", must: "\\.id\\s*===?\\s*submittedNote\\.id" },
-            { label: "替换成 submittedNote", must: "\\?\\s*submittedNote\\s*:" },
-            { label: "提交后退出编辑模式", must: "setNoteToEdit\\s*\\(\\s*null\\s*\\)" },
-            { label: "新增分支用展开追加", must: "\\[\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*submittedNote\\s*\\]" },
-            { label: "没有 push / splice", mustNot: "\\.(push|splice)\\s*\\(" },
-            { label: "没有「先 filter 再追加」的写法", mustNot: "filter[\\s\\S]{0,60},\\s*submittedNote" },
+            {
+              label: "handleEdit 调用了 setNoteToEdit(note)",
+              labelEn: "handleEdit calls setNoteToEdit(note)",
+              must: "setNoteToEdit\\s*\\(\\s*note\\s*\\)",
+            },
+            {
+              label: "handleEdit 没有改动 notes",
+              labelEn: "handleEdit does not change notes",
+              mustNot: "handleEdit[\\s\\S]{0,120}setNotes",
+            },
+            { label: "编辑分支用 map 就地替换", labelEn: "The edit branch replaces in place with map", must: "\\.map\\s*\\(" },
+            {
+              label: "map 里按 id 用 === 匹配",
+              labelEn: "Inside map, the ids are matched with ===",
+              must: "\\.id\\s*===?\\s*submittedNote\\.id",
+            },
+            { label: "替换成 submittedNote", labelEn: "It is replaced with submittedNote", must: "\\?\\s*submittedNote\\s*:" },
+            { label: "提交后退出编辑模式", labelEn: "Edit mode ends after the submit", must: "setNoteToEdit\\s*\\(\\s*null\\s*\\)" },
+            {
+              label: "新增分支用展开追加",
+              labelEn: "The add branch appends with a spread",
+              must: "\\[\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*submittedNote\\s*\\]",
+            },
+            { label: "没有 push / splice", labelEn: "No push / splice", mustNot: "\\.(push|splice)\\s*\\(" },
+            {
+              label: "没有「先 filter 再追加」的写法",
+              labelEn: "No filter-then-append version",
+              mustNot: "filter[\\s\\S]{0,60},\\s*submittedNote",
+            },
           ],
           hints: [
             "handleEdit 只需要做一件事：记下「现在在编辑哪条」。它不该动列表。handleSubmitNote 需要分两种情况。",
             "分支条件用 noteToEdit 是否为 null。编辑用 map（保序），新增用展开（追加）。别忘了「退出编辑模式」也要写。",
             "if (正在编辑) {\n  setNotes(最新值 => 最新值.map(每条 => 这条 id 等于提交的 id ? 提交的 : 这条))\n  把 noteToEdit 设回 null\n} else {\n  setNotes(最新值 => [...最新值， 提交的])\n}",
+            "if (noteToEdit) {\n  setNotes((prev) =>\n    prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),\n  );\n  setNoteToEdit(null);\n} else {\n  setNotes((prev) => [...prev, submittedNote]);\n}",
+          ],
+          hintsEn: [
+            "handleEdit does one thing: record which note is being edited right now. It must not touch the list. handleSubmitNote needs two cases.",
+            "The branch condition is whether noteToEdit is null. Editing uses map, which keeps the order; adding uses a spread to append. And do not forget to leave edit mode.",
+            "if (editing) {\n  setNotes(latest => latest.map(each => id of each equals id submitted ? the submitted one : each))\n  set noteToEdit back to null\n} else {\n  setNotes(latest => [...latest, the submitted one])\n}",
             "if (noteToEdit) {\n  setNotes((prev) =>\n    prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),\n  );\n  setNoteToEdit(null);\n} else {\n  setNotes((prev) => [...prev, submittedNote]);\n}",
           ],
           solution: real(
@@ -3167,6 +3221,7 @@ const handleEdit = (note: Note) => {
 };`,
             {
               filename: "参考答案（与项目里的实现完全一致，4 个测试全过）",
+              filenameEn: "Reference answer (identical to the project's code; all 4 tests pass)",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
