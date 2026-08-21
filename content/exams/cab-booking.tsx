@@ -2294,6 +2294,8 @@ const handleSelectCab = (cab) => {
           title: "按类型分组渲染六张卡",
           titleEn: "Rendering the six cards grouped by type",
           blurb: "两层 map：外层 Object.keys 出三个类型，内层出每组的车。key 有个坑。",
+          blurbEn:
+            "Two nested maps: Object.keys gives the three types on the outside, the cabs of each group on the inside. The key needs care.",
           minutes: 13,
           objectives: [
             "用 Object.keys + 两层 map 把分组数据渲染出来",
@@ -2301,8 +2303,16 @@ const handleSelectCab = (cab) => {
             "写出 CabCard 的五个 data-testid",
             "知道为什么 ride.id 单独做 key 在历史列表里不安全",
           ],
+          objectivesEn: [
+            "Render grouped data with Object.keys and two nested maps",
+            "Explain why you do not have to sort the group order yourself",
+            "Write the five data-testid values of CabCard",
+            "Know why ride.id on its own is not a safe key in the history list",
+          ],
           whyForAssessment:
             "测试 2 一次查九个断言：一个容器、三个分组标题（有序）、五种卡片字段各 6 个。这一节把这九个断言一次性满足。分组顺序是送分题 —— 老实用 Object.keys 就对了，自己排序反而会错。",
+          whyForAssessmentEn:
+            "Test 2 checks nine things at once: one container, three group headings in order, and 6 of each of the five card fields. This lesson satisfies all nine together. The group order is a free point: use Object.keys as it comes and you are right, while sorting it yourself makes it wrong.",
           sourceFiles: [
             { path: "cab-booking-context/src/data/data.json", role: "三组六辆车，键顺序 Sedan → SUV → Luxury" },
             { path: "cab-booking-context/src/components/CabOptions/CabOptions.jsx", role: "外层分组", edit: true },
@@ -2312,7 +2322,10 @@ const handleSelectCab = (cab) => {
             {
               id: "cb-group-map",
               heading: "Object.keys 加两层 map",
+              headingEn: "Object.keys plus two nested maps",
               lede: "数据长什么样，代码就长什么样",
+              ledeEn:
+                "The shape of the code follows the shape of the data",
               body: (
                 <>
                   <p>
@@ -2486,7 +2499,10 @@ const handleSelectCab = (cab) => {
             {
               id: "cb-card-fields",
               heading: "五个字段，和 key 的那个坑",
+              headingEn: "The five fields, and the problem with the key",
               lede: "卡片里每个字段都有 testid；历史列表的 key 不能只用 id",
+              ledeEn:
+                "Every field in the card has its own testid; the key in the history list cannot be the id alone",
               body: (
                 <>
                   <p>
@@ -2767,6 +2783,24 @@ const CabCard = ({ cab, onSelectCab }) => {
                   但直接 <code>someStateArray.sort()</code> 就会改到 state。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>sort()</code> compares as strings by default, and capital letters come
+                  first, so the result is <code>Luxury → SUV → Sedan</code>.
+                  <br />
+                  <strong>
+                    The key order in <code>data.json</code> was already correct.
+                  </strong>{" "}
+                  The mistake follows a very common pattern:{" "}
+                  <strong>you see a list and wonder whether it should be sorted</strong>. When the
+                  data source already states the order, any extra step breaks it.
+                  <br />
+                  One more point: <code>sort()</code> also{" "}
+                  <strong>changes the array in place</strong>. Here it runs on the new array
+                  returned by <code>Object.keys()</code>, so it does no harm, but{" "}
+                  <code>someStateArray.sort()</code> would change the state itself.
+                </>
+              ),
             },
             {
               wrong: demo(
@@ -2800,6 +2834,23 @@ const CabCard = ({ cab, onSelectCab }) => {
                   <code>onClick={"{() => onSelectCab(cab)}"}</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  A DOM event handler{" "}
+                  <strong>always receives the event object as its first argument</strong>. So{" "}
+                  <code>onClick={"{onSelectCab}"}</code> means <code>onSelectCab(clickEvent)</code>,
+                  and <code>cab</code> is never passed at all.
+                  <br />
+                  <strong>The symptom is confusing: no error, and the flow still works</strong> —
+                  the page moves to loading and then to the confirmation page, only the cab name is
+                  blank (because <code>?.name</code> is <code>undefined</code>, and React renders
+                  nothing for it). Test 3 fails on{" "}
+                  <code>toHaveTextContent(&quot;Ford Fusion is on the way…&quot;)</code>.
+                  <br />
+                  <strong>To pass an argument of your own, wrap it:</strong>{" "}
+                  <code>onClick={"{() => onSelectCab(cab)}"}</code>.
+                </>
+              ),
             },
           ],
           transfer: [
@@ -2814,6 +2865,13 @@ const CabCard = ({ cab, onSelectCab }) => {
             "CabCard 五个 testid：img / name / type / price / select-button。",
             "历史列表的 key 不能只用 ride.id —— 同一辆车能订两次。",
             "onClick={onSelectCab} 会把事件对象当 cab 传进去，必须包箭头函数。",
+          ],
+          recapEn: [
+            "3 types × 2 cabs = 6 cards, which is where the five toHaveLength(6) checks come from.",
+            "The group order comes from the order the keys were written in data.json. Object.keys hands it to you, so do not sort.",
+            "The five testids of CabCard: img, name, type, price, select-button.",
+            "The key in the history list cannot be ride.id alone, because the same cab can be booked twice.",
+            "onClick={onSelectCab} passes the event object in place of cab, so you have to wrap it in an arrow function.",
           ],
         },
         {
