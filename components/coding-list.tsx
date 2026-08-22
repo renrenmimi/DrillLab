@@ -265,9 +265,24 @@ export function CodingList({ query }: { query: CodingQuery }) {
             <T zh="为什么有的跑不了" en="Why some can't run here" />
           </div>
           <p className="dimmer" style={{ fontSize: 12.5, lineHeight: 1.6, margin: 0 }}>
-            GraphQL subgraph 要真起一个服务，Spring 那道要 JVM 和 Maven ——
-            浏览器里都办不到。这两道给的是本机命令和期望输出，
-            <strong>不给假编辑器</strong>。
+            <T
+              zh={
+                <>
+                  GraphQL subgraph 要真起一个服务，Spring 那道要 JVM 和 Maven ——
+                  浏览器里都办不到。这两道给的是本机命令和期望输出，
+                  <strong>不给假编辑器</strong>。
+                </>
+              }
+              en={
+                <>
+                  The GraphQL subgraph needs a real server process, and the
+                  Spring one needs a JVM and Maven — neither can happen in a
+                  browser. Those two hand you local commands and the expected
+                  output,{" "}
+                  <strong>not a fake editor</strong>.
+                </>
+              }
+            />
           </p>
         </div>
       </aside>
