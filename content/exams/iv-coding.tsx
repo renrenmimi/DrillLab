@@ -142,7 +142,7 @@ const Dropdown: React.FC<Props> = ({ options, onSelect }) => {
         aria-expanded={open}
         data-testid="dropdown-trigger"
       >
-        {picked ? picked.label : "请选择"}
+        {picked ? picked.label : "Select…"}
       </button>
 
       {open && (
@@ -286,7 +286,7 @@ const StarRating: React.FC<Props> = ({ max = 5, value, onChange }) => {
         <button
           key={n}
           type="button"
-          aria-label={\`\${n} 星\`}
+          aria-label={\`\${n} star\`}
           aria-pressed={n === current}
           data-filled={n <= shown}
           onMouseEnter={() => setHover(n)}
@@ -336,7 +336,7 @@ const StarRating: React.FC<Props> = ({ max = 5, value, onChange }) => {
         <button
           key={n}
           type="button"
-          aria-label={\`\${n} 星\`}
+          aria-label={\`\${n} star\`}
           aria-pressed={n === current}
           data-filled={n <= shown}
           onMouseEnter={() => setHover(n)}
@@ -3012,7 +3012,7 @@ const shown = hover ?? current
       onMouseEnter={() => 设 hover 为 n}
       onClick={() => 设 current 为「n 等于 current 就 0，否则 n」}
       data-filled={n <= shown}
-      aria-label={\`\${n} 星\`}
+      aria-label={\`\${n} star\`}
     >{n <= shown ? "★" : "☆"}</button>
   ))
 </div>`,
@@ -3026,7 +3026,7 @@ return (
       <button
         key={n}
         type="button"
-        aria-label={\`\${n} 星\`}
+        aria-label={\`\${n} star\`}
         data-filled={n <= shown}
         onMouseEnter={() => setHover(n)}
         onClick={() => setCurrent(n === current ? 0 : n)}
@@ -3051,7 +3051,7 @@ const shown = hover ?? current
       onMouseEnter={() => set hover to n}
       onClick={() => set current to "0 if n equals current, otherwise n"}
       data-filled={n <= shown}
-      aria-label={\`\${n} 星\`}
+      aria-label={\`\${n} star\`}
     >{n <= shown ? "★" : "☆"}</button>
   ))
 </div>`,
@@ -3065,7 +3065,7 @@ return (
       <button
         key={n}
         type="button"
-        aria-label={\`\${n} 星\`}
+        aria-label={\`\${n} star\`}
         data-filled={n <= shown}
         onMouseEnter={() => setHover(n)}
         onClick={() => setCurrent(n === current ? 0 : n)}
