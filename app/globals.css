@@ -1,5 +1,9 @@
 @import "../styles/tokens.css";
 @import "../styles/base.css";
+/* layout.css 排在 base 之后、各页面样式之前 —— 它是**布局原语**
+   （容器 / 页面头 / 卡片 / 进度 / 筛选条），页面样式在它之上做特例。
+   见 docs/ui-v2.md。 */
+@import "../styles/layout.css";
 @import "../styles/shell.css";
 /* nav.css 必须排在 shell.css 之后 —— 它重写了 .topbar 的布局，
    也在 media query 里改了 --topbar-h。同优先级下靠源码顺序决定胜负。 */

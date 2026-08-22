@@ -96,7 +96,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 13px;
   white-space: nowrap;
 }
@@ -107,10 +107,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .cont-btn,
-[data-theme="dark"] .cont-btn:hover {
-  color: #0f1512;
-}
 
 .cont-btn-label {
   font-weight: 650;
@@ -214,7 +210,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .ctx-cta:hover {
@@ -223,10 +219,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .ctx-cta,
-[data-theme="dark"] .ctx-cta:hover {
-  color: #0f1512;
-}
 
 /* 考场那一场还在计时 —— 用 danger 而不是 accent。
    #9c4a45 对白字 5.95:1，深色主题下 --danger 是浅色，文字走上面那条深色规则。 */
@@ -517,14 +509,11 @@
   padding: 1px 7px;
   border-radius: 100px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 10.5px;
   font-weight: 650;
 }
 
-[data-theme="dark"] .ctx-course-flag {
-  color: #0f1512;
-}
 
 .ctx-course-next {
   display: block;
@@ -805,7 +794,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r-lg);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 16px;
   font-weight: 650;
 }
@@ -820,10 +809,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .dash-cont-cta,
-[data-theme="dark"] .dash-cont-cta:hover {
-  color: #0f1512;
-}
 
 /* ---------- 通用的分节 ---------- */
 
@@ -1286,12 +1271,9 @@
 .lnext-step[data-primary] .lnext-step-title::before {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
-[data-theme="dark"] .lnext-step[data-primary] .lnext-step-title::before {
-  color: #0f1512;
-}
 
 .lnext-step-sub {
   padding-left: 27px;
@@ -1320,7 +1302,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 14.5px;
   font-weight: 650;
 }
@@ -1335,10 +1317,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .lnext-cta,
-[data-theme="dark"] .lnext-cta:hover {
-  color: #0f1512;
-}
 
 /* 竖着排两行：先是状态（打勾），再是回头路。
    横着挤一行的话，打勾条自己会先折行，按钮就掉到半空中（实测）。 */

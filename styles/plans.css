@@ -79,13 +79,9 @@
 .st-dot[data-state="passed"] {
   border-color: var(--ok);
   background: var(--ok);
-  color: #fff;
+  color: var(--on-ok);
 }
 
-[data-theme="dark"] .st-dot[data-state="confident"],
-[data-theme="dark"] .st-dot[data-state="passed"] {
-  color: #0f1512;
-}
 
 .st-dot[data-state="attempted"] {
   border-color: var(--warn-line);
@@ -294,7 +290,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .pl-panel-next:hover {
@@ -303,10 +299,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .pl-panel-next,
-[data-theme="dark"] .pl-panel-next:hover {
-  color: #0f1512;
-}
 
 .pl-panel-next-label {
   display: block;
@@ -407,14 +399,11 @@
   padding: 1px 7px;
   border-radius: 100px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 10px;
   font-weight: 650;
 }
 
-[data-theme="dark"] .plc-flag {
-  color: #0f1512;
-}
 
 .plc-outcome {
   font-size: 13.5px;
@@ -470,7 +459,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 12.5px;
   font-weight: 650;
 }
@@ -485,9 +474,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .plc-cta {
-  color: #0f1512;
-}
 
 .plc-cta[data-done] {
   border-color: var(--ok-line);
@@ -587,7 +573,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r-lg);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 16px;
   font-weight: 650;
 }
@@ -602,10 +588,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .apc-cta,
-[data-theme="dark"] .apc-cta:hover {
-  color: #0f1512;
-}
 
 .apc-alt {
   font-size: 14px;
@@ -666,13 +648,10 @@
   padding: 1px 8px;
   border-radius: 100px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   letter-spacing: 0.04em;
 }
 
-[data-theme="dark"] .pl-head-active {
-  color: #0f1512;
-}
 
 .pl-head-title {
   font-size: clamp(27px, 3.6vw, 38px);
@@ -722,7 +701,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r-lg);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   max-width: 42ch;
 }
 
@@ -732,10 +711,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .pl-head-cta,
-[data-theme="dark"] .pl-head-cta:hover {
-  color: #0f1512;
-}
 
 .pl-head-cta-label {
   font-size: 11px;
@@ -876,14 +851,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--on-ok);
   font-size: 14px;
   font-weight: 800;
 }
 
-[data-theme="dark"] .rm-stage[data-state="done"] .rm-marker-n::after {
-  color: #0f1512;
-}
 
 /* 你在这：实心强调色 + 一圈光环。整页最显眼的一个点 */
 .rm-stage[data-state="current"] .rm-marker {
@@ -893,12 +865,9 @@
 }
 
 .rm-stage[data-state="current"] .rm-marker-n {
-  color: #fff;
+  color: var(--on-accent);
 }
 
-[data-theme="dark"] .rm-stage[data-state="current"] .rm-marker-n {
-  color: #0f1512;
-}
 
 /* ---------- 档头 ---------- */
 
@@ -957,15 +926,12 @@
   padding: 1px 8px;
   border-radius: 100px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.03em;
 }
 
-[data-theme="dark"] .rm-you {
-  color: #0f1512;
-}
 
 .rm-ok {
   flex: 0 0 auto;
@@ -1252,13 +1218,9 @@
   border-style: solid;
   border-color: var(--ok);
   background: var(--ok);
-  color: #fff;
+  color: var(--on-ok);
 }
 
-[data-theme="dark"] .rm-chip[data-state="confident"],
-[data-theme="dark"] .rm-chip[data-state="passed"] {
-  color: #0f1512;
-}
 
 .rm-chip[data-state="live"] {
   border-style: solid;
@@ -1422,7 +1384,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 12.5px;
   font-weight: 650;
   max-width: 100%;
@@ -1434,10 +1396,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .pl-strip-next,
-[data-theme="dark"] .pl-strip-next:hover {
-  color: #0f1512;
-}
 
 .pl-strip-next-title {
   font-weight: 550;
@@ -1503,7 +1461,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 14px;
   font-weight: 650;
   overflow-wrap: anywhere;
@@ -1519,10 +1477,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .pl-nextstep-cta,
-[data-theme="dark"] .pl-nextstep-cta:hover {
-  color: #0f1512;
-}
 
 /* ============================================================
    首页新增的几块

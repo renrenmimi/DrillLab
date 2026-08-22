@@ -1,0 +1,324 @@
+/* ============================================================
+   布局原语（UI v2）
+   ------------------------------------------------------------
+   「感觉没对齐」的根子不是某一处写错了 padding，而是
+   **十几个页面各自手写了一套容器、标题、元信息行和筛选条**。
+   同一个东西写十遍，就会有十个略微不同的值。
+
+   所以这里定义一次，所有页面用同一套：
+
+     .page          页面容器（宽度、内边距、垂直节奏）
+     .page-head     页面头（眉题 / 标题 / 一句话 / 元信息 / 动作）
+     .sec           分区 + .sec-head 分区头
+     .cards         卡片栅格
+     .meta          元信息行（点分隔，等宽数字）
+     .prog          进度行（数字 + 轨道 + 标签），全站唯一一份
+     .bar-track     进度轨道本身
+     .toolbar       筛选 / 动作行
+     .acts          主 / 次动作行
+     .empty         空状态
+
+   几条硬规矩：
+   ① 一切间距都是 --sp-* （8 的倍数），不许手写别的数字。
+   ② 同等重量的按钮同高：--h-ctl / --h-ctl-sm。
+   ③ **每一屏只有一个 .btn-primary 级别的实心动作。**
+   ④ 标题的左边界由 .page 决定，所以等价页面的标题必然在同一条轴上。
+   ============================================================ */
+
+/* ---------- 页面容器 ---------- */
+
+.page {
+  width: 100%;
+  max-width: 1040px;
+  margin-inline: auto;
+  /* 【必须配 width: 100%】.page 常常是 grid item。单写 margin-inline: auto
+     会让它从「拉伸填满栅格列」变成「按内容宽度」，窄屏下 max-width 比视口
+     还宽，整页横向溢出。踩过一次，见 CLAUDE.md。 */
+  padding: var(--sp-4) var(--sp-3) var(--sp-8);
+}
+
+.page[data-w="wide"] {
+  max-width: 1240px;
+}
+
+.page[data-w="narrow"] {
+  max-width: 760px;
+}
+
+/* ---------- 页面头 ---------- */
+
+.page-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: var(--sp-4);
+}
+
+/* 眉题：小、等宽、大写。它说的是「你在哪一类东西里」 */
+.eyebrow2 {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.page-h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  font-weight: 680;
+  letter-spacing: -0.022em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 0;
+}
+
+.page-lede2 {
+  max-width: 62ch;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.62;
+  color: var(--ink-2);
+}
+
+/* ---------- 分区 ---------- */
+
+.sec {
+  margin-top: var(--sp-6);
+}
+
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+
+.sec-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 660;
+  letter-spacing: -0.016em;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* 明显更低一档的分区 —— 「浏览全部材料」那种。永远不和主动作争 */
+.sec[data-quiet] .sec-title {
+  font-size: var(--fs-h3);
+  color: var(--ink-2);
+  font-weight: 620;
+}
+
+.sec-note {
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+/* ---------- 卡片 ---------- */
+
+.card {
+  padding: var(--sp-3);
+  background: var(--raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+}
+
+.cards {
+  display: grid;
+  gap: var(--sp-2);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.cards[data-cols="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 720px) {
+  .cards[data-cols="2"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 卡片内部固定三层：头 / 主体（撑开）/ 脚。
+   这一条是「标签换行不许改变页脚对齐」的实现方式 ——
+   主体用 1fr 吃掉高度差，页脚因此永远贴在同一条底线上。 */
+.card[data-rows] {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--sp-2);
+}
+
+/* ---------- 元信息行 ---------- */
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  color: var(--ink-3);
+}
+
+.meta > * + *::before {
+  content: "·";
+  margin-right: var(--sp-1);
+  color: var(--ink-4);
+}
+
+/* ---------- 进度：全站唯一一份 ----------
+   老版本里 .ctx-meter / .pl-meter / .road-count / .dash-* 各画一条，
+   于是同一个「4 / 130」在四个页面上有四种字号和四种轨道高度。 */
+
+.prog {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.prog-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.prog-num b {
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.bar-track {
+  flex: 1 1 auto;
+  min-width: 60px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--sunken);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+
+.bar-track > i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width var(--t-prog) var(--ease);
+}
+
+.prog-label {
+  font-size: var(--fs-meta);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* ---------- 筛选 / 动作行 ---------- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-1) 0;
+}
+
+.toolbar > * {
+  min-height: var(--h-ctl-sm);
+}
+
+/* ---------- 主 / 次动作 ---------- */
+
+.acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+/* 次要动作一律是安静的文字链，不是第二颗按钮 */
+.act-quiet {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 3px;
+  min-height: var(--h-ctl-sm);
+  display: inline-flex;
+  align-items: center;
+}
+
+.act-quiet:hover {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+
+/* ---------- 空状态 ---------- */
+
+.empty {
+  padding: var(--sp-6) var(--sp-3);
+  text-align: center;
+  color: var(--ink-3);
+  background: var(--surface);
+  border: 1px dashed var(--rule);
+  border-radius: var(--r-lg);
+}
+
+.empty-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  color: var(--ink-2);
+  margin-bottom: var(--sp-1);
+}
+
+/* ---------- 响应式：只改容器内边距和字号，不改结构 ---------- */
+
+@media (max-width: 1024px) {
+  .page {
+    padding: var(--sp-3) var(--sp-2) var(--sp-6);
+  }
+}
+
+@media (max-width: 720px) {
+  :root,
+  [data-theme="dark"],
+  [data-theme="light"] {
+    --fs-hero: 34px;
+    --fs-h1: 32px;
+    --fs-h2: 22px;
+    --sp-6: 32px;
+    --sp-8: 40px;
+  }
+
+  .page-head {
+    padding-bottom: var(--sp-3);
+    margin-bottom: var(--sp-3);
+  }
+
+  .page-lede2 {
+    font-size: 15.5px;
+  }
+}
+
+/* ---------- 动效：一律尊重 prefers-reduced-motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

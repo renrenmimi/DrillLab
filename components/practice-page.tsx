@@ -82,7 +82,7 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
           <div className="eyebrow">
             <T en="Practice" zh="练习" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title display">
             <T en="Get your hands on it" zh="动手做" />
           </h1>
           {/* 【第三轮改动】这一句原来是「全站 123 个练习都在这里，可以按考试、

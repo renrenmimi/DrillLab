@@ -27,7 +27,7 @@ export function Guide() {
         <div className="eyebrow">
           <T zh="使用说明" en="How to use this" />
         </div>
-        <h1 className="page-title serif">
+        <h1 className="page-title display">
           <T zh="怎么用这个 App" en="How to use DrillLab" />
         </h1>
         <p className="page-lede">

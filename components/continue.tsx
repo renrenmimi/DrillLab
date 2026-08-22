@@ -234,7 +234,7 @@ export function ContinueCard() {
         )}
       </div>
 
-      <h1 className="dash-cont-title serif" id="dash-cont-h">
+      <h1 className="dash-cont-title display" id="dash-cont-h">
         <T zh={target.title} en={target.titleEn} />
       </h1>
 

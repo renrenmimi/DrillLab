@@ -330,15 +330,13 @@
   border-color: var(--rule-strong);
 }
 
-/* 选中态：整块上色，不只是加个边框 —— 要一眼看出来 */
+/* 选中态：整块上色，不只是加个边框 —— 要一眼看出来。
+   三档各自的底色在下面三条里，压在上面的字统一走 --on-ok（三档都是亮色）。 */
 .drill-mark[data-on] {
-  color: #fff;
+  color: var(--on-ok);
   font-weight: 600;
 }
 
-[data-theme="dark"] .drill-mark[data-on] {
-  color: #0f1512;
-}
 
 .drill-mark[data-kind="known"][data-on] {
   background: var(--ok);

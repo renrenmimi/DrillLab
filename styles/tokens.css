@@ -1,147 +1,235 @@
 /* ============================================================
-   DrillLab · Design Tokens
+   DrillLab · Design Tokens (UI v2)
    ------------------------------------------------------------
-   方向：纸感、克制、久读不累。
-   明确不做：紫蓝渐变 / 玻璃拟态 / 霓虹描边 / 发光阴影 /
-            backdrop-filter / 渐变文字 / 大面积纯白。
-   层级只靠四件事：留白、字号、极浅的背景差、一像素细线。
+   方向：深色、高对比的**训练指挥台**。
+   见 docs/ui-v2.md。
+
+   明确不做：薄荷绿洗色 / 衬线标题 / 玻璃拟态 / backdrop-filter /
+            每张卡都有渐变 / 彩虹档位色 / 紫色当主色 /
+            与学习无关的大动画。
+
+   【强调色的用法是硬规矩】
+   柠檬绿（--accent）只出现在四种地方：
+     ① 当前位置（当前页、当前档、当前那一格）
+     ② 进度（进度条已完成的那一段、完成数）
+     ③ 这一屏唯一的主 CTA
+     ④ 极小的高亮（一个点、一条 2px 的竖线）
+   **不许整卡铺满柠檬绿**，也不许用它当大段文字的颜色。
+
+   【变量名一个都没改】
+   9000 行 CSS 都在用这套名字。这一版换的是**值**，不是名字 ——
+   改名会变成一次全站字符串替换，而那种改动没法逐处验证。
+   新加的只有间距 / 字号 / 动效那三组（老版本靠手写数字，
+   所以「8 的倍数」和「按钮同高」这两条根本没法强制）。
    ============================================================ */
 
 :root,
-[data-theme="light"] {
-  color-scheme: light;
-
-  /* —— 表面。从「纸」到「抬高的纸」，差值极小，靠细线分界 —— */
-  --paper: #f2f5ef; /* 页面底色，略带绿灰，不是纯白 */
-  --surface: #f8faf5; /* 内容区 */
-  --raised: #fdfefb; /* 需要抬起来的块（练习、代码说明） */
-  --sunken: #eaeee6; /* 需要压下去的块（输入框底、表头） */
-
-  /* —— 文字。三档全部达 WCAG AA（正文 4.5:1），实测见下面的数字 ——
-     【为什么 --ink-3 调深了】老值 #7c8880 对 --paper 只有 3.35:1、
-     对 --sunken 3.14:1，而它恰恰用在 10–13px 的计数、编号、眉题上 ——
-     字越小越需要对比度，老配色刚好反着来。实测 11 个页面上有 33 类
-     文字不达标，绝大多数是它。现在最差的一档（对 --sunken）是 4.53:1。
-     --ink-2 顺带压深一点，保住三档之间的层次差。 */
-  --ink: #1c2723; /* 正文。对 --paper 13.9:1 */
-  --ink-2: #4a574f; /* 次要说明。对 --paper 6.90:1 */
-  --ink-3: #5f6b64; /* 元信息、编号、计数。对 --paper 5.06:1，最差 4.74:1 */
-
-  /* —— 分界线 —— */
-  --rule: #dbe2d8;
-  --rule-strong: #c2cdc2;
-
-  /* —— 强调色：一支鼠尾草绿，全站只有它是彩色主角 ——
-     【为什么从 #5c7f6c 压深了一档】它是主按钮 / CTA / 当前页 chip 的底色，
-     上面压白字。老值对白字只有 4.46:1（差 0.04 不达标），实测三处都栽在
-     这一个颜色上（首页 CTA 的副标、.pager-num[data-on]、课尾那个大按钮）。
-     #547563 对白字 5.12:1，对 --paper 也从 4.05 升到 4.65 —— 顺带把
-     「拿 --accent 当小字用」的地方一起救了。 */
-  --accent: #547563;
-  --accent-ink: #3a574a; /* 强调色文字（小字号时用，保证对比度） */
-  --accent-wash: #e3eee6;
-  --accent-line: #a9c2b3;
-
-  /* —— 语义色。都是同一套低饱和的「洗色」 —— */
-  --info: #37627f;
-  --info-wash: #e2ecf2;
-  --info-line: #aac6d7;
-
-  --warn: #835f1d; /* 4.84:1 on --warn-wash（老值 #8a6520 只有 4.42） */
-  --warn-wash: #f3ead4;
-  --warn-line: #d9c489;
-
-  --danger: #9c4a45;
-  --danger-wash: #f4e4e1;
-  --danger-line: #dcaea8;
-
-  --ok: #3f7357;
-  --ok-wash: #e2eee6;
-  --ok-line: #a5c6b0;
-
-  /* —— 代码区。深底，但饱和度压得很低 —— */
-  --code-bg: #1e2622;
-  --code-bar: #263029;
-  --code-ink: #e5ebe5;
-  --code-line-n: #828f86; /* 行号也是文字，4.59:1（老值 3.49） */
-  --code-hl: rgba(255, 255, 255, 0.055);
-  --code-hl-bar: #7fa78c;
-  /* 代码块横滚条。深底上的浅色细条，常驻显示 —— 见 styles/code.css 里的注释 */
-  --code-scroll: rgba(255, 255, 255, 0.22);
-
-  --tk-kw: #c2a4d8;
-  --tk-str: #a8c98d;
-  --tk-num: #dcb187;
-  --tk-com: #8a9a8f; /* 注释是课文的一部分，要读得清：5.24:1 */
-  --tk-fn: #8fb6d8;
-  --tk-type: #83c3bb;
-  --tk-tag: #d9a3a3;
-  --tk-attr: #cfc189;
-  --tk-dir: #cba0bd;
-  --tk-op: #9aa8a0;
-  --tk-var: #d9a3a3;
-
-  /* —— 阴影：只用极淡的一层，不做发光 —— */
-  --lift: 0 1px 2px rgba(28, 39, 35, 0.05);
-  --lift-2: 0 1px 3px rgba(28, 39, 35, 0.06), 0 6px 16px rgba(28, 39, 35, 0.05);
-
-  /* —— 尺度 —— */
-  --measure: 70ch; /* 正文阅读宽度（65–72ch 的中段） */
-  --measure-wide: 84ch; /* 代码与表格可以宽一点 */
-  --sidebar-w: 268px;
-  --rail-w: 212px;
-  --topbar-h: 56px;
-
-  --r-sm: 3px;
-  --r: 6px;
-  --r-lg: 10px;
-}
-
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --paper: #121714;
-  --surface: #171d19;
-  --raised: #1d241f;
-  --sunken: #0e1310;
+  /* —— 表面。四层，差值够大，不靠细线也分得开 —— */
+  --paper: #090c0b; /* 页面底 */
+  --surface: #101512; /* 侧栏、面板 */
+  --raised: #171d19; /* 抬起的卡 */
+  --sunken: #0d100e; /* 压下去的块（输入框底、表头） */
+  --hover: #202821; /* 悬停面 */
 
-  --ink: #e6ece7;
-  --ink-2: #a2aea6;
-  /* 老值 #7a867e 对 --raised 只有 4.18:1。#828e86 在 /path 那种带底色的
-     行上还是 4.36，再抬一档到 #8a968d（最差 5.16:1）。 */
-  --ink-3: #8a968d;
+  /* —— 文字三档。全部对 --paper / --surface / --raised 达 WCAG AA —— */
+  --ink: #f4f7f5; /* 正文。对 --paper 17.4:1 */
+  --ink-2: #a0aaa4; /* 次要说明。对 --paper 7.63:1 */
+  --ink-3: #96a19a; /* 元信息、编号、计数。见下面那段注释 */
 
-  --rule: #2a332d;
-  --rule-strong: #3b463e;
+  /* 【为什么 --ink-3 不是设计稿给的 #758079】
+     #758079 对 --paper 是 4.05:1，而 --ink-3 恰恰用在 10–13px 的
+     计数、编号、眉题上 —— 字越小越需要对比度，4.5:1 是硬线。
+     #96a19a 对 --paper 6.66:1、对 --raised 6.10:1、对 --hover 5.35:1，
+     最差一档也过 AA。#758079 仍然在用，见 --ink-4：那一档只给
+     **装饰性**的东西（分隔符、禁用态、aria-hidden 的图形）。 */
+  --ink-4: #758079;
 
-  --accent: #8cb39c;
-  --accent-ink: #a3c5b1;
-  --accent-wash: #1f2a23;
-  --accent-line: #3f5648;
+  /* —— 分界线 —— */
+  --rule: #28322c;
+  --rule-strong: #3a453e;
 
-  --info: #8ab4cf;
-  --info-wash: #1a252c;
-  --info-line: #38505d;
+  /* —— 强调色：柠檬绿。全站只有它是彩色主角 —— */
+  --accent: #b8f23d; /* 填充：主 CTA 的底、进度条、当前位置的那条竖线 */
+  --accent-h: #d0ff6a; /* 悬停时的填充 */
+  /* --accent-ink 是**强调色当文字用**的那一档（老语义，73 处在用）。
+     深色下就是亮柠檬绿本身：对 --paper 15.7:1。 */
+  --accent-ink: #c3f455;
+  /* 压在 --accent 填充上的字。这是新加的名字 —— 老版本在那些地方写死了
+     #fff，而白字压在柠檬绿上只有 1.4:1。 */
+  --on-accent: #10140d;
+  --accent-wash: #1a2110; /* 极淡的强调底（当前项那一行） */
+  --accent-line: #4a6318;
 
-  --warn: #ceac6b;
-  --warn-wash: #292319;
-  --warn-line: #574a2e;
+  /* 语义色在深色主题下都是**亮色**，所以压在它们上面的字也得是深的。
+     老版本这些地方写死了 #fff —— 白字压在 #63d69a 上只有 1.9:1。 */
+  --on-ok: #08150f;
+  --on-info: #041018;
+  --on-warn: #1a1305;
+  --on-danger: #1c0806;
 
-  --danger: #d59a93;
-  --danger-wash: #2a1e1d;
-  --danger-line: #593d3a;
+  /* —— 语义色。四个，都只在真的表达状态时出现 —— */
+  --ok: #63d69a;
+  --ok-wash: #10201a;
+  --ok-line: #2c5442;
 
-  --ok: #8fbfa1;
-  --ok-wash: #1a2620;
-  --ok-line: #3a5544;
+  --info: #62b7ff;
+  --info-wash: #0e1a26;
+  --info-line: #28455f;
 
-  --code-bg: #0d1210;
-  --code-bar: #141a16;
-  --code-ink: #e0e7e0;
-  --code-line-n: #79877e; /* 5.02:1（老值 3.37） */
-  --code-hl: rgba(255, 255, 255, 0.05);
-  --code-scroll: rgba(255, 255, 255, 0.2);
+  --warn: #f5c451;
+  --warn-wash: #211a0d;
+  --warn-line: #5a4718;
 
-  --lift: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --lift-2: 0 1px 3px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(0, 0, 0, 0.28);
+  --danger: #ff746c;
+  --danger-wash: #23100f;
+  --danger-line: #5e2a27;
+
+  /* —— 代码区。比页面底再深一档，让代码块自己成为一层 —— */
+  --code-bg: #060908;
+  --code-bar: #10150f;
+  --code-ink: #e8ede9;
+  --code-line-n: #7f8c84; /* 行号也是文字：对 --code-bg 5.24:1 */
+  --code-hl: rgba(184, 242, 61, 0.055);
+  --code-hl-bar: var(--accent);
+  --code-scroll: rgba(255, 255, 255, 0.22);
+
+  --tk-kw: #c9a6f0;
+  --tk-str: #b8e37a;
+  --tk-num: #f0bd8a;
+  --tk-com: #8b978f; /* 注释是课文的一部分：对 --code-bg 5.94:1 */
+  --tk-fn: #7fc4ff;
+  --tk-type: #6fd8c8;
+  --tk-tag: #ff9d95;
+  --tk-attr: #f5c451;
+  --tk-dir: #dda2d0;
+  --tk-op: #9aa8a0;
+  --tk-var: #ff9d95;
+
+  /* —— 抬升。深色下靠边框 + 一层很淡的黑，不做发光 —— */
+  --lift: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --lift-2: 0 1px 3px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  /* —— 焦点环。深色下必须比边框亮得多才看得见 —— */
+  --focus: var(--accent);
+
+  /* —— 尺度 —— */
+  --measure: 68ch; /* 正文阅读宽度 */
+  --measure-wide: 84ch; /* 代码与表格 */
+  --sidebar-w: 252px;
+  --rail-w: 232px;
+  --topbar-h: 56px;
+
+  /* 圆角：卡片 12–14，控件 8–10，小徽章 6 */
+  --r-sm: 6px;
+  --r: 10px;
+  --r-lg: 14px;
+
+  /* —— 间距：8 的倍数，一处都不许手写别的值 —— */
+  --sp-1: 8px;
+  --sp-2: 16px;
+  --sp-3: 24px;
+  --sp-4: 32px;
+  --sp-6: 48px;
+  --sp-8: 64px;
+
+  /* —— 字号 —— */
+  --fs-hero: 56px;
+  --fs-h1: 42px;
+  --fs-h2: 26px;
+  --fs-h3: 19px;
+  --fs-body: 16px;
+  --fs-sm: 14px;
+  --fs-meta: 12.5px;
+
+  /* —— 控件高度：同等重量的按钮必须同高 —— */
+  --h-ctl: 40px; /* 主控件（按钮、输入框、筛选 chip） */
+  --h-ctl-sm: 32px; /* 紧凑控件（元信息行里的小按钮） */
+
+  /* —— 动效。只用来解释状态变化 —— */
+  --t-hover: 140ms;
+  --t-fold: 200ms;
+  --t-prog: 300ms;
+  --t-enter: 200ms;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* —— 字族 ——
+     显示字：几何无衬线。等宽只留给代码、序号和紧凑元信息。
+     不下载字体文件，靠字重和字距做「强」。 */
+  --font-display: "Avenir Next", "Inter Tight", "Segoe UI Variable Display",
+    "Futura", Inter, system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", sans-serif;
+  --font-text: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono",
+    "Cascadia Mono", Menlo, Consolas, monospace;
+}
+
+/* ============================================================
+   浅色主题 —— 深色那一版的高对比对偶，不是老的薄荷纸感。
+   主题切换是既有功能（顶栏工具之一），所以两套都要过 AA。
+
+   柠檬绿在浅色下不能当文字：#b8f23d 对白底只有 1.4:1。
+   所以浅色主题里 --accent 仍然是**填充色**（上面压 --accent-ink 深字），
+   而「当文字用的强调色」（--accent-text）换成一支压深的橄榄绿。
+   ============================================================ */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --paper: #f6f8f5;
+  --surface: #ffffff;
+  --raised: #ffffff;
+  --sunken: #ecefe9;
+  --hover: #e8ece5;
+
+  --ink: #10140f; /* 对 --paper 17.9:1 */
+  --ink-2: #454f48; /* 7.86:1 */
+  --ink-3: #5a655d; /* 5.62:1 */
+  --ink-4: #78837b; /* 装饰专用 */
+
+  --rule: #dbe1d8;
+  --rule-strong: #bcc5ba;
+
+  --accent: #6f9a12; /* 填充。压 --on-accent 白字时 4.62:1 */
+  --accent-h: #5d8210;
+  --accent-ink: #41600f; /* 当文字用：对 --paper 6.24:1 */
+  --on-accent: #ffffff;
+  --accent-wash: #eef8dc;
+  --accent-line: #b9d47a;
+
+  /* 浅色主题下语义色是压深的，所以压在上面的字是白的 */
+  --on-ok: #ffffff;
+  --on-info: #ffffff;
+  --on-warn: #ffffff;
+  --on-danger: #ffffff;
+
+  --ok: #1d7a4e;
+  --ok-wash: #e2f3e9;
+  --ok-line: #9ecdb2;
+
+  --info: #1a5f96;
+  --info-wash: #e3eef7;
+  --info-line: #a2c4de;
+
+  --warn: #7d5a0e;
+  --warn-wash: #f8eed3;
+  --warn-line: #d9c078;
+
+  --danger: #a63229;
+  --danger-wash: #f9e5e3;
+  --danger-line: #e0aca7;
+
+  --code-bg: #10150f;
+  --code-bar: #1a201a;
+  --code-ink: #e8ede9;
+  --code-line-n: #8c9890;
+  --code-hl: rgba(184, 242, 61, 0.07);
+  --code-scroll: rgba(255, 255, 255, 0.24);
+
+  --lift: 0 1px 2px rgba(16, 20, 15, 0.06);
+  --lift-2: 0 1px 3px rgba(16, 20, 15, 0.07), 0 8px 24px rgba(16, 20, 15, 0.06);
+
+  --focus: #41600f;
 }

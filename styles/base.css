@@ -18,11 +18,9 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Noto Sans SC",
-    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, sans-serif;
-  font-size: 17px;
-  line-height: 1.72;
+  font-family: var(--font-text);
+  font-size: var(--fs-body);
+  line-height: 1.68;
   font-feature-settings: "kern" 1;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -38,14 +36,20 @@ pre {
   font-variant-ligatures: none;
 }
 
-/* —— 标题：大标题用 serif，其余保持 sans —— */
+/* —— 显示字：几何无衬线，重字重 + 收紧的字距 ——
+   老版本大标题用 serif（Iowan / Palatino）。这一版整个换掉了：
+   一个训练指挥台不该长得像一本书。类名从 .serif 改成 .display，
+   22 个组件一起改了名 —— 留着一个叫 serif 的类却渲染无衬线，
+   下一个人一定会被骗一次。
 
-.serif {
-  font-family:
-    "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", "Source Han Serif SC",
-    Georgia, serif;
-  font-weight: 600;
-  letter-spacing: -0.008em;
+   不下载字体文件：Avenir Next / Futura（macOS）、Segoe UI Variable（Windows）、
+   Inter Tight（装过的人）都够几何。字重和字距才是「强」的来源。 */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 680;
+  letter-spacing: -0.021em;
+  line-height: 1.12;
 }
 
 h1,
@@ -53,9 +57,10 @@ h2,
 h3,
 h4 {
   margin: 0;
-  line-height: 1.3;
-  font-weight: 600;
-  letter-spacing: -0.006em;
+  font-family: var(--font-display);
+  line-height: 1.22;
+  font-weight: 660;
+  letter-spacing: -0.014em;
 }
 
 p {
@@ -192,22 +197,16 @@ hr {
 .btn-primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
-[data-theme="dark"] .btn-primary {
-  color: #0f1512;
-}
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-ink);
   border-color: var(--accent-ink);
-  color: #fff;
+  color: var(--on-accent);
 }
 
-[data-theme="dark"] .btn-primary:hover:not(:disabled) {
-  color: #0f1512;
-}
 
 .btn-sm {
   padding: 3px 9px;

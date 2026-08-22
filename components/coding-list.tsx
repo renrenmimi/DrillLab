@@ -77,7 +77,7 @@ export function CodingList({ query }: { query: CodingQuery }) {
           <div className="eyebrow">
             <T zh="Coding 题" en="Coding problems" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title display">
             <T zh="一道一道写" en="One problem at a time" />
           </h1>
           <p className="page-lede">

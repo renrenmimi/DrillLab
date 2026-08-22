@@ -88,7 +88,7 @@ export function LessonHeader({
         {status}
       </div>
 
-      <h1 className="lesson-title serif">{title}</h1>
+      <h1 className="lesson-title display">{title}</h1>
       <p className="lesson-blurb">{blurb}</p>
 
       {tags && <div className="lesson-meta">{tags}</div>}

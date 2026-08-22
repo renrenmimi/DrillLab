@@ -206,7 +206,7 @@ export function Home() {
               <PlanMark />
               <T zh="引导计划" en="Guided plans" />
             </div>
-            <h1 className="dash-goal-title serif" id="dash-goal-h">
+            <h1 className="dash-goal-title display" id="dash-goal-h">
               <T zh="你现在想达成什么目标？" en="What are you preparing for?" />
             </h1>
             <p className="dash-goal-lede">

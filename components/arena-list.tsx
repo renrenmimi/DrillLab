@@ -54,7 +54,7 @@ export function ArenaList() {
           <div className="eyebrow">
             <T zh="考场" en="Arena" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title display">
             <T
               zh="计时、无提示、答案锁到交卷之后"
               en="Timed, no hints, answers locked until you hand in"

@@ -316,7 +316,7 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
             )}
           </div>
 
-          <h1 className="pl-head-title serif">
+          <h1 className="pl-head-title display">
             <T zh={plan.zh} en={plan.en} />
           </h1>
           <p className="pl-head-outcome">

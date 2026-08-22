@@ -26,7 +26,7 @@ export function PlanList() {
             <PlanMark />
             <T zh="引导计划" en="Guided plans" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title display">
             <T zh="你现在想达成什么目标？" en="What are you preparing for?" />
           </h1>
           <p className="page-lede">

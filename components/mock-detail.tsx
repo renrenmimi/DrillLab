@@ -52,7 +52,7 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
         <PlanItemBannerSlot itemKey={itemKey("mock", mock.id, exam.id)} />
 
         <div className="page-head">
-          <h1 className="page-title serif">
+          <h1 className="page-title display">
             <T zh={mock.title} en={mock.titleEn} />
           </h1>
           <p className="page-lede">

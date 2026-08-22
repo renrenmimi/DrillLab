@@ -85,7 +85,7 @@ export function LearningPath() {
           <div className="eyebrow">
             <T zh="学课程 · 路线图" en="Learn · roadmap" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title display">
             <T zh="你在这儿，下一步往这走" en="You are here. This is what comes next." />
           </h1>
           <p className="page-lede">

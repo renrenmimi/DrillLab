@@ -181,13 +181,13 @@
 .opt[data-state="right"] .opt-key {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .opt[data-state="wrong"] .opt-key {
   background: var(--danger);
   border-color: var(--danger);
-  color: #fff;
+  color: var(--on-danger);
 }
 
 .opt-label {
@@ -821,13 +821,10 @@
 .pager-num[data-on="true"] {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-weight: 650;
 }
 
-[data-theme="dark"] .pager-num[data-on="true"] {
-  color: #0f1512;
-}
 
 /* ---------- disabled 按钮必须说清为什么 ----------
    光把按钮变灰，用户会以为界面坏了。所以：

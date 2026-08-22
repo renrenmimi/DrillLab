@@ -610,7 +610,7 @@
 .road-node[data-state="done"] .road-dot {
   background: var(--ok);
   border-color: var(--ok);
-  color: #fff;
+  color: var(--on-ok);
 }
 
 /* 当前那一段：实心强调 + 一圈光环，一眼能找到 */

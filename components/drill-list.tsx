@@ -99,7 +99,7 @@ export function DrillList({ query }: { query: DrillQuery }) {
           <div className="eyebrow">
             <T zh="八股题库" en="Question bank" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title display">
             <T zh={`${all.length} 道问答题，一道一卡`} en={`${all.length} questions, one card each`} />
           </h1>
           <p className="page-lede">
