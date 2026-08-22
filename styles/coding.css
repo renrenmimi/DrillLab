@@ -2,80 +2,83 @@
    Coding 题：列表页 (/code) 与详情页 (/code/[id])
    ------------------------------------------------------------
    【这个文件曾经是空的】原来只有一行注释，48 字节 ——
-   coding-list.tsx 用的 .cd-list / .cd-row / .cd-row-main /
-   .cd-row-title / .cd-row-meta，以及 .cd-badge / .cd-brief /
-   .cd-fold / .cd-hidden，全站一条规则都没有。
+   coding-list.tsx 用的那一族 .cd-* 全站一条规则都没有，
    于是 /code 的题目列表就是一个裸 <ol>：标题、四个标签、
    「8 条验收标准」、「未开始」全挤在一行里连成一串。
    四条主线之一的入口页，主体内容没有样式。
 
-   这里按站里现成的语言补齐：一行一题，细线分隔，
-   和 .exam-row（考场 / 考试总览）是同一套骨架。
+   现在列表页的骨架来自 styles/layout.css 的共享原语
+   （.ui-cards + .ui-card[data-rows]），这个文件只剩「卡里怎么排」
+   和详情页自己的那几块。
    ============================================================ */
 
+/* 卡片栅格本身是共享的 .ui-cards + .ui-card[data-rows]（styles/layout.css）。
+   这里只补 <ol> 的复位和卡里两层自己的排版。
+
+   【为什么从「一行一题」换成卡片】
+   一行一题时四个标签和「8 条验收标准」「未开始」挤在同一行里，
+   窄一点就换行，于是每一行的右端徽章高低不一。
+   .ui-card[data-rows] 是「头 / 正文 / 页脚」三行，正文占 1fr ——
+   标签换几行都不影响页脚，25 张卡的徽章永远在同一条底线上。 */
 .cd-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  max-width: var(--measure-wide);
 }
 
-.cd-row {
+/* <li> 只是栅格里的一格，卡本身是里面那个 <a>。
+   ① base.css 给每个 <li> 留了 0.32em 下边距 —— 在 .ui-cards 这个栅格里
+      它会加到格子高度上，于是同一行的卡片底边对不齐；
+   ② display: grid 让那个 <a> 撑满整格，页脚才对得齐。 */
+.cd-list > li {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px 16px;
-  align-items: baseline;
-  padding: 13px 10px 13px 12px;
-  margin: 0 -12px;
-  border-radius: var(--r);
-  border-bottom: 1px solid var(--rule);
+  margin: 0;
 }
 
-.cd-row:hover {
-  background: var(--surface);
-}
-
-.cd-row:last-child {
-  border-bottom: 0;
-}
-
-/* 整行左半边都是链接 —— 点标题和点标签是同一个目标 */
-.cd-row-main {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+/* 整张卡就是链接（老版本是「整行左半边是链接」）。
+   里面没有第二个可点的东西，所以不会出现嵌套的可交互元素。 */
+.cd-card {
   color: inherit;
 }
 
-.cd-row-main:hover {
+.cd-card:hover {
+  border-color: var(--accent-line);
   text-decoration: none;
 }
 
-.cd-row-title {
+.cd-name {
   font-size: 16.5px;
   font-weight: 600;
   color: var(--ink);
   line-height: 1.35;
 }
 
-.cd-row-main:hover .cd-row-title {
+.cd-card:hover .cd-name {
   color: var(--accent-ink);
 }
 
-.cd-row-meta {
+/* 正文那一层：四个标签。它占 .ui-card[data-rows] 的 1fr 行 */
+.cd-meta {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
+  gap: var(--sp-1);
+}
+
+/* 页脚：左边验收标准条数，右边「已完成 / 未开始」 */
+.cd-foot {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
+  justify-content: space-between;
+  gap: var(--sp-1);
+  padding-top: var(--sp-1);
+  border-top: 1px solid var(--rule);
 }
 
 /* —— 「已完成 / 未开始」——
    data-on="pending" 是「进度还没从 localStorage 读回来」的那一帧：
-   保持占位但不显示文字，避免读回来时整行跳一下。 */
+   保持占位但不显示文字，避免读回来时整张卡跳一下。 */
 .cd-badge {
-  justify-self: end;
   min-width: 4.6em;
   padding: 2px 9px;
   border: 1px solid var(--rule);
@@ -95,16 +98,6 @@
 
 .cd-badge[data-on="pending"] {
   border-color: transparent;
-}
-
-@media (max-width: 640px) {
-  .cd-row {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .cd-badge {
-    justify-self: start;
-  }
 }
 
 /* ---------- 详情页 ---------- */

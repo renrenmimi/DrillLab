@@ -68,7 +68,9 @@ export function DrillCard({
   const track = DRILL_TRACK_LABEL[meta.track];
 
   return (
-    <article className="drill-card" id={`d-${id}`} data-mark={mark}>
+    // 骨架是共享的 .ui-card[data-rows]：头 / 正文 / 页脚三层，正文占 1fr。
+    // 所以头上的标签换行、答案展开，都不会让页脚离开那条底线。
+    <article className="ui-card drill-card" data-rows id={`d-${id}`} data-mark={mark}>
       <div className="drill-card-top">
         <span className="tag">
           <T zh={track.zh} en={track.en} />
@@ -86,23 +88,25 @@ export function DrillCard({
         </span>
       </div>
 
-      <h3 className="drill-q">
-        <Link href={drillPath(id)}>{meta.zh}</Link>
-      </h3>
-      <p className="drill-q-en" lang="en">
-        {meta.en}
-      </p>
+      <div className="drill-card-body">
+        <h3 className="drill-q">
+          <Link href={drillPath(id)}>{meta.zh}</Link>
+        </h3>
+        <p className="drill-q-en" lang="en">
+          {meta.en}
+        </p>
 
-      {/* 展开用原生 details —— 零 JS，答案整块留在服务端渲染的 children 里 */}
-      <details className="drill-ans">
-        <summary className="drill-ans-sum">
-          <span className="drill-ans-arrow" aria-hidden>
-            →
-          </span>
-          <T zh="看答案" en="Show answer" />
-        </summary>
-        <div className="drill-ans-body">{children}</div>
-      </details>
+        {/* 展开用原生 details —— 零 JS，答案整块留在服务端渲染的 children 里 */}
+        <details className="drill-ans">
+          <summary className="drill-ans-sum">
+            <span className="drill-ans-arrow" aria-hidden>
+              →
+            </span>
+            <T zh="看答案" en="Show answer" />
+          </summary>
+          <div className="drill-ans-body">{children}</div>
+        </details>
+      </div>
 
       <div className="drill-card-foot">
         <DrillMarks id={id} />
@@ -144,34 +148,34 @@ export function DrillListStatus({
 
   if (markFilter === "all") {
     return (
-      <p className="drill-count dim">
+      <span className="ui-sec-note">
         <T
           zh={`筛出 ${matched} 道${matched !== total ? `（共 ${total} 道）` : ""}${
             pages > 1 ? ` · 第 ${page} / ${pages} 页` : ""
           }。`}
           en={`${matched} of ${total} questions${pages > 1 ? ` · page ${page} / ${pages}` : ""}.`}
         />
-      </p>
+      </span>
     );
   }
 
   if (!ready) {
     return (
-      <p className="drill-count dim">
+      <span className="ui-sec-note">
         <T zh="正在读这台浏览器里的标记…" en="Reading your marks from this browser…" />
-      </p>
+      </span>
     );
   }
 
   const n = ids.filter((id) => hit(drillMark(id), markFilter)).length;
 
   return (
-    <p className="drill-count dim">
+    <span className="ui-sec-note">
       <T
         zh={`按掌握状态筛出 ${n} 道（这一档是在你的浏览器里筛的，所以不分页）。`}
         en={`${n} match this mark (filtered in your browser, so no paging here).`}
       />
-    </p>
+    </span>
   );
 }
 
@@ -187,12 +191,15 @@ export function DrillEmptyIfNone({
   if (markFilter === "all" || !ready) return null;
   if (ids.some((id) => hit(drillMark(id), markFilter))) return null;
   return (
-    <p className="empty">
+    <div className="ui-empty">
+      <span className="ui-empty-title">
+        <T zh="这一档现在是空的" en="Nothing in this mark" />
+      </span>
       <T
-        zh="这个组合下没有题。换个方向，或者把掌握状态改成「全部」。"
-        en="Nothing here. Try another track, or set the mark filter back to all."
+        zh="换个方向，或者把掌握状态改成「全部」。"
+        en="Try another track, or set the mark filter back to all."
       />
-    </p>
+    </div>
   );
 }
 

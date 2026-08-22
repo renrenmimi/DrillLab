@@ -124,7 +124,7 @@ export function CodingDetail({ id }: { id: string }) {
         <PlanItemBannerSlot itemKey={itemKey("coding", problem.id)} />
 
         <div className="page-head">
-          <h1 className="page-title display">
+          <h1 className="page-title">
             <T zh={problem.title} en={problem.titleEn} />
           </h1>
           <div className="lesson-meta" style={{ marginTop: 14 }}>

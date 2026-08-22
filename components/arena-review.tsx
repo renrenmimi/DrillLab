@@ -45,7 +45,7 @@ export function ArenaReview({ id }: { id: string }) {
           <div className="eyebrow">
             <T zh="交卷后 · 自评与复盘" en="Handed in · self-assessment" />
           </div>
-          <h1 className="page-title display">
+          <h1 className="page-title">
             <T zh="先自评，再看答案" en="Self-assess first, then read the answer" />
           </h1>
           <p className="page-lede">

@@ -87,7 +87,13 @@ export function DrillMarkBadge({ id }: { id: string }) {
 }
 
 /**
- * 顶部那条进度：99 道里会了多少、模糊多少、不会多少、还没做多少。
+ * 顶部那条进度 —— 四个模式列表页共用同一个进度原语（.ui-prog，见
+ * styles/layout.css）。这里只多挂一行四档明细：会 / 模糊 / 不会 / 还没做。
+ *
+ * 【为什么不再自己画一条四色分段条】
+ * 老版本 .drill-strip 自己写了一条 6px 的分段轨道、一个卡片底和一行小标题，
+ * 于是同一个「N / M」在四个列表页上有四种字号和四种轨道高度。
+ * 分段的信息一条也没丢：四个数字仍然在下面那行，颜色点还在。
  *
  * 「没做」= 总数 − 有记录的三档之和，不单独存。这样不用担心
  * localStorage 里存着已经被删掉的老题 id 时数字对不上。
@@ -105,28 +111,21 @@ export function DrillProgressStrip({ total }: { total: number }) {
     { id: "untouched", zh: "还没做", en: "Not seen", n: untouched },
   ];
 
-  const pct = (n: number) => (total > 0 ? (n / total) * 100 : 0);
-
   return (
-    <div className="drill-strip">
-      <div className="drill-strip-head">
-        {/* 【别用 .minihead】它自带一条整段宽的下边框（是「分隔条」）。
-            放进 flex 行里只跟着文字宽度画出半截横线，看着像渲染坏了。 */}
-        <span className="strip-label">
-          <T zh="你的掌握情况" en="Where you stand" />
+    <div className="mode-prog">
+      <div className="ui-prog">
+        <span className="ui-prog-num">
+          <b>{touched}</b> / {total}
         </span>
-        <span className="dimmer tabular" style={{ fontSize: 12.5 }}>
-          <T zh={`${touched} / ${total} 道自评过`} en={`${touched} / ${total} self-assessed`} />
+        <span className="ui-bar">
+          <i style={{ width: `${total > 0 ? (touched / total) * 100 : 0}%` }} />
+        </span>
+        <span className="ui-prog-label">
+          <T zh="道自评过" en="self-assessed" />
         </span>
       </div>
 
-      <div className="drill-strip-bar" aria-hidden>
-        {rows.map((r) => (
-          <i key={r.id} data-kind={r.id} style={{ width: `${pct(r.n)}%` }} />
-        ))}
-      </div>
-
-      <div className="drill-strip-legend">
+      <div className="drill-legends">
         {rows.map((r) => (
           <span key={r.id} className="drill-legend" data-kind={r.id}>
             <b className="tabular">{r.n}</b>
@@ -136,12 +135,9 @@ export function DrillProgressStrip({ total }: { total: number }) {
       </div>
 
       {!ready && (
-        <p className="dimmer" style={{ fontSize: 12.5, margin: "8px 0 0" }}>
-          <T
-            zh="正在读这台浏览器里的标记…"
-            en="Reading your marks from this browser…"
-          />
-        </p>
+        <span className="ui-sec-note">
+          <T zh="正在读这台浏览器里的标记…" en="Reading your marks from this browser…" />
+        </span>
       )}
     </div>
   );

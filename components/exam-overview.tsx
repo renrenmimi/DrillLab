@@ -45,7 +45,7 @@ export function ExamOverview({ examId }: { examId: string }) {
           <div className="eyebrow">
             {exam.category} · <T en="Course" zh="考试" />
           </div>
-          <h1 className="page-title display">
+          <h1 className="page-title">
             <T zh={exam.title} en={exam.titleEn} />
           </h1>
           <p className="page-lede">

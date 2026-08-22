@@ -7,29 +7,18 @@
 
 /* ============================================================
    顶部那条「你的掌握情况」
+   ------------------------------------------------------------
+   进度本身用全站唯一那一份 .ui-prog（styles/layout.css）——
+   老版本这里自己画了一个卡片底、一行小标题和一条四色分段轨道，
+   于是同一个「N / M」在四个列表页上有四种字号和四种轨道高度。
+
+   留下来的只有「四档明细」那一行：它要给每一档一个颜色点，
+   而颜色点是 .ui-meta 表达不了的东西。
    ============================================================ */
 
-.drill-strip {
-  margin-bottom: 26px;
-  padding: 14px 16px;
-  background: var(--raised);
-  border: 1px solid var(--rule);
-  border-radius: var(--r);
-}
-
-.drill-strip-head {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.drill-strip-head > span:last-child {
-  margin-left: auto;
-}
-
 /* 卡片内的小标题。和 .minihead 同一套字，但**没有下边框** ——
-   .minihead 是整段的分隔条，塞进 flex 行会画出半截横线。 */
+   .minihead 是整段的分隔条，塞进 flex 行会画出半截横线。
+   （现在只有抽认卡和单题页在用，列表页那条已经是 .ui-prog。） */
 .strip-label {
   font-size: 12px;
   font-weight: 650;
@@ -38,50 +27,18 @@
   color: var(--ink-3);
 }
 
-/* 四段拼成一条。宽度为 0 的段自然消失，不用条件渲染 */
-.drill-strip-bar {
-  display: flex;
-  height: 6px;
-  border-radius: 100px;
-  overflow: hidden;
-  background: var(--sunken);
-}
-
-.drill-strip-bar > i {
-  display: block;
-  height: 100%;
-  transition: width 0.3s ease;
-}
-
-.drill-strip-bar > i[data-kind="known"] {
-  background: var(--ok);
-}
-
-.drill-strip-bar > i[data-kind="fuzzy"] {
-  background: var(--warn);
-}
-
-.drill-strip-bar > i[data-kind="unknown"] {
-  background: var(--danger);
-}
-
-.drill-strip-bar > i[data-kind="untouched"] {
-  background: var(--rule-strong);
-}
-
-.drill-strip-legend {
+.drill-legends {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 18px;
-  margin-top: 10px;
-  font-size: 13px;
+  gap: var(--sp-1) var(--sp-2);
+  font-size: var(--fs-meta);
   color: var(--ink-2);
 }
 
 .drill-legend {
   display: inline-flex;
-  align-items: baseline;
-  gap: 5px;
+  align-items: center;
+  gap: var(--sp-1);
 }
 
 .drill-legend::before {
@@ -89,7 +46,6 @@
   width: 8px;
   height: 8px;
   border-radius: var(--r-sm);
-  margin-right: 2px;
   background: var(--rule-strong);
 }
 
@@ -106,7 +62,7 @@
 }
 
 .drill-legend b {
-  font-size: 15px;
+  font-size: var(--fs-sm);
   font-weight: 650;
   color: var(--ink);
 }
@@ -144,11 +100,6 @@
   background: var(--raised);
 }
 
-.drill-count {
-  font-size: 14.5px;
-  margin-bottom: 18px;
-}
-
 /* ============================================================
    题卡
    ============================================================ */
@@ -156,15 +107,14 @@
 .drill-cards {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--sp-2);
 }
 
+/* 骨架是共享的 .ui-card[data-rows]：头 / 正文 / 页脚三层，
+   正文那一行占 1fr，所以页脚永远贴在同一条底线上（styles/layout.css）。
+   这里只补一条左侧的标记色带。 */
 .drill-card {
-  padding: 16px 18px;
-  background: var(--surface);
-  border: 1px solid var(--rule);
   border-left: 3px solid var(--rule-strong);
-  border-radius: var(--r);
 }
 
 /* 已标过的题左边那条线换成对应的颜色 —— 扫一眼就知道哪些还没碰 */
@@ -183,14 +133,20 @@
 .drill-card-top {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--sp-1);
 }
 
 .drill-card-top-right {
   margin-left: auto;
   display: inline-flex;
   gap: 6px;
+}
+
+/* 正文那一层 —— .ui-card[data-rows] 里占 1fr 的那一行。
+   min-width: 0 是必需的：里面有不带空格的长标识符，grid item 的
+   min-width 默认是 auto，压不下去就会把整张卡顶宽。 */
+.drill-card-body {
+  min-width: 0;
 }
 
 .drill-bank {
@@ -223,7 +179,7 @@
 /* —— 折叠的答案（原生 details，零 JS）—— */
 
 .drill-ans {
-  margin-top: 12px;
+  margin-top: var(--sp-2);
 }
 
 .drill-ans-sum {
@@ -277,9 +233,8 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px 14px;
-  margin-top: 16px;
-  padding-top: 12px;
+  gap: var(--sp-1) var(--sp-2);
+  padding-top: var(--sp-2);
   border-top: 1px solid var(--rule);
 }
 
@@ -783,13 +738,12 @@
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 4px 10px;
-  padding: 9px 13px;
-  margin-bottom: 20px;
+  gap: var(--sp-1) var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
   font-size: 13.5px;
   background: var(--accent-wash);
   border: 1px solid var(--accent-line);
-  border-radius: 8px;
+  border-radius: var(--r);
 }
 
 .lesson-scope-label {
@@ -825,10 +779,6 @@
   /* 挤在一行会把课文标题压成两三行，让「回全库」自己占一行 */
   .lesson-scope-clear {
     margin-left: 0;
-  }
-
-  .drill-card {
-    padding: 14px;
   }
 
   .drill-q {

@@ -202,11 +202,20 @@ export function ContinueButton() {
    除此之外每一页都有它：它是回访者打开站之后唯一需要找的东西。
    ============================================================ */
 
-const CEDE_TO_PAGE = ["/"];
+/**
+ * 这一页的主内容本身就是那颗〔继续〕吗。
+ *
+ * 首页（新访客的三选一 / 回访者那张「下一件事」的卡）和计划详情页（页头那颗
+ * CTA）都是。这两页不许再在外壳里放一颗 —— 同一个目标两个入口等于没有入口。
+ * 侧栏和窄屏顶栏共用这一条判断。
+ */
+export function cedesContinue(path: string) {
+  return path === "/" || path.startsWith("/plans/");
+}
 
 export function SideContinue({ onNavigate }: { onNavigate: () => void }) {
   const path = usePathname();
-  if (CEDE_TO_PAGE.includes(path) || path.startsWith("/plans/")) return null;
+  if (cedesContinue(path)) return null;
   return <SideContinueLive onNavigate={onNavigate} />;
 }
 
@@ -324,70 +333,4 @@ export function ContinueCard() {
   );
 }
 
-/**
- * 紧凑的「接着上次那件事」条 —— 首页在**没跟计划**时用。
- *
- * 【为什么不是那张大卡】
- * 没跟计划时首页第一屏要问的是「你现在想达成什么目标」（六条计划），
- * 那句话是 h1。这时候「上次那件事」退成一行 —— 它仍然在，但不再抢焦点。
- */
-export function ContinueStrip() {
-  const { ready, target } = useContinue();
-  const mode = modeById(target.mode);
-  if (!ready || target.fresh) return null;
 
-  return (
-    <div className="dash-resume">
-      <span className="dash-resume-label">
-        <T zh="或者接着上次那件事" en="Or pick up where you left off" />
-      </span>
-      <Link className="dash-resume-link" href={target.href}>
-        <span className="dash-resume-mode" data-mode={target.mode}>
-          <T zh={mode.zh} en={mode.en} />
-        </span>
-        <span className="dash-resume-title">
-          <T zh={target.title} en={target.titleEn} />
-        </span>
-      </Link>
-    </div>
-  );
-}
-
-/**
- * 一行式的「接着学」条 —— /path 顶部用。
- *
- * 和上面那张卡是同一个目标，但这里只针对 learn：站在路线图上，
- * 「继续」应该回到课文，不该跳去八股。
- */
-export function ResumeBar() {
-  const { target, resumed } = useLearnTarget();
-  const pos = lessonPositionOf(target.href);
-
-  return (
-    <div className="resume-bar">
-      <div className="resume-bar-text">
-        <span className="resume-bar-label">
-          {resumed ? (
-            <T zh="接着上次那一节" en="Pick up your last lesson" />
-          ) : (
-            <T zh="从这里开始" en="Start here" />
-          )}
-        </span>
-        <span className="resume-bar-title">
-          <T zh={target.title} en={target.titleEn} />
-        </span>
-        {pos && (
-          <span className="resume-bar-pos tabular">
-            <T
-              zh={`${pos.courseZh} · 第 ${pos.index} / ${pos.total} 节`}
-              en={`${pos.courseEn ?? pos.courseZh} · lesson ${pos.index} of ${pos.total}`}
-            />
-          </span>
-        )}
-      </div>
-      <Link className="btn btn-primary" href={target.href}>
-        {resumed ? <T zh="继续" en="Resume" /> : <T zh="开始" en="Start" />}
-      </Link>
-    </div>
-  );
-}

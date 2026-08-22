@@ -45,7 +45,7 @@ export function Reference() {
           <div className="eyebrow">
             <T en="Reference" zh="速查" />
           </div>
-          <h1 className="page-title display">
+          <h1 className="page-title">
             <T en="The pages you actually flip to" zh="考场上会翻的那几页" />
           </h1>
           <p className="page-lede">
