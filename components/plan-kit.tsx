@@ -175,6 +175,7 @@ export function PlanChip({ onNavigate }: { onNavigate?: () => void }) {
         data-empty
         onClick={onNavigate}
         title={t("按目标走的引导计划", "Goal-based guided plans")}
+        aria-label={t("引导计划", "Guided plans")}
       >
         <PlanMark />
         <span className="topbar-plan-name">
@@ -192,6 +193,13 @@ export function PlanChip({ onNavigate }: { onNavigate?: () => void }) {
       title={t(
         `${status.plan.zh} · ${status.done} / ${status.total}`,
         `${status.plan.en} · ${status.done} / ${status.total}`,
+      )}
+      /* 窄屏下计划名那一段是 display: none（顶栏只剩「0/130」），
+         而链接的无障碍名字是由内容算出来的 —— 那就只剩两个数字，
+         读屏的人听不出这是哪条计划。所以名字显式写出来。 */
+      aria-label={t(
+        `计划：${status.plan.zh}，共 ${status.total} 项，已完成 ${status.done} 项`,
+        `${status.plan.en} plan, ${status.done} of ${status.total} completed`,
       )}
     >
       <PlanMark />
