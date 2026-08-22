@@ -99,6 +99,9 @@ export function NoRunnerNote({
                 yourself, read the errors yourself. If you want a wired-up
                 editor, <Link href="/code">the coding problems</Link> have 11
                 that run in the browser.
+                {stackblitz === "node"
+                  ? " This one is a Node project, so StackBlitz can run it — it compiles Node itself into the browser."
+                  : ""}
               </>
             }
           />
@@ -238,7 +241,12 @@ export function LocalSetup({
 
       <FileExplorer
         files={files}
-        title="文件清单（目录可以不完全一样，接口要对得上）"
+        title={
+          <T
+            zh="文件清单（目录可以不完全一样，接口要对得上）"
+            en="Files (your layout can differ; the interfaces have to match)"
+          />
+        }
       />
 
       {/* 两个端点的实测输出。
