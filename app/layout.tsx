@@ -26,7 +26,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" data-theme="light" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <head>
         {/* 在 React 接管前定好主题和语言，避免首屏闪一下 */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />

@@ -46,15 +46,21 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* 【UI v2】课名从 31px 提到 40px 并换成几何无衬线。
+   它是这一页的主角 —— 老版本它和右边目录里的条目、左边侧栏的课程树
+   字号差得不够多，一屏上有三处都像标题。 */
 .lesson-title {
-  font-size: 31px;
-  line-height: 1.24;
-  margin: 6px 0 10px;
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 680;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: var(--sp-1) 0 var(--sp-2);
 }
 
 @media (max-width: 640px) {
   .lesson-title {
-    font-size: 25px;
+    font-size: 32px;
   }
 }
 
@@ -73,11 +79,16 @@
 
 /* ---------- 学习目标 / 考点 ---------- */
 
+/* 【UI v2】两栏改成上下留白 + 一条细线分区，不再是两条彩色竖条。
+   一页上原本有：两条竖条（强调色 / 警告色）、四种颜色的提示框、
+   文件树的底色块、代码块 —— 「浅色块」太多，层级反而消失。 */
 .objectives {
   display: grid;
-  gap: 18px;
+  gap: var(--sp-3);
   grid-template-columns: 1fr 1fr;
-  margin-bottom: 34px;
+  margin: 0 0 var(--sp-6);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--rule);
   max-width: var(--measure-wide);
 }
 
@@ -89,12 +100,13 @@
 }
 
 .obj-block {
-  padding-left: 14px;
-  border-left: 2px solid var(--accent-line);
+  padding-left: 0;
 }
 
-.obj-block[data-kind="assessment"] {
-  border-left-color: var(--warn-line);
+/* 「这在考试里考什么」那一栏：只有眉题换个颜色，不再整块加边框。
+   它和左边那栏是同一层级的两件事，不该长得像两种东西。 */
+.obj-block[data-kind="assessment"] .obj-head {
+  color: var(--warn);
 }
 
 .obj-head {
@@ -128,8 +140,8 @@
 /* ---------- 编号段 ---------- */
 
 .sec {
-  margin: 0 0 44px;
-  scroll-margin-top: calc(var(--topbar-h) + 20px);
+  margin: 0 0 var(--sp-6);
+  scroll-margin-top: calc(var(--topbar-h) + var(--sp-3));
 }
 
 .sec-head {
@@ -149,8 +161,11 @@
 }
 
 .sec-title {
-  font-size: 21px;
-  line-height: 1.35;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 660;
+  letter-spacing: -0.016em;
+  line-height: 1.28;
 }
 
 .sec-lede {
@@ -197,11 +212,14 @@
 
 /* ---------- 提示框 ---------- */
 
+/* 【UI v2】提示框不再整块铺色：底色统一是 --surface，
+   区别只在左边那条 2px 的线和标题的颜色。
+   四种颜色的底块同屏出现时，页面读起来像四个互不相干的插件。 */
 .callout {
-  margin: 20px 0;
-  padding: 13px 16px 13px 15px;
-  border-left: 3px solid var(--rule-strong);
-  background: var(--sunken);
+  margin: var(--sp-3) 0;
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) 15px;
+  border-left: 2px solid var(--rule-strong);
+  background: var(--surface);
   border-radius: 0 var(--r) var(--r) 0;
   font-size: 15.5px;
   color: var(--ink-2);
@@ -227,7 +245,6 @@
 
 .callout[data-tone="why"] {
   border-left-color: var(--info-line);
-  background: var(--info-wash);
 }
 
 .callout[data-tone="why"] .callout-title {
@@ -236,7 +253,6 @@
 
 .callout[data-tone="warn"] {
   border-left-color: var(--warn-line);
-  background: var(--warn-wash);
 }
 
 .callout[data-tone="warn"] .callout-title {
@@ -245,7 +261,6 @@
 
 .callout[data-tone="trap"] {
   border-left-color: var(--danger-line);
-  background: var(--danger-wash);
 }
 
 .callout[data-tone="trap"] .callout-title {
@@ -254,7 +269,6 @@
 
 .callout[data-tone="transfer"] {
   border-left-color: var(--accent-line);
-  background: var(--accent-wash);
 }
 
 .callout[data-tone="transfer"] .callout-title {
@@ -614,27 +628,59 @@
    首页与列表页
    ============================================================ */
 
-.page-head {
-  max-width: var(--measure);
-  margin-bottom: 34px;
-}
-
-.page-title {
-  font-size: 33px;
-  line-height: 1.2;
-  margin: 8px 0 12px;
-}
-
-.page-lede {
-  font-size: 18px;
-  color: var(--ink-2);
-  margin: 0;
-}
-
 @media (max-width: 640px) {
-  .page-title {
-    font-size: 26px;
-  }
+}
+
+/* ============================================================
+   四个模式列表页共用的外壳（/drill /practice /code /arena）
+   ------------------------------------------------------------
+   这四页的结构和顺序完全一致：
+     眉题 → 大标题 → 一句话 → 计划上下文 → 进度摘要 → 筛选行 → 内容
+   容器宽度、左对齐轴、标题字号、卡片内边距、控件高度、圆角、空状态
+   全部来自 styles/layout.css 的 ui-* 原语，这四页一处都不再自己写。
+
+   这里只补三件 layout.css 不该知道的事：
+   ① 这四页自己的垂直节奏；
+   ② 进度摘要下面要能再挂一行明细或一句说明；
+   ③ 筛选折叠区放进工具条时要独占一行。
+   ============================================================ */
+
+.mode-page > * + * {
+  margin-top: var(--sp-3);
+}
+
+/* .ui-head 自己带 margin-bottom，再叠一层就是双倍留白 */
+.mode-page > .ui-head + * {
+  margin-top: 0;
+}
+
+/* 内容分区和上面那一串说明、控件之间要一个更明显的断点 */
+.mode-page > .ui-sec {
+  margin-top: var(--sp-4);
+}
+
+/* 这两样自己带下边距（各页各写一套的年代留下的）。
+   节奏统一由上面那条 * + * 给，所以把它们自己的下边距归零。 */
+.mode-page > .ladder,
+.mode-page > .callout {
+  margin-bottom: 0;
+}
+
+/* 进度摘要：一条 .ui-prog，下面可以再挂一行明细（八股的四档计数）
+   或一句说明（还没有进度时该怎么用这一页）。 */
+.mode-prog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  max-width: var(--measure-wide);
+}
+
+/* 筛选折叠区独占工具条的一行 —— 它展开时里面是两三排 chip，
+   不是工具条里的一个行内控件。 */
+.ui-toolbar > .filters-more {
+  flex: 1 1 100%;
+  min-width: 0;
+  margin: 0;
 }
 
 /* —— 考试列表：横向长条，不是三个一样的卡片 —— */
@@ -1131,4 +1177,89 @@ a.chip[data-done="true"] {
 
 .rail-fold[open] > .rail-fold-head::after {
   transform: rotate(45deg);
+}
+
+/* ============================================================
+   窄于 1280px 时的「这一页有什么」
+   ------------------------------------------------------------
+   右栏目录只在大桌面出现（见 styles/shell.css 的 media query）。
+   窄一些的宽度上，目录收成正文里这一个折叠控件。
+
+   两份 DOM 任何时刻只有一份在无障碍树里 —— 另一份是 display: none，
+   而 display: none 会把整棵子树移出无障碍树。
+   ============================================================ */
+
+.toc-fold {
+  margin: 0 0 var(--sp-3);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--surface);
+  max-width: var(--measure-wide);
+}
+
+@media (min-width: 1280px) {
+  .toc-fold {
+    display: none;
+  }
+}
+
+.toc-fold-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: var(--h-ctl);
+  padding: 0 var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  cursor: pointer;
+  list-style: none;
+}
+
+.toc-fold-head::-webkit-details-marker {
+  display: none;
+}
+
+.toc-fold-head::after {
+  content: "▾";
+  margin-left: auto;
+  color: var(--ink-3);
+  transition: transform var(--t-fold) var(--ease);
+}
+
+.toc-fold[open] > .toc-fold-head::after {
+  transform: rotate(-180deg);
+}
+
+.toc-fold-n {
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.toc-fold-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--sp-2) var(--sp-2);
+  display: grid;
+  gap: 2px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.toc-fold-list a {
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 var(--sp-1);
+  border-radius: var(--r-sm);
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.toc-fold-list a:hover {
+  background: var(--hover);
+  color: var(--ink);
+  text-decoration: none;
 }

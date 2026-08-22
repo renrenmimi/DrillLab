@@ -73,7 +73,7 @@ export function DrillDetail({ id }: { id: string }) {
 
         <PlanItemBannerSlot itemKey={itemKey("drill", q.id)} />
 
-        <h1 className="drill-detail-title serif">{q.zh}</h1>
+        <h1 className="drill-detail-title display">{q.zh}</h1>
         <p className="drill-detail-en" lang="en">
           {q.en}
         </p>

@@ -153,6 +153,11 @@ export function GET() {
             phase: st.phase,
             zh: st.zh,
             en: st.en,
+            // 「这一档为什么在这儿」是计划**唯一自己拥有的文字**。
+            // 首页那张「下一件事」的卡要用它回答「为什么是这一件」，
+            // 所以它必须进轻量清单（45 档 × 两种语言，约 10 KB）。
+            whyZh: st.whyZh,
+            whyEn: st.whyEn,
             items: st.items.map((it) => {
               if (!index.has(it.key)) {
                 index.set(it.key, items.length);

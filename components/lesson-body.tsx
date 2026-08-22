@@ -158,6 +158,32 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
             自由浏览的人不该被计划的横幅打扰。 */}
         <PlanItemBannerSlot itemKey={itemKey("lesson", lessonId, examId)} />
 
+        {/* 【窄于 1280px 时的目录】右栏只在 ≥1280px 出现，所以这里给一个
+            折叠的「这一页有什么」。
+
+            两个要点，别改：
+            ① 它和右栏那一份**任何时刻只有一个在无障碍树里** ——
+               另一份是 display: none，而 display: none 会把整棵子树移出
+               无障碍树。所以不存在「两个同名地标」的问题。
+            ② 这一份**不带 scroll-spy**，是一段纯服务端 HTML。
+               它的用途是「跳到某一节」，不是「我读到哪了」；
+               而且再挂一个 useActiveHeading 等于把同一份计算跑两遍。 */}
+        {tocItems.length > 2 && (
+          <details className="toc-fold">
+            <summary className="toc-fold-head">
+              <T zh="这一页有什么" en="On this page" />
+              <span className="toc-fold-n tabular">{tocItems.length}</span>
+            </summary>
+            <ul className="toc-fold-list">
+              {tocItems.map((it) => (
+                <li key={it.id}>
+                  <a href={`#${it.id}`}>{it.label}</a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+
         <LearningObjective
           objectives={lesson.objectives}
           objectivesEn={lesson.objectivesEn}

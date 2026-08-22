@@ -87,7 +87,7 @@ export function ArenaRun({ id }: { id: string }) {
           <div className="eyebrow">
             <T zh="考场 · 进行中" en="Arena · in progress" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title">
             <T zh={a.title} en={a.titleEn} />
           </h1>
           <p className="page-lede">{a.scenario}</p>
