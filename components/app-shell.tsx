@@ -1,87 +1,52 @@
 "use client";
 
-// 外壳：顶栏 + 左侧学习路径 + 主内容（+ 可选右侧目录栏）。
+// 外壳：顶栏 + 随模式而变的侧栏 + 主内容（+ 可选右侧目录栏）。
 //
-// 【为什么又改了导航 —— 上一版仍然是错的】
+// 【这一版换掉了什么，以及为什么】
 //
-// 上一版的分工是「顶栏 = 去哪儿，侧栏 = 我在学什么，侧栏只在课程页出现」。
-// 使用者的反馈是：那七个已上线的 app「你点左边那栏，一步一步做，就不会错过
-// 任何信息」，而这个不行 ——「你不知道该点左边还是该点 header 那些链接」。
+// 上一版是「一个常驻侧栏装下全部」：完整课程树 + 平行支线 + 四张全量表 +
+// 速查 + 清空进度，全部同时露出。它解决了上上一版「不知道该点左边还是点上边」
+// 的问题，但换来一个更根本的毛病 ——
 //
-// 病根不是标签起得不好，是**这个产品是二维的，而导航把两维拆给了两个控件**：
-//   一维是学什么   —— foundations / react / federation / cab-booking / 八股
-//   一维是给你多少 —— 八股 → 课内练习 → Coding → 考场（见 components/ladder.tsx）
-// 两维正交，谁也不是谁的子集。侧栏管第一维、顶栏管第二维，于是站在任何
-// 一页上都有两个都说得通的下一步，学的人得在脑子里拼一张矩阵才知道点哪个。
+//   **要先读懂这个站的内容模型，才能决定点哪儿。**
 //
-// 这一版只做一件事：**把第二维塞进第一维**。
-//   · 侧栏常驻，每一页都在，就是那条唯一的阶梯；
-//   · 主线按 prerequisites 排序并编号 01 起 —— 不是按 NAV 的登记顺序；
-//   · 展开当前那门课时，四个难度档按顺序摊开：
-//     课文（每节带自己的八股题数）→ Coding → 考场 → 模拟考；
-//     哪一档没内容就不出现（给 foundations 挂个「Coding 0」只是噪音）；
-//   · 面试八股没有前置、也没有课依赖它，所以不编号，单独放「平行支线」；
-//   · 主线里第一门没做完的那门标「从这里开始 / 接着学」——
-//     编号只说顺序，这个才回答「现在该进行哪一步」；
-//   · 四张全量表（/drill /practice /code /arena）压到最下面一组：
-//     竖着走一门课是主路，横着看一整档是另一种看法，都留着但不并列。
+// 一个刚来的人不知道该从哪开始；一个只想复习 React 的人也得先穿过课程结构。
+// 而这个产品明明有五种都成立的用法：跟着课程走 / 用抽认卡背知识点 /
+// 按题目找练习 / 进考场计时 / 只在卡住时查课文。
 //
-// 顶栏因此只剩跟「学到哪了」无关的东西：品牌、首页、使用说明、搜索、语言、主题。
+// 所以这一版把导航拆成两个问题，分给两个控件：
 //
-// 侧栏内容全部由 content/nav 和 content/path 推导 —— 加一门考试不用碰这个文件。
+//   顶栏：我现在想做哪一类事？   → 四个模式（lib/modes.ts）
+//   侧栏：在这件事里我在哪、下一步是什么？ → 四个侧栏（components/sidebars.tsx）
+//
+// 顶栏因此从「首页 / 使用说明」两个弱链接，换成四个真正的产品模式，
+// 再加一颗「继续」—— 回头客打开站的第一个念头是「我上次到哪了」，
+// 那个答案以前只在首页，而且只认课文。
+//
+// 「使用说明」没有删，它退到右边那个 ? 菜单里 —— 它是第一次来才需要的，
+// 不该占着四个一级位置里的一个。
+//
+// 四档难度（说得出 / 认得出 / 写得对 / 空手做）也没有删，
+// 它仍然是 components/ladder.tsx 那套解释，只是不再自己充当一级导航：
+// 它现在分布在 Review / Practice / Assess 三个模式里。
+//
+// 首页、使用说明、速查这三页不属于任何模式，所以它们**没有侧栏**
+// （data-nav="off"）—— 首页本身就是那张仪表盘，不需要旁边再摆一份导航。
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import {
-  ARENA,
-  CODING,
-  DRILLS,
-  NAV,
-  arenaPath,
-  codingPath,
-  examPath,
-  lessonPath,
-  type NavExam,
-} from "@/content/nav";
-import {
-  arenaOfExam,
-  codingOfExam,
-  drillsOfExam,
-  drillsOfLesson,
-  pathGroups,
-  stageEn,
-} from "@/content/path";
 import { useLocale } from "@/lib/locale";
-import { useProgress } from "@/lib/progress";
+import { MODES, modeOf } from "@/lib/modes";
 import { useTheme } from "@/lib/theme";
-import { drillListHref } from "./drill-query";
+import { ContinueButton } from "./continue";
 import { Search } from "./search";
+import { ContextSidebar } from "./sidebars";
 import { T } from "./t";
 
-// 顶栏只留两项。
-//
-// 【为什么砍到两项】
-// 上一版是五项：首页 / 课程 / 练习 / 考场 / 使用说明。
-// 现在侧栏常驻，而且里面已经有了这三样：
-//   课程 → 侧栏本体，加顶部的「看总览 →」（同一个 /path）
-//   练习 → 「题库总表」那一组里的「课内练习」
-//   考场 → 同一组里的「考场全表」
-// 留在顶栏就是同一个目的地有两个入口，而「到底点左边还是点上边」正是
-// 这次要修的那个问题。所以顶栏只留跟学习内容无关的两项。
-//
-// /path、/practice、/arena、/drill、/code、/mock、/reference 路由全部保留，
-// 只是不再从顶栏进。
-const TOP_NAV = [
-  { href: "/", zh: "首页", en: "Home" },
-  // 「使用说明」必须留在顶栏 —— 它是第一次来才需要的，
-  // 但藏在首页某一段里的说明书等于没有。
-  { href: "/guide", zh: "使用说明", en: "How to use" },
-];
-
 function Mark() {
-  // 四根递减的柱子 —— 这个站的内核就是四条主线，每一条给你的脚手架比上一条少：
-  // drill 给题目、practice 给挖好的空、code 给文件依赖测试，arena 只给一个空文件夹。
+  // 四根递减的柱子 —— 这个站的内核就是「越往后给你的脚手架越少」：
+  // 八股给题目、练习给挖好的空、coding 给文件依赖测试，考场只给一个空文件夹。
   // 所以柱子从高到低，最后一根只剩底座。
   //
   // 三处刻意的处理，别当成手滑改掉：
@@ -119,425 +84,110 @@ function Mark() {
 }
 
 /**
- * 一门课在侧栏里的那一节。
+ * 右边那个 ? 菜单 —— 「使用说明」和「速查表」的家。
  *
- * 折叠时一行：编号、名字、进度。
- * 展开时（只有当前这门会展开）把这门课的四个难度档按顺序摊开 ——
- * 课文 → Coding → 考场 → 模拟考。顺序就是 Ladder 的顺序，不是随便排的。
+ * 【为什么这两项不进顶栏】
+ * 它们不是「我现在想做哪一类事」的答案：使用说明是第一次来读一遍的，
+ * 速查表是卡住了才翻的。放在一级位置会挤掉真正的四个模式，
+ * 而顶栏一旦变成工具条，四个模式就不再显眼了。
+ *
+ * 【键盘和焦点】
+ * 点按钮开合；开着时 Esc 关闭并把焦点还给按钮；焦点离开这一块（Tab 出去、
+ * 点别处）也关闭。三个行为都不依赖 hover —— 触屏上 hover 菜单等于没有。
  */
-function ExamNode({
-  exam,
-  num,
-  isNext,
-  onNavigate,
-}: {
-  exam: NavExam;
-  /** 主线才有编号；平行支线传 undefined */
-  num?: number;
-  /** 建议从这门开始 / 接着学 */
-  isNext: boolean;
-  onNavigate: () => void;
-}) {
+function HelpMenu() {
   const path = usePathname();
   const { locale } = useLocale();
-  const { lessonDone, countLessons, ready } = useProgress();
+  const en = locale === "en";
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const btnRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
-  const isCurrent =
-    path.startsWith(examPath(exam.id)) || path.startsWith(`/mock/${exam.id}`);
-  const done = ready ? countLessons(exam.id) : 0;
+  // 换页时收起
+  useEffect(() => setOpen(false), [path]);
 
-  const coding = codingOfExam(exam.id);
-  const arena = arenaOfExam(exam.id);
-  const drills = drillsOfExam(exam.id);
+  useEffect(() => {
+    if (!open) return;
+    // 打开时把焦点移进菜单，否则键盘用户按了回车之后还停在按钮上
+    panelRef.current?.querySelector<HTMLElement>("a")?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      setOpen(false);
+      btnRef.current?.focus();
+    };
+    const onDown = (e: MouseEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onDown);
+    };
+  }, [open]);
 
   return (
-    <div className="side-group">
-      <Link
-        className="side-exam"
-        href={examPath(exam.id)}
-        data-active={isCurrent || undefined}
-        data-next={isNext || undefined}
-        onClick={onNavigate}
+    <div
+      className="helpmenu"
+      ref={wrapRef}
+      onBlur={(e) => {
+        // relatedTarget 是焦点即将去的地方。还在这一块里就不关。
+        if (!wrapRef.current?.contains(e.relatedTarget as Node | null)) setOpen(false);
+      }}
+    >
+      <button
+        type="button"
+        className="icon-btn"
+        ref={btnRef}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={en ? "Help and reference" : "帮助与速查"}
+        title={en ? "Help and reference" : "帮助与速查"}
+        onClick={() => setOpen((v) => !v)}
       >
-        <span className="side-exam-title">
-          <span className="side-exam-idx tabular">
-            {num === undefined ? "—" : String(num).padStart(2, "0")}
-          </span>
-          <T zh={exam.shortTitle} en={exam.shortTitleEn} />
-          {exam.status === "draft" && (
-            <span className="tag" style={{ fontSize: 10 }}>
-              <T zh="草稿" en="Draft" />
-            </span>
-          )}
-        </span>
-        <span className="side-exam-meta">
-          <T
-            zh={`${done} / ${exam.lessonCount} 节${drills.length ? ` · ${drills.length} 道八股` : ""}`}
-            en={`${done} / ${exam.lessonCount} lessons${drills.length ? ` · ${drills.length} drills` : ""}`}
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
+          <circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" strokeWidth="1.3" />
+          <path
+            d="M6.1 6.1a1.95 1.95 0 1 1 2.9 1.7c-.6.35-1 .8-1 1.5v.2"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            strokeLinecap="round"
           />
-        </span>
-        {/* 只在 ready 之后渲染 —— 进度在 localStorage 里，服务端不知道，
-            提前渲染会 hydration 不一致。 */}
-        {isNext && ready && (
-          <span className="side-exam-next">
-            {done === 0 ? (
-              <T zh="从这里开始" en="Start here" />
-            ) : (
-              <T zh="接着学" en="Continue" />
-            )}
-          </span>
-        )}
-      </Link>
+          <circle cx="8" cy="11.9" r="0.85" fill="currentColor" />
+        </svg>
+      </button>
 
-      {/* 【为什么模块要折叠】
-          原来当前那门课的所有模块全展开 —— React 考试 21 节、八股 25 节
-          堆成一长条，要找「我在哪」得整条扫一遍。
-          现在只展开你正在读的那个模块，其余收起来。
-
-          用原生 <details>：零 JS，键盘和屏幕阅读器都免费得到正确行为。
-          open 由当前路径算出来，所以换页时会自动跟着走；
-          中途手动展开别的模块也不会被打断（React 不会因为无关渲染去改它）。 */}
-      {isCurrent &&
-        exam.modules.map((mod) => {
-          const hasCurrent = mod.lessons.some((l) => path === lessonPath(exam.id, l.id));
-          const doneInMod = ready
-            ? mod.lessons.filter((l) => lessonDone(exam.id, l.id)).length
-            : 0;
-          return (
-            <details className="side-mod" key={mod.id} open={hasCurrent}>
-              <summary className="side-mod-title">
-                {mod.stage && (
-                  <span className="side-mod-stage">
-                    <T zh={mod.stage} en={stageEn(mod.stage)} />
-                  </span>
-                )}
-                <span className="side-mod-name">
-                  <T zh={mod.title} en={mod.titleEn} />
-                </span>
-                <span className="side-mod-count tabular">
-                  {doneInMod}/{mod.lessons.length}
-                </span>
-              </summary>
-              <ul className="side-lessons">
-                {mod.lessons.map((lesson) => {
-                  const href = lessonPath(exam.id, lesson.id);
-                  // 这一节自己的八股题。105 道挂在 17 节课上，最多一节 12 道 ——
-                  // 平铺进侧栏不可能，但标出数量并链到只筛这一节的题单可以。
-                  const n = drillsOfLesson(lesson.id).length;
-                  return (
-                    <li key={lesson.id}>
-                      <Link
-                        className="side-lesson"
-                        href={href}
-                        data-active={path === href || undefined}
-                        data-done={ready && lessonDone(exam.id, lesson.id) ? "true" : undefined}
-                        onClick={onNavigate}
-                      >
-                        <span className="side-lesson-n">·</span>
-                        <span>
-                          <T zh={lesson.title} en={lesson.titleEn} />
-                        </span>
-                      </Link>
-                      {n > 0 && (
-                        <Link
-                          className="side-drill-n tabular"
-                          href={drillListHref({}, { lesson: lesson.id })}
-                          onClick={onNavigate}
-                          title={
-                            locale === "en"
-                              ? `${n} short questions from this lesson`
-                              : `这一节的 ${n} 道八股题`
-                          }
-                        >
-                          <T zh={`八股 ${n}`} en={`${n} drills`} />
-                        </Link>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </details>
-          );
-        })}
-
-      {/* 课文之后是三个更高的难度档，按 Ladder 的顺序摊开。
-          哪一档没有内容就不出现 —— 给 foundations 挂一个「Coding 0」只是噪音。 */}
-
-      {/* 第二档：课内练习。它们分散在各节课的正文里，没有单独的路由，
-          所以这里只给一个入口 —— /practice 已经支持 ?exam= 筛到一门课。
-          不做成 details 列清单：那会把 54 个练习平铺进侧栏。 */}
-      {isCurrent && exam.exerciseCount > 0 && (
-        <div className="side-mod">
-          <Link
-            className="side-mod-title side-mod-link"
-            href={`/practice?exam=${exam.id}`}
-            data-active={path.startsWith("/practice") || undefined}
-            onClick={onNavigate}
-          >
-            <span className="side-mod-stage">
-              <T zh="认得出" en="Spot it" />
+      {open && (
+        <div className="helpmenu-panel" role="menu" ref={panelRef}>
+          <Link className="helpmenu-item" role="menuitem" href="/guide">
+            <span className="helpmenu-item-name">
+              <T zh="使用说明" en="How to use this" />
             </span>
-            <span className="side-mod-name">
-              <T zh="课内练习" en="Lesson exercises" />
+            <span className="helpmenu-item-sub">
+              <T
+                zh="按什么顺序走、每天怎么用、考前一周怎么冲"
+                en="What order to go in, how to use it day to day"
+              />
             </span>
-            <span className="side-mod-count tabular">{exam.exerciseCount}</span>
           </Link>
-        </div>
-      )}
-
-      {isCurrent && coding.length > 0 && (
-        <details className="side-mod" open={path.startsWith("/code")}>
-          <summary className="side-mod-title">
-            <span className="side-mod-stage">
-              <T zh="写得对" en="Write it" />
+          <Link className="helpmenu-item" role="menuitem" href="/reference">
+            <span className="helpmenu-item-name">
+              <T zh="速查表" en="Reference" />
             </span>
-            {/* 不叫「Coding 题」：八股那门课里有个模块就叫「Coding 题：对照与补缺」，
-                两个都以「Coding 题」开头挨在同一列里，正是使用者说的「分不清」。
-                那个是讲题的课，这个是整套的题本身。 */}
-            <span className="side-mod-name">
-              <T zh="整套 Coding 题" en="Coding problems" />
+            <span className="helpmenu-item-sub">
+              <T
+                zh="命令、API、状态码、报错对照 —— 查完就走"
+                en="Commands, APIs, status codes, error tables"
+              />
             </span>
-            <span className="side-mod-count tabular">{coding.length}</span>
-          </summary>
-          <ul className="side-lessons">
-            {coding.map((c) => {
-              const href = codingPath(c.id);
-              return (
-                <li key={c.id}>
-                  <Link
-                    className="side-lesson"
-                    href={href}
-                    data-active={path === href || undefined}
-                    onClick={onNavigate}
-                  >
-                    <span className="side-lesson-n">·</span>
-                    <span>
-                      <T zh={c.title} en={c.titleEn} />
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </details>
-      )}
-
-      {isCurrent && arena.length > 0 && (
-        <details className="side-mod" open={path.startsWith("/arena")}>
-          <summary className="side-mod-title">
-            <span className="side-mod-stage">
-              <T zh="空手做" en="Build it blind" />
-            </span>
-            <span className="side-mod-name">
-              <T zh="考场题" en="Arena" />
-            </span>
-            <span className="side-mod-count tabular">{arena.length}</span>
-          </summary>
-          <ul className="side-lessons">
-            {arena.map((a) => {
-              const href = arenaPath(a.id);
-              return (
-                <li key={a.id}>
-                  <Link
-                    className="side-lesson"
-                    href={href}
-                    data-active={path === href || undefined}
-                    onClick={onNavigate}
-                  >
-                    <span className="side-lesson-n">·</span>
-                    <span>
-                      <T zh={a.title} en={a.titleEn} />
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </details>
-      )}
-
-      {isCurrent && exam.mockExams.length > 0 && (
-        <div className="side-mod">
-          <div className="side-mod-title">
-            <T zh="模拟考" en="Mock exams" />
-          </div>
-          <ul className="side-lessons">
-            {exam.mockExams.map((m) => {
-              const href = `/mock/${exam.id}/${m.id}`;
-              return (
-                <li key={m.id}>
-                  <Link
-                    className="side-lesson"
-                    href={href}
-                    data-active={path === href || undefined}
-                    onClick={onNavigate}
-                  >
-                    <span className="side-lesson-n">·</span>
-                    <span>
-                      <T zh={m.title} en={m.titleEn} />
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          </Link>
         </div>
       )}
     </div>
-  );
-}
-
-function Sidebar({
-  open,
-  onNavigate,
-  panelRef,
-  offscreen,
-}: {
-  open: boolean;
-  onNavigate: () => void;
-  panelRef: React.RefObject<HTMLElement | null>;
-  /** 窄屏且抽屉关着 —— 此时侧栏在屏幕外，要整块移出可聚焦序列 */
-  offscreen: boolean;
-}) {
-  const path = usePathname();
-  const { countLessons, ready, reset } = useProgress();
-  const { locale } = useLocale();
-
-  const groups = pathGroups();
-  const main = groups.find((g) => g.kind === "main")?.exams ?? [];
-
-  // 「下一步该学哪门」：主线里第一门没做完的。
-  // 这是使用者提的那个问题的直接答案（「第一步应该是从哪个内容学习」）——
-  // 光有编号还不够，编号只说顺序，不说你走到哪了。
-  // 平行支线不参与：它任何时候都能开始，谈不上「下一步」。
-  const nextExam = ready
-    ? main.find((e) => countLessons(e.id) < e.lessonCount)?.id
-    : undefined;
-
-  const exerciseTotal = NAV.reduce((n, e) => n + e.exerciseCount, 0);
-
-  // 四张全量表。侧栏是竖着走一门课，这里是横着看同一批题的某一档 ——
-  // 两种看法都留着，但竖的是主路，所以这一组压在最下面。
-  const BANKS = [
-    { href: "/drill", zh: "八股全表", en: "All drills", n: DRILLS.length },
-    { href: "/practice", zh: "课内练习", en: "Lesson exercises", n: exerciseTotal },
-    { href: "/code", zh: "Coding 全表", en: "All coding", n: CODING.length },
-    { href: "/arena", zh: "考场全表", en: "All arena", n: ARENA.length },
-    { href: "/reference", zh: "速查", en: "Reference", n: undefined },
-  ];
-
-  return (
-    <aside
-      className="sidebar"
-      id="course-nav"
-      data-open={open}
-      aria-label={locale === "en" ? "Navigation" : "导航"}
-      ref={panelRef}
-      {...(open ? { role: "dialog", "aria-modal": true } : {})}
-      // 在屏幕外时移出可聚焦序列，键盘不会 Tab 进看不见的链接
-      inert={offscreen}
-    >
-      {/* 窄屏专用：顶栏在窄屏是隐藏的，主导航必须在抽屉里有一份 */}
-      <nav className="side-top-nav" aria-label={locale === "en" ? "Main" : "主导航"}>
-        {TOP_NAV.map((n) => (
-          <Link
-            key={n.href}
-            href={n.href}
-            data-active={(n.href === "/" ? path === "/" : path.startsWith(n.href)) || undefined}
-            onClick={onNavigate}
-          >
-            <T zh={n.zh} en={n.en} />
-          </Link>
-        ))}
-      </nav>
-
-      {/* 注意用条件渲染而不是 hidden 属性 —— .side-head 是 display: flex，
-          会盖掉 UA 样式表里的 [hidden] { display: none }（踩过）。 */}
-      <div className="side-head">
-        <span className="side-head-label">
-          <T zh="学习路径" en="Learning path" />
-        </span>
-        <Link className="side-head-link" href="/path" onClick={onNavigate}>
-          <T zh="看总览 →" en="Overview →" />
-        </Link>
-      </div>
-
-      {groups.map((group) => (
-        <div key={group.kind}>
-          {/* 平行支线单独起一组，并且**不给编号**。
-              它没有前置课，也没有课以它为前置 —— 编成 05 是在骗人。 */}
-          {group.kind === "parallel" && (
-            <div className="side-band">
-              <span className="side-band-title">
-                <T zh="平行支线" en="Parallel track" />
-              </span>
-              <span className="side-band-note">
-                <T
-                  zh="不依赖主线，任何时候都能开始"
-                  en="No prerequisites — start any time"
-                />
-              </span>
-            </div>
-          )}
-          {group.exams.map((exam, i) => (
-            <ExamNode
-              key={exam.id}
-              exam={exam}
-              num={group.kind === "main" ? i + 1 : undefined}
-              isNext={exam.id === nextExam}
-              onNavigate={onNavigate}
-            />
-          ))}
-        </div>
-      ))}
-
-      <div className="side-band">
-        <span className="side-band-title">
-          <T zh="题库总表" en="Whole banks" />
-        </span>
-        <span className="side-band-note">
-          <T
-            zh="上面是竖着走一门课，这里是横着看同一档的全部题"
-            en="Above walks one course down; these list one tier across all courses"
-          />
-        </span>
-      </div>
-      <nav className="side-banks" aria-label={locale === "en" ? "Question banks" : "题库"}>
-        {BANKS.map((b) => (
-          <Link
-            key={b.href}
-            href={b.href}
-            data-active={path === b.href || undefined}
-            onClick={onNavigate}
-          >
-            <T zh={b.zh} en={b.en} />
-            {b.n !== undefined && <span className="side-bank-n tabular">{b.n}</span>}
-          </Link>
-        ))}
-      </nav>
-
-      <div className="side-foot">
-        <p style={{ marginBottom: 8 }}>
-          <T
-            zh="进度只存在这台浏览器里（localStorage），不上传、不需要登录。"
-            en="Progress lives only in this browser (localStorage). Nothing is uploaded, no sign-in."
-          />
-        </p>
-        <button
-          type="button"
-          className="btn btn-sm btn-ghost"
-          onClick={() => {
-            const msg =
-              locale === "en"
-                ? "Clear all progress? Checked lessons, solved exercises, rebuild and mock-exam records will be deleted. This cannot be undone."
-                : "清空全部学习进度？已勾选的课程、做对的练习、从零重写与模拟考记录都会被删除，无法恢复。";
-            if (window.confirm(msg)) reset();
-          }}
-        >
-          <T zh="清空进度" en="Clear progress" />
-        </button>
-      </div>
-    </aside>
   );
 }
 
@@ -545,6 +195,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const path = usePathname();
   const { theme, toggle } = useTheme();
   const { locale, toggle: toggleLocale } = useLocale();
+
+  const mode = modeOf(path);
+  // 首页 / 使用说明 / 速查不属于任何模式 —— 它们没有侧栏，也就没有抽屉按钮
+  const hasSidebar = mode !== undefined;
 
   // 【答案 tab 跟着界面语言走】
   // AnswerTabs 是纯 CSS 的 radio tab（正文留在服务端，不进客户端 chunk），
@@ -560,6 +214,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       r.checked = true;
     });
   }, [locale]);
+
   const [drawer, setDrawer] = useState(false);
   const panelRef = useRef<HTMLElement | null>(null);
   const openerRef = useRef<HTMLButtonElement | null>(null);
@@ -597,7 +252,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       if (e.key !== "Tab" || !panel) return;
 
       const focusable = [
-        ...panel.querySelectorAll<HTMLElement>("a[href], button:not(:disabled)"),
+        ...panel.querySelectorAll<HTMLElement>("a[href], button:not(:disabled), summary"),
       ].filter((el) => el.offsetParent !== null);
       if (focusable.length === 0) return;
 
@@ -619,11 +274,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const en = locale === "en";
 
   return (
-    <div className="shell">
-      <header className="topbar" style={{ gridColumn: "1 / -1" }}>
-        {/* 汉堡在桌面由 CSS 隐藏（那里侧栏是常驻列）；窄屏永远显示，
-            因为抽屉同时承担主导航 */}
-        {
+    <div className="shell" data-nav={hasSidebar ? undefined : "off"}>
+      <header className="topbar">
+        {/* 汉堡只在「这一页有侧栏」且窄屏时出现。桌面由 CSS 隐藏 ——
+            那里侧栏是常驻列，没有可开合的东西。 */}
+        {hasSidebar && (
           <button
             type="button"
             className="icon-btn menu-btn"
@@ -631,14 +286,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             aria-label={
               drawer
                 ? en
-                  ? "Close course contents"
-                  : "收起课程目录"
+                  ? "Close section navigation"
+                  : "收起本区导航"
                 : en
-                  ? "Open course contents"
-                  : "打开课程目录"
+                  ? "Open section navigation"
+                  : "打开本区导航"
             }
             aria-expanded={drawer}
-            aria-controls="course-nav"
+            aria-controls="context-nav"
             onClick={() => setDrawer(!drawer)}
           >
             <svg width="17" height="17" viewBox="0 0 17 17" aria-hidden>
@@ -647,29 +302,37 @@ export function AppShell({ children }: { children: ReactNode }) {
               <rect x="1" y="12.2" width="15" height="1.7" rx="0.85" fill="currentColor" />
             </svg>
           </button>
-        }
+        )}
 
         <Link className="topbar-brand" href="/">
           <Mark />
           DrillLab
         </Link>
 
-        <nav className="topbar-nav" aria-label={en ? "Main navigation" : "主导航"}>
-          {TOP_NAV.map((n) => (
-            <Link
-              key={n.href}
-              href={n.href}
-              data-active={
-                (n.href === "/" ? path === "/" : path.startsWith(n.href)) || undefined
-              }
-            >
-              <T zh={n.zh} en={n.en} />
-            </Link>
-          ))}
+        {/* 四个模式。**只有这一份 DOM** —— 窄屏靠 grid-area 把它整块挪到第二行，
+            不是另渲染一份。渲染两份会在无障碍树里留下两个同名的导航地标。 */}
+        <nav className="topbar-nav" aria-label={en ? "What you want to do" : "你想做什么"}>
+          {MODES.map((m) => {
+            const on = mode === m.id;
+            return (
+              <Link
+                key={m.id}
+                className="topbar-mode"
+                href={m.href}
+                data-active={on || undefined}
+                aria-current={on ? "page" : undefined}
+                title={en ? m.blurbEn : m.blurbZh}
+              >
+                <T zh={m.zh} en={m.en} />
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="topbar-right">
+          <ContinueButton />
           <Search />
+          <HelpMenu />
 
           <button
             type="button"
@@ -727,18 +390,28 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <div
-        className="drawer-scrim"
-        data-open={drawer || undefined}
-        onClick={() => setDrawer(false)}
-        aria-hidden
-      />
-      <Sidebar
-        open={drawer}
-        onNavigate={() => setDrawer(false)}
-        panelRef={panelRef}
-        offscreen={narrow && !drawer}
-      />
+      {hasSidebar && (
+        <>
+          <div
+            className="drawer-scrim"
+            data-open={drawer || undefined}
+            onClick={() => setDrawer(false)}
+            aria-hidden
+          />
+          <aside
+            className="sidebar"
+            id="context-nav"
+            data-open={drawer}
+            aria-label={en ? "Where you are" : "本区导航"}
+            ref={panelRef}
+            {...(drawer ? { role: "dialog", "aria-modal": true } : {})}
+            // 在屏幕外时移出可聚焦序列，键盘不会 Tab 进看不见的链接
+            inert={narrow && !drawer}
+          >
+            <ContextSidebar mode={mode} onNavigate={() => setDrawer(false)} />
+          </aside>
+        </>
+      )}
 
       {children}
     </div>

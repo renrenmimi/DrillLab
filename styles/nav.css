@@ -1,0 +1,1483 @@
+/* ============================================================
+   意图优先的导航
+   ------------------------------------------------------------
+   顶栏 = 四个模式（我现在想做哪一类事）
+   侧栏 = 那个模式自己的结构（我在哪、下一步是什么）
+   加上首页那张仪表盘，和课程页的方位信息。
+
+   这个文件排在 shell.css 之后（见 app/globals.css 的 @import 顺序），
+   所以这里对 .topbar、.sidebar 的重写会盖掉那边的旧值。
+   ============================================================ */
+
+/* ---------- 没有侧栏的页面（首页 / 使用说明 / 速查） ---------- */
+
+.shell[data-nav="off"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* ---------- 顶栏 ----------
+   从 flex 换成 grid，只为一件事：**四个模式只渲染一份 DOM**。
+   窄屏靠 grid-template-areas 把那一份整块挪到第二行，不是另渲染一份 ——
+   渲染两份会在无障碍树里留下两个同名的导航地标，屏幕阅读器会念两遍。 */
+
+.topbar {
+  grid-column: 1 / -1;
+  display: grid;
+  align-items: center;
+  gap: 0 12px;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  grid-template-areas: "menu brand modes right";
+}
+
+.menu-btn {
+  grid-area: menu;
+}
+
+.topbar-brand {
+  grid-area: brand;
+}
+
+.topbar-nav {
+  grid-area: modes;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  min-width: 0;
+}
+
+.topbar-right {
+  grid-area: right;
+  margin-left: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 一个模式。当前那个必须一眼认出来 —— 底色 + 字重 + 一条压在顶栏下边线上的
+   强调色横杠，三样一起用。只靠颜色区分对色觉障碍不成立。 */
+.topbar-mode {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 11px;
+  border-radius: var(--r);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.topbar-mode:hover {
+  background: var(--sunken);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.topbar-mode[data-active] {
+  background: var(--accent-wash);
+  color: var(--ink);
+  font-weight: 650;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+/* ---------- 「继续」 ----------
+   顶栏里唯一的实心按钮。刻意只有 32px 高，和搜索、语言、主题一排 ——
+   它要显眼，但顶栏不能变成工具条。
+   两行文字都用纯白：白字对 --accent 是 5.12:1，一压透明度就掉到 4.5 以下。 */
+
+.cont-btn {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  max-width: 300px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.cont-btn:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .cont-btn,
+[data-theme="dark"] .cont-btn:hover {
+  color: #0f1512;
+}
+
+.cont-btn-label {
+  font-weight: 650;
+  flex: 0 0 auto;
+}
+
+.cont-btn-label::after {
+  content: " →";
+}
+
+.cont-btn-item {
+  min-width: 0;
+  max-width: 17ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+
+/* ---------- ? 菜单 ---------- */
+
+.helpmenu {
+  position: relative;
+  display: inline-flex;
+}
+
+.helpmenu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 70;
+  width: 272px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--lift-2);
+}
+
+.helpmenu-item {
+  display: block;
+  padding: 8px 10px;
+  border-radius: var(--r);
+  color: var(--ink);
+}
+
+.helpmenu-item:hover {
+  background: var(--sunken);
+  text-decoration: none;
+}
+
+.helpmenu-item-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.helpmenu-item-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   随模式而变的侧栏
+   ------------------------------------------------------------
+   .sidebar 的外框（常驻列 / 抽屉、sticky、滚动）仍在 shell.css，
+   这里只写里面的内容。
+   ============================================================ */
+
+.ctx-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 20px 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ctx-head-mode {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.ctx-head-link {
+  font-size: 12px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/* 一个模式只给一颗主行动 —— 「下一步做什么」不该有两个同样显眼的答案 */
+.ctx-cta {
+  display: block;
+  margin: 0 16px 16px;
+  padding: 9px 12px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--accent);
+  color: #fff;
+}
+
+.ctx-cta:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .ctx-cta,
+[data-theme="dark"] .ctx-cta:hover {
+  color: #0f1512;
+}
+
+/* 考场那一场还在计时 —— 用 danger 而不是 accent。
+   #9c4a45 对白字 5.95:1，深色主题下 --danger 是浅色，文字走上面那条深色规则。 */
+.ctx-cta[data-tone="live"] {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.ctx-cta[data-tone="live"]:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  filter: brightness(0.94);
+}
+
+.ctx-cta-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ctx-cta-label::after {
+  content: " →";
+}
+
+.ctx-cta-item {
+  display: block;
+  margin-top: 3px;
+  font-size: 13.5px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.ctx-cta-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* 全局进度条（Learn 用） */
+.ctx-meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 20px 18px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.ctx-meter-num {
+  flex: 0 0 auto;
+  font-weight: 650;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.ctx-meter .bar {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ctx-meter-label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* 三格小统计（Review / Assess 用） */
+.ctx-stat {
+  display: flex;
+  gap: 6px;
+  margin: 0 16px 16px;
+}
+
+.ctx-stat-cell {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 7px 6px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--sunken);
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+.ctx-stat-cell b {
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.ctx-stat-cell[data-tone="ok"] b {
+  color: var(--ok);
+}
+
+.ctx-stat-cell[data-tone="warn"] b {
+  color: var(--warn);
+}
+
+.ctx-now {
+  margin: -6px 20px 16px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+.ctx-now strong {
+  color: var(--ink-2);
+}
+
+/* ---------- 分组与清单 ---------- */
+
+.ctx-sec {
+  margin-bottom: 20px;
+}
+
+.ctx-sec-head {
+  padding: 0 20px 6px;
+}
+
+.ctx-sec-title {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.ctx-sec-note {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+.ctx-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ctx-list > li {
+  margin: 0;
+}
+
+.ctx-item {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  padding: 5px 20px;
+  border-left: 2px solid transparent;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.ctx-item:hover {
+  background: var(--sunken);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.ctx-item[data-active] {
+  border-left-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* flex item 的 min-width 默认是 auto —— 不压成 0，长标题会把侧栏顶出去 */
+.ctx-item-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ctx-item-n {
+  flex: 0 0 auto;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.ctx-item-sub {
+  flex: 1 1 100%;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+.ctx-item[data-tone="ok"] .ctx-item-sub {
+  color: var(--ok);
+}
+
+.ctx-item[data-tone="warn"] .ctx-item-sub {
+  color: var(--warn);
+}
+
+.ctx-item[data-tone="live"] .ctx-item-sub {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.ctx-item-dot {
+  margin: 0 2px;
+}
+
+.ctx-item-aside {
+  display: block;
+  padding: 0 20px 7px 22px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+
+/* ---------- Learn：一门课 ---------- */
+
+.ctx-course + .ctx-course {
+  margin-top: 2px;
+}
+
+.ctx-course-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 20px;
+  border-left: 2px solid transparent;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.ctx-course-top:hover {
+  background: var(--sunken);
+  text-decoration: none;
+}
+
+.ctx-course-top[data-active] {
+  border-left-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.ctx-course-top[data-next]:not([data-active]) {
+  border-left-color: var(--accent-line);
+}
+
+.ctx-course-idx {
+  flex: 0 0 auto;
+  min-width: 1.9em;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+
+.ctx-course-top[data-active] .ctx-course-idx {
+  color: var(--accent-ink);
+}
+
+.ctx-course-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.ctx-course-n {
+  flex: 0 0 auto;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+/* 「从这里开始 / 接着学」。缩进对齐到课程名，不是对齐到序号 */
+.ctx-course-flag {
+  display: inline-block;
+  margin: 1px 20px 4px calc(22px + 1.9em);
+  padding: 1px 7px;
+  border-radius: 100px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+[data-theme="dark"] .ctx-course-flag {
+  color: #0f1512;
+}
+
+.ctx-course-next {
+  display: block;
+  margin: 4px 16px 10px;
+  padding: 7px 10px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r);
+  background: var(--accent-wash);
+  color: var(--ink);
+}
+
+.ctx-course-next:hover {
+  text-decoration: none;
+  border-color: var(--accent);
+}
+
+.ctx-course-next-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.ctx-course-next-title {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+/* ---------- Learn：一个模块 ---------- */
+
+.ctx-mod {
+  padding: 0 20px;
+  margin-bottom: 8px;
+}
+
+/* <summary> 要自己接管折叠标记 —— 默认那个三角在窄侧栏里占位太重 */
+.ctx-mod-head {
+  position: relative;
+  padding-right: 34px;
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--r);
+}
+
+.ctx-mod-head::-webkit-details-marker {
+  display: none;
+}
+
+.ctx-mod-head:hover {
+  background: var(--sunken);
+}
+
+.ctx-mod-head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ctx-mod-head::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid var(--ink-3);
+  border-bottom: 1.5px solid var(--ink-3);
+  transform: rotate(-45deg);
+  transition: transform 0.14s ease;
+}
+
+.ctx-mod[open] > .ctx-mod-head::after {
+  transform: rotate(45deg);
+}
+
+.ctx-mod-stage {
+  display: block;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.ctx-mod-name {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+/* 收起来的时候这个数字就是唯一的进度信号，所以不能藏 */
+.ctx-mod-n {
+  position: absolute;
+  right: 18px;
+  top: 1px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.ctx-lessons {
+  list-style: none;
+  margin: 5px 0 0;
+  padding: 0;
+  border-left: 1px solid var(--rule);
+}
+
+.ctx-lessons li {
+  margin: 0;
+}
+
+.ctx-lesson {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 4px 6px 4px 10px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.ctx-lesson:hover {
+  background: var(--sunken);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.ctx-lesson[data-active] {
+  border-left-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.ctx-lesson-n {
+  flex: 0 0 auto;
+  min-width: 1.7em;
+  font-size: 10.5px;
+  color: var(--ink-3);
+}
+
+.ctx-lesson-t {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* 读完的打勾。挂在标题末尾而不是替掉序号 —— 替掉序号，「第几节」就没了 */
+.ctx-lesson[data-done] .ctx-lesson-t::after {
+  content: " ✓";
+  color: var(--ok);
+  font-weight: 700;
+}
+
+/* ---------- Practice：两个子模式 ---------- */
+
+.ctx-sub {
+  display: flex;
+  gap: 6px;
+  margin: 0 16px 10px;
+}
+
+.ctx-sub-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--sunken);
+  color: var(--ink-2);
+}
+
+.ctx-sub-btn:hover {
+  border-color: var(--accent-line);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.ctx-sub-btn[data-on] {
+  background: var(--accent-wash);
+  border-color: var(--accent-line);
+  box-shadow: inset 2px 0 0 var(--accent);
+  color: var(--ink);
+}
+
+.ctx-sub-name {
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.ctx-sub-n {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.ctx-sub-note {
+  margin: 0 20px 18px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+
+/* ============================================================
+   首页仪表盘
+   ============================================================ */
+
+.dash {
+  max-width: 78ch;
+}
+
+/* ---------- ① 继续 / 从地基开始 ---------- */
+
+.dash-cont {
+  padding: 26px 0 30px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.dash-cont-eyebrow {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.dash-cont-title {
+  font-size: clamp(26px, 3.4vw, 36px);
+  line-height: 1.2;
+  margin: 10px 0 12px;
+  max-width: 34ch;
+}
+
+.dash-cont-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.dash-cont-mode {
+  padding: 1px 8px;
+  border: 1px solid var(--accent-line);
+  border-radius: 100px;
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.dash-cont-sub {
+  color: var(--ink-2);
+  font-weight: 550;
+}
+
+/* 位置和估时。--ink-3 对 --paper 是 5.06:1，13px 下达标 —— 别再往下压 */
+.dash-cont-pos {
+  color: var(--ink-3);
+}
+
+.dash-cont-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 24px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-lg);
+  background: var(--accent);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.dash-cont-cta::after {
+  content: " →";
+}
+
+.dash-cont-cta:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .dash-cont-cta,
+[data-theme="dark"] .dash-cont-cta:hover {
+  color: #0f1512;
+}
+
+/* ---------- 通用的分节 ---------- */
+
+.dash-sec {
+  padding-top: 30px;
+  margin-top: 30px;
+  border-top: 1px solid var(--rule);
+}
+
+.dash-sec:first-of-type {
+  border-top: 0;
+}
+
+.dash-sec-title {
+  font-size: 15px;
+  font-weight: 650;
+  margin-bottom: 14px;
+}
+
+/* ---------- ② 四个模式 ----------
+   2×2。四个横排的话每格只有 165px，装不下一句话；竖排四条又要滑一屏。 */
+
+.dash-modes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.dash-modes li {
+  margin: 0;
+}
+
+.dash-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  padding: 13px 15px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.dash-mode:hover {
+  border-color: var(--accent-line);
+  background: var(--raised);
+  text-decoration: none;
+}
+
+.dash-mode-name {
+  font-size: 15.5px;
+  font-weight: 650;
+}
+
+.dash-mode-name::after {
+  content: " →";
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+.dash-mode-blurb {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.dash-mode-n {
+  margin-top: auto;
+  padding-top: 4px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+/* ---------- ③ 按技术点直接进去 ---------- */
+
+.dash-topics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dash-topic {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.dash-topic:last-child {
+  border-bottom: 0;
+}
+
+.dash-topic-name {
+  flex: 0 0 9.5em;
+  font-size: 14.5px;
+  font-weight: 650;
+}
+
+.dash-topic-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dash-topic-act {
+  padding: 2px 9px;
+  border: 1px solid var(--rule);
+  border-radius: 100px;
+  background: var(--sunken);
+  color: var(--ink-2);
+  font-size: 12.5px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.dash-topic-act:hover {
+  border-color: var(--accent-line);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+
+/* ---------- ④ 建议顺序 ---------- */
+
+.dash-path {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dash-path li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+
+.dash-path-step {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--sunken);
+  color: var(--ink);
+  font-size: 13.5px;
+}
+
+.dash-path-step:hover {
+  border-color: var(--accent-line);
+  background: var(--accent-wash);
+  text-decoration: none;
+}
+
+.dash-path-n {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--ink-3);
+}
+
+.dash-path-name {
+  font-weight: 600;
+}
+
+.dash-path-arrow {
+  color: var(--ink-3);
+  font-size: 13px;
+}
+
+.dash-note {
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+.dash-langnote {
+  margin: 26px 0 0;
+  padding: 13px 15px;
+  border-left: 2px solid var(--info-line);
+  border-radius: 0 var(--r) var(--r) 0;
+  background: var(--sunken);
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+/* ---------- 进度 ---------- */
+
+.dash-prog {
+  max-width: var(--measure);
+}
+
+.dash-prog-line {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink-3);
+}
+
+/* ---------- 折叠的「其他」 ---------- */
+
+.dash-more {
+  margin-top: 36px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+
+.dash-more > summary {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--ink-2);
+  list-style: none;
+}
+
+.dash-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.dash-more > summary::before {
+  content: "＋ ";
+  color: var(--ink-3);
+}
+
+.dash-more[open] > summary::before {
+  content: "－ ";
+}
+
+.dash-more > summary:hover {
+  color: var(--ink);
+}
+
+.dash-more > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+.dash-more-body {
+  padding-top: 14px;
+  font-size: 14.5px;
+}
+
+.dash-more-body ul {
+  padding-left: 1.2em;
+}
+
+/* ============================================================
+   /path 顶部的「接着学」条
+   ============================================================ */
+
+.resume-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  padding: 13px 16px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-lg);
+  background: var(--accent-wash);
+}
+
+.resume-bar-text {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.resume-bar-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.resume-bar-title {
+  display: block;
+  margin-top: 2px;
+  font-size: 15.5px;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.resume-bar-pos {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   课程页的方位信息
+   ============================================================ */
+
+.lesson-pos {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.lesson-pos-sep {
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+.lesson-pos-time {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* 页首的上一节 / 下一节。两端对齐，中间留白 —— 不做成两个按钮，
+   它是「方位信息」，不是这一页的行动。 */
+.lesson-jump {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+  font-size: 13px;
+}
+
+.lesson-jump-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  max-width: 46%;
+  color: var(--ink-2);
+}
+
+.lesson-jump-link[data-dir="next"] {
+  margin-left: auto;
+  text-align: right;
+}
+
+.lesson-jump-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-jump-dir {
+  flex: 0 0 auto;
+  color: var(--ink-3);
+}
+
+.lesson-jump-none {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.lesson-jump-none:last-child {
+  margin-left: auto;
+}
+
+/* ============================================================
+   课尾唯一的「接下来」面板
+   ------------------------------------------------------------
+   一份有序清单。整块里**只有一个实心按钮**（下一节）；
+   打勾和回头路在页脚，权重明显更低。
+   编号用 CSS counter，所以没有练习的课，第 2 步会自动变成 1。
+   ============================================================ */
+
+.lnext {
+  margin-top: 52px;
+  padding: 20px 22px 18px;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  max-width: var(--measure-wide);
+}
+
+.lnext-h {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+
+.lnext-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: lnext;
+}
+
+.lnext-step {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 0;
+  padding: 13px 0;
+  border-top: 1px solid var(--rule);
+  counter-increment: lnext;
+}
+
+.lnext-step:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.lnext-step-body {
+  flex: 1 1 220px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lnext-step-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.lnext-step-title::before {
+  content: counter(lnext);
+  flex: 0 0 auto;
+  width: 19px;
+  height: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100px;
+  background: var(--sunken);
+  border: 1px solid var(--rule);
+  color: var(--ink-3);
+  font-size: 11px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.lnext-step[data-primary] .lnext-step-title::before {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+[data-theme="dark"] .lnext-step[data-primary] .lnext-step-title::before {
+  color: #0f1512;
+}
+
+.lnext-step-sub {
+  padding-left: 27px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.lnext-step-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+.lnext-step-link {
+  flex: 0 0 auto;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.lnext-cta {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 18px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--accent);
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 650;
+}
+
+.lnext-cta::after {
+  content: " →";
+}
+
+.lnext-cta:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .lnext-cta,
+[data-theme="dark"] .lnext-cta:hover {
+  color: #0f1512;
+}
+
+/* 竖着排两行：先是状态（打勾），再是回头路。
+   横着挤一行的话，打勾条自己会先折行，按钮就掉到半空中（实测）。 */
+.lnext-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+
+/* 打勾条在这块里不再自带边框和底色 —— 面板本身已经是一个框了 */
+.lnext-foot .done-bar {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: none;
+}
+
+/* 【别写 flex: 0 0 auto，也别靠 margin-left: auto 靠右】
+   课文标题可以很长（「TypeScript 的 utility types 到底解决了什么」那一节
+   在 390px 下超出 28px，实测）。竖排之后用 align-self 靠右，
+   并且允许长标题折行。 */
+.lnext-back {
+  align-self: flex-end;
+  max-width: 100%;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: right;
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+.lnext-back:hover {
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   窄屏
+   ============================================================ */
+
+@media (max-width: 1240px) {
+  /* 顶栏挤了：「继续」只留两个字，目标名字收起来 */
+  .cont-btn-item {
+    display: none;
+  }
+}
+
+@media (max-width: 1040px) {
+  .topbar-mode {
+    padding: 0 8px;
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 900px) {
+  /* 顶栏变成两行：第一行是品牌和右侧控件，第二行是四个模式。
+     --topbar-h 一改，侧栏 sticky 偏移、抽屉起点、遮罩 inset、
+     锚点 scroll-padding 全部跟着走 —— 它们本来就都读这个变量。 */
+  :root {
+    --topbar-h: 92px;
+  }
+
+  .topbar {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "menu brand right"
+      "modes modes modes";
+    grid-template-rows: 51px 41px;
+    align-content: center;
+    padding: 0 12px;
+  }
+
+  /* 四个模式在窄屏是等宽四格，永远可见 —— 不塞进抽屉。
+     换模式是最常做的动作，不该先开一层抽屉。 */
+  .topbar-nav {
+    align-self: stretch;
+    gap: 4px;
+    padding-top: 5px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .topbar-mode {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    height: 30px;
+    padding: 0 4px;
+    font-size: 12.5px;
+    text-align: center;
+  }
+
+  .dash-modes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-topic-name {
+    flex: 0 0 100%;
+  }
+}
+
+@media (max-width: 620px) {
+  .lnext {
+    padding: 16px 15px 14px;
+  }
+
+  .lnext-cta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .lesson-jump-link {
+    max-width: 100%;
+  }
+
+  /* 窄屏靠左 —— 右对齐的一行小字在 390px 上读起来别扭 */
+  .lnext-back {
+    align-self: flex-start;
+    text-align: left;
+  }
+}
+
+@media (max-width: 420px) {
+  /* 390px 上「继续」和搜索、语言、主题挤在一行会溢出。
+     「继续」是这一排里最重要的，所以缩掉的是它的内边距，不是它本身。 */
+  .cont-btn {
+    padding: 0 9px;
+    font-size: 12.5px;
+  }
+
+  .topbar {
+    padding: 0 10px;
+    gap: 0 8px;
+  }
+
+  .topbar-right {
+    gap: 5px;
+  }
+}
