@@ -205,10 +205,26 @@ const ticketMock: MockExam = {
         "The form clears after submitting: the title empties and the priority goes back to medium",
       ],
       rubric: [
-        { points: 8, label: "两个表单控件都是受控的（value + onChange）" },
-        { points: 6, label: "用不可变更新追加到末尾，没有 push" },
-        { points: 4, label: "disabled 是派生数据，不是额外的 state" },
-        { points: 2, label: "提交后正确重置表单" },
+        {
+          points: 8,
+          label: "两个表单控件都是受控的（value + onChange）",
+          labelEn: "Both form controls are controlled, with value and onChange",
+        },
+        {
+          points: 6,
+          label: "用不可变更新追加到末尾，没有 push",
+          labelEn: "Appends without changing the original array; no push",
+        },
+        {
+          points: 4,
+          label: "disabled 是派生数据，不是额外的 state",
+          labelEn: "disabled is derived, not a second piece of state",
+        },
+        {
+          points: 2,
+          label: "提交后正确重置表单",
+          labelEn: "The form resets correctly after submitting",
+        },
       ],
     },
     {
@@ -223,9 +239,21 @@ const ticketMock: MockExam = {
         "With two tickets that share a title, only the one that was clicked is removed",
       ],
       rubric: [
-        { points: 8, label: "用 filter 并按 id 比较" },
-        { points: 4, label: "没有修改原数组（无 splice）" },
-        { points: 3, label: "回调只接收 id，没有多余参数" },
+        {
+          points: 8,
+          label: "用 filter 并按 id 比较",
+          labelEn: "Uses filter and compares by id",
+        },
+        {
+          points: 4,
+          label: "没有修改原数组（无 splice）",
+          labelEn: "The original array is untouched; no splice",
+        },
+        {
+          points: 3,
+          label: "回调只接收 id，没有多余参数",
+          labelEn: "The callback takes only the id, with no extra arguments",
+        },
       ],
     },
     {
@@ -245,11 +273,31 @@ const ticketMock: MockExam = {
         "Reassigning has to reuse the original id",
       ],
       rubric: [
-        { points: 10, label: "用 map 就地替换，顺序不变（不是先删再加）" },
-        { points: 6, label: "useEffect 依赖数组只放 ticketToEdit" },
-        { points: 5, label: "提交时复用旧 id" },
-        { points: 4, label: "提交后把 ticketToEdit 设回 null" },
-        { points: 3, label: "按钮文字 Save / Create 严格一致" },
+        {
+          points: 10,
+          label: "用 map 就地替换，顺序不变（不是先删再加）",
+          labelEn: "Replaces in place with map so the order holds; not a remove followed by an add",
+        },
+        {
+          points: 6,
+          label: "useEffect 依赖数组只放 ticketToEdit",
+          labelEn: "The useEffect dependency array holds only ticketToEdit",
+        },
+        {
+          points: 5,
+          label: "提交时复用旧 id",
+          labelEn: "The original id is reused on submit",
+        },
+        {
+          points: 4,
+          label: "提交后把 ticketToEdit 设回 null",
+          labelEn: "ticketToEdit is set back to null after submitting",
+        },
+        {
+          points: 3,
+          label: "按钮文字 Save / Create 严格一致",
+          labelEn: "The button text is exactly Save or Create, with nothing in between",
+        },
       ],
     },
     {
@@ -269,9 +317,21 @@ const ticketMock: MockExam = {
         "The filtered result has to be derived data; do not add a second piece of state holding the filtered array",
       ],
       rubric: [
-        { points: 8, label: "只用一个 state 存筛选条件" },
-        { points: 8, label: "可见列表是派生出来的（不是第二份 state）" },
-        { points: 4, label: "筛选状态下的删除/编辑依然按 id 正确作用于原数据" },
+        {
+          points: 8,
+          label: "只用一个 state 存筛选条件",
+          labelEn: "One piece of state holds the filter",
+        },
+        {
+          points: 8,
+          label: "可见列表是派生出来的（不是第二份 state）",
+          labelEn: "The visible list is derived, not a second copy in state",
+        },
+        {
+          points: 4,
+          label: "筛选状态下的删除/编辑依然按 id 正确作用于原数据",
+          labelEn: "With a filter on, delete and edit still act on the right item by id",
+        },
       ],
     },
     {
@@ -291,9 +351,21 @@ const ticketMock: MockExam = {
         "All five tests pass",
       ],
       rubric: [
-        { points: 5, label: "key 用了稳定 id，不是 index" },
-        { points: 5, label: "类型检查通过，Priority 用了联合类型" },
-        { points: 7, label: "五个测试全过" },
+        {
+          points: 5,
+          label: "key 用了稳定 id，不是 index",
+          labelEn: "The key is a stable id, not the index",
+        },
+        {
+          points: 5,
+          label: "类型检查通过，Priority 用了联合类型",
+          labelEn: "Type checking passes, and Priority is a union type",
+        },
+        {
+          points: 7,
+          label: "五个测试全过",
+          labelEn: "All five tests pass",
+        },
       ],
     },
   ],

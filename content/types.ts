@@ -559,7 +559,9 @@ export interface ArenaChallenge {
   minutes: number;
   /** 用户视角的需求，不给代码 */
   requirements: string[];
-  fileList: { path: string; role: string }[];
+  /** 英文版。长度必须和 requirements 一致 —— 理由见 Lesson.objectivesEn */
+  requirementsEn?: string[];
+  fileList: { path: string; role: string; roleEn?: string }[];
   /** 本机验收命令 */
   commands: { cmd: string; expect: string; expectEn?: string }[];
   /** 从哪个 from-scratch / mock 派生（复用现有内容，不新写） */

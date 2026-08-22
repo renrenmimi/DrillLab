@@ -544,10 +544,26 @@ const reviewsMock: MockExam = {
         "The first line of the catch must let an error through if it is already a GraphQLError",
       ],
       rubric: [
-        { points: 6, label: "reviews 用了正确的数据源方法并兜底成 []" },
-        { points: 6, label: "averageRating 返回 null 而不是 0（区分「没有数据」和「平均分是 0」）" },
-        { points: 4, label: "两个 resolver 都带 try/catch 与 correlationId" },
-        { points: 4, label: "catch 里放行了已结构化的 GraphQLError" },
+        {
+          points: 6,
+          label: "reviews 用了正确的数据源方法并兜底成 []",
+          labelEn: "reviews uses the right data source method and falls back to []",
+        },
+        {
+          points: 6,
+          label: "averageRating 返回 null 而不是 0（区分「没有数据」和「平均分是 0」）",
+          labelEn: "averageRating returns null rather than 0, so no data is distinct from an average of 0",
+        },
+        {
+          points: 4,
+          label: "两个 resolver 都带 try/catch 与 correlationId",
+          labelEn: "Both resolvers have try/catch and a correlationId",
+        },
+        {
+          points: 4,
+          label: "catch 里放行了已结构化的 GraphQLError",
+          labelEn: "The catch lets an already structured GraphQLError through",
+        },
       ],
     },
     {
@@ -565,9 +581,21 @@ const reviewsMock: MockExam = {
         "Note that edition is an Int and isbn a String; do not mix the types up",
       ],
       rubric: [
-        { points: 8, label: "__resolveReference 返回了两个 key 字段（不是只有 isbn）" },
-        { points: 8, label: "Book.reviews 同时用了 isbn 和 edition 过滤" },
-        { points: 3, label: "调了 fetchByBook 而不是自己在 resolver 里 filter" },
+        {
+          points: 8,
+          label: "__resolveReference 返回了两个 key 字段（不是只有 isbn）",
+          labelEn: "__resolveReference returns both key fields, not isbn alone",
+        },
+        {
+          points: 8,
+          label: "Book.reviews 同时用了 isbn 和 edition 过滤",
+          labelEn: "Book.reviews filters on isbn and edition together",
+        },
+        {
+          points: 3,
+          label: "调了 fetchByBook 而不是自己在 resolver 里 filter",
+          labelEn: "Calls fetchByBook instead of filtering inside the resolver",
+        },
       ],
     },
     {
@@ -585,10 +613,26 @@ const reviewsMock: MockExam = {
         "Fix the two problems in createReviewerLoader: the method name, and the filter that breaks the length and order contract",
       ],
       rubric: [
-        { points: 6, label: "走了 loader 而不是直接调 reviewerDataSource" },
-        { points: 8, label: "修掉了 batch 函数里的 filter（长度与顺序必须与 keys 对齐）" },
-        { points: 5, label: "用了数据源上真实存在的方法名（lookupReviewer，不是 getReviewer）" },
-        { points: 3, label: "找不到时显式返回 null" },
+        {
+          points: 6,
+          label: "走了 loader 而不是直接调 reviewerDataSource",
+          labelEn: "Goes through the loader instead of calling reviewerDataSource directly",
+        },
+        {
+          points: 8,
+          label: "修掉了 batch 函数里的 filter（长度与顺序必须与 keys 对齐）",
+          labelEn: "The filter in the batch function is gone; length and order must line up with keys",
+        },
+        {
+          points: 5,
+          label: "用了数据源上真实存在的方法名（lookupReviewer，不是 getReviewer）",
+          labelEn: "Uses the method name the data source actually has: lookupReviewer, not getReviewer",
+        },
+        {
+          points: 3,
+          label: "找不到时显式返回 null",
+          labelEn: "Returns null explicitly when there is no match",
+        },
       ],
     },
     {
@@ -606,9 +650,21 @@ const reviewsMock: MockExam = {
         "Both need a correlationId in the log",
       ],
       rubric: [
-        { points: 5, label: "Query.review 用了 loader" },
-        { points: 6, label: "找不到时抛 REVIEW_NOT_FOUND（不是 SERVICE_ERROR）" },
-        { points: 5, label: "Query.reviews 校验了 authorId 并兜底 []" },
+        {
+          points: 5,
+          label: "Query.review 用了 loader",
+          labelEn: "Query.review uses the loader",
+        },
+        {
+          points: 6,
+          label: "找不到时抛 REVIEW_NOT_FOUND（不是 SERVICE_ERROR）",
+          labelEn: "Throws REVIEW_NOT_FOUND when there is no match, not SERVICE_ERROR",
+        },
+        {
+          points: 5,
+          label: "Query.reviews 校验了 authorId 并兜底 []",
+          labelEn: "Query.reviews validates authorId and falls back to []",
+        },
       ],
     },
     {
@@ -626,10 +682,26 @@ const reviewsMock: MockExam = {
         "One more is the least obvious: insertReview writes an audit log using reviewer.displayName, so the reviewer has to be looked up and attached before it is passed in",
       ],
       rubric: [
-        { points: 5, label: "修对了数据源键名（reviewDataSource，不是 reviewAPI）" },
-        { points: 5, label: "按真实签名调用 insertReview（五个位置参数，不是一个对象）" },
-        { points: 8, label: "创建前先查出 reviewer 并附上（本题最隐蔽的一处）" },
-        { points: 6, label: "catch 第一行放行已结构化的 GraphQLError，让 INVALID_INPUT 传得出去" },
+        {
+          points: 5,
+          label: "修对了数据源键名（reviewDataSource，不是 reviewAPI）",
+          labelEn: "The data source key name is correct: reviewDataSource, not reviewAPI",
+        },
+        {
+          points: 5,
+          label: "按真实签名调用 insertReview（五个位置参数，不是一个对象）",
+          labelEn: "insertReview is called with its real signature: five positional arguments, not one object",
+        },
+        {
+          points: 8,
+          label: "创建前先查出 reviewer 并附上（本题最隐蔽的一处）",
+          labelEn: "The reviewer is looked up and attached before creating, the least obvious part of this task",
+        },
+        {
+          points: 6,
+          label: "catch 第一行放行已结构化的 GraphQLError，让 INVALID_INPUT 传得出去",
+          labelEn: "The first line of the catch lets a structured GraphQLError through, so INVALID_INPUT reaches the caller",
+        },
       ],
     },
     {
@@ -647,9 +719,21 @@ const reviewsMock: MockExam = {
         "Confirm in the log that reviewerLoader really did batch (one Batching line, with N greater than 1)",
       ],
       rubric: [
-        { points: 8, label: "14 个测试全过" },
-        { points: 6, label: "verify 脚本能用 _entities 解析复合 key 的 Book" },
-        { points: 4, label: "确认了 DataLoader 的合并（日志里 N > 1）" },
+        {
+          points: 8,
+          label: "14 个测试全过",
+          labelEn: "All 14 tests pass",
+        },
+        {
+          points: 6,
+          label: "verify 脚本能用 _entities 解析复合 key 的 Book",
+          labelEn: "The verify script resolves a composite-key Book through _entities",
+        },
+        {
+          points: 4,
+          label: "确认了 DataLoader 的合并（日志里 N > 1）",
+          labelEn: "DataLoader batching is confirmed, with N > 1 in the log",
+        },
       ],
     },
   ],

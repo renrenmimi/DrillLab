@@ -97,7 +97,9 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
                       <span className="rubric-pt">
                         <T en={`${r.points} pts`} zh={`${r.points} 分`} />
                       </span>
-                      <span>{r.label}</span>
+                      <span>
+                        <T zh={r.label} en={r.labelEn} />
+                      </span>
                     </div>
                   ))}
                 </div>

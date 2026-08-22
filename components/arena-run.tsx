@@ -40,7 +40,26 @@ export function ArenaRun({ id }: { id: string }) {
   if (!a) notFound();
 
   const exam = navExam(a.sourceExamId);
+  // 【为什么整份数组按语言选，而不是逐条配对】
+  // 分组是从「【任务标题】」这种标记行解析出来的，中英两份的分组边界可能
+  // 落在不同位置。逐条配对会让标题和它下面的条目错开，所以两份各自分组，
+  // 由 <T> 整块切换。长度不等时英文那份就不给 —— 宁可全中文，不要错位。
   const groups = groupRequirements(a.requirements);
+  const groupsEn =
+    a.requirementsEn && a.requirementsEn.length === a.requirements.length
+      ? groupRequirements(a.requirementsEn)
+      : undefined;
+  const reqBlock = (gs: ReturnType<typeof groupRequirements>) =>
+    gs.map((g, i) => (
+      <div className="arena-reqs" key={i}>
+        {g.title && <div className="arena-req-group">{g.title}</div>}
+        <ul className="ws-req">
+          {g.items.map((r, j) => (
+            <li key={j}>{r}</li>
+          ))}
+        </ul>
+      </div>
+    ));
 
   return (
     <main className="main" data-rail="off">
@@ -81,16 +100,11 @@ export function ArenaRun({ id }: { id: string }) {
         <div className="minihead">
           <T zh="你的任务" en="Your task" />
         </div>
-        {groups.map((g, i) => (
-          <div className="arena-reqs" key={i}>
-            {g.title && <div className="arena-req-group">{g.title}</div>}
-            <ul className="ws-req">
-              {g.items.map((r, j) => (
-                <li key={j}>{r}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        {groupsEn ? (
+          <T zh={<>{reqBlock(groups)}</>} en={<>{reqBlock(groupsEn)}</>} />
+        ) : (
+          reqBlock(groups)
+        )}
 
         {/* 计时已经在跑，所以这里用 compact —— 只说「在哪写」和「为什么没编辑器」，
             不塞设计说明。完整版在模拟考页上。 */}
@@ -106,7 +120,11 @@ export function ArenaRun({ id }: { id: string }) {
               en="File list (the layout may differ, the interfaces must match)"
             />
           }
-          files={a.fileList}
+          // FileExplorer 收 LocalizedString；补了 roleEn 的映射成双语
+          files={a.fileList.map((f) => ({
+            ...f,
+            role: f.roleEn ? { zh: f.role, en: f.roleEn } : f.role,
+          }))}
         />
 
         <div className="minihead">
