@@ -108,8 +108,16 @@ export const reactMentalModel: Module = {
       whyForAssessmentEn:
         "In Q1 the four components are already written for you, and you add the logic inside them. Before you add anything, you have to see which component renders which, and where the data comes from. Otherwise you put the code in the wrong component.",
       sourceFiles: [
-        { path: "react-notes-app/src/App.tsx", role: "整个应用的根组件，只有 5 行" },
-        { path: "react-notes-app/src/components/NoteItem/index.tsx", role: "最简单的展示型组件" },
+        {
+          path: "react-notes-app/src/App.tsx",
+          role: "整个应用的根组件，只有 5 行",
+          roleEn: "The root component of the whole app, five lines long",
+        },
+        {
+          path: "react-notes-app/src/components/NoteItem/index.tsx",
+          role: "最简单的展示型组件",
+          roleEn: "The simplest presentational component",
+        },
       ],
       concepts: [
         {
@@ -620,8 +628,16 @@ return (
       whyForAssessmentEn:
         "All three Q1 tasks have the same shape: the child reports an event, then the parent changes state. If passing a function through props is not clear to you, both the Delete task and the Edit task will stop you.",
       sourceFiles: [
-        { path: "react-notes-app/src/components/NoteTable/index.tsx", role: "把 props 原样往下传" },
-        { path: "react-notes-app/src/components/NoteItem/index.tsx", role: "调用 props 里的函数上报" },
+        {
+          path: "react-notes-app/src/components/NoteTable/index.tsx",
+          role: "把 props 原样往下传",
+          roleEn: "Passes props straight down",
+        },
+        {
+          path: "react-notes-app/src/components/NoteItem/index.tsx",
+          role: "调用 props 里的函数上报",
+          roleEn: "Reports upwards by calling a function from props",
+        },
       ],
       concepts: [
         {

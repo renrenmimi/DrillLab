@@ -169,8 +169,16 @@ export const reactQ1: Module = {
       whyForAssessmentEn:
         "This lesson is itself part of the exam. The most expensive mistake is not bad code, it is starting to write before you have read the task properly: deleting by title instead of by id, or updating an item by removing it and adding it again.",
       sourceFiles: [
-        { path: "react-notes-app/README.md", role: "三个 Task 的原文与约束" },
-        { path: "react-notes-app/src/NoteManager.test.tsx", role: "四个判卷测试" },
+        {
+          path: "react-notes-app/README.md",
+          role: "三个 Task 的原文与约束",
+          roleEn: "The three tasks as written, with their constraints",
+        },
+        {
+          path: "react-notes-app/src/NoteManager.test.tsx",
+          role: "四个判卷测试",
+          roleEn: "The four tests that decide the marks",
+        },
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "三道题的落点", edit: true },
       ],
       concepts: [
@@ -915,7 +923,11 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         "The first test checks it directly. It also sets up the chain where the child reports through onSubmit and the parent changes notes. The second half of Task 3 reuses the same function.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleSubmitNote 的 else 分支", edit: true },
-        { path: "react-notes-app/src/components/NoteForm/index.tsx", role: "note 在这里被构造并上报" },
+        {
+          path: "react-notes-app/src/components/NoteForm/index.tsx",
+          role: "note 在这里被构造并上报",
+          roleEn: "The note is built here and reported upwards",
+        },
       ],
       concepts: [
         {
@@ -1710,7 +1722,11 @@ const handleSubmitNote = (submittedNote: Note) => {
         "The third test checks it. But that test has only one note, so comparing by title passes as well. This is the first case in this project where passing tests do not mean the code is correct.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleDelete", edit: true },
-        { path: "react-notes-app/src/components/NoteItem/index.tsx", role: "Delete 按钮在这里上报 id" },
+        {
+          path: "react-notes-app/src/components/NoteItem/index.tsx",
+          role: "Delete 按钮在这里上报 id",
+          roleEn: "The Delete button reports the id from here",
+        },
       ],
       concepts: [
         {
@@ -2435,7 +2451,11 @@ const handleDelete = (id: number) => {
         "The fourth test checks it, and it is the longest of the four. It verifies both that the button text becomes Update and that the new content replaces the old one. No test covers the in place requirement, but the task text states it clearly.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleEdit + handleSubmitNote 的 if 分支", edit: true },
-        { path: "react-notes-app/src/components/NoteForm/index.tsx", role: "useEffect 回填 + id 复用 + 按钮文字（已给好）" },
+        {
+          path: "react-notes-app/src/components/NoteForm/index.tsx",
+          role: "useEffect 回填 + id 复用 + 按钮文字（已给好）",
+          roleEn: "useEffect refills the form, the id is reused, and the button text changes (all given)",
+        },
       ],
       concepts: [
         {
@@ -3622,9 +3642,21 @@ if (noteToEdit) {
       whyForAssessmentEn:
         "The tests are the grader. Reading them tells you where the pass line is. Reading their blind spots tells you which requirements you still have to guarantee yourself.",
       sourceFiles: [
-        { path: "react-notes-app/src/NoteManager.test.tsx", role: "四个判卷测试" },
-        { path: "react-notes-app/vite.config.ts", role: "vitest 配置内联在这里" },
-        { path: "react-notes-app/vitest.setup.ts", role: "引入 jest-dom 断言" },
+        {
+          path: "react-notes-app/src/NoteManager.test.tsx",
+          role: "四个判卷测试",
+          roleEn: "The four tests that decide the marks",
+        },
+        {
+          path: "react-notes-app/vite.config.ts",
+          role: "vitest 配置内联在这里",
+          roleEn: "The vitest config is inline here",
+        },
+        {
+          path: "react-notes-app/vitest.setup.ts",
+          role: "引入 jest-dom 断言",
+          roleEn: "Brings in the jest-dom assertions",
+        },
       ],
       concepts: [
         {

@@ -82,8 +82,16 @@ const foundations: Exam = {
   testsEn:
     "This course is not an exam itself. It is the base the other two stand on. What usually stops a beginner in an exam is not React syntax. It is questions like how to run the tests, whether an error is your own mistake or a defect that was already in the project, and what the difference is between dependencies and devDependencies.",
   sourceProjects: [
-    { path: "react-notes-app", role: "React Capstone，提供真实 package.json / tsconfig / vite 配置" },
-    { path: "graphql-federation-practice", role: "Federation Capstone，提供真实 subgraph package.json / pom.xml" },
+    {
+      path: "react-notes-app",
+      role: "React Capstone，提供真实 package.json / tsconfig / vite 配置",
+      roleEn: "React Capstone, the source of the real package.json, tsconfig and vite config",
+    },
+    {
+      path: "graphql-federation-practice",
+      role: "Federation Capstone，提供真实 subgraph package.json / pom.xml",
+      roleEn: "Federation Capstone, the source of the real subgraph package.json and pom.xml",
+    },
   ],
   prerequisites: [],
   stack: ["Node.js 22", "npm", "ESM", "JavaScript", "TypeScript 5"],
@@ -131,9 +139,21 @@ const foundations: Exam = {
           whyForAssessmentEn:
             "The first step of both exams is npm install. If it fails, installs the wrong versions, or accidentally creates a second lockfile, nothing after it will run. The problem then is not your React code. You have not started the exam at all.",
           sourceFiles: [
-            { path: "react-notes-app/package.json", role: "React 考试的依赖清单" },
-            { path: "react-notes-app/package-lock.json", role: "锁定确切版本（139 KB）" },
-            { path: "graphql-federation-practice/node-subgraph/package.json", role: "subgraph 的依赖清单" },
+            {
+              path: "react-notes-app/package.json",
+              role: "React 考试的依赖清单",
+              roleEn: "The dependency list for the React exam",
+            },
+            {
+              path: "react-notes-app/package-lock.json",
+              role: "锁定确切版本（139 KB）",
+              roleEn: "Pins the exact versions (139 KB)",
+            },
+            {
+              path: "graphql-federation-practice/node-subgraph/package.json",
+              role: "subgraph 的依赖清单",
+              roleEn: "The dependency list for the subgraph",
+            },
           ],
           concepts: [
             {
@@ -574,8 +594,16 @@ npm install
           whyForAssessmentEn:
             "In an exam nobody tells you how to run the project. package.json is the answer itself. Read it and you have the map of the exam.",
           sourceFiles: [
-            { path: "react-notes-app/package.json", role: "React 考试" },
-            { path: "graphql-federation-practice/node-subgraph/package.json", role: "Federation 考试的 Node 部分" },
+            {
+              path: "react-notes-app/package.json",
+              role: "React 考试",
+              roleEn: "The React exam",
+            },
+            {
+              path: "graphql-federation-practice/node-subgraph/package.json",
+              role: "Federation 考试的 Node 部分",
+              roleEn: "The Node half of the Federation exam",
+            },
           ],
           concepts: [
             {
@@ -1022,8 +1050,16 @@ npm install
           whyForAssessmentEn:
             "The package.json of react-notes-app has no test script, so npm test reports Missing script. Yet your work is graded by exactly those four tests. If you cannot run them, you are answering without being able to check anything.",
           sourceFiles: [
-            { path: "react-notes-app/package.json", role: "只有 dev / build / q2 三个 script" },
-            { path: "graphql-federation-practice/node-subgraph/package.json", role: "有 start / test / test:watch" },
+            {
+              path: "react-notes-app/package.json",
+              role: "只有 dev / build / q2 三个 script",
+              roleEn: "Only three scripts: dev, build and q2",
+            },
+            {
+              path: "graphql-federation-practice/node-subgraph/package.json",
+              role: "有 start / test / test:watch",
+              roleEn: "Has start, test and test:watch",
+            },
           ],
           concepts: [
             {
@@ -1458,8 +1494,16 @@ $ npx vitest run
           whyForAssessmentEn:
             "Both exams mark files as EDIT THIS or PROVIDED. Editing the wrong file earns nothing, and failing to find the file you were meant to edit loses points directly.",
           sourceFiles: [
-            { path: "react-notes-app/", role: "Q1 在 src/,Q2 在 q2/" },
-            { path: "graphql-federation-practice/", role: "node-subgraph/ 和 java-service/ 两个服务" },
+            {
+              path: "react-notes-app/",
+              role: "Q1 在 src/,Q2 在 q2/",
+              roleEn: "Q1 lives in src/, Q2 in q2/",
+            },
+            {
+              path: "graphql-federation-practice/",
+              role: "node-subgraph/ 和 java-service/ 两个服务",
+              roleEn: "Two services: node-subgraph/ and java-service/",
+            },
           ],
           concepts: [
             {
@@ -1912,7 +1956,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           whyForAssessmentEn:
             "The three parts of Q1 are one of each operation: Add uses spread, Delete uses filter, Edit uses map. On the GraphQL side, createOrder also uses map to add a price to every item. Learn this lesson and the data handling of both exams is covered.",
           sourceFiles: [
-            { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "三个操作的真实用法都在这里" },
+            {
+              path: "react-notes-app/src/components/NoteManager/index.tsx",
+              role: "三个操作的真实用法都在这里",
+              roleEn: "The real use of all three operations is here",
+            },
           ],
           concepts: [
             {
@@ -2710,8 +2758,16 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
           whyForAssessmentEn:
             "Q2 asks you to write allSettled behaviour with a limit on how many run at once. In Federation, every resolver is async and has to use try/catch. This lesson is the base both questions stand on.",
           sourceFiles: [
-            { path: "react-notes-app/q2/taskRunner.ts", role: "Q2 的题面与要求都在文件顶部注释里" },
-            { path: "react-notes-app/q2/demo.ts", role: "验证台：打印实时并发数" },
+            {
+              path: "react-notes-app/q2/taskRunner.ts",
+              role: "Q2 的题面与要求都在文件顶部注释里",
+              roleEn: "The Q2 problem and its requirements are in the comment at the top of the file",
+            },
+            {
+              path: "react-notes-app/q2/demo.ts",
+              role: "验证台：打印实时并发数",
+              roleEn: "A test bench that prints the live concurrency count",
+            },
           ],
           concepts: [
             {
@@ -3873,8 +3929,16 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
           whyForAssessmentEn:
             "react-notes-app is a TypeScript project in strict mode. Get a props type wrong, or leave out one field, and the build fails. And in both exams the main data shapes, Note and Order, are read from their type definitions first.",
           sourceFiles: [
-            { path: "react-notes-app/src/types/Note.ts", role: "整个 Q1 的数据形状" },
-            { path: "react-notes-app/src/components/NoteForm/index.tsx", role: "props 类型的真实写法" },
+            {
+              path: "react-notes-app/src/types/Note.ts",
+              role: "整个 Q1 的数据形状",
+              roleEn: "The shape of all the Q1 data",
+            },
+            {
+              path: "react-notes-app/src/components/NoteForm/index.tsx",
+              role: "props 类型的真实写法",
+              roleEn: "How the prop types are actually written",
+            },
             { path: "react-notes-app/tsconfig.json", role: "strict: true" },
           ],
           concepts: [
@@ -4337,8 +4401,16 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
           whyForAssessmentEn:
             "In react-notes-app, npm run build fails as delivered. All 10 tsc errors come from missing type settings for the test files. Recognising that the fault is not yours is what decides whether you lose half an hour.",
           sourceFiles: [
-            { path: "react-notes-app/tsconfig.json", role: "include 了 src，但没配 vitest 全局类型" },
-            { path: "react-notes-app/src/NoteManager.test.tsx", role: "报错就出在这个文件" },
+            {
+              path: "react-notes-app/tsconfig.json",
+              role: "include 了 src，但没配 vitest 全局类型",
+              roleEn: "It includes src but does not configure the vitest global types",
+            },
+            {
+              path: "react-notes-app/src/NoteManager.test.tsx",
+              role: "报错就出在这个文件",
+              roleEn: "This is the file the error comes from",
+            },
           ],
           concepts: [
             {

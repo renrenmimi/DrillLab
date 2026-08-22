@@ -161,11 +161,13 @@ const PAYLOAD: NavPayload = {
       "sourceProjects": [
         {
           "path": "react-notes-app",
-          "role": "React Capstone，提供真实 package.json / tsconfig / vite 配置"
+          "role": "React Capstone，提供真实 package.json / tsconfig / vite 配置",
+          "roleEn": "React Capstone, the source of the real package.json, tsconfig and vite config"
         },
         {
           "path": "graphql-federation-practice",
-          "role": "Federation Capstone，提供真实 subgraph package.json / pom.xml"
+          "role": "Federation Capstone，提供真实 subgraph package.json / pom.xml",
+          "roleEn": "Federation Capstone, the source of the real subgraph package.json and pom.xml"
         }
       ],
       "lessonCount": 9,

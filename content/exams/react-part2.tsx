@@ -797,7 +797,11 @@ onSubmit(newNote);
       whyForAssessmentEn:
         "The Q1 table is produced by map. A wrong key here makes rows show the wrong content after a delete, and the tests may not catch it.",
       sourceFiles: [
-        { path: "react-notes-app/src/components/NoteTable/index.tsx", role: "map 渲染 + key" },
+        {
+          path: "react-notes-app/src/components/NoteTable/index.tsx",
+          role: "map 渲染 + key",
+          roleEn: "Rendered with map, and the key",
+        },
       ],
       concepts: [
         {

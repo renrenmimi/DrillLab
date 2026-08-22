@@ -459,8 +459,16 @@ const cabBooking: Exam = {
           whyForAssessmentEn:
             "Scoring here is driven entirely by data-testid. The page can look right, and one wrong testid still fails every check around it. Reading the tests before writing code saves half of the rework. Test 4, which keeps only the three newest rides, is the dividing line: a slice in the wrong direction, a missing reverse, or changing the state array in place all fail on that one test.",
           sourceFiles: [
-            { path: "cab-booking-context/src/test/App.test.jsx", role: "四个测试，判分的全部依据" },
-            { path: "cab-booking-context/src/data/data.json", role: "三组六辆车，分组顺序来自这里的键顺序" },
+            {
+              path: "cab-booking-context/src/test/App.test.jsx",
+              role: "四个测试，判分的全部依据",
+              roleEn: "Four tests, and the whole basis for the marks",
+            },
+            {
+              path: "cab-booking-context/src/data/data.json",
+              role: "三组六辆车，分组顺序来自这里的键顺序",
+              roleEn: "Six cars in three groups; the group order comes from the key order here",
+            },
           ],
           concepts: [
             {
@@ -1138,7 +1146,11 @@ const cabBooking: Exam = {
             "This is the fastest way to fail the whole task. handleSelectCab lives in App and calls updateBookedCabDetails, so App itself is a reader of the Context. If you write the Provider inside the return of App, App cannot reach the context, the throw guard fires at once, and all four tests fail.",
           sourceFiles: [
             { path: "cab-booking-context/src/context/CabContext.js", role: "Context 三件套。注意扩展名是 .js 而里面有 JSX", edit: true },
-            { path: "cab-booking-context/src/index.jsx", role: "Provider 包在 App 外面的那一层" },
+            {
+              path: "cab-booking-context/src/index.jsx",
+              role: "Provider 包在 App 外面的那一层",
+              roleEn: "The layer where the Provider wraps App",
+            },
           ],
           concepts: [
             {
@@ -2013,7 +2025,11 @@ const useCabContext = () => {
             "The task gives you no router, so you have to decide how a page is represented. Four booleans (isHome, isLoading and so on) can work, but when two of them are true at the same time two pages render together, and the getByTestId in test 3 throws because it finds more than one match. A single string state rules that situation out from the start.",
           sourceFiles: [
             { path: "cab-booking-context/src/App.jsx", role: "状态机本体，四个页面的开关都在这里", edit: true },
-            { path: "cab-booking-context/src/components/Home/Home.jsx", role: "首页，把 onBookClick 往上抛" },
+            {
+              path: "cab-booking-context/src/components/Home/Home.jsx",
+              role: "首页，把 onBookClick 往上抛",
+              roleEn: "The home page; it raises onBookClick upwards",
+            },
           ],
           concepts: [
             {
@@ -2712,7 +2728,11 @@ const handleSelectCab = (cab) => {
           whyForAssessmentEn:
             "Test 2 checks nine things at once: one container, three group headings in order, and 6 of each of the five card fields. This lesson satisfies all nine together. The group order is a free point: use Object.keys as it comes and you are right, while sorting it yourself makes it wrong.",
           sourceFiles: [
-            { path: "cab-booking-context/src/data/data.json", role: "三组六辆车，键顺序 Sedan → SUV → Luxury" },
+            {
+              path: "cab-booking-context/src/data/data.json",
+              role: "三组六辆车，键顺序 Sedan → SUV → Luxury",
+              roleEn: "Six cars in three groups, keyed in the order Sedan → SUV → Luxury",
+            },
             { path: "cab-booking-context/src/components/CabOptions/CabOptions.jsx", role: "外层分组", edit: true },
             { path: "cab-booking-context/src/components/CabOptions/CabCard.jsx", role: "五个字段都在这里", edit: true },
           ],
@@ -3411,7 +3431,11 @@ const CabCard = ({ cab, onSelectCab }) => {
             "This is the standard way effect cleanup gets examined, and the Timer (useEffect cleanup) task on this site tests the same point. The test uses a fake timer to turn the 1 second into a single line, so the delay has to be exactly 1000. Write 900 or 1200 and the page is in the wrong state after advanceTimersByTime(1000).",
           sourceFiles: [
             { path: "cab-booking-context/src/components/Loading/Loading.jsx", role: "setTimeout + clearTimeout", edit: true },
-            { path: "cab-booking-context/src/test/App.test.jsx", role: "fake timer 的用法在 beforeEach / afterEach 里" },
+            {
+              path: "cab-booking-context/src/test/App.test.jsx",
+              role: "fake timer 的用法在 beforeEach / afterEach 里",
+              roleEn: "How the fake timer is used, in beforeEach and afterEach",
+            },
           ],
           concepts: [
             {
@@ -5317,7 +5341,11 @@ const RideHistory = () => {
             "This is another example of theme 3 on this site: the project you are given can be broken itself. This case is the worst one. It is not that one test fails, it is that 0 tests start. In a real exam, being able to decide within two minutes that the setup is at fault and not your code decides how you spend the rest of your time.",
           sourceFiles: [
             { path: "cab-booking-context/src/context/CabContext.js", role: "缺陷本体：.js 扩展名 + 文件里有 JSX", edit: true },
-            { path: "cab-booking-context/vite.config.mjs", role: "另一种（不推荐的）修法会改这里" },
+            {
+              path: "cab-booking-context/vite.config.mjs",
+              role: "另一种（不推荐的）修法会改这里",
+              roleEn: "The other fix, the one not recommended, changes this",
+            },
           ],
           concepts: [
             {
@@ -6394,8 +6422,16 @@ export default defineConfig({
           whyForAssessmentEn:
             "A real exam looks exactly like this: one repository, one README, one set of tests, and no answer. In the first three parts you were reading along. In this lesson you do it yourself. Not finishing does not mean the earlier work was wasted. Wherever you get stuck is your real weak point.",
           sourceFiles: [
-            { path: "cab-booking-context/src/test/App.test.jsx", role: "唯一允许看的东西：四个测试" },
-            { path: "cab-booking-context/src/data/data.json", role: "数据可以照抄，那不是考点" },
+            {
+              path: "cab-booking-context/src/test/App.test.jsx",
+              role: "唯一允许看的东西：四个测试",
+              roleEn: "The only thing you may look at: the four tests",
+            },
+            {
+              path: "cab-booking-context/src/data/data.json",
+              role: "数据可以照抄，那不是考点",
+              roleEn: "The data can be copied as it is; it is not what is being tested",
+            },
           ],
           concepts: [
             {
