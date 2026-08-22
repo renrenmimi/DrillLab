@@ -928,36 +928,77 @@ query($r: [_Any!]!) {
               <tbody>
                 <tr>
                   <td><strong>200</strong></td>
-                  <td>成功，有内容返回</td>
+                  <td>
+                    <T zh="成功，有内容返回" en="Success, with a body" />
+                  </td>
                   <td><code>ResponseEntity.ok(body)</code></td>
                 </tr>
                 <tr>
                   <td><strong>201</strong></td>
-                  <td>创建成功（POST）</td>
+                  <td>
+                    <T zh="创建成功（POST）" en="Created (POST)" />
+                  </td>
                   <td>
                     <code>ResponseEntity.status(HttpStatus.CREATED).body(x)</code>
                   </td>
                 </tr>
                 <tr>
                   <td><strong>204</strong></td>
-                  <td>成功但没有内容（DELETE）</td>
+                  <td>
+                    <T
+                      zh="成功但没有内容（DELETE）"
+                      en="Success with no body (DELETE)"
+                    />
+                  </td>
                   <td><code>ResponseEntity.noContent().build()</code></td>
                 </tr>
                 <tr>
                   <td><strong>400</strong></td>
-                  <td>请求本身不合法</td>
                   <td>
-                    <code>@Valid</code> 自动，或{" "}
-                    <code>throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg)</code>
+                    <T
+                      zh="请求本身不合法"
+                      en="The request itself is not valid"
+                    />
+                  </td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          <code>@Valid</code> 自动，或{" "}
+                          <code>throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg)</code>
+                        </>
+                      }
+                      en={
+                        <>
+                          <code>@Valid</code> does it, or{" "}
+                          <code>throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg)</code>
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td><strong>404</strong></td>
-                  <td>目标不存在</td>
                   <td>
-                    <strong>不写</strong> —— 让 service 的{" "}
-                    <code>EntityNotFoundException</code> 冒到{" "}
-                    <code>@RestControllerAdvice</code>
+                    <T zh="目标不存在" en="The target does not exist" />
+                  </td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          <strong>不写</strong> —— 让 service 的{" "}
+                          <code>EntityNotFoundException</code> 冒到{" "}
+                          <code>@RestControllerAdvice</code>
+                        </>
+                      }
+                      en={
+                        <>
+                          <strong>Do not write it</strong> — let the service&apos;s{" "}
+                          <code>EntityNotFoundException</code> travel up to{" "}
+                          <code>@RestControllerAdvice</code>
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
               </tbody>
@@ -986,7 +1027,30 @@ try {
 
 // correlation id（CorrelationIdFilter 放进 MDC，任何地方都能取）
 MDC.get("correlationId")`,
-              { filename: "Spring 速查" },
+              {
+                filename: "Spring 速查",
+                filenameEn: "Spring reference",
+                codeEn: `// Where each parameter annotation reads from
+@PathVariable Long id                            // /api/orders/{id}
+@RequestParam(required = false) String userId     // ?userId=123
+@RequestBody Map<String, String> body             // the JSON request body
+@Valid @RequestBody CreateOrderRequest request    // request body + Bean Validation
+
+// Safe way to turn a string into an enum (valueOf is case sensitive and throws)
+String raw = statusUpdate.get("status");
+if (raw == null || raw.isBlank()) {
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
+}
+final OrderStatus status;
+try {
+    status = OrderStatus.valueOf(raw.trim().toUpperCase());
+} catch (IllegalArgumentException ex) {
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown status: " + raw);
+}
+
+// correlation id (CorrelationIdFilter puts it in MDC, so any code can read it)
+MDC.get("correlationId")`,
+              },
             )}
           />
         </section>
