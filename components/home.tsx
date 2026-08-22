@@ -2,16 +2,26 @@
 
 // 首页 —— 一张「今天做什么」的仪表盘。
 //
-// 【这一版要修的问题】
-// 上一版的第一屏是一个主 CTA（继续上次那一节课），下面是四档练法。
-// 它解决了「无从下手」，但只对一种人成立 —— **打算按课程往下走的人**。
-// 一个只想复习 React 的人、一个想找一道能在浏览器里跑的题的人，
-// 在这一页得不到答案：四档说的是「给你多少东西」，不是「你想做什么」。
+// 【这一版换了第一个问题】
+// 上一版第一屏问的是「你今天想做哪一类事」，答案是四个模式。那一步是对的，
+// 但四个模式里只有 Learn 是线性的 —— 一个说「我要准备 React 考试」的人，
+// 点进 Review 看到的是 105 道题的题库，点进 Practice 看到的是筛选器。
+// 他要的是一条从现在到考试的路，而首页给不出。
 //
-// 现在第一屏回答两件事，顺序固定：
-//   ① 你上次那件事在哪（有历史）/ 从哪开始（没历史）—— 一个主按钮
-//   ② 你今天想做哪一类事 —— 四个模式，一句话一个
-// 再往下是给有基础的人的旁路（按技术点直接进去），和一条建议顺序。
+// 所以第一个问题换成了：
+//
+//     你现在想达成什么目标？
+//
+// 六条引导计划就是六个答案。已经在跟某一条走的人，第一屏直接是那条计划的
+// 当前位置和下一格 —— 整页唯一的主按钮。
+//
+// 四个模式**一个都没删**，它们退到「自由选择练习方式」这一节：
+//   引导计划 = 「告诉我下一步做什么」
+//   四个模式 = 「让我自己挑」
+//
+// 顺带删掉了原来那一节「建议的顺序」（学 → 背 → 练 → 考）——
+// 那句话现在由计划本身说，而且说得具体得多：它不是一个抽象的顺序，
+// 是「先读这 21 节、再背这 36 道、再做这 54 个练习」。
 //
 // 刻意不做的事：不做大卡片、不做渐变、不做进度环、不在第一屏解释产品架构。
 // 「这个站是怎么组织的」那一整套说明在 /guide，从顶栏右边那个 ? 进。
@@ -30,7 +40,10 @@ import { pathGroups } from "@/content/path";
 import { useLocale } from "@/lib/locale";
 import { MODES } from "@/lib/modes";
 import { useProgress } from "@/lib/progress";
-import { ContinueCard } from "./continue";
+import { ContinueCard, ContinueStrip } from "./continue";
+import { ActivePlanCard, PlanCards } from "./plan-cards";
+import { useActivePlan } from "./plan-kit";
+import { PlanMark } from "./plan-mark";
 import { T } from "./t";
 
 const TOTAL_LESSONS = NAV.reduce((n, e) => n + e.lessonCount, 0);
@@ -142,6 +155,7 @@ const ACTION_LABEL: Record<TopicAction["mode"], { zh: string; en: string }> = {
 export function Home() {
   const { data, ready, countLessons, countExercises, reset } = useProgress();
   const { locale } = useLocale();
+  const { status: plan, optedOut } = useActivePlan();
 
   const doneLessons = ready ? NAV.reduce((n, e) => n + countLessons(e.id), 0) : 0;
   const doneExercises = ready ? NAV.reduce((n, e) => n + countExercises(e.id), 0) : 0;
@@ -156,14 +170,70 @@ export function Home() {
   return (
     <main className="main" data-rail="off">
       <div className="content dash">
-        {/* ① 上次那件事 —— 或者「从地基开始」。整页唯一的主按钮。 */}
-        <ContinueCard />
+        {/* ================================================================
+            第一屏。三种情况互斥，任何时候只有一个 h1、只有一个主按钮。
 
-        {/* ② 今天想做哪一类事。四个模式，一句话一个，直接进那个模式。 */}
+            ① 正在跟某条计划   → 那条计划的当前位置和下一格
+            ② 没跟计划         → 「你现在想达成什么目标？」+ 六条计划
+            ③ 说过「先自己逛」 → 回到「接着上次那件事」，并留一条回计划的路
+            ================================================================ */}
+        {plan ? (
+          <ActivePlanCard />
+        ) : optedOut ? (
+          <>
+            <ContinueCard />
+            <p className="dash-optout">
+              <PlanMark size={12} />
+              <T
+                zh={
+                  <>
+                    想要一条从现在到考试的完整路径？
+                    <Link href="/plans">看看六条引导计划 →</Link>
+                  </>
+                }
+                en={
+                  <>
+                    Want one complete route from here to the assessment?{" "}
+                    <Link href="/plans">Look at the six guided plans →</Link>
+                  </>
+                }
+              />
+            </p>
+          </>
+        ) : (
+          <section className="dash-goal" aria-labelledby="dash-goal-h">
+            <div className="dash-goal-eyebrow">
+              <PlanMark />
+              <T zh="引导计划" en="Guided plans" />
+            </div>
+            <h1 className="dash-goal-title serif" id="dash-goal-h">
+              <T zh="你现在想达成什么目标？" en="What are you preparing for?" />
+            </h1>
+            <p className="dash-goal-lede">
+              <T
+                zh="挑一个目标，剩下的顺序交给它：读哪几节、背哪些方向、做哪些练习、写哪几道题、最后在空文件夹里做一遍。用的全是站里已有的内容。"
+                en="Pick an outcome and the order comes with it: which lessons to read, which topics to revise, which exercises and problems to do, and finally the same thing in an empty folder. All of it is material that already exists here."
+              />
+            </p>
+            <PlanCards />
+            <ContinueStrip />
+          </section>
+        )}
+
+        {/* ================================================================
+            自由选择。四个模式一个都没删，只是退到第二位 ——
+            「让我自己挑」和「告诉我下一步做什么」是两种都成立的用法。
+            ================================================================ */}
         <section className="dash-sec">
           <h2 className="dash-sec-title">
-            <T zh="今天想做哪一类事？" en="What do you want to do today?" />
+            <T zh="自由选择练习方式" en="Explore freely" />
           </h2>
+          <p className="dash-sec-lede">
+            <T
+              zh="已经知道自己要什么就直接进：四个模式任何时候都能点，进度和计划是同一份。"
+              en="If you already know what you want, go straight in. All four modes are open at any time, and the progress behind them is the same as the plans."
+            />
+          </p>
           <ul className="dash-modes">
             {MODES.map((m) => (
               <li key={m.id}>
@@ -183,8 +253,9 @@ export function Home() {
           </ul>
         </section>
 
-        {/* ③ 有基础的人的旁路。不必穿过地基，也不必先选模式。 */}
-        <section className="dash-sec">
+        {/* 有基础的人的旁路。不必选计划，也不必先选模式。
+            视觉上比上面两节更轻 —— 它是一条捷径，不是主路。 */}
+        <section className="dash-sec dash-sec-quiet">
           <h2 className="dash-sec-title">
             <T zh="已经有基础？直接按技术点进去" en="Already know the basics? Go straight to a topic" />
           </h2>
@@ -206,48 +277,6 @@ export function Home() {
               </li>
             ))}
           </ul>
-        </section>
-
-        {/* ④ 建议顺序。写清是建议，不是锁死 —— 上面那一节就是绕过它的入口。 */}
-        <section className="dash-sec">
-          <h2 className="dash-sec-title">
-            <T zh="建议的顺序" en="The order we suggest" />
-          </h2>
-          <ol className="dash-path">
-            {MODES.map((m, i) => (
-              <li key={m.id}>
-                <Link className="dash-path-step" href={m.href}>
-                  <span className="dash-path-n tabular">{i + 1}</span>
-                  <span className="dash-path-name">
-                    <T zh={m.zh} en={m.en} />
-                  </span>
-                </Link>
-                {i < MODES.length - 1 && (
-                  <span className="dash-path-arrow" aria-hidden>
-                    →
-                  </span>
-                )}
-              </li>
-            ))}
-          </ol>
-          <p className="dash-note">
-            <T
-              zh={
-                <>
-                  <strong>这是建议，不是锁死的。</strong>
-                  四个模式任何时候都能点 —— 想第一天就进考场也可以，
-                  它本来就是用来暴露缺口的。
-                </>
-              }
-              en={
-                <>
-                  <strong>A suggestion, not a lock.</strong> All four modes are open at any
-                  time. Going straight to the arena on day one is fine — exposing the gaps
-                  is what it is for.
-                </>
-              }
-            />
-          </p>
         </section>
 
         {/* 英文用户的边界说明。这条要写准，别含糊 ——
