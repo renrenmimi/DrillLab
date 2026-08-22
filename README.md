@@ -17,13 +17,34 @@ problem was inspired by a format I had seen, I wrote a new scenario for it rathe
 reproducing anything. It is a study project, and it is public in case it is useful to
 someone learning the same things.
 
-![The home — four tracks, each giving you less than the last](docs/home.jpg)
+![The home — continue where you left off, then four things you might want to do](docs/ia-nav/home-after.jpg)
 
-*The home — four tracks, each giving you less than the last*
+*The home — continue where you left off, then four things you might want to do*
 
-![The drill track — question banks with flashcards](docs/drill.jpg)
+![A lesson — where you are, how long it takes, what is next](docs/ia-nav/lesson-after.jpg)
 
-*The drill track — question banks with flashcards*
+*A lesson — the course, the module, `LESSON 04 / 21`, the estimate, whether it is
+marked done, and the previous and next lesson, all without scrolling*
+
+## Four ways to use it
+
+Navigation asks one question first: **what kind of work do you want to do now?**
+The four answers are the four items in the header. Picking one changes the sidebar,
+which then answers the second question: where am I inside this, and what is next?
+
+| Mode | Routes | What you do there |
+| --- | --- | --- |
+| **Learn** | `/path`, `/exams/**` | Read the lessons in order, one at a time |
+| **Review** | `/drill` | Interview questions and flashcards — no need to start at chapter one |
+| **Practice** | `/practice`, `/code` | Lesson exercises, plus coding workspaces that really run the tests |
+| **Assess** | `/arena`, `/mock` | Timed, no hints, done in an empty folder |
+
+A **Continue** button in the header always points at the last meaningful thing you
+were doing — a lesson, a filtered question set, a coding problem or an arena run —
+and at the first Foundations lesson if there is no history yet. Nothing is locked:
+the home page has topic shortcuts (JavaScript, React, TypeScript, GraphQL, Spring
+Boot) that go straight to reviewing or practising that topic without walking the
+course.
 
 ## Four tracks
 
@@ -38,6 +59,10 @@ The tracks differ by **how much you are given** — each one hands you less than
 
 `/path` is the course archive — 80 written lessons explaining the ideas behind the
 problems. It is a reference to come back to when stuck, not the main line.
+
+The tracks and the modes are two different cuts of the same material: a track says
+*how much you are handed*, a mode says *what you are trying to do right now*. The
+four tracks live across Review, Practice and Assess.
 
 ## What it covers
 
@@ -96,7 +121,7 @@ npm run gen:src    # re-snapshot reference projects after editing sourceFiles
 | Short-answer questions | 105 |
 | Coding problems | 25 (21 runnable in the browser) |
 | Arena problems | 7 (5 rebuilds + 2 mocks) |
-| Prerendered pages | 251 |
+| Prerendered pages | 252 |
 
 ## Content integrity rules
 

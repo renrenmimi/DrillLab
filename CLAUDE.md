@@ -4,15 +4,23 @@
 
 ## 这是什么
 
-一个**刷题 App**，四条主线：
+一个**刷题 App**。材料分成四条主线，**导航按「你想做哪一类事」分成四个模式**
+（见 [lib/modes.ts](lib/modes.ts)）：
 
 ```
-/drill    八股题库      105 道问答，题库模式 + 抽认卡
-/code     Coding 题     25 道，题面 + 讲解 + 门后答案；21 道能在浏览器里跑测试
-/arena    考场          空文件夹、计时、无提示、答案锁死到交卷；**故意不给运行环境**
-/mock     模拟考        2 套，换壳验收
-/path     课程归档      75 节课文 —— 「题目背后的讲解」，不是主线
+模式（顶栏）        路由                     材料
+学课程   Learn     /path  /exams/**         5 门课、80 节课文
+背知识点 Review    /drill                   105 道问答，题库模式 + 抽认卡
+做练习   Practice  /practice  /code         148 个课内练习 + 25 道 Coding（21 道浏览器里能跑）
+模拟考试 Assess    /arena  /mock            7 道计时题（含 2 套模拟考）；**故意不给运行环境**
 ```
+
+不属于任何模式的三页：`/`（仪表盘）、`/guide`（使用说明）、`/reference`（速查）。
+它们**没有侧栏** —— 首页本身就是那张仪表盘。
+
+四档难度（说得出 / 认得出 / 写得对 / 空手做）没有删，它仍然是
+[components/ladder.tsx](components/ladder.tsx) 那一套解释，只是不再自己充当
+一级导航：它现在分布在 Review / Practice / Assess 三个模式里。
 
 **课文一行不删。** 它是资产（`content/exams/**` 约 3.8 万行，全部本机实测过），
 只是从主入口降级成归档：题目详情页里「展开讲解」通过 id 引用对应的
@@ -93,7 +101,11 @@
 | 全站交互可逆性 | 语言 / 主题 / 抽认卡回上一张 / 八股标记 / 提示面板收起 / coding 打勾 / 模拟考改分 / 考场三段（开考 → 交卷 → 勾验收 → 记下 → 再考一次）**全部可逆，无死路** |
 | 难度 × 题型 的实际分布 | L1 = recognition + ordering，L2 = fill-blank + debug，L3 = code-completion，L4 = from-scratch。**所以难度标签不能写题型名** |
 | `styles/coding.css` | 修之前是**空文件**（48 字节，只有一行注释）。`.cd-*`（9 个）和 `.sbx-*`（12 个）全无样式 —— `/code` 列表页是个裸 `<ol>`，四个标签和「未开始」连成一串 |
-| 类名覆盖扫描 | 组件里用到 457 个 className，CSS 里都有定义（修前缺 21 个） |
+| 类名覆盖扫描 | 组件里用到 535 个 className，CSS 里定义 568 个，差集 **0**（修前缺 21 个） |
+| 意图优先导航的首屏 JS 代价 | 和 main 逐路由对比（两边都跑 `next build`）：`/` 143→147、课程页 140→142、`/code/[id]` 120→121、`/drill` 147→148、`/path` 141→145 kB。**最大 +4 kB**，Sandpack 仍然没进首屏 |
+| 六条流程 + 键盘 / 抽屉 / 老数据兼容 | playwright-core 驱动本机 Chrome，**112 条断言全过**（含「老数据没有 recent 字段时 Continue 回落到 last」和「写盘后 lessons / mocks / arena / coding 一个不丢」） |
+| `.crumb-sep` 的 `opacity: 0.75` | 实测把 `--ink-3` 从 5.06:1 压到 **3.1:1**。老扫描脚本没把 opacity 算进合成，所以一直没暴露。**要更淡就换颜色变量，不要用透明度** |
+| `/path` 的 `.road-body { opacity }` | 同一个坑：0.78 把 `.road-count` 压到 **3.27:1**。现在不再整块压暗，只把「读完了」那一档的说明文字换成 `--ink-3` |
 | 窄屏 Ladder | 390px 下竖排四格实测 **900px**，第一道题要滑过两屏。改 2×2 后 **291px**，四格对比一个字没少 |
 | Sandpack 编辑器高度 | `.sp-stack` 上有**内联** `height: 300px`，CSS 压不过。只能走 `<SandpackCodeEditor style={{height}}>` —— `SandpackProvider` 的 options 是 `SandpackInternalOptions`，**没有** `editorHeight`（types.d.ts 里那个 `SandpackOptions.editorHeight` 是给 `<Sandpack />` 预设的，写进 provider 报 TS2353） |
 
@@ -187,6 +199,73 @@ Sandpack 在浏览器 iframe 里没有 Node，那套确实跑不了）。
 去哪跑：本机 VS Code 是首选；装不了 Node 的推荐 **StackBlitz** ——
 它的 WebContainers 把 Node 编译进了浏览器，所以连 Federation 那套要
 `npm test` 的服务端项目也能跑，这一点比 Sandpack 强。
+
+### 【重要】意图优先的导航：顶栏 = 模式，侧栏 = 那个模式的结构
+
+这一条是第四轮 IA 改动的核心，改之前的毛病是：
+**要先读懂这个站的内容模型，才能决定点哪儿。**
+
+上一版是「一个常驻侧栏装下全部」—— 完整课程树 + 平行支线 + 四张全量表 +
+速查 + 清空进度，同时露出。它解决了上上一版「不知道该点左边还是点上边」，
+但一个刚来的人仍然不知道从哪开始，一个只想复习 React 的人也得先穿过课程结构。
+
+现在导航拆成两个问题，分给两个控件：
+
+```
+顶栏  我现在想做哪一类事？          → 四个模式（lib/modes.ts）
+侧栏  在这件事里我在哪、下一步是什么？ → 四个侧栏（components/sidebars.tsx）
+```
+
+四个侧栏各自只放一个模式的结构，**互不混装**：
+
+| 模式 | 侧栏里有什么 | 侧栏里**不许**有什么 |
+| --- | --- | --- |
+| Learn | 课程路线图（当前那门展开、当前节高亮、每门 `完成/总数`、下一节、一个 Resume） | 四张全量表的入口 |
+| Review | 一个「开始一轮抽认卡」+ 八个方向 + 三档掌握状态 + 今天/要复习/已掌握 | 完整课程树 |
+| Practice | 先选「课内练习 / Coding」，**只摊开当前那一档**的筛选项 | 另一档的筛选项 |
+| Assess | 按科目分组的考场题 + 模拟考，每条带准备状态 | 课程、八股、整张 Coding 表 |
+
+几条实现上的硬规矩，别拆：
+
+1. **四个模式只渲染一份 DOM。** 窄屏靠 `grid-template-areas` 把 `.topbar-nav`
+   整块挪到第二行（`--topbar-h` 在 `styles/nav.css` 的 media query 里改成 92px，
+   侧栏 sticky 偏移、抽屉起点、遮罩 inset、锚点 scroll-padding 全都读这个变量，
+   所以改一处全跟着走）。渲染两份会在无障碍树里留下两个同名的导航地标。
+2. **`styles/nav.css` 必须排在 `shell.css` 之后**（见 `app/globals.css`）——
+   它重写了 `.topbar` 的布局，同优先级靠源码顺序决定胜负。
+3. **侧栏不许读 query string。** 它在根 layout 里，是客户端组件；在那儿调
+   `useSearchParams()`，252 个静态页面全部构建失败
+   （`useSearchParams() should be wrapped in a suspense boundary`）。
+   用 Suspense 包能过，但 hydration 时整块侧栏会被卸载重挂，
+   `<details>` 的展开状态和焦点都会丢。
+   **正确做法**：列表页（服务端组件，本来就知道自己筛了什么）渲染一个
+   `<NoteRecent>` 小岛把完整 href 写进进度，侧栏只读进度。
+   见 [components/recent.tsx](components/recent.tsx)。
+4. **「接着学」只能有一份来源。** `/path` 页顶那条和 Learn 侧栏那颗按钮
+   同屏出现，各算一份实测就打架（一个说地基第一节，一个说第一节没读完的）。
+   两处都用 `useLearnTarget()`（[components/continue.tsx](components/continue.tsx)）。
+5. **同一个控件不在一屏里出现两遍。** 侧栏接过筛选之后，
+   `/drill` `/practice` `/code` 页面里那几排 chip 收进了 `<details>`
+   （有筛选生效时服务端算出 `open`）。**不能直接删** —— 窄屏侧栏在抽屉后面，
+   删了就得先开抽屉才能筛。同理 `/drill` 右栏的「抽认卡 / 按方向」、
+   `/code` 右栏的「按方向」、`/practice` 右栏的「练习类型」都删了，
+   因为侧栏里已经有同一份东西。
+
+### 【重要】进度里新增的 `recent`：按模式各存一条
+
+`ProgressData.recent = { mode?, byMode }`，键是 `ModeId`，值是
+`{ href, title, titleEn?, sub?, subEn?, at }`。
+
+- **顶栏那颗「继续」**取 `mostRecent()`（跨模式按 `at` 挑最新）；
+- **侧栏的高亮和 Resume** 取 `recentOf(mode)`；
+- **老数据没有这个字段**，`load()` 兜底成 `{ byMode: {} }`，
+  而 `mostRecent()` 会回落到一直都在的 `last` —— 老用户第一次打开就能接上。
+  实测：造一份不含 `recent` 的老数据，课程 / 练习 / 八股 / coding / 考场
+  五类进度一条不丢，写盘之后也还在。
+- `noteRecent()` 是**幂等**的（同 mode 同 href 直接返回 `prev` 本身，
+  React 因此跳过重渲染），所以放进 effect 依赖数组也不会循环。
+- 和 `visit()` 一样受 `dataReady` 守卫 —— 没从 localStorage 读回来之前
+  一个字都不许写盘。
 
 ### 【重要】栅格居中：`margin-inline: auto` 必须配 `width: 100%`
 
@@ -313,6 +392,20 @@ conceptLedes / exerciseTitles / sourcePaths / recap / transfer，共 130 KB 出�
 **加颜色或改颜色之前先算一遍。** 扫描脚本要沿祖先链做 **alpha 合成**：
 `.cl.hl` 的底是 `rgba(255,255,255,0.055)`，直接当纯白算会把整行代码判成不达标（假阳性）。
 
+**还有一条：不要用 `opacity` 压暗文字。** 透明度会绕过所有「按颜色变量算对比度」
+的检查，所以这种不达标最难发现。这一轮把扫描脚本改成会把元素及其祖先的
+`opacity` 一起算进合成之后，立刻扫出两处一直不达标的地方：
+
+- `.crumb-sep { opacity: 0.75 }` —— 把 `--ink-3` 从 5.06:1 压到 **3.1:1**（面包屑里的 `/`）；
+- `/path` 的 `.road-body { opacity: .62 / .78 }` —— 把 12px 的 `.road-count` 压到 **3.27:1**。
+
+两处都改成「换一档颜色变量」而不是压透明度。要更淡就用 `--ink-3`，
+不够就说明那个字本来就不该那么小。
+
+顺带两类是 WCAG 1.4.3 明确豁免的，扫描脚本要跳过，别去「修」它们：
+**禁用的控件**（排序题那两个上下移按钮禁用时是 `opacity: .4`）和
+**纯装饰**（`aria-hidden`）。
+
 ### 【重要】主题跟随系统，`color-scheme` 要一起写
 
 `THEME_BOOTSTRAP` 曾经在没有 localStorage 值时**硬写 `"light"`**，
@@ -333,7 +426,10 @@ conceptLedes / exerciseTitles / sourcePaths / recap / transfer，共 130 KB 出�
 
 **回归脚本**（每次加类名之后跑一次）：把 `styles/*.css` 里所有 `.foo` 收成集合，
 再扫 `components/**` 和 `app/**` 里所有 `className="..."`，求差集。
-现在是 457 个类名，**0 个没有定义**。
+现在组件里用到 535 个类名，CSS 里定义 568 个，**0 个没有定义**。
+反方向（定义了但没人用）也扫一遍：这一轮据此删掉了 868 行死 CSS
+（老侧栏的 `.side-*`、老首页的 `.hero-*` / `.tier-*` / `.start-*`、
+老课尾的 `.foot-back*` / `.foot-next*`）。
 注意跳过模板字面量里的 `${}`（`tk-${tok.t}` 会被当成 `.tk-`）。
 
 ### 【重要】Debug Lab：判类型之前必须先给代码；选错必须能重来
@@ -389,8 +485,15 @@ Ordering「继续调整」、FillBlank / CodeCompletion「重置」都有）。
 
 - 服务端渲染正文：`lesson-body` / `mock-detail` / `practice-page` / `lesson-kit`
   （`lesson-kit` 里一个 hook 都没有，**别给它加 "use client"**）
-- 客户端小岛：`lesson-islands`（记录位置 / 打勾 / 目录 spy）、`mock-score`、
-  `practice-progress`、`exercise`、`code`、`data-flow`、`app-shell`、`search`
+- 客户端小岛：`lesson-islands`（记录位置 / 打勾 / 完成徽章 / 目录 spy）、`mock-score`、
+  `practice-progress`、`exercise`、`code`、`data-flow`、`search`，
+  以及导航那一组 —— `app-shell`、`sidebars`、`continue`、`recent`
+- **标签和 URL 拼接这类纯数据模块放 `lib/`**，服务端和客户端都能 import：
+  `lib/modes.ts`（四个模式）、`lib/exercise-labels.ts`（难度 / 题型）、
+  `lib/coding-labels.ts`（Coding 方向 / 难度，从 `content/coding.ts` 搬出来的，
+  那边改成 re-export）、`lib/list-query.ts`（`/practice` 与 `/code` 的筛选链接）、
+  `components/drill-query.tsx`（`/drill` 的筛选链接）。
+  抄第二份的后果是「侧栏点出来的链接和页面上的筛选按钮走向不同的 URL」
 - **加了新内容字段又要在侧栏/首页/搜索里用 → 先加到 nav 的 dump 里，
   再 `npm run gen:nav`**，不要为了省事把 registry 拉进客户端组件。
 
@@ -467,6 +570,17 @@ transfer[]             「看到这种信号 → 伸手拿这个解法」
 recap[]                要点回顾
 ```
 
+课头和课尾的形状由 `components/lesson-kit.tsx` 统一给（写内容不用管）：
+
+- **课头**：面包屑（课程 → 课 → 模块）、`LESSON 04 / 21`、估时、
+  「学完没有」徽章（客户端小岛）、一行上一节 / 下一节。
+  这六样必须不滚动就能看见 —— 那是另外七个 app 「点左边一步一步做就不会
+  错过任何信息」的全部秘密。
+- **课尾**：一块 `LessonNextPanel`，一份有序清单
+  （① 做这一节的练习 ② 接着看下一节 ③ 可选：这一节的八股 / 对应的 Coding 题），
+  **整块里只有一个实心按钮**（第 ②）。打勾和「上一节」在它的页脚，权重明显更低。
+  编号用 CSS counter，所以没有练习的课第 ② 步会自动变成 ①。
+
 写新课时，`concepts` 里建议保留这个节奏：
 **这一问在要求什么 → 真正考什么 → 先想再写 → 分步实现 → 完整答案 →
 为什么成立 → 对应的测试 / 怎么验证**。
@@ -488,8 +602,11 @@ recap[]                要点回顾
 ```bash
 npm run typecheck
 npm run lint
-npm run build          # 应预渲染 251 个页面
-                       # 课程页 / /code/[id] / /drill/[id] 首屏 JS 应在 120 kB 左右
+npm run build          # 应预渲染 252 个页面
+                       # 首屏 JS 的基准（2026-08 实测）：
+                       #   /              147 kB     课程页        142 kB
+                       #   /code/[id]     121 kB     /drill/[id]   115 kB
+                       #   /drill         148 kB     /practice     173 kB
                        # —— 若 /code/[id] 涨到 300 kB+，说明 Sandpack 泄漏进首屏了
 ```
 
