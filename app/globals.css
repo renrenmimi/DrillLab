@@ -4,6 +4,9 @@
 /* nav.css 必须排在 shell.css 之后 —— 它重写了 .topbar 的布局，
    也在 media query 里改了 --topbar-h。同优先级下靠源码顺序决定胜负。 */
 @import "../styles/nav.css";
+/* plans.css 排在 nav.css 之后 —— 它重写了 .topbar-nav 里的一部分间距，
+   而计划徽标是那一行的第一个元素。 */
+@import "../styles/plans.css";
 @import "../styles/lesson.css";
 @import "../styles/code.css";
 @import "../styles/exercise.css";

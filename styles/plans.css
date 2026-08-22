@@ -1,0 +1,1785 @@
+/* ============================================================
+   引导计划
+   ------------------------------------------------------------
+   这一层的主角是**路线图**：竖着一条线，每一档一个编号站点。
+   它是这个站的签名视觉，所以刻意做得比别处更「有形」—— 但仍然只用
+   留白、细线、极浅的底色和一个强调色，不做渐变、不做玻璃、不做发光。
+
+   【状态一律给两个以上通道】
+   做完 / 你在这 / 还没到，三种状态各有自己的**形状、文字和颜色**。
+   只靠颜色区分对色觉障碍不成立，而这一页全是状态。
+
+   【不要用 opacity 压暗文字】
+   透明度会绕过所有按颜色变量算对比度的检查（上一轮实测栽过两次：
+   .crumb-sep 3.1:1、.road-count 3.27:1）。要更淡就换一档颜色变量。
+
+   这个文件排在 nav.css 之后 —— 它重写了 .topbar-nav 里的一部分间距。
+   ============================================================ */
+
+/* ============================================================
+   公用零件
+   ============================================================ */
+
+/* ---------- 档位徽章 ----------
+   刻意只有两种色调，不给七档各一个颜色（那就是彩虹）：
+     默认      中性
+     模拟考档  警示色 —— 这个站一直用它标「计时、没有提示」那一档
+   「前置」再多一个通道：虚线边框，读作「在主线开始之前」。 */
+
+.ph-badge {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border: 1px solid var(--rule);
+  border-radius: 100px;
+  background: var(--sunken);
+  color: var(--ink-2);
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.ph-badge[data-mode="assess"] {
+  border-color: var(--warn-line);
+  background: var(--warn-wash);
+  color: var(--warn);
+}
+
+/* ---------- 一格的状态点 ----------
+   形状本身带信息：空心圈 = 没做，对勾 = 做完，实心 = 通过 / 会了，
+   小方块 = 正在计时。文字在旁边的 .rm-row-state 上，aria-label 在元素上。 */
+
+.st-dot {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--paper);
+  color: transparent;
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.st-dot[data-state="done"],
+.st-dot[data-state="reviewed"] {
+  border-color: var(--ok-line);
+  background: var(--ok-wash);
+  color: var(--ok);
+}
+
+.st-dot[data-state="confident"],
+.st-dot[data-state="passed"] {
+  border-color: var(--ok);
+  background: var(--ok);
+  color: #fff;
+}
+
+[data-theme="dark"] .st-dot[data-state="confident"],
+[data-theme="dark"] .st-dot[data-state="passed"] {
+  color: #0f1512;
+}
+
+.st-dot[data-state="attempted"] {
+  border-color: var(--warn-line);
+  background: var(--warn-wash);
+  color: var(--warn);
+}
+
+.st-dot[data-state="live"] {
+  border-color: var(--danger);
+  background: var(--danger-wash);
+  color: var(--danger);
+  border-radius: var(--r-sm);
+}
+
+/* ---------- 进度条 ----------
+   数字在前、条在后。诚实数字永远是主角，条只是让「走了多少」一眼可读。 */
+
+.pl-meter {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.pl-meter-num {
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.pl-meter-rail {
+  flex: 1 1 auto;
+  min-width: 40px;
+  height: 5px;
+  border-radius: 100px;
+  background: var(--sunken);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+
+.pl-meter-rail > i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.pl-meter-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   顶栏那枚徽标
+   ------------------------------------------------------------
+   在四个模式**左边**，一条竖线隔开 —— 它和那四项不是同一类东西。
+   flex: 0 0 auto，所以窄屏下四个模式仍然是等宽四格。
+   ============================================================ */
+
+.topbar-plan {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r);
+  background: var(--accent-wash);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.topbar-plan:hover {
+  border-color: var(--accent);
+  text-decoration: none;
+}
+
+/* 还没选计划：退成一个普通入口，不抢焦点 */
+.topbar-plan[data-empty] {
+  border-color: var(--rule);
+  background: transparent;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.topbar-plan[data-empty]:hover {
+  background: var(--sunken);
+  color: var(--ink);
+}
+
+.topbar-plan-name {
+  max-width: 13ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-plan-n {
+  flex: 0 0 auto;
+  padding-left: 6px;
+  border-left: 1px solid var(--accent-line);
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--accent-ink);
+}
+
+.topbar-navsep {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background: var(--rule);
+}
+
+/* 跟着计划走时，「继续」那颗按钮左边加一道细线，读作「它来自计划」 */
+.cont-btn[data-plan] {
+  box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.55);
+}
+
+[data-theme="dark"] .cont-btn[data-plan] {
+  box-shadow: inset 3px 0 0 rgba(15, 21, 18, 0.4);
+}
+
+/* ============================================================
+   侧栏顶部那块面板
+   ============================================================ */
+
+.pl-panel {
+  margin: 0 16px 18px;
+  padding: 11px 13px 12px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-lg);
+  background: var(--accent-wash);
+}
+
+.pl-panel-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.pl-panel-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.pl-panel-link {
+  font-size: 11.5px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.pl-panel-name {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.35;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.pl-panel-name:hover {
+  text-decoration: none;
+  color: var(--accent-ink);
+}
+
+.pl-panel-stage {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 9px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.pl-panel-stage-n {
+  flex: 0 0 auto;
+  font-weight: 650;
+  color: var(--ink-3);
+}
+
+.pl-panel-next {
+  display: block;
+  margin-top: 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--accent);
+  color: #fff;
+}
+
+.pl-panel-next:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .pl-panel-next,
+[data-theme="dark"] .pl-panel-next:hover {
+  color: #0f1512;
+}
+
+.pl-panel-next-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pl-panel-next-label::after {
+  content: " →";
+}
+
+.pl-panel-next-title {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.pl-panel-done {
+  margin: 9px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ok);
+  font-weight: 600;
+}
+
+/* ============================================================
+   计划卡片
+   ============================================================ */
+
+.plc-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.plc {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.plc:hover {
+  border-color: var(--accent-line);
+}
+
+.plc[data-active] {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.plc-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+  padding: 13px 15px 12px;
+  color: var(--ink);
+}
+
+.plc-main:hover {
+  text-decoration: none;
+  background: var(--raised);
+}
+
+.plc-top {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.plc-mark {
+  flex: 0 0 auto;
+  color: var(--ink-3);
+  transform: translateY(2px);
+}
+
+.plc-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 15.5px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.plc-flag {
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border-radius: 100px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+[data-theme="dark"] .plc-flag {
+  color: #0f1512;
+}
+
+.plc-outcome {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.plc-for {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+.plc-phases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.plc-scope {
+  margin-top: auto;
+  padding-top: 6px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.plc-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 15px 11px;
+  border-top: 1px solid var(--rule);
+  background: var(--sunken);
+}
+
+.plc-foot .pl-meter {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.plc-fresh {
+  flex: 1 1 auto;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.plc-cta {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--accent);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.plc-cta::after {
+  content: " →";
+}
+
+.plc-cta:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .plc-cta {
+  color: #0f1512;
+}
+
+.plc-cta[data-done] {
+  border-color: var(--ok-line);
+  background: var(--ok-wash);
+  color: var(--ok);
+}
+
+.plc-cta[data-done]::after {
+  content: " ✓";
+}
+
+/* ============================================================
+   首页第一屏那张卡
+   ============================================================ */
+
+.apc {
+  padding: 26px 0 30px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.apc-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.apc-title {
+  font-size: clamp(26px, 3.4vw, 36px);
+  line-height: 1.2;
+  margin: 10px 0 14px;
+  max-width: 30ch;
+}
+
+.apc .pl-meter {
+  max-width: 46ch;
+  margin-bottom: 16px;
+}
+
+.apc-stage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.apc-stage-name {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.apc-next-label {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.apc-next-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 4px 0 20px;
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--ink);
+  max-width: 40ch;
+}
+
+.apc-next-min {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.apc-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.apc-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 24px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-lg);
+  background: var(--accent);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.apc-cta::after {
+  content: " →";
+}
+
+.apc-cta:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .apc-cta,
+[data-theme="dark"] .apc-cta:hover {
+  color: #0f1512;
+}
+
+.apc-alt {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   /plans
+   ============================================================ */
+
+.pl-list {
+  max-width: 84ch;
+}
+
+.pl-list-active {
+  margin-bottom: 8px;
+}
+
+.pl-list-active .apc {
+  padding-top: 0;
+}
+
+.pl-list-foot {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure);
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   计划详情页
+   ============================================================ */
+
+.pl-page {
+  max-width: 82ch;
+}
+
+.pl-head {
+  padding-bottom: 26px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pl-head-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.pl-head-active {
+  padding: 1px 8px;
+  border-radius: 100px;
+  background: var(--accent);
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+
+[data-theme="dark"] .pl-head-active {
+  color: #0f1512;
+}
+
+.pl-head-title {
+  font-size: clamp(27px, 3.6vw, 38px);
+  line-height: 1.18;
+  margin: 10px 0 12px;
+  max-width: 28ch;
+}
+
+.pl-head-outcome {
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  max-width: 56ch;
+  margin: 0 0 14px;
+}
+
+.pl-head-scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.pl-head-for {
+  color: var(--ink-2);
+}
+
+.pl-head .pl-meter {
+  max-width: 52ch;
+  margin-bottom: 20px;
+}
+
+.pl-head-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+
+.pl-head-cta {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 22px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-lg);
+  background: var(--accent);
+  color: #fff;
+  max-width: 42ch;
+}
+
+.pl-head-cta:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .pl-head-cta,
+[data-theme="dark"] .pl-head-cta:hover {
+  color: #0f1512;
+}
+
+.pl-head-cta-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pl-head-cta-label::after {
+  content: " →";
+}
+
+.pl-head-cta-item {
+  font-size: 15.5px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.pl-done-flag {
+  padding: 7px 12px;
+  border: 1px solid var(--ok-line);
+  border-radius: var(--r);
+  background: var(--ok-wash);
+  color: var(--ok);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pl-head-more {
+  margin: 16px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+.pl-confirm {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-top: 14px;
+  padding: 11px 14px;
+  border: 1px solid var(--warn-line);
+  border-radius: var(--r);
+  background: var(--warn-wash);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.pl-confirm > span {
+  flex: 1 1 260px;
+}
+
+.pl-foot {
+  margin-top: 44px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure);
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   路线图 —— 这个站的签名视觉
+   ============================================================ */
+
+.rm {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rm-stage {
+  position: relative;
+  margin: 0;
+  padding: 0 0 4px 52px;
+  /* 顶栏是 sticky 的，锚点跳过来别被压住 */
+  scroll-margin-top: calc(var(--topbar-h) + 20px);
+}
+
+/* 站点之间的连线。最后一档不画 —— 线悬空会读作「后面还有」 */
+.rm-stage:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 34px;
+  bottom: -6px;
+  width: 2px;
+  background: var(--rule);
+}
+
+/* 做完的那几档，线也变实 —— 「走过的路」和「还没走的」两种线 */
+.rm-stage[data-state="done"]:not(:last-child)::before {
+  background: var(--ok-line);
+}
+
+/* ---------- 编号站点 ---------- */
+
+.rm-marker {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--paper);
+  z-index: 1;
+}
+
+.rm-marker-n {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+
+.rm-stage[data-state="done"] .rm-marker {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+
+.rm-stage[data-state="done"] .rm-marker-n {
+  /* 做完的站点里编号换成对勾 —— 形状本身就说明状态 */
+  color: transparent;
+  position: relative;
+}
+
+.rm-stage[data-state="done"] .rm-marker-n::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+[data-theme="dark"] .rm-stage[data-state="done"] .rm-marker-n::after {
+  color: #0f1512;
+}
+
+/* 你在这：实心强调色 + 一圈光环。整页最显眼的一个点 */
+.rm-stage[data-state="current"] .rm-marker {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-wash);
+}
+
+.rm-stage[data-state="current"] .rm-marker-n {
+  color: #fff;
+}
+
+[data-theme="dark"] .rm-stage[data-state="current"] .rm-marker-n {
+  color: #0f1512;
+}
+
+/* ---------- 档头 ---------- */
+
+.rm-det {
+  padding: 0 0 14px;
+}
+
+.rm-stage:not(:last-child) .rm-det {
+  border-bottom: 1px solid var(--rule);
+}
+
+.rm-head {
+  position: relative;
+  cursor: pointer;
+  list-style: none;
+  padding: 4px 22px 0 0;
+  border-radius: var(--r);
+}
+
+.rm-head::-webkit-details-marker {
+  display: none;
+}
+
+.rm-head:hover .rm-title {
+  color: var(--accent-ink);
+}
+
+.rm-head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.rm-head-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px 9px;
+}
+
+.rm-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.35;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.rm-stage[data-state="current"] .rm-title {
+  font-size: 19px;
+}
+
+.rm-you {
+  flex: 0 0 auto;
+  padding: 1px 8px;
+  border-radius: 100px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+[data-theme="dark"] .rm-you {
+  color: #0f1512;
+}
+
+.rm-ok {
+  flex: 0 0 auto;
+  padding: 1px 8px;
+  border: 1px solid var(--ok-line);
+  border-radius: 100px;
+  background: var(--ok-wash);
+  color: var(--ok);
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.rm-count {
+  flex: 0 0 auto;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--ink-3);
+}
+
+/* 折叠箭头。**绝对定位到档头右上角** —— 跟在内容后面的话它会落到
+   .rm-why 下面自己占一行（实测就是那样，看着像多了一个孤零零的 ›）。 */
+.rm-head::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  top: 11px;
+  width: 5px;
+  height: 5px;
+  border-right: 1.6px solid var(--ink-3);
+  border-bottom: 1.6px solid var(--ink-3);
+  transform: rotate(-45deg);
+  transition: transform 0.14s ease;
+}
+
+.rm-det[open] > .rm-head::after {
+  transform: rotate(45deg);
+}
+
+.rm-why {
+  display: block;
+  margin-top: 5px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  max-width: var(--measure);
+}
+
+/* 还没到的那几档：标题压一档颜色（不是压透明度），读作「以后再说」 */
+.rm-stage[data-state="future"] .rm-title,
+.rm-stage[data-state="done"] .rm-title {
+  color: var(--ink-2);
+}
+
+.rm-stage[data-state="future"] .rm-why,
+.rm-stage[data-state="done"] .rm-why {
+  color: var(--ink-3);
+}
+
+.rm-body {
+  padding-top: 12px;
+}
+
+.rm-note {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  max-width: var(--measure);
+}
+
+.rm-note-quiet {
+  margin: 10px 0 0;
+  color: var(--ink-3);
+}
+
+.rm-tracks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 7px;
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.rm-tracks span {
+  display: inline-flex;
+  gap: 7px;
+}
+
+/* ---------- 一行一格 ---------- */
+
+.rm-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rm-rows-solo {
+  margin-bottom: 12px;
+}
+
+.rm-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 7px 10px 7px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+}
+
+.rm-row + .rm-row {
+  border-top-color: var(--rule);
+  border-radius: 0;
+}
+
+.rm-row:hover {
+  background: var(--sunken);
+}
+
+/* 下一格：实心边框 + 左侧强调条 + 右边一个「下一步」标签。三个通道 */
+.rm-row[data-next] {
+  border-color: var(--accent-line);
+  background: var(--accent-wash);
+  box-shadow: inset 3px 0 0 var(--accent);
+  border-radius: var(--r);
+}
+
+.rm-row-n {
+  flex: 0 0 auto;
+  min-width: 2em;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--ink-3);
+}
+
+.rm-row-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--ink);
+}
+
+.rm-row-link:hover {
+  text-decoration: none;
+}
+
+.rm-row-link:hover .rm-row-title {
+  color: var(--accent-ink);
+}
+
+.rm-row-title {
+  font-size: 14.5px;
+  font-weight: 550;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.rm-row[data-next] .rm-row-title {
+  font-weight: 650;
+}
+
+.rm-row[data-state="done"] .rm-row-title,
+.rm-row[data-state="passed"] .rm-row-title,
+.rm-row[data-state="confident"] .rm-row-title,
+.rm-row[data-state="reviewed"] .rm-row-title {
+  color: var(--ink-2);
+}
+
+.rm-row-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 3px 8px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.rm-row-mode {
+  padding: 0 6px;
+  border: 1px solid var(--rule);
+  border-radius: 100px;
+  background: var(--sunken);
+  color: var(--ink-2);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.rm-row-mode[data-mode="assess"] {
+  border-color: var(--warn-line);
+  background: var(--warn-wash);
+  color: var(--warn);
+}
+
+.rm-row-min {
+  color: var(--ink-3);
+}
+
+.rm-row-state {
+  color: var(--ink-3);
+}
+
+.rm-row[data-state="passed"] .rm-row-state,
+.rm-row[data-state="confident"] .rm-row-state {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.rm-row[data-state="attempted"] .rm-row-state {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.rm-row[data-state="live"] .rm-row-state {
+  color: var(--danger);
+  font-weight: 650;
+}
+
+.rm-row-cta {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.rm-row-cta::after {
+  content: " →";
+}
+
+/* ---------- 格子 ---------- */
+
+.rm-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.rm-chips li {
+  margin: 0;
+}
+
+/* 没做：虚线边框 + 编号。做完：实线 + 对勾。两个通道之外颜色才是第三个 */
+.rm-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  color: var(--ink-3);
+}
+
+.rm-chip:hover {
+  border-color: var(--accent);
+  border-style: solid;
+  text-decoration: none;
+}
+
+.rm-chip-n {
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.rm-chip[data-state="done"],
+.rm-chip[data-state="reviewed"] {
+  border-style: solid;
+  border-color: var(--ok-line);
+  background: var(--ok-wash);
+  color: var(--ok);
+}
+
+.rm-chip[data-state="confident"],
+.rm-chip[data-state="passed"] {
+  border-style: solid;
+  border-color: var(--ok);
+  background: var(--ok);
+  color: #fff;
+}
+
+[data-theme="dark"] .rm-chip[data-state="confident"],
+[data-theme="dark"] .rm-chip[data-state="passed"] {
+  color: #0f1512;
+}
+
+.rm-chip[data-state="live"] {
+  border-style: solid;
+  border-color: var(--danger);
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.rm-chip[data-next] {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  box-shadow: 0 0 0 2px var(--accent-wash);
+}
+
+/* ============================================================
+   页内的计划位置条
+   ============================================================ */
+
+.pl-here {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0 0 24px;
+  padding: 9px 13px;
+  border: 1px solid var(--accent-line);
+  border-left-width: 3px;
+  border-radius: var(--r);
+  background: var(--accent-wash);
+  font-size: 12.5px;
+  color: var(--ink-2);
+  max-width: var(--measure-wide);
+}
+
+.pl-here-lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  font-weight: 650;
+  color: var(--accent-ink);
+}
+
+.pl-here-lead a {
+  color: var(--accent-ink);
+}
+
+.pl-here-pos {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 7px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pl-here-sep {
+  color: var(--ink-3);
+}
+
+.pl-here-stage {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pl-here-state[data-state="passed"],
+.pl-here-state[data-state="confident"],
+.pl-here-state[data-state="done"],
+.pl-here-state[data-state="reviewed"] {
+  color: var(--ok);
+  font-weight: 650;
+}
+
+.pl-here-state[data-state="attempted"] {
+  color: var(--warn);
+  font-weight: 650;
+}
+
+.pl-here-state[data-state="live"] {
+  color: var(--danger);
+  font-weight: 650;
+}
+
+.pl-here-next {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--accent-ink);
+}
+
+.pl-here-next::after {
+  content: "→";
+  order: 3;
+}
+
+.pl-here-next-title {
+  font-weight: 550;
+  color: var(--ink-2);
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 列表页那一条 ---------- */
+
+.pl-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0 0 22px;
+  padding: 10px 14px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-lg);
+  background: var(--accent-wash);
+  max-width: var(--measure-wide);
+}
+
+.pl-strip-lead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  flex: 1 1 260px;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.pl-strip-lead > a {
+  font-weight: 650;
+  color: var(--accent-ink);
+}
+
+.pl-strip-sep {
+  color: var(--ink-3);
+}
+
+.pl-strip-stage {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pl-strip-count {
+  font-weight: 650;
+  color: var(--ink-3);
+}
+
+.pl-strip-next {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 13px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--accent);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 650;
+  max-width: 100%;
+}
+
+.pl-strip-next:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .pl-strip-next,
+[data-theme="dark"] .pl-strip-next:hover {
+  color: #0f1512;
+}
+
+.pl-strip-next-title {
+  font-weight: 550;
+  max-width: 24ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pl-strip-next::after {
+  content: "→";
+}
+
+/* ---------- 页尾的「下一步」 ---------- */
+
+.pl-nextstep {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 30px 0 0;
+  padding: 13px 16px;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-lg);
+  background: var(--accent-wash);
+  max-width: var(--measure-wide);
+}
+
+.pl-nextstep[data-done] {
+  border-color: var(--ok-line);
+  background: var(--ok-wash);
+}
+
+.pl-nextstep-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 9px;
+  flex: 1 1 220px;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--accent-ink);
+}
+
+.pl-nextstep[data-done] .pl-nextstep-label {
+  color: var(--ok);
+}
+
+.pl-nextstep-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 550;
+  color: var(--ink-2);
+}
+
+.pl-nextstep-cta {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.pl-nextstep-cta::after {
+  content: " →";
+}
+
+.pl-nextstep-cta:hover {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .pl-nextstep-cta,
+[data-theme="dark"] .pl-nextstep-cta:hover {
+  color: #0f1512;
+}
+
+/* ============================================================
+   首页新增的几块
+   ============================================================ */
+
+.dash-goal {
+  padding: 26px 0 30px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.dash-goal-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.dash-goal-title {
+  font-size: clamp(26px, 3.4vw, 36px);
+  line-height: 1.2;
+  margin: 10px 0 12px;
+  max-width: 28ch;
+}
+
+/* 「自由选择练习方式」那一节的引子。和 .dash-goal-lede 同一档，
+   但它在 h2 下面，所以字号小一号。 */
+.dash-sec-lede {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  max-width: 60ch;
+  margin: -6px 0 16px;
+}
+
+.dash-goal-lede {
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  max-width: 60ch;
+  margin: 0 0 20px;
+}
+
+.dash-resume {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: 13.5px;
+}
+
+.dash-resume-label {
+  color: var(--ink-3);
+}
+
+.dash-resume-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dash-resume-mode {
+  flex: 0 0 auto;
+  padding: 0 7px;
+  border: 1px solid var(--rule);
+  border-radius: 100px;
+  background: var(--sunken);
+  color: var(--ink-2);
+  font-size: 10.5px;
+  font-weight: 650;
+  line-height: 1.7;
+}
+
+.dash-resume-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.dash-optout {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin: 18px 0 0;
+  padding: 10px 13px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  background: var(--sunken);
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+/* 技术点那一节比上面两节轻一档 —— 它是捷径，不是主路 */
+.dash-sec-quiet .dash-sec-title {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* ---------- 课尾那一步 ---------- */
+
+/* 【为什么会有两个第 2 步，而只显示一个】
+   跟着计划的人，这一步要换说法（「接着走计划」），而算「计划的下一格」
+   得读 content/nav（120 KB）—— 课程页原本不需要它，所以那一份是懒加载的
+   （components/lesson-plan-live.tsx）。等它到位之前，默认那一份必须已经在
+   屏幕上，否则会有一瞬间连「下一节」都没有。
+   所以两份都渲染，计划那份真的出现时用这一条把默认那份收起来。
+   display: none 的元素不参与 counter-increment，所以编号不会因此跳号。 */
+.lnext-step[data-plan-live] + .lnext-step[data-fallback] {
+  display: none;
+}
+
+.lnext-step-plan {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--ink-2);
+}
+
+.lnext-step-aside {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* ============================================================
+   窄屏
+   ============================================================ */
+
+@media (max-width: 1040px) {
+  /* 顶栏挤了：计划徽标只留标记和计数 */
+  .topbar-plan-name {
+    display: none;
+  }
+
+  .topbar-plan-n {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  /* 窄屏顶栏第二行：计划徽标和四个模式一排。徽标不参与均分 */
+  .topbar-plan {
+    height: 30px;
+    padding: 0 8px;
+  }
+
+  .topbar-navsep {
+    height: 16px;
+    margin: 0 2px;
+  }
+
+  .plc-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .apc-title,
+  .dash-goal-title,
+  .pl-head-title {
+    font-size: clamp(23px, 6vw, 28px);
+  }
+}
+
+@media (max-width: 700px) {
+  /* 路线图在窄屏收成一列：站点缩小，缩进跟着收，连线仍然对齐站点中心 */
+  .rm-stage {
+    padding-left: 40px;
+  }
+
+  .rm-stage:not(:last-child)::before {
+    left: 12px;
+  }
+
+  .rm-marker {
+    width: 26px;
+    height: 26px;
+  }
+
+  .rm-marker-n {
+    font-size: 10.5px;
+  }
+
+  .rm-stage[data-state="done"] .rm-marker-n::after {
+    font-size: 12px;
+  }
+
+  .rm-title,
+  .rm-stage[data-state="current"] .rm-title {
+    font-size: 16px;
+  }
+
+  /* 一行一格在窄屏改成两行：标题一行，元信息一行 */
+  .rm-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 9px 8px;
+  }
+
+  .rm-row-cta {
+    width: 100%;
+    padding-left: 2.7em;
+  }
+
+  .pl-here,
+  .pl-strip,
+  .pl-nextstep {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pl-here-next,
+  .pl-strip-next,
+  .pl-nextstep-cta {
+    justify-content: center;
+  }
+
+  .pl-here-next-title,
+  .pl-strip-next-title {
+    max-width: none;
+    white-space: normal;
+    overflow: visible;
+  }
+
+  .apc-actions {
+    gap: 10px 14px;
+  }
+
+  .apc-cta,
+  .pl-head-cta {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 420px) {
+  /* 390px：格子小一档，一行放得下 9 个 */
+  .rm-chip {
+    width: 25px;
+    height: 25px;
+  }
+
+  .plc-main {
+    padding: 12px 13px 11px;
+  }
+
+  .plc-foot {
+    padding: 9px 13px 10px;
+    flex-wrap: wrap;
+  }
+}
