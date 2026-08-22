@@ -1009,7 +1009,22 @@ for more information.`,
   渲染①    [A(key=101), B(key=102), C(key=103)]
   渲染②    [A(key=101), C(key=103)]
            → React 认为「102 消失了」→ 精确删掉 B，A 和 C 原样不动 ✓`,
-              { filename: "两种 key 的差别", filenameEn: "The difference between the two keys" },
+              {
+                filename: "两种 key 的差别",
+                filenameEn: "The difference between the two keys",
+                codeEn: `key = index:
+  render ①  [A(key=0), B(key=1), C(key=2)]
+  delete B
+  render ②  [A(key=0), C(key=1)]
+                        ↑ last round this key belonged to B
+           → React decides: the key=1 component is still here, contents changed
+           → so it reuses B's instance, internal state included, to show C
+
+key = note.id:
+  render ①  [A(key=101), B(key=102), C(key=103)]
+  render ②  [A(key=101), C(key=103)]
+           → React decides: 102 is gone → removes exactly B, A and C stay ✓`,
+              },
             ),
           ],
         },

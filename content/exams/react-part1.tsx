@@ -353,7 +353,17 @@ export default NoteItem;`,
     │                            向下：noteToEdit（决定回填与按钮文字）
     └── NoteTable                纯展示：把 notes 摊成表格
         └── NoteItem × N         纯展示 + 上报 onEdit / onDelete`,
-              { filename: "组件树", filenameEn: "Component tree" },
+              {
+                filename: "组件树",
+                filenameEn: "Component tree",
+                codeEn: `App                              renders only NoteManager
+└── NoteManager                  ★ owns two states: notes[] and noteToEdit
+    ├── NoteForm                 owns two local states: title / content
+    │                            up:   onSubmit(note)
+    │                            down: noteToEdit (prefill + button text)
+    └── NoteTable                display only: lays notes out as a table
+        └── NoteItem × N         display only + reports onEdit / onDelete`,
+              },
             ),
           ],
         },
@@ -946,6 +956,13 @@ const handleDelete = (id: number) => {
 
 <button onClick={() => onDelete(note.id)}>Delete</button>
 {/*             ↑ 收到一个函数。点击时才执行。这才是对的。*/}`,
+              {
+                codeEn: `<button onClick={onDelete(note.id)}>Delete</button>
+{/*             ↑ runs during render. React receives undefined.*/}
+
+<button onClick={() => onDelete(note.id)}>Delete</button>
+{/*             ↑ receives a function. It runs on click. This one is right.*/}`,
+              },
             ),
           ],
         },
