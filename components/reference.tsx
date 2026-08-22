@@ -278,65 +278,175 @@ export function Reference() {
               <tbody>
                 <tr>
                   <td><code>name</code></td>
-                  <td>包名</td>
+                  <td>
+                    <T zh="包名" en="Package name" />
+                  </td>
                   <td>react-notes-app / order-subgraph</td>
                 </tr>
                 <tr>
                   <td><code>private</code></td>
-                  <td>禁止发布到 npm</td>
-                  <td>react-notes-app 有；subgraph 没有</td>
+                  <td>
+                    <T zh="禁止发布到 npm" en="Blocks publishing to npm" />
+                  </td>
+                  <td>
+                    <T
+                      zh="react-notes-app 有；subgraph 没有"
+                      en="react-notes-app has it; subgraph does not"
+                    />
+                  </td>
                 </tr>
                 <tr>
                   <td><code>version</code></td>
-                  <td>自身版本号</td>
-                  <td>都是 1.0.0</td>
+                  <td>
+                    <T zh="自身版本号" en="This package's own version number" />
+                  </td>
+                  <td>
+                    <T zh="都是 1.0.0" en="1.0.0 in both" />
+                  </td>
                 </tr>
                 <tr>
                   <td>
                     <code>type</code>
                   </td>
                   <td>
-                    <strong>module</strong> = 用 ESM（import/export）；
-                    不写 = CommonJS（require）
+                    <T
+                      zh={
+                        <>
+                          <strong>module</strong> = 用 ESM（import/export）；
+                          不写 = CommonJS（require）
+                        </>
+                      }
+                      en={
+                        <>
+                          <strong>module</strong> = ESM (import/export). Leave
+                          it out = CommonJS (require)
+                        </>
+                      }
+                    />
                   </td>
-                  <td>两个都是 module</td>
+                  <td>
+                    <T zh="两个都是 module" en="module in both" />
+                  </td>
                 </tr>
                 <tr>
                   <td><code>main</code></td>
-                  <td>包的入口文件</td>
-                  <td>subgraph 是 src/index.js</td>
+                  <td>
+                    <T zh="包的入口文件" en="The package's entry file" />
+                  </td>
+                  <td>
+                    <T
+                      zh="subgraph 是 src/index.js"
+                      en="src/index.js in the subgraph"
+                    />
+                  </td>
                 </tr>
                 <tr>
                   <td><code>scripts</code></td>
-                  <td><code>npm run &lt;名字&gt;</code> 能跑的命令</td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          <code>npm run &lt;名字&gt;</code> 能跑的命令
+                        </>
+                      }
+                      en={
+                        <>
+                          Commands that <code>npm run &lt;name&gt;</code> can
+                          run
+                        </>
+                      }
+                    />
+                  </td>
                   <td>react: dev/build/q2；subgraph: start/test/test:watch</td>
                 </tr>
                 <tr>
                   <td><code>dependencies</code></td>
-                  <td>产品运行时需要</td>
+                  <td>
+                    <T
+                      zh="产品运行时需要"
+                      en="Needed while the product runs"
+                    />
+                  </td>
                   <td>react+react-dom / apollo+graphql+dataloader</td>
                 </tr>
                 <tr>
                   <td><code>devDependencies</code></td>
-                  <td>只在开发/构建/测试时需要</td>
+                  <td>
+                    <T
+                      zh="只在开发/构建/测试时需要"
+                      en="Needed only for development, build and tests"
+                    />
+                  </td>
                   <td>vite/vitest/typescript / jest</td>
                 </tr>
                 <tr>
-                  <td><code>jest</code> 等工具名</td>
                   <td>
-                    <strong>内嵌配置</strong> —— 找不到 jest.config.js 时看这里
+                    <T
+                      zh={
+                        <>
+                          <code>jest</code> 等工具名
+                        </>
+                      }
+                      en={
+                        <>
+                          <code>jest</code> and other tool names
+                        </>
+                      }
+                    />
                   </td>
-                  <td>subgraph 的 jest 配置就在这里</td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          <strong>内嵌配置</strong> —— 找不到 jest.config.js
+                          时看这里
+                        </>
+                      }
+                      en={
+                        <>
+                          <strong>Inline config</strong> — look here when there
+                          is no jest.config.js
+                        </>
+                      }
+                    />
+                  </td>
+                  <td>
+                    <T
+                      zh="subgraph 的 jest 配置就在这里"
+                      en="The subgraph keeps its jest config here"
+                    />
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div className="callout" data-tone="transfer">
-            <strong className="callout-title">依赖清单会泄题</strong>
+            <strong className="callout-title">
+              <T
+                zh="依赖清单会泄题"
+                en="The dependency list gives the question away"
+              />
+            </strong>
             <p>
-              subgraph 的 dependencies 里有 <code>dataloader</code>，
-              而 TODO 里正好要求「用 DataLoader 防 N+1」。
-              <strong>拿到新项目先读 dependencies，特殊的包就是考点。</strong>
+              <T
+                zh={
+                  <>
+                    subgraph 的 dependencies 里有 <code>dataloader</code>，
+                    而 TODO 里正好要求「用 DataLoader 防 N+1」。
+                    <strong>拿到新项目先读 dependencies，特殊的包就是考点。</strong>
+                  </>
+                }
+                en={
+                  <>
+                    The subgraph lists <code>dataloader</code> in dependencies,
+                    and one TODO asks you to stop N+1 queries with DataLoader.{" "}
+                    <strong>
+                      On a new project, read dependencies first. An unusual
+                      package is the thing being tested.
+                    </strong>
+                  </>
+                }
+              />
             </p>
           </div>
         </section>
