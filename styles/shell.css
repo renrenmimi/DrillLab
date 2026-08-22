@@ -1,82 +1,91 @@
 /* ============================================================
-   外壳：顶栏 / 左侧侧栏 / 主内容 / 右侧目录栏
+   外壳（UI v2）：左侧导航列 / 顶栏工具条 / 主内容 / 可选右侧目录
    ------------------------------------------------------------
-   不做厚重三栏后台：两侧都是「无框」的，只用一条细线和留白分区。
+   栅格是两列两行，**侧栏跨满两行** —— 品牌在侧栏顶部，不在顶栏。
 
-   【顶栏和侧栏里面长什么样在 styles/nav.css】
-   这里只留外框：栅格、sticky、抽屉、滚动。
-   侧栏的内容随模式变（学课程 / 背知识点 / 做练习 / 模拟考试），
-   四套内容的样式和顶栏那四项一起放在 nav.css，不在这里。
+        ┌──────────┬──────────────────────────┐
+        │          │ topbar  位置 + 四个工具    │
+        │ sidebar  ├──────────────────────────┤
+        │ 导航     │ main    内容（+ 目录）     │
+        └──────────┴──────────────────────────┘
+
+   顶栏里**一个导航链接都没有**（见 components/app-shell.tsx 顶部那段）。
+   侧栏里面长什么样在 styles/nav.css，这里只管外框：栅格、sticky、抽屉、滚动。
    ============================================================ */
 
 .shell {
   display: grid;
   grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  grid-template-rows: var(--topbar-h) minmax(0, 1fr);
   min-height: 100vh;
 }
 
 
-/* ---------- 顶栏 ---------- */
+/* ---------- 顶栏：只有位置和工具 ---------- */
 
 .topbar {
+  grid-column: 2;
+  grid-row: 1;
   position: sticky;
   top: 0;
   z-index: 40;
   height: var(--topbar-h);
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 0 22px;
-  background: var(--paper);
+  gap: var(--sp-2);
+  padding: 0 var(--sp-3);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
   border-bottom: 1px solid var(--rule);
 }
 
+/* 品牌在桌面上属于侧栏。DOM 只有一份，这里靠 CSS 收起来。 */
 .topbar-brand {
-  display: flex;
+  display: none;
   align-items: center;
-  gap: 9px;
+  gap: var(--sp-1);
   color: var(--ink);
-  font-weight: 650;
-  font-size: 15.5px;
-  letter-spacing: -0.01em;
+}
+
+.topbar-brand-name {
+  font-size: 16px;
+  letter-spacing: -0.02em;
 }
 
 .topbar-brand:hover {
   text-decoration: none;
 }
 
-.topbar-nav {
+/* 「我在哪」。只给区段名，页面标题在下面那行 h1 上。 */
+.topbar-loc {
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 2px;
-  margin-left: 10px;
+  gap: var(--sp-1);
+  overflow: hidden;
 }
 
-.topbar-nav a {
-  padding: 5px 10px;
-  border-radius: var(--r);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ink-2);
-}
-
-.topbar-nav a:hover {
-  background: var(--sunken);
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.topbar-nav a[data-active="true"] {
-  color: var(--ink);
+.topbar-loc-name {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
   font-weight: 600;
-  background: var(--accent-wash);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.topbar-right {
+.topbar-tools {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-1);
+}
+
+/* 顶栏那颗〔继续〕只在窄屏出现 —— 桌面上它在侧栏，而侧栏在桌面上一直可见。 */
+.topbar-cont {
+  display: none;
 }
 
 /* 语言开关：中 / EN。宽度固定，切换时顶栏不会跳。 */
@@ -84,24 +93,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  height: 32px;
-  padding: 0 7px;
+  min-width: 40px;
+  height: var(--h-ctl-sm);
+  padding: 0 var(--sp-1);
   border: 1px solid var(--rule);
-  border-radius: var(--r);
+  border-radius: var(--r-sm);
   background: transparent;
   color: var(--ink-2);
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.02em;
   cursor: pointer;
-  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+  transition:
+    background var(--t-hover) ease,
+    border-color var(--t-hover) ease,
+    color var(--t-hover) ease;
 }
 
 .lang-btn:hover {
-  background: var(--sunken);
-  border-color: var(--accent-line);
+  background: var(--hover);
+  border-color: var(--rule-strong);
   color: var(--ink);
 }
 
@@ -109,18 +121,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--h-ctl-sm);
+  height: var(--h-ctl-sm);
   padding: 0;
   border: 1px solid transparent;
-  border-radius: var(--r);
+  border-radius: var(--r-sm);
   background: transparent;
   color: var(--ink-2);
   cursor: pointer;
+  transition:
+    background var(--t-hover) ease,
+    color var(--t-hover) ease;
 }
 
 .icon-btn:hover {
-  background: var(--sunken);
+  background: var(--hover);
   border-color: var(--rule);
   color: var(--ink);
 }
@@ -129,30 +144,47 @@
   display: none;
 }
 
-/* ---------- 左侧课程导航 ---------- */
+
+/* ---------- 侧栏：全站唯一一套导航 ---------- */
 
 .sidebar {
-  grid-row: 2;
+  grid-column: 1;
+  grid-row: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
   border-right: 1px solid var(--rule);
-  padding: 22px 0 60px;
   position: sticky;
-  top: var(--topbar-h);
+  top: 0;
   align-self: start;
-  max-height: calc(100vh - var(--topbar-h));
+  max-height: 100vh;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+/* 分隔线以下：当前这一类事情自己的结构。
+   导航位（上面那一段）在所有页面完全一致，这一段才随页面变。 */
+.sidebar-ctx {
+  margin-top: var(--sp-2);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--rule);
+  padding-bottom: var(--sp-6);
 }
 
 
 /* ---------- 主内容 ---------- */
 
 .main {
+  grid-column: 2;
   grid-row: 2;
   min-width: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--rail-w);
-  gap: 40px;
-  padding: 34px 34px 96px;
+  gap: var(--sp-6);
+  /* 页面内边距由 .main 统一给，所以 .page（styles/layout.css）只管宽度和
+     垂直节奏 —— 两处都给会变成双倍留白，而且改一处不会跟着另一处。 */
+  padding: var(--sp-4) var(--sp-4) var(--sp-8);
   align-items: start;
 }
 
@@ -162,29 +194,25 @@
 
 .content {
   min-width: 0;
-  max-width: var(--measure-wide);
 }
 
-/* 没有右栏时把内容居中。
-   有右栏的页面，栅格右边那一列被目录填满，内容贴左是对的；
-   没有右栏时栅格塌成一列，内容还贴左的话余量全堆到右边 ——
-   实测 1280px 视口下首页右侧空了 454px（35%），看起来像没写完。
-   受影响的是 data-rail="off" 的那些页面：首页、路线图、考场四页、
-   八股详情、抽认卡、考试总览、模拟考工作区。 */
+/* 【为什么两条都要写 width: 100%】grid item 上单独写 margin-inline: auto 会让它
+   从「拉伸填满栅格列」变成「按内容宽度」—— 窄屏下 max-width 比视口还宽，
+   于是整页横向溢出（实测 375px 视口上溢出 395px）。
+   先 width: 100% 占满列，再由 max-width 收口，最后 auto 边距居中。 */
 .main[data-rail="off"] > .content {
-  /* 【width: 100% 不能省】grid item 上单独写 margin-inline: auto 会让它
-     从「拉伸填满栅格列」变成「按内容宽度」——  窄屏下 max-width: 84ch
-     比视口还宽，于是整页横向溢出 395px（实测在 375px 视口上踩到）。
-     先 width: 100% 占满列，再由 max-width 收口，最后 auto 边距居中。 */
   width: 100%;
   margin-inline: auto;
 }
 
-/* 课程页和 /practice 这类「内容 + 目录」的页面：两栏作为一个整体居中，
+/* 「内容 + 目录」的页面：两栏作为一个整体居中，
    而不是内容居中、目录被推到屏幕最右边。 */
 .main:not([data-rail="off"]) {
   justify-content: center;
-  grid-template-columns: minmax(0, var(--measure-wide)) var(--rail-w);
+  grid-template-columns: minmax(0, 1fr) var(--rail-w);
+  max-width: 1400px;
+  margin-inline: auto;
+  width: 100%;
 }
 
 /* ---------- 右侧目录栏 ---------- */
@@ -256,23 +284,21 @@
   border-left-color: var(--accent);
 }
 
-/* ---------- 移动端 ---------- */
+/* ---------- 响应式 ---------- */
 
 .drawer-scrim {
   display: none;
 }
 
-@media (max-width: 1180px) {
-  /* 目录收起来了，栅格塌成一列 —— 选择器要压过上面那条
-     `.main:not([data-rail="off"])`，所以这里同样写全。 */
+/* 右侧目录只在大桌面出现（≥1280px）。窄一些的宽度上课文自己给一个
+   「这一页有什么」的折叠控件（components/lesson-islands.tsx）。 */
+@media (max-width: 1279px) {
   .main,
   .main:not([data-rail="off"]) {
     grid-template-columns: minmax(0, 1fr);
     justify-content: stretch;
   }
 
-  /* 这时候所有页面都没有右栏了，内容一律居中。
-     同样必须带 width: 100% —— 理由见上面那条注释。 */
   .main > .content,
   .main[data-rail="off"] > .content {
     width: 100%;
@@ -284,9 +310,10 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .shell {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: var(--topbar-h) minmax(0, 1fr);
   }
 
   .menu-btn {
@@ -294,12 +321,23 @@
   }
 
   .topbar {
-    padding: 0 14px;
-    gap: 8px;
+    grid-column: 1;
+    padding: 0 var(--sp-2);
+    gap: var(--sp-1);
   }
 
-  .topbar-nav {
+  /* 窄屏顶栏：品牌 · 〔继续〕· 搜索 · 菜单。位置指示让给它们。 */
+  .topbar-brand {
+    display: flex;
+  }
+
+  .topbar-loc {
     display: none;
+  }
+
+  .topbar-cont {
+    display: block;
+    min-width: 0;
   }
 
   .sidebar {
@@ -307,12 +345,11 @@
     top: var(--topbar-h);
     left: 0;
     bottom: 0;
-    width: min(84vw, 320px);
+    width: min(86vw, 320px);
     max-height: none;
-    background: var(--paper);
     z-index: 60;
     transform: translateX(-102%);
-    transition: transform 0.2s ease;
+    transition: transform var(--t-fold) var(--ease);
     box-shadow: var(--lift-2);
   }
 
@@ -324,12 +361,22 @@
     display: block;
     position: fixed;
     inset: var(--topbar-h) 0 0;
-    background: rgba(28, 39, 35, 0.28);
+    background: rgba(0, 0, 0, 0.55);
     z-index: 55;
   }
 
   .main {
-    padding: 22px 16px 80px;
+    grid-column: 1;
+    padding: var(--sp-3) var(--sp-2) var(--sp-8);
+  }
+}
+
+/* 触摸目标 ≥44px。指针不精确时才放大 —— 桌面上 32px 的图标按钮是对的。 */
+@media (pointer: coarse) {
+  .icon-btn,
+  .lang-btn {
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 

@@ -18,6 +18,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { NAV, lessonPath, navExam, navLessonsOf } from "@/content/nav";
 import { pathGroups } from "@/content/path";
 import { useT } from "@/lib/locale";
@@ -187,6 +188,51 @@ export function ContinueButton() {
   const { activePlan, ready: pReady } = useProgress();
   if (pReady && activePlan()) return <PlanContinue />;
   return <RecentContinueButton />;
+}
+
+/* ============================================================
+   侧栏那颗「继续」—— 全站唯一一颗
+   ------------------------------------------------------------
+   【为什么它在两个页面上不出现】
+   首页（跟着计划时那张「下一件事」的大卡）和计划详情页（页头那颗 CTA）
+   **本身就是这颗按钮的放大版**。两处同屏就是同一个目标出现两个入口 ——
+   而这一版的整条规矩是「每一屏只有一个视觉主导的动作」。
+   所以这两页把它交给页面内容，侧栏这里让位。
+
+   除此之外每一页都有它：它是回访者打开站之后唯一需要找的东西。
+   ============================================================ */
+
+const CEDE_TO_PAGE = ["/"];
+
+export function SideContinue({ onNavigate }: { onNavigate: () => void }) {
+  const path = usePathname();
+  if (CEDE_TO_PAGE.includes(path) || path.startsWith("/plans/")) return null;
+  return <SideContinueLive onNavigate={onNavigate} />;
+}
+
+function SideContinueLive({ onNavigate }: { onNavigate: () => void }) {
+  const { activePlan, ready } = useProgress();
+  if (ready && activePlan()) return <PlanSideContinue onNavigate={onNavigate} />;
+  return <RecentSideContinue onNavigate={onNavigate} />;
+}
+
+const PlanSideContinue = dynamic(
+  () => import("./plan-kit").then((m) => m.PlanSideContinue),
+  { ssr: false, loading: () => <RecentSideContinue onNavigate={() => {}} /> },
+);
+
+function RecentSideContinue({ onNavigate }: { onNavigate: () => void }) {
+  const { target } = useContinue();
+  const t = useT();
+  const name = t(target.title, target.titleEn ?? target.title);
+  return (
+    <Link className="side-cta" href={target.href} onClick={onNavigate}>
+      <span className="side-cta-label">
+        {target.fresh ? <T zh="开始" en="Start" /> : <T zh="继续" en="Continue" />}
+      </span>
+      <span className="side-cta-item">{name}</span>
+    </Link>
+  );
 }
 
 const PlanContinue = dynamic(

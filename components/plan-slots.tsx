@@ -24,24 +24,17 @@
 // 结果：没跟计划的人首屏字节和改动前一样；跟着计划的人在 hydration 之后
 // 多下一个 chunk —— 而那正是那些零件本来就要等的时刻。
 //
-// 【为什么「计划」那个入口是静态的】
-// 顶栏那枚徽标在没选计划时是一个普通的「计划」链接，它必须在首屏 HTML 里
-// （否则四个模式会在 hydration 后横向跳一下）。所以它在这个文件里，
-// 不走懒加载 —— 它只是一个 Link 加一个内联 SVG。
+// 【UI v2 删掉了两个插槽】
+// 顶栏那枚计划徽标（PlanChipSlot）和侧栏那块旧面板（PlanPanelSlot）都没了：
+// 顶栏不再有导航，计划状态改成侧栏里那块紧凑的 PlanSideBlock，
+// 「下一步」由全站唯一那颗 SideContinue 负责。
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useT } from "@/lib/locale";
 import { useProgress } from "@/lib/progress";
-import { PlanMark } from "./plan-mark";
-import { T } from "./t";
 
 /* ---------- 懒加载的真身 ---------- */
 
-const LiveChip = dynamic(() => import("./plan-kit").then((m) => m.PlanChip), {
-  ssr: false,
-});
-const LivePanel = dynamic(() => import("./plan-kit").then((m) => m.PlanPanel), {
+const LiveSideBlock = dynamic(() => import("./plan-kit").then((m) => m.PlanSideBlock), {
   ssr: false,
 });
 const LiveBanner = dynamic(() => import("./plan-kit").then((m) => m.PlanItemBanner), {
@@ -60,36 +53,11 @@ function useFollowing(): boolean {
   return ready && !!activePlan();
 }
 
-/* ---------- 顶栏 ---------- */
-
-export function PlanChipSlot({ onNavigate }: { onNavigate?: () => void }) {
-  const following = useFollowing();
-  const t = useT();
-
-  if (following) return <LiveChip onNavigate={onNavigate} />;
-
-  // 没跟计划：一个静态入口，首屏 HTML 里就有
-  return (
-    // 窄屏下「计划」那两个字是 display: none，名字要显式给
-    <Link
-      className="topbar-plan"
-      href="/plans"
-      data-empty
-      onClick={onNavigate}
-      aria-label={t("引导计划", "Guided plans")}
-    >
-      <PlanMark />
-      <span className="topbar-plan-name">
-        <T zh="计划" en="Plans" />
-      </span>
-    </Link>
-  );
-}
-
 /* ---------- 侧栏 ---------- */
 
-export function PlanPanelSlot({ onNavigate }: { onNavigate: () => void }) {
-  return useFollowing() ? <LivePanel onNavigate={onNavigate} /> : null;
+/** 侧栏里那块紧凑的计划状态。没跟计划就什么都不渲染 */
+export function PlanSideSlot({ onNavigate }: { onNavigate: () => void }) {
+  return useFollowing() ? <LiveSideBlock onNavigate={onNavigate} /> : null;
 }
 
 /* ---------- 页内 ---------- */
