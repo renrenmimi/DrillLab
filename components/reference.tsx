@@ -493,17 +493,72 @@ const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 // 事件处理器要传参数 -> 包一层箭头函数
 <button onClick={() => onDelete(note.id)}>Delete</button>
 <button onClick={onDelete(note.id)}>     {/* ✗ 渲染时就执行了 */}`,
-              { filename: "React 速查", sourceFile: "react-notes-app/src/" },
+              {
+                filename: "React 速查",
+                filenameEn: "React reference",
+                sourceFile: "react-notes-app/src/",
+                codeEn: `// useState — write the generic when the initial value does not show the type
+const [notes, setNotes] = useState<Note[]>([]);              // [] does not say what goes in
+const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);
+const [title, setTitle] = useState("");                      // "" already says string
+
+// Three immutable updates
+setNotes((prev) => [...prev, item]);                                  // add
+setNotes((prev) => prev.filter((n) => n.id !== id));                  // remove
+setNotes((prev) => prev.map((n) => (n.id === next.id ? next : n)));   // edit, order kept
+
+// useEffect — three ways to write the dependency array
+useEffect(fn, []);            // runs once, after the first render
+useEffect(fn, [noteToEdit]);  // first render, then every noteToEdit change
+useEffect(fn);                // after every render — almost always a mistake
+
+// Controlled input
+<input value={title} onChange={(e) => setTitle(e.target.value)} />
+
+// Form submit
+const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();     // without it the page reloads and state resets
+  ...
+};
+
+// Rendering a list
+{notes.map((note) => <NoteItem key={note.id} note={note} />)}
+//                            ↑ use a stable id, never the index
+
+// To pass an argument to a handler -> wrap it in an arrow function
+<button onClick={() => onDelete(note.id)}>Delete</button>
+<button onClick={onDelete(note.id)}>     {/* ✗ already ran during render */}`,
+              },
             )}
           />
           <div className="callout" data-tone="trap">
-            <strong className="callout-title">三条铁律</strong>
+            <strong className="callout-title">
+              <T zh="三条铁律" en="Three hard rules" />
+            </strong>
             <p>
-              ① 改 state 只能通过 setter，且必须造新对象（
-              <code>push</code> / <code>splice</code> / <code>arr[i]=</code>{" "}
-              都会让界面不更新且不报错）。
-              <br />② effect 里修改的 state 不能出现在它自己的依赖数组里。
-              <br />③ 能从现有 state 算出来的值不要做成 state。
+              <T
+                zh={
+                  <>
+                    ① 改 state 只能通过 setter，且必须造新对象（
+                    <code>push</code> / <code>splice</code> /{" "}
+                    <code>arr[i]=</code> 都会让界面不更新且不报错）。
+                    <br />② effect 里修改的 state 不能出现在它自己的依赖数组里。
+                    <br />③ 能从现有 state 算出来的值不要做成 state。
+                  </>
+                }
+                en={
+                  <>
+                    ① Change state only through its setter, and always build a
+                    new object (<code>push</code> / <code>splice</code> /{" "}
+                    <code>arr[i]=</code> leave the interface stale, and raise no
+                    error).
+                    <br />② A state value that an effect writes must not appear
+                    in that effect&apos;s own dependency array.
+                    <br />③ If a value can be computed from state you already
+                    have, do not make it state.
+                  </>
+                }
+              />
             </p>
           </div>
         </section>
