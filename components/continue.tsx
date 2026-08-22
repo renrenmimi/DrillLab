@@ -16,6 +16,7 @@
 // 否则 hydration 警告。所以两边都先渲染「开始第一课」，挂载后 ready 翻 true
 // 再换成真实目标 —— 换的是文字，不是结构，不会跳版。
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { NAV, lessonPath, navExam, navLessonsOf } from "@/content/nav";
 import { pathGroups } from "@/content/path";
@@ -57,10 +58,20 @@ function foundationsStart(): ContinueTarget {
   };
 }
 
-/** 顶栏和首页共用：跨模式最新的那一条，没有就是地基第一节 */
+/**
+ * 「继续」的目标：跨模式最近去过的那一条，没有就是地基第一节。
+ *
+ * 【跟着计划走的时候呢】
+ * 那种情况下顶栏那颗按钮换成 components/plan-kit.tsx 里的
+ * PlanContinueButton（懒加载）—— 因为算「计划的下一格」要展开计划，
+ * 就要读 content/nav（120 KB 原始字节）。这个文件在外壳里，
+ * 每一个路由都下载它，所以它**不许**碰计划那一套。
+ * 分工写在 ContinueButton 里。
+ */
 export function useContinue(): { ready: boolean; target: ContinueTarget } {
   const { ready, mostRecent } = useProgress();
   if (!ready) return { ready, target: foundationsStart() };
+
   const best = mostRecent();
   if (!best) return { ready, target: foundationsStart() };
   return {
@@ -165,7 +176,25 @@ export function lessonPositionOf(href: string):
    宽屏下带上目标名字（截断），窄屏只留「继续」两个字。
    ============================================================ */
 
+/**
+ * 顶栏那颗按钮。
+ *
+ * 跟着计划走 → 换成懒加载的 PlanContinueButton（它指向计划的下一格）。
+ * 没跟计划   → 就是这一份，指向最近去过的地方。
+ * 两支都不会同时出现，所以顶栏永远只有一颗「继续」。
+ */
 export function ContinueButton() {
+  const { activePlan, ready: pReady } = useProgress();
+  if (pReady && activePlan()) return <PlanContinue />;
+  return <RecentContinueButton />;
+}
+
+const PlanContinue = dynamic(
+  () => import("./plan-kit").then((m) => m.PlanContinueButton),
+  { ssr: false, loading: () => <RecentContinueButton /> },
+);
+
+function RecentContinueButton() {
   const { target } = useContinue();
   const t = useT();
   const label = target.fresh ? t("开始", "Start") : t("继续", "Continue");
@@ -246,6 +275,35 @@ export function ContinueCard() {
         )}
       </Link>
     </section>
+  );
+}
+
+/**
+ * 紧凑的「接着上次那件事」条 —— 首页在**没跟计划**时用。
+ *
+ * 【为什么不是那张大卡】
+ * 没跟计划时首页第一屏要问的是「你现在想达成什么目标」（六条计划），
+ * 那句话是 h1。这时候「上次那件事」退成一行 —— 它仍然在，但不再抢焦点。
+ */
+export function ContinueStrip() {
+  const { ready, target } = useContinue();
+  const mode = modeById(target.mode);
+  if (!ready || target.fresh) return null;
+
+  return (
+    <div className="dash-resume">
+      <span className="dash-resume-label">
+        <T zh="或者接着上次那件事" en="Or pick up where you left off" />
+      </span>
+      <Link className="dash-resume-link" href={target.href}>
+        <span className="dash-resume-mode" data-mode={target.mode}>
+          <T zh={mode.zh} en={mode.en} />
+        </span>
+        <span className="dash-resume-title">
+          <T zh={target.title} en={target.titleEn} />
+        </span>
+      </Link>
+    </div>
   );
 }
 
