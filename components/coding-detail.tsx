@@ -143,7 +143,9 @@ export function CodingDetail({ id }: { id: string }) {
           n="01"
           title={<T zh="题面" en="The problem" />}
         >
-          <div className="cd-brief">{problem.brief}</div>
+          <div className="cd-brief">
+            <T zh={problem.brief} en={problem.briefEn} />
+          </div>
 
           <div className="minihead">
             <T zh="验收标准" en="Acceptance criteria" />
@@ -310,18 +312,26 @@ export function CodingDetail({ id }: { id: string }) {
           </div>
           <ul className="rail-toc">
             <li>
-              <a href="#brief">01 题面</a>
+              <a href="#brief">
+                01 <T zh="题面" en="The problem" />
+              </a>
             </li>
             <li>
-              <a href="#workspace">02 工作区</a>
+              <a href="#workspace">
+                02 <T zh="工作区" en="Workspace" />
+              </a>
             </li>
             {explain && (
               <li>
-                <a href="#explain">03 展开讲解</a>
+                <a href="#explain">
+                  03 <T zh="展开讲解" en="Walkthrough" />
+                </a>
               </li>
             )}
             <li>
-              <a href="#solution">04 参考答案</a>
+              <a href="#solution">
+                04 <T zh="参考答案" en="Reference solution" />
+              </a>
             </li>
           </ul>
         </div>

@@ -498,6 +498,8 @@ export interface CodingProblem {
   minutes: number;
   /** 题面：要做什么、验收标准 */
   brief: ReactNode;
+  /** 英文版题面。见 Lesson.titleEn 里那段为什么是旁挂字段 */
+  briefEn?: ReactNode;
   requirements: string[];
   /** 英文版。长度必须和 requirements 一致 —— 理由见 Lesson.objectivesEn */
   requirementsEn?: string[];

@@ -42,6 +42,7 @@ interface Spec {
    * 题面推不出来，所以在这里直接写一句。
    */
   brief?: string;
+  briefEn?: string;
   /**
    * 显式覆盖验收标准。
    *
@@ -1246,6 +1247,8 @@ function build(): CodingProblem[] {
       minutes: spec.minutes,
       // 自带题面优先；没写就用来源练习的 prompt
       brief: spec.brief ?? ex.prompt,
+      // spec 自带的优先；否则退回来源练习的题面 —— 那一侧 promptEn 已经填过了
+      briefEn: spec.briefEn ?? ex.promptEn,
       requirements,
       // spec 自带的优先；没有就用回落表的英文（目前只有 tabs 走这条）
       requirementsEn: spec.requirementsEn ?? requirementsEn,
