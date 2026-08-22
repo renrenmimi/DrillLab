@@ -12,29 +12,17 @@
 // 上一轮 IA 审计里记的「同一个地方两个名字」就是这么来的。
 
 import Link from "next/link";
-import { PLANS, type Plan, type PlanPhase } from "@/content/plans";
+import { litePlans, phasesOf, type LitePlan } from "@/lib/plan-lite";
 import { useProgress } from "@/lib/progress";
 import { PhaseBadge, PlanMeter, usePlanStatus, useActivePlan } from "./plan-kit";
 import { PlanMark } from "./plan-mark";
 import { T } from "./t";
 
-/** 这条计划由哪几档组成（去重、保持顺序）—— 卡片上那排小徽章 */
-function phasesOf(plan: Plan): PlanPhase[] {
-  const seen = new Set<PlanPhase>();
-  const out: PlanPhase[] = [];
-  for (const s of plan.stages) {
-    if (seen.has(s.phase)) continue;
-    seen.add(s.phase);
-    out.push(s.phase);
-  }
-  return out;
-}
-
 /* ============================================================
    紧凑卡
    ============================================================ */
 
-export function PlanCard({ plan }: { plan: Plan }) {
+export function PlanCard({ plan }: { plan: LitePlan }) {
   const { status, ready } = usePlanStatus(plan.id);
   const { activePlan, setActivePlan, ready: pReady } = useProgress();
   if (!status) return null;
@@ -121,7 +109,7 @@ export function PlanCard({ plan }: { plan: Plan }) {
 export function PlanCards() {
   return (
     <ul className="plc-grid">
-      {PLANS.map((p) => (
+      {litePlans().map((p) => (
         <PlanCard key={p.id} plan={p} />
       ))}
     </ul>

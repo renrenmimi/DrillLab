@@ -56,20 +56,16 @@ import {
 // 合进 nav.ts 的实测代价见 content/nav-exercises.ts 顶部那段。
 import { EXERCISES } from "./nav-exercises";
 import type { ModeId } from "@/lib/modes";
+import { MODE_OF_KIND, type PlanItemKind, type PlanPhase } from "@/lib/plan-types";
 
 /* ============================================================
    类型
    ============================================================ */
 
-/** 一档的性质。决定徽章文字、颜色和「完成」的判定口径 */
-export type PlanPhase =
-  | "prereq"
-  | "learn"
-  | "review"
-  | "practice"
-  | "code"
-  | "rebuild"
-  | "assess";
+// PlanPhase / PlanItemKind / MODE_OF_KIND 在 lib/plan-types.ts —— 生成的
+// content/plan-manifest.ts 也要用同一套，而它不能 import 这个文件
+// （这个文件会拖上 content/nav 的 134 KB，见 plan-manifest 顶部那段）。
+export type { PlanPhase, PlanItemKind } from "@/lib/plan-types";
 
 /**
  * 一档从哪儿取内容。
@@ -828,8 +824,8 @@ export const PLANS: Plan[] = [
 export interface PlanItem {
   /** 全站唯一且稳定。进度查询和 React key 都用它 */
   key: string;
-  kind: "lesson" | "exercise" | "drill" | "coding" | "arena" | "mock";
-  /** 这一条属于哪个模式 —— 条目上那枚小徽章 */
+  kind: PlanItemKind;
+  /** 这一条属于哪个模式 —— 条目上那枚小徽章。由 kind 派生，见 MODE_OF_KIND */
   mode: ModeId;
   href: string;
   zh: string;
@@ -904,7 +900,7 @@ function lessonsOfSource(
   return picked.map((l) => ({
     key: `lesson:${exam.id}/${l.id}`,
     kind: "lesson",
-    mode: "learn",
+    mode: MODE_OF_KIND.lesson,
     href: lessonPath(exam.id, l.id),
     zh: l.title,
     en: l.titleEn,
@@ -957,7 +953,7 @@ function exercisesOfSource(
   return picked.map((ex) => ({
     key: `exercise:${exam.id}/${ex.id}`,
     kind: "exercise",
-    mode: "practice",
+    mode: MODE_OF_KIND.exercise,
     // 练习没有自己的路由 —— 它在课文页尾，锚点是 exercise.tsx 里那个 id
     href: `${lessonPath(exam.id, ex.lessonId)}#ex-${ex.id}`,
     zh: ex.title,
@@ -985,7 +981,7 @@ function drillsOfSource(
     DRILLS.filter((d) => d.track === t).map((d) => ({
       key: `drill:${d.id}`,
       kind: "drill" as const,
-      mode: "review" as const,
+      mode: MODE_OF_KIND.drill,
       href: drillPath(d.id),
       zh: d.zh,
       en: d.en,
@@ -1004,7 +1000,7 @@ function codingOfSource(
     return {
       key: `coding:${c.id}`,
       kind: "coding" as const,
-      mode: "practice" as const,
+      mode: MODE_OF_KIND.coding,
       href: codingPath(c.id),
       zh: c.title,
       en: c.titleEn,
@@ -1024,7 +1020,7 @@ function arenaOfSource(
     return {
       key: `arena:${a.id}`,
       kind: "arena" as const,
-      mode: "assess" as const,
+      mode: MODE_OF_KIND.arena,
       href: arenaPath(a.id),
       zh: a.title,
       en: a.titleEn,
@@ -1047,7 +1043,7 @@ function mockOfSource(
     return {
       key: `mock:${examId}/${m.id}`,
       kind: "mock" as const,
-      mode: "assess" as const,
+      mode: MODE_OF_KIND.mock,
       href: mockPath(examId, m.id),
       zh: m.title,
       en: m.titleEn,

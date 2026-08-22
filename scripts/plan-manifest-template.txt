@@ -1,0 +1,74 @@
+// 引导计划的**轻量清单** —— 生成物，不要手改。改完计划或内容跑 `npm run gen:nav`。
+//
+// 【为什么要有这一份，而不是让客户端去展开 content/plans】
+// content/plans.ts 要 import content/nav（134 KB）和 content/nav-exercises（39 KB）
+// 才能把「这门课的全部课文」这种查询展开成真实条目。而顶栏那枚计划徽标、
+// 侧栏那块面板、页内那条位置条是**全站挂载**的 —— 它们一旦顺着 plan-kit
+// 拖上 content/plans，webpack 就会把 nav 从「所有页面共用的那个 chunk」
+// 拆成一个独立 chunk，于是每个路由都要单独再下一遍。
+//
+// 实测代价（origin/main → 第一版）：课程页 First Load JS 142 → 195 kB（+37%）。
+// 把 plan-kit 改成只读这一份之后回到 143 kB。
+//
+// 所以分工是：
+//   构建期 / 服务端   content/plans.ts     完整定义、查询展开、完整性断言
+//   全站挂载的客户端  这一份               只有算「我在哪、下一格是什么」要的字段
+//   计划详情页        content/plans.ts     它是单独一个路由，重依赖无所谓
+//
+// 这一份**没有**：每一档的「为什么在这儿」、每一条的估时、覆盖方向。
+// 那些只有 /plans/[planId] 用得上，那一页自己去读 content/plans。
+
+import type { PlanItemKind, PlanPhase } from "@/lib/plan-types";
+
+/**
+ * 一个条目，按列存 —— 用数组而不是对象是为了不把字段名重复 300 多遍
+ * （实测省下 7 KB 原始字节）。列的顺序**只在这里定义一次**：
+ *
+ *   0  kind     lesson | exercise | drill | coding | arena | mock
+ *   1  id       课文 id / 练习 id / 题目 id …
+ *   2  examId   lesson、exercise、mock 才有；其余是空串
+ *   3  zh       中文标题
+ *   4  en       英文标题；没补就是空串（<T> 会回落中文）
+ *   5  href     完整路径。**存而不算** —— 路径拼法的唯一真相在 content/nav.ts
+ *               的那几个 helper 里，这里再抄一份就会出现两套 URL
+ *   6  xkind    只有 exercise 有：练习题型。从零重写那一类的完成记录在
+ *               progress.rebuilds 里，其余在 progress.exercises 里
+ *   7  minutes  估时（分钟）。0 = 这一类没有估时（练习和八股）
+ */
+export type ManifestItem = [
+  PlanItemKind,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  number,
+];
+
+export interface ManifestStage {
+  id: string;
+  phase: PlanPhase;
+  zh: string;
+  en: string;
+  /** 指向 PLAN_ITEMS 的下标。跨计划共享同一张表，所以「从零完整学习」
+   *  和「React 考试准备」里同一节课只存一份 */
+  items: number[];
+}
+
+export interface ManifestPlan {
+  id: string;
+  zh: string;
+  en: string;
+  outcomeZh: string;
+  outcomeEn: string;
+  forZh: string;
+  forEn: string;
+  /** 有估时的那些条目的分钟数之和。卡片上那句「约 N 小时」用它 */
+  minutes: number;
+  stages: ManifestStage[];
+}
+
+export const PLAN_ITEMS: ManifestItem[] = __ITEM_DATA__;
+
+export const PLAN_MANIFEST: ManifestPlan[] = __PLAN_DATA__;

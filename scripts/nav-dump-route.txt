@@ -6,6 +6,7 @@ import {
   allDrills,
   lessonsOf,
 } from "@/content/registry";
+import { PLANS, resolvePlan } from "@/content/plans";
 
 export function GET() {
   return Response.json({
@@ -118,6 +119,61 @@ export function GET() {
       commandCount: a.commands.length,
       runnable: !!a.blankSandbox,
     })),
+
+    /**
+     * 引导计划的轻量清单 —— 生成到 content/plan-manifest.ts。
+     *
+     * 【为什么要在构建期把它压出来】
+     * 展开一条计划要读 content/nav（134 KB）+ content/nav-exercises（39 KB）。
+     * 而顶栏徽标、侧栏面板、页内位置条是全站挂载的，它们顺着 plan-kit 拖上
+     * content/plans 的后果是 webpack 把 nav 拆成独立 chunk、每个路由各下一遍
+     * —— 实测课程页 First Load JS 142 → 195 kB。
+     *
+     * 所以在这里展开一次，只留「算我在哪、下一格是什么」要的字段：
+     * 条目去重共享一张表，每条计划只存下标。
+     * 「为什么在这儿」、每条的估时、覆盖方向都不进去 —— 那些只有
+     * /plans/[planId] 用，那一页自己读 content/plans。
+     */
+    planManifest: (() => {
+      const index = new Map();
+      const items = [];
+      const plans = PLANS.map((p) => {
+        const r = resolvePlan(p);
+        return {
+          id: p.id,
+          zh: p.zh,
+          en: p.en,
+          outcomeZh: p.outcomeZh,
+          outcomeEn: p.outcomeEn,
+          forZh: p.forZh,
+          forEn: p.forEn,
+          minutes: r.minutes,
+          stages: r.stages.map((st) => ({
+            id: st.id,
+            phase: st.phase,
+            zh: st.zh,
+            en: st.en,
+            items: st.items.map((it) => {
+              if (!index.has(it.key)) {
+                index.set(it.key, items.length);
+                items.push([
+                  it.kind,
+                  it.id,
+                  it.examId ?? "",
+                  it.zh,
+                  it.en ?? "",
+                  it.href,
+                  it.exerciseKind ?? "",
+                  it.minutes ?? 0,
+                ]);
+              }
+              return index.get(it.key);
+            }),
+          })),
+        };
+      });
+      return { items, plans };
+    })(),
 
     /**
      * 练习清单 —— 单独一份，生成到 content/nav-exercises.ts。

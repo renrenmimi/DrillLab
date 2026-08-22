@@ -27,16 +27,9 @@ import {
 } from "@/content/plans";
 import { useT } from "@/lib/locale";
 import { modeById } from "@/lib/modes";
-import type { ItemState, PlanStatus } from "@/lib/plan-progress";
+import { planStatus, type ItemState, type PlanStatus } from "@/lib/plan-progress";
 import { useProgress } from "@/lib/progress";
-import {
-  PHASE,
-  PhaseBadge,
-  PlanMeter,
-  STATE_LABEL,
-  StateDot,
-  usePlanStatus,
-} from "./plan-kit";
+import { PHASE, PhaseBadge, PlanMeter, STATE_LABEL, StateDot } from "./plan-kit";
 import { PlanMark } from "./plan-mark";
 import { T } from "./t";
 
@@ -145,7 +138,7 @@ function Stage({
 }: {
   stage: ResolvedStage;
   index: number;
-  status: PlanStatus;
+  status: PlanStatus<ResolvedPlan>;
   planStageState: "done" | "current" | "future";
 }) {
   const stat = status.stages[index];
@@ -271,9 +264,15 @@ function Stage({
    ============================================================ */
 
 export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
-  const { status, ready } = usePlanStatus(plan.id);
-  const { activePlan, setActivePlan, notePlanSeen, ready: pReady } = useProgress();
+  // 【这一页自己算 status，不走 plan-kit 的 usePlanStatus】
+  // 那个 hook 读的是轻量清单（lib/plan-lite），里面没有估时、没有每一档的
+  // 「为什么在这儿」、也没有覆盖方向 —— 路线图三样都要。这一页是单独一个
+  // 路由，服务端已经把完整的 ResolvedPlan 当 prop 传进来了，直接算就是。
+  // 全站挂载的那几个零件不能这么干，见 components/plan-kit.tsx 顶部。
+  const { data, activePlan, setActivePlan, notePlanSeen, ready } = useProgress();
+  const status = planStatus(plan, data);
   const [changing, setChanging] = useState(false);
+  const pReady = ready;
 
   // 「最近看过哪条计划」。幂等，所以依赖数组里只放 id 和 ready
   useEffect(() => {
@@ -281,8 +280,6 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
     notePlanSeen(plan.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pReady, plan.id]);
-
-  if (!status) return null;
 
   const active = pReady ? activePlan() : undefined;
   const isActive = active?.id === plan.id;

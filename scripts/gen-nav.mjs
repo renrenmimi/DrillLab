@@ -51,7 +51,7 @@ if (!json) {
 // 两份重数据单独出文件 —— 见各自模板顶部的注释。
 //   searchIndex 130 KB 出头，只有 ⌘K 搜索用，进 nav.ts 每页白下 80 kB（gzip 后）
 //   exercises   148 条，只有引导计划用，而计划那一套是懒加载的
-const { searchIndex, exercises, ...navJson } = json;
+const { searchIndex, exercises, planManifest, ...navJson } = json;
 
 const tpl = readFileSync("scripts/nav-template.txt", "utf8");
 writeFileSync(
@@ -63,6 +63,15 @@ const exTpl = readFileSync("scripts/nav-exercises-template.txt", "utf8");
 writeFileSync(
   "content/nav-exercises.ts",
   exTpl.replace("__EXERCISE_DATA__", JSON.stringify(exercises, null, 2)),
+);
+
+const planTpl = readFileSync("scripts/plan-manifest-template.txt", "utf8");
+writeFileSync(
+  "content/plan-manifest.ts",
+  planTpl
+    // 条目一行一条 —— 逐列换行会让这个文件长到读不动，而它是给人核对的
+    .replace("__ITEM_DATA__", "[\n" + planManifest.items.map((r) => "  " + JSON.stringify(r)).join(",\n") + "\n]")
+    .replace("__PLAN_DATA__", JSON.stringify(planManifest.plans, null, 2)),
 );
 
 const searchTpl = readFileSync("scripts/search-index-template.txt", "utf8");
@@ -78,7 +87,8 @@ console.log(
     `${json.drills.length} 道八股 / ` +
     `${json.coding.length} 道 coding / ` +
     `${json.arena.length} 道考场题 / ` +
-    `搜索索引 ${searchIndex.length} 条`,
+    `搜索索引 ${searchIndex.length} 条 / ` +
+    `计划清单 ${planManifest.items.length} 条去重条目`,
 );
 
 // dev server 是 detached 的子进程，不显式退出的话这个脚本会一直挂着

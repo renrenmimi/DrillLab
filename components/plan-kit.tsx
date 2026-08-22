@@ -1,18 +1,28 @@
 "use client";
 
-// 引导计划的公用零件：一个 hook、一枚顶栏徽标、一块侧栏面板、一条页内位置条。
+// 引导计划里**全站挂载**的那几个零件：顶栏徽标、顶栏「继续」、侧栏面板、
+// 页内位置条、列表页提示条、课尾那一步。
 //
-// 【为什么全部只读 content/plans 和 content/nav】
-// 计划定义和 nav 都是「只有文字和数字」的纯数据模块，客户端安全。
-// 完成度由 lib/plan-progress 从已有进度推导，也是纯函数。
-// 所以这一整套零件不会把任何课程正文拖进客户端包。
+// 【这个文件只许读 lib/plan-lite，不许碰 content/plans】
+// 这几个零件挂在根 layout 上，每一个路由都会经过它们。而 content/plans.ts
+// 要 import content/nav（134 KB）+ content/nav-exercises（39 KB）才能把
+// 「这门课的全部课文」这种查询展开成真实条目 —— 那条依赖一旦出现在这里，
+// webpack 就把 nav 从「所有页面共用的那个 chunk」拆出去，于是每个路由都要
+// 单独再下一遍。实测课程页 First Load JS 142 → 195 kB（+37%）。
+//
+// content/plan-manifest.ts 是构建期压好的轻量清单，只有算「我在哪、下一格
+// 是什么」要的字段，**不 import 任何内容模块**。改回去之前先读它顶部那段。
+//
+// 需要估时、每一档的「为什么在这儿」、覆盖方向的地方只有 /plans/[planId]，
+// 那一页是单独一个路由，自己去读 content/plans。
 
 import Link from "next/link";
 import { useMemo, type ReactNode } from "react";
-import { resolvedPlanById, type PlanItem, type PlanPhase } from "@/content/plans";
 import { useT } from "@/lib/locale";
 import type { ModeId } from "@/lib/modes";
-import { itemKey, pct, planStatus, type ItemState, type PlanStatus } from "@/lib/plan-progress";
+import { litePlanById, type LiteItem, type LiteStatus } from "@/lib/plan-lite";
+import { itemKey, pct, planStatus, type ItemState } from "@/lib/plan-progress";
+import type { PlanPhase } from "@/lib/plan-types";
 import { useProgress } from "@/lib/progress";
 import { PlanMark } from "./plan-mark";
 import { T } from "./t";
@@ -54,24 +64,24 @@ export const STATE_LABEL: Record<ItemState, { zh: string; en: string }> = {
 
 /** 某一条计划的完成情况。ready 之前一律按「什么都没做」算，服务端和首帧一致 */
 export function usePlanStatus(planId?: string): {
-  status: PlanStatus | undefined;
+  status: LiteStatus | undefined;
   ready: boolean;
 } {
   const { data, ready } = useProgress();
-  const plan = resolvedPlanById(planId);
+  const plan = litePlanById(planId);
   const status = useMemo(() => (plan ? planStatus(plan, data) : undefined), [plan, data]);
   return { status, ready };
 }
 
 /** 当前跟着走的那条计划。没选过就是 undefined */
 export function useActivePlan(): {
-  status: PlanStatus | undefined;
+  status: LiteStatus | undefined;
   ready: boolean;
   optedOut: boolean;
 } {
   const { data, ready } = useProgress();
   // ready 之前不认 data.plan —— 那时 data 是 EMPTY，认了会在 hydration 后跳一次
-  const plan = resolvedPlanById(ready ? data.plan?.id : undefined);
+  const plan = litePlanById(ready ? data.plan?.id : undefined);
   const status = useMemo(() => (plan ? planStatus(plan, data) : undefined), [plan, data]);
   return { status, ready, optedOut: ready ? !!data.planOptOut : false };
 }

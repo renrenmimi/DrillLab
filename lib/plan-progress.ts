@@ -18,8 +18,41 @@
 // 但课文页是服务端组件 —— 服务端渲染的那部分要判断「这一节在不在当前计划里」，
 // 也得能 import 这里。ProgressData 只按类型 import，会被 TS 完全擦掉。
 
-import type { PlanItem, ResolvedPlan, ResolvedStage } from "@/content/plans";
+import type { PlanItemKind } from "./plan-types";
 import type { DrillMark, ProgressData } from "./progress";
+
+/* ============================================================
+   这个模块对「一条计划」的最小要求
+   ------------------------------------------------------------
+   两种形状都要能喂进来：
+     · content/plans.ts 的 ResolvedPlan  —— /plans/[planId] 用，带估时和「为什么」
+     · lib/plan-lite.ts 的 LitePlan      —— 全站挂载的零件用，只有算位置要的字段
+   所以这里按**结构**约束，不绑具体类型。泛型把 next.item 的类型原样带回给调用方，
+   这样两边都能直接读自己那份多出来的字段。
+   ============================================================ */
+
+/** 一格至少要有这些 —— 完成状态就靠它们去进度里查 */
+export interface StatusItem {
+  key: string;
+  kind: PlanItemKind;
+  id: string;
+  examId?: string;
+  /** 只有 exercise 有：从零重写那一类的记录在 rebuilds 里，其余在 exercises 里 */
+  exerciseKind?: string;
+}
+
+export interface StatusStage {
+  items: StatusItem[];
+}
+
+export interface StatusPlan {
+  id: string;
+  stages: StatusStage[];
+  items: StatusItem[];
+}
+
+/** 喂进来的那一份计划里，一格的真实类型 —— next.item 要原样还给调用方 */
+type ItemOf<P extends StatusPlan> = P["items"][number];
 
 /**
  * 一格的状态。
@@ -57,8 +90,8 @@ export interface StageStatus {
   confident?: number;
 }
 
-export interface PlanStatus {
-  plan: ResolvedPlan;
+export interface PlanStatus<P extends StatusPlan> {
+  plan: P;
   /** key → 状态。key 就是 PlanItem.key */
   itemStatus: Map<string, ItemStatus>;
   /** 和 plan.stages 同序 */
@@ -69,7 +102,7 @@ export interface PlanStatus {
   /** 第一个没完成的档的下标。全部完成时等于 stages.length */
   currentStageIndex: number;
   /** 下一步就是这一格。计划走完了就是 undefined */
-  next?: { item: PlanItem; stageIndex: number; itemIndex: number };
+  next?: { item: ItemOf<P>; stageIndex: number; itemIndex: number };
   /**
    * 计划里最不熟的那道八股（不会 → 模糊 → 会）。
    *
@@ -77,7 +110,7 @@ export interface PlanStatus {
    * 但那些标了「不会」的仍然值得回头再过。计划走完之后这一条就是
    * 「还能做什么」的答案。
    */
-  weakestDrill?: PlanItem;
+  weakestDrill?: ItemOf<P>;
 }
 
 /* ============================================================
@@ -86,7 +119,7 @@ export interface PlanStatus {
 
 const DRILL_RANK: Record<DrillMark, number> = { unknown: 1, fuzzy: 2, known: 3 };
 
-export function itemStatus(item: PlanItem, p: ProgressData): ItemStatus {
+export function itemStatus(item: StatusItem, p: ProgressData): ItemStatus {
   switch (item.kind) {
     case "lesson": {
       const hit = !!p.lessons[`${item.examId}/${item.id}`];
@@ -142,12 +175,15 @@ export function itemStatus(item: PlanItem, p: ProgressData): ItemStatus {
    没见过 → 不会 → 模糊 → 会。别的档就是定义顺序里第一个没完成的。
    ============================================================ */
 
-function nextInStage(
-  stage: ResolvedStage,
+/** 这一档装的是八股吗。一档只会来自一种查询，所以看第一条就够 */
+const isDrillStage = (stage: StatusStage) => stage.items[0]?.kind === "drill";
+
+function nextInStage<I extends StatusItem>(
+  stage: { items: I[] },
   status: Map<string, ItemStatus>,
-): { item: PlanItem; itemIndex: number } | undefined {
-  if (stage.source.from === "drills") {
-    let best: { item: PlanItem; itemIndex: number; rank: number } | undefined;
+): { item: I; itemIndex: number } | undefined {
+  if (isDrillStage(stage)) {
+    let best: { item: I; itemIndex: number; rank: number } | undefined;
     stage.items.forEach((item, i) => {
       const st = status.get(item.key);
       // 没见过的排最前（rank 0），其余按自评档位
@@ -165,7 +201,11 @@ function nextInStage(
    整条计划
    ============================================================ */
 
-export function planStatus(plan: ResolvedPlan, p: ProgressData): PlanStatus {
+export function planStatus<P extends StatusPlan>(
+  plan: P,
+  p: ProgressData,
+): PlanStatus<P> {
+  type I = ItemOf<P>;
   const itemStatusMap = new Map<string, ItemStatus>();
   for (const item of plan.items) itemStatusMap.set(item.key, itemStatus(item, p));
 
@@ -181,7 +221,7 @@ export function planStatus(plan: ResolvedPlan, p: ProgressData): PlanStatus {
       done,
       total: stage.items.length,
       complete: done === stage.items.length,
-      confident: stage.source.from === "drills" ? confident : undefined,
+      confident: isDrillStage(stage) ? confident : undefined,
     };
   });
 
@@ -196,18 +236,22 @@ export function planStatus(plan: ResolvedPlan, p: ProgressData): PlanStatus {
       ? undefined
       : (() => {
           const hit = nextInStage(plan.stages[currentStageIndex], itemStatusMap);
-          return hit ? { ...hit, stageIndex: currentStageIndex } : undefined;
+          return hit
+            ? { item: hit.item as I, itemIndex: hit.itemIndex, stageIndex: currentStageIndex }
+            : undefined;
         })();
 
   // 最不熟的那道八股 —— 跨全部「背」的档一起排
-  let weakest: { item: PlanItem; rank: number } | undefined;
+  let weakest: { item: I; rank: number } | undefined;
+  // 下面两处 as I：stages 的元素类型是泛型的索引访问，TS 只看得到它满足
+  // StatusStage，推不出「里面装的正是 ItemOf<P>」。运行时是同一个对象。
   for (const stage of plan.stages) {
-    if (stage.source.from !== "drills") continue;
+    if (!isDrillStage(stage)) continue;
     for (const item of stage.items) {
       const st = itemStatusMap.get(item.key);
       const rank = st?.mark ? DRILL_RANK[st.mark] : 0;
       if (rank === 3) continue; // 已经标「会」的不用再排
-      if (!weakest || rank < weakest.rank) weakest = { item, rank };
+      if (!weakest || rank < weakest.rank) weakest = { item: item as I, rank };
     }
   }
 
@@ -230,7 +274,7 @@ export function planStatus(plan: ResolvedPlan, p: ProgressData): PlanStatus {
 
 /** 一格在计划里的 key。页面只有 (kind, id) 时用它反查 */
 export function itemKey(
-  kind: PlanItem["kind"],
+  kind: PlanItemKind,
   id: string,
   examId?: string,
 ): string {
