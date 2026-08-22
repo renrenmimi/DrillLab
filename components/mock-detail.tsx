@@ -16,6 +16,8 @@ import { L, T } from "./t";
 import { AnswerTabs, BilingualList, Section } from "./lesson-kit";
 import { LocalSetup } from "./local-setup";
 import { MockScore } from "./mock-score";
+import { itemKey } from "@/lib/plan-progress";
+import { PlanItemBannerSlot } from "./plan-slots";
 import { NoteRecent } from "./recent";
 
 export function MockDetail({ examId, mockId }: { examId: string; mockId: string }) {
@@ -46,6 +48,8 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
           <span className="crumb-sep">/</span>
           <Link href={examPath(exam.id)}>{exam.shortTitle}</Link>
         </nav>
+
+        <PlanItemBannerSlot itemKey={itemKey("mock", mock.id, exam.id)} />
 
         <div className="page-head">
           <h1 className="page-title serif">

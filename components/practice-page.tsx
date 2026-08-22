@@ -17,6 +17,7 @@ import { ExerciseView } from "./exercise";
 import { Ladder } from "./ladder";
 import { PracticeFocus } from "./practice-focus";
 import { PracticeProgress } from "./practice-progress";
+import { PlanStripSlot } from "./plan-slots";
 import { NoteRecent } from "./recent";
 import { KIND_LABEL } from "@/lib/exercise-labels";
 // 筛选链接的拼法在 lib/list-query.ts —— Practice 模式的侧栏是客户端组件，
@@ -127,6 +128,8 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
             L1–L4 没有从数据模型里删（Exercise.level 还在用，难度筛选也还需要它），
             只是不再作为一套世界观去解释 —— 它现在只是筛选器上的刻度。
             见 docs/ia-audit-round3.md。 */}
+        <PlanStripSlot mode="practice" />
+
         <Ladder current="exercises" />
 
         {/* 【三维一起收起来】

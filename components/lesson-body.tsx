@@ -19,6 +19,8 @@ import { CodeBlock } from "./code";
 import { drillListHref } from "./drill-query";
 import { ExerciseView } from "./exercise";
 import { LessonDoneBar, LessonStatusChip, LessonToc, LessonVisit } from "./lesson-islands";
+import { LessonPlanStep } from "./lesson-plan";
+import { PlanItemBanner } from "./plan-kit";
 import {
   AnswerTabs,
   Callout,
@@ -32,6 +34,7 @@ import {
   Section,
   TransferTable,
 } from "./lesson-kit";
+import { itemKey } from "@/lib/plan-progress";
 import { T } from "./t";
 
 export function LessonBody({ examId, lessonId }: { examId: string; lessonId: string }) {
@@ -146,6 +149,10 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
           }
           jump={<LessonJump prev={prevRef} next={nextRef} />}
         />
+
+        {/* 「你在计划的第几步」。不在当前计划里（或者没跟计划）就什么都不渲染 ——
+            自由浏览的人不该被计划的横幅打扰。 */}
+        <PlanItemBanner itemKey={itemKey("lesson", lessonId, examId)} />
 
         <LearningObjective
           objectives={lesson.objectives}
@@ -279,6 +286,21 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
               : undefined
           }
           doneBar={<LessonDoneBar examId={examId} lessonId={lessonId} />}
+          primaryStep={
+            <LessonPlanStep
+              examId={examId}
+              lessonId={lessonId}
+              next={
+                next
+                  ? {
+                      href: lessonPath(examId, next.lesson.id),
+                      zh: next.lesson.title,
+                      en: next.lesson.titleEn,
+                    }
+                  : undefined
+              }
+            />
+          }
         />
       </div>
 

@@ -13,7 +13,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { arenaById } from "@/content/arena";
 import { arenaPath, examPath, lessonPath, mockPath, navExam } from "@/content/nav";
+import { itemKey } from "@/lib/plan-progress";
 import { ArenaCheckoff } from "./arena-checkoff";
+import { PlanNextStepSlot } from "./plan-slots";
 import { CodeBlock } from "./code";
 import { HintPanel, SolutionGate } from "./hint-panel";
 import { L, T } from "./t";
@@ -132,6 +134,10 @@ export function ArenaReview({ id }: { id: string }) {
             </ul>
           </div>
         </ArenaCheckoff>
+
+        {/* 记完这一场之后的下一步。答案隔离一点没动 —— 这一条在
+            ArenaCheckoff 外面，它碰不到提示和参考答案那两个插槽。 */}
+        <PlanNextStepSlot itemKey={itemKey("arena", a.id)} />
       </div>
     </main>
   );

@@ -15,6 +15,8 @@ import { arenaPublicById } from "@/content/arena";
 import { examPath, navExam } from "@/content/nav";
 import { ArenaRules } from "./arena-bits";
 import { ArenaStartPanel } from "./arena-start";
+import { itemKey } from "@/lib/plan-progress";
+import { PlanItemBannerSlot } from "./plan-slots";
 import { NoteRecent } from "./recent";
 import { T } from "./t";
 
@@ -50,6 +52,8 @@ export function ArenaBrief({ id }: { id: string }) {
             </>
           )}
         </nav>
+
+        <PlanItemBannerSlot itemKey={itemKey("arena", a.id)} />
 
         <div className="page-head">
           <div className="eyebrow">

@@ -25,6 +25,8 @@ import { CodeBlock } from "./code";
 import { CodingWorkspace } from "./coding-workspace";
 import { HintPanel, SolutionGate } from "./hint-panel";
 import { AnswerTabs, Section, BilingualList } from "./lesson-kit";
+import { itemKey } from "@/lib/plan-progress";
+import { PlanItemBannerSlot, PlanNextStepSlot } from "./plan-slots";
 import { NoteRecent } from "./recent";
 import { L, T, type LocalizedString } from "./t";
 
@@ -118,6 +120,8 @@ export function CodingDetail({ id }: { id: string }) {
           </span>
           <span>{CODING_TRACK_LABEL[problem.track]}</span>
         </nav>
+
+        <PlanItemBannerSlot itemKey={itemKey("coding", problem.id)} />
 
         <div className="page-head">
           <h1 className="page-title serif">
@@ -319,6 +323,10 @@ export function CodingDetail({ id }: { id: string }) {
             <div className="foot-spacer" />
           )}
         </nav>
+
+        {/* 做完一格之后的「接下来」。Sandpack 的行为一点没动 ——
+            这一条只是在页尾多给一个「计划里的下一格」。 */}
+        <PlanNextStepSlot itemKey={itemKey("coding", problem.id)} />
       </div>
 
       <aside className="rail">

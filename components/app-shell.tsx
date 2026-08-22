@@ -30,8 +30,15 @@
 // 它仍然是 components/ladder.tsx 那套解释，只是不再自己充当一级导航：
 // 它现在分布在 Review / Practice / Assess 三个模式里。
 //
-// 首页、使用说明、速查这三页不属于任何模式，所以它们**没有侧栏**
-// （data-nav="off"）—— 首页本身就是那张仪表盘，不需要旁边再摆一份导航。
+// 首页、使用说明、速查、计划页不属于任何模式，所以它们**没有侧栏**
+// （data-nav="off"）—— 首页本身就是那张仪表盘，/plans 本身就是那张选择表。
+//
+// 【这一轮加的：引导计划】
+// 四个模式解决了「我想做哪一类事」，但四个里只有 Learn 是线性的 ——
+// Review / Practice / Assess 仍然是题库和筛选器。所以顶栏在四个模式**左边**
+// 多了一枚计划徽标（中间一条竖线隔开，因为它和那四项不是同一类东西：
+// 四项是活动，它是一条路），侧栏顶部多了一块计划面板。
+// 两个入口互补，不是替代：计划回答「下一步做什么」，四个模式回答「让我自己挑」。
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -40,6 +47,7 @@ import { useLocale } from "@/lib/locale";
 import { MODES, modeOf } from "@/lib/modes";
 import { useTheme } from "@/lib/theme";
 import { ContinueButton } from "./continue";
+import { PlanChipSlot, PlanPanelSlot } from "./plan-slots";
 import { Search } from "./search";
 import { ContextSidebar } from "./sidebars";
 import { T } from "./t";
@@ -309,9 +317,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           DrillLab
         </Link>
 
-        {/* 四个模式。**只有这一份 DOM** —— 窄屏靠 grid-area 把它整块挪到第二行，
-            不是另渲染一份。渲染两份会在无障碍树里留下两个同名的导航地标。 */}
-        <nav className="topbar-nav" aria-label={en ? "What you want to do" : "你想做什么"}>
+        {/* 计划徽标 + 四个模式。**只有这一份 DOM** —— 窄屏靠 grid-area 把它
+            整块挪到第二行，不是另渲染一份。渲染两份会在无障碍树里留下两个
+            同名的导航地标。
+            计划徽标 flex 不参与均分（flex: 0 0 auto），所以四个模式在窄屏
+            仍然是等宽四格。 */}
+        <nav className="topbar-nav" aria-label={en ? "Where to go" : "去哪儿"}>
+          <PlanChipSlot />
+          <span className="topbar-navsep" aria-hidden />
           {MODES.map((m) => {
             const on = mode === m.id;
             return (
@@ -408,6 +421,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             // 在屏幕外时移出可聚焦序列，键盘不会 Tab 进看不见的链接
             inert={narrow && !drawer}
           >
+            {/* 计划面板在侧栏最上面，且**只给四样**：叫什么、走到哪、
+                这一档是什么、下一格是什么。侧栏剩下的部分照旧是当前模式
+                自己的结构 —— 不把整条计划搬进来。没跟计划时它什么都不渲染。 */}
+            <PlanPanelSlot onNavigate={() => setDrawer(false)} />
             <ContextSidebar mode={mode} onNavigate={() => setDrawer(false)} />
           </aside>
         </>

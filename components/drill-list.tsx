@@ -18,6 +18,7 @@ import { DrillProgressStrip } from "./drill-marks";
 import { lessonRef } from "@/content/path";
 import { lessonPath } from "@/content/nav";
 import { DRILL_PAGE, drillListHref, drillMatchesKeyword, type DrillQuery } from "./drill-query";
+import { PlanStripSlot } from "./plan-slots";
 import { NoteRecent } from "./recent";
 import { T } from "./t";
 import { Ladder } from "./ladder";
@@ -125,6 +126,8 @@ export function DrillList({ query }: { query: DrillQuery }) {
             </Link>
           </div>
         )}
+
+        <PlanStripSlot mode="review" />
 
         <Ladder current="drill" />
 

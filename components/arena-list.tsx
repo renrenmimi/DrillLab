@@ -14,6 +14,7 @@ import { ARENA, arenaPath, navExam } from "@/content/nav";
 import { useProgress } from "@/lib/progress";
 import { T } from "./t";
 import { ArenaWhy, AttemptTags, attemptMs, bestPass, fmtClock } from "./arena-bits";
+import { PlanStripSlot } from "./plan-slots";
 import { NoteRecent } from "./recent";
 import { Ladder } from "./ladder";
 
@@ -64,6 +65,8 @@ export function ArenaList() {
             <ArenaWhy />
           </div>
         </div>
+
+        <PlanStripSlot mode="assess" />
 
         <Ladder current="arena" />
 

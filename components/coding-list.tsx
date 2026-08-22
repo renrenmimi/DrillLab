@@ -15,6 +15,7 @@ import { codingHref, type CodingQuery } from "@/lib/list-query";
 
 export type { CodingQuery };
 import { CodingCount, CodingDoneBadge } from "./coding-progress";
+import { PlanStripSlot } from "./plan-slots";
 import { NoteRecent } from "./recent";
 import { T } from "./t";
 import { Ladder } from "./ladder";
@@ -86,6 +87,8 @@ export function CodingList({ query }: { query: CodingQuery }) {
             />
           </p>
         </div>
+
+        <PlanStripSlot mode="practice" />
 
         <Ladder current="code" />
 
