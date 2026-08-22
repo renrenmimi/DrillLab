@@ -365,7 +365,13 @@ export function Reference() {
                       }
                     />
                   </td>
-                  <td>react: dev/build/q2；subgraph: start/test/test:watch</td>
+                  {/* 这一格只有一个全角分号是中文的，留在英文侧会像错字 */}
+                  <td>
+                    <T
+                      zh="react: dev/build/q2；subgraph: start/test/test:watch"
+                      en="react: dev/build/q2; subgraph: start/test/test:watch"
+                    />
+                  </td>
                 </tr>
                 <tr>
                   <td><code>dependencies</code></td>
