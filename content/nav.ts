@@ -78,6 +78,10 @@ export interface NavExam {
   debugLabs: number;
   rebuilds: number;
   rebuildIds: string[];
+  /** 每种练习题型有几个（键是 Exercise["kind"]）—— Practice 侧栏的筛选项计数用 */
+  exerciseKinds: Record<string, number>;
+  /** 每个难度档有几个（键是 "1"–"4"）—— 同上 */
+  exerciseLevels: Record<string, number>;
   modules: NavModule[];
   mockExams: NavMock[];
   checklist: { task: string; covered: string; tested: boolean }[];
@@ -176,6 +180,16 @@ const PAYLOAD: NavPayload = {
       "debugLabs": 2,
       "rebuilds": 0,
       "rebuildIds": [],
+      "exerciseKinds": {
+        "recognition": 8,
+        "fill-blank": 5,
+        "ordering": 1,
+        "debug": 2
+      },
+      "exerciseLevels": {
+        "1": 9,
+        "2": 7
+      },
       "modules": [
         {
           "id": "how-projects-run",
@@ -330,6 +344,20 @@ const PAYLOAD: NavPayload = {
         "r-rebuild-q1",
         "r-rebuild-q2"
       ],
+      "exerciseKinds": {
+        "recognition": 12,
+        "fill-blank": 12,
+        "debug": 14,
+        "ordering": 2,
+        "code-completion": 12,
+        "from-scratch": 2
+      },
+      "exerciseLevels": {
+        "1": 14,
+        "2": 21,
+        "3": 17,
+        "4": 2
+      },
       "modules": [
         {
           "id": "react-mental-model",
@@ -704,6 +732,20 @@ const PAYLOAD: NavPayload = {
         "g-rebuild-subgraph",
         "g-rebuild-controller"
       ],
+      "exerciseKinds": {
+        "recognition": 23,
+        "fill-blank": 8,
+        "ordering": 2,
+        "debug": 8,
+        "code-completion": 4,
+        "from-scratch": 2
+      },
+      "exerciseLevels": {
+        "1": 25,
+        "2": 11,
+        "3": 9,
+        "4": 2
+      },
       "modules": [
         {
           "id": "gql-basics",
@@ -1029,6 +1071,16 @@ const PAYLOAD: NavPayload = {
       "debugLabs": 0,
       "rebuilds": 0,
       "rebuildIds": [],
+      "exerciseKinds": {
+        "recognition": 3,
+        "fill-blank": 2,
+        "code-completion": 11
+      },
+      "exerciseLevels": {
+        "1": 3,
+        "2": 2,
+        "3": 11
+      },
       "modules": [
         {
           "id": "iv-basics",
@@ -1427,6 +1479,20 @@ const PAYLOAD: NavPayload = {
       "rebuildIds": [
         "cb-from-scratch"
       ],
+      "exerciseKinds": {
+        "recognition": 4,
+        "fill-blank": 4,
+        "code-completion": 3,
+        "ordering": 1,
+        "debug": 2,
+        "from-scratch": 1
+      },
+      "exerciseLevels": {
+        "1": 5,
+        "2": 6,
+        "3": 3,
+        "4": 1
+      },
       "modules": [
         {
           "id": "cab-context",
