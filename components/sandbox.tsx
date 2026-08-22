@@ -32,13 +32,17 @@ const CodingSandpack = dynamic(() => import("./coding-sandpack"), {
    可运行：真沙箱
    ============================================================ */
 
+// 编辑器里的文字没法按语言切 —— 它是一个字符串，进了 Sandpack 就由那边渲染，
+// CSS 的 data-lang 开关管不到。所以照 lib/locale.tsx 里那条约定：两种语言拼在
+// 同一行（和 aria-label="复制 / Copy" 一个路子）。
+// 【行数必须保持不变】沙箱代码的行数会影响编辑器显示，翻译只准往行尾加。
 const BLANK_NOTE =
-  "// 空白重来：这个文件是空的，全部由你写。\n// 测试文件就是判卷器 —— 不要改测试。\n";
+  "// 空白重来：这个文件是空的，全部由你写。 / Blank slate: this file is empty — you write all of it.\n// 测试文件就是判卷器 —— 不要改测试。 / The test file is the grader; do not edit the tests.\n";
 
-const BLANK_APP = `// 空白重来：预览先空着。
-// 组件写完之后，改这里把它挂上来。
+const BLANK_APP = `// 空白重来：预览先空着。 / Blank slate: the preview starts out empty.
+// 组件写完之后，改这里把它挂上来。 / Once your component is written, mount it here.
 export default function App() {
-  return <p>空白重来档 —— 先把实现文件写出来。</p>;
+  return <p>空白重来档 —— 先把实现文件写出来。 / Blank slate — write the implementation files first.</p>;
 }
 `;
 
