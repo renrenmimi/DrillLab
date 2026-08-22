@@ -219,114 +219,20 @@
    侧栏顶部那块面板
    ============================================================ */
 
-.pl-panel {
-  margin: 0 16px 18px;
-  padding: 11px 13px 12px;
-  border: 1px solid var(--accent-line);
-  border-radius: var(--r-lg);
-  background: var(--accent-wash);
-}
-
-.pl-panel-top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 5px;
-}
-
-.pl-panel-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent-ink);
-}
-
-.pl-panel-link {
-  font-size: 11.5px;
-  color: var(--ink-2);
-  white-space: nowrap;
-}
-
-.pl-panel-name {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-weight: 650;
-  line-height: 1.35;
-  color: var(--ink);
-  overflow-wrap: anywhere;
-}
-
-.pl-panel-name:hover {
-  text-decoration: none;
-  color: var(--accent-ink);
-}
-
-.pl-panel-stage {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin: 9px 0 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--ink-2);
-}
-
-.pl-panel-stage-n {
-  flex: 0 0 auto;
-  font-weight: 650;
-  color: var(--ink-3);
-}
-
-.pl-panel-next {
-  display: block;
-  margin-top: 8px;
-  padding: 7px 9px;
-  border: 1px solid var(--accent);
-  border-radius: var(--r);
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.pl-panel-next:hover {
-  background: var(--accent-ink);
-  border-color: var(--accent-ink);
-  text-decoration: none;
-}
 
 
-.pl-panel-next-label {
-  display: block;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
 
-.pl-panel-next-label::after {
-  content: " →";
-}
 
-.pl-panel-next-title {
-  display: block;
-  margin-top: 2px;
-  font-size: 12.5px;
-  font-weight: 650;
-  line-height: 1.4;
-}
 
-.pl-panel-done {
-  margin: 9px 0 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--ok);
-  font-weight: 600;
-}
+
+
+
+
+
+
+
+
+
 
 /* ============================================================
    计划卡片
@@ -628,8 +534,8 @@
 }
 
 .pl-head {
-  padding-bottom: 26px;
-  margin-bottom: 30px;
+  padding-bottom: var(--sp-4);
+  margin-bottom: var(--sp-4);
   border-bottom: 1px solid var(--rule);
 }
 
@@ -653,11 +559,11 @@
 }
 
 
+/* 字号由 .ui-h1 给（styles/layout.css）—— 各页面的 h1 必须同一档，
+   这里只调它自己的边距和最大宽度。 */
 .pl-head-title {
-  font-size: clamp(27px, 3.6vw, 38px);
-  line-height: 1.18;
-  margin: 10px 0 12px;
-  max-width: 28ch;
+  margin: var(--sp-1) 0 var(--sp-2);
+  max-width: 30ch;
 }
 
 .pl-head-outcome {
@@ -668,29 +574,46 @@
   margin: 0 0 14px;
 }
 
-.pl-head-scope {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  margin: 0 0 18px;
-  font-size: 13px;
-  color: var(--ink-3);
+.pl-head-meta {
+  margin: 0 0 var(--sp-1);
 }
 
+.pl-head-prog {
+  max-width: 420px;
+  margin: 0 0 var(--sp-3);
+}
+
+/* 「适合谁」降到动作行之后 —— 它是**选**计划时才要的，
+   已经在跟着走的人不用再读一遍。 */
 .pl-head-for {
-  color: var(--ink-2);
-}
-
-.pl-head .pl-meter {
-  max-width: 52ch;
-  margin-bottom: 20px;
+  max-width: 60ch;
+  margin: var(--sp-2) 0 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-3);
 }
 
 .pl-head-actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px 14px;
+  gap: var(--sp-2);
+}
+
+/* 次要动作：安静的文字按钮，不是第二颗实心按钮。
+   button 元素要自己清掉浏览器默认外观。 */
+.pl-head-alt {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.pl-head-alt:disabled {
+  cursor: default;
+  /* WCAG 1.4.3 明确豁免禁用控件，所以这里可以用透明度 */
+  opacity: 0.5;
 }
 
 .pl-head-cta {
@@ -788,7 +711,7 @@
 .rm-stage {
   position: relative;
   margin: 0;
-  padding: 0 0 4px 52px;
+  padding: 0 0 var(--sp-1) 52px;
   /* 顶栏是 sticky 的，锚点跳过来别被压住 */
   scroll-margin-top: calc(var(--topbar-h) + 20px);
 }
@@ -798,8 +721,10 @@
   content: "";
   position: absolute;
   left: 15px;
-  top: 34px;
-  bottom: -6px;
+  top: 36px;
+  /* 负值刻意超出这一段：段与段之间不能留缝，否则整条路线读起来是
+     「一串短线」而不是一条线。 */
+  bottom: -10px;
   width: 2px;
   background: var(--rule);
 }
@@ -827,9 +752,10 @@
 }
 
 .rm-marker-n {
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
   color: var(--ink-3);
 }
 
@@ -880,10 +806,16 @@
 }
 
 .rm-head {
+  /* 档头是 flex 两端对齐：左边档位 + 名字 + 状态，右边计数 + 估时。
+     这一条保证所有档的计数在同一条竖轴上，不随名字长短漂移。 */
   position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
   cursor: pointer;
   list-style: none;
-  padding: 4px 22px 0 0;
+  padding: 4px 24px 0 0;
   border-radius: var(--r);
 }
 
@@ -944,6 +876,57 @@
   font-weight: 650;
 }
 
+.rm-head-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex: 0 0 auto;
+}
+
+.rm-head-min {
+  font-size: var(--fs-meta);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.rm-head-min::before {
+  content: "· ";
+  color: var(--ink-4);
+}
+
+/* 「看这一档全部 N 条」。当前档默认只露三条，其余在这后面 */
+.rm-all {
+  margin-top: var(--sp-1);
+}
+
+.rm-all > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--h-ctl-sm);
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+  list-style: none;
+}
+
+.rm-all > summary::-webkit-details-marker {
+  display: none;
+}
+
+.rm-all > summary::after {
+  content: " ▾";
+  color: var(--ink-3);
+  transition: transform var(--t-fold) var(--ease);
+}
+
+.rm-all[open] > summary::after {
+  content: " ▴";
+}
+
+.rm-all > summary:hover {
+  color: var(--ink);
+}
+
 .rm-count {
   flex: 0 0 auto;
   font-size: 12.5px;
@@ -963,18 +946,21 @@
   border-right: 1.6px solid var(--ink-3);
   border-bottom: 1.6px solid var(--ink-3);
   transform: rotate(-45deg);
-  transition: transform 0.14s ease;
+  transition: transform var(--t-fold) var(--ease);
 }
 
 .rm-det[open] > .rm-head::after {
   transform: rotate(45deg);
 }
 
+/* 「这一档为什么在这儿」。UI v2 里它从 summary 搬进了 body ——
+   折叠状态下的档头只留编号 / 名字 / 条数 / 估时 / 状态五样，
+   20 个档各带一段解释的话，折叠就没有意义了。 */
 .rm-why {
   display: block;
-  margin-top: 5px;
+  margin: 0 0 var(--sp-2);
   font-size: 13.5px;
-  line-height: 1.65;
+  line-height: 1.62;
   color: var(--ink-2);
   max-width: var(--measure);
 }
@@ -1241,19 +1227,21 @@
    页内的计划位置条
    ============================================================ */
 
+/* 【UI v2】从一张带底色的卡收成一行。
+   它只回答「我在这条路的哪儿」，所以不该比正下方的课文标题更显眼 ——
+   老版本有强调色底 + 3px 左边框，实际效果就是那样。
+   现在只有上下两条细线，一行 12.5px 的字。 */
 .pl-here {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px 14px;
-  margin: 0 0 24px;
-  padding: 9px 13px;
-  border: 1px solid var(--accent-line);
-  border-left-width: 3px;
-  border-radius: var(--r);
-  background: var(--accent-wash);
+  gap: 6px var(--sp-2);
+  margin: 0 0 var(--sp-3);
+  padding: 7px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
   font-size: 12.5px;
-  color: var(--ink-2);
+  color: var(--ink-3);
   max-width: var(--measure-wide);
 }
 
@@ -1266,8 +1254,21 @@
   color: var(--accent-ink);
 }
 
-.pl-here-lead a {
-  color: var(--accent-ink);
+.pl-here-lead:hover {
+  text-decoration: none;
+  color: var(--accent-h);
+}
+
+/* 「回到计划」在最右边 —— 它是这一行唯一的动作 */
+.pl-here-back {
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.pl-here-back::after {
+  content: " →";
 }
 
 .pl-here-pos {
@@ -1283,10 +1284,6 @@
   color: var(--ink-3);
 }
 
-.pl-here-stage {
-  font-weight: 600;
-  color: var(--ink);
-}
 
 .pl-here-state[data-state="passed"],
 .pl-here-state[data-state="confident"],
@@ -1306,29 +1303,8 @@
   font-weight: 650;
 }
 
-.pl-here-next {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 650;
-  color: var(--accent-ink);
-}
 
-.pl-here-next::after {
-  content: "→";
-  order: 3;
-}
 
-.pl-here-next-title {
-  font-weight: 550;
-  color: var(--ink-2);
-  max-width: 22ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 /* ---------- 列表页那一条 ---------- */
 
@@ -1645,7 +1621,7 @@
   .apc-title,
   .dash-goal-title,
   .pl-head-title {
-    font-size: clamp(23px, 6vw, 28px);
+    max-width: none;
   }
 }
 
@@ -1696,13 +1672,11 @@
     align-items: stretch;
   }
 
-  .pl-here-next,
   .pl-strip-next,
   .pl-nextstep-cta {
     justify-content: center;
   }
 
-  .pl-here-next-title,
   .pl-strip-next-title {
     max-width: none;
     white-space: normal;

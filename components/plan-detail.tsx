@@ -27,9 +27,9 @@ import {
 } from "@/content/plans";
 import { useT } from "@/lib/locale";
 import { modeById } from "@/lib/modes";
-import { planStatus, type ItemState, type PlanStatus } from "@/lib/plan-progress";
+import { pct, planStatus, type ItemState, type PlanStatus } from "@/lib/plan-progress";
 import { useProgress } from "@/lib/progress";
-import { PHASE, PhaseBadge, PlanMeter, STATE_LABEL, StateDot } from "./plan-kit";
+import { PHASE, PhaseBadge, STATE_LABEL, StateDot } from "./plan-kit";
 import { PlanMark } from "./plan-mark";
 import { T } from "./t";
 
@@ -150,12 +150,34 @@ function Stage({
     : undefined;
   const nextIndex = nextItem ? stage.items.indexOf(nextItem) : -1;
 
+  // 这一档大概要多久。只有带估时的条目（课文 / coding / 考场 / 模拟考）计入 ——
+  // 练习和八股在 content/plans.ts 里就没有估时，不编一个平均值。
+  const stageMin = stage.items.reduce((n, it) => n + (it.minutes ?? 0), 0);
+  const stageTime = stageMin >= 90 ? `${Math.round(stageMin / 60)} 小时` : `${stageMin} 分钟`;
+  const stageTimeEn = stageMin >= 90 ? `${Math.round(stageMin / 60)} h` : `${stageMin} min`;
+
+  /**
+   * 当前档要露出来的那几条：**当前那一格 + 后面两条**。
+   *
+   * 只有当前档才收 —— 别的档默认折叠，点开就是想看全部。
+   * 这一档只有三条以内时也直接给全部，否则会出现一个
+   * 「看全部 3 条」却什么都没折叠的按钮，看着像坏了。
+   */
+  const focus =
+    planStageState === "current" && nextIndex >= 0 && stage.items.length > 3
+      ? stage.items.map((item, i) => ({ item, i })).slice(nextIndex, nextIndex + 3)
+      : undefined;
+
   return (
     <li className="rm-stage" id={`stage-${stage.id}`} data-state={planStageState}>
       <span className="rm-marker" aria-hidden>
         <span className="rm-marker-n tabular">{String(index + 1).padStart(2, "0")}</span>
       </span>
 
+      {/* 【渐进披露】做完的和还没到的档默认折叠，只有当前那一档展开。
+          折叠时只给：编号（在左边的节点上）· 档位 · 名字 · 条数 · 估时 · 状态。
+          「这一档为什么在这儿」和条目清单都在展开之后 ——
+          20 个档全展开就是把数据库倒在屏幕上（完整路线那条有 350 条）。 */}
       <details className="rm-det" open={planStageState === "current"}>
         <summary className="rm-head">
           <span className="rm-head-top">
@@ -173,16 +195,23 @@ function Stage({
                 <T zh="这一档做完了" en="Stage complete" />
               </span>
             )}
+          </span>
+          <span className="rm-head-meta">
             <span className="rm-count tabular">
               {stat.done} / {stat.total}
             </span>
-          </span>
-          <span className="rm-why">
-            <T zh={stage.whyZh} en={stage.whyEn} />
+            {stageMin > 0 && (
+              <span className="rm-head-min tabular">
+                <T zh={`约 ${stageTime}`} en={`about ${stageTimeEn}`} />
+              </span>
+            )}
           </span>
         </summary>
 
         <div className="rm-body">
+          <p className="rm-why">
+            <T zh={stage.whyZh} en={stage.whyEn} />
+          </p>
           {stat.confident !== undefined && (
             <p className="rm-note">
               <T
@@ -206,9 +235,10 @@ function Stage({
             </p>
           )}
 
-          {/* 密集档：先单独给一行「下一格」，再摊格子。
-              这样即便是 54 个格子的那一档，也永远有一个带标题的目标。 */}
-          {stage.layout === "chips" && nextItem && (
+          {/* 密集档、且这一档不是当前档（但被人点开了）：先单独给一行「下一格」，
+              再摊格子 —— 54 个格子里总得有一个带标题的目标。
+              当前档走 focus 那一支，那边本来就是带标题的行。 */}
+          {!focus && stage.layout === "chips" && nextItem && (
             <ol className="rm-rows rm-rows-solo">
               <ItemRow
                 item={nextItem}
@@ -219,7 +249,59 @@ function Stage({
             </ol>
           )}
 
-          {stage.layout === "rows" ? (
+          {/* 当前那一档：只露「当前那一格 + 后面两条」。
+              一档可能有 90 条（「背知识点」那种），全列出来这一页就废了。
+              剩下的在下面「看全部」后面 —— 需要的时候一定找得到。 */}
+          {focus ? (
+            <>
+              <ol className="rm-rows">
+                {focus.map(({ item, i }) => (
+                  <ItemRow
+                    key={item.key}
+                    item={item}
+                    index={i}
+                    state={status.itemStatus.get(item.key)!.state}
+                    isNext={item.key === nextKeyHere}
+                  />
+                ))}
+              </ol>
+              {stage.items.length > focus.length && (
+                <details className="rm-all">
+                  <summary>
+                    <T
+                      zh={`看这一档全部 ${stage.items.length} 条`}
+                      en={`View all ${stage.items.length} items`}
+                    />
+                  </summary>
+                  {stage.layout === "rows" ? (
+                    <ol className="rm-rows">
+                      {stage.items.map((item, i) => (
+                        <ItemRow
+                          key={item.key}
+                          item={item}
+                          index={i}
+                          state={status.itemStatus.get(item.key)!.state}
+                          isNext={item.key === nextKeyHere}
+                        />
+                      ))}
+                    </ol>
+                  ) : (
+                    <ol className="rm-chips">
+                      {stage.items.map((item, i) => (
+                        <ItemChip
+                          key={item.key}
+                          item={item}
+                          index={i}
+                          state={status.itemStatus.get(item.key)!.state}
+                          isNext={item.key === nextKeyHere}
+                        />
+                      ))}
+                    </ol>
+                  )}
+                </details>
+              )}
+            </>
+          ) : stage.layout === "rows" ? (
             <ol className="rm-rows">
               {stage.items.map((item, i) => (
                 <ItemRow
@@ -245,7 +327,7 @@ function Stage({
             </ol>
           )}
 
-          {stage.layout === "chips" && (
+          {!focus && stage.layout === "chips" && (
             <p className="rm-note rm-note-quiet">
               <T
                 zh={`${stat.total} 格，一格一个真实条目 —— 鼠标停上去或用键盘走过去会读出它的标题。`}
@@ -270,6 +352,7 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
   // 路由，服务端已经把完整的 ResolvedPlan 当 prop 传进来了，直接算就是。
   // 全站挂载的那几个零件不能这么干，见 components/plan-kit.tsx 顶部。
   const { data, activePlan, setActivePlan, notePlanSeen, ready } = useProgress();
+  const t = useT();
   const status = planStatus(plan, data);
   const [changing, setChanging] = useState(false);
   const pReady = ready;
@@ -287,9 +370,15 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
   const next = status.next;
   const hours = Math.round(plan.minutes / 60);
 
+  // 还剩多久。只统计带估时的条目 —— 练习和八股在数据里就没有估时。
+  const leftMin = plan.items.reduce(
+    (n, it) => (status.itemStatus.get(it.key)?.done ? n : n + (it.minutes ?? 0)),
+    0,
+  );
+
   return (
     <main className="main" data-rail="off">
-      <div className="content pl-page">
+      <div className="content ui-page pl-page">
         <nav className="crumb" aria-label="Breadcrumb">
           <span>
             <Link href="/plans">
@@ -316,37 +405,59 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
             )}
           </div>
 
-          <h1 className="pl-head-title display">
+          <h1 className="pl-head-title ui-h1">
             <T zh={plan.zh} en={plan.en} />
           </h1>
           <p className="pl-head-outcome">
             <T zh={plan.outcomeZh} en={plan.outcomeEn} />
           </p>
 
-          <p className="pl-head-scope">
-            <T
-              zh={`${plan.stages.length} 档 · ${status.total} 个条目 · 有估时的部分约 ${hours} 小时`}
-              en={`${plan.stages.length} stages · ${status.total} items · about ${hours} hours of timed material`}
-            />
-            <span className="pl-head-for">
-              <T zh={plan.forZh} en={plan.forEn} />
+          {/* 页头的元信息收成一行：规模 + 当前档 + 还剩多久。
+              「适合谁」搬到下面 —— 它是选计划时才要的，已经在跟着走的人不用再读。 */}
+          <div className="ui-meta pl-head-meta">
+            <span>
+              <T
+                zh={`${plan.stages.length} 档 · ${status.total} 条`}
+                en={`${plan.stages.length} stages · ${status.total} items`}
+              />
             </span>
-          </p>
-
-          <PlanMeter
-            done={status.done}
-            total={status.total}
-            label={
-              status.complete ? (
+            <span>
+              {status.complete ? (
                 <T zh="全部做完了" en="All done" />
               ) : (
                 <T
                   zh={`第 ${status.currentStageIndex + 1} 档 · ${stage?.zh ?? ""}`}
                   en={`stage ${status.currentStageIndex + 1} · ${stage?.en ?? ""}`}
                 />
-              )
-            }
-          />
+              )}
+            </span>
+            <span
+              title={t(
+                "只统计带估时的条目（课文、coding、考场、模拟考）。练习和八股没有估时。",
+                "Counts only the items that carry an estimate: lessons, coding problems, arena papers and mocks.",
+              )}
+            >
+              {status.complete || leftMin <= 0 ? (
+                <T zh={`总计约 ${hours} 小时`} en={`about ${hours} h in total`} />
+              ) : leftMin >= 90 ? (
+                <T
+                  zh={`还剩约 ${Math.round(leftMin / 60)} 小时`}
+                  en={`about ${Math.round(leftMin / 60)} h left`}
+                />
+              ) : (
+                <T zh={`还剩约 ${leftMin} 分钟`} en={`about ${leftMin} min left`} />
+              )}
+            </span>
+          </div>
+
+          <div className="ui-prog pl-head-prog">
+            <span className="ui-prog-num">
+              <b>{status.done}</b> / {status.total}
+            </span>
+            <span className="ui-bar">
+              <i style={{ width: `${pct(status.done, status.total)}%` }} />
+            </span>
+          </div>
 
           <div className="pl-head-actions">
             {status.complete ? (
@@ -382,10 +493,12 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
               )
             )}
 
+            {/* 次要动作一律是安静的文字按钮，不是第二颗实心按钮 ——
+                这一屏的主动作只有上面那个〔继续〕。 */}
             {!isActive && (
               <button
                 type="button"
-                className="btn btn-sm"
+                className="ui-quiet pl-head-alt"
                 disabled={!pReady}
                 onClick={() => setActivePlan(plan.id)}
               >
@@ -395,12 +508,12 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
 
             {isActive && (
               <>
-                <Link className="btn btn-sm" href="/plans">
+                <Link className="ui-quiet pl-head-alt" href="/plans">
                   <T zh="换一条计划" en="Change plan" />
                 </Link>
                 <button
                   type="button"
-                  className="btn btn-sm btn-ghost"
+                  className="ui-quiet pl-head-alt"
                   onClick={() => setChanging(true)}
                 >
                   <T zh="先不跟计划" en="Stop guiding me" />
@@ -410,6 +523,10 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
           </div>
 
           {changing && <StopGuiding onClose={() => setChanging(false)} />}
+
+          <p className="pl-head-for">
+            <T zh={plan.forZh} en={plan.forEn} />
+          </p>
 
           {status.complete && status.weakestDrill && (
             <p className="pl-head-more">

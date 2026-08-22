@@ -20,16 +20,16 @@ export function PlanList() {
 
   return (
     <main className="main" data-rail="off">
-      <div className="content pl-list">
-        <div className="page-head">
-          <div className="eyebrow">
+      <div className="content ui-page pl-list">
+        <div className="ui-head">
+          <div className="ui-eyebrow">
             <PlanMark />
             <T zh="引导计划" en="Guided plans" />
           </div>
-          <h1 className="page-title display">
-            <T zh="你现在想达成什么目标？" en="What are you preparing for?" />
+          <h1 className="ui-h1">
+            <T zh="你想为什么做好准备？" en="What do you want to be ready for?" />
           </h1>
-          <p className="page-lede">
+          <p className="ui-lede">
             <T
               zh="每一条都是一串有序的、跨模式的步骤：读哪几节、背哪些方向、做哪些练习、写哪几道题、最后在空文件夹里做一遍。用的全是站里已有的内容，不另出题。"
               en="Each one is an ordered sequence that crosses the four modes: which lessons to read, which topics to revise, which exercises and problems to do, and finally the same thing in an empty folder. All of it is material that already exists here."
@@ -57,8 +57,8 @@ export function PlanList() {
           ))}
         </ul>
 
-        <div className="pl-list-foot">
-          <h2 className="home-sec-title">
+        <div className="ui-sec pl-list-foot" data-quiet>
+          <h2 className="ui-sec-title">
             <T zh="不想被引导？" en="Would rather not be guided?" />
           </h2>
           <p>
