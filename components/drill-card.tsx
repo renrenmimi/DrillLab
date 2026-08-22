@@ -30,12 +30,19 @@ import { T } from "./t";
 
 const META = new Map(DRILLS.map((d) => [d.id, d]));
 
-/** 掌握状态筛选的取值。"none" = 还没做过 */
-export type MarkFilter = "all" | DrillMark | "none";
+/**
+ * 掌握状态筛选的取值。
+ *   "none"   还没做过
+ *   "review" 「模糊 + 不会」并成一档 —— 这是考前一晚真正要过的那一堆，
+ *            也是 Review 侧栏「要复习」那一项指向的值。
+ *            拆成两次点击（先筛模糊、再筛不会）是把一件事说成两件。
+ */
+export type MarkFilter = "all" | DrillMark | "none" | "review";
 
 function hit(mark: DrillMark | undefined, filter: MarkFilter) {
   if (filter === "all") return true;
   if (filter === "none") return mark === undefined;
+  if (filter === "review") return mark === "fuzzy" || mark === "unknown";
   return mark === filter;
 }
 

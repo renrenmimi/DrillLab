@@ -14,6 +14,7 @@ import { ARENA, arenaPath, navExam } from "@/content/nav";
 import { useProgress } from "@/lib/progress";
 import { T } from "./t";
 import { ArenaWhy, AttemptTags, attemptMs, bestPass, fmtClock } from "./arena-bits";
+import { NoteRecent } from "./recent";
 import { Ladder } from "./ladder";
 
 export function ArenaList() {
@@ -39,6 +40,14 @@ export function ArenaList() {
 
   return (
     <main className="main" data-rail="off">
+      <NoteRecent
+        mode="assess"
+        href="/arena"
+        title="考场"
+        titleEn="Arena"
+        sub={`${ARENA.length} 道计时题`}
+        subEn={`${ARENA.length} timed papers`}
+      />
       <div className="content arena-list">
         <div className="page-head">
           <div className="eyebrow">

@@ -19,11 +19,13 @@ import {
   lessonPath,
 } from "@/content/registry";
 import { CODING_TRACK_LABEL, DIFFICULTY_LABEL } from "@/content/coding";
+import { codingPath } from "@/content/nav";
 import type { CodeExample, CodingProblem, Lesson } from "@/content/types";
 import { CodeBlock } from "./code";
 import { CodingWorkspace } from "./coding-workspace";
 import { HintPanel, SolutionGate } from "./hint-panel";
 import { AnswerTabs, Section, BilingualList } from "./lesson-kit";
+import { NoteRecent } from "./recent";
 import { L, T, type LocalizedString } from "./t";
 
 /* ---------- 从现有内容里找东西，不复制 ---------- */
@@ -98,6 +100,14 @@ export function CodingDetail({ id }: { id: string }) {
 
   return (
     <main className="main">
+      <NoteRecent
+        mode="practice"
+        href={codingPath(problem.id)}
+        title={problem.title}
+        titleEn={problem.titleEn}
+        sub={`Coding 题 · ${CODING_TRACK_LABEL[problem.track]}`}
+        subEn={`Coding · ${CODING_TRACK_LABEL[problem.track]}`}
+      />
       <div className="content">
         <nav aria-label="面包屑 / Breadcrumb" className="crumb">
           <Link href="/code">

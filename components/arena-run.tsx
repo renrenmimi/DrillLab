@@ -18,6 +18,7 @@ import { ArenaClock } from "./arena-clock";
 import { TerminalCommand } from "./code";
 import { FileExplorer } from "./lesson-kit";
 import { NoRunnerNote } from "./local-setup";
+import { NoteRecent } from "./recent";
 import { T } from "./t";
 
 /** 模拟考派生的题会把「【任务标题】」平铺进 requirements，这里拆回分组 */
@@ -63,6 +64,16 @@ export function ArenaRun({ id }: { id: string }) {
 
   return (
     <main className="main" data-rail="off">
+      {/* 计时中的这一场就是「最近那件事」—— 顶栏的「继续」该直接带回考场。
+          只传标题：这一页在类型上拿不到 hints / solution，传不出去也传不进去。 */}
+      <NoteRecent
+        mode="assess"
+        href={`/arena/${a.id}/run`}
+        title={a.title}
+        titleEn={a.titleEn}
+        sub="考场 · 正在计时"
+        subEn="Arena · on the clock"
+      />
       <div className="content">
         <ArenaClock id={a.id} minutes={a.minutes} />
 

@@ -1,6 +1,9 @@
 @import "../styles/tokens.css";
 @import "../styles/base.css";
 @import "../styles/shell.css";
+/* nav.css 必须排在 shell.css 之后 —— 它重写了 .topbar 的布局，
+   也在 media query 里改了 --topbar-h。同优先级下靠源码顺序决定胜负。 */
+@import "../styles/nav.css";
 @import "../styles/lesson.css";
 @import "../styles/code.css";
 @import "../styles/exercise.css";

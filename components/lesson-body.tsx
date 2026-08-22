@@ -1,29 +1,33 @@
 // 一节课的完整渲染 —— 服务端组件。
 //
 // 所有课都走这一条路径，所以教学节奏是统一的：
-//   课头 → 学完你会 / 考什么 → 涉及的真实文件 → 编号讲解段（含真实代码）
-//   → 提示框 → 练习 → 常见错误 → 迁移模式 → 要点 → 学完打勾 → 上下节
+//   课头（位置 / 估时 / 学完没有 / 上下节）→ 学完你会 / 考什么 →
+//   涉及的真实文件 → 编号讲解段（含真实代码）→ 提示框 → 练习 →
+//   常见错误 → 迁移模式 → 要点 → 一块「接下来」面板
 //
 // 【为什么是服务端组件】课程内容里带 JSX。以前这个文件是 "use client"，
 // 结果 42 节课的全文全被打进客户端包（实测单个 chunk 784 KB，每页都下载）。
 // 现在正文在服务端渲染，只有真正需要交互的部分是客户端小岛：
-//   LessonVisit / LessonDoneBar / LessonToc（本文件下方引用）
+//   LessonVisit / LessonStatusChip / LessonDoneBar / LessonToc（本文件下方引用）
 //   CodeBlock / ExerciseView / DataFlowDiagram（各自文件里标了 "use client"）
 
 import Link from "next/link";
 import { examPath, findLesson, lessonPath, prevNextLesson } from "@/content/registry";
-import { stageEn } from "@/content/path";
+import { CODING, codingPath } from "@/content/nav";
+import { drillsOfLesson, stageEn } from "@/content/path";
 import { CodeBlock } from "./code";
+import { drillListHref } from "./drill-query";
 import { ExerciseView } from "./exercise";
-import { LessonDoneBar, LessonToc, LessonVisit } from "./lesson-islands";
+import { LessonDoneBar, LessonStatusChip, LessonToc, LessonVisit } from "./lesson-islands";
 import {
   AnswerTabs,
   Callout,
   FileExplorer,
   LearningObjective,
   LessonHeader,
+  LessonJump,
+  LessonNextPanel,
   MistakeList,
-  NextLesson,
   Recap,
   Section,
   TransferTable,
@@ -51,6 +55,27 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
   const { exam, module, lesson, index, total } = ref;
   const { prev, next } = prevNextLesson(examId, lessonId);
 
+  // 上一节 / 下一节。页首那条一行式导航和页尾的「接下来」面板共用同一份，
+  // 免得两处对「下一节是哪一节」给出两个答案。
+  const prevRef = prev
+    ? {
+        href: lessonPath(examId, prev.lesson.id),
+        title: <T zh={prev.lesson.title} en={prev.lesson.titleEn} />,
+      }
+    : undefined;
+  const nextRef = next
+    ? {
+        href: lessonPath(examId, next.lesson.id),
+        title: <T zh={next.lesson.title} en={next.lesson.titleEn} />,
+      }
+    : undefined;
+
+  // 这一节自己的八股题和 coding 题。以前八股挂在侧栏每一行课文后面，
+  // 而侧栏现在只放路线图 —— 所以这条连线搬到课尾的「接下来」里，
+  // 出现在「读完了，接下来干什么」这个念头真的发生的地方。
+  const lessonDrills = drillsOfLesson(lessonId);
+  const relatedCoding = CODING.find((c) => c.explainLessonId === lessonId);
+
   // 右栏目录的锚点，顺序要和下面渲染的顺序一致
   const tocItems = [
     ...lesson.concepts.map((c, i) => ({
@@ -77,12 +102,19 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
 
   return (
     <main className="main">
-      <LessonVisit examId={examId} lessonId={lessonId} title={lesson.title} />
+      <LessonVisit
+        examId={examId}
+        lessonId={lessonId}
+        title={lesson.title}
+        titleEn={lesson.titleEn}
+        course={exam.shortTitle}
+        courseEn={exam.shortTitleEn}
+      />
 
       <div className="content">
         <LessonHeader
           crumbs={[
-            { label: <T zh="路线图" en="Roadmap" />, href: "/path" },
+            { label: <T zh="课程" en="Courses" />, href: "/path" },
             {
               label: <T zh={exam.shortTitle} en={exam.shortTitleEn} />,
               href: examPath(exam.id),
@@ -94,6 +126,7 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
           title={<T zh={lesson.title} en={lesson.titleEn} />}
           blurb={<T zh={lesson.blurb} en={lesson.blurbEn} />}
           minutes={lesson.minutes}
+          status={<LessonStatusChip examId={examId} lessonId={lessonId} />}
           tags={
             <>
               {lesson.exercises && lesson.exercises.length > 0 && (
@@ -111,6 +144,7 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
               )}
             </>
           }
+          jump={<LessonJump prev={prevRef} next={nextRef} />}
         />
 
         <LearningObjective
@@ -227,25 +261,24 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
           <Recap items={lesson.recap} itemsEn={lesson.recapEn} />
         )}
 
-        <LessonDoneBar examId={examId} lessonId={lessonId} />
-
-        <NextLesson
-          prev={
-            prev
+        <LessonNextPanel
+          exerciseCount={lesson.exercises?.length ?? 0}
+          prev={prevRef}
+          next={nextRef}
+          drill={
+            lessonDrills.length > 0
+              ? { href: drillListHref({}, { lesson: lessonId }), n: lessonDrills.length }
+              : undefined
+          }
+          coding={
+            relatedCoding
               ? {
-                  href: lessonPath(examId, prev.lesson.id),
-                  title: <T zh={prev.lesson.title} en={prev.lesson.titleEn} />,
+                  href: codingPath(relatedCoding.id),
+                  title: <T zh={relatedCoding.title} en={relatedCoding.titleEn} />,
                 }
               : undefined
           }
-          next={
-            next
-              ? {
-                  href: lessonPath(examId, next.lesson.id),
-                  title: <T zh={next.lesson.title} en={next.lesson.titleEn} />,
-                }
-              : undefined
-          }
+          doneBar={<LessonDoneBar examId={examId} lessonId={lessonId} />}
         />
       </div>
 

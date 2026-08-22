@@ -15,6 +15,7 @@ import { arenaPublicById } from "@/content/arena";
 import { examPath, navExam } from "@/content/nav";
 import { ArenaRules } from "./arena-bits";
 import { ArenaStartPanel } from "./arena-start";
+import { NoteRecent } from "./recent";
 import { T } from "./t";
 
 export function ArenaBrief({ id }: { id: string }) {
@@ -25,6 +26,16 @@ export function ArenaBrief({ id }: { id: string }) {
 
   return (
     <main className="main" data-rail="off">
+      {/* Assess 模式里的落点。顶栏的「继续」和 Assess 侧栏的高亮都读这一条。
+          只传标题和场景 —— 提示和答案这一页在类型上就拿不到（见文件顶部）。 */}
+      <NoteRecent
+        mode="assess"
+        href={`/arena/${a.id}`}
+        title={a.title}
+        titleEn={a.titleEn}
+        sub={`考场 · 限时 ${a.minutes} 分钟`}
+        subEn={`Arena · ${a.minutes} min limit`}
+      />
       <div className="content">
         <nav className="crumb" aria-label="面包屑 / Breadcrumb">
           <Link href="/arena">

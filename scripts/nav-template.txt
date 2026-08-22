@@ -78,6 +78,10 @@ export interface NavExam {
   debugLabs: number;
   rebuilds: number;
   rebuildIds: string[];
+  /** 每种练习题型有几个（键是 Exercise["kind"]）—— Practice 侧栏的筛选项计数用 */
+  exerciseKinds: Record<string, number>;
+  /** 每个难度档有几个（键是 "1"–"4"）—— 同上 */
+  exerciseLevels: Record<string, number>;
   modules: NavModule[];
   mockExams: NavMock[];
   checklist: { task: string; covered: string; tested: boolean }[];

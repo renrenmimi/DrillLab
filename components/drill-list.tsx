@@ -18,12 +18,16 @@ import { DrillProgressStrip } from "./drill-marks";
 import { lessonRef } from "@/content/path";
 import { lessonPath } from "@/content/nav";
 import { DRILL_PAGE, drillListHref, drillMatchesKeyword, type DrillQuery } from "./drill-query";
+import { NoteRecent } from "./recent";
 import { T } from "./t";
 import { Ladder } from "./ladder";
 
 const MARK_FILTERS: { id: MarkFilter; zh: string; en: string }[] = [
   { id: "all", zh: "全部", en: "All" },
   { id: "none", zh: "还没做", en: "Not seen" },
+  // 「模糊 + 不会」合成一档。Review 侧栏的「要复习」指向它 ——
+  // 那一档是考前一晚真正要过的堆，不该让人点两次筛选才凑出来。
+  { id: "review", zh: "要复习", en: "Needs review" },
   { id: "unknown", zh: "不会", en: "No idea" },
   { id: "fuzzy", zh: "模糊", en: "Shaky" },
   { id: "known", zh: "会", en: "Got it" },
@@ -73,8 +77,22 @@ export function DrillList({ query }: { query: DrillQuery }) {
       )
     : drillTrackCounts();
 
+  const trackLabel = track === "all" ? undefined : TRACK_LABEL[track];
+
   return (
     <main className="main">
+      {/* 记下「Review 模式里我上次在哪」—— 顶栏的「继续」和 Review 侧栏的
+          方向高亮都读这一条。href 带上当前 query，所以侧栏不用去读 URL
+          （在根 layout 的客户端组件里读 query 会让 252 个静态页面构建失败，
+          见 components/recent.tsx）。 */}
+      <NoteRecent
+        mode="review"
+        href={drillListHref(query, {})}
+        title="八股题库"
+        titleEn="Interview drills"
+        sub={trackLabel ? `${trackLabel.zh} 方向` : "全部方向"}
+        subEn={trackLabel ? trackLabel.en : "All topics"}
+      />
       <div className="content">
         <div className="page-head">
           <div className="eyebrow">
@@ -139,45 +157,90 @@ export function DrillList({ query }: { query: DrillQuery }) {
           </p>
         </details>
 
+        {/* 搜索框留在外面 —— 侧栏里没有它，而按编号查题（`#279`）是这一页
+            最常用的动作之一。 */}
         <div className="filters">
           <span className="filter-label">
-            <T zh="方向" en="Track" />
+            <T zh="找一道题" en="Find one" />
           </span>
-          <Link
-            className="filter-btn"
-            data-on={track === "all"}
-            href={drillListHref(query, { track: "all", page: "1" })}
-          >
-            <T zh={`全部 ${base.length}`} en={`All ${base.length}`} />
-          </Link>
-          {counts.map((c) => (
-            <Link
-              key={c.track}
-              className="filter-btn"
-              data-on={track === c.track}
-              href={drillListHref(query, { track: c.track, page: "1" })}
-            >
-              <T zh={TRACK_LABEL[c.track].zh} en={TRACK_LABEL[c.track].en} /> {c.count}
-            </Link>
-          ))}
-        </div>
-
-        <div className="filters">
-          <span className="filter-label">
-            <T zh="掌握状态" en="Mark" />
-          </span>
-          {MARK_FILTERS.map((m) => (
-            <Link
-              key={m.id}
-              className="filter-btn"
-              data-on={markFilter === m.id}
-              href={drillListHref(query, { mark: m.id, page: "1" })}
-            >
-              <T zh={m.zh} en={m.en} />
-            </Link>
-          ))}
           <DrillSearchBox query={query} />
         </div>
+
+        {/* 【方向和掌握状态收起来了】
+            这两维现在也在 Review 模式的侧栏里。两处并列摊开就是同一个控件
+            在一屏里出现两遍 —— 正是这次要修的毛病。
+            但**不能删**：窄屏侧栏在抽屉后面，删了就得先开抽屉才能筛；
+            而且这里的掌握状态比侧栏细（侧栏把「模糊 + 不会」并成「要复习」，
+            这里还能单独筛某一档）。
+            所以收进一个 <details>，有筛选生效时自动展开（open 在服务端算）。 */}
+        <details
+          className="filters-more"
+          open={track !== "all" || markFilter !== "all"}
+        >
+          <summary className="filters-more-head">
+            <T zh="按方向、掌握状态筛" en="Filter by topic and mark" />
+            {(track !== "all" || markFilter !== "all") && (
+              <span className="filters-more-on">
+                {[
+                  track !== "all"
+                    ? { id: track, zh: TRACK_LABEL[track].zh, en: TRACK_LABEL[track].en }
+                    : null,
+                  markFilter !== "all"
+                    ? MARK_FILTERS.find((m) => m.id === markFilter) ?? null
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .map((x) => (
+                    // 每项自己套一个 span —— 两个 <T> 直接相邻会渲染成
+                    // 「ReactShaky」（双语机制把两份文字都放进 HTML，
+                    // 中间没有可换行的空白）。
+                    <span key={x!.id}>
+                      <T en={x!.en} zh={x!.zh} />
+                    </span>
+                  ))}
+              </span>
+            )}
+          </summary>
+
+          <div className="filters">
+            <span className="filter-label">
+              <T zh="方向" en="Track" />
+            </span>
+            <Link
+              className="filter-btn"
+              data-on={track === "all"}
+              href={drillListHref(query, { track: "all", page: "1" })}
+            >
+              <T zh={`全部 ${base.length}`} en={`All ${base.length}`} />
+            </Link>
+            {counts.map((c) => (
+              <Link
+                key={c.track}
+                className="filter-btn"
+                data-on={track === c.track}
+                href={drillListHref(query, { track: c.track, page: "1" })}
+              >
+                <T zh={TRACK_LABEL[c.track].zh} en={TRACK_LABEL[c.track].en} /> {c.count}
+              </Link>
+            ))}
+          </div>
+
+          <div className="filters">
+            <span className="filter-label">
+              <T zh="掌握状态" en="Mark" />
+            </span>
+            {MARK_FILTERS.map((m) => (
+              <Link
+                key={m.id}
+                className="filter-btn"
+                data-on={markFilter === m.id}
+                href={drillListHref(query, { mark: m.id, page: "1" })}
+              >
+                <T zh={m.zh} en={m.en} />
+              </Link>
+            ))}
+          </div>
+        </details>
 
         <DrillListStatus
           ids={visible.map((q) => q.id)}
@@ -245,40 +308,12 @@ export function DrillList({ query }: { query: DrillQuery }) {
         )}
       </div>
 
+      {/* 【右栏只留「这些题从哪来」】
+          「开始抽认卡」和「按方向」原来也在这儿，但 Review 模式的侧栏
+          现在就是这两样（一个主行动 + 八个方向 + 三档掌握状态）。
+          同一个去处在一屏里出现两次，正是这次要修的那个毛病。
+          来源说明留着 —— 那是这一页独有的信息，侧栏装不下也不该装。 */}
       <aside className="rail">
-        <div className="rail-block">
-          <div className="rail-head">
-            <T zh="抽认卡" en="Flashcards" />
-          </div>
-          <p style={{ fontSize: 12.5, color: "var(--ink-2)", margin: "0 0 10px" }}>
-            <T
-              zh="全屏一题一题过，键盘就能操作：空格翻面，1 / 2 / 3 自评。"
-              en="One card at a time, full screen. Keyboard only: space to flip, 1 / 2 / 3 to rate."
-            />
-          </p>
-          <Link className="btn btn-sm btn-primary" href="/drill/session">
-            <T zh="开始抽认卡" en="Start a round" />
-          </Link>
-        </div>
-
-        <div className="rail-block">
-          <div className="rail-head">
-            <T zh="按方向" en="By track" />
-          </div>
-          <div style={{ color: "var(--ink-2)", lineHeight: 1.9, fontSize: 12.5 }}>
-            {counts.map((c) => (
-              <div key={c.track}>
-                <Link href={drillListHref({}, { track: c.track })} style={{ color: "var(--ink-2)" }}>
-                  <T zh={TRACK_LABEL[c.track].zh} en={TRACK_LABEL[c.track].en} />
-                </Link>
-                <span className="dimmer tabular" style={{ float: "right" }}>
-                  {c.count}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="rail-block">
           <div className="rail-head">
             <T zh="这些题从哪来" en="Where these come from" />

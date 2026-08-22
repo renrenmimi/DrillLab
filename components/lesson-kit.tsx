@@ -16,6 +16,17 @@ import { snapshotOf } from "@/content/source-files";
 
 /* ---------- 课头 ---------- */
 
+/**
+ * 课头 —— 不用往下滚就能看清六件事：
+ * 在哪门课、哪个模块、第几节 / 共几节、大概多久、标记完成没有、前后是哪一节。
+ *
+ * 【为什么这六件事必须一起给】
+ * 另外七个同系列的 app 之所以「点左边一步一步做就不会错过任何信息」，
+ * 靠的就是「章节位置 + 进度 + 一个明确的下一步」这三样一直在眼前。
+ * 这个站以前只给了「第 6 / 21 节」和面包屑，估时挤在一排徽章里，
+ * 「学完没有」要滚到页尾才知道，上一节 / 下一节也只在页尾 ——
+ * 于是读到一半想跳回去，只能先滚到底。
+ */
 export function LessonHeader({
   crumbs,
   index,
@@ -24,6 +35,8 @@ export function LessonHeader({
   blurb,
   minutes,
   tags,
+  status,
+  jump,
 }: {
   // label / title / blurb 收 ReactNode，是为了能直接塞 <T zh en />。
   // 课程和课文标题现在是双语的（content/types.ts 的 titleEn），
@@ -35,6 +48,10 @@ export function LessonHeader({
   blurb: ReactNode;
   minutes: number;
   tags?: ReactNode;
+  /** 「学完没有」的徽章。它要读 localStorage，所以由客户端小岛传进来 */
+  status?: ReactNode;
+  /** 上一节 / 下一节。长课文读到一半想跳，不该先滚到页尾 */
+  jump?: ReactNode;
 }) {
   return (
     <header className="lesson-head">
@@ -55,20 +72,73 @@ export function LessonHeader({
         ))}
       </nav>
 
-      <div className="lesson-n">
-        LESSON {String(index).padStart(2, "0")} /{" "}
-        {String(total).padStart(2, "0")}
+      <div className="lesson-pos">
+        <span className="lesson-n">
+          <T
+            en={`LESSON ${String(index).padStart(2, "0")} / ${String(total).padStart(2, "0")}`}
+            zh={`第 ${String(index).padStart(2, "0")} / ${String(total).padStart(2, "0")} 节`}
+          />
+        </span>
+        <span className="lesson-pos-sep" aria-hidden>
+          ·
+        </span>
+        <span className="lesson-pos-time tabular">
+          <T en={`~${minutes} min`} zh={`约 ${minutes} 分钟`} />
+        </span>
+        {status}
       </div>
+
       <h1 className="lesson-title serif">{title}</h1>
       <p className="lesson-blurb">{blurb}</p>
 
-      <div className="lesson-meta">
-        <span className="tag">
-          <T en={`~${minutes} min`} zh={`约 ${minutes} 分钟`} />
-        </span>
-        {tags}
-      </div>
+      {tags && <div className="lesson-meta">{tags}</div>}
+
+      {jump}
     </header>
+  );
+}
+
+/**
+ * 上一节 / 下一节的一行式导航。页首用。
+ *
+ * 页尾不再放第二个 <nav> —— 那会在无障碍树里留下两个同名地标。
+ * 页尾的「下一节」是 LessonNextPanel 里的主按钮，「上一节」是它页脚那行小字。
+ */
+export function LessonJump({
+  prev,
+  next,
+}: {
+  prev?: { href: string; title: ReactNode };
+  next?: { href: string; title: ReactNode };
+}) {
+  if (!prev && !next) return null;
+  return (
+    <nav className="lesson-jump" aria-label="上一节 / 下一节 · Previous and next lesson">
+      {prev ? (
+        <Link className="lesson-jump-link" data-dir="prev" href={prev.href}>
+          <span className="lesson-jump-dir" aria-hidden>
+            ←
+          </span>
+          <span className="lesson-jump-title">{prev.title}</span>
+        </Link>
+      ) : (
+        <span className="lesson-jump-none">
+          <T zh="这是第一节" en="First lesson" />
+        </span>
+      )}
+      {next ? (
+        <Link className="lesson-jump-link" data-dir="next" href={next.href}>
+          <span className="lesson-jump-title">{next.title}</span>
+          <span className="lesson-jump-dir" aria-hidden>
+            →
+          </span>
+        </Link>
+      ) : (
+        <span className="lesson-jump-none">
+          <T zh="这是最后一节" en="Last lesson" />
+        </span>
+      )}
+    </nav>
   );
 }
 
@@ -520,50 +590,132 @@ export function Recap({ items, itemsEn }: { items: string[]; itemsEn?: string[] 
  * 会让人多花一秒判断该点哪个 —— 所以只留一个视觉重心。
  * 走到最后一节时，下一步换成「去考场验收」，不留死路。
  */
-export function NextLesson({
+/**
+ * 课尾唯一的「接下来」面板。
+ *
+ * 【为什么合成一块】
+ * 以前这里是两块：一条「学完这节」的打勾条，和一个「上一节 / 下一节」的页脚
+ * （下一节是个实心大按钮）。两块之间没有关系，而且打勾条和大按钮在视觉上
+ * 权重接近 —— 读完一节课，眼前有两个都说得通的下一步。
+ *
+ * 现在是一份有序清单，顺序就是建议的顺序：
+ *   1  把这一节的练习做掉      —— 没有练习的课这一步不出现
+ *   2  接着看下一节            —— **整块里唯一的实心按钮**
+ *   3  可选：这一节的八股 / 对应的 coding 题
+ * 页脚放「标记学完」和「上一节」—— 一个是状态，一个是回头路，都不跟第 2 步抢。
+ *
+ * 编号用 CSS counter 生成，所以第 1 步不出现时第 2 步会自动变成 1。
+ */
+export function LessonNextPanel({
+  exerciseCount,
   prev,
   next,
+  drill,
+  coding,
   arenaHref,
+  doneBar,
 }: {
+  exerciseCount: number;
   // title 收 ReactNode —— 课文标题是双语的，传进来的是 <T zh en />
   prev?: { href: string; title: ReactNode };
   next?: { href: string; title: ReactNode };
+  /** 这一节的八股题：有几道、去哪看 */
+  drill?: { href: string; n: number };
+  /** 这一节对应的 coding 题 */
+  coding?: { href: string; title: ReactNode };
   /** 没有下一节时，往哪儿去 */
   arenaHref?: string;
+  /** 「标记这节学完」—— 要读 localStorage，由客户端小岛传进来 */
+  doneBar?: ReactNode;
 }) {
   return (
-    <nav aria-label="上一节 / 下一节 · Previous / next" className="lesson-foot">
-      {prev ? (
-        <Link className="foot-back" href={prev.href}>
-          ← <span className="foot-back-title">{prev.title}</span>
-        </Link>
-      ) : (
-        <span />
-      )}
+    <section className="lnext" aria-labelledby="lnext-h">
+      <h2 className="lnext-h" id="lnext-h">
+        <T zh="接下来" en="What next" />
+      </h2>
 
-      {next ? (
-        <Link className="foot-next" href={next.href}>
-          <span className="foot-next-label">
-            <T en="Keep going" zh="接着往下看" />
-          </span>
-          <span className="foot-next-title">{next.title}</span>
-        </Link>
-      ) : (
-        <Link className="foot-next" href={arenaHref ?? "/arena"}>
-          <span className="foot-next-label">
-            <T
-              en="Course finished · go get checked"
-              zh="这一门读完了 · 去验收"
-            />
-          </span>
-          <span className="foot-next-title">
-            <T
-              en="Arena: write it yourself in an empty folder"
-              zh="考场：空文件夹里自己写一遍"
-            />
-          </span>
-        </Link>
-      )}
-    </nav>
+      <ol className="lnext-steps">
+        {exerciseCount > 0 && (
+          <li className="lnext-step">
+            <div className="lnext-step-body">
+              <span className="lnext-step-title">
+                <T zh="把这一节的练习做掉" en="Do this lesson’s exercises" />
+              </span>
+              <span className="lnext-step-sub">
+                <T
+                  zh={`${exerciseCount} 个，就在这一页上面 —— 别攒着最后一起做`}
+                  en={`${exerciseCount} of them, further up this page — do not save them for later`}
+                />
+              </span>
+            </div>
+            <a className="lnext-step-link" href="#exercises">
+              <T zh="回到练习 ↑" en="Back up to them ↑" />
+            </a>
+          </li>
+        )}
+
+        <li className="lnext-step" data-primary>
+          <div className="lnext-step-body">
+            <span className="lnext-step-title">
+              {next ? (
+                <T zh="接着看下一节" en="Continue to the next lesson" />
+              ) : (
+                <T zh="这一门读完了 —— 去验收" en="Course finished — go get checked" />
+              )}
+            </span>
+            <span className="lnext-step-sub">
+              {next ? (
+                next.title
+              ) : (
+                <T
+                  zh="考场：空文件夹、计时、没有提示按钮"
+                  en="The arena: an empty folder, a clock, no hint button"
+                />
+              )}
+            </span>
+          </div>
+          <Link className="lnext-cta" href={next ? next.href : (arenaHref ?? "/arena")}>
+            {next ? <T zh="下一节" en="Next lesson" /> : <T zh="去考场" en="To the arena" />}
+          </Link>
+        </li>
+
+        {(drill || coding) && (
+          <li className="lnext-step">
+            <div className="lnext-step-body">
+              <span className="lnext-step-title">
+                <T zh="可选：再巩固一下" en="Optional: reinforce it" />
+              </span>
+              <span className="lnext-step-sub lnext-step-links">
+                {drill && (
+                  <Link href={drill.href}>
+                    <T
+                      zh={`这一节的 ${drill.n} 道八股`}
+                      en={`${drill.n} question${drill.n > 1 ? "s" : ""} from this lesson`}
+                    />
+                  </Link>
+                )}
+                {coding && (
+                  <Link href={coding.href}>
+                    <T zh="对应的 Coding 题：" en="The coding problem: " />
+                    {coding.title}
+                  </Link>
+                )}
+              </span>
+            </div>
+          </li>
+        )}
+      </ol>
+
+      <div className="lnext-foot">
+        {doneBar}
+        {prev && (
+          <Link className="lnext-back" href={prev.href}>
+            <span aria-hidden>←</span>{" "}
+            <T zh="上一节：" en="Previous: " />
+            {prev.title}
+          </Link>
+        )}
+      </div>
+    </section>
   );
 }

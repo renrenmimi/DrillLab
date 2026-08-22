@@ -16,6 +16,7 @@ import { L, T } from "./t";
 import { AnswerTabs, BilingualList, Section } from "./lesson-kit";
 import { LocalSetup } from "./local-setup";
 import { MockScore } from "./mock-score";
+import { NoteRecent } from "./recent";
 
 export function MockDetail({ examId, mockId }: { examId: string; mockId: string }) {
   const exam = examById(examId);
@@ -29,6 +30,14 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
 
   return (
     <main className="main">
+      <NoteRecent
+        mode="assess"
+        href={`/mock/${exam.id}/${mock.id}`}
+        title={mock.title}
+        titleEn={mock.titleEn}
+        sub="模拟考 · 自评"
+        subEn="Mock exam · self-scoring"
+      />
       <div className="content">
         <nav className="crumb">
           <Link href="/mock">

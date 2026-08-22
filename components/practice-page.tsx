@@ -17,7 +17,13 @@ import { ExerciseView } from "./exercise";
 import { Ladder } from "./ladder";
 import { PracticeFocus } from "./practice-focus";
 import { PracticeProgress } from "./practice-progress";
+import { NoteRecent } from "./recent";
 import { KIND_LABEL } from "@/lib/exercise-labels";
+// 筛选链接的拼法在 lib/list-query.ts —— Practice 模式的侧栏是客户端组件，
+// 它也要拼同样的链接，而它不能 import 这个文件（会把练习正文拖进客户端包）。
+import { practiceHref, type PracticeQuery } from "@/lib/list-query";
+
+export type { PracticeQuery };
 
 // 筛选器的题型标签**从 lib/exercise-labels.ts 派生**，不在这里抄第二份 ——
 // 抄一份出来就会出现「筛选器叫写整块、题头叫别的」。
@@ -38,25 +44,6 @@ const LEVELS: { id: string; zh: string; en: string }[] = [
 
 const PAGE = 12;
 
-export interface PracticeQuery {
-  exam?: string;
-  kind?: string;
-  level?: string;
-  page?: string;
-}
-
-/** 保留其他筛选条件，只改一个维度 */
-function hrefWith(q: PracticeQuery, patch: PracticeQuery) {
-  const next = { ...q, ...patch };
-  const p = new URLSearchParams();
-  if (next.exam && next.exam !== "all") p.set("exam", next.exam);
-  if (next.kind && next.kind !== "all") p.set("kind", next.kind);
-  if (next.level && next.level !== "all") p.set("level", next.level);
-  if (next.page && next.page !== "1") p.set("page", next.page);
-  const s = p.toString();
-  return s ? `/practice?${s}` : "/practice";
-}
-
 export function PracticePage({ query }: { query: PracticeQuery }) {
   const exam = query.exam ?? "all";
   const kind = query.kind ?? "all";
@@ -75,10 +62,20 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
   const current = Math.min(page, pages);
   const visible = shown.slice((current - 1) * PAGE, current * PAGE);
 
-  const byKind = (k: Exercise["kind"]) => all.filter((r) => r.exercise.kind === k).length;
+  const scoped = exam === "all" ? undefined : NAV.find((e) => e.id === exam);
 
   return (
     <main className="main">
+      {/* Practice 模式里的落点。href 带上全部筛选条件 ——
+          Practice 侧栏靠它给筛选项打高亮（见 components/recent.tsx）。 */}
+      <NoteRecent
+        mode="practice"
+        href={practiceHref(query, {})}
+        title="课内练习"
+        titleEn="Lesson exercises"
+        sub={scoped ? scoped.shortTitle : "全部课程"}
+        subEn={scoped ? (scoped.shortTitleEn ?? scoped.shortTitle) : "All courses"}
+      />
       <div className="content">
         <div className="page-head">
           <div className="eyebrow">
@@ -132,47 +129,33 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
             见 docs/ia-audit-round3.md。 */}
         <Ladder current="exercises" />
 
-        <div className="filters">
-          <span className="filter-label">
-            <T en="Course" zh="考试" />
-          </span>
-          <Link
-            className="filter-btn"
-            data-on={exam === "all"}
-            href={hrefWith(query, { exam: "all", page: "1" })}
-          >
-            <T en="All" zh="全部" />
-          </Link>
-          {NAV.map((e) => (
-            <Link
-              key={e.id}
-              className="filter-btn"
-              data-on={exam === e.id}
-              href={hrefWith(query, { exam: e.id, page: "1" })}
-            >
-              <T zh={e.shortTitle} en={e.shortTitleEn} />
-            </Link>
-          ))}
-        </div>
+        {/* 【三维一起收起来】
+            课程 / 难度 / 题型这三维现在也在 Practice 模式的侧栏里。
+            两处并列摊开就是同一个控件在一屏里出现两遍。
+            但**不能删**：窄屏侧栏在抽屉后面，删了就得先开抽屉才能筛。
+            所以三排一起收进这个 <details>；有筛选生效时自动展开
+            （open 由 URL 参数在服务端算出来），不会「筛完看不到自己筛了什么」。
 
-        {/* 【难度和类型默认收起】
-            三行筛选一共 18 个 chip，实测把第一个练习顶到折叠线以下 ——
-            用户点「练习」是来做题的，先看到的却是一整屏开关。
-            「考试」那行留在外面（最常用），另外两行收进来。
+            原来「考试」那一排是摊开的、另两排收着 —— 现在侧栏已经把常用
+            那一维摆在眼前了，页面这份只需要在你想改的时候点一下。
 
-            **有筛选生效时自动展开**（open 由 URL 参数算出来，服务端渲染），
-            所以不会出现「筛过之后看不到自己筛了什么」。
-            纯 <details>，零 JS，筛选仍然是服务端 <Link>。
-
-            【第三轮】难度筛选保留 L1–L4，含义一行挂到四档语言上 ——
-            删掉那个 L1–L4 解释 callout 之后不说这一句，L1 / L2 就成了
-            没人解释的字母。 */}
-        <details className="filters-more" open={level !== "all" || kind !== "all"}>
+            【难度保留 L1–L4】它只是筛选器上的刻度，不是第二套世界观 ——
+            含义一行挂到四档语言上（见 docs/ia-audit-round3.md）。 */}
+        <details
+          className="filters-more"
+          open={exam !== "all" || level !== "all" || kind !== "all"}
+        >
           <summary className="filters-more-head">
-            <T en="Level and kind" zh="按难度、类型筛" />
-            {(level !== "all" || kind !== "all") && (
+            <T en="Filter these" zh="筛一下" />
+            {(exam !== "all" || level !== "all" || kind !== "all") && (
               <span className="filters-more-on">
                 {[
+                  exam !== "all"
+                    ? (() => {
+                        const e = NAV.find((x) => x.id === exam);
+                        return e ? { id: e.id, zh: e.shortTitle, en: e.shortTitleEn ?? e.shortTitle } : null;
+                      })()
+                    : null,
                   level !== "all" ? LEVELS.find((l) => l.id === level) : null,
                   kind !== "all" ? KINDS.find((k) => k.id === kind) : null,
                 ]
@@ -191,6 +174,29 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
 
           <div className="filters">
             <span className="filter-label">
+              <T en="Course" zh="课程" />
+            </span>
+            <Link
+              className="filter-btn"
+              data-on={exam === "all"}
+              href={practiceHref(query, { exam: "all", page: "1" })}
+            >
+              <T en="All" zh="全部" />
+            </Link>
+            {NAV.map((e) => (
+              <Link
+                key={e.id}
+                className="filter-btn"
+                data-on={exam === e.id}
+                href={practiceHref(query, { exam: e.id, page: "1" })}
+              >
+                <T zh={e.shortTitle} en={e.shortTitleEn} />
+              </Link>
+            ))}
+          </div>
+
+          <div className="filters">
+            <span className="filter-label">
               <T en="Level" zh="难度" />
               <span className="filter-hint">
                 <T
@@ -204,7 +210,7 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
                 key={l.id}
                 className="filter-btn"
                 data-on={level === l.id}
-                href={hrefWith(query, { level: l.id, page: "1" })}
+                href={practiceHref(query, { level: l.id, page: "1" })}
               >
                 <T en={l.en} zh={l.zh} />
               </Link>
@@ -220,7 +226,7 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
                 key={k.id}
                 className="filter-btn"
                 data-on={kind === k.id}
-                href={hrefWith(query, { kind: k.id, page: "1" })}
+                href={practiceHref(query, { kind: k.id, page: "1" })}
               >
                 <T en={k.en} zh={k.zh} />
               </Link>
@@ -271,7 +277,7 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
                 {current > 1 ? (
                   <Link
                     className="btn btn-sm"
-                    href={hrefWith(query, { page: String(current - 1) })}
+                    href={practiceHref(query, { page: String(current - 1) })}
                   >
                     ← <T en="Previous" zh="上一页" />
                   </Link>
@@ -284,7 +290,7 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
                       key={n}
                       className="pager-num"
                       data-on={n === current || undefined}
-                      href={hrefWith(query, { page: String(n) })}
+                      href={practiceHref(query, { page: String(n) })}
                     >
                       {n}
                     </Link>
@@ -293,7 +299,7 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
                 {current < pages ? (
                   <Link
                     className="btn btn-sm"
-                    href={hrefWith(query, { page: String(current + 1) })}
+                    href={practiceHref(query, { page: String(current + 1) })}
                   >
                     <T en="Next" zh="下一页" /> →
                   </Link>
@@ -306,24 +312,10 @@ export function PracticePage({ query }: { query: PracticeQuery }) {
         )}
       </div>
 
+      {/* 「练习类型」那一块搬走了 —— Practice 模式的侧栏里就是这份清单，
+          而且那份带筛选状态。右栏只留「你做对过多少」。 */}
       <aside className="rail">
         <PracticeProgress total={all.length} />
-
-        <div className="rail-block">
-          <div className="rail-head">
-            <T en="Exercise kinds" zh="练习类型" />
-          </div>
-          <div style={{ color: "var(--ink-2)", lineHeight: 1.8, fontSize: 12.5 }}>
-            {KINDS.filter((k) => k.id !== "all").map((k) => (
-              <div key={k.id}>
-                <T en={k.en} zh={k.zh} />
-                <span className="dimmer tabular" style={{ float: "right" }}>
-                  {byKind(k.id as Exercise["kind"])}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
       </aside>
     </main>
   );

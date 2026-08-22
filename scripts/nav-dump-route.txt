@@ -33,6 +33,20 @@ export function GET() {
         (n, r) => n + (r.lesson.exercises ?? []).filter((x) => x.kind === "from-scratch").length, 0),
       rebuildIds: lessonsOf(e).flatMap((r) =>
         (r.lesson.exercises ?? []).filter((x) => x.kind === "from-scratch").map((x) => x.id)),
+      // 【为什么这两张小表值得进 nav】Practice 模式的侧栏要在「按题型 / 按难度」
+      // 那两排筛选项上写出数量，而它是客户端组件，数不了 allExercises()。
+      // 加起来是每门课 10 个整数（6 种题型 + 4 个难度），可以忽略不计。
+      exerciseKinds: lessonsOf(e).reduce((acc, r) => {
+        for (const x of r.lesson.exercises ?? []) acc[x.kind] = (acc[x.kind] ?? 0) + 1;
+        return acc;
+      }, {}),
+      exerciseLevels: lessonsOf(e).reduce((acc, r) => {
+        for (const x of r.lesson.exercises ?? []) {
+          const k = String(x.level);
+          acc[k] = (acc[k] ?? 0) + 1;
+        }
+        return acc;
+      }, {}),
       modules: e.modules.map((m) => ({
         id: m.id,
         title: m.title,

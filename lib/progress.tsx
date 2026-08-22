@@ -11,6 +11,13 @@
 //   drills    八股题的掌握状态                 键 = 题目 id（q269…）
 //   arena     考场的尝试记录                   键 = 考场题 id，值是尝试数组
 //   coding    coding 题完成标记                键 = coding 题 id
+//   recent    最近去过的地方（按模式各存一条）  顶栏「继续」和四个侧栏的高亮靠它
+//
+// 【recent 为什么是按模式各存一条，而不是只存一条全局的】
+// 顶栏那个「继续」需要「最近一次有意义的落点」——  一条就够。
+// 但侧栏还要回答「我上次在这个模式里做到哪」：一个人可能上午在读课文、
+// 下午在刷八股，进 Review 时该接上八股那条，不该被课文那条顶掉。
+// 所以按模式各存一条，再由 mostRecent() 按时间挑出最新的那条给顶栏。
 //
 // 【版本后缀】key 是 drilllab-progress-v1，后缀留着但没升 v2 ——
 // 新增字段一律在 load() 里给兜底默认值，所以缺字段的旧数据读出来是
@@ -29,6 +36,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import type { ModeId } from "./modes";
 
 const KEY = "drilllab-progress-v1";
 
@@ -60,6 +68,27 @@ export interface ArenaAttempt {
   checks: boolean[];
 }
 
+/**
+ * 「最近去过的地方」一条记录。
+ *
+ * 存的是 href 而不是 (examId, lessonId) 这种结构化坐标 —— 因为四个模式的
+ * 落点形状完全不一样（一节课、一张筛过的题单、一道 coding 题、一场考试），
+ * 硬拼一个能装下四种的结构，读的时候还得再分四支还原。
+ * href 是它们唯一的共同点，而且拿来就能当链接用。
+ *
+ * title / sub 各存一份英文：这条记录会被渲染成「继续 → 某某」这种句子，
+ * 英文界面下不能嵌一个中文标题。没补英文就回落中文（<T> 的既有行为）。
+ */
+export interface RecentItem {
+  href: string;
+  title: string;
+  titleEn?: string;
+  /** 第二行：所属课程 / 方向。可以没有 */
+  sub?: string;
+  subEn?: string;
+  at: number;
+}
+
 export interface ProgressData {
   lessons: Record<string, 1>;
   exercises: Record<string, 1>;
@@ -82,6 +111,13 @@ export interface ProgressData {
   arenaLive?: { id: string; startedAt: number; submittedAt?: number };
   /** coding 题完成标记 */
   coding: Record<string, 1>;
+  /**
+   * 最近去过的地方。mode 是「最近用的是哪个模式」，byMode 是「每个模式里最近的落点」。
+   *
+   * 老数据里没有这个字段，load() 兜底成 { byMode: {} } —— 所以升级之后
+   * 顶栏的「继续」会先回落到 last（那条一直都在），一节课都不会丢。
+   */
+  recent: { mode?: ModeId; byMode: Partial<Record<ModeId, RecentItem>> };
 }
 
 const EMPTY: ProgressData = {
@@ -92,6 +128,7 @@ const EMPTY: ProgressData = {
   drills: {},
   arena: {},
   coding: {},
+  recent: { byMode: {} },
 };
 
 interface Ctx {
@@ -105,9 +142,23 @@ interface Ctx {
   markRebuild: (examId: string, exerciseId: string) => void;
   mockRecord: (examId: string, mockId: string) => MockRecord | undefined;
   markMock: (examId: string, mockId: string, score?: number, outOf?: number) => void;
-  visit: (examId: string, lessonId: string, title: string) => void;
+  visit: (
+    examId: string,
+    lessonId: string,
+    title: string,
+    meta?: { titleEn?: string; sub?: string; subEn?: string },
+  ) => void;
   countLessons: (examId: string) => number;
   countExercises: (examId: string) => number;
+
+  /* ---- 最近去过的地方 ---- */
+  /** 记一条。幂等：同一个模式同一个 href 重复调用不会写盘 */
+  noteRecent: (mode: ModeId, item: Omit<RecentItem, "at">) => void;
+  recentOf: (mode: ModeId) => RecentItem | undefined;
+  /** 最近用的是哪个模式 */
+  lastMode: () => ModeId | undefined;
+  /** 跨模式最新的那一条 —— 顶栏「继续」的目标 */
+  mostRecent: () => { mode: ModeId; item: RecentItem } | undefined;
 
   /* ---- 八股题库 ---- */
   drillMark: (id: string) => DrillMark | undefined;
@@ -149,6 +200,10 @@ const ProgressCtx = createContext<Ctx>({
   visit: () => {},
   countLessons: () => 0,
   countExercises: () => 0,
+  noteRecent: () => {},
+  recentOf: () => undefined,
+  lastMode: () => undefined,
+  mostRecent: () => undefined,
   drillMark: () => undefined,
   setDrillMark: () => {},
   clearDrillMark: () => {},
@@ -175,11 +230,12 @@ function load(): ProgressData {
       rebuilds: p.rebuilds ?? {},
       mocks: p.mocks ?? {},
       last: p.last,
-      // 这三个是后加的，老数据里没有 —— 兜底成空对象，进度不会丢
+      // 这几个都是后加的，老数据里没有 —— 兜底成空对象，进度不会丢
       drills: p.drills ?? {},
       arena: p.arena ?? {},
       arenaLive: p.arenaLive,
       coding: p.coding ?? {},
+      recent: { mode: p.recent?.mode, byMode: p.recent?.byMode ?? {} },
     };
   } catch {
     return EMPTY;
@@ -294,19 +350,84 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         }));
       },
 
-      visit: (examId, lessonId, title) => {
+      visit: (examId, lessonId, title, meta) => {
         // 调用方（LessonVisit）会等到 ready 才调 —— 见那边的注释。
         // 这里再挡一道：还没读回来就写，会把用户的进度冲成空。
         if (!dataReady.current) return;
-        update((prev) =>
-          prev.last?.examId === examId && prev.last?.lessonId === lessonId
-            ? prev
-            : { ...prev, last: { examId, lessonId, title, at: Date.now() } },
-        );
+        const href = `/exams/${examId}/${lessonId}`;
+        update((prev) => {
+          // last 和 recent.learn 一起写，不拆成两次 update ——
+          // 拆开会写两次 localStorage，而这两条说的本来就是同一件事。
+          const sameLast =
+            prev.last?.examId === examId && prev.last?.lessonId === lessonId;
+          const sameRecent =
+            prev.recent.mode === "learn" && prev.recent.byMode.learn?.href === href;
+          if (sameLast && sameRecent) return prev;
+          const at = Date.now();
+          return {
+            ...prev,
+            last: { examId, lessonId, title, at },
+            recent: {
+              mode: "learn",
+              byMode: {
+                ...prev.recent.byMode,
+                learn: { href, title, titleEn: meta?.titleEn, sub: meta?.sub, subEn: meta?.subEn, at },
+              },
+            },
+          };
+        });
       },
 
       countLessons: (examId) => prefixCount(data.lessons, examId),
       countExercises: (examId) => prefixCount(data.exercises, examId),
+
+      /* ---- 最近去过的地方 ---- */
+
+      noteRecent: (mode, item) => {
+        // 和 visit 同一条铁律：没从 localStorage 读回来之前一个字都不许写。
+        // 这个函数是在页面的 mount effect 里调的，而 effect 是子先父后 ——
+        // 不挡这一道，硬加载任何列表页都会把全部进度冲成空（这个 bug 真实存在过）。
+        if (!dataReady.current) return;
+        update((prev) => {
+          const cur = prev.recent.byMode[mode];
+          // 幂等：同一个模式、同一个 href、而且已经是当前模式 —— 什么都不做。
+          // 返回 prev 本身（同一个引用），React 会跳过重渲染，所以这个函数
+          // 放进 effect 的依赖数组里也不会造成循环。
+          if (cur?.href === item.href && prev.recent.mode === mode) return prev;
+          return {
+            ...prev,
+            recent: {
+              mode,
+              byMode: { ...prev.recent.byMode, [mode]: { ...item, at: Date.now() } },
+            },
+          };
+        });
+      },
+
+      recentOf: (mode) => data.recent.byMode[mode],
+
+      lastMode: () => data.recent.mode,
+
+      mostRecent: () => {
+        let best: { mode: ModeId; item: RecentItem } | undefined;
+        for (const [mode, item] of Object.entries(data.recent.byMode)) {
+          if (!item) continue;
+          if (!best || item.at > best.item.at) best = { mode: mode as ModeId, item };
+        }
+        // 老用户（升级前就有进度）的 byMode 是空的，但 last 一直都在 ——
+        // 回落到它，顶栏的「继续」第一次打开就能用。
+        if (!best && data.last) {
+          best = {
+            mode: "learn",
+            item: {
+              href: `/exams/${data.last.examId}/${data.last.lessonId}`,
+              title: data.last.title,
+              at: data.last.at,
+            },
+          };
+        }
+        return best;
+      },
 
       /* ---- 八股题库 ---- */
 
