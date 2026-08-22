@@ -614,6 +614,7 @@ export function LessonNextPanel({
   coding,
   arenaHref,
   doneBar,
+  primaryStep,
 }: {
   exerciseCount: number;
   // title 收 ReactNode —— 课文标题是双语的，传进来的是 <T zh en />
@@ -627,6 +628,15 @@ export function LessonNextPanel({
   arenaHref?: string;
   /** 「标记这节学完」—— 要读 localStorage，由客户端小岛传进来 */
   doneBar?: ReactNode;
+  /**
+   * 第 2 步那一整个 <li>。
+   *
+   * 跟着引导计划走的时候这一步要换说法（「接着走计划」而不是「接着看下一节」），
+   * 而「这一节在不在当前计划里」只有 localStorage 知道 —— 所以整步交给
+   * 客户端小岛渲染（components/lesson-plan.tsx）。不传就用下面那份默认的。
+   * 必须是一个 <li>：编号是 CSS counter，靠的是它是 <ol> 的直接子元素。
+   */
+  primaryStep?: ReactNode;
 }) {
   return (
     <section className="lnext" aria-labelledby="lnext-h">
@@ -654,30 +664,32 @@ export function LessonNextPanel({
           </li>
         )}
 
-        <li className="lnext-step" data-primary>
-          <div className="lnext-step-body">
-            <span className="lnext-step-title">
-              {next ? (
-                <T zh="接着看下一节" en="Continue to the next lesson" />
-              ) : (
-                <T zh="这一门读完了 —— 去验收" en="Course finished — go get checked" />
-              )}
-            </span>
-            <span className="lnext-step-sub">
-              {next ? (
-                next.title
-              ) : (
-                <T
-                  zh="考场：空文件夹、计时、没有提示按钮"
-                  en="The arena: an empty folder, a clock, no hint button"
-                />
-              )}
-            </span>
-          </div>
-          <Link className="lnext-cta" href={next ? next.href : (arenaHref ?? "/arena")}>
-            {next ? <T zh="下一节" en="Next lesson" /> : <T zh="去考场" en="To the arena" />}
-          </Link>
-        </li>
+        {primaryStep ?? (
+          <li className="lnext-step" data-primary>
+            <div className="lnext-step-body">
+              <span className="lnext-step-title">
+                {next ? (
+                  <T zh="接着看下一节" en="Continue to the next lesson" />
+                ) : (
+                  <T zh="这一门读完了 —— 去验收" en="Course finished — go get checked" />
+                )}
+              </span>
+              <span className="lnext-step-sub">
+                {next ? (
+                  next.title
+                ) : (
+                  <T
+                    zh="考场：空文件夹、计时、没有提示按钮"
+                    en="The arena: an empty folder, a clock, no hint button"
+                  />
+                )}
+              </span>
+            </div>
+            <Link className="lnext-cta" href={next ? next.href : (arenaHref ?? "/arena")}>
+              {next ? <T zh="下一节" en="Next lesson" /> : <T zh="去考场" en="To the arena" />}
+            </Link>
+          </li>
+        )}
 
         {(drill || coding) && (
           <li className="lnext-step">

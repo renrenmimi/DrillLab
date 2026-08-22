@@ -16,6 +16,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ARENA, CODING, DRILLS, NAV, arenaPath, codingPath, drillPath, examPath, lessonPath, mockPath, navLessonsOf } from "@/content/nav";
+import { PLANS, resolvePlan } from "@/content/plans";
 import { stageEn } from "@/content/path";
 import { useT } from "@/lib/locale";
 import { allText, L, Loc, T, type LocalizedString } from "./t";
@@ -45,7 +46,17 @@ const PAGES: Hit[] = [
     kind: L("页面", "Page"),
     title: L("首页", "Home"),
     sub: L("DrillLab 是什么、从哪开始", "What DrillLab is and where to start"),
-    haystack: "首页 home 概览 overview start",
+    haystack: "首页 home 概览 overview start 目标 goal",
+  },
+  {
+    href: "/plans",
+    kind: L("引导计划", "Guided plans"),
+    title: L("引导计划", "Guided plans"),
+    sub: L(
+      `${PLANS.length} 条按目标走的路径`,
+      `${PLANS.length} ordered routes, one per outcome`,
+    ),
+    haystack: "计划 引导 目标 路径 plan plans guided goal roadmap 准备 prepare",
   },
   {
     href: "/path",
@@ -119,6 +130,38 @@ function buildIndex(deepText: (examId: string, lessonId: string) => string): Hit
   const loc = (zh: string, en?: string) => (en ? { zh, en } : zh);
 
   const out: Hit[] = [...PAGES];
+
+  // 引导计划：整条，加上每一档。
+  // 一个人搜的是「React 考试」或者「Spring」，那应该先命中计划 ——
+  // 计划是「按什么顺序做」的答案，比单独一节课有用。
+  for (const plan of PLANS) {
+    const r = resolvePlan(plan);
+    out.push({
+      href: `/plans/${plan.id}`,
+      kind: L("引导计划", "Guided plan"),
+      title: { zh: plan.zh, en: plan.en },
+      sub: { zh: plan.outcomeZh, en: plan.outcomeEn },
+      haystack: [
+        plan.zh,
+        plan.en,
+        plan.outcomeZh,
+        plan.outcomeEn,
+        plan.forZh,
+        plan.forEn,
+        ...r.stages.flatMap((st) => [st.zh, st.en]),
+      ].join(" "),
+    });
+
+    r.stages.forEach((st, i) => {
+      out.push({
+        href: `/plans/${plan.id}#stage-${st.id}`,
+        kind: { zh: `${plan.zh} · 第 ${i + 1} 档`, en: `${plan.en} · stage ${i + 1}` },
+        title: { zh: st.zh, en: st.en },
+        sub: { zh: st.whyZh, en: st.whyEn },
+        haystack: [st.zh, st.en, st.whyZh, st.whyEn, plan.zh, plan.en].join(" "),
+      });
+    });
+  }
 
   for (const exam of NAV) {
     out.push({

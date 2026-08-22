@@ -18,6 +18,8 @@ import { ArenaClock } from "./arena-clock";
 import { TerminalCommand } from "./code";
 import { FileExplorer } from "./lesson-kit";
 import { NoRunnerNote } from "./local-setup";
+import { itemKey } from "@/lib/plan-progress";
+import { PlanItemBannerSlot } from "./plan-slots";
 import { NoteRecent } from "./recent";
 import { T } from "./t";
 
@@ -76,6 +78,10 @@ export function ArenaRun({ id }: { id: string }) {
       />
       <div className="content">
         <ArenaClock id={a.id} minutes={a.minutes} />
+
+        {/* compact：计时已经在跑，只说「你在计划的哪一步」，不给别处的按钮 ——
+            这一页故意没有任何离开的入口，规矩不能因为计划就破。 */}
+        <PlanItemBannerSlot itemKey={itemKey("arena", a.id)} compact />
 
         <div className="page-head arena-run-head">
           <div className="eyebrow">

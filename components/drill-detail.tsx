@@ -10,6 +10,8 @@ import { drillById, drillNeighbours, TRACK_LABEL } from "@/content/drills";
 import { lessonPath } from "@/content/nav";
 import { DrillAnswer } from "./drill-answer";
 import { DrillMarks } from "./drill-marks";
+import { itemKey } from "@/lib/plan-progress";
+import { PlanItemBannerSlot, PlanNextStepSlot } from "./plan-slots";
 import { NoteRecent } from "./recent";
 import { T } from "./t";
 
@@ -69,6 +71,8 @@ export function DrillDetail({ id }: { id: string }) {
           )}
         </div>
 
+        <PlanItemBannerSlot itemKey={itemKey("drill", q.id)} />
+
         <h1 className="drill-detail-title serif">{q.zh}</h1>
         <p className="drill-detail-en" lang="en">
           {q.en}
@@ -84,6 +88,10 @@ export function DrillDetail({ id }: { id: string }) {
         <div className="drill-detail-body">
           <DrillAnswer q={q} scope="one" />
         </div>
+
+        {/* 【刻意不自动跳转】自评之后不替用户翻页 —— 答案还在屏幕上，
+            他可能正读到一半。这里只把「计划的下一步」摆在手边。 */}
+        <PlanNextStepSlot itemKey={itemKey("drill", q.id)} />
 
         <div className="drill-detail-foot">
           <span className="dim" style={{ fontSize: 14 }}>
