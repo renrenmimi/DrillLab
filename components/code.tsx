@@ -232,7 +232,11 @@ export function CodeBlock({ ex }: { ex: CodeExample }) {
         </div>
       )}
 
-      {ex.explanation && <div className="codewin-note">{ex.explanation}</div>}
+      {ex.explanation && (
+        <div className="codewin-note">
+          <T zh={ex.explanation} en={ex.explanationEn} />
+        </div>
+      )}
     </div>
   );
 }

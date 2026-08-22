@@ -206,9 +206,9 @@ export function CodingDetail({ id }: { id: string }) {
                       <Section
                         id={`explain-${c.id}`}
                         key={c.id}
-                        lede={c.lede}
+                        lede={c.lede ? <T zh={c.lede} en={c.ledeEn} /> : undefined}
                         n={String(i + 1).padStart(2, "0")}
-                        title={c.heading}
+                        title={<T zh={c.heading} en={c.headingEn} />}
                       >
                         {c.bodyEn ? (
                           <AnswerTabs en={c.bodyEn} id={`cd-${c.id}`} zh={c.body} />
@@ -278,16 +278,24 @@ export function CodingDetail({ id }: { id: string }) {
         <nav className="lesson-foot" aria-label="上一道 / 下一道">
           {prev ? (
             <Link className="foot-link" data-dir="prev" href={`/code/${prev.id}`}>
-              <span className="foot-dir">← 上一道</span>
-              <span className="foot-title">{prev.title}</span>
+              <span className="foot-dir">
+                <T zh="← 上一道" en="← Previous" />
+              </span>
+              <span className="foot-title">
+                <T zh={prev.title} en={prev.titleEn} />
+              </span>
             </Link>
           ) : (
             <div className="foot-spacer" />
           )}
           {next ? (
             <Link className="foot-link" data-dir="next" href={`/code/${next.id}`}>
-              <span className="foot-dir">下一道 →</span>
-              <span className="foot-title">{next.title}</span>
+              <span className="foot-dir">
+                <T zh="下一道 →" en="Next →" />
+              </span>
+              <span className="foot-title">
+                <T zh={next.title} en={next.titleEn} />
+              </span>
             </Link>
           ) : (
             <div className="foot-spacer" />
