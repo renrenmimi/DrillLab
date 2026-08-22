@@ -140,8 +140,8 @@ export const reactQ2: Module = {
       whyForAssessmentEn:
         "This question has no assertion tests. It has one demo.ts that prints how many tasks are running at each moment. So the only check is whether you can read that output. If you cannot read it, you do not know whether your answer is right.",
       sourceFiles: [
-        { path: "react-notes-app/q2/taskRunner.ts", role: "题面 + 类型 + 要实现的函数", edit: true },
-        { path: "react-notes-app/q2/demo.ts", role: "验证台，打印实时并发数与最终结果" },
+        { path: "react-notes-app/q2/taskRunner.ts", role: "题面 + 类型 + 要实现的函数", roleEn: "The question, the types, and the function you must write", edit: true },
+        { path: "react-notes-app/q2/demo.ts", role: "验证台，打印实时并发数与最终结果", roleEn: "The check harness: it prints how many tasks run at each moment, then the final results" },
       ],
       concepts: [
         {
@@ -172,6 +172,7 @@ export const reactQ2: Module = {
           code: [
             real("ts", TASK_RUNNER_HEADER, {
               filename: "q2/taskRunner.ts（题面与签名）",
+              filenameEn: "q2/taskRunner.ts (the question and the signature)",
               sourceFile: "react-notes-app/q2/taskRunner.ts",
               highlight: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
             }),
@@ -394,9 +395,28 @@ const tasks = [
 ];`,
               {
                 filename: "q2/demo.ts 里 Task 是怎么造出来的",
+                filenameEn: "How Task is built inside q2/demo.ts",
+                codeEn: `// This is how the caller uses it in demo.ts (real code)
+const makeTask = (id: number, ms: number, shouldFail = false): Task<string> => {
+  return () =>                          // ← note that this returns a function
+    new Promise((resolve, reject) => {
+      running++;
+      console.log(\`task \${id} START   (running now: \${running})\`);
+      ...
+    });
+};
+
+const tasks = [
+  makeTask(1, 300),     // only builds the instructions; no request sent yet
+  makeTask(2, 100),
+  makeTask(3, 200, true),
+  ...
+];`,
                 sourceFile: "react-notes-app/q2/demo.ts",
                 explanation:
                   "makeTask 返回的是「一个函数」，而不是「一个 Promise」。里面的 new Promise 只有在这个函数被调用时才执行 —— 这就是为什么 running++ 那一行在你调 tasks[i]() 之前不会跑。",
+                explanationEn:
+                  "makeTask returns a function, not a Promise. The new Promise inside it runs only when that function is called. That is why the running++ line does not run until you call tasks[i]().",
               },
             ),
           ],
@@ -475,7 +495,20 @@ for (const r of results) {
     console.log(r.reason);    // ✓ 这个分支里有 reason
   }
 }`,
-              { filename: "可辨识联合怎么用" },
+              {
+                filename: "可辨识联合怎么用",
+                filenameEn: "How to use a discriminated union",
+                codeEn: `const results = await runTasks(tasks, 2);
+
+for (const r of results) {
+  if (r.status === "fulfilled") {
+    console.log(r.value);     // ✓ TypeScript knows value exists here
+    // console.log(r.reason); // ✗ error: this branch has no reason
+  } else {
+    console.log(r.reason);    // ✓ this branch has reason
+  }
+}`,
+              },
             ),
           ],
         },
@@ -587,6 +620,7 @@ runTasks(tasks, 2).then((results) => {
 });`,
               {
                 filename: "q2/demo.ts（全文）",
+                filenameEn: "q2/demo.ts (the whole file)",
                 sourceFile: "react-notes-app/q2/demo.ts",
                 collapsible: true,
               },
@@ -594,7 +628,11 @@ runTasks(tasks, 2).then((results) => {
             real(
               "bash",
               `$ npm run q2      # → tsx q2/demo.ts`,
-              { explanation: "package.json 里的 q2 script 用 tsx 直接跑 TypeScript，不需要先编译。" },
+              {
+                explanation: "package.json 里的 q2 script 用 tsx 直接跑 TypeScript，不需要先编译。",
+                explanationEn:
+                  "The q2 script in package.json uses tsx to run TypeScript directly, so there is no compile step first.",
+              },
             ),
           ],
         },
@@ -604,6 +642,7 @@ runTasks(tasks, 2).then((results) => {
           kind: "recognition",
           id: "r-q2-why-fn",
           title: "如果参数改成 Promise 数组会怎样",
+          titleEn: "What happens if the parameter becomes an array of Promises",
           level: 1,
           prompt: (
             <p>
@@ -613,11 +652,20 @@ runTasks(tasks, 2).then((results) => {
               会发生什么？
             </p>
           ),
+          promptEn: (
+            <p>
+              Suppose the signature becomes{" "}
+              <code>runTasks(promises: Promise&lt;T&gt;[], limit: number)</code>{" "}
+              and the caller writes{" "}
+              <code>runTasks([task1(), task2(), task3()], 2)</code>. What
+              happens?
+            </p>
+          ),
           options: [
-            { id: "a", label: "一样能工作，只是写法不同" },
-            { id: "b", label: "三个任务在调用 runTasks 之前就全开始跑了，并发上限无法实现" },
-            { id: "c", label: "结果顺序会乱" },
-            { id: "d", label: "TypeScript 会编译报错" },
+            { id: "a", label: "一样能工作，只是写法不同", labelEn: "It works the same way; only the spelling is different" },
+            { id: "b", label: "三个任务在调用 runTasks 之前就全开始跑了，并发上限无法实现", labelEn: "All three tasks start before runTasks is even called, so the concurrency limit cannot be applied" },
+            { id: "c", label: "结果顺序会乱", labelEn: "The results come back out of order" },
+            { id: "d", label: "TypeScript 会编译报错", labelEn: "TypeScript reports a compile error" },
           ],
           answer: ["b"],
           explain: (
@@ -630,11 +678,27 @@ runTasks(tasks, 2).then((results) => {
               所以参数必须是还没被调用的函数。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              The moment you write the parentheses in <code>task1()</code>, the
+              task starts. By the time <code>runTasks</code> receives the
+              parameter, all three are already running. No amount of queueing
+              inside the function can change the fact that they already started
+              together.
+              <br />
+              <strong>
+                Controlling concurrency requires that nothing starts until you
+                say so, so the parameter must be functions that have not been
+                called yet.
+              </strong>
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-q2-not-allsettled",
           title: "为什么不能直接用 Promise.allSettled",
+          titleEn: "Why Promise.allSettled on its own is not the answer",
           level: 1,
           prompt: (
             <p>
@@ -643,11 +707,18 @@ runTasks(tasks, 2).then((results) => {
               它满足几条要求？
             </p>
           ),
+          promptEn: (
+            <p>
+              Someone writes{" "}
+              <code>return Promise.allSettled(tasks.map((t) =&gt; t()))</code>.
+              How many of the requirements does it meet?
+            </p>
+          ),
           options: [
-            { id: "a", label: "三条全满足，这就是答案" },
-            { id: "b", label: "满足「不抛错」和「保序」，但违反「并发上限」" },
-            { id: "c", label: "满足「并发上限」，但顺序会乱" },
-            { id: "d", label: "一条都不满足" },
+            { id: "a", label: "三条全满足，这就是答案", labelEn: "All three, so this is the answer" },
+            { id: "b", label: "满足「不抛错」和「保序」，但违反「并发上限」", labelEn: "It meets never throwing and keeping the order, but it breaks the concurrency limit" },
+            { id: "c", label: "满足「并发上限」，但顺序会乱", labelEn: "It meets the concurrency limit, but the order is lost" },
+            { id: "d", label: "一条都不满足", labelEn: "None of them" },
           ],
           answer: ["b"],
           explain: (
@@ -659,6 +730,19 @@ runTasks(tasks, 2).then((results) => {
               <br />
               所以这道题的全部难点就在<strong>那个节流</strong>上：
               怎么做到「一次只开 limit 个」。
+            </>
+          ),
+          explainEn: (
+            <>
+              <code>allSettled</code> itself really does never throw and really
+              does keep the order. The problem is{" "}
+              <code>tasks.map((t) =&gt; t())</code>: that line{" "}
+              <strong>calls every task at once</strong>, so all 6 start
+              together and <code>running now</code> climbs to 6.
+              <br />
+              So the whole difficulty of this question is{" "}
+              <strong>the throttling</strong>: how to keep only limit tasks
+              running at a time.
             </>
           ),
         },
@@ -710,7 +794,7 @@ runTasks(tasks, 2).then((results) => {
       whyForAssessmentEn:
         "This is the full answer to Q2. The worker pool is also a pattern you can carry to other problems: every question about limiting concurrency has this same skeleton.",
       sourceFiles: [
-        { path: "react-notes-app/q2/taskRunner.ts", role: "要实现的 runTasks", edit: true },
+        { path: "react-notes-app/q2/taskRunner.ts", role: "要实现的 runTasks", roleEn: "The runTasks you have to write", edit: true },
       ],
       concepts: [
         {
@@ -786,7 +870,26 @@ runTasks(tasks, 2).then((results) => {
   t=400  4 完 → 立刻开 6
   t=450  5、6 陆续完
   总计 ~450ms，槽位几乎没空过`,
-              { filename: "两种思路的耗时对比" },
+              {
+                filename: "两种思路的耗时对比",
+                filenameEn: "How long the two approaches take",
+                codeEn: `Task durations: 1→300ms  2→100ms  3→200ms  4→100ms  5→150ms  6→100ms
+
+✗ Batching (each batch waits for its slowest task)
+  batch 1: [1(300), 2(100)]  → wait 300ms
+  batch 2: [3(200), 4(100)]  → wait 200ms
+  batch 3: [5(150), 6(100)]  → wait 150ms
+  650ms in total, and many slots sit idle in between
+
+✓ worker pool (whoever is free takes the next job)
+  t=0    start 1 and 2
+  t=100  2 done → start 3 at once
+  t=300  1 done → start 4 at once      3 still running
+  t=300  3 done → start 5 at once
+  t=400  4 done → start 6 at once
+  t=450  5 and 6 finish one after the other
+  ~450ms in total, and a slot is almost never idle`,
+              },
             ),
           ],
         },
@@ -930,7 +1033,12 @@ runTasks(tasks, 2).then((results) => {
               `const i = nextIndex;   // 记下我抢到的号
 nextIndex++;           // 立刻把游标推进，别人抢不到同一个
                        // ↑ 这两行之间没有 await，不会被打断`,
-              { sourceFile: "react-notes-app/q2/taskRunner.ts" },
+              {
+                sourceFile: "react-notes-app/q2/taskRunner.ts",
+                codeEn: `const i = nextIndex;   // remember the number I grabbed
+nextIndex++;           // move the cursor at once so nobody grabs the same one
+                       // ↑ no await between these two lines, so nothing interrupts them`,
+              },
             ),
           ],
         },
@@ -995,7 +1103,13 @@ nextIndex++;           // 立刻把游标推进，别人抢不到同一个
               `// 第一步
 const results: SettledResult<T>[] = new Array(tasks.length);
 let nextIndex = 0;`,
-              { filename: "推导 · 第一步" },
+              {
+                filename: "推导 · 第一步",
+                filenameEn: "Working it out · step one",
+                codeEn: `// Step one
+const results: SettledResult<T>[] = new Array(tasks.length);
+let nextIndex = 0;`,
+              },
             ),
             demo(
               "ts",
@@ -1014,7 +1128,25 @@ const worker = async () => {
     // catch 之后不 return，循环继续 → 一个失败不连累别人
   }
 };`,
-              { filename: "推导 · 第二步" },
+              {
+                filename: "推导 · 第二步",
+                filenameEn: "Working it out · step two",
+                codeEn: `// Step two: one worker keeps taking the next job
+const worker = async () => {
+  while (nextIndex < tasks.length) {
+    const i = nextIndex;
+    nextIndex++;
+
+    try {
+      const value = await tasks[i]();          // ← the parentheses! calling it is what starts it
+      results[i] = { status: "fulfilled", value };
+    } catch (reason) {
+      results[i] = { status: "rejected", reason };
+    }
+    // no return after catch, the loop keeps going → one failure does not stop the others
+  }
+};`,
+              },
             ),
             demo(
               "ts",
@@ -1026,7 +1158,18 @@ for (let w = 0; w < workerCount; w++) {
 }
 await Promise.all(workers);
 return results;`,
-              { filename: "推导 · 第三步" },
+              {
+                filename: "推导 · 第三步",
+                filenameEn: "Working it out · step three",
+                codeEn: `// Step three: start limit workers and wait for all of them
+const workerCount = Math.min(limit, tasks.length);
+const workers: Promise<void>[] = [];
+for (let w = 0; w < workerCount; w++) {
+  workers.push(worker());        // these parentheses mean "start this worker"
+}
+await Promise.all(workers);
+return results;`,
+              },
             ),
           ],
         },
@@ -1056,6 +1199,7 @@ return results;`,
           code: [
             real("ts", TASK_RUNNER_SOLUTION, {
               filename: "q2/taskRunner.ts（完整实现）",
+              filenameEn: "q2/taskRunner.ts (the complete implementation)",
               sourceFile: "react-notes-app/q2/taskRunner.ts",
               highlight: [5, 7, 11, 12, 15, 20, 26, 27, 28, 30],
             }),
@@ -1150,7 +1294,37 @@ task 6 DONE    (running now: 0)
 #4 { status: 'fulfilled', value: 'result of task 4' }
 #5 { status: 'fulfilled', value: 'result of task 5' }
 #6 { status: 'fulfilled', value: 'result of task 6' }`,
-              { filename: "本机实测输出", sourceFile: "react-notes-app" },
+              {
+                filename: "本机实测输出",
+                codeEn: `$ npm run q2
+
+task 1 START   (running now: 1)
+task 2 START   (running now: 2)     ← at the limit, task 3 waits
+task 2 DONE    (running now: 1)
+task 3 START   (running now: 2)     ← a slot opened, filled at once
+task 1 DONE    (running now: 1)
+task 4 START   (running now: 2)
+task 3 FAIL    (running now: 1)     ← a failure frees a slot too
+task 5 START   (running now: 2)
+task 4 DONE    (running now: 1)
+task 6 START   (running now: 2)
+task 5 DONE    (running now: 1)
+task 6 DONE    (running now: 0)
+
+=== FINAL RESULTS (must be in original order) ===
+#1 { status: 'fulfilled', value: 'result of task 1' }
+#2 { status: 'fulfilled', value: 'result of task 2' }
+#3 {
+  status: 'rejected',
+  reason: Error: task 3 failed
+      at Timeout._onTimeout (.../q2/demo.ts:18:18)
+}
+#4 { status: 'fulfilled', value: 'result of task 4' }
+#5 { status: 'fulfilled', value: 'result of task 5' }
+#6 { status: 'fulfilled', value: 'result of task 6' }`,
+                filenameEn: "The real output from running it here",
+                sourceFile: "react-notes-app",
+              },
             ),
           ],
         },
@@ -1160,11 +1334,19 @@ task 6 DONE    (running now: 0)
           kind: "fill-blank",
           id: "r-q2-blanks",
           title: "补全 worker pool 的五个关键位置",
+          titleEn: "Fill in the five key spots of the worker pool",
           level: 2,
           prompt: (
             <p>
               五个空。第 2 个和第 4 个是最容易写错的 ——
               一个关系到「顺序」，一个关系到「任务到底有没有被启动」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Five blanks. Numbers 2 and 4 are the ones most often written
+              wrong: one decides the order, the other decides whether the task
+              was started at all.
             </p>
           ),
           language: "ts",
@@ -1204,6 +1386,7 @@ task 6 DONE    (running now: 0)
               n: 1,
               accept: ["<"],
               hint: "游标从 0 开始，最后一个有效下标是 length - 1。",
+              hintEn: "The cursor starts at 0, so the last valid index is length - 1.",
               why: (
                 <>
                   <code>&lt;</code>。下标从 0 到 <code>length - 1</code>，
@@ -1216,12 +1399,30 @@ task 6 DONE    (running now: 0)
                   <strong>一个不报错但结果多一条的 bug。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>&lt;</code>. Indexes run from 0 to{" "}
+                  <code>length - 1</code>, so the condition is{" "}
+                  <code>nextIndex &lt; tasks.length</code>.
+                  <br />
+                  Writing <code>&lt;=</code> runs one extra round.{" "}
+                  <code>tasks[length]</code> is <code>undefined</code>, and
+                  calling it throws{" "}
+                  <code>TypeError: tasks[i] is not a function</code>, which the
+                  catch then swallows, quietly producing one extra rejected
+                  result.{" "}
+                  <strong>
+                    A bug that reports nothing but returns one result too many.
+                  </strong>
+                </>
+              ),
               width: 4,
             },
             {
               n: 2,
               accept: ["tasks[i]()"],
               hint: "tasks[i] 是一个函数。要让它开始跑，还差什么？",
+              hintEn: "tasks[i] is a function. What is still missing before it starts running?",
               why: (
                 <>
                   <code>tasks[i]()</code> —— <strong>括号不能少</strong>。
@@ -1234,12 +1435,27 @@ task 6 DONE    (running now: 0)
                   结果里全是函数。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>tasks[i]()</code> —{" "}
+                  <strong>the parentheses are required</strong>.
+                  <br />
+                  <code>await tasks[i]</code>, without parentheses, awaits a
+                  function object. <code>await</code> passes a non-Promise
+                  straight through, so <code>value</code> becomes the function
+                  itself and the task{" "}
+                  <strong>was never executed at all</strong>. The symptom:{" "}
+                  <code>npm run q2</code> prints no START line, and the results
+                  are all functions.
+                </>
+              ),
               width: 12,
             },
             {
               n: 3,
               accept: ["i"],
               hint: "顺序保证的秘密就在这里。结果要写到哪个位置？",
+              hintEn: "This is where the order guarantee lives. Which position does the result go into?",
               why: (
                 <>
                   <code>i</code> —— 也就是这个任务在<strong>输入数组里的原始下标</strong>。
@@ -1249,12 +1465,27 @@ task 6 DONE    (running now: 0)
                   顺序就乱了。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>i</code>, which is this task&rsquo;s{" "}
+                  <strong>original index in the input array</strong>.
+                  <br />
+                  <strong>
+                    That single letter is the entire implementation of
+                    &ldquo;results in the same order as the input&rdquo;.
+                  </strong>{" "}
+                  Switch to <code>results.push(...)</code> and the order
+                  becomes &ldquo;whoever finishes first comes first&rdquo;,
+                  which loses the original order.
+                </>
+              ),
               width: 4,
             },
             {
               n: 4,
               accept: ["rejected"],
               hint: "看 SettledResult 类型定义里失败分支的 status 字面量。",
+              hintEn: "Look at the status literal on the failure branch of the SettledResult type.",
               why: (
                 <>
                   <code>rejected</code>。必须<strong>一字不差</strong> ——
@@ -1263,12 +1494,22 @@ task 6 DONE    (running now: 0)
                   <code>&quot;failed&quot;</code> 都会类型报错。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>rejected</code>. It must be{" "}
+                  <strong>exactly that word</strong>, because it is the
+                  discriminant tag of the union. Writing{" "}
+                  <code>&quot;reject&quot;</code> or{" "}
+                  <code>&quot;failed&quot;</code> is a type error.
+                </>
+              ),
               width: 10,
             },
             {
               n: 5,
               accept: ["min"],
               hint: "3 个任务、上限 10，应该开几个 worker?",
+              hintEn: "3 tasks with a cap of 10: how many workers should start?",
               why: (
                 <>
                   <code>min</code>。开 <code>Math.min(limit, tasks.length)</code> 个。
@@ -1276,6 +1517,17 @@ task 6 DONE    (running now: 0)
                   用 <code>max</code> 就成了「3 个任务开 10 个 worker」——
                   多出来的 7 个会立刻发现队列空了然后退出，
                   结果仍然正确，但白开了 7 个。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>min</code>. Start{" "}
+                  <code>Math.min(limit, tasks.length)</code> of them.
+                  <br />
+                  With <code>max</code> you would start 10 workers for 3 tasks.
+                  The extra 7 immediately find the queue empty and exit, so the
+                  result is still correct, but those 7 were started for
+                  nothing.
                 </>
               ),
               width: 5,
@@ -1286,11 +1538,19 @@ task 6 DONE    (running now: 0)
           kind: "code-completion",
           id: "r-q2-write",
           title: "从签名开始，自己写出整个 runTasks",
+          titleEn: "Start from the signature and write all of runTasks yourself",
           level: 3,
           prompt: (
             <p>
               只给签名。这是 Q2 的完整答案，写对了这道题就通了。
               写完可以在本机 <code>npm run q2</code> 验证。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You get only the signature. This is the complete answer to Q2:
+              get it right and the question is done. When you finish you can
+              check it here with <code>npm run q2</code>.
             </p>
           ),
           language: "ts",
@@ -1315,17 +1575,24 @@ export async function runTasks<T>(
             "返回数组的顺序必须与 tasks 一致",
             "成功写 { status: \"fulfilled\", value }，失败写 { status: \"rejected\", reason }",
           ],
+          requirementsEn: [
+            "At most limit tasks are running at the same time",
+            "As soon as one task finishes, start the next one (do not wait for a whole batch)",
+            "No failing task may make the whole call throw",
+            "The order of the returned array must match tasks",
+            "On success write { status: \"fulfilled\", value }; on failure write { status: \"rejected\", reason }",
+          ],
           checks: [
-            { label: "预分配了结果数组（new Array 或等价写法）", must: "new Array\\s*\\(|results\\s*:\\s*SettledResult" },
-            { label: "有一个共享游标（let 声明的下标变量）", must: "let\\s+\\w*[Ii]ndex" },
-            { label: "调用了任务函数（tasks[...] 后面有括号）", must: "tasks\\s*\\[[^\\]]+\\]\\s*\\(" },
-            { label: "用 try/catch 接住失败", must: "try[\\s\\S]*catch" },
-            { label: "按下标写回结果，保证顺序", must: "results\\s*\\[" },
-            { label: "没有用 push 收集结果（会打乱顺序）", mustNot: "results\\.push" },
-            { label: "写了 fulfilled 状态", must: '"fulfilled"' },
-            { label: "写了 rejected 状态", must: '"rejected"' },
-            { label: "用 Promise.all 等所有 worker 收工", must: "Promise\\.all" },
-            { label: "没有一次性全部启动（不是 tasks.map(t => t())）", mustNot: "tasks\\.map\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>\\s*\\w+\\s*\\(\\s*\\)" },
+            { label: "预分配了结果数组（new Array 或等价写法）", labelEn: "Allocates the result array up front (new Array or an equivalent)", must: "new Array\\s*\\(|results\\s*:\\s*SettledResult" },
+            { label: "有一个共享游标（let 声明的下标变量）", labelEn: "Has one shared cursor (an index variable declared with let)", must: "let\\s+\\w*[Ii]ndex" },
+            { label: "调用了任务函数（tasks[...] 后面有括号）", labelEn: "Calls the task function (parentheses after tasks[...])", must: "tasks\\s*\\[[^\\]]+\\]\\s*\\(" },
+            { label: "用 try/catch 接住失败", labelEn: "Catches failures with try/catch", must: "try[\\s\\S]*catch" },
+            { label: "按下标写回结果，保证顺序", labelEn: "Writes results back by index, which keeps the order", must: "results\\s*\\[" },
+            { label: "没有用 push 收集结果（会打乱顺序）", labelEn: "Does not collect results with push (that loses the order)", mustNot: "results\\.push" },
+            { label: "写了 fulfilled 状态", labelEn: "Writes the fulfilled status", must: '"fulfilled"' },
+            { label: "写了 rejected 状态", labelEn: "Writes the rejected status", must: '"rejected"' },
+            { label: "用 Promise.all 等所有 worker 收工", labelEn: "Waits for every worker with Promise.all", must: "Promise\\.all" },
+            { label: "没有一次性全部启动（不是 tasks.map(t => t())）", labelEn: "Does not start everything at once (not tasks.map(t => t()))", mustNot: "tasks\\.map\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>\\s*\\w+\\s*\\(\\s*\\)" },
           ],
           hints: [
             "并发上限怎么天然实现？如果你只开 limit 个「工人」，每个工人同时只做一件事，那同时在跑的任务自然不会超过 limit。",
@@ -1355,8 +1622,38 @@ const worker = async () => {
 };
 // 剩下的：开 worker、Promise.all、return`,
           ],
+          hintsEn: [
+            "How does the concurrency limit come out on its own? If you start only limit workers, and each worker does one thing at a time, then the number of tasks running at once can never go above limit.",
+            "You need four things: \u2460 a result array of fixed length \u2461 one cursor shared by all workers \u2462 an async function that loops and takes the next task \u2463 start limit of them and wait with Promise.all. The order is kept by writing each result back at its original index.",
+            `const results = an array of length tasks.length;
+let nextIndex = 0;
+const worker = async () => {
+  while (there is still work left) {
+    const i = nextIndex; nextIndex++;
+    try { results[i] = the success result } catch { results[i] = the failure result }
+  }
+};
+start min(limit, length) workers, await Promise.all, return results`,
+            `const results: SettledResult<T>[] = new Array(tasks.length);
+let nextIndex = 0;
+const worker = async () => {
+  while (nextIndex < tasks.length) {
+    const i = nextIndex;
+    nextIndex++;
+    try {
+      const value = await tasks[i]();
+      results[i] = { status: "fulfilled", value };
+    } catch (reason) {
+      results[i] = { status: "rejected", reason };
+    }
+  }
+};
+// what is left: start the workers, Promise.all, return`,
+          ],
           solution: real("ts", TASK_RUNNER_SOLUTION, {
             filename: "参考答案（与项目实现一致，npm run q2 实测通过）",
+            filenameEn:
+              "Reference answer (identical to the project implementation, checked here with npm run q2)",
             sourceFile: "react-notes-app/q2/taskRunner.ts",
           }),
         },
@@ -1364,12 +1661,20 @@ const worker = async () => {
           kind: "debug",
           id: "r-debug-q2-no-parens",
           title: "Debug Lab · 一行 START 都没打印",
+          titleEn: "Debug Lab · not one START line prints",
           level: 2,
           prompt: (
             <p>
               跑 <code>npm run q2</code>，没有报错，但一行
               <code>task N START</code> 都没有，直接就出结果了 ——
               而且结果里的 value 长得很奇怪。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You run <code>npm run q2</code>. Nothing reports an error, but not
+              one <code>task N START</code> line appears; the results come out
+              right away. And the value in each result looks strange.
             </p>
           ),
           errorOutput: `$ npm run q2
@@ -1386,6 +1691,20 @@ const worker = async () => {
 #   - 一行 "task N START" 都没有
 #   - 应该 reject 的 task 3 也变成了 fulfilled
 #   - value 是函数，不是 "result of task N"`,
+          errorOutputEn: `$ npm run q2
+
+=== FINAL RESULTS (must be in original order) ===
+#1 { status: 'fulfilled', value: [Function (anonymous)] }
+#2 { status: 'fulfilled', value: [Function (anonymous)] }
+#3 { status: 'fulfilled', value: [Function (anonymous)] }
+#4 { status: 'fulfilled', value: [Function (anonymous)] }
+#5 { status: 'fulfilled', value: [Function (anonymous)] }
+#6 { status: 'fulfilled', value: [Function (anonymous)] }
+
+# Note:
+#   - not one "task N START" line was printed
+#   - task 3, which should reject, came back fulfilled
+#   - value is a function, not "result of task N"`,
           broken: demo(
             "ts",
             `const worker = async () => {
@@ -1401,24 +1720,29 @@ const worker = async () => {
     }
   }
 };`,
-            { filename: "有问题的 worker", highlight: [7] },
+            {
+              filename: "有问题的 worker",
+              filenameEn: "The worker with the problem",
+              highlight: [7],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "并发控制错误 —— worker 数量算错了" },
-              { id: "b", label: "函数与返回值混淆 —— await 了函数本身，任务从未被调用" },
-              { id: "c", label: "顺序错误 —— 用了 push 而不是下标" },
-              { id: "d", label: "类型错误 —— SettledResult 写错了" },
+              { id: "a", label: "并发控制错误 —— worker 数量算错了", labelEn: "A concurrency mistake — the number of workers is computed wrong" },
+              { id: "b", label: "函数与返回值混淆 —— await 了函数本身，任务从未被调用", labelEn: "A function confused with its return value — the function itself was awaited, so the task was never called" },
+              { id: "c", label: "顺序错误 —— 用了 push 而不是下标", labelEn: "An order mistake — push was used instead of an index" },
+              { id: "d", label: "类型错误 —— SettledResult 写错了", labelEn: "A type mistake — SettledResult is written wrong" },
             ],
             answer: "b",
           },
           locate: {
             question: "第 7 行少了什么？",
+            questionEn: "What is missing on line 7?",
             options: [
-              { id: "a", label: "少了一对调用括号：应该是 await tasks[i]()" },
-              { id: "b", label: "少了 async 关键字" },
-              { id: "c", label: "少了 .then()" },
-              { id: "d", label: "应该写成 await Promise.resolve(tasks[i])" },
+              { id: "a", label: "少了一对调用括号：应该是 await tasks[i]()", labelEn: "A pair of call parentheses is missing: it should be await tasks[i]()" },
+              { id: "b", label: "少了 async 关键字", labelEn: "The async keyword is missing" },
+              { id: "c", label: "少了 .then()", labelEn: ".then() is missing" },
+              { id: "d", label: "应该写成 await Promise.resolve(tasks[i])", labelEn: "It should be await Promise.resolve(tasks[i])" },
             ],
             answer: "a",
           },
@@ -1428,6 +1752,9 @@ const worker = async () => {
 //                          ↑ 括号：调用它，任务才真的开始跑`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
+              codeEn: `const value = await tasks[i]();
+//                          ↑ the parentheses: calling it is what starts the task`,
               sourceFile: "react-notes-app/q2/taskRunner.ts",
             },
           ),
@@ -1460,7 +1787,43 @@ const worker = async () => {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                The type of <code>tasks[i]</code> is <code>Task&lt;T&gt;</code>,
+                which is <code>() =&gt; Promise&lt;T&gt;</code> —{" "}
+                <strong>a function</strong>, not a Promise.
+              </p>
+              <p>
+                When you <code>await</code> a value that is not a Promise, it{" "}
+                <strong>passes straight through and returns that value
+                unchanged</strong>. So <code>value</code> becomes the function
+                object, and the body of the function — the{" "}
+                <code>running++</code>, the <code>console.log</code>, the{" "}
+                <code>setTimeout</code> inside it —{" "}
+                <strong>never ran even once</strong>.
+              </p>
+              <p>
+                The three symptoms confirm each other: no START line printed
+                (the body never ran), task 3 never rejected (the reject is
+                inside the body), and value is a function (await returned it
+                unchanged).
+              </p>
+              <p>
+                <strong>This bug reports nothing at all</strong>, and
+                TypeScript does not stop it either, because awaiting a
+                non-Promise is legal and only raises a lint note. How to
+                recognize it:{" "}
+                <strong>
+                  a [Function] or a Promise object showing up in the results
+                  means a pair of parentheses is missing, or one pair too many.
+                </strong>
+              </p>
+            </>
+          ),
           verify: "npm run q2   # 应该看到 task N START，且 running now 不超过 2",
+          verifyEn:
+            "npm run q2   # you should see task N START, and running now should never go above 2",
         },
       ],
       mistakes: [
@@ -1474,6 +1837,15 @@ try {
 } catch (reason) {
   results.push({ status: "rejected", reason });
 }`,
+            {
+              codeEn: `// ✗ collecting results with push — the order follows finish time, not input order
+try {
+  const value = await tasks[i]();
+  results.push({ status: "fulfilled", value });
+} catch (reason) {
+  results.push({ status: "rejected", reason });
+}`,
+            },
           ),
           why: (
             <>
@@ -1509,6 +1881,16 @@ try {
   results[i] = { status: "rejected", reason };
   return;                       // ← 这个 worker 死了
 }`,
+            {
+              codeEn: `// ✗ returning after catch stops the whole worker on one failure
+try {
+  const value = await tasks[i]();
+  results[i] = { status: "fulfilled", value };
+} catch (reason) {
+  results[i] = { status: "rejected", reason };
+  return;                       // ← this worker is gone
+}`,
+            },
           ),
           why: (
             <>
@@ -1542,6 +1924,13 @@ const worker = async () => {
   let nextIndex = 0;            // ← let 写在了函数里面
   while (nextIndex < tasks.length) { ... }
 };`,
+            {
+              codeEn: `// ✗ every worker keeps its own cursor
+const worker = async () => {
+  let nextIndex = 0;            // ← the let is inside the function
+  while (nextIndex < tasks.length) { ... }
+};`,
+            },
           ),
           why: (
             <>
@@ -1632,7 +2021,7 @@ export const reactMastery: Module = {
       whyForAssessmentEn:
         "During the exam most of your time is not spent writing new code. It is spent finding out why the code is wrong. With the same knowledge, someone who reads error messages well works about twice as fast as someone who does not.",
       sourceFiles: [
-        { path: "react-notes-app/src/", role: "所有故障都基于这个项目的真实代码" },
+        { path: "react-notes-app/src/", role: "所有故障都基于这个项目的真实代码", roleEn: "Every fault is based on the real code of this project" },
       ],
       concepts: [
         {
@@ -1878,10 +2267,17 @@ export const reactMastery: Module = {
           kind: "debug",
           id: "r-lab-import-path",
           title: "故障 1 · 路径大小写",
+          titleEn: "Fault 1 · upper and lower case in a path",
           level: 2,
           prompt: (
             <p>
               新建了组件之后启动开发服务器，Vite 直接报错，页面白屏。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You add a new component, start the dev server, and Vite reports an
+              error right away. The page is blank.
             </p>
           ),
           errorOutput: `[plugin:vite:import-analysis] Failed to resolve import
@@ -1901,27 +2297,32 @@ function App() {
           ),
           classify: {
             options: [
-              { id: "a", label: "模块解析错误 —— 路径写错了" },
-              { id: "b", label: "类型错误" },
-              { id: "c", label: "渲染循环" },
-              { id: "d", label: "状态更新错误" },
+              { id: "a", label: "模块解析错误 —— 路径写错了", labelEn: "A module resolution error — the path is wrong" },
+              { id: "b", label: "类型错误", labelEn: "A type error" },
+              { id: "c", label: "渲染循环", labelEn: "A render loop" },
+              { id: "d", label: "状态更新错误", labelEn: "A state update mistake" },
             ],
             answer: "a",
           },
           locate: {
             question: "具体错在哪？",
+            questionEn: "What exactly is wrong?",
             options: [
-              { id: "a", label: "目录名大小写不对，实际是 NoteManager" },
-              { id: "b", label: "应该写 ../components/NoteManager" },
-              { id: "c", label: "应该加 .tsx 后缀" },
-              { id: "d", label: "应该用花括号：import { NoteManager }" },
+              { id: "a", label: "目录名大小写不对，实际是 NoteManager", labelEn: "The case of the directory name is wrong; it is really NoteManager" },
+              { id: "b", label: "应该写 ../components/NoteManager", labelEn: "It should be ../components/NoteManager" },
+              { id: "c", label: "应该加 .tsx 后缀", labelEn: "The .tsx extension should be added" },
+              { id: "d", label: "应该用花括号：import { NoteManager }", labelEn: "It should use braces: import { NoteManager }" },
             ],
             answer: "a",
           },
           fixed: real(
             "tsx",
             `import NoteManager from "./components/NoteManager";`,
-            { filename: "改对之后", sourceFile: "react-notes-app/src/App.tsx" },
+            {
+              filename: "改对之后",
+              filenameEn: "After the fix",
+              sourceFile: "react-notes-app/src/App.tsx",
+            },
           ),
           rootCause: (
             <>
@@ -1945,12 +2346,43 @@ function App() {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                The real name of the directory is <code>NoteManager</code>, with
+                a capital N and a capital M.
+              </p>
+              <p>
+                <strong>This bug is especially easy to miss on macOS</strong>:
+                the default macOS file system{" "}
+                <strong>does not distinguish upper from lower case</strong>, so
+                sometimes it runs locally. But module resolution in Vite, and CI
+                on Linux, <strong>both do distinguish</strong>. That produces
+                the &ldquo;it works here, it fails as soon as I commit&rdquo;
+                situation.
+              </p>
+              <p>
+                Look at option C: this project uses Vite, so you{" "}
+                <strong>may</strong> leave out the extension, because Vite adds{" "}
+                <code>/index.tsx</code> for you. So adding the extension is not
+                required, unlike the plain ESM described in the previous course.{" "}
+                <strong>
+                  The same thing follows different rules in different
+                  environments, which is exactly why you read the build
+                  configuration.
+                </strong>
+              </p>
+            </>
+          ),
           verify: "npm run dev   # 页面应该正常显示表单和表格",
+          verifyEn:
+            "npm run dev   # the page should show the form and the table normally",
         },
         {
           kind: "debug",
           id: "r-lab-props-undefined",
           title: "故障 2 · props 名字对不上",
+          titleEn: "Fault 2 · the prop names do not match",
           level: 2,
           prompt: (
             <p>
@@ -1958,11 +2390,27 @@ function App() {
               页面能显示，但点 Delete 直接崩。
             </p>
           ),
+          promptEn: (
+            <p>
+              During a refactor the prop name passed by the parent was changed,
+              and the child component was not changed to match. The page still
+              renders, but clicking Delete crashes it.
+            </p>
+          ),
           errorOutput: `Uncaught TypeError: onDelete is not a function
     at onClick (NoteItem/index.tsx:18:29)
     at HTMLUnknownElement.callCallback
 
 # 另外 TypeScript 那边也在报：
+src/components/NoteTable/index.tsx(20,7): error TS2322: Type
+  '{ key: number; note: Note; onRemove: (id: number) => void; onEdit: ... }'
+  is not assignable to type 'IntrinsicAttributes & NoteItemProps'.
+  Property 'onDelete' is missing in type ... but required in type 'NoteItemProps'.`,
+          errorOutputEn: `Uncaught TypeError: onDelete is not a function
+    at onClick (NoteItem/index.tsx:18:29)
+    at HTMLUnknownElement.callCallback
+
+# TypeScript is reporting something too:
 src/components/NoteTable/index.tsx(20,7): error TS2322: Type
   '{ key: number; note: Note; onRemove: (id: number) => void; onEdit: ... }'
   is not assignable to type 'IntrinsicAttributes & NoteItemProps'.
@@ -1984,24 +2432,44 @@ export interface NoteItemProps {
   onEdit: (note: Note) => void;
 }
 const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
-            { filename: "两处不一致", highlight: [5, 12] },
+            {
+              filename: "两处不一致",
+              filenameEn: "The two places that disagree",
+              highlight: [5, 12],
+              codeEn: `// The name NoteTable passes down:
+<NoteItem
+  key={note.id}
+  note={note}
+  onRemove={onDelete}       // ← it passes onRemove
+  onEdit={onEdit}
+/>
+
+// The props interface of NoteItem, and how it destructures them:
+export interface NoteItemProps {
+  note: Note;
+  onDelete: (id: number) => void;   // ← it expects onDelete
+  onEdit: (note: Note) => void;
+}
+const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "模块解析错误" },
-              { id: "b", label: "类型 / 契约错误 —— props 名字两边不一致" },
-              { id: "c", label: "渲染循环" },
-              { id: "d", label: "测试查询错误" },
+              { id: "a", label: "模块解析错误", labelEn: "A module resolution error" },
+              { id: "b", label: "类型 / 契约错误 —— props 名字两边不一致", labelEn: "A type or contract error — the prop names differ on the two sides" },
+              { id: "c", label: "渲染循环", labelEn: "A render loop" },
+              { id: "d", label: "测试查询错误", labelEn: "A wrong query in the test" },
             ],
             answer: "b",
           },
           locate: {
             question: "该改哪一边？",
+            questionEn: "Which side should change?",
             options: [
-              { id: "a", label: "改 NoteTable：把 onRemove 改回 onDelete（子组件接口是契约，不该为调用方妥协）" },
-              { id: "b", label: "改 NoteItem 的接口，把 onDelete 改成 onRemove" },
-              { id: "c", label: "两边都保留，在 NoteItem 里写 onDelete ?? onRemove" },
-              { id: "d", label: "把 NoteItemProps 里的 onDelete 改成可选的" },
+              { id: "a", label: "改 NoteTable：把 onRemove 改回 onDelete（子组件接口是契约，不该为调用方妥协）", labelEn: "Change NoteTable: rename onRemove back to onDelete (the child interface is a contract and should not bend for the caller)" },
+              { id: "b", label: "改 NoteItem 的接口，把 onDelete 改成 onRemove", labelEn: "Change the NoteItem interface, renaming onDelete to onRemove" },
+              { id: "c", label: "两边都保留，在 NoteItem 里写 onDelete ?? onRemove", labelEn: "Keep both, and write onDelete ?? onRemove inside NoteItem" },
+              { id: "d", label: "把 NoteItemProps 里的 onDelete 改成可选的", labelEn: "Make onDelete optional in NoteItemProps" },
             ],
             answer: "a",
           },
@@ -2015,6 +2483,7 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
 />`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteTable/index.tsx",
             },
           ),
@@ -2041,16 +2510,53 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <strong>
+                  The names of the props are the interface contract of the
+                  component.
+                </strong>{" "}
+                <code>NoteItemProps</code> declares that it needs{" "}
+                <code>onDelete</code>, so the caller must pass{" "}
+                <code>onDelete</code>.
+              </p>
+              <p>
+                Now look at <strong>the order the errors arrive in</strong>: the
+                TypeScript TS2322 is reported{" "}
+                <strong>at compile time</strong>, while{" "}
+                <code>onDelete is not a function</code> only breaks{" "}
+                <strong>at run time</strong>.{" "}
+                <strong>Read the compile-time error first</strong> — it points
+                more precisely at the line that passes the wrong name.
+              </p>
+              <p>
+                Option D, making <code>onDelete</code> optional, is the classic
+                fix that just silences the compiler: the type error disappears,
+                the runtime crash stays, and now it is harder to find.{" "}
+                <strong>A type error is helping you. Do not go around it.</strong>
+              </p>
+            </>
+          ),
           verify: "npx tsc --noEmit   # 不应再有 TS2322；然后 npx vitest run",
+          verifyEn:
+            "npx tsc --noEmit   # TS2322 should be gone; then npx vitest run",
         },
         {
           kind: "debug",
           id: "r-lab-testid-typo",
           title: "故障 3 · 测试找不到元素",
+          titleEn: "Fault 3 · the test cannot find the element",
           level: 2,
           prompt: (
             <p>
               代码看起来完全正确，手动点也没问题，但两个测试挂了。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The code looks entirely correct and clicking through it by hand
+              works, but two tests fail.
             </p>
           ),
           errorOutput: `FAIL  src/NoteManager.test.tsx > adds a note
@@ -2081,15 +2587,16 @@ Ignored nodes: comments, script, style
           ),
           classify: {
             options: [
-              { id: "a", label: "受控输入错误" },
-              { id: "b", label: "测试查询错误 —— data-testid 被改动了" },
-              { id: "c", label: "状态更新错误" },
-              { id: "d", label: "异步错误 —— 漏了 await" },
+              { id: "a", label: "受控输入错误", labelEn: "A controlled input mistake" },
+              { id: "b", label: "测试查询错误 —— data-testid 被改动了", labelEn: "A wrong query in the test — the data-testid was changed" },
+              { id: "c", label: "状态更新错误", labelEn: "A state update mistake" },
+              { id: "d", label: "异步错误 —— 漏了 await", labelEn: "An async mistake — a missing await" },
             ],
             answer: "b",
           },
           locate: {
             question: "第 6 行该是什么？",
+            questionEn: "What should line 6 be?",
             options: [
               { id: "a", label: 'data-testid="form-input"' },
               { id: "b", label: 'data-testid="input-title"' },
@@ -2103,6 +2610,7 @@ Ignored nodes: comments, script, style
             `data-testid="form-input"`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
             },
           ),
@@ -2127,18 +2635,50 @@ Ignored nodes: comments, script, style
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                The README says plainly:{" "}
+                <strong>do not change any data-testid</strong>.{" "}
+                <code>form-input</code> was changed to{" "}
+                <code>title-input</code>, so the test&rsquo;s{" "}
+                <code>getByTestId(&quot;form-input&quot;)</code> naturally finds
+                nothing.
+              </p>
+              <p>
+                <strong>How to read this error:</strong> when Testing Library
+                fails it <strong>prints the whole DOM</strong>. Search that DOM
+                for the data-testid you expected. If it is not there but
+                something very similar is, that is the one that was renamed.
+                This is much faster than guessing.
+              </p>
+              <p>
+                Note that the <code>data-</code> prefix cannot be dropped
+                (option C): <code>data-*</code> is the HTML rule for custom
+                attributes.
+              </p>
+            </>
+          ),
           verify: "npx vitest run   # 4 passed",
         },
         {
           kind: "debug",
           id: "r-lab-silent-mutation",
           title: "故障 4 · 编辑后列表毫无变化（综合题）",
+          titleEn: "Fault 4 · the list does not change after an edit (mixed question)",
           level: 3,
           prompt: (
             <p>
               这一题不告诉你是哪一类。控制台干净，
               <code>console.log</code> 显示数据是对的。
               自己分诊。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              This one does not tell you which category it is. The console is
+              clean, and <code>console.log</code> shows the data is correct. Sort
+              it yourself.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -2156,6 +2696,21 @@ console.log("after:", notes);
 
 # 测试结果：
 #   ✕ edits a note in place`,
+          errorOutputEn: `# No error at all.
+# Repro: add "A" and "B" → click Edit on B → change it to "B2" → click Update
+# Expected: the list becomes A, B2
+# Actual: the list is still A, B
+
+# Logs added inside handleSubmitNote:
+console.log("submitted:", submittedNote);
+// → submitted: { id: 1785737900978, title: 'B2', content: '...' }   ← the data is right
+console.log("after:", notes);
+// → after: [ {title:'A'...}, {title:'B2'...} ]                       ← the array is right too!
+
+# But the screen still shows B.
+
+# Test result:
+#   ✕ edits a note in place`,
           broken: demo(
             "tsx",
             `const handleSubmitNote = (submittedNote: Note) => {
@@ -2168,24 +2723,29 @@ console.log("after:", notes);
     setNotes((prev) => [...prev, submittedNote]);
   }
 };`,
-            { filename: "有问题的 handleSubmitNote", highlight: [4, 5] },
+            {
+              filename: "有问题的 handleSubmitNote",
+              filenameEn: "The handleSubmitNote with the problem",
+              highlight: [4, 5],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "模块解析错误" },
-              { id: "b", label: "渲染循环" },
-              { id: "c", label: "状态更新错误 —— 改了原数组，React 认为值没变" },
-              { id: "d", label: "测试查询错误 —— 漏了 await" },
+              { id: "a", label: "模块解析错误", labelEn: "A module resolution error" },
+              { id: "b", label: "渲染循环", labelEn: "A render loop" },
+              { id: "c", label: "状态更新错误 —— 改了原数组，React 认为值没变", labelEn: "A state update mistake — the original array was changed, so React sees the same value" },
+              { id: "d", label: "测试查询错误 —— 漏了 await", labelEn: "A wrong query in the test — a missing await" },
             ],
             answer: "c",
           },
           locate: {
             question: "病灶是哪两行的组合？",
+            questionEn: "Which two lines together cause it?",
             options: [
-              { id: "a", label: "第 4、5 行：notes[i] = ... 改了原数组，setNotes(notes) 传的还是同一个引用" },
-              { id: "b", label: "第 3 行：findIndex 应该用 find" },
-              { id: "c", label: "第 6 行：setNoteToEdit(null) 应该在 setNotes 之前" },
-              { id: "d", label: "第 8 行：新增分支写错了" },
+              { id: "a", label: "第 4、5 行：notes[i] = ... 改了原数组，setNotes(notes) 传的还是同一个引用", labelEn: "Lines 4 and 5: notes[i] = ... changes the original array, and setNotes(notes) passes the same reference" },
+              { id: "b", label: "第 3 行：findIndex 应该用 find", labelEn: "Line 3: findIndex should be find" },
+              { id: "c", label: "第 6 行：setNoteToEdit(null) 应该在 setNotes 之前", labelEn: "Line 6: setNoteToEdit(null) should come before setNotes" },
+              { id: "d", label: "第 8 行：新增分支写错了", labelEn: "Line 8: the add branch is written wrong" },
             ],
             answer: "a",
           },
@@ -2205,6 +2765,7 @@ console.log("after:", notes);
 };`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -2237,7 +2798,43 @@ console.log("after:", notes);
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>notes[i] = submittedNote</code> changes{" "}
+                <strong>the original array itself</strong>. The content really
+                did change, which is why <code>console.log</code> looks correct,
+                and that is the most confusing part of this bug.
+              </p>
+              <p>
+                But <code>setNotes(notes)</code> still passes{" "}
+                <strong>the same array object</strong>. React compares the new
+                value with the old one, sees the same reference, decides nothing
+                changed, and skips the re-render.
+              </p>
+              <p>
+                <strong>This combination of symptoms is worth memorizing:</strong>{" "}
+                no error, plus correct data in the logs, plus a screen that does
+                not change, equals{" "}
+                <strong>the original object was changed</strong>. Go look for
+                these four spellings: <code>push</code>, <code>splice</code>,{" "}
+                <code>arr[i] =</code> and <code>obj.x =</code>.
+              </p>
+              <p>
+                One more note: writing <code>setNotes([...notes])</code> to force
+                a new array would also make this bug go away, but that treats the
+                symptom, not the cause. The original array is already spoiled,
+                and when several places hold a reference to the same data it will
+                cause problems that are even harder to find.{" "}
+                <strong>
+                  The right answer never touches the original array at all.
+                </strong>
+              </p>
+            </>
+          ),
           verify: "npx vitest run   # 然后 npm run dev 手动加三条，编辑中间那条，确认位置不变",
+          verifyEn:
+            "npx vitest run   # then npm run dev, add three by hand, edit the middle one, and confirm it stays in place",
         },
       ],
       transfer: [
@@ -2288,7 +2885,7 @@ console.log("after:", notes);
       whyForAssessmentEn:
         "Filling in blanks and copying along only proves you followed the explanation. The real exam starts with an empty editor. This lesson recreates that moment, and it is harder than the real exam, because here you also set up the project yourself.",
       sourceFiles: [
-        { path: "react-notes-app/", role: "参考项目 —— 做完之后再对照，不要提前看" },
+        { path: "react-notes-app/", role: "参考项目 —— 做完之后再对照，不要提前看", roleEn: "The reference project — compare against it after you finish; do not look early" },
       ],
       concepts: [
         {
@@ -2431,12 +3028,21 @@ console.log("after:", notes);
           kind: "from-scratch",
           id: "r-rebuild-q1",
           title: "从零重建 Q1 · Notes Manager",
+          titleEn: "Rebuild Q1 · Notes Manager",
           level: 4,
           prompt: (
             <p>
               空目录开始，建出一个 React + TypeScript + Vite 项目，
               实现 Notes Manager 的增删改，让下面那四个测试全过。
               <strong>不要打开 react-notes-app 参考。</strong>
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Starting from an empty directory, build a React + TypeScript +
+              Vite project. Implement add, delete and edit in Notes Manager, and
+              make all four tests below pass.{" "}
+              <strong>Do not open react-notes-app to look.</strong>
             </p>
           ),
           requirements: [
@@ -2452,29 +3058,46 @@ console.log("after:", notes);
             "行内按钮的文字必须正好是 Edit 和 Delete",
             "Note 的类型是 { id: number; title: string; content: string }",
           ],
+          requirementsEn: [
+            "The form sits at the top of the page: a Title input, a Content textarea, and one submit button",
+            "The table sits below: the header is Title / Content / Edit / Delete, with one row per note",
+            "Both inputs must be controlled (value + onChange)",
+            "When the title or the content is empty (including only spaces), the submit button is disabled",
+            "Task 1 Add: after submit the new note appears at the end of the table, and every existing note is still there",
+            "Task 2 Delete: clicking Delete on a row removes that row by id (with notes of the same name, only the right one goes)",
+            "Task 3 Edit: clicking Edit on a row fills its content back into the form, and the button text becomes Update",
+            "Task 3 after submit: the note is updated in place (the order does not change), and edit mode ends (the form clears, the button goes back to Add)",
+            "These data-testid values are required: note-manager / note-form / form-input / form-textarea / form-submit-button / notes-list",
+            "The text on the row buttons must be exactly Edit and Delete",
+            "The type of Note is { id: number; title: string; content: string }",
+          ],
           fileList: [
-            { path: "package.json", role: "自己写 scripts 与依赖（react / react-dom / vite / @vitejs/plugin-react / typescript / vitest / jsdom / @testing-library/*）" },
-            { path: "index.html", role: "一个 <div id=\"root\"> 加一行 module script" },
-            { path: "tsconfig.json", role: "strict、jsx: react-jsx、moduleResolution: bundler" },
-            { path: "vite.config.ts", role: "React 插件 + 内联 vitest 配置（environment: jsdom、globals、setupFiles）" },
+            { path: "package.json", role: "自己写 scripts 与依赖（react / react-dom / vite / @vitejs/plugin-react / typescript / vitest / jsdom / @testing-library/*）", roleEn: "You write the scripts and dependencies (react / react-dom / vite / @vitejs/plugin-react / typescript / vitest / jsdom / @testing-library/*)" },
+            { path: "index.html", role: "一个 <div id=\"root\"> 加一行 module script", roleEn: "One <div id=\"root\"> plus one module script line" },
+            { path: "tsconfig.json", role: "strict、jsx: react-jsx、moduleResolution: bundler", roleEn: "strict, jsx: react-jsx, moduleResolution: bundler" },
+            { path: "vite.config.ts", role: "React 插件 + 内联 vitest 配置（environment: jsdom、globals、setupFiles）", roleEn: "The React plugin plus an inline vitest config (environment: jsdom, globals, setupFiles)" },
             { path: "vitest.setup.ts", role: "import \"@testing-library/jest-dom\"" },
             { path: "src/main.tsx", role: "createRoot().render(<App />)" },
-            { path: "src/App.tsx", role: "渲染顶层组件" },
-            { path: "src/types/Note.ts", role: "Note 类型" },
-            { path: "src/components/NoteManager/index.tsx", role: "★ 状态所有者：notes + noteToEdit + 三个 handler" },
-            { path: "src/components/NoteForm/index.tsx", role: "★ 受控表单、编辑回填、Add/Update 切换、提交时 id 的取舍" },
-            { path: "src/components/NoteTable/index.tsx", role: "表格骨架 + map + notes-list 的 testid" },
-            { path: "src/components/NoteItem/index.tsx", role: "单行 + Edit / Delete 按钮" },
-            { path: "src/NoteManager.test.tsx", role: "把四个测试抄进来当判卷器（见下方参考答案区）" },
+            { path: "src/App.tsx", role: "渲染顶层组件", roleEn: "Renders the top-level component" },
+            { path: "src/types/Note.ts", role: "Note 类型", roleEn: "The Note type" },
+            { path: "src/components/NoteManager/index.tsx", role: "★ 状态所有者：notes + noteToEdit + 三个 handler", roleEn: "★ The state owner: notes + noteToEdit + three handlers" },
+            { path: "src/components/NoteForm/index.tsx", role: "★ 受控表单、编辑回填、Add/Update 切换、提交时 id 的取舍", roleEn: "★ The controlled form, filling values back for an edit, switching Add and Update, and choosing the id on submit" },
+            { path: "src/components/NoteTable/index.tsx", role: "表格骨架 + map + notes-list 的 testid", roleEn: "The table skeleton, the map, and the notes-list data-testid" },
+            { path: "src/components/NoteItem/index.tsx", role: "单行 + Edit / Delete 按钮", roleEn: "One row plus the Edit and Delete buttons" },
+            { path: "src/NoteManager.test.tsx", role: "把四个测试抄进来当判卷器（见下方参考答案区）", roleEn: "Copy the four tests in and let them grade you (see the reference answer area below)" },
           ],
           commands: [
             {
               cmd: "npm install",
               expect: "装完依赖，node_modules 与 package-lock.json 出现",
+              expectEn:
+                "The dependencies install, and node_modules and package-lock.json appear",
             },
             {
               cmd: "npm run dev",
               expect: "打开提示的 localhost 地址，能看到表单和空表格",
+              expectEn:
+                "Open the localhost address it prints, and you see the form and an empty table",
             },
             {
               cmd: "npx vitest run",
@@ -2484,6 +3107,8 @@ console.log("after:", notes);
               cmd: "npm run dev",
               expect:
                 "手动验证三件事：① 加三条同名笔记，删中间那条，只消失一条 ② 编辑中间那条，它还在第二行 ③ 更新完按钮回到 Add、表单清空",
+              expectEn:
+                "Check three things by hand: \u2460 add three notes with the same name, delete the middle one, and only one disappears \u2461 edit the middle one and it is still on the second row \u2462 after the update the button goes back to Add and the form clears",
             },
           ],
           hints: [
@@ -2527,6 +3152,49 @@ const handleEdit = (note: Note) => setNoteToEdit(note);
 
 // NoteForm 里最关键的两处
 useEffect(() => { /* 有就填，没有就清 */ }, [noteToEdit]);
+const newNote = { id: noteToEdit ? noteToEdit.id : Date.now(), ... };`,
+          ],
+          hintsEn: [
+            "Work out who holds the data first. The form and the table are siblings and both touch the same list of notes, so that list can only live in the parent they share. Draw that structure before you write anything.",
+            "Four components, two pieces of state (notes, and which one is being edited), and three handlers (submit, delete, start editing). The form also needs two pieces of state of its own for the input values. To fill values back for an edit, use useEffect watching the change of which note is being edited. On submit, adding and updating need different id strategies.",
+            `NoteManager:
+  notes: Note[] = []
+  noteToEdit: Note | null = null
+  handleSubmit(note):
+    if editing → replace in place by id with map → then set noteToEdit back to null
+    otherwise → append to the end with the spread syntax
+  handleDelete(id): keep the ones whose id is not equal, with filter
+  handleEdit(note): set noteToEdit to this one
+
+NoteForm:
+  two pieces of state: title, content
+  useEffect(dependencies = [noteToEdit]):
+    noteToEdit exists → fill in its title/content
+    it does not → clear both
+  isFormInvalid = either one is empty after trim
+  handleSubmit(e):
+    e.preventDefault()
+    return if invalid
+    build the note, id = editing ? reuse the old id : Date.now()
+    report it upward, then clear both inputs`,
+            `// The three handlers of NoteManager (this is the core of Q1; the rest is skeleton)
+const handleSubmitNote = (submittedNote: Note) => {
+  if (noteToEdit) {
+    setNotes((prev) =>
+      prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),
+    );
+    setNoteToEdit(null);
+  } else {
+    setNotes((prev) => [...prev, submittedNote]);
+  }
+};
+const handleDelete = (id: number) => {
+  setNotes((prev) => prev.filter((note) => note.id !== id));
+};
+const handleEdit = (note: Note) => setNoteToEdit(note);
+
+// The two most important places in NoteForm
+useEffect(() => { /* fill it in if there is one, clear it if there is not */ }, [noteToEdit]);
 const newNote = { id: noteToEdit ? noteToEdit.id : Date.now(), ... };`,
           ],
           solution: [
@@ -2579,6 +3247,7 @@ test("edits a note in place", async () => {
 });`,
               {
                 filename: "src/NoteManager.test.tsx（判卷器，先抄这个）",
+                filenameEn: "src/NoteManager.test.tsx (this grades you; copy it in first)",
                 sourceFile: "react-notes-app/src/NoteManager.test.tsx",
                 collapsible: true,
               },
@@ -2662,6 +3331,7 @@ const NoteForm: React.FC<NoteFormProps> = ({ onSubmit, noteToEdit }) => {
 export default NoteForm;`,
               {
                 filename: "src/components/NoteForm/index.tsx（去掉了排版类名）",
+                filenameEn: "src/components/NoteForm/index.tsx (the layout class names are removed)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 collapsible: true,
               },
@@ -2697,8 +3367,11 @@ export default NoteForm;`,
 }`,
               {
                 filename: "package.json（比源项目多了一条 test script）",
+                filenameEn: "package.json (one test script more than the source project)",
                 explanation:
                   "源项目没有 test script，这里加上是合理的 —— 这是你自己的项目。但在真实考试里别擅自改配置。",
+                explanationEn:
+                  "The source project has no test script, and adding one here is reasonable because this is your own project. But in a real exam, do not change the configuration on your own.",
               },
             ),
           ],
@@ -2707,11 +3380,19 @@ export default NoteForm;`,
           kind: "from-scratch",
           id: "r-rebuild-q2",
           title: "从零重建 Q2 · 并发任务调度器",
+          titleEn: "Rebuild Q2 · the concurrent task runner",
           level: 4,
           prompt: (
             <p>
               只给类型定义和三条要求。自己写出 <code>runTasks</code>，
               并自己写一个验证台来证明它对。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You get only the type definitions and three requirements. Write{" "}
+              <code>runTasks</code> yourself, and write your own check harness to
+              show that it is right.
             </p>
           ),
           requirements: [
@@ -2722,22 +3403,33 @@ export default NoteForm;`,
             "成功写 { status: \"fulfilled\", value }，失败写 { status: \"rejected\", reason }",
             "自己写一个 demo：6 个任务（其中至少 1 个 reject）、limit = 2，打印实时并发数与最终结果",
           ],
+          requirementsEn: [
+            "runTasks(tasks, limit) takes an array of functions, and each function returns a Promise when it is called",
+            "At most limit tasks run at the same time; as soon as one finishes, start the next",
+            "No failing task may make runTasks throw",
+            "The order of the returned array must match tasks",
+            "On success write { status: \"fulfilled\", value }; on failure write { status: \"rejected\", reason }",
+            "Write your own demo: 6 tasks (at least 1 of which rejects), limit = 2, printing how many run at each moment and the final results",
+          ],
           fileList: [
-            { path: "package.json", role: "装 tsx 和 typescript，加一条跑 demo 的 script" },
-            { path: "tsconfig.json", role: "strict: true 就够了" },
-            { path: "q2/taskRunner.ts", role: "★ Task / SettledResult 类型 + runTasks 实现" },
-            { path: "q2/demo.ts", role: "★ 自己写验证台：一个 running 计数器 + 6 个任务 + 打印" },
+            { path: "package.json", role: "装 tsx 和 typescript，加一条跑 demo 的 script", roleEn: "Install tsx and typescript, and add one script that runs the demo" },
+            { path: "tsconfig.json", role: "strict: true 就够了", roleEn: "strict: true is enough" },
+            { path: "q2/taskRunner.ts", role: "★ Task / SettledResult 类型 + runTasks 实现", roleEn: "★ The Task / SettledResult types plus the runTasks implementation" },
+            { path: "q2/demo.ts", role: "★ 自己写验证台：一个 running 计数器 + 6 个任务 + 打印", roleEn: "★ Write the check harness yourself: one running counter, 6 tasks, and the printing" },
           ],
           commands: [
-            { cmd: "npm install", expect: "装好 tsx 和 typescript" },
+            { cmd: "npm install", expect: "装好 tsx 和 typescript", expectEn: "tsx and typescript are installed" },
             {
               cmd: "npm run q2",
               expect:
                 "输出里 running now 从不超过 2；最终 6 条结果顺序与输入一致；reject 的那条是 { status: 'rejected', reason: Error }",
+              expectEn:
+                "running now never goes above 2 in the output; the final 6 results are in the same order as the input; the rejected one is { status: 'rejected', reason: Error }",
             },
             {
               cmd: "npx tsc --noEmit",
               expect: "没有类型错误",
+              expectEn: "No type errors",
             },
           ],
           hints: [
@@ -2770,6 +3462,37 @@ const worker = async () => {
   }
 };
 // 剩下的：开 worker、Promise.all、return results`,
+          ],
+          hintsEn: [
+            "Ask yourself first: why is the parameter an array of functions and not an array of Promises? Once that is clear, the way to enforce the concurrency limit appears on its own.",
+            "The concurrency limit needs no counter. If you start only limit workers, and each worker does one thing at a time, then the number of tasks running at once can never go above limit. The order needs no sorting either: create the result array up front and write each result back at its original index.",
+            `create results up front (length = tasks.length)
+share one nextIndex = 0
+worker = async () => {
+  while (nextIndex < the total) {
+    take index i, nextIndex++
+    try { results[i] = success } catch { results[i] = failure }
+    // do not return; keep taking the next one
+  }
+}
+start min(limit, the total) workers
+await Promise.all(them)
+return results`,
+            `const results: SettledResult<T>[] = new Array(tasks.length);
+let nextIndex = 0;
+const worker = async () => {
+  while (nextIndex < tasks.length) {
+    const i = nextIndex;
+    nextIndex++;
+    try {
+      const value = await tasks[i]();   // ← the parentheses!
+      results[i] = { status: "fulfilled", value };
+    } catch (reason) {
+      results[i] = { status: "rejected", reason };
+    }
+  }
+};
+// what is left: start the workers, Promise.all, return results`,
           ],
           solution: [
             real("ts", TASK_RUNNER_SOLUTION, {

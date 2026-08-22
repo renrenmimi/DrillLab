@@ -82,8 +82,16 @@ const foundations: Exam = {
   testsEn:
     "This course is not an exam itself. It is the base the other two stand on. What usually stops a beginner in an exam is not React syntax. It is questions like how to run the tests, whether an error is your own mistake or a defect that was already in the project, and what the difference is between dependencies and devDependencies.",
   sourceProjects: [
-    { path: "react-notes-app", role: "React Capstone，提供真实 package.json / tsconfig / vite 配置" },
-    { path: "graphql-federation-practice", role: "Federation Capstone，提供真实 subgraph package.json / pom.xml" },
+    {
+      path: "react-notes-app",
+      role: "React Capstone，提供真实 package.json / tsconfig / vite 配置",
+      roleEn: "React Capstone, the source of the real package.json, tsconfig and vite config",
+    },
+    {
+      path: "graphql-federation-practice",
+      role: "Federation Capstone，提供真实 subgraph package.json / pom.xml",
+      roleEn: "Federation Capstone, the source of the real subgraph package.json and pom.xml",
+    },
   ],
   prerequisites: [],
   stack: ["Node.js 22", "npm", "ESM", "JavaScript", "TypeScript 5"],
@@ -131,9 +139,21 @@ const foundations: Exam = {
           whyForAssessmentEn:
             "The first step of both exams is npm install. If it fails, installs the wrong versions, or accidentally creates a second lockfile, nothing after it will run. The problem then is not your React code. You have not started the exam at all.",
           sourceFiles: [
-            { path: "react-notes-app/package.json", role: "React 考试的依赖清单" },
-            { path: "react-notes-app/package-lock.json", role: "锁定确切版本（139 KB）" },
-            { path: "graphql-federation-practice/node-subgraph/package.json", role: "subgraph 的依赖清单" },
+            {
+              path: "react-notes-app/package.json",
+              role: "React 考试的依赖清单",
+              roleEn: "The dependency list for the React exam",
+            },
+            {
+              path: "react-notes-app/package-lock.json",
+              role: "锁定确切版本（139 KB）",
+              roleEn: "Pins the exact versions (139 KB)",
+            },
+            {
+              path: "graphql-federation-practice/node-subgraph/package.json",
+              role: "subgraph 的依赖清单",
+              roleEn: "The dependency list for the subgraph",
+            },
           ],
           concepts: [
             {
@@ -190,7 +210,16 @@ const foundations: Exam = {
 
 node -e "console.log(1 + 1)"
 # 2`,
-                  { explanation: "npm 一般跟着 Node.js 一起装，所以装完 Node 就有 npm 了。" },
+                  {
+                    codeEn: `node -v
+# v22.21.1   ← the version measured on this machine
+
+node -e "console.log(1 + 1)"
+# 2`,
+                    explanation: "npm 一般跟着 Node.js 一起装，所以装完 Node 就有 npm 了。",
+                    explanationEn:
+                      "npm is normally installed together with Node.js, so once Node is installed you already have npm.",
+                  },
                 ),
               ],
             },
@@ -254,8 +283,13 @@ node -e "console.log(1 + 1)"
 npm install
 # added 424 packages in 11s     ← 本机实测输出`,
                   {
+                    codeEn: `cd graphql-federation-practice/node-subgraph
+npm install
+# added 424 packages in 11s     ← measured on this machine`,
                     explanation:
                       "5 个直接依赖（@apollo/server、@apollo/subgraph、graphql、graphql-tag、dataloader）+ 2 个开发依赖，最后装出 424 个包 —— 中间那些都是依赖的依赖。",
+                    explanationEn:
+                      "5 direct dependencies (@apollo/server, @apollo/subgraph, graphql, graphql-tag, dataloader) plus 2 dev dependencies end up installing 424 packages. Everything in between is a dependency of a dependency.",
                   },
                 ),
               ],
@@ -412,11 +446,19 @@ npm install
               kind: "recognition",
               id: "f-dep-place",
               title: "这个包该放哪边？",
+              titleEn: "Which side does this package go on?",
               level: 1,
               prompt: (
                 <p>
                   下面是 <code>react-notes-app</code> 真实的依赖之一。它在真实的
                   <code>package.json</code> 里被放在哪个字段下？
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  Below is one of the real dependencies of{" "}
+                  <code>react-notes-app</code>. Which field of the real{" "}
+                  <code>package.json</code> is it under?
                 </p>
               ),
               code: demo("json", `"vitest": "^4.1.10"`),
@@ -435,18 +477,36 @@ npm install
                   这个项目的 <code>dependencies</code> 里只有两个东西：react 和 react-dom。
                 </>
               ),
+              explainEn: (
+                <>
+                  vitest is a test runner. It is used only while you develop and check
+                  your work, and the shipped product does not need it, so it belongs in{" "}
+                  <code>devDependencies</code>. The same goes for vite, typescript,
+                  jsdom, tsx and the three <code>@testing-library/*</code> packages.
+                  This project&rsquo;s <code>dependencies</code> hold exactly two
+                  things: react and react-dom.
+                </>
+              ),
             },
             {
               kind: "recognition",
               id: "f-lockfile-rule",
               title: "lockfile 该怎么对待",
+              titleEn: "How to treat the lockfile",
               level: 1,
               prompt: <p>项目里已经有 <code>package-lock.json</code>，你要安装依赖。下面哪些做法是对的？（多选）</p>,
+              promptEn: (
+                <p>
+                  The project already has a <code>package-lock.json</code> and you need
+                  to install the dependencies. Which of these are correct? (more than
+                  one)
+                </p>
+              ),
               options: [
                 { id: "a", label: "npm install" },
-                { id: "b", label: "pnpm install（更快）" },
-                { id: "c", label: "先 rm package-lock.json 再 npm install" },
-                { id: "d", label: "npm ci（严格照 lockfile 装）" },
+                { id: "b", label: "pnpm install（更快）", labelEn: "pnpm install (it is faster)" },
+                { id: "c", label: "先 rm package-lock.json 再 npm install", labelEn: "rm package-lock.json first, then npm install" },
+                { id: "d", label: "npm ci（严格照 lockfile 装）", labelEn: "npm ci (install strictly from the lockfile)" },
               ],
               answer: ["a", "d"],
               explain: (
@@ -456,6 +516,17 @@ npm install
                   <code>node_modules</code> —— CI 上常用。
                   <code>pnpm install</code> 会生成 <code>pnpm-lock.yaml</code>,
                   于是项目里出现两个互相矛盾的 lockfile。删 lockfile 则直接放弃了版本锁定。
+                </>
+              ),
+              explainEn: (
+                <>
+                  <code>npm install</code> installs according to the lockfile that is
+                  already there, so it is safe. <code>npm ci</code> is stricter: it
+                  follows the lockfile exactly and clears <code>node_modules</code>{" "}
+                  before installing — it is the common choice on CI.{" "}
+                  <code>pnpm install</code> writes a <code>pnpm-lock.yaml</code>, which
+                  leaves the project with two lockfiles that contradict each other.
+                  Deleting the lockfile gives up version pinning altogether.
                 </>
               ),
             },
@@ -523,8 +594,16 @@ npm install
           whyForAssessmentEn:
             "In an exam nobody tells you how to run the project. package.json is the answer itself. Read it and you have the map of the exam.",
           sourceFiles: [
-            { path: "react-notes-app/package.json", role: "React 考试" },
-            { path: "graphql-federation-practice/node-subgraph/package.json", role: "Federation 考试的 Node 部分" },
+            {
+              path: "react-notes-app/package.json",
+              role: "React 考试",
+              roleEn: "The React exam",
+            },
+            {
+              path: "graphql-federation-practice/node-subgraph/package.json",
+              role: "Federation 考试的 Node 部分",
+              roleEn: "The Node half of the Federation exam",
+            },
           ],
           concepts: [
             {
@@ -795,11 +874,19 @@ npm install
               kind: "fill-blank",
               id: "f-pkg-blanks",
               title: "补全 subgraph 的 package.json 关键字段",
+              titleEn: "Fill in the key fields of the subgraph package.json",
               level: 2,
               prompt: (
                 <p>
                   下面是 <code>node-subgraph/package.json</code> 的骨架，挖掉了三个决定项目行为的值。
                   照真实文件补回来。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  Below is the skeleton of <code>node-subgraph/package.json</code> with
+                  three values removed. Each one decides how the project behaves. Put
+                  them back the way the real file has them.
                 </p>
               ),
               language: "json",
@@ -826,11 +913,20 @@ npm install
                   n: 1,
                   accept: ['"module"', "module", '\\"module\\"'],
                   hint: "这个值决定了源码里能用 import 而不是 require。",
+                  hintEn: "This value is what lets the source use import instead of require.",
                   why: (
                     <>
                       <code>&quot;type&quot;: &quot;module&quot;</code> 让 Node 把 .js 当 ES Module 解析。
                       这也是为什么 <code>index.js</code> 里能直接写 <code>import ... from</code>,
                       以及为什么跑 jest 需要 <code>--experimental-vm-modules</code>。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>&quot;type&quot;: &quot;module&quot;</code> makes Node parse
+                      .js files as ES Modules. That is also why <code>index.js</code>{" "}
+                      can write <code>import ... from</code> directly, and why running
+                      jest needs <code>--experimental-vm-modules</code>.
                     </>
                   ),
                   width: 10,
@@ -839,11 +935,21 @@ npm install
                   n: 2,
                   accept: ["jest"],
                   hint: "这个项目的测试运行器。看 devDependencies 就知道。",
+                  hintEn: "The test runner of this project. devDependencies tells you which one.",
                   why: (
                     <>
                       subgraph 用的是 <strong>jest</strong>（React 那边用的是 vitest，别混）。
                       前面那个 <code>NODE_OPTIONS=--experimental-vm-modules</code> 是为了让
                       jest 能处理 ES Module —— 少了它，jest 一遇到 <code>import</code> 就报错。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      The subgraph uses <strong>jest</strong> (the React side uses
+                      vitest — do not mix them up). The{" "}
+                      <code>NODE_OPTIONS=--experimental-vm-modules</code> in front of it
+                      is what lets jest handle ES Modules. Without it, jest fails as
+                      soon as it meets an <code>import</code>.
                     </>
                   ),
                   width: 8,
@@ -852,11 +958,22 @@ npm install
                   n: 3,
                   accept: ["dataloader"],
                   hint: "它的存在直接暗示了 resolver 那道题的解法。",
+                  hintEn: "Its presence points straight at the answer to the resolver question.",
                   why: (
                     <>
                       <code>dataloader</code> 出现在 dependencies 里，而 starter 代码里正好有个
                       TODO 要求「用 DataLoader 防 N+1 查询」。
                       <strong>依赖清单在泄题</strong> —— 拿到项目先读 dependencies，常常能猜出考点。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>dataloader</code> shows up in dependencies, and the starter
+                      code happens to carry a TODO asking you to &ldquo;use DataLoader
+                      to avoid N+1 queries&rdquo;.{" "}
+                      <strong>The dependency list leaks the questions</strong> — read
+                      dependencies first on any new project and you can often guess
+                      what is being tested.
                     </>
                   ),
                   width: 13,
@@ -933,8 +1050,16 @@ npm install
           whyForAssessmentEn:
             "The package.json of react-notes-app has no test script, so npm test reports Missing script. Yet your work is graded by exactly those four tests. If you cannot run them, you are answering without being able to check anything.",
           sourceFiles: [
-            { path: "react-notes-app/package.json", role: "只有 dev / build / q2 三个 script" },
-            { path: "graphql-federation-practice/node-subgraph/package.json", role: "有 start / test / test:watch" },
+            {
+              path: "react-notes-app/package.json",
+              role: "只有 dev / build / q2 三个 script",
+              roleEn: "Only three scripts: dev, build and q2",
+            },
+            {
+              path: "graphql-federation-practice/node-subgraph/package.json",
+              role: "有 start / test / test:watch",
+              roleEn: "Has start, test and test:watch",
+            },
           ],
           concepts: [
             {
@@ -985,7 +1110,13 @@ npm install
 npm run dev     # → vite                  起开发服务器
 npm run build   # → tsc && vite build     先类型检查，过了再打包
 npm run q2      # → tsx q2/demo.ts        用 tsx 直接跑 TypeScript 文件`,
-                  { sourceFile: "react-notes-app/package.json" },
+                  {
+                    sourceFile: "react-notes-app/package.json",
+                    codeEn: `# the three scripts of react-notes-app, and what each really runs:
+npm run dev     # → vite                  start the dev server
+npm run build   # → tsc && vite build     type-check first, bundle after it passes
+npm run q2      # → tsx q2/demo.ts        run a TypeScript file directly with tsx`,
+                  },
                 ),
               ],
             },
@@ -1108,8 +1239,11 @@ $ npx vitest run
    Duration  1.19s`,
                   {
                     filename: "本机实测输出",
+                    filenameEn: "Output measured on this machine",
                     explanation:
                       "注意 npm 自己给了台阶：「运行 npm run 看有哪些 script」。这条提示值得记住 —— 任何项目里，光跑 npm run（不带名字）就会列出所有可用命令。",
+                    explanationEn:
+                      "Notice that npm offers the way out itself: run npm run to see which scripts exist. That is worth remembering — in any project, npm run with no name lists every available command.",
                   },
                 ),
               ],
@@ -1214,12 +1348,21 @@ $ npx vitest run
               kind: "recognition",
               id: "f-how-to-test",
               title: "怎么跑 react-notes-app 的测试",
+              titleEn: "How to run the tests of react-notes-app",
               level: 1,
               prompt: (
                 <p>
                   你在 <code>react-notes-app/</code> 目录下，想跑那 4 个判卷测试。
                   package.json 的 scripts 只有 <code>dev</code>、<code>build</code>、
                   <code>q2</code>。下面哪个命令能跑起来？
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  You are inside <code>react-notes-app/</code> and want to run those 4
+                  grading tests. The scripts in package.json are only{" "}
+                  <code>dev</code>, <code>build</code> and <code>q2</code>. Which
+                  command works?
                 </p>
               ),
               options: [
@@ -1237,23 +1380,48 @@ $ npx vitest run
                   <code>run</code> 表示跑一次就退出。
                 </>
               ),
+              explainEn: (
+                <>
+                  A and B are the same thing and both report{" "}
+                  <code>Missing script: &quot;test&quot;</code>. D runs the build,
+                  which in this project fails outright because tsc reports errors. Only
+                  C works — npx executes <code>node_modules/.bin/vitest</code> directly,
+                  and <code>run</code> means go once and exit.
+                </>
+              ),
             },
             {
               kind: "ordering",
               id: "f-debug-order",
               title: "script 报错了，按什么顺序排查",
+              titleEn: "A script failed: in what order do you check things",
               level: 1,
               prompt: <p>把排查顺序排对。从最外层（还没开始跑）到最里层（你的代码）。</p>,
+              promptEn: (
+                <p>
+                  Put the checks in order, from the outermost layer (nothing has started
+                  yet) to the innermost one (your own code).
+                </p>
+              ),
               items: [
-                { id: "c", label: "读报错里的具体类型/文件/行号，判断是业务代码还是项目配置" },
-                { id: "a", label: "确认命令名和当前目录对不对（npm run 列一下）" },
-                { id: "b", label: "确认 npm install 跑过、node_modules 在" },
+                { id: "c", label: "读报错里的具体类型/文件/行号，判断是业务代码还是项目配置", labelEn: "Read the exact type, file and line number in the error, and decide whether it is your code or the project config" },
+                { id: "a", label: "确认命令名和当前目录对不对（npm run 列一下）", labelEn: "Check the command name and the current directory (run npm run to list them)" },
+                { id: "b", label: "确认 npm install 跑过、node_modules 在", labelEn: "Check that npm install has run and node_modules exists" },
               ],
               answer: ["a", "b", "c"],
               explain: (
                 <>
                   先排除「命令没跑起来」（npm 层），再排除「工具没装」（依赖层），
                   最后才看代码。顺序反了就会出现「花两小时改 React，结果是没装依赖」这种事。
+                </>
+              ),
+              explainEn: (
+                <>
+                  First rule out &ldquo;the command never started&rdquo; (the npm
+                  layer), then &ldquo;the tool is not installed&rdquo; (the dependency
+                  layer), and only then look at the code. Reverse the order and you get
+                  two hours of editing React when the real problem was that the
+                  dependencies were never installed.
                 </>
               ),
             },
@@ -1326,8 +1494,16 @@ $ npx vitest run
           whyForAssessmentEn:
             "Both exams mark files as EDIT THIS or PROVIDED. Editing the wrong file earns nothing, and failing to find the file you were meant to edit loses points directly.",
           sourceFiles: [
-            { path: "react-notes-app/", role: "Q1 在 src/,Q2 在 q2/" },
-            { path: "graphql-federation-practice/", role: "node-subgraph/ 和 java-service/ 两个服务" },
+            {
+              path: "react-notes-app/",
+              role: "Q1 在 src/,Q2 在 q2/",
+              roleEn: "Q1 lives in src/, Q2 in q2/",
+            },
+            {
+              path: "graphql-federation-practice/",
+              role: "node-subgraph/ 和 java-service/ 两个服务",
+              roleEn: "Two services: node-subgraph/ and java-service/",
+            },
           ],
           concepts: [
             {
@@ -1385,7 +1561,30 @@ $ npx vitest run
 └── q2/                           ← Q2：并发任务调度器（与 React 无关）
     ├── taskRunner.ts             ★ 要实现的 runTasks
     └── demo.ts                   测试台，打印实时并发数`,
-                  { filename: "目录结构（实测）" },
+                  {
+                    filename: "目录结构（实测）",
+                    filenameEn: "Directory layout (as measured)",
+                    codeEn: `react-notes-app/
+├── index.html                    Vite entry point; holds one <div id="root">
+├── package.json                  dependencies + three scripts: dev/build/q2
+├── tsconfig.json                 strict: true,include: ["src","q2"]
+├── vite.config.ts                React plugin + inline vitest config (jsdom)
+├── vitest.setup.ts               one line: import "@testing-library/jest-dom"
+├── src/                          ← Q1:Notes Manager
+│   ├── main.tsx                  createRoot(...).render(<App />)
+│   ├── App.tsx                   renders only <NoteManager />
+│   ├── index.css                 global styles plus .card / .layout-row helpers
+│   ├── types/Note.ts             type Note = { id, title, content }
+│   ├── NoteManager.test.tsx      ★ the 4 tests used for grading
+│   └── components/
+│       ├── NoteManager/index.tsx ★ owns the state: notes[] + noteToEdit
+│       ├── NoteForm/index.tsx    ★ controlled form + edit refill + Add/Update
+│       ├── NoteTable/index.tsx   table shell + map + the testid on tbody
+│       └── NoteItem/index.tsx    one row + the Edit / Delete buttons
+└── q2/                           ← Q2: task scheduler, no React involved
+    ├── taskRunner.ts             ★ runTasks, the function to implement
+    └── demo.ts                   test harness; prints live concurrency`,
+                  },
                 ),
               ],
             },
@@ -1482,6 +1681,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                     sourceFile: "react-notes-app/src/main.tsx",
                     explanation:
                       "那个 ! 是 TypeScript 的非空断言：「我保证 getElementById 不会返回 null」。StrictMode 是 React 的开发期严格模式，它会故意把组件渲染两次来帮你发现副作用问题 —— 所以开发时看到 console.log 打两遍是正常的。",
+                    explanationEn:
+                      "The ! is a TypeScript non-null assertion. It means: I promise getElementById will not return null. StrictMode is React's strict development mode. It renders each component twice on purpose so that side-effect problems show up early, which is why a console.log prints twice during development.",
                   },
                 ),
               ],
@@ -1534,7 +1735,34 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         │   ├── model/ dto/ exception/ config/   PROVIDED
         │   └── resources/application.properties PROVIDED（书面题 2 会用到）
         └── test/java/.../OrderControllerTest.java  PROVIDED:5 个测试`,
-                  { filename: "目录结构（实测）" },
+                  {
+                    filename: "目录结构（实测）",
+                    filenameEn: "Directory layout (as measured)",
+                    codeEn: `graphql-federation-practice/
+├── README.md                     task description, marks EDIT THIS / PROVIDED
+├── QUESTIONS.md                  ★ two written questions, answers required
+│
+├── node-subgraph/                Node.js + Apollo Server 4 (port 4000)
+│   ├── package.json
+│   ├── src/
+│   │   ├── index.js              PROVIDED: starts server, context per request
+│   │   ├── schema.graphql        PROVIDED:GraphQL schema
+│   │   ├── dataSources/orderDataSource.js   PROVIDED:3 mock data sources
+│   │   └── resolvers/orderResolvers.js      ★ EDIT THIS:4 TODOs + 3 defects
+│   └── __tests__/resolvers.test.js          PROVIDED:10 tests
+│
+└── java-service/                 Java 17 + Spring Boot 3.3 (port 8080)
+    ├── pom.xml                   Maven deps (web / validation / actuator / test)
+    ├── orders.db                 ⚠ a distractor: no code refers to it
+    └── src/
+        ├── main/java/com/techflow/orders/
+        │   ├── controller/OrderController.java   ★ EDIT THIS:6 TODOs
+        │   ├── service/OrderService.java         PROVIDED: all logic written
+        │   ├── repository/                      PROVIDED: in-memory repository
+        │   ├── model/ dto/ exception/ config/   PROVIDED
+        │   └── resources/application.properties PROVIDED (question 2 uses it)
+        └── test/java/.../OrderControllerTest.java  PROVIDED:5 tests`,
+                  },
                 ),
               ],
             },
@@ -1616,6 +1844,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               kind: "recognition",
               id: "f-which-file",
               title: "Q1 的 state 应该放在哪个文件",
+              titleEn: "Which file should hold the state for Q1",
               level: 1,
               prompt: (
                 <p>
@@ -1624,11 +1853,19 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   那份笔记列表数据应该存在哪个组件里？
                 </p>
               ),
+              promptEn: (
+                <p>
+                  Q1 asks that a new note appears in the table after the form is
+                  submitted. The form is <code>NoteForm</code>, the table is{" "}
+                  <code>NoteTable</code>, and the two are siblings. Which component
+                  should hold the list of notes?
+                </p>
+              ),
               options: [
-                { id: "a", label: "NoteForm —— 数据是它产生的" },
-                { id: "b", label: "NoteTable —— 数据是它显示的" },
-                { id: "c", label: "NoteManager —— 它是两者共同的父组件" },
-                { id: "d", label: "NoteItem —— 每一行自己管自己" },
+                { id: "a", label: "NoteForm —— 数据是它产生的", labelEn: "NoteForm — it is the one producing the data" },
+                { id: "b", label: "NoteTable —— 数据是它显示的", labelEn: "NoteTable — it is the one showing the data" },
+                { id: "c", label: "NoteManager —— 它是两者共同的父组件", labelEn: "NoteManager — it is the parent of both" },
+                { id: "d", label: "NoteItem —— 每一行自己管自己", labelEn: "NoteItem — every row looks after itself" },
               ],
               answer: ["c"],
               explain: (
@@ -1641,13 +1878,31 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   和 <code>noteToEdit</code> 两个 state 就都在 NoteManager。
                 </>
               ),
+              explainEn: (
+                <>
+                  Data in React flows <strong>one way, downwards</strong>: a parent can
+                  pass data to a child, and siblings cannot pass anything to each other
+                  directly. Both <code>NoteForm</code> and <code>NoteTable</code> need
+                  to touch this list, so it has to sit in the parent they share,{" "}
+                  <code>NoteManager</code>. This is called{" "}
+                  <strong>lifting state up</strong>. In the real project both{" "}
+                  <code>notes</code> and <code>noteToEdit</code> live in NoteManager.
+                </>
+              ),
             },
             {
               kind: "recognition",
               id: "f-distractor",
               title: "哪个是干扰项",
+              titleEn: "Which one is the distractor",
               level: 1,
               prompt: <p>Federation 项目里，下面哪个文件与你要完成的任务完全无关？</p>,
+              promptEn: (
+                <p>
+                  In the Federation project, which of these files has nothing at all to
+                  do with the task you have to finish?
+                </p>
+              ),
               options: [
                 { id: "a", label: "node-subgraph/src/dataSources/orderDataSource.js" },
                 { id: "b", label: "java-service/orders.db" },
@@ -1660,6 +1915,15 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   <code>orders.db</code> 没有被任何代码引用，pom.xml 里也没有数据库依赖 ——
                   纯干扰项。另外三个都是必读：dataSource 决定你能调哪些方法、
                   OrderService 提供全部业务逻辑、schema.graphql 决定 resolver 要返回什么形状。
+                </>
+              ),
+              explainEn: (
+                <>
+                  <code>orders.db</code> is referenced by no code at all, and pom.xml
+                  has no database dependency — a pure distractor. The other three are
+                  all required reading: the dataSource decides which methods you can
+                  call, OrderService supplies all the business logic, and
+                  schema.graphql decides what shape each resolver has to return.
                 </>
               ),
             },
@@ -1742,7 +2006,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           whyForAssessmentEn:
             "The three parts of Q1 are one of each operation: Add uses spread, Delete uses filter, Edit uses map. On the GraphQL side, createOrder also uses map to add a price to every item. Learn this lesson and the data handling of both exams is covered.",
           sourceFiles: [
-            { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "三个操作的真实用法都在这里" },
+            {
+              path: "react-notes-app/src/components/NoteManager/index.tsx",
+              role: "三个操作的真实用法都在这里",
+              roleEn: "The real use of all three operations is here",
+            },
           ],
           concepts: [
             {
@@ -1811,6 +2079,14 @@ setNotes(notes);
 
 // ✓ 造一个新数组 —— React 能看出变化
 setNotes([...notes, newNote]);`,
+                  {
+                    codeEn: `// ✗ changing the original array — React sees no change
+notes.push(newNote);
+setNotes(notes);
+
+// ✓ building a new array — React sees the change
+setNotes([...notes, newNote]);`,
+                  },
                 ),
               ],
             },
@@ -1896,7 +2172,18 @@ setNotes((prev) =>
 );`,
                   {
                     filename: "三个操作（摘自 NoteManager）",
+                    filenameEn: "The three operations (taken from NoteManager)",
                     sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
+                    codeEn: `// add: keep every old one, put one at the end
+setNotes((prev) => [...prev, submittedNote]);
+
+// delete: keep the ones whose id is not the target
+setNotes((prev) => prev.filter((note) => note.id !== id));
+
+// replace in place: swap the target, leave the rest untouched
+setNotes((prev) =>
+  prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),
+);`,
                   },
                 ),
               ],
@@ -2011,10 +2298,22 @@ async getOrdersByUserId(userId) {
 }`,
                   {
                     filename: "orderDataSource.js（节选）",
+                    filenameEn: "orderDataSource.js (excerpt)",
                     sourceFile:
                       "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
+                    codeEn: `async getOrder(id) {
+  await new Promise(resolve => setTimeout(resolve, 10));
+  return this.orders.find(order => order.id === id);      // one, or undefined
+}
+
+async getOrdersByUserId(userId) {
+  await new Promise(resolve => setTimeout(resolve, 10));
+  return this.orders.filter(order => order.userId === userId);  // an array, possibly empty
+}`,
                     explanation:
                       "注意 find 找不到时返回 undefined，而 filter 找不到时返回空数组 []。这个区别在写 resolver 时至关重要 —— schema 里写了 [Order!]! 的字段绝对不能返回 undefined。",
+                    explanationEn:
+                      "Note that find returns undefined when it finds nothing, while filter returns an empty array []. That difference matters a lot when you write a resolver — a field declared [Order!]! in the schema must never return undefined.",
                   },
                 ),
               ],
@@ -2064,8 +2363,19 @@ const pricedItems = await Promise.all(
 );`,
                   {
                     filename: "给每个 item 补上 price",
+                    filenameEn: "Adding price to every item",
+                    codeEn: `// my reference answer for the Federation question (10/10 tests pass)
+const pricedItems = await Promise.all(
+  items.map(async item => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    price: await dataSources.inventoryDataSource.getProductPrice(item.productId)
+  }))
+);`,
                     explanation:
                       "map 的回调是 async，所以返回的是「一堆 Promise」，必须用 Promise.all 等它们全部完成。这是 map + async 组合的固定套路 —— 只写 map 不加 Promise.all 是很常见的错。",
+                    explanationEn:
+                      "The callback of map is async, so it returns a set of Promises, and Promise.all is needed to wait for all of them. This is the fixed pattern for map plus async — writing map without Promise.all is a very common mistake.",
                   },
                 ),
               ],
@@ -2111,8 +2421,15 @@ const NoteForm: React.FC<NoteFormProps> = ({ onSubmit, noteToEdit }) => { ... }
 // GraphQL：从 context 里解构
 async orders(user, _, { dataSources, loaders, correlationId }) { ... }`,
                   {
+                    codeEn: `// React: destructuring out of props
+const NoteForm: React.FC<NoteFormProps> = ({ onSubmit, noteToEdit }) => { ... }
+
+// GraphQL: destructuring out of context
+async orders(user, _, { dataSources, loaders, correlationId }) { ... }`,
                     explanation:
                       "GraphQL resolver 那行里的 _ 只是个「我不用这个参数」的约定写法（那个位置是 args）。它不是特殊语法，就是个普通变量名。",
+                    explanationEn:
+                      "The _ on the GraphQL resolver line is only a convention meaning \"I do not use this parameter\" (that position holds args). It is not special syntax, just an ordinary variable name.",
                   },
                 ),
               ],
@@ -2123,11 +2440,20 @@ async orders(user, _, { dataSources, loaders, correlationId }) { ... }`,
               kind: "fill-blank",
               id: "f-crud-blanks",
               title: "补全 Q1 的三个数据操作",
+              titleEn: "Fill in the three data operations of Q1",
               level: 2,
               prompt: (
                 <p>
                   这是 <code>NoteManager</code> 里三个 handler 的真实代码，
                   挖掉了决定行为的关键词。想清楚每个操作要「保留多少条」再填。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  This is the real code of the three handlers in{" "}
+                  <code>NoteManager</code>, with the words that decide the behaviour
+                  removed. Before you fill each one in, work out how many items that
+                  operation has to keep.
                 </p>
               ),
               language: "tsx",
@@ -2154,11 +2480,20 @@ const handleDelete = (id: number) => {
                   n: 1,
                   accept: ["map"],
                   hint: "要求「原位置更新」——  所以结果数组必须和原来一样长、顺序一样。",
+                  hintEn: "The task says update in place, so the result must have the same length and the same order.",
                   why: (
                     <>
                       <code>map</code> 保持长度和顺序不变，逐个决定「这一项换不换」。
                       如果用 <code>filter</code> 删掉旧的再 push 新的，顺序就变了，
                       题目要求的「原位置更新」就没做到。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>map</code> keeps the length and the order, and decides item
+                      by item whether to swap it. If you use <code>filter</code> to drop
+                      the old one and then push the new one, the order changes and the
+                      &ldquo;update in place&rdquo; the task asked for is not done.
                     </>
                   ),
                   width: 6,
@@ -2167,11 +2502,20 @@ const handleDelete = (id: number) => {
                   n: 2,
                   accept: ["...prev", "... prev"],
                   hint: "旧的全都要保留，新的加在后面。",
+                  hintEn: "Keep every old item and put the new one after them.",
                   why: (
                     <>
                       <code>[...prev, submittedNote]</code> 造了一个新数组，
                       内容是旧的全部加上新的一条。<strong>必须是新数组</strong> ——
                       如果写 <code>prev.push(...)</code>,React 会认为值没变、不重新渲染。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>[...prev, submittedNote]</code> builds a new array holding
+                      every old item plus the new one. <strong>It has to be a new
+                      array</strong> — write <code>prev.push(...)</code> and React
+                      decides the value did not change and does not re-render.
                     </>
                   ),
                   width: 9,
@@ -2180,13 +2524,21 @@ const handleDelete = (id: number) => {
                   n: 3,
                   accept: ["filter"],
                   hint: "删除意味着结果会变短。",
+                  hintEn: "Deleting means the result gets shorter.",
                   why: <><code>filter</code> 是唯一会让数组变短的那个。</>,
+                  whyEn: (
+                    <>
+                      <code>filter</code> is the only one of them that makes an array
+                      shorter.
+                    </>
+                  ),
                   width: 8,
                 },
                 {
                   n: 4,
                   accept: ["!==", "!="],
                   hint: "filter 保留的是「回调返回 true」的元素。",
+                  hintEn: "filter keeps the items whose callback returned true.",
                   why: (
                     <>
                       要删掉 id 相等的那条，就得<strong>保留</strong>不相等的 ——
@@ -2194,6 +2546,16 @@ const handleDelete = (id: number) => {
                       「只留下要删的那一条」，正好反了。
                       另外这里必须按 <code>id</code> 比，不能按 title 比：
                       题目原文写的是「该行<strong>按 id</strong> 被移除」。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      To drop the note whose id matches, you have to{" "}
+                      <strong>keep</strong> the ones that do not match — so it is{" "}
+                      <code>!==</code>. Writing <code>===</code> keeps only the note you
+                      wanted to delete, which is exactly backwards. It also has to
+                      compare on <code>id</code>, not on title: the task text says the
+                      row is removed <strong>by id</strong>.
                     </>
                   ),
                   width: 5,
@@ -2204,11 +2566,19 @@ const handleDelete = (id: number) => {
               kind: "debug",
               id: "f-debug-push",
               title: "Debug Lab · 数据加进去了，界面没反应",
+              titleEn: "Debug Lab · the data went in, the screen did not move",
               level: 2,
               prompt: (
                 <p>
                   这一类 bug 最难查，因为<strong>它不报错</strong>。
                   先看现象，判断类型，再找病灶 —— 别跳步。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  This kind of bug is the hardest to find, because{" "}
+                  <strong>it reports no error</strong>. Read the symptom, classify it,
+                  then locate it. Do not skip a step.
                 </p>
               ),
               errorOutput: `# 没有任何报错。控制台干净。
@@ -2218,30 +2588,38 @@ const handleDelete = (id: number) => {
 notes.length before: 0
 notes.length after : 1     ← 数据真的进去了
 （但 <NoteTable /> 渲染出来的行数始终是 0）`,
+              errorOutputEn: `# No error at all. The console is clean.
+# Symptom: fill in the form, click Add, and nothing shows up in the table.
+# Add console.log(notes) inside handleSubmitNote — the length really does grow.
+
+notes.length before: 0
+notes.length after : 1     ← the data really did go in
+(But <NoteTable /> always renders 0 rows.)`,
               broken: demo(
                 "tsx",
                 `const handleSubmitNote = (submittedNote: Note) => {
   notes.push(submittedNote);
   setNotes(notes);
 };`,
-                { filename: "有问题的写法" },
+                { filename: "有问题的写法", filenameEn: "The broken version" },
               ),
               classify: {
                 options: [
-                  { id: "a", label: "语法错误 —— 代码写得不合法" },
-                  { id: "b", label: "类型错误 —— TypeScript 不让过" },
-                  { id: "c", label: "状态更新错误 —— 改了原对象，React 认为没变化" },
-                  { id: "d", label: "异步错误 —— 少了 await" },
+                  { id: "a", label: "语法错误 —— 代码写得不合法", labelEn: "Syntax error — the code is not valid" },
+                  { id: "b", label: "类型错误 —— TypeScript 不让过", labelEn: "Type error — TypeScript refuses it" },
+                  { id: "c", label: "状态更新错误 —— 改了原对象，React 认为没变化", labelEn: "State update error — the original object was changed, so React sees no change" },
+                  { id: "d", label: "异步错误 —— 少了 await", labelEn: "Async error — an await is missing" },
                 ],
                 answer: "c",
               },
               locate: {
                 question: "哪一行是病灶？",
+                questionEn: "Which line is the cause?",
                 options: [
                   { id: "a", label: "notes.push(submittedNote);" },
                   { id: "b", label: "setNotes(notes);" },
-                  { id: "c", label: "函数签名 (submittedNote: Note)" },
-                  { id: "d", label: "两行都要改，但根源在 push" },
+                  { id: "c", label: "函数签名 (submittedNote: Note)", labelEn: "The function signature (submittedNote: Note)" },
+                  { id: "d", label: "两行都要改，但根源在 push", labelEn: "Both lines change, but push is the root of it" },
                 ],
                 answer: "d",
               },
@@ -2252,6 +2630,7 @@ notes.length after : 1     ← 数据真的进去了
 };`,
                 {
                   filename: "改对之后",
+                  filenameEn: "After the fix",
                   sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 },
               ),
@@ -2270,6 +2649,25 @@ notes.length after : 1     ← 数据真的进去了
                   </p>
                 </>
               ),
+              rootCauseEn: (
+                <>
+                  <p>
+                    <code>push</code> changed the original array itself. The contents are
+                    different, but <code>notes</code> still points at{" "}
+                    <strong>the same array object</strong>. After{" "}
+                    <code>setNotes(notes)</code> React compares &ldquo;is this the same
+                    thing?&rdquo;, finds that it is, decides the state did not change,
+                    and skips the re-render.
+                  </p>
+                  <p>
+                    This kind of bug is hard to find because{" "}
+                    <strong>nothing reports an error</strong> and{" "}
+                    <code>console.log</code> even tells you the data is right. Remember
+                    the signature: <strong>the data is right but the screen does not
+                    move → nine times out of ten the original object was changed.</strong>
+                  </p>
+                </>
+              ),
               verify: "npx vitest run",
             },
           ],
@@ -2282,6 +2680,13 @@ setNotes((prev) => [
   ...prev.filter((n) => n.id !== submittedNote.id),
   submittedNote,
 ]);`,
+                {
+                  codeEn: `// ✗ deleting then adding on update — the order changes
+setNotes((prev) => [
+  ...prev.filter((n) => n.id !== submittedNote.id),
+  submittedNote,
+]);`,
+                },
               ),
               why: (
                 <>
@@ -2306,6 +2711,10 @@ setNotes((prev) => [
                 "tsx",
                 `// ✗ filter 条件写反了
 setNotes((prev) => prev.filter((note) => note.id === id));`,
+                {
+                  codeEn: `// ✗ the filter condition is backwards
+setNotes((prev) => prev.filter((note) => note.id === id));`,
+                },
               ),
               why: (
                 <>
@@ -2399,8 +2808,16 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
           whyForAssessmentEn:
             "Q2 asks you to write allSettled behaviour with a limit on how many run at once. In Federation, every resolver is async and has to use try/catch. This lesson is the base both questions stand on.",
           sourceFiles: [
-            { path: "react-notes-app/q2/taskRunner.ts", role: "Q2 的题面与要求都在文件顶部注释里" },
-            { path: "react-notes-app/q2/demo.ts", role: "验证台：打印实时并发数" },
+            {
+              path: "react-notes-app/q2/taskRunner.ts",
+              role: "Q2 的题面与要求都在文件顶部注释里",
+              roleEn: "The Q2 problem and its requirements are in the comment at the top of the file",
+            },
+            {
+              path: "react-notes-app/q2/demo.ts",
+              role: "验证台：打印实时并发数",
+              roleEn: "A test bench that prints the live concurrency count",
+            },
           ],
           concepts: [
             {
@@ -2464,10 +2881,17 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
 }`,
                   {
                     filename: "真实项目里最常见的 async 长相",
+                    filenameEn: "The most common shape of async in a real project",
                     sourceFile:
                       "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
+                    codeEn: `async getOrdersByUserId(userId) {
+  await new Promise(resolve => setTimeout(resolve, 10));   // pretend a 10ms network delay
+  return this.orders.filter(order => order.userId === userId);
+}`,
                     explanation:
                       "async 函数的返回值一定被包成 Promise。所以哪怕这里 return 的是普通数组，调用方也得 await 才能拿到它。",
+                    explanationEn:
+                      "Whatever an async function returns is always wrapped in a Promise. So even though this one returns a plain array, the caller still has to await it to get the array.",
                   },
                 ),
               ],
@@ -2529,6 +2953,7 @@ export type SettledResult<T> =
   | { status: "rejected";  reason: unknown };`,
                   {
                     filename: "q2/taskRunner.ts（顶部类型定义）",
+                    filenameEn: "q2/taskRunner.ts (the type definitions at the top)",
                     sourceFile: "react-notes-app/q2/taskRunner.ts",
                   },
                 ),
@@ -2539,6 +2964,13 @@ const promise = task();                    // 调用了 → 请求现在才发�
 
 await task;      // ✗ 错：在等一个函数，它不是 Promise，立刻就过去了
 await task();    // ✓ 对：先调用，再等它的返回值`,
+                  {
+                    codeEn: `const task = () => fetch("/api/orders");   // a function. Nothing has happened yet.
+const promise = task();                    // called → only now is the request sent
+
+await task;      // ✗ wrong: waiting on a function, not a Promise, so it passes at once
+await task();    // ✓ right: call it first, then wait for what it returns`,
+                  },
                 ),
               ],
             },
@@ -2649,10 +3081,13 @@ await task();    // ✓ 对：先调用，再等它的返回值`,
 }`,
                   {
                     filename: "真实项目里的 Promise.all",
+                    filenameEn: "Promise.all in a real project",
                     sourceFile:
                       "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
                     explanation:
                       "map 把每个 id 变成一个 Promise,Promise.all 等它们全部完成。顺序与 orderIds 一致 —— 这对 DataLoader 是硬要求，因为它靠位置把结果发回给各个调用方。",
+                    explanationEn:
+                      "map turns each id into a Promise, and Promise.all waits for all of them to finish. The result order matches orderIds. DataLoader requires that, because it uses position to send each result back to the caller that asked for it.",
                   },
                 ),
               ],
@@ -2748,8 +3183,23 @@ task 5 DONE    (running now: 1)
 task 6 DONE    (running now: 0)`,
                   {
                     filename: "npm run q2 的真实输出",
+                    filenameEn: "The real output of npm run q2",
                     explanation:
                       "读这段输出的方法：盯住 running now，它从来没到 3。而且任务 3 失败之后，4、5、6 照样跑完了 —— 这就是 allSettled 的语义。",
+                    explanationEn:
+                      "How to read this output: watch running now, which never reaches 3. And after task 3 fails, tasks 4, 5 and 6 still finish — that is what allSettled means.",
+                    codeEn: `task 1 START   (running now: 1)
+task 2 START   (running now: 2)     ← at the limit, task 3 must wait
+task 2 DONE    (running now: 1)
+task 3 START   (running now: 2)     ← a slot opened, filled at once
+task 1 DONE    (running now: 1)
+task 4 START   (running now: 2)
+task 3 FAIL    (running now: 1)     ← a failure only frees a slot, others run on
+task 5 START   (running now: 2)
+task 4 DONE    (running now: 1)
+task 6 START   (running now: 2)
+task 5 DONE    (running now: 1)
+task 6 DONE    (running now: 0)`,
                   },
                 ),
               ],
@@ -2795,9 +3245,12 @@ task 6 DONE    (running now: 0)`,
 }`,
                   {
                     filename: "Q2 里的 try/catch（参考答案节选）",
+                    filenameEn: "try/catch in Q2 (excerpt of the reference answer)",
                     sourceFile: "react-notes-app/q2/taskRunner.ts",
                     explanation:
                       "关键点：catch 之后 worker 没有退出，循环继续。所以一个任务失败不会连累其他任务 —— 这正是「NEVER throws」的实现方式。",
+                    explanationEn:
+                      "The key point: after the catch the worker does not exit, the loop keeps going. So one failed task does not affect the others. That is how the NEVER throws requirement is met.",
                   },
                 ),
               ],
@@ -2808,12 +3261,21 @@ task 6 DONE    (running now: 0)`,
               kind: "recognition",
               id: "f-async-all",
               title: "该用 all 还是 allSettled",
+              titleEn: "all or allSettled",
               level: 1,
               prompt: (
                 <p>
                   Q2 的要求原文：「The runner NEVER throws, even if some tasks reject.
                   It resolves with an array of results IN THE SAME ORDER as tasks.」
                   这描述的是哪个内置方法的语义？
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  The exact wording of the Q2 requirement: &ldquo;The runner NEVER
+                  throws, even if some tasks reject. It resolves with an array of
+                  results IN THE SAME ORDER as tasks.&rdquo; Which built-in method
+                  behaves like that?
                 </p>
               ),
               options: [
@@ -2833,11 +3295,24 @@ task 6 DONE    (running now: 0)`,
                   concurrency throttle.</em>
                 </>
               ),
+              explainEn: (
+                <>
+                  &ldquo;Never throws even when something fails, records each result as
+                  fulfilled or rejected, and keeps the input order&rdquo; is exactly{" "}
+                  <code>allSettled</code>. <code>all</code> rejects as a whole on the
+                  first failure. <code>race</code> returns whichever settles first and{" "}
+                  <code>any</code> returns whichever succeeds first — neither is what
+                  this asks for. The Q2 comments say it outright:{" "}
+                  <em>This mimics Promise.allSettled, but with a concurrency
+                  throttle.</em>
+                </>
+              ),
             },
             {
               kind: "recognition",
               id: "f-async-fn",
               title: "为什么 tasks 是「函数数组」而不是「Promise 数组」",
+              titleEn: "Why tasks is an array of functions, not an array of Promises",
               level: 1,
               prompt: (
                 <p>
@@ -2846,11 +3321,18 @@ task 6 DONE    (running now: 0)`,
                   会出什么问题？
                 </p>
               ),
+              promptEn: (
+                <p>
+                  <code>Task&lt;T&gt; = () =&gt; Promise&lt;T&gt;</code>. If the
+                  question passed in a <code>Promise&lt;T&gt;[]</code> instead, what
+                  would go wrong?
+                </p>
+              ),
               options: [
-                { id: "a", label: "结果顺序会乱掉" },
-                { id: "b", label: "Promise 创建的那一刻就开始跑了，并发上限根本无法实现" },
-                { id: "c", label: "TypeScript 编译不过" },
-                { id: "d", label: "没区别，写起来还更简单" },
+                { id: "a", label: "结果顺序会乱掉", labelEn: "The order of the results gets scrambled" },
+                { id: "b", label: "Promise 创建的那一刻就开始跑了，并发上限根本无法实现", labelEn: "A Promise starts running the moment it is created, so a concurrency limit cannot be built at all" },
+                { id: "c", label: "TypeScript 编译不过", labelEn: "TypeScript refuses to compile it" },
+                { id: "d", label: "没区别，写起来还更简单", labelEn: "No difference, and it is simpler to write" },
               ],
               answer: ["b"],
               explain: (
@@ -2862,16 +3344,34 @@ task 6 DONE    (running now: 0)`,
                   <strong>还没调用的函数</strong>。这是整道题的设计核心。
                 </>
               ),
+              explainEn: (
+                <>
+                  A Promise is something already in progress, and it has no pause
+                  button. The moment you write{" "}
+                  <code>[fetch(a), fetch(b), fetch(c)]</code>, all three requests have
+                  already gone out together. To control how many run at once you have to
+                  control <strong>when each one starts</strong>, so what is passed in has
+                  to be <strong>functions that have not been called yet</strong>. That is
+                  the core of the whole question.
+                </>
+              ),
             },
             {
               kind: "fill-blank",
               id: "f-async-blanks",
               title: "补全 DataLoader 的批量函数",
+              titleEn: "Fill in the batch function of the DataLoader",
               level: 2,
               prompt: (
                 <p>
                   这是 subgraph 里真实的 DataLoader 批量加载函数。
                   两个空都关系到「异步 + 数组」的固定套路。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  This is the real DataLoader batch function from the subgraph. Both
+                  blanks are part of the fixed pattern for async work over an array.
                 </p>
               ),
               language: "js",
@@ -2892,6 +3392,7 @@ task 6 DONE    (running now: 0)`,
                   n: 1,
                   accept: ["all"],
                   hint: "要等「一批」Promise 全部完成，而且这里希望任何一个失败都直接冒出去。",
+                  hintEn: "You wait for a whole batch of Promises, and here any failure should be allowed to surface.",
                   why: (
                     <>
                       <code>Promise.all</code>。DataLoader 的批量函数需要返回一个
@@ -2900,18 +3401,38 @@ task 6 DONE    (running now: 0)`,
                       try/catch 处理。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>Promise.all</code>. A DataLoader batch function has to return
+                      an array that is the same length as the keys it was given, in the
+                      same order, and <code>all</code> guarantees both. allSettled is
+                      wrong here — if the data source fails, the error should surface and
+                      be handled by the try/catch in the resolver.
+                    </>
+                  ),
                   width: 5,
                 },
                 {
                   n: 2,
                   accept: ["map"],
                   hint: "把每个 id 变成一个 Promise，数量不变。",
+                  hintEn: "Turn every id into a Promise, and keep the count the same.",
                   why: (
                     <>
                       <code>map</code>。一个 id 对一个 Promise，长度和顺序都不变 ——
                       这是 DataLoader 的硬要求，它靠<strong>位置</strong>把结果分发回各个
                       <code>load()</code> 调用方。如果你在这里用了 filter，或者调换了顺序，
                       就会出现「A 拿到了 B 的数据」这种极难查的 bug。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>map</code>. One id becomes one Promise, and both the length
+                      and the order stay the same. DataLoader requires this, because it
+                      uses <strong>position</strong> to hand each result back to the
+                      matching <code>load()</code> caller. Use filter here, or change the
+                      order, and you get bugs like &ldquo;A received B&rsquo;s
+                      data&rdquo;, which are very hard to track down.
                     </>
                   ),
                   width: 6,
@@ -3039,7 +3560,15 @@ export default NoteManager;
 // 使用方：名字可以自己起，不用花括号
 import NoteManager from "./components/NoteManager";
 import type { Note } from "../../types/Note";      // 具名 + 只要类型`,
-                  { sourceFile: "react-notes-app/src/App.tsx 与各组件" },
+                  {
+                    sourceFile: "react-notes-app/src/App.tsx 与各组件",
+                    codeEn: `// the component: a default export
+export default NoteManager;
+
+// the caller: pick any name you like, no curly braces
+import NoteManager from "./components/NoteManager";
+import type { Note } from "../../types/Note";      // named, and types only`,
+                  },
                 ),
                 real(
                   "js",
@@ -3056,6 +3585,16 @@ import {
                   {
                     sourceFile:
                       "graphql-federation-practice/node-subgraph/src/index.js",
+                    codeEn: `// the subgraph: named exports, three of them
+export const resolvers = { ... };
+export { createShippingInfoLoader, createOrderLoader };
+
+// the caller: every name must match exactly, and curly braces are required
+import {
+  resolvers,
+  createShippingInfoLoader,
+  createOrderLoader,
+} from './resolvers/orderResolvers.js';`,
                   },
                 ),
               ],
@@ -3126,8 +3665,11 @@ import {
 Did you mean to import "./resolvers/orderResolvers.js"?`,
                   {
                     filename: "漏写 .js 的报错",
+                    filenameEn: "The error when .js is left off",
                     explanation:
                       "好消息是 Node 现在会给出 Did you mean 提示。看到 ERR_MODULE_NOT_FOUND，第一反应应该是「后缀漏了」，而不是「路径写错了」。",
+                    explanationEn:
+                      "Node now prints a Did you mean hint, which helps. When you see ERR_MODULE_NOT_FOUND, your first guess should be a missing file extension, not a wrong path.",
                   },
                 ),
               ],
@@ -3184,7 +3726,11 @@ Did you mean to import "./resolvers/orderResolvers.js"?`,
                   "tsx",
                   `import React, { useState, useEffect } from "react";   // 运行时要用
 import type { Note } from "../../types/Note";        // 只要类型`,
-                  { sourceFile: "react-notes-app/src/components/NoteForm/index.tsx" },
+                  {
+                    sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
+                    codeEn: `import React, { useState, useEffect } from "react";   // needed at runtime
+import type { Note } from "../../types/Note";        // the type only`,
+                  },
                 ),
               ],
             },
@@ -3254,6 +3800,8 @@ import type { Note } from "../../types/Note";        // 只要类型`,
                       "graphql-federation-practice/node-subgraph/package.json",
                     explanation:
                       "testMatch 说明测试文件必须放在 __tests__ 目录下、以 .test.js 结尾。放错位置 jest 就发现不了它 —— 「我写了测试但 jest 说 No tests found」多半是这个原因。",
+                    explanationEn:
+                      "testMatch says a test file must sit inside a __tests__ directory and end in .test.js. Put it anywhere else and jest will not find it. That is the usual reason for \"I wrote a test but jest says No tests found\".",
                   },
                 ),
               ],
@@ -3264,11 +3812,19 @@ import type { Note } from "../../types/Note";        // 只要类型`,
               kind: "debug",
               id: "f-debug-esm",
               title: "Debug Lab · ERR_MODULE_NOT_FOUND",
+              titleEn: "Debug Lab · ERR_MODULE_NOT_FOUND",
               level: 2,
               prompt: (
                 <p>
                   你在 <code>node-subgraph/</code> 里跑 <code>npm start</code>,
                   服务器起不来。报错很长，但关键信息只有两行。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  You run <code>npm start</code> inside{" "}
+                  <code>node-subgraph/</code> and the server does not come up. The error
+                  is long, but only two lines of it matter.
                 </p>
               ),
               errorOutput: `$ npm start
@@ -3283,24 +3839,25 @@ Did you mean to import "./dataSources/orderDataSource.js"?`,
                 "js",
                 `import { resolvers } from './resolvers/orderResolvers.js';
 import { OrderDataSource } from './dataSources/orderDataSource';`,
-                { filename: "src/index.js（第 2 行有问题）", highlight: [2] },
+                { filename: "src/index.js（第 2 行有问题）", filenameEn: "src/index.js (line 2 is the problem)", highlight: [2] },
               ),
               classify: {
                 options: [
-                  { id: "a", label: "文件真的不存在 —— 路径拼错了" },
-                  { id: "b", label: "模块解析错误 —— ESM 要求相对路径带扩展名" },
-                  { id: "c", label: "依赖没装 —— 要 npm install" },
-                  { id: "d", label: "导出名字对不上 —— 应该是 default export" },
+                  { id: "a", label: "文件真的不存在 —— 路径拼错了", labelEn: "The file really is not there — the path is misspelled" },
+                  { id: "b", label: "模块解析错误 —— ESM 要求相对路径带扩展名", labelEn: "Module resolution error — ESM requires the file ending on a relative path" },
+                  { id: "c", label: "依赖没装 —— 要 npm install", labelEn: "The dependencies are not installed — run npm install" },
+                  { id: "d", label: "导出名字对不上 —— 应该是 default export", labelEn: "The export name does not match — it should be a default export" },
                 ],
                 answer: "b",
               },
               locate: {
                 question: "第 2 行少了什么？",
+                questionEn: "What is line 2 missing?",
                 options: [
-                  { id: "a", label: "少了 .js 扩展名" },
-                  { id: "b", label: "少了 type 关键字" },
-                  { id: "c", label: "花括号该去掉" },
-                  { id: "d", label: "路径该写成 ../dataSources/" },
+                  { id: "a", label: "少了 .js 扩展名", labelEn: "The .js ending is missing" },
+                  { id: "b", label: "少了 type 关键字", labelEn: "The type keyword is missing" },
+                  { id: "c", label: "花括号该去掉", labelEn: "The curly braces should be removed" },
+                  { id: "d", label: "路径该写成 ../dataSources/", labelEn: "The path should be ../dataSources/" },
                 ],
                 answer: "a",
               },
@@ -3310,6 +3867,7 @@ import { OrderDataSource } from './dataSources/orderDataSource';`,
 import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                 {
                   filename: "改对之后",
+                  filenameEn: "After the fix",
                   sourceFile:
                     "graphql-federation-practice/node-subgraph/src/index.js",
                   highlight: [2],
@@ -3329,7 +3887,25 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   </p>
                 </>
               ),
+              rootCauseEn: (
+                <>
+                  <p>
+                    <code>package.json</code> declares{" "}
+                    <code>&quot;type&quot;: &quot;module&quot;</code>, so Node resolves
+                    with native ESM rules. Native ESM{" "}
+                    <strong>does not guess file endings</strong>, and a relative path has
+                    to be written in full.
+                  </p>
+                  <p>
+                    Line 1 works because it does write <code>.js</code>. That is also the
+                    trick for finding this: <strong>compare the imports that work with
+                    the one that fails inside the same file, and the difference is
+                    usually obvious.</strong>
+                  </p>
+                </>
+              ),
               verify: "npm start   # 应该打印 Subgraph ready at http://0.0.0.0:4000/",
+              verifyEn: "npm start   # should print Subgraph ready at http://0.0.0.0:4000/",
             },
           ],
           transfer: [
@@ -3415,8 +3991,16 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
           whyForAssessmentEn:
             "react-notes-app is a TypeScript project in strict mode. Get a props type wrong, or leave out one field, and the build fails. And in both exams the main data shapes, Note and Order, are read from their type definitions first.",
           sourceFiles: [
-            { path: "react-notes-app/src/types/Note.ts", role: "整个 Q1 的数据形状" },
-            { path: "react-notes-app/src/components/NoteForm/index.tsx", role: "props 类型的真实写法" },
+            {
+              path: "react-notes-app/src/types/Note.ts",
+              role: "整个 Q1 的数据形状",
+              roleEn: "The shape of all the Q1 data",
+            },
+            {
+              path: "react-notes-app/src/components/NoteForm/index.tsx",
+              role: "props 类型的真实写法",
+              roleEn: "How the prop types are actually written",
+            },
             { path: "react-notes-app/tsconfig.json", role: "strict: true" },
           ],
           concepts: [
@@ -3599,8 +4183,14 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   {
                     filename: "src/components/NoteForm/index.tsx",
                     sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
+                    codeEn: `interface NoteFormProps {
+  onSubmit: (note: Note) => void;    // function type: takes one Note, returns nothing
+  noteToEdit: Note | null;           // union type: either a Note or null
+}`,
                     explanation:
                       "两个字段各演示了一种写法。onSubmit 的 (note: Note) => void 是「函数类型」；noteToEdit 的 Note | null 是「联合类型」—— 用 null 表示「现在不在编辑任何东西」。",
+                    explanationEn:
+                      "Each field shows one form. The (note: Note) => void on onSubmit is a function type; the Note | null on noteToEdit is a union type, where null means nothing is being edited right now.",
                   },
                 ),
                 real(
@@ -3613,6 +4203,8 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                     sourceFile: "react-notes-app/q2/taskRunner.ts",
                     explanation:
                       "这叫「可辨识联合」：两个分支都有 status 字段，而且值是不同的字面量。于是你写 if (r.status === \"fulfilled\") 之后，TypeScript 就知道这个分支里一定有 value 而没有 reason。",
+                    explanationEn:
+                      "This is a discriminated union: both branches carry a status field, and each one holds a different literal value. So once you write if (r.status === \"fulfilled\"), TypeScript knows that inside that branch there is a value and no reason.",
                   },
                 ),
               ],
@@ -3690,7 +4282,12 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   `ReactDOM.createRoot(document.getElementById("root")!).render(...)
 //                                                            ↑
 //                            非空断言：告诉编译器「相信我，这里不会是 null」`,
-                  { sourceFile: "react-notes-app/src/main.tsx" },
+                  {
+                    sourceFile: "react-notes-app/src/main.tsx",
+                    codeEn: `ReactDOM.createRoot(document.getElementById("root")!).render(...)
+//                                                            ↑
+//                    non-null assertion: tells the compiler this will not be null`,
+                  },
                 ),
               ],
             },
@@ -3700,11 +4297,19 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
               kind: "fill-blank",
               id: "f-ts-props",
               title: "补全 NoteTable 的 props 类型",
+              titleEn: "Fill in the props type of NoteTable",
               level: 2,
               prompt: (
                 <p>
                   这是 <code>NoteTable</code> 真实的 props 类型。
                   三个空：一个数组类型、一个函数类型的参数、一个函数类型的返回值。
+                </p>
+              ),
+              promptEn: (
+                <p>
+                  This is the real props type of <code>NoteTable</code>. Three blanks:
+                  an array type, a parameter of a function type, and the return value of
+                  a function type.
                 </p>
               ),
               language: "tsx",
@@ -3720,11 +4325,19 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   n: 1,
                   accept: ["Note[]", "Array<Note>"],
                   hint: "一整个笔记列表。",
+                  hintEn: "A whole list of notes.",
                   why: (
                     <>
                       <code>Note[]</code> 就是「Note 组成的数组」。
                       也可以写 <code>Array&lt;Note&gt;</code>，含义完全一样，
                       但这个项目里统一用 <code>Note[]</code> 这种写法。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>Note[]</code> means &ldquo;an array made of Note&rdquo;. You
+                      can also write <code>Array&lt;Note&gt;</code>, which means exactly
+                      the same, but this project writes <code>Note[]</code> everywhere.
                     </>
                   ),
                   width: 9,
@@ -3733,6 +4346,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   n: 2,
                   accept: ["number"],
                   hint: "回头看 type Note 里 id 是什么类型。",
+                  hintEn: "Look back at type Note and check what type id has.",
                   why: (
                     <>
                       <code>number</code>。因为 <code>Note.id</code> 是
@@ -3743,17 +4357,36 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                       它把整条链上的类型都决定了。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>number</code>, because <code>Note.id</code> is a{" "}
+                      <code>number</code> (the project generates it with{" "}
+                      <code>Date.now()</code>). Write <code>string</code> and{" "}
+                      <code>onDelete(note.id)</code> inside <code>NoteItem</code>{" "}
+                      reports a type mismatch. <strong>This is also why you read the type
+                      definitions first</strong> — they decide the types along the whole
+                      chain.
+                    </>
+                  ),
                   width: 8,
                 },
                 {
                   n: 3,
                   accept: ["void"],
                   hint: "这个回调不需要返回任何东西。",
+                  hintEn: "This callback does not have to return anything.",
                   why: (
                     <>
                       <code>void</code> 表示「没有返回值」。
                       事件回调几乎都是 <code>void</code> —— 调用它是为了产生副作用
                       （改 state），不是为了拿返回值。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>void</code> means there is no return value. Event callbacks
+                      are nearly always <code>void</code> — you call them for their
+                      effect (changing state), not for what they hand back.
                     </>
                   ),
                   width: 6,
@@ -3830,8 +4463,16 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
           whyForAssessmentEn:
             "In react-notes-app, npm run build fails as delivered. All 10 tsc errors come from missing type settings for the test files. Recognising that the fault is not yours is what decides whether you lose half an hour.",
           sourceFiles: [
-            { path: "react-notes-app/tsconfig.json", role: "include 了 src，但没配 vitest 全局类型" },
-            { path: "react-notes-app/src/NoteManager.test.tsx", role: "报错就出在这个文件" },
+            {
+              path: "react-notes-app/tsconfig.json",
+              role: "include 了 src，但没配 vitest 全局类型",
+              roleEn: "It includes src but does not configure the vitest global types",
+            },
+            {
+              path: "react-notes-app/src/NoteManager.test.tsx",
+              role: "报错就出在这个文件",
+              roleEn: "This is the file the error comes from",
+            },
           ],
           concepts: [
             {
@@ -3894,8 +4535,12 @@ const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);  // 必须写�
 const [title, setTitle] = useState("");                       // 不用写："" 就是 string`,
                   {
                     filename: "三处真实的 useState",
+                    filenameEn: "Three real uses of useState",
                     sourceFile:
                       "react-notes-app/src/components/NoteManager/index.tsx 与 NoteForm/index.tsx",
+                    codeEn: `const [notes, setNotes] = useState<Note[]>([]);              // required: [] does not say what it holds
+const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);  // required: null says nothing
+const [title, setTitle] = useState("");                       // not needed: "" means string`,
                   },
                 ),
                 real(
@@ -3908,9 +4553,12 @@ export async function runTasks<T>(
 ): Promise<SettledResult<T>[]> { ... }`,
                   {
                     filename: "q2/taskRunner.ts：自己定义泛型",
+                    filenameEn: "q2/taskRunner.ts: defining your own generic",
                     sourceFile: "react-notes-app/q2/taskRunner.ts",
                     explanation:
                       "这里的 T 是「任务成功时返回什么类型」。runTasks 自己不关心 T 到底是什么，它只负责保证：你给我 Task<string>[]，我还你 SettledResult<string>[]。这就是泛型的价值 —— 同一份实现服务所有类型。",
+                    explanationEn:
+                      "Here T is the type a task returns when it succeeds. runTasks does not care what T actually is. It only guarantees one thing: hand it Task<string>[] and it hands back SettledResult<string>[]. That is what a generic buys you — one implementation that serves every type.",
                   },
                 ),
               ],
@@ -3962,7 +4610,18 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'. Do you nee
 src/NoteManager.test.tsx(11,3): error TS2304: Cannot find name 'expect'.
 src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
 ...共 10 条，全部在这一个文件里`,
-                  { filename: "本机实测输出" },
+                  {
+                    filename: "本机实测输出",
+                    filenameEn: "Output measured on this machine",
+                    codeEn: `$ npx tsc --noEmit
+
+src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'. Do you need to
+  install type definitions for a test runner? Try \`npm i --save-dev @types/jest\` or
+  \`npm i --save-dev @types/mocha\`.
+src/NoteManager.test.tsx(11,3): error TS2304: Cannot find name 'expect'.
+src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
+...10 in total, all in this one file`,
+                  },
                 ),
               ],
             },
@@ -4071,10 +4730,13 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
 }`,
                   {
                     filename: "tsconfig.json（原样）",
+                    filenameEn: "tsconfig.json (unchanged)",
                     sourceFile: "react-notes-app/tsconfig.json",
                     highlight: [12],
                     explanation:
                       "注意最后一行：include 里有 src，而测试文件就在 src 下。compilerOptions 里没有 types 字段，所以 vitest 的全局变量对 tsc 是不存在的。",
+                    explanationEn:
+                      "Look at the last line: include holds src, and the test file sits under src. compilerOptions has no types field, so as far as tsc is concerned the vitest globals do not exist.",
                   },
                 ),
               ],
@@ -4184,6 +4846,7 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
               kind: "recognition",
               id: "f-whose-fault",
               title: "这是谁的问题",
+              titleEn: "Whose problem is this",
               level: 1,
               prompt: (
                 <p>
@@ -4194,11 +4857,20 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
                   最合理的判断是？
                 </p>
               ),
+              promptEn: (
+                <p>
+                  You have just cloned react-notes-app, written not one line of code,
+                  and run <code>npm run build</code>. You get 10 of{" "}
+                  <code>TS2582: Cannot find name &apos;test&apos;</code>. At the same
+                  time <code>npx vitest run</code> shows all 4 tests passing. What is the
+                  most sensible conclusion?
+                </p>
+              ),
               options: [
-                { id: "a", label: "我的 React 代码写错了，要回去改组件" },
-                { id: "b", label: "依赖装坏了，删 node_modules 重装" },
-                { id: "c", label: "项目自带的 tsconfig 没配测试框架的全局类型，与我的实现无关" },
-                { id: "d", label: "Node 版本不对，要换版本" },
+                { id: "a", label: "我的 React 代码写错了，要回去改组件", labelEn: "My React code is wrong and I should go back and edit the components" },
+                { id: "b", label: "依赖装坏了，删 node_modules 重装", labelEn: "The install is broken; delete node_modules and install again" },
+                { id: "c", label: "项目自带的 tsconfig 没配测试框架的全局类型，与我的实现无关", labelEn: "The tsconfig that ships with the project does not declare the test framework globals, which has nothing to do with my implementation" },
+                { id: "d", label: "Node 版本不对，要换版本", labelEn: "The Node version is wrong and should be changed" },
               ],
               answer: ["c"],
               explain: (
@@ -4209,15 +4881,35 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
                   并把这个配置问题作为观察记下来 —— 别去改业务代码，也别贸然改 tsconfig。
                 </>
               ),
+              explainEn: (
+                <>
+                  Three pieces of evidence point the same way: every error is in the test
+                  file, the names it cannot find are globals injected by the test
+                  framework, and the tests themselves pass. So{" "}
+                  <strong>the logic is fine and one piece of type configuration is
+                  missing</strong>. Keep verifying your implementation with{" "}
+                  <code>npx vitest run</code> and record the config problem as an
+                  observation. Do not edit your own code, and do not change tsconfig
+                  without being asked.
+                </>
+              ),
             },
             {
               kind: "fill-blank",
               id: "f-generic-blanks",
               title: "补全泛型参数",
+              titleEn: "Fill in the generic parameters",
               level: 2,
               prompt: <p>两处真实的泛型用法。想清楚「TypeScript 能不能自己推断出来」。</p>,
+              promptEn: (
+                <p>
+                  Two real uses of generics. For each one, work out whether TypeScript
+                  can infer it on its own.
+                </p>
+              ),
               language: "tsx",
               filename: "两个真实片段",
+              filenameEn: "Two real snippets",
               template: `// NoteManager：两个 state
 const [notes, setNotes] = useState<___1___>([]);
 const [noteToEdit, setNoteToEdit] = useState<Note | ___2___>(null);
@@ -4229,11 +4921,20 @@ export type Task<T> = () => ___3___<T>;`,
                   n: 1,
                   accept: ["Note[]", "Array<Note>"],
                   hint: "初始值是空数组，推断不出装什么，所以必须显式写。",
+                  hintEn: "The initial value is an empty array, so nothing can be inferred and you must write it out.",
                   why: (
                     <>
                       <code>Note[]</code>。初始值 <code>[]</code> 让 TypeScript 只能推断出
                       <code>never[]</code>，后面往里塞 Note 就会报错。
                       <strong>空数组和 null 作初始值时，泛型参数必须显式写</strong>。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>Note[]</code>. With <code>[]</code> as the initial value, all
+                      TypeScript can infer is <code>never[]</code>, and putting a Note in
+                      later is an error. <strong>When the initial value is an empty array
+                      or null, the generic parameter has to be written out.</strong>
                     </>
                   ),
                   width: 9,
@@ -4242,6 +4943,7 @@ export type Task<T> = () => ___3___<T>;`,
                   n: 2,
                   accept: ["null"],
                   hint: "「现在没有在编辑任何笔记」用什么表示？",
+                  hintEn: "How do you say \"no note is being edited right now\"?",
                   why: (
                     <>
                       <code>null</code>。<code>Note | null</code> 表达的是
@@ -4251,18 +4953,38 @@ export type Task<T> = () => ___3___<T>;`,
                       真实代码里的 <code>if (noteToEdit)</code> 就是为此。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>null</code>. <code>Note | null</code> says &ldquo;either a
+                      note is being edited, or nothing is&rdquo;. In strict mode this{" "}
+                      <code>| null</code> has to be written out, and{" "}
+                      <code>noteToEdit</code> has to be checked before it is used — the{" "}
+                      <code>if (noteToEdit)</code> in the real code is there for that.
+                    </>
+                  ),
                   width: 6,
                 },
                 {
                   n: 3,
                   accept: ["Promise"],
                   hint: "一个 async 任务被调用后，返回的是什么？",
+                  hintEn: "Once an async task is called, what does it hand back?",
                   why: (
                     <>
                       <code>Promise</code>。<code>Task&lt;T&gt; = () =&gt; Promise&lt;T&gt;</code>
                       的意思是：一个不接参数的函数，调用它会得到一个「以后会给你 T」的 Promise。
                       注意<strong>它本身不是 Promise</strong> ——
                       这个区分是 Q2 能实现并发控制的前提。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>Promise</code>.{" "}
+                      <code>Task&lt;T&gt; = () =&gt; Promise&lt;T&gt;</code> means: a
+                      function that takes no arguments, and calling it gives you a Promise
+                      that will hand you a T later. Note that{" "}
+                      <strong>the task itself is not a Promise</strong> — that distinction
+                      is what makes concurrency control possible in Q2.
                     </>
                   ),
                   width: 9,

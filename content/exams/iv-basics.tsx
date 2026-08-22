@@ -252,9 +252,22 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
 // 点击 btn 的输出顺序：
 // outer 捕获 -> inner 捕获 -> btn 目标 -> inner 冒泡 -> outer 冒泡`,
               {
+    codeEn: `// <div id="outer"><div id="inner"><button id="btn">Click me</button></div></div>
+
+outer.addEventListener("click", () => console.log("outer capture"), true);
+inner.addEventListener("click", () => console.log("inner capture"), true);
+btn  .addEventListener("click", () => console.log("btn target"));
+inner.addEventListener("click", () => console.log("inner bubble"));
+outer.addEventListener("click", () => console.log("outer bubble"));
+
+// Output order when btn is clicked:
+// outer capture -> inner capture -> btn target -> inner bubble -> outer bubble`,
                 filename: "三个阶段的完整顺序",
+                filenameEn: "The full order of the three phases",
                 explanation:
                   "面试里画得出这个顺序，基本就过了。注意目标元素上的监听器不分捕获/冒泡，按注册顺序执行。",
+                explanationEn:
+                  "If you can draw this order in an interview, that question is handled. One detail: on the target element itself there is no capture or bubble distinction, so those listeners run in the order they were registered.",
               },
             ),
           ],
@@ -353,7 +366,15 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
   <meta property="og:image" content="https://…/cover.png">
   <title>页面标题</title>
 </head>`,
-              { filename: "实际会写的那几行" },
+              {
+    codeEn: `<head>
+  <meta charset="UTF-8">                                  <!-- must come first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="one sentence on what this page is for">
+  <meta property="og:title" content="the title shown when shared">
+  <meta property="og:image" content="https://…/cover.png">
+  <title>Page title</title>
+</head>`, filename: "实际会写的那几行" },
             ),
           ],
         },
@@ -761,7 +782,13 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
 *::after {
   box-sizing: border-box;
 }`,
-              { filename: "全局重置" },
+              {
+    codeEn: `/* Almost every project starts with these three lines */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}`, filename: "全局重置" },
             ),
           ],
         },
@@ -1010,7 +1037,26 @@ outer.addEventListener("click", () => console.log("outer 冒泡"));
 /* 「固定宽 + 自适应」的经典两行 */
 .sidebar { flex: 0 0 240px; }   /* 不长不缩，就 240 */
 .content { flex: 1; }           /* 剩下全归我 */`,
-              { filename: "实际项目里的分工" },
+              {
+    codeEn: `/* Grid for the skeleton */
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;      /* sidebar fixed, main takes the rest */
+  grid-template-rows: 56px 1fr;
+  min-height: 100vh;
+}
+
+/* Flex for the content inside a cell */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* The classic two lines for "fixed width plus fill the rest" */
+.sidebar { flex: 0 0 240px; }   /* never grows, never shrinks, stays 240 */
+.content { flex: 1; }           /* takes everything that is left */`, filename: "实际项目里的分工" },
             ),
           ],
         },
@@ -1353,7 +1399,15 @@ $brand: #2b6cb0;
 :root       { --brand: #2b6cb0; }
 [data-theme="dark"] { --brand: #90cdf4; }   /* 换主题只改这一行 */
 .btn        { background: var(--brand); }`,
-              { filename: "为什么原生变量更强" },
+              {
+    codeEn: `/* An SCSS variable is replaced at compile time and cannot change at runtime */
+$brand: #2b6cb0;
+.btn { background: $brand; }
+
+/* A native custom property is alive at runtime: JS can change it, a theme can override it */
+:root       { --brand: #2b6cb0; }
+[data-theme="dark"] { --brand: #90cdf4; }   /* switching theme changes only this line */
+.btn        { background: var(--brand); }`, filename: "为什么原生变量更强" },
             ),
           ],
         },
@@ -1573,7 +1627,22 @@ h1 { font-size: clamp(24px, 5vw, 44px); }
 @media (min-width: 768px) {
   .layout { display: grid; grid-template-columns: 240px 1fr; }
 }`,
-              { filename: "现在真正会写的响应式" },
+              {
+    codeEn: `/* A responsive grid without a single media query */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+/* A fluid font size with an upper and lower bound */
+h1 { font-size: clamp(24px, 5vw, 44px); }
+
+/* mobile-first: narrow by default, add from there upwards */
+.layout { display: block; }
+@media (min-width: 768px) {
+  .layout { display: grid; grid-template-columns: 240px 1fr; }
+}`, filename: "现在真正会写的响应式" },
             ),
           ],
         },

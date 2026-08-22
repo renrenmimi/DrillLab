@@ -169,8 +169,16 @@ export const reactQ1: Module = {
       whyForAssessmentEn:
         "This lesson is itself part of the exam. The most expensive mistake is not bad code, it is starting to write before you have read the task properly: deleting by title instead of by id, or updating an item by removing it and adding it again.",
       sourceFiles: [
-        { path: "react-notes-app/README.md", role: "三个 Task 的原文与约束" },
-        { path: "react-notes-app/src/NoteManager.test.tsx", role: "四个判卷测试" },
+        {
+          path: "react-notes-app/README.md",
+          role: "三个 Task 的原文与约束",
+          roleEn: "The three tasks as written, with their constraints",
+        },
+        {
+          path: "react-notes-app/src/NoteManager.test.tsx",
+          role: "四个判卷测试",
+          roleEn: "The four tests that decide the marks",
+        },
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "三道题的落点", edit: true },
       ],
       concepts: [
@@ -207,7 +215,19 @@ export const reactQ1: Module = {
 - Task 3  Edit:   点 Edit -> 内容回填进表单、按钮变 Update ->
                   提交 -> 原位置更新该 note、退出编辑模式
 约束： 不得修改任何 data-testid。`,
-              { filename: "README.md（Q1 原文）", sourceFile: "react-notes-app/README.md" },
+              {
+                filename: "README.md（Q1 原文）",
+                filenameEn: "README.md (the original text of Q1)",
+                sourceFile: "react-notes-app/README.md",
+                codeEn: `## Q1: Notes Manager (CRUD)
+Files: src/components/**
+Follow the TODOs in the code and finish three tasks:
+- Task 1  Add:    submit the form -> the new note appears in the table
+- Task 2  Delete: click Delete -> that row is removed by id
+- Task 3  Edit:   click Edit -> fields refill, the button becomes Update ->
+                  submit -> the note updates in place, edit mode ends
+Rule:  do not change any data-testid.`,
+              },
             ),
           ],
         },
@@ -552,7 +572,28 @@ npm error Missing script: "test"        ← 没有这个 script，用 npx
 $ npm run build
 src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
 ...共 10 条                              ← 项目自带的配置缺陷，与你的实现无关`,
-              { filename: "本机实测", sourceFile: "react-notes-app" },
+              {
+                filename: "本机实测",
+                filenameEn: "Run on a real machine",
+                codeEn: `$ cd react-notes-app
+$ npm install
+$ npx vitest run
+
+ RUN  v4.1.10 react-notes-app
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Duration  1.19s
+
+# Two more things worth checking while you are here:
+$ npm test
+npm error Missing script: "test"        ← 没有这个 script，用 npx
+
+$ npm run build
+src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
+...10 in total                          ← a defect in the given setup, nothing to do with your code`,
+                sourceFile: "react-notes-app",
+              },
             ),
           ],
         },
@@ -605,6 +646,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           code: [
             real("tsx", NOTE_MANAGER_FULL, {
               filename: "src/components/NoteManager/index.tsx（完整参考答案）",
+              filenameEn: "src/components/NoteManager/index.tsx (complete reference answer)",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
               highlight: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 26, 27, 28],
               collapsible: true,
@@ -617,6 +659,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           kind: "recognition",
           id: "r-q1-forbidden",
           title: "哪一处改动会让测试挂掉",
+          titleEn: "Which change makes a test fail",
           level: 1,
           prompt: (
             <p>
@@ -624,11 +667,30 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               下面哪些改动<strong>也会</strong>让现有测试失败？（多选）
             </p>
           ),
+          promptEn: (
+            <p>
+              The README says only that no data-testid may be changed. Which of
+              the changes below <strong>also</strong> break the existing tests?
+              (more than one)
+            </p>
+          ),
           options: [
-            { id: "a", label: '把 NoteItem 里的按钮文字从 "Delete" 改成 "Remove"' },
-            { id: "b", label: "给 NoteTable 加一个 className" },
-            { id: "c", label: '给空列表加分支：notes.length === 0 时不渲染 <tbody data-testid="notes-list">' },
-            { id: "d", label: '把按钮文字从 "Update" 改成 "Save"' },
+            {
+              id: "a",
+              label: '把 NoteItem 里的按钮文字从 "Delete" 改成 "Remove"',
+              labelEn: 'Change the button text in NoteItem from "Delete" to "Remove"',
+            },
+            { id: "b", label: "给 NoteTable 加一个 className", labelEn: "Add a className to NoteTable" },
+            {
+              id: "c",
+              label: '给空列表加分支：notes.length === 0 时不渲染 <tbody data-testid="notes-list">',
+              labelEn: 'Add an empty-list branch: when notes.length === 0, do not render <tbody data-testid="notes-list">',
+            },
+            {
+              id: "d",
+              label: '把按钮文字从 "Update" 改成 "Save"',
+              labelEn: 'Change the button text from "Update" to "Save"',
+            },
           ],
           answer: ["a", "c", "d"],
           explain: (
@@ -647,11 +709,31 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               只有 B 是安全的：className 没有任何测试依赖它。
             </>
           ),
+          explainEn: (
+            <>
+              A — the third test finds the button with{" "}
+              <code>getByRole(&quot;button&quot;, {"{ name: \"Delete\" }"})</code>,
+              so changing the text means it is no longer found.
+              <br />
+              C — after the delete, the third test still asserts on{" "}
+              <code>getByTestId(&quot;notes-list&quot;)</code>, and a missing
+              element throws right there.{" "}
+              <strong>
+                Whether a testid element exists is part of the contract too.
+              </strong>
+              <br />
+              D — the fourth test asserts{" "}
+              <code>toHaveTextContent(&quot;Update&quot;)</code> directly.
+              <br />
+              Only B is safe: no test depends on className.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-q1-hidden-req",
           title: "题目没写但测试在查的是哪一条",
+          titleEn: "The requirement the task never states but a test checks",
           level: 1,
           prompt: (
             <p>
@@ -659,11 +741,21 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               但四个测试里有一条专门在查它。是哪个？
             </p>
           ),
+          promptEn: (
+            <p>
+              One requirement is never mentioned in the three Tasks of the README,
+              yet one of the four tests checks exactly that. Which one is it?
+            </p>
+          ),
           options: [
-            { id: "a", label: "笔记要按标题排序" },
-            { id: "b", label: "输入为空时提交按钮必须 disabled" },
-            { id: "c", label: "删除前要弹确认框" },
-            { id: "d", label: "笔记要存进 localStorage" },
+            { id: "a", label: "笔记要按标题排序", labelEn: "The notes have to be sorted by title" },
+            {
+              id: "b",
+              label: "输入为空时提交按钮必须 disabled",
+              labelEn: "The submit button has to be disabled while the inputs are empty",
+            },
+            { id: "c", label: "删除前要弹确认框", labelEn: "A confirmation dialog has to appear before a delete" },
+            { id: "d", label: "笔记要存进 localStorage", labelEn: "The notes have to be saved into localStorage" },
           ],
           answer: ["b"],
           explain: (
@@ -677,20 +769,53 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               自己加这些功能不加分，还可能破坏测试。
             </>
           ),
+          explainEn: (
+            <>
+              The second test,{" "}
+              <code>submit button disabled when inputs empty</code>, asserts that
+              the submit button is disabled on the first render. The three Tasks
+              in the README say nothing at all about it.
+              <br />
+              <strong>
+                The lesson: the README is one part of the requirements and the
+                tests are another part. Read both.
+              </strong>{" "}
+              A, C and D appear in neither the task nor the tests. Adding them
+              yourself earns nothing and may break a test.
+            </>
+          ),
         },
         {
           kind: "ordering",
           id: "r-q1-workflow",
           title: "把上手顺序排对",
+          titleEn: "Put the starting steps in order",
           level: 1,
           prompt: <p>拿到这个项目，最合理的动作顺序是什么？</p>,
+          promptEn: <p>You just received this project. What is the most sensible order to work in?</p>,
           items: [
-            { id: "e", label: "写代码：三个 handler 逐个实现" },
-            { id: "a", label: "npm install，然后 npx vitest run 拿到基线" },
-            { id: "c", label: "读 NoteForm / NoteTable / NoteItem，确认它们已经完整、不用改" },
-            { id: "b", label: "读 README + 读测试文件，抄下所有验收标准" },
-            { id: "f", label: "npx vitest run 验证，再 npm run dev 手动点一遍" },
-            { id: "d", label: "读 types/Note.ts，确认数据形状和 id 的类型" },
+            { id: "e", label: "写代码：三个 handler 逐个实现", labelEn: "Write the code: implement the three handlers one at a time" },
+            { id: "a", label: "npm install，然后 npx vitest run 拿到基线", labelEn: "npm install, then npx vitest run to get a baseline" },
+            {
+              id: "c",
+              label: "读 NoteForm / NoteTable / NoteItem，确认它们已经完整、不用改",
+              labelEn: "Read NoteForm / NoteTable / NoteItem and confirm they are already complete and need no change",
+            },
+            {
+              id: "b",
+              label: "读 README + 读测试文件，抄下所有验收标准",
+              labelEn: "Read the README and the test file, and write down every acceptance criterion",
+            },
+            {
+              id: "f",
+              label: "npx vitest run 验证，再 npm run dev 手动点一遍",
+              labelEn: "Verify with npx vitest run, then npm run dev and click through it by hand",
+            },
+            {
+              id: "d",
+              label: "读 types/Note.ts，确认数据形状和 id 的类型",
+              labelEn: "Read types/Note.ts to confirm the shape of the data and the type of id",
+            },
           ],
           answer: ["a", "b", "d", "c", "e", "f"],
           explain: (
@@ -704,12 +829,27 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               这两个恰恰是题目明确要求的。
             </>
           ),
+          explainEn: (
+            <>
+              Install and run the baseline first, so you know the starting point.
+              Then read the task and the tests, so you know the end point. Then
+              read the types, so you know what the data looks like. Then read the
+              existing components, so you know what not to touch. Only then write
+              the code, and finish with the tests plus a manual check.
+              <br />
+              <strong>That last manual pass is not optional.</strong> The tests
+              use a single note, so they cannot check &quot;update in place&quot;
+              or &quot;delete by id&quot; — and those two are exactly what the
+              task asks for.
+            </>
+          ),
         },
       ],
       callouts: [
         {
           tone: "warn",
           title: "这个项目磁盘上的代码已经是做完的版本",
+          titleEn: "The code on disk for this project is already the finished version",
           body: (
             <p>
               审计发现：<code>react-notes-app/src/components/</code> 里
@@ -791,7 +931,11 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         "The first test checks it directly. It also sets up the chain where the child reports through onSubmit and the parent changes notes. The second half of Task 3 reuses the same function.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleSubmitNote 的 else 分支", edit: true },
-        { path: "react-notes-app/src/components/NoteForm/index.tsx", role: "note 在这里被构造并上报" },
+        {
+          path: "react-notes-app/src/components/NoteForm/index.tsx",
+          role: "note 在这里被构造并上报",
+          roleEn: "The note is built here and reported upwards",
+        },
       ],
       concepts: [
         {
@@ -951,6 +1095,14 @@ const newNote = {
 onSubmit(newNote);`,
               {
                 filename: "src/components/NoteForm/index.tsx（节选）",
+                filenameEn: "src/components/NoteForm/index.tsx (excerpt)",
+                codeEn: `// Inside NoteForm: build the note and report it up
+const newNote = {
+  id: noteToEdit ? noteToEdit.id : Date.now(),
+  title: title.trim(),
+  content: content.trim(),
+};
+onSubmit(newNote);`,
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
               },
             ),
@@ -960,9 +1112,14 @@ onSubmit(newNote);`,
 <NoteForm onSubmit={handleSubmitNote} noteToEdit={noteToEdit} />`,
               {
                 filename: "src/components/NoteManager/index.tsx（节选）",
+                filenameEn: "src/components/NoteManager/index.tsx (excerpt)",
+                codeEn: `// Inside NoteManager: wire handleSubmitNote up
+<NoteForm onSubmit={handleSubmitNote} noteToEdit={noteToEdit} />`,
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 explanation:
                   "所以 NoteForm 里那句 onSubmit(newNote)，实际执行的是 NoteManager 里的 handleSubmitNote(newNote)。这就是「props 传函数」这条链的全貌。",
+                explanationEn:
+                  "So the line onSubmit(newNote) inside NoteForm really runs handleSubmitNote(newNote) inside NoteManager. That is the whole chain of passing a function through props.",
               },
             ),
           ],
@@ -1059,7 +1216,14 @@ onSubmit(newNote);`,
 const handleSubmitNote = (submittedNote: Note) => {
   setNotes([...notes, submittedNote]);
 };`,
-              { filename: "推导过程 · 第一步" },
+              {
+                filename: "推导过程 · 第一步",
+                filenameEn: "Working it out · step one",
+                codeEn: `// Step one: the most direct version
+const handleSubmitNote = (submittedNote: Note) => {
+  setNotes([...notes, submittedNote]);
+};`,
+              },
             ),
             real(
               "tsx",
@@ -1073,6 +1237,14 @@ const handleSubmitNote = (submittedNote: Note) => {
 };`,
               {
                 filename: "src/components/NoteManager/index.tsx",
+                codeEn: `// The final shape (the half that belongs to Task 1)
+const handleSubmitNote = (submittedNote: Note) => {
+  if (noteToEdit) {
+    // Task 3 fills this in
+  } else {
+    setNotes((prev) => [...prev, submittedNote]);
+  }
+};`,
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 highlight: [6],
               },
@@ -1195,6 +1367,7 @@ const handleSubmitNote = (submittedNote: Note) => {
 });`,
               {
                 filename: "src/NoteManager.test.tsx（第 1 个测试）",
+                filenameEn: "src/NoteManager.test.tsx (test 1)",
                 sourceFile: "react-notes-app/src/NoteManager.test.tsx",
               },
             ),
@@ -1206,8 +1379,15 @@ const handleSubmitNote = (submittedNote: Note) => {
           kind: "fill-blank",
           id: "r-t1-blank",
           title: "补全新增逻辑",
+          titleEn: "Fill in the add logic",
           level: 2,
           prompt: <p>两个空。想清楚「旧的要不要留」和「用哪种更新形式」。</p>,
+          promptEn: (
+            <p>
+              Two blanks. Decide whether the old notes have to stay, and which
+              form of update to use.
+            </p>
+          ),
           language: "tsx",
           filename: "src/components/NoteManager/index.tsx",
           sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
@@ -1223,6 +1403,7 @@ const handleSubmitNote = (submittedNote: Note) => {
               n: 1,
               accept: ["prev", "prevNotes", "p"],
               hint: "函数式更新的回调参数，React 会把最新的值交给它。",
+              hintEn: "The parameter of the functional-update callback. React hands the latest value to it.",
               why: (
                 <>
                   <code>prev</code>（名字随你，项目里用的是 <code>prev</code>）。
@@ -1231,12 +1412,22 @@ const handleSubmitNote = (submittedNote: Note) => {
                   可以避免拿到过期快照。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>prev</code> (the name is up to you; the project uses{" "}
+                  <code>prev</code>). It is the newest value of notes, handed to
+                  you by React. Using it instead of the outer{" "}
+                  <code>notes</code> variable keeps you from reading a value that
+                  is already out of date.
+                </>
+              ),
               width: 7,
             },
             {
               n: 2,
               accept: ["...prev", "... prev"],
               hint: "旧的每一条都要留下来。用什么把数组「铺开」？",
+              hintEn: "Every old note has to stay. What spreads an array out?",
               why: (
                 <>
                   <code>...prev</code>。展开语法把旧数组的每个元素铺进新数组。
@@ -1247,6 +1438,20 @@ const handleSubmitNote = (submittedNote: Note) => {
                   TypeScript 也会报类型错。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>...prev</code>. The spread syntax lays every element of
+                  the old array into the new one.
+                  <br />
+                  <strong>
+                    What happens if you write <code>prev</code> without the three
+                    dots?
+                  </strong>{" "}
+                  You get <code>[[the old array], the new note]</code>, a nested
+                  array. <code>map</code> then renders something meaningless, and
+                  TypeScript reports a type error too.
+                </>
+              ),
               width: 9,
             },
           ],
@@ -1255,11 +1460,19 @@ const handleSubmitNote = (submittedNote: Note) => {
           kind: "code-completion",
           id: "r-t1-write",
           title: "不看答案，自己写出 Task 1",
+          titleEn: "Write Task 1 yourself, without looking at the answer",
           level: 3,
           prompt: (
             <p>
               只给你函数签名和要求。自己写完整实现。
               写完点「检查我的代码」，它会用文本规则检查你有没有踩坑。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You get the function signature and the requirements. Write the whole
+              implementation yourself. When you are done, use the check button:
+              it applies text rules to see whether you fell into a known trap.
             </p>
           ),
           language: "tsx",
@@ -1272,6 +1485,13 @@ const handleSubmitNote = (submittedNote: Note) => {
 const handleSubmitNote = (submittedNote: Note) => {
 
 };`,
+          starterEn: `// notes and setNotes already exist:
+//   const [notes, setNotes] = useState<Note[]>([]);
+// noteToEdit exists too (Task 3 uses it; here write only the add branch)
+
+const handleSubmitNote = (submittedNote: Note) => {
+
+};`,
           requirements: [
             "把 submittedNote 追加到 notes 的末尾",
             "原有的笔记全部保留",
@@ -1279,18 +1499,43 @@ const handleSubmitNote = (submittedNote: Note) => {
             "不许用 push / splice / unshift 修改原数组",
             "留出 if (noteToEdit) 分支的位置（Task 3 会填）",
           ],
+          requirementsEn: [
+            "Append submittedNote to the end of notes",
+            "Keep every note that was already there",
+            "Use a functional update: setNotes(prev => ...)",
+            "Do not change the original array with push / splice / unshift",
+            "Leave room for the if (noteToEdit) branch (Task 3 fills it in)",
+          ],
           checks: [
-            { label: "调用了 setNotes", must: "setNotes\\s*\\(" },
-            { label: "用了函数式更新（回调形式）", must: "setNotes\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>" },
-            { label: "用了展开语法保留旧数据", must: "\\.\\.\\.\\s*\\w+" },
-            { label: "新笔记追加在末尾（展开在前）", must: "\\[\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*submittedNote\\s*\\]" },
-            { label: "没有 push / splice / unshift", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
-            { label: "留了 noteToEdit 分支", must: "noteToEdit" },
+            { label: "调用了 setNotes", labelEn: "setNotes is called", must: "setNotes\\s*\\(" },
+            {
+              label: "用了函数式更新（回调形式）",
+              labelEn: "A functional update is used (the callback form)",
+              must: "setNotes\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>",
+            },
+            { label: "用了展开语法保留旧数据", labelEn: "Spread syntax keeps the old data", must: "\\.\\.\\.\\s*\\w+" },
+            {
+              label: "新笔记追加在末尾（展开在前）",
+              labelEn: "The new note goes at the end (the spread comes first)",
+              must: "\\[\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*submittedNote\\s*\\]",
+            },
+            {
+              label: "没有 push / splice / unshift",
+              labelEn: "No push / splice / unshift",
+              mustNot: "\\.(push|splice|unshift)\\s*\\(",
+            },
+            { label: "留了 noteToEdit 分支", labelEn: "The noteToEdit branch is left in place", must: "noteToEdit" },
           ],
           hints: [
             "问自己：新的 notes 数组和旧的是什么关系？「旧的全部 + 一条新的」。",
             "改 state 只能通过 setNotes。要「旧的全部」就得把旧数组铺开 —— 用展开语法。",
             "setNotes(接收最新值的回调 => [把旧的铺开， 新的那条])\n外面再包一层 if (noteToEdit) { } else { 这里 }",
+            "if (noteToEdit) {\n  // Task 3\n} else {\n  setNotes((prev) => [...prev, submittedNote]);\n}",
+          ],
+          hintsEn: [
+            "Ask yourself: how does the new notes array relate to the old one? All of the old ones, plus one new one.",
+            "setNotes is the only way to change the state. To get all of the old ones you have to spread the old array out.",
+            "setNotes(callback that receives the latest value => [spread the old ones out, the new one])\nthen wrap that in if (noteToEdit) { } else { here }",
             "if (noteToEdit) {\n  // Task 3\n} else {\n  setNotes((prev) => [...prev, submittedNote]);\n}",
           ],
           solution: real(
@@ -1304,6 +1549,14 @@ const handleSubmitNote = (submittedNote: Note) => {
 };`,
             {
               filename: "参考答案",
+              filenameEn: "Reference answer",
+              codeEn: `const handleSubmitNote = (submittedNote: Note) => {
+  if (noteToEdit) {
+    // the in-place replace of Task 3 goes here
+  } else {
+    setNotes((prev) => [...prev, submittedNote]);
+  }
+};`,
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -1321,6 +1574,16 @@ const NoteForm = ({ onSubmit }) => {
     onSubmit(newNote);
   };
 };`,
+            {
+              codeEn: `// ✗ Keeping a second copy of the list inside NoteForm
+const NoteForm = ({ onSubmit }) => {
+  const [myNotes, setMyNotes] = useState<Note[]>([]);
+  const handleSubmit = (e) => {
+    setMyNotes([...myNotes, newNote]);   // stored in NoteForm, the table never sees it
+    onSubmit(newNote);
+  };
+};`,
+            },
           ),
           why: (
             <>
@@ -1343,6 +1606,10 @@ const NoteForm = ({ onSubmit }) => {
             "tsx",
             `// ✗ 忘了三个点
 setNotes((prev) => [prev, submittedNote]);`,
+            {
+              codeEn: `// ✗ The three dots are missing
+setNotes((prev) => [prev, submittedNote]);`,
+            },
           ),
           why: (
             <>
@@ -1368,6 +1635,12 @@ setNotes((prev) => [prev, submittedNote]);`,
 const handleSubmitNote = (submittedNote: Note) => {
   setNotes((prev) => [...prev, { ...submittedNote, id: Date.now() }]);
 };`,
+            {
+              codeEn: `// ✗ Making a second id
+const handleSubmitNote = (submittedNote: Note) => {
+  setNotes((prev) => [...prev, { ...submittedNote, id: Date.now() }]);
+};`,
+            },
           ),
           why: (
             <>
@@ -1457,7 +1730,11 @@ const handleSubmitNote = (submittedNote: Note) => {
         "The third test checks it. But that test has only one note, so comparing by title passes as well. This is the first case in this project where passing tests do not mean the code is correct.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleDelete", edit: true },
-        { path: "react-notes-app/src/components/NoteItem/index.tsx", role: "Delete 按钮在这里上报 id" },
+        {
+          path: "react-notes-app/src/components/NoteItem/index.tsx",
+          role: "Delete 按钮在这里上报 id",
+          roleEn: "The Delete button reports the id from here",
+        },
       ],
       concepts: [
         {
@@ -1526,10 +1803,19 @@ const handleSubmitNote = (submittedNote: Note) => {
 // NoteTableProps / NoteItemProps 的类型也说明了这件事
 onDelete: (id: number) => void;`,
               {
+                codeEn: `// NoteItem: it reports the id and nothing else
+<button onClick={() => onDelete(note.id)} className="danger">
+  Delete
+</button>
+
+// The types of NoteTableProps / NoteItemProps say the same thing
+onDelete: (id: number) => void;`,
                 sourceFile:
                   "react-notes-app/src/components/NoteItem/index.tsx 与 NoteTable/index.tsx",
                 explanation:
                   "类型签名 (id: number) => void 是一条硬约束：你只会收到 id，收不到整条 note。所以「按 title 删」这条路在类型层面就被堵住了一半 —— 你拿不到 title。",
+                explanationEn:
+                  "The type signature (id: number) => void is a hard limit: you receive the id, never the whole note. So deleting by title is already half blocked by the types — you never get the title.",
               },
             ),
           ],
@@ -1719,10 +2005,13 @@ onDelete: (id: number) => void;`,
 });`,
               {
                 filename: "src/NoteManager.test.tsx（第 3 个测试）",
+                filenameEn: "src/NoteManager.test.tsx (test 3)",
                 sourceFile: "react-notes-app/src/NoteManager.test.tsx",
                 highlight: [6],
                 explanation:
                   "第 6 行 getByRole(\"button\", { name: \"Delete\" }) —— 因为只有一条数据，页面上只有一个 Delete 按钮，所以 getByRole 不会因为「找到多个」而报错。有两条数据时这句就会挂，这也是测试只放一条数据的原因。",
+                explanationEn:
+                  "Line 6 is getByRole(\"button\", { name: \"Delete\" }). There is only one note, so the page holds only one Delete button and getByRole will not fail with a found-more-than-one error. With two notes this line would fail. That is why the test adds a single note.",
               },
             ),
           ],
@@ -1788,8 +2077,10 @@ onDelete: (id: number) => void;`,
           kind: "fill-blank",
           id: "r-t2-blank",
           title: "补全删除逻辑",
+          titleEn: "Fill in the delete logic",
           level: 2,
           prompt: <p>三个空。第三个空是这道题唯一会绕人的地方。</p>,
+          promptEn: <p>Three blanks. The third one is the only part that trips people up.</p>,
           language: "tsx",
           filename: "src/components/NoteManager/index.tsx",
           sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
@@ -1801,6 +2092,7 @@ onDelete: (id: number) => void;`,
               n: 1,
               accept: ["filter"],
               hint: "删除意味着结果可能变短。哪个方法会？",
+              hintEn: "Deleting means the result can get shorter. Which method does that?",
               why: (
                 <>
                   <code>filter</code>。三个常用方法里只有它会改变长度，
@@ -1810,12 +2102,25 @@ onDelete: (id: number) => void;`,
                   <code>splice</code> 会修改原数组（React 看不出变化）。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>filter</code>. Of the three common methods it is the only
+                  one that changes the length, and it returns a{" "}
+                  <strong>new array</strong>, which is exactly what an immutable
+                  update needs.
+                  <br />
+                  <code>map</code> keeps the same length (it leaves an undefined
+                  hole), and <code>splice</code> changes the original array, so
+                  React sees no change at all.
+                </>
+              ),
               width: 8,
             },
             {
               n: 2,
               accept: ["id"],
               hint: "题目原文：「该行按 ___ 被移除」。",
+              hintEn: "The task says: the row is removed by ___.",
               why: (
                 <>
                   <code>id</code>。题目明确写了「按 id」。
@@ -1824,12 +2129,22 @@ onDelete: (id: number) => void;`,
                   你根本拿不到 title。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>id</code>. The task says by id, in those words. Using{" "}
+                  <code>title</code> would delete every note with the same title
+                  at once. And the only parameter of{" "}
+                  <code>handleDelete</code> is the id, so you never have the title
+                  to compare with.
+                </>
+              ),
               width: 5,
             },
             {
               n: 3,
               accept: ["!==", "!="],
               hint: "filter 保留的是回调返回 true 的元素。要删掉相等的，就要保留……",
+              hintEn: "filter keeps the elements whose callback returns true. To drop the equal one, you keep the...",
               why: (
                 <>
                   <code>!==</code>。<code>filter</code> 的语义是「留下」。
@@ -1842,6 +2157,21 @@ onDelete: (id: number) => void;`,
                   总之：<code>filter</code> 想着「留谁」，别想着「删谁」。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>!==</code>. What <code>filter</code> means is
+                  &quot;keep&quot;. To remove the note whose id matches, you have
+                  to <strong>keep the ones that do not match</strong>.
+                  <br />
+                  Writing <code>===</code> instead{" "}
+                  <strong>keeps only the note you meant to delete</strong> and
+                  removes all the others. The third test asserts that ToDelete is
+                  gone after the delete, so <strong>that test turns red</strong>,
+                  and the failure points at the assertion rather than at your{" "}
+                  <code>filter</code>. In short: with <code>filter</code>, think
+                  about who stays, not about who goes.
+                </>
+              ),
               width: 5,
             },
           ],
@@ -1850,12 +2180,23 @@ onDelete: (id: number) => void;`,
           kind: "code-completion",
           id: "r-t2-write",
           title: "不看答案，自己写出 Task 2",
+          titleEn: "Write Task 2 yourself, without looking at the answer",
           level: 3,
           prompt: <p>一行代码的题。但要一次写对，不许用 push / splice。</p>,
+          promptEn: (
+            <p>
+              One line of code. But get it right the first time, and without push
+              or splice.
+            </p>
+          ),
           language: "tsx",
           filename: "src/components/NoteManager/index.tsx",
           sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
           starter: `// 要求：点某一行的 Delete 后，那条笔记按 id 从 notes 里移除
+const handleDelete = (id: number) => {
+
+};`,
+          starterEn: `// The requirement: after Delete on a row, that note is removed from notes by id
 const handleDelete = (id: number) => {
 
 };`,
@@ -1866,18 +2207,39 @@ const handleDelete = (id: number) => {
             "不许修改原数组（不许用 splice）",
             "不许按 title 或下标比较",
           ],
+          requirementsEn: [
+            "Remove the matching note by id",
+            "Keep every other note, in the same order",
+            "Use a functional update",
+            "Do not change the original array (no splice)",
+            "Do not compare by title or by index",
+          ],
           checks: [
-            { label: "用了 filter", must: "\\.filter\\s*\\(" },
-            { label: "用了函数式更新", must: "setNotes\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>" },
-            { label: "按 id 比较", must: "\\.id\\s*!==?\\s*id" },
-            { label: "条件用的是不等号（保留不匹配的）", must: "!==?\\s*id" },
-            { label: "没有 splice / push", mustNot: "\\.(splice|push)\\s*\\(" },
-            { label: "没有按 title 比较", mustNot: "\\.title\\s*[!=]==?" },
+            { label: "用了 filter", labelEn: "filter is used", must: "\\.filter\\s*\\(" },
+            {
+              label: "用了函数式更新",
+              labelEn: "A functional update is used",
+              must: "setNotes\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>",
+            },
+            { label: "按 id 比较", labelEn: "The comparison is by id", must: "\\.id\\s*!==?\\s*id" },
+            {
+              label: "条件用的是不等号（保留不匹配的）",
+              labelEn: "The condition uses not-equal (it keeps the ones that do not match)",
+              must: "!==?\\s*id",
+            },
+            { label: "没有 splice / push", labelEn: "No splice / push", mustNot: "\\.(splice|push)\\s*\\(" },
+            { label: "没有按 title 比较", labelEn: "No comparison by title", mustNot: "\\.title\\s*[!=]==?" },
           ],
           hints: [
             "「移除一条」等价于「保留其余全部」。换个角度想问题。",
             "filter 是唯一会让数组变短的方法，而且它返回新数组。参数里只有 id，所以只能按 id 比。",
             "setNotes(接收最新值 => 最新值.filter(每一条 => 这条的 id 不等于要删的 id))",
+            "setNotes((prev) => prev.filter((note) => note.id !== id));",
+          ],
+          hintsEn: [
+            "Removing one note is the same as keeping all the others. Turn the question around.",
+            "filter is the only method that makes an array shorter, and it returns a new array. The id is the only parameter you have, so id is the only thing you can compare.",
+            "setNotes(latest value => latest value.filter(each one => the id of this one is not the id to delete))",
             "setNotes((prev) => prev.filter((note) => note.id !== id));",
           ],
           solution: real(
@@ -1887,6 +2249,7 @@ const handleDelete = (id: number) => {
 };`,
             {
               filename: "参考答案",
+              filenameEn: "Reference answer",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -1895,11 +2258,19 @@ const handleDelete = (id: number) => {
           kind: "debug",
           id: "r-debug-filter-title",
           title: "Debug Lab · 删一条，同名的全没了",
+          titleEn: "Debug Lab · delete one note and every note with the same title goes too",
           level: 2,
           prompt: (
             <p>
               测试全过，但手动测试时发现：三条标题相同的笔记，
               点其中一条的 Delete，三条一起消失。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Every test passes, but a manual check shows this: with three notes
+              that share a title, clicking Delete on one of them makes all three
+              disappear.
             </p>
           ),
           errorOutput: `# 测试：4 passed (4)   ← 测试全过！
@@ -1910,30 +2281,51 @@ const handleDelete = (id: number) => {
 #   4. 点第 2 行的 Delete
 # 期望：只剩「内容1」「内容3」
 # 实际：表格全空`,
+          errorOutputEn: `# Tests: 4 passed (4)   ← every test passes!
+# Manual repro steps:
+#   1. Add "会议记录 / 内容1"
+#   2. Add "会议记录 / 内容2"
+#   3. Add "会议记录 / 内容3"
+#   4. Click Delete on the second row
+# Expected: only 内容1 and 内容3 are left
+# Actual: the table is empty`,
           broken: demo(
             "tsx",
             `const handleDelete = (id: number) => {
   const target = notes.find((n) => n.id === id);
   setNotes((prev) => prev.filter((note) => note.title !== target?.title));
 };`,
-            { filename: "有问题的 handleDelete", highlight: [3] },
+            {
+              filename: "有问题的 handleDelete",
+              filenameEn: "The handleDelete with the bug",
+              highlight: [3],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "状态更新错误 —— 改了原数组" },
-              { id: "b", label: "比较依据错误 —— 按 title 而不是按 id，同名会被一起删" },
-              { id: "c", label: "异步错误 —— find 需要 await" },
-              { id: "d", label: "类型错误 —— target 可能是 undefined" },
+              { id: "a", label: "状态更新错误 —— 改了原数组", labelEn: "A state update error — the original array was changed" },
+              {
+                id: "b",
+                label: "比较依据错误 —— 按 title 而不是按 id，同名会被一起删",
+                labelEn: "The comparison is wrong — it compares titles instead of ids, so notes with the same title all go together",
+              },
+              { id: "c", label: "异步错误 —— find 需要 await", labelEn: "An async error — find needs an await" },
+              { id: "d", label: "类型错误 —— target 可能是 undefined", labelEn: "A type error — target may be undefined" },
             ],
             answer: "b",
           },
           locate: {
             question: "第 3 行该怎么改？",
+            questionEn: "How should line 3 be changed?",
             options: [
-              { id: "a", label: "改成 prev.filter((note) => note.id !== id)" },
-              { id: "b", label: "改成 prev.filter((note) => note.title === target?.title)" },
-              { id: "c", label: "在 filter 外面加一个 if (target)" },
-              { id: "d", label: "把 find 改成 findIndex，再用 splice" },
+              { id: "a", label: "改成 prev.filter((note) => note.id !== id)", labelEn: "Change it to prev.filter((note) => note.id !== id)" },
+              {
+                id: "b",
+                label: "改成 prev.filter((note) => note.title === target?.title)",
+                labelEn: "Change it to prev.filter((note) => note.title === target?.title)",
+              },
+              { id: "c", label: "在 filter 外面加一个 if (target)", labelEn: "Wrap the filter in an if (target)" },
+              { id: "d", label: "把 find 改成 findIndex，再用 splice", labelEn: "Change find to findIndex, then use splice" },
             ],
             answer: "a",
           },
@@ -1944,6 +2336,7 @@ const handleDelete = (id: number) => {
 };`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -1969,7 +2362,33 @@ const handleDelete = (id: number) => {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                A <code>title</code> is not unique; only an <code>id</code> is.
+                Filtering on the title clears every note that shares that title.
+                The two lines with <code>find</code> are a pointless detour —{" "}
+                <strong>the id is already a parameter, so just use it.</strong>
+              </p>
+              <p>
+                <strong>
+                  The most important part of this exercise: every test passes.
+                </strong>{" "}
+                The tests use a single note, so the same-title case never comes
+                up. The only ways to catch this bug are{" "}
+                <strong>reading the words &quot;by id&quot; in the task</strong>{" "}
+                or building a same-title case by hand.
+              </p>
+              <p>
+                Option D (<code>findIndex</code> plus <code>splice</code>) is
+                wrong too: <code>splice</code> changes the original array, React
+                sees no change, and the screen does not update.
+              </p>
+            </>
+          ),
           verify: "npm run dev   # 手动加三条同名笔记，删中间那条，只应消失一条",
+          verifyEn:
+            "npm run dev   # add three notes with the same title by hand, delete the middle one, only one should disappear",
         },
       ],
       transfer: [
@@ -2040,7 +2459,11 @@ const handleDelete = (id: number) => {
         "The fourth test checks it, and it is the longest of the four. It verifies both that the button text becomes Update and that the new content replaces the old one. No test covers the in place requirement, but the task text states it clearly.",
       sourceFiles: [
         { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleEdit + handleSubmitNote 的 if 分支", edit: true },
-        { path: "react-notes-app/src/components/NoteForm/index.tsx", role: "useEffect 回填 + id 复用 + 按钮文字（已给好）" },
+        {
+          path: "react-notes-app/src/components/NoteForm/index.tsx",
+          role: "useEffect 回填 + id 复用 + 按钮文字（已给好）",
+          roleEn: "useEffect refills the form, the id is reused, and the button text changes (all given)",
+        },
       ],
       concepts: [
         {
@@ -2397,7 +2820,23 @@ const handleDelete = (id: number) => {
 ✗ 先删再插到头部
   [B2, ...prev.filter(...)]
   结果：[B2, A, C]        ← 也不是原位置`,
-              { filename: "三种写法的实际结果" },
+              {
+                filename: "三种写法的实际结果",
+                filenameEn: "What the three versions actually produce",
+                codeEn: `start: [A, B, C], edit B → B2
+
+✓ replace with map
+  prev.map(n => n.id === B.id ? B2 : n)
+  result: [A, B2, C]      ← B2 is still second, so it is in place
+
+✗ delete first, then append
+  [...prev.filter(n => n.id !== B.id), B2]
+  result: [A, C, B2]      ← B2 jumped to the end, the order changed
+
+✗ delete first, then insert at the front
+  [B2, ...prev.filter(...)]
+  result: [B2, A, C]      ← also not the original position`,
+              },
             ),
             real(
               "tsx",
@@ -2408,6 +2847,7 @@ const handleDelete = (id: number) => {
 );`,
               {
                 filename: "src/components/NoteManager/index.tsx（map 分支）",
+                filenameEn: "src/components/NoteManager/index.tsx (the map branch)",
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
               },
             ),
@@ -2463,6 +2903,7 @@ const handleEdit = (note: Note) => {
 };`,
               {
                 filename: "src/components/NoteManager/index.tsx（三道题的完整落点）",
+                filenameEn: "src/components/NoteManager/index.tsx (where all three tasks land)",
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 highlight: [8, 15],
               },
@@ -2555,6 +2996,7 @@ const handleEdit = (note: Note) => {
 });`,
               {
                 filename: "src/NoteManager.test.tsx（第 4 个测试）",
+                filenameEn: "src/NoteManager.test.tsx (test 4)",
                 sourceFile: "react-notes-app/src/NoteManager.test.tsx",
                 highlight: [7, 8, 15, 16],
               },
@@ -2567,11 +3009,20 @@ const handleEdit = (note: Note) => {
           kind: "fill-blank",
           id: "r-t3-blank",
           title: "补全编辑逻辑的四个关键位置",
+          titleEn: "Fill in the four key spots of the edit logic",
           level: 2,
           prompt: (
             <p>
               四个空横跨两个函数。第 4 个空是最容易漏的那一行 ——
               漏了它测试<strong>照样能过</strong>，但行为明显不对。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks across two functions. The fourth is the line people
+              forget most often — without it{" "}
+              <strong>the tests still pass</strong>, but the behavior is clearly
+              wrong.
             </p>
           ),
           language: "tsx",
@@ -2598,6 +3049,7 @@ const handleEdit = (note: Note) => {
               n: 1,
               accept: ["map"],
               hint: "要求「原位置」更新 —— 长度和顺序都不能变。",
+              hintEn: "The update has to happen in place — neither the length nor the order may change.",
               why: (
                 <>
                   <code>map</code>。它长度不变、顺序不变，
@@ -2607,12 +3059,23 @@ const handleEdit = (note: Note) => {
                   但被编辑的那条会跳到末尾，违反题目要求。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>map</code>. It keeps the length and the order, and decides
+                  item by item whether to replace this one. That is exactly what
+                  updating in place means.
+                  <br />
+                  A <code>filter</code> plus an append also passes the tests, but
+                  the edited note jumps to the end, which breaks the requirement.
+                </>
+              ),
               width: 6,
             },
             {
               n: 2,
               accept: ["===", "=="],
               hint: "map 是「是它就换、不是就留」。这里要找的是匹配的那一条。",
+              hintEn: "map replaces the one that matches and keeps the rest. What you are looking for here is the match.",
               why: (
                 <>
                   <code>===</code>。和 <code>filter</code> 那题正好相反 ——
@@ -2622,17 +3085,39 @@ const handleEdit = (note: Note) => {
                   <strong>filter 想「留谁」用 !==，map 想「换谁」用 ===。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>===</code>. This is the opposite of the{" "}
+                  <code>filter</code> exercise. The conditional inside{" "}
+                  <code>map</code> asks &quot;is this the one I want to
+                  replace?&quot;, so it uses equals.
+                  <br />
+                  <strong>
+                    filter asks who stays, so it uses !==. map asks who gets
+                    replaced, so it uses ===.
+                  </strong>
+                </>
+              ),
               width: 5,
             },
             {
               n: 3,
               accept: ["submittedNote"],
               hint: "匹配上了就换成……什么？",
+              hintEn: "When it matches, replace it with... what?",
               why: (
                 <>
                   <code>submittedNote</code> —— 提交上来的新版本。
                   它带着<strong>和旧的一样的 id</strong>
                   （NoteForm 复用了），所以替换后 map 依然能找到它。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>submittedNote</code>, the newly submitted version. It
+                  carries <strong>the same id as the old one</strong> (NoteForm
+                  reuses it), so <code>map</code> can still find it after the
+                  replacement.
                 </>
               ),
               width: 15,
@@ -2641,6 +3126,7 @@ const handleEdit = (note: Note) => {
               n: 4,
               accept: ["setNoteToEdit(null)"],
               hint: "「退出编辑模式」。noteToEdit 该变成什么？",
+              hintEn: "Leave edit mode. What should noteToEdit become?",
               why: (
                 <>
                   <code>setNoteToEdit(null)</code>。这一行同时做了四件事的收尾：
@@ -2655,6 +3141,22 @@ const handleEdit = (note: Note) => {
                   表单还留着内容、按钮还写 Update、再改一次还是更新同一条。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>setNoteToEdit(null)</code>. This one line closes out four
+                  things at once:
+                  <br />
+                  1. the else branch of the effect fires and clears the form; 2.
+                  the button text goes back to Add; 3. the next submit generates a
+                  new id; 4. the next submit takes the append branch.
+                  <br />
+                  <strong>Leave it out and the fourth test still passes</strong>{" "}
+                  (it never checks the state after the submit), but the behavior
+                  is plainly broken: the form still holds the old content, the
+                  button still says Update, and the next edit updates the same
+                  note again.
+                </>
+              ),
               width: 22,
             },
           ],
@@ -2663,12 +3165,21 @@ const handleEdit = (note: Note) => {
           kind: "code-completion",
           id: "r-t3-write",
           title: "不看答案，自己写出完整的 Task 3",
+          titleEn: "Write all of Task 3 yourself, without looking at the answer",
           level: 3,
           prompt: (
             <p>
               把 <code>handleEdit</code> 和 <code>handleSubmitNote</code>
               两个函数完整写出来（含 Task 1 的分支）。
               这是 Q1 的完整答案，写对了这道题就通了。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Write both <code>handleEdit</code> and{" "}
+              <code>handleSubmitNote</code> in full, including the Task 1 branch.
+              This is the complete answer to Q1: get it right and the question is
+              done.
             </p>
           ),
           language: "tsx",
@@ -2686,6 +3197,18 @@ const handleSubmitNote = (submittedNote: Note) => {
 const handleEdit = (note: Note) => {
 
 };`,
+          starterEn: `// Already there:
+//   const [notes, setNotes] = useState<Note[]>([]);
+//   const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);
+// NoteForm already handles: reusing the old id when editing, the prefill, the button text
+
+const handleSubmitNote = (submittedNote: Note) => {
+
+};
+
+const handleEdit = (note: Note) => {
+
+};`,
           requirements: [
             "handleEdit：把这条笔记设为「正在编辑」，不要改动 notes",
             "handleSubmitNote 编辑分支：按 id 就地替换，位置和顺序不变",
@@ -2693,21 +3216,54 @@ const handleEdit = (note: Note) => {
             "handleSubmitNote 新增分支：追加到末尾",
             "全部使用函数式更新，不许修改原数组",
           ],
+          requirementsEn: [
+            "handleEdit: mark this note as the one being edited, and leave notes alone",
+            "handleSubmitNote, edit branch: replace by id in place, keeping the position and the order",
+            "handleSubmitNote, edit branch: leave edit mode once the replace is done",
+            "handleSubmitNote, add branch: append to the end",
+            "Use functional updates everywhere, and never change the original array",
+          ],
           checks: [
-            { label: "handleEdit 调用了 setNoteToEdit(note)", must: "setNoteToEdit\\s*\\(\\s*note\\s*\\)" },
-            { label: "handleEdit 没有改动 notes", mustNot: "handleEdit[\\s\\S]{0,120}setNotes" },
-            { label: "编辑分支用 map 就地替换", must: "\\.map\\s*\\(" },
-            { label: "map 里按 id 用 === 匹配", must: "\\.id\\s*===?\\s*submittedNote\\.id" },
-            { label: "替换成 submittedNote", must: "\\?\\s*submittedNote\\s*:" },
-            { label: "提交后退出编辑模式", must: "setNoteToEdit\\s*\\(\\s*null\\s*\\)" },
-            { label: "新增分支用展开追加", must: "\\[\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*submittedNote\\s*\\]" },
-            { label: "没有 push / splice", mustNot: "\\.(push|splice)\\s*\\(" },
-            { label: "没有「先 filter 再追加」的写法", mustNot: "filter[\\s\\S]{0,60},\\s*submittedNote" },
+            {
+              label: "handleEdit 调用了 setNoteToEdit(note)",
+              labelEn: "handleEdit calls setNoteToEdit(note)",
+              must: "setNoteToEdit\\s*\\(\\s*note\\s*\\)",
+            },
+            {
+              label: "handleEdit 没有改动 notes",
+              labelEn: "handleEdit does not change notes",
+              mustNot: "handleEdit[\\s\\S]{0,120}setNotes",
+            },
+            { label: "编辑分支用 map 就地替换", labelEn: "The edit branch replaces in place with map", must: "\\.map\\s*\\(" },
+            {
+              label: "map 里按 id 用 === 匹配",
+              labelEn: "Inside map, the ids are matched with ===",
+              must: "\\.id\\s*===?\\s*submittedNote\\.id",
+            },
+            { label: "替换成 submittedNote", labelEn: "It is replaced with submittedNote", must: "\\?\\s*submittedNote\\s*:" },
+            { label: "提交后退出编辑模式", labelEn: "Edit mode ends after the submit", must: "setNoteToEdit\\s*\\(\\s*null\\s*\\)" },
+            {
+              label: "新增分支用展开追加",
+              labelEn: "The add branch appends with a spread",
+              must: "\\[\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*submittedNote\\s*\\]",
+            },
+            { label: "没有 push / splice", labelEn: "No push / splice", mustNot: "\\.(push|splice)\\s*\\(" },
+            {
+              label: "没有「先 filter 再追加」的写法",
+              labelEn: "No filter-then-append version",
+              mustNot: "filter[\\s\\S]{0,60},\\s*submittedNote",
+            },
           ],
           hints: [
             "handleEdit 只需要做一件事：记下「现在在编辑哪条」。它不该动列表。handleSubmitNote 需要分两种情况。",
             "分支条件用 noteToEdit 是否为 null。编辑用 map（保序），新增用展开（追加）。别忘了「退出编辑模式」也要写。",
             "if (正在编辑) {\n  setNotes(最新值 => 最新值.map(每条 => 这条 id 等于提交的 id ? 提交的 : 这条))\n  把 noteToEdit 设回 null\n} else {\n  setNotes(最新值 => [...最新值， 提交的])\n}",
+            "if (noteToEdit) {\n  setNotes((prev) =>\n    prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),\n  );\n  setNoteToEdit(null);\n} else {\n  setNotes((prev) => [...prev, submittedNote]);\n}",
+          ],
+          hintsEn: [
+            "handleEdit does one thing: record which note is being edited right now. It must not touch the list. handleSubmitNote needs two cases.",
+            "The branch condition is whether noteToEdit is null. Editing uses map, which keeps the order; adding uses a spread to append. And do not forget to leave edit mode.",
+            "if (editing) {\n  setNotes(latest => latest.map(each => id of each equals id submitted ? the submitted one : each))\n  set noteToEdit back to null\n} else {\n  setNotes(latest => [...latest, the submitted one])\n}",
             "if (noteToEdit) {\n  setNotes((prev) =>\n    prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),\n  );\n  setNoteToEdit(null);\n} else {\n  setNotes((prev) => [...prev, submittedNote]);\n}",
           ],
           solution: real(
@@ -2730,6 +3286,7 @@ const handleEdit = (note: Note) => {
 };`,
             {
               filename: "参考答案（与项目里的实现完全一致，4 个测试全过）",
+              filenameEn: "Reference answer (identical to the project's code; all 4 tests pass)",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -2738,12 +3295,21 @@ const handleEdit = (note: Note) => {
           kind: "debug",
           id: "r-debug-new-id",
           title: "Debug Lab · 点 Update 之后毫无反应",
+          titleEn: "Debug Lab · nothing happens after you click Update",
           level: 3,
           prompt: (
             <p>
               点 Edit，输入框正常回填，按钮变成 Update。
               改完内容点 Update —— <strong>列表一点变化都没有</strong>，
               表单也没清空。控制台干净。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Click Edit and the inputs prefill correctly, and the button becomes
+              Update. Change the content and click Update —{" "}
+              <strong>the list does not change at all</strong>, and the form does
+              not clear either. The console is clean.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -2755,6 +3321,20 @@ const handleEdit = (note: Note) => {
 # 实际：列表还是 Old，表单还留着 New，按钮还是 Update
 
 # 测试结果：
+#   ✓ adds a note
+#   ✓ submit button disabled when inputs empty
+#   ✓ deletes a note
+#   ✕ edits a note in place
+#       Unable to find text content "New" in element [data-testid="notes-list"]`,
+          errorOutputEn: `# No error at all.
+# Repro:
+#   1. Add "Old / c1"
+#   2. Click Edit → the inputs show Old / c1, the button reads Update  ✓ both fine
+#   3. Change the title to "New" and click Update
+# Expected: that row becomes New, the form clears, the button goes back to Add
+# Actual: the row is still Old, the form still holds New, the button still reads Update
+
+# Test results:
 #   ✓ adds a note
 #   ✓ submit button disabled when inputs empty
 #   ✓ deletes a note
@@ -2774,24 +3354,37 @@ const handleEdit = (note: Note) => {
     setNotes((prev) => [...prev, note]);
   }
 };`,
-            { filename: "有问题的 handleSubmitNote", highlight: [2, 6] },
+            {
+              filename: "有问题的 handleSubmitNote",
+              filenameEn: "The handleSubmitNote with the bug",
+              highlight: [2, 6],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "useEffect 依赖错误 —— 回填没生效" },
-              { id: "b", label: "数据标识错误 —— 重新生成了 id，导致 map 匹配不上任何一条" },
-              { id: "c", label: "状态更新错误 —— 改了原数组" },
-              { id: "d", label: "事件处理器错误 —— onSubmit 没接上" },
+              { id: "a", label: "useEffect 依赖错误 —— 回填没生效", labelEn: "A useEffect dependency error — the prefill never ran" },
+              {
+                id: "b",
+                label: "数据标识错误 —— 重新生成了 id，导致 map 匹配不上任何一条",
+                labelEn: "An identity error — a new id was generated, so map matches nothing",
+              },
+              { id: "c", label: "状态更新错误 —— 改了原数组", labelEn: "A state update error — the original array was changed" },
+              { id: "d", label: "事件处理器错误 —— onSubmit 没接上", labelEn: "An event handler error — onSubmit was never wired up" },
             ],
             answer: "b",
           },
           locate: {
             question: "病灶在哪一行？",
+            questionEn: "Which line holds the bug?",
             options: [
-              { id: "a", label: "第 2 行：{ ...submittedNote, id: Date.now() } 覆盖了复用的旧 id" },
-              { id: "b", label: "第 6 行：应该用 !== 而不是 ===" },
-              { id: "c", label: "第 8 行：setNoteToEdit(null) 位置不对" },
-              { id: "d", label: "第 10 行：新增分支应该用 unshift" },
+              {
+                id: "a",
+                label: "第 2 行：{ ...submittedNote, id: Date.now() } 覆盖了复用的旧 id",
+                labelEn: "Line 2: { ...submittedNote, id: Date.now() } overwrites the reused old id",
+              },
+              { id: "b", label: "第 6 行：应该用 !== 而不是 ===", labelEn: "Line 6: it should be !== instead of ===" },
+              { id: "c", label: "第 8 行：setNoteToEdit(null) 位置不对", labelEn: "Line 8: setNoteToEdit(null) is in the wrong place" },
+              { id: "d", label: "第 10 行：新增分支应该用 unshift", labelEn: "Line 10: the add branch should use unshift" },
             ],
             answer: "a",
           },
@@ -2811,6 +3404,7 @@ const handleEdit = (note: Note) => {
 };`,
             {
               filename: "改对之后：删掉那行多余的 id 生成",
+              filenameEn: "After the fix: the extra id line is gone",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -2844,7 +3438,45 @@ const handleEdit = (note: Note) => {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                When editing, <code>NoteForm</code>{" "}
+                <strong>reuses the old id on purpose</strong> (
+                <code>id: noteToEdit ? noteToEdit.id : Date.now()</code>), so that
+                the map downstream can find the target. Line 2 and its{" "}
+                <code>id: Date.now()</code> throw that away.
+              </p>
+              <p>
+                So map walks the whole array comparing against a brand new id and{" "}
+                <strong>matches nothing</strong>. It returns a new array with the
+                same content. React does re-render, because the array is new, but
+                the content is unchanged, so nothing moves on screen.
+              </p>
+              <p>
+                <strong>And why does the form not clear?</strong>{" "}
+                <code>setNoteToEdit(null)</code> is clearly called. Look at the
+                order of events: the form actually{" "}
+                <strong>does</strong> clear here. If you see a form that does not
+                clear, then that line is missing too. The two bugs often show up
+                together.
+              </p>
+              <p>
+                <strong>
+                  The part most worth remembering: this bug only breaks Task 3.
+                  Task 1 works fine,
+                </strong>{" "}
+                because adding a note needs a new id anyway.{" "}
+                <strong>
+                  Two tasks share one function, and one harmless-looking extra
+                  line spreads from one task to the other.
+                </strong>{" "}
+                When you change shared code, think through every branch.
+              </p>
+            </>
+          ),
           verify: "npx vitest run   # 4 个测试应该全过",
+          verifyEn: "npx vitest run   # all 4 tests should pass",
         },
       ],
       mistakes: [
@@ -2856,6 +3488,13 @@ const handleEdit = (note: Note) => {
   setNoteToEdit(note);
   setNotes((prev) => prev.filter((n) => n.id !== note.id));   // 先把它删掉？
 };`,
+            {
+              codeEn: `// ✗ handleEdit starts changing the list already
+const handleEdit = (note: Note) => {
+  setNoteToEdit(note);
+  setNotes((prev) => prev.filter((n) => n.id !== note.id));   // remove it first?
+};`,
+            },
           ),
           why: (
             <>
@@ -2882,6 +3521,13 @@ if (noteToEdit) {
   setNotes((prev) => prev.map((n) => (n.id === submittedNote.id ? submittedNote : n)));
   // 少了 setNoteToEdit(null);
 }`,
+            {
+              codeEn: `// ✗ Forgetting to leave edit mode
+if (noteToEdit) {
+  setNotes((prev) => prev.map((n) => (n.id === submittedNote.id ? submittedNote : n)));
+  // setNoteToEdit(null); is missing
+}`,
+            },
           ),
           why: (
             <>
@@ -2916,6 +3562,16 @@ if (noteToEdit) {
   ]);
   setNoteToEdit(null);
 }`,
+            {
+              codeEn: `// ✗ Doing the update as a delete followed by an add
+if (noteToEdit) {
+  setNotes((prev) => [
+    ...prev.filter((n) => n.id !== submittedNote.id),
+    submittedNote,
+  ]);
+  setNoteToEdit(null);
+}`,
+            },
           ),
           why: (
             <>
@@ -3010,9 +3666,21 @@ if (noteToEdit) {
       whyForAssessmentEn:
         "The tests are the grader. Reading them tells you where the pass line is. Reading their blind spots tells you which requirements you still have to guarantee yourself.",
       sourceFiles: [
-        { path: "react-notes-app/src/NoteManager.test.tsx", role: "四个判卷测试" },
-        { path: "react-notes-app/vite.config.ts", role: "vitest 配置内联在这里" },
-        { path: "react-notes-app/vitest.setup.ts", role: "引入 jest-dom 断言" },
+        {
+          path: "react-notes-app/src/NoteManager.test.tsx",
+          role: "四个判卷测试",
+          roleEn: "The four tests that decide the marks",
+        },
+        {
+          path: "react-notes-app/vite.config.ts",
+          role: "vitest 配置内联在这里",
+          roleEn: "The vitest config is inline here",
+        },
+        {
+          path: "react-notes-app/vitest.setup.ts",
+          role: "引入 jest-dom 断言",
+          roleEn: "Brings in the jest-dom assertions",
+        },
       ],
       concepts: [
         {
@@ -3098,6 +3766,7 @@ export default defineConfig({
 });`,
               {
                 filename: "vite.config.ts（全文）",
+                filenameEn: "vite.config.ts (full file)",
                 sourceFile: "react-notes-app/vite.config.ts",
                 highlight: [6, 7, 8, 9, 10],
               },
@@ -3324,6 +3993,16 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");
 // ✓
 await userEvent.click(screen.getByTestId("form-submit-button"));
 expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
+              {
+                codeEn: `// ✗ The await is missing: the assertion runs before the render
+userEvent.click(screen.getByTestId("form-submit-button"));
+expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");
+//  → Unable to find text content "My Title"  (the code is fine!)
+
+// ✓
+await userEvent.click(screen.getByTestId("form-submit-button"));
+expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
+              },
             ),
           ],
         },
@@ -3443,6 +4122,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
           kind: "recognition",
           id: "r-test-blindspot",
           title: "哪个实现能骗过全部四个测试但其实是错的",
+          titleEn: "Which implementation passes all four tests and is still wrong",
           level: 1,
           prompt: (
             <p>
@@ -3450,11 +4130,18 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
               但明显违反题目要求？
             </p>
           ),
+          promptEn: (
+            <p>
+              Which <code>handleDelete</code> below makes{" "}
+              <strong>all four tests pass</strong> while clearly breaking what the
+              task asks for?
+            </p>
+          ),
           options: [
             { id: "a", label: "setNotes((prev) => prev.filter((n) => n.id !== id));" },
             { id: "b", label: "setNotes([]);" },
             { id: "c", label: "setNotes((prev) => prev.slice(0, -1));" },
-            { id: "d", label: "B 和 C 都能骗过测试" },
+            { id: "d", label: "B 和 C 都能骗过测试", labelEn: "Both B and C get past the tests" },
           ],
           answer: ["d"],
           explain: (
@@ -3470,11 +4157,29 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
               A 才是正确实现。
             </>
           ),
+          explainEn: (
+            <>
+              The tests add one note and then delete it. So:
+              <br />
+              B, &quot;empty the whole list&quot; — the only note is gone too, and
+              the assertion that ToDelete is absent passes.
+              <br />
+              C, &quot;drop the last note&quot; — the only note is also the last
+              one, so it passes too.
+              <br />
+              Both ignore the id completely, and the tests cannot tell.{" "}
+              <strong>
+                This is why you have to read the task and check by hand.
+              </strong>{" "}
+              A is the correct implementation.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-test-await",
           title: "这个测试失败是因为什么",
+          titleEn: "Why this test fails",
           level: 1,
           prompt: (
             <p>
@@ -3486,11 +4191,25 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
               最可能的原因？
             </p>
           ),
+          promptEn: (
+            <p>
+              Your <code>handleSubmitNote</code> is{" "}
+              <code>setNotes((prev) =&gt; [...prev, submittedNote])</code>, but the
+              test you added reports that My Title cannot be found. The test code
+              is{" "}
+              <code>userEvent.click(btn); expect(list).toHaveTextContent(&quot;My Title&quot;)</code>.
+              What is the most likely reason?
+            </p>
+          ),
           options: [
-            { id: "a", label: "handleSubmitNote 写错了" },
-            { id: "b", label: "userEvent.click 前面漏了 await，断言跑在重新渲染之前" },
-            { id: "c", label: "data-testid 拼错了" },
-            { id: "d", label: "jsdom 不支持 tbody" },
+            { id: "a", label: "handleSubmitNote 写错了", labelEn: "handleSubmitNote is written wrong" },
+            {
+              id: "b",
+              label: "userEvent.click 前面漏了 await，断言跑在重新渲染之前",
+              labelEn: "The await before userEvent.click is missing, so the assertion runs before the re-render",
+            },
+            { id: "c", label: "data-testid 拼错了", labelEn: "The data-testid is misspelled" },
+            { id: "d", label: "jsdom 不支持 tbody", labelEn: "jsdom does not support tbody" },
           ],
           answer: ["b"],
           explain: (
@@ -3507,11 +4226,29 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
               指向元素而不是文字内容。）
             </>
           ),
+          explainEn: (
+            <>
+              Every method of <code>userEvent</code> returns a Promise, and React
+              batches its rendering asynchronously. Without the{" "}
+              <code>await</code>, the assertion runs before the screen updates, so
+              it reads the old DOM.
+              <br />
+              <strong>
+                The sign of this is: the implementation looks completely right, but
+                the test says it cannot find the text.
+              </strong>{" "}
+              When that happens, count your awaits first. (C also causes a
+              failure, but the message would be{" "}
+              <code>Unable to find an element by: [data-testid=...]</code>, which
+              points at the element rather than at the text.)
+            </>
+          ),
         },
         {
           kind: "code-completion",
           id: "r-write-own-test",
           title: "自己补一个测试，覆盖「按 id 删除」这个盲区",
+          titleEn: "Write a test of your own to cover the delete-by-id blind spot",
           level: 3,
           prompt: (
             <p>
@@ -3526,9 +4263,23 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
               </span>
             </p>
           ),
+          promptEn: (
+            <p>
+              The existing tests cannot check the delete by id. Write a new test:
+              add <strong>two notes with the same title</strong>, delete one of
+              them, and assert that the other is still there.
+              <br />
+              <span className="dimmer">
+                A note: with two notes there are two Delete buttons on the page,
+                and <code>getByRole</code> throws because it found more than one.
+                Use <code>getAllByRole</code>.
+              </span>
+            </p>
+          ),
           generated: true,
           language: "tsx",
           filename: "src/NoteManager.test.tsx（自己加的测试）",
+          filenameEn: "src/NoteManager.test.tsx (a test you add yourself)",
           starter: `test("deletes only the clicked note when titles are identical", async () => {
   render(<NoteManager />);
 
@@ -3540,6 +4291,17 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
 
   // 4. 断言：内容A 不在了，内容B 还在
 });`,
+          starterEn: `test("deletes only the clicked note when titles are identical", async () => {
+  render(<NoteManager />);
+
+  // 1. Add the first note: "会议" / "内容A"
+
+  // 2. Add the second note: "会议" / "内容B"
+
+  // 3. Click the first Delete button
+
+  // 4. Assert: "内容A" is gone, "内容B" is still there
+});`,
           requirements: [
             "添加两条 title 完全相同、content 不同的笔记",
             "用 getAllByRole 拿到 Delete 按钮数组，点第一个",
@@ -3547,19 +4309,52 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
             "断言 notes-list 仍然含「内容B」",
             "所有 userEvent 调用都要 await",
           ],
+          requirementsEn: [
+            "Add two notes with exactly the same title and different content",
+            "Use getAllByRole to get the array of Delete buttons, then click the first one",
+            "Assert that notes-list no longer holds 内容A",
+            "Assert that notes-list still holds 内容B",
+            "Put an await on every userEvent call",
+          ],
           checks: [
-            { label: "用了 getAllByRole 处理多个 Delete 按钮", must: "getAllByRole\\s*\\(" },
-            { label: "点了第一个 Delete 按钮（用了下标 [0]）", must: "\\[\\s*0\\s*\\]" },
-            { label: "断言其中一条消失了（not.toHaveTextContent）", must: "not\\.toHaveTextContent" },
-            { label: "断言另一条还在（toHaveTextContent）", must: "expect[\\s\\S]*[^t]\\.toHaveTextContent" },
-            { label: "userEvent 都加了 await", must: "await\\s+userEvent" },
-            { label: "没有用 getByRole 找 Delete（两个会抛错）", mustNot: 'getByRole\\s*\\(\\s*"button"\\s*,\\s*\\{\\s*name:\\s*"Delete"' },
+            {
+              label: "用了 getAllByRole 处理多个 Delete 按钮",
+              labelEn: "getAllByRole is used for the several Delete buttons",
+              must: "getAllByRole\\s*\\(",
+            },
+            {
+              label: "点了第一个 Delete 按钮（用了下标 [0]）",
+              labelEn: "The first Delete button is clicked (index [0] is used)",
+              must: "\\[\\s*0\\s*\\]",
+            },
+            {
+              label: "断言其中一条消失了（not.toHaveTextContent）",
+              labelEn: "One note is asserted gone (not.toHaveTextContent)",
+              must: "not\\.toHaveTextContent",
+            },
+            {
+              label: "断言另一条还在（toHaveTextContent）",
+              labelEn: "The other note is asserted present (toHaveTextContent)",
+              must: "expect[\\s\\S]*[^t]\\.toHaveTextContent",
+            },
+            { label: "userEvent 都加了 await", labelEn: "Every userEvent call has an await", must: "await\\s+userEvent" },
+            {
+              label: "没有用 getByRole 找 Delete（两个会抛错）",
+              labelEn: "getByRole is not used to find Delete (two matches would throw)",
+              mustNot: 'getByRole\\s*\\(\\s*"button"\\s*,\\s*\\{\\s*name:\\s*"Delete"',
+            },
           ],
           hints: [
             "两条数据 → 两个 Delete 按钮 → getBy* 会因为「找到多个」抛错。Testing Library 提供了处理多个元素的另一套查询。",
             "用 getAllByRole(\"button\", { name: \"Delete\" }) 拿到数组，再用下标点第一个。断言用 toHaveTextContent 和它的 not 形式。",
             "先 type 两次 + click 两次添加两条；\nconst buttons = getAllByRole(...);\nawait userEvent.click(buttons[0]);\nexpect(list).not.toHaveTextContent(\"内容A\");\nexpect(list).toHaveTextContent(\"内容B\");",
             'await userEvent.type(screen.getByTestId("form-input"), "会议");\nawait userEvent.type(screen.getByTestId("form-textarea"), "内容A");\nawait userEvent.click(screen.getByTestId("form-submit-button"));\n// 第二条同理，content 写 "内容B"\nconst deleteButtons = screen.getAllByRole("button", { name: "Delete" });\nawait userEvent.click(deleteButtons[0]);',
+          ],
+          hintsEn: [
+            'Two notes means two Delete buttons, and getBy* throws because it found more than one. Testing Library has a second set of queries for several matching elements.',
+            'Use getAllByRole("button", { name: "Delete" }) to get an array, then click the first one by index. Assert with toHaveTextContent and its not form.',
+            'Add two notes with two type calls and two click calls, then:\nconst buttons = getAllByRole(...);\nawait userEvent.click(buttons[0]);\nexpect(list).not.toHaveTextContent("内容A");\nexpect(list).toHaveTextContent("内容B");',
+            'await userEvent.type(screen.getByTestId("form-input"), "会议");\nawait userEvent.type(screen.getByTestId("form-textarea"), "内容A");\nawait userEvent.click(screen.getByTestId("form-submit-button"));\n// the second note is the same, with "内容B" as the content\nconst deleteButtons = screen.getAllByRole("button", { name: "Delete" });\nawait userEvent.click(deleteButtons[0]);',
           ],
           solution: demo(
             "tsx",
@@ -3586,8 +4381,32 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
 });`,
             {
               filename: "参考答案（DrillLab 自己写的测试，不是源项目自带的）",
+              filenameEn: "Reference answer (a DrillLab test, not one the project ships with)",
+              codeEn: `test("deletes only the clicked note when titles are identical", async () => {
+  render(<NoteManager />);
+
+  // The first note
+  await userEvent.type(screen.getByTestId("form-input"), "会议");
+  await userEvent.type(screen.getByTestId("form-textarea"), "内容A");
+  await userEvent.click(screen.getByTestId("form-submit-button"));
+
+  // The second note: same title, different content
+  await userEvent.type(screen.getByTestId("form-input"), "会议");
+  await userEvent.type(screen.getByTestId("form-textarea"), "内容B");
+  await userEvent.click(screen.getByTestId("form-submit-button"));
+
+  // Two notes means two Delete buttons, so getAllByRole is required
+  const deleteButtons = screen.getAllByRole("button", { name: "Delete" });
+  await userEvent.click(deleteButtons[0]);
+
+  const list = screen.getByTestId("notes-list");
+  expect(list).not.toHaveTextContent("内容A");
+  expect(list).toHaveTextContent("内容B");
+});`,
               explanation:
                 "这个测试能抓住「按 title 删」和「清空列表」两种错误实现 —— 前者会把两条都删掉，后者更明显。把它加进 src/NoteManager.test.tsx 后跑 npx vitest run 就能验证。",
+              explanationEn:
+                "This test catches both wrong implementations: deleting by title, which removes both notes, and emptying the list, which is even more obvious. Add it to src/NoteManager.test.tsx and run npx vitest run to check.",
             },
           ),
         },

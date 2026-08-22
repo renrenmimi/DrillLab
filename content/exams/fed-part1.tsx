@@ -331,6 +331,7 @@ export const gqlBasics: Module = {
         {
           path: "graphql-federation-practice/node-subgraph/src/schema.graphql",
           role: "整个 subgraph 的契约",
+          roleEn: "The contract for the whole subgraph",
         },
       ],
       concepts: [
@@ -417,6 +418,7 @@ export const gqlBasics: Module = {
           code: [
             real("graphql", SCHEMA_FULL, {
               filename: "src/schema.graphql（全文）",
+              filenameEn: "src/schema.graphql (full file)",
               sourceFile:
                 "graphql-federation-practice/node-subgraph/src/schema.graphql",
               collapsible: true,
@@ -684,8 +686,31 @@ export const gqlBasics: Module = {
 }`,
               {
                 filename: "同一个入口，两种形状",
+                filenameEn: "One entry point, two shapes",
+                codeEn: `# Only id and status — the server never looks up shipping
+{
+  orders(userId: "123") {
+    id
+    status
+  }
+}
+
+# Ask for shipping — only now does the Order.shippingInfo resolver run
+{
+  orders(userId: "123") {
+    id
+    status
+    totalAmount
+    shippingInfo {
+      status
+      trackingNumber
+    }
+  }
+}`,
                 explanation:
                   "第二个查询是审计时进程内真实执行过的，返回了 order-456（IN_TRANSIT / TRACK123456）和 order-457（DELIVERED / TRACK123457）。",
+                explanationEn:
+                  "The second query really ran in-process during the audit. It returned order-456 (IN_TRANSIT / TRACK123456) and order-457 (DELIVERED / TRACK123457).",
               },
             ),
           ],
@@ -720,11 +745,19 @@ export const gqlBasics: Module = {
           kind: "recognition",
           id: "g-which-is-scalar",
           title: "哪些字段是标量",
+          titleEn: "Which fields are scalars",
           level: 1,
           prompt: (
             <p>
               看真实 schema 里的 <code>type Order</code>。
               下面哪些字段的类型是<strong>标量</strong>（不能再往下展开）？（多选）
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Look at <code>type Order</code> in the real schema. Which of
+              these fields have a <strong>scalar</strong> type — one that
+              cannot be expanded any further? (Select all that apply.)
             </p>
           ),
           code: real(
@@ -766,11 +799,30 @@ export const gqlBasics: Module = {
               但类型确实是 <code>String</code> —— GraphQL 没有内置日期标量。
             </>
           ),
+          explainEn: (
+            <>
+              The scalars are the five built-in leaf types: <code>ID</code>,{" "}
+              <code>String</code>, <code>Int</code>, <code>Float</code> and{" "}
+              <code>Boolean</code>.
+              <br />
+              <code>status</code> is an <strong>enum</strong>. It is also a
+              leaf — you cannot expand it — but it is not a scalar.
+              <br />
+              <code>items</code> is a <strong>list of an object type</strong>,
+              so you can keep querying{" "}
+              <code>{"{ productId quantity price }"}</code> inside it.
+              <br />
+              <code>createdAt</code> means a point in time, but its type
+              really is <code>String</code> — GraphQL has no built-in date
+              scalar.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-query-vs-mutation",
           title: "这个操作该放哪",
+          titleEn: "Where does this operation belong",
           level: 1,
           prompt: (
             <p>
@@ -779,11 +831,18 @@ export const gqlBasics: Module = {
               <code>type Query</code> 下会怎样？
             </p>
           ),
+          promptEn: (
+            <p>
+              In the real schema, <code>createOrder</code> sits under{" "}
+              <code>type Mutation</code>. What happens if you move it under{" "}
+              <code>type Query</code>?
+            </p>
+          ),
           options: [
-            { id: "a", label: "语法错误，GraphQL 不允许" },
-            { id: "b", label: "技术上能跑，但违反约定；而且 Query 的字段是并行执行的，写操作会有并发风险" },
-            { id: "c", label: "完全一样，没有任何区别" },
-            { id: "d", label: "resolver 会收不到 args" },
+            { id: "a", label: "语法错误，GraphQL 不允许", labelEn: "A syntax error. GraphQL does not allow it." },
+            { id: "b", label: "技术上能跑，但违反约定；而且 Query 的字段是并行执行的，写操作会有并发风险", labelEn: "It runs, but it breaks the convention. And because Query fields run in parallel, two writes can race each other." },
+            { id: "c", label: "完全一样，没有任何区别", labelEn: "Exactly the same. There is no difference at all." },
+            { id: "d", label: "resolver 会收不到 args", labelEn: "The resolver will not receive args." },
           ],
           answer: ["b"],
           explain: (
@@ -799,16 +858,37 @@ export const gqlBasics: Module = {
               写操作放 Query 里，同一个请求里的多个写会并发跑，可能互相踩。
             </>
           ),
+          explainEn: (
+            <>
+              GraphQL does <strong>not</strong> stop you at the syntax level
+              from putting a write under Query. But two things matter:
+              <br />① <strong>Convention</strong>: every tool, cache and
+              client library assumes that a Query is safe, cacheable and safe
+              to retry. Putting a write there breaks that assumption.
+              <br />② <strong>The execution semantics differ</strong>: the
+              top-level fields of a Query run <strong>in parallel</strong>,
+              the fields of a Mutation run <strong>one after another</strong>.
+              Put writes under Query and several writes in the same request
+              run at the same time, so they can overwrite each other.
+            </>
+          ),
         },
         {
           kind: "fill-blank",
           id: "g-schema-blanks",
           title: "补全 schema 的关键声明",
+          titleEn: "Fill in the key declarations of the schema",
           level: 2,
           prompt: (
             <p>
               照真实 <code>schema.graphql</code> 补全。
               三个空分别关系到「入口类型」「枚举」「输入类型」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Fill this in from the real <code>schema.graphql</code>. The three
+              blanks are the entry type, the enum and the input type.
             </p>
           ),
           language: "graphql",
@@ -837,11 +917,21 @@ ___3___ OrderItemInput {
               n: 1,
               accept: ["enum"],
               hint: "值只能是列出来的那几个之一。",
+              hintEn: "The value can only be one of the ones listed.",
               why: (
                 <>
                   <code>enum</code>。它限定了 <code>status</code> 字段的取值范围。
                   resolver 返回一个不在这五个里的字符串（比如小写的
                   <code>&quot;shipped&quot;</code>）会被执行器拒绝并报错。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>enum</code>. It limits which values the{" "}
+                  <code>status</code> field may hold. If a resolver returns a
+                  string that is not one of these five — lowercase{" "}
+                  <code>&quot;shipped&quot;</code>, for example — the executor
+                  rejects it and reports an error.
                 </>
               ),
               width: 6,
@@ -850,6 +940,8 @@ ___3___ OrderItemInput {
               n: 2,
               accept: ["Query"],
               hint: "客户端读数据的入口类型，名字是约定好的。",
+              hintEn:
+                "The entry type the client reads data through. Its name is fixed by convention.",
               why: (
                 <>
                   <code>Query</code>。它是<strong>约定的读入口</strong>，
@@ -858,12 +950,23 @@ ___3___ OrderItemInput {
                   <code>resolvers.Query.orders</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>Query</code>. It is the{" "}
+                  <strong>agreed read entry point</strong>, and you do not
+                  rename it. (In theory you can rename it in the schema
+                  definition, but nobody does.) In the resolvers it maps to{" "}
+                  <code>resolvers.Query.orders</code>.
+                </>
+              ),
               width: 7,
             },
             {
               n: 3,
               accept: ["input"],
               hint: "这个类型只用来当参数，不会被查询返回。",
+              hintEn:
+                "This type is only used as an argument. A query never returns it.",
               why: (
                 <>
                   <code>input</code>。它和 <code>type</code> 的区别：
@@ -872,6 +975,19 @@ ___3___ OrderItemInput {
                   <strong>顺便记住这个 input 只有两个字段 ——
                   没有 <code>price</code>。</strong>
                   这个细节后面会坑死很多人。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>input</code>. How it differs from <code>type</code>:
+                  it can only be used as an argument, its fields can only be
+                  scalars, enums or other inputs, and it cannot have resolvers.
+                  <br />
+                  <strong>
+                    Also remember this input has only two fields — there is no{" "}
+                    <code>price</code>.
+                  </strong>{" "}
+                  That detail costs a lot of people a lot of time later.
                 </>
               ),
               width: 7,
@@ -929,10 +1045,12 @@ ___3___ OrderItemInput {
         {
           path: "graphql-federation-practice/node-subgraph/src/index.js",
           role: "context 在这里被构造，键名以它为准",
+          roleEn: "The context is built here, and these key names are the ones that count",
         },
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "四个 TODO 的位置",
+          roleEn: "Where the four TODOs are",
           edit: true,
         },
       ],
@@ -1186,6 +1304,19 @@ ___3___ OrderItemInput {
 // ↑ shippingInfo 不在这里 → 必须自己写 resolver 去 ShippingDataSource 取`,
               {
                 filename: "为什么只有 shippingInfo 需要 resolver",
+                filenameEn: "Why only shippingInfo needs a resolver",
+                codeEn: `// The seed data of OrderDataSource — note there is no shippingInfo field
+{
+  id: 'order-456',
+  userId: '123',
+  status: 'SHIPPED',
+  totalAmount: 299.99,
+  items: [{ productId: 'prod-789', quantity: 2, price: 149.99 }],
+  createdAt: '2026-01-01T10:30:00Z'
+}
+// ↑ six fields: id / userId / status / totalAmount / items / createdAt.
+//   The default resolver reads them for you, so you write nothing
+// ↑ shippingInfo is not here → write a resolver that asks ShippingDataSource`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
               },
@@ -1272,6 +1403,7 @@ ___3___ OrderItemInput {
           code: [
             real("js", INDEX_JS, {
               filename: "src/index.js（全文）",
+              filenameEn: "src/index.js (full file)",
               sourceFile:
                 "graphql-federation-practice/node-subgraph/src/index.js",
               highlight: [33, 40, 41, 42, 44, 45, 47, 48, 49, 50, 51],
@@ -1294,8 +1426,24 @@ ___3___ OrderItemInput {
 }`,
               {
                 filename: "抄在纸上的那张表",
+                filenameEn: "The table to copy onto paper",
+                codeEn: `// The exact shape of context (read off lines 47–51 of index.js)
+{
+  dataSources: {
+    orderDataSource,       // getOrder(id) / getOrdersByUserId(userId) / createOrder(userId, items)
+    inventoryDataSource,   // getInventoryStatus(ids) / getProductPrice(productId)
+    shippingDataSource     // getShippingInfo(orderId)
+  },
+  loaders: {
+    shippingInfoLoader,    // .load(orderId)
+    orderLoader            // .load(orderId)
+  },
+  correlationId            // a string that ties together all logs of one request
+}`,
                 explanation:
                   "写 resolver 之前把这张表抄下来。三个埋雷里有两个就是「名字对不上」—— starter 代码里写了 dataSources.orderAPI（不存在）和 orderDataSource.getOrderById（不存在）。",
+                explanationEn:
+                  "Copy this table down before you write any resolver. Two of the three planted bugs are just names that do not match: the starter code writes dataSources.orderAPI (does not exist) and orderDataSource.getOrderById (does not exist).",
               },
             ),
           ],
@@ -1368,10 +1516,13 @@ ___3___ OrderItemInput {
   \`corr-\${Date.now()}-\${Math.random().toString(36).substring(2, 9)}\`;`,
               {
                 filename: "correlationId 的来源",
+                filenameEn: "Where correlationId comes from",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/index.js",
                 explanation:
                   "「有就用调用方的，没有就自己造」是这类可观测性字段的标准做法 —— 保证整条链路共用一个 id。",
+                explanationEn:
+                  "Use the caller's value if there is one, otherwise make your own. That is the standard pattern for this kind of observability field: it keeps one id across the whole chain of calls.",
               },
             ),
           ],
@@ -1382,11 +1533,18 @@ ___3___ OrderItemInput {
           kind: "recognition",
           id: "g-context-key",
           title: "从 context 里取订单数据源，正确写法是",
+          titleEn: "The right way to read the order data source out of context",
           level: 1,
           prompt: (
             <p>
               照 <code>index.js</code> 里 context 的真实结构，
               哪个写法能拿到订单数据源？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Going by the real shape of context in <code>index.js</code>,
+              which of these reads the order data source?
             </p>
           ),
           options: [
@@ -1408,16 +1566,36 @@ ___3___ OrderItemInput {
               <code>Cannot read properties of undefined (reading &apos;createOrder&apos;)</code>。
             </>
           ),
+          explainEn: (
+            <>
+              What <code>index.js</code> returns is{" "}
+              <code>{"{ dataSources: { orderDataSource, ... }, loaders: {...}, correlationId }"}</code>
+              , so the path is{" "}
+              <code>context.dataSources.orderDataSource</code>.
+              <br />
+              <strong>Option A is a bug that really is in the project</strong>:
+              the starter&apos;s <code>Mutation.createOrder</code> writes{" "}
+              <code>dataSources.orderAPI</code>, and at run time it reports{" "}
+              <code>Cannot read properties of undefined (reading &apos;createOrder&apos;)</code>.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-which-param",
           title: "这个 resolver 该用哪个参数",
+          titleEn: "Which argument should this resolver use",
           level: 1,
           prompt: (
             <p>
               <code>Order.shippingInfo</code> 需要知道「是哪个 order 的物流」。
               这个 order 的 id 从哪个参数拿？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              <code>Order.shippingInfo</code> has to know which order the
+              shipping belongs to. Which argument holds that order&apos;s id?
             </p>
           ),
           options: [
@@ -1440,11 +1618,26 @@ ___3___ OrderItemInput {
               <code>loaders.shippingInfoLoader.load(parent.id)</code>。
             </>
           ),
+          explainEn: (
+            <>
+              <code>parent.id</code>. <code>shippingInfo</code> is a field on{" "}
+              <code>Order</code>, so when the executor calls it, it{" "}
+              <strong>passes that order object in as the first argument</strong>.
+              <br />
+              <code>args</code> is empty — in the schema,{" "}
+              <code>shippingInfo: ShippingInfo</code> declares no arguments at
+              all.
+              <br />
+              That is why the real answer is{" "}
+              <code>loaders.shippingInfoLoader.load(parent.id)</code>.
+            </>
+          ),
         },
         {
           kind: "ordering",
           id: "g-resolver-order",
           title: "把 resolver 的调用顺序排对",
+          titleEn: "Put the resolver calls in the right order",
           level: 1,
           prompt: (
             <p>
@@ -1453,12 +1646,20 @@ ___3___ OrderItemInput {
               数据源里 user 123 有两个订单。把服务端的动作排序。
             </p>
           ),
+          promptEn: (
+            <p>
+              The client sends{" "}
+              <code>{'{ orders(userId:"123") { id shippingInfo { status } } }'}</code>
+              , and in the data source user 123 has two orders. Put the
+              server&apos;s steps in order.
+            </p>
+          ),
           items: [
-            { id: "c", label: "对每个 order 分别调 Order.shippingInfo（共 2 次）" },
-            { id: "a", label: "用 schema 校验查询：字段存不存在、userId 类型对不对" },
-            { id: "d", label: "DataLoader 把 2 次 load 合并成 1 次批量请求" },
-            { id: "b", label: "调 Query.orders，拿到 [order-456, order-457]" },
-            { id: "e", label: "按查询形状组装 JSON 返回" },
+            { id: "c", label: "对每个 order 分别调 Order.shippingInfo（共 2 次）", labelEn: "Call Order.shippingInfo once per order (2 calls in total)" },
+            { id: "a", label: "用 schema 校验查询：字段存不存在、userId 类型对不对", labelEn: "Validate the query against the schema: do the fields exist, is the type of userId right" },
+            { id: "d", label: "DataLoader 把 2 次 load 合并成 1 次批量请求", labelEn: "DataLoader merges the 2 load calls into 1 batched request" },
+            { id: "b", label: "调 Query.orders，拿到 [order-456, order-457]", labelEn: "Call Query.orders and get back [order-456, order-457]" },
+            { id: "e", label: "按查询形状组装 JSON 返回", labelEn: "Assemble the JSON response in the shape of the query" },
           ],
           answer: ["a", "b", "c", "d", "e"],
           explain: (
@@ -1469,6 +1670,19 @@ ___3___ OrderItemInput {
               <br />
               <strong>第 3 步「对每个 order 分别调」就是 N+1 的来源</strong>，
               第 4 步是它的解药。
+            </>
+          ),
+          explainEn: (
+            <>
+              Validate first (this touches no data) → call the outermost
+              resolver → pass each element it returned down as the parent of
+              the field resolvers → DataLoader merges the calls inside the same
+              tick of the event loop → assemble the response last.
+              <br />
+              <strong>
+                Step 3, calling once per order, is where N+1 comes from
+              </strong>
+              . Step 4 is the cure.
             </>
           ),
         },
@@ -1524,10 +1738,12 @@ ___3___ OrderItemInput {
         {
           path: "graphql-federation-practice/node-subgraph/src/schema.graphql",
           role: "非空标记与 input 定义",
+          roleEn: "The non-null markers and the input definitions",
         },
         {
           path: "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
           role: "createOrder 里那行乘法暴露了 price 的必要性",
+          roleEn: "The multiplication inside createOrder shows why price is needed",
         },
       ],
       concepts: [
@@ -1688,10 +1904,26 @@ type Order {
 }`,
               {
                 filename: "四个 TODO 对应的返回类型",
+                filenameEn: "The return types behind the four TODOs",
+                codeEn: `type User @key(fields: "id") {
+  id: ID! @external
+  orders: [Order!]!          # ← non-null twice
+}
+
+type Query {
+  order(id: ID!): Order      # ← nullable: null when not found is legal
+  orders(userId: ID!): [Order!]!   # ← non-null twice
+}
+
+type Order {
+  shippingInfo: ShippingInfo # ← nullable: null when there is no shipping is legal
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/schema.graphql",
                 explanation:
                   "对照着看：两个列表字段必须 ?? [] 兜底；Query.order 和 Order.shippingInfo 可以返回 null。这四行决定了你四个 TODO 各自的兜底策略。",
+                explanationEn:
+                  "Read them side by side: the two list fields must fall back with ?? [], while Query.order and Order.shippingInfo are allowed to return null. These four lines decide the fallback for each of your four TODOs.",
               },
             ),
           ],
@@ -1872,6 +2104,11 @@ type Order {
 }
 # ↑ 没有 price`,
               {
+                codeEn: `input OrderItemInput {
+  productId: ID!
+  quantity: Int!
+}
+# ↑ no price`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/schema.graphql",
               },
@@ -1899,6 +2136,25 @@ type Order {
 }`,
               {
                 filename: "OrderDataSource.createOrder",
+                codeEn: `async createOrder(userId, items) {
+  await new Promise(resolve => setTimeout(resolve, 10));
+
+  const totalAmount = items.reduce((sum, item) => {
+    return sum + item.price * item.quantity;      // ← it needs price!
+  }, 0);
+
+  const newOrder = {
+    id: \`order-\${Date.now()}\`,
+    userId,
+    status: 'PENDING',
+    totalAmount,
+    items,
+    createdAt: new Date().toISOString()
+  };
+
+  this.orders.push(newOrder);
+  return newOrder;
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
                 highlight: [5],
@@ -1917,10 +2173,14 @@ type Order {
 }`,
               {
                 filename: "InventoryDataSource.getProductPrice —— 缺的那块拼图",
+                filenameEn:
+                  "InventoryDataSource.getProductPrice — the missing piece",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
                 explanation:
                   "注意它有兜底：未知商品返回 99.99。所以不会出现 undefined。",
+                explanationEn:
+                  "Note it has a fallback: an unknown product returns 99.99. So you never get undefined.",
               },
             ),
           ],
@@ -1931,12 +2191,19 @@ type Order {
           kind: "recognition",
           id: "g-nullable-return",
           title: "这个 resolver 找不到数据时该返回什么",
+          titleEn: "What should this resolver return when it finds nothing",
           level: 1,
           prompt: (
             <p>
               schema 写的是{" "}
               <code>orders(userId: ID!): [Order!]!</code>。
               user 999 没有任何订单。resolver 该返回什么？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The schema says <code>orders(userId: ID!): [Order!]!</code>. User
+              999 has no orders at all. What should the resolver return?
             </p>
           ),
           options: [
@@ -1961,11 +2228,29 @@ type Order {
               断言 <code>orders.length === 0</code>。
             </>
           ),
+          explainEn: (
+            <>
+              <code>[]</code>. <code>[Order!]!</code> is non-null twice: the
+              list itself cannot be null, and neither can an element.{" "}
+              <strong>But an empty list is legal</strong> — an empty array is
+              the right way to say &ldquo;no orders&rdquo;.
+              <br />
+              A and B trigger{" "}
+              <code>Cannot return null for non-nullable field</code> and the
+              error moves upward. D breaks the non-null constraint on the
+              elements.
+              <br />
+              There is a test for exactly this:{" "}
+              <code>should return empty array for user with no orders</code>,
+              which asserts <code>orders.length === 0</code>.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-price-trap",
           title: "createOrder 为什么必须查价格",
+          titleEn: "Why createOrder has to look up the price",
           level: 1,
           prompt: (
             <p>
@@ -1975,11 +2260,19 @@ type Order {
               <code>orderDataSource.createOrder</code>，会怎样？
             </p>
           ),
+          promptEn: (
+            <p>
+              The client calls{" "}
+              <code>createOrder(userId: &quot;789&quot;, items: [{"{ productId: \"prod-789\", quantity: 2 }"}])</code>
+              . What happens if the resolver hands items straight to{" "}
+              <code>orderDataSource.createOrder</code>?
+            </p>
+          ),
           options: [
-            { id: "a", label: "正常工作，数据源会自己查价格" },
-            { id: "b", label: "totalAmount 变成 NaN，因为 item.price 是 undefined" },
-            { id: "c", label: "GraphQL 校验阶段就会拒绝这个请求" },
-            { id: "d", label: "会抛 TypeError" },
+            { id: "a", label: "正常工作，数据源会自己查价格", labelEn: "It works; the data source looks up the price itself" },
+            { id: "b", label: "totalAmount 变成 NaN，因为 item.price 是 undefined", labelEn: "totalAmount becomes NaN, because item.price is undefined" },
+            { id: "c", label: "GraphQL 校验阶段就会拒绝这个请求", labelEn: "GraphQL rejects the request during validation" },
+            { id: "d", label: "会抛 TypeError", labelEn: "It throws a TypeError" },
           ],
           answer: ["b"],
           explain: (
@@ -1997,16 +2290,40 @@ type Order {
               客户端确实只该传这两个字段。
             </>
           ),
+          explainEn: (
+            <>
+              <code>OrderItemInput</code> has no <code>price</code>, so{" "}
+              <code>item.price</code> is <code>undefined</code>.{" "}
+              <code>undefined * 2 = NaN</code>, and{" "}
+              <code>0 + NaN = NaN</code>.
+              <br />
+              The data source does <strong>not</strong> look up the price
+              itself — it only does that one multiplication. Looking up the
+              price is the resolver&apos;s job, with{" "}
+              <code>inventoryDataSource.getProductPrice(productId)</code>.
+              <br />
+              C is wrong: schema validation only checks the shape of the input,
+              and the client really should send just those two fields.
+            </>
+          ),
         },
         {
           kind: "fill-blank",
           id: "g-nullable-blanks",
           title: "给四个 TODO 各自选对兜底策略",
+          titleEn: "Pick the right fallback for each of the four TODOs",
           level: 2,
           prompt: (
             <p>
               照 schema 的非空标记，给每个 resolver 填上正确的返回表达式。
               想清楚「这个字段能不能是 null」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Go by the non-null markers in the schema and write the right
+              return expression for each resolver. Decide first whether the
+              field is allowed to be null.
             </p>
           ),
           language: "js",
@@ -2040,6 +2357,8 @@ async order(_, { id }, { loaders, correlationId }) {
               n: 1,
               accept: ["??", "||"],
               hint: "数据源可能返回 undefined，但这个字段不能是 null。",
+              hintEn:
+                "The data source may return undefined, but this field cannot be null.",
               why: (
                 <>
                   <code>??</code>（空值合并运算符）。
@@ -2051,12 +2370,27 @@ async order(_, { id }, { loaders, correlationId }) {
                   对数组来说没区别，但 <code>??</code> 表达意图更准。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>??</code>, the nullish coalescing operator.{" "}
+                  <code>orders ?? []</code> means &ldquo;use [] when orders is
+                  null or undefined&rdquo;.
+                  <br />
+                  <code>||</code> also works, but it means something wider — it
+                  replaces falsy values such as <code>0</code> and{" "}
+                  <code>&quot;&quot;</code> as well. For an array there is no
+                  difference, but <code>??</code> states the intent more
+                  precisely.
+                </>
+              ),
               width: 4,
             },
             {
               n: 2,
               accept: ["null"],
               hint: "ShippingInfo 是可空的，「没有物流信息」怎么表达？",
+              hintEn:
+                "ShippingInfo is nullable. How do you say there is no shipping info?",
               why: (
                 <>
                   <code>null</code>。schema 里
@@ -2070,12 +2404,28 @@ async order(_, { id }, { loaders, correlationId }) {
                   所以必须显式 <code>?? null</code>，不能让 undefined 漏出去。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>null</code>. In the schema,{" "}
+                  <code>shippingInfo: ShippingInfo</code> has no{" "}
+                  <code>!</code>, so returning null is{" "}
+                  <strong>legal and correct</strong>.
+                  <br />
+                  A test asserts exactly this:{" "}
+                  <code>should return null for order without shipping info</code>
+                  , using <code>expect(shippingInfo).toBeNull()</code>.{" "}
+                  <strong>Note it is toBeNull, not toBeUndefined</strong> — so
+                  you must write <code>?? null</code> explicitly and not let
+                  undefined through.
+                </>
+              ),
               width: 6,
             },
             {
               n: 3,
               accept: ["!order"],
               hint: "loader 找不到时返回 undefined。",
+              hintEn: "The loader returns undefined when it finds nothing.",
               why: (
                 <>
                   <code>!order</code>。<code>orderLoader.load(id)</code>
@@ -2087,6 +2437,21 @@ async order(_, { id }, { loaders, correlationId }) {
                   但 TODO 原文要求
                   <em>structured error handling</em>，所以抛一个带
                   <code>ORDER_NOT_FOUND</code> code 的 GraphQLError 更符合题意。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>!order</code>. Underneath,{" "}
+                  <code>orderLoader.load(id)</code> calls{" "}
+                  <code>getOrder(id)</code>, which is written with{" "}
+                  <code>find</code> and returns <code>undefined</code> when it
+                  finds nothing.
+                  <br />
+                  <code>Query.order</code> is nullable in the schema, so a plain{" "}
+                  <code>return null</code> would not break the schema either.
+                  But the TODO asks for <em>structured error handling</em>, so
+                  throwing a GraphQLError carrying the{" "}
+                  <code>ORDER_NOT_FOUND</code> code matches what was asked.
                 </>
               ),
               width: 8,
@@ -2304,7 +2669,13 @@ type User {            type Product {         type Review {
 type User { id name email reviews: [Review] }
 type Product { id name price reviews: [Review] }
 type Review { id body author: User product: Product }`,
-              { filename: "三个服务，一张图" },
+              // No codeEn: this block is pure ASCII layout with no comments and no
+              // string literals, so a translated version fails the "code structure
+              // must match" check in audit:code. Only the title gets English.
+              {
+                filename: "三个服务，一张图",
+                filenameEn: "Three services, one picture",
+              },
             ),
             real(
               "graphql",
@@ -2314,10 +2685,17 @@ type Review { id body author: User product: Product }`,
 }`,
               {
                 filename: "本项目里的同一个模式",
+                filenameEn: "The same pattern in this project",
+                codeEn: `type User @key(fields: "id") {
+  id: ID! @external      # "another subgraph owns id; I only reference it"
+  orders: [Order!]!      # "orders is the field I contribute"
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/schema.graphql",
                 explanation:
                   "orderResolvers.js 的注释原文写着「extend User entity from Accounts subgraph」—— 那个 Accounts subgraph 不在这个仓库里，但 schema 已经在跟它对话了。",
+                explanationEn:
+                  "The comment in orderResolvers.js reads \"extend User entity from Accounts subgraph\". That Accounts subgraph is not in this repository, but the schema is already talking to it.",
               },
             ),
           ],
@@ -2536,13 +2914,20 @@ type Review { id body author: User product: Product }`,
           kind: "recognition",
           id: "g-fed-why",
           title: "Federation 主要解决的是什么问题",
+          titleEn: "What problem does Federation mainly solve",
           level: 1,
           prompt: <p>下面哪一条最准确地描述了 Federation 要解决的核心问题？</p>,
+          promptEn: (
+            <p>
+              Which of these describes most accurately the core problem
+              Federation sets out to solve?
+            </p>
+          ),
           options: [
-            { id: "a", label: "让 GraphQL 查询跑得更快" },
-            { id: "b", label: "让多个团队各自独立开发、部署、选技术栈，同时对客户端呈现一张完整的图" },
-            { id: "c", label: "替代 REST" },
-            { id: "d", label: "减少数据库查询次数" },
+            { id: "a", label: "让 GraphQL 查询跑得更快", labelEn: "Making GraphQL queries run faster" },
+            { id: "b", label: "让多个团队各自独立开发、部署、选技术栈，同时对客户端呈现一张完整的图", labelEn: "Letting several teams build, deploy and choose their stack independently, while the client still sees one complete graph" },
+            { id: "c", label: "替代 REST", labelEn: "Replacing REST" },
+            { id: "d", label: "减少数据库查询次数", labelEn: "Cutting down the number of database queries" },
           ],
           answer: ["b"],
           explain: (
@@ -2557,18 +2942,39 @@ type Review { id body author: User product: Product }`,
               （虽然这个项目里两者都考）。
             </>
           ),
+          explainEn: (
+            <>
+              Federation is first of all a{" "}
+              <strong>technical answer to an organizational problem</strong>:
+              splitting up who owns which part of the schema.
+              <br />
+              A is the opposite of the truth — one extra Router hop and a query
+              plan that may run its steps one after another usually make a
+              single query <strong>slower</strong>.
+              <br />
+              D is what DataLoader solves. That is a separate matter from
+              Federation, even though this project covers both.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-not-in-repo",
           title: "哪些东西不在这个仓库里",
+          titleEn: "What is not in this repository",
           level: 1,
           prompt: <p>下面哪些是这个 assessment 仓库里<strong>没有</strong>的？（多选）</p>,
+          promptEn: (
+            <p>
+              Which of these are <strong>not</strong> in this exam repository?
+              (Select all that apply.)
+            </p>
+          ),
           options: [
-            { id: "a", label: "Router / Gateway 的配置（supergraph.yaml 之类）" },
-            { id: "b", label: "拥有 User 类型的 Accounts subgraph" },
-            { id: "c", label: "node-subgraph 的 schema.graphql" },
-            { id: "d", label: "subgraph 调用 java-service 的 HTTP client" },
+            { id: "a", label: "Router / Gateway 的配置（supergraph.yaml 之类）", labelEn: "Router or Gateway configuration, such as a supergraph.yaml" },
+            { id: "b", label: "拥有 User 类型的 Accounts subgraph", labelEn: "The Accounts subgraph that owns the User type" },
+            { id: "c", label: "node-subgraph 的 schema.graphql", labelEn: "The schema.graphql of node-subgraph" },
+            { id: "d", label: "subgraph 调用 java-service 的 HTTP client", labelEn: "An HTTP client the subgraph uses to call java-service" },
           ],
           answer: ["a", "b", "d"],
           explain: (
@@ -2584,6 +2990,23 @@ type Review { id body author: User product: Product }`,
               别浪费时间找它。
               <br />
               C 在，而且是你必须精读的文件。
+            </>
+          ),
+          explainEn: (
+            <>
+              A, B and D are all missing.
+              <br />
+              A: there is no supergraph configuration and no{" "}
+              <code>@apollo/gateway</code> dependency.
+              <br />
+              B: it is only referenced from the schema, through{" "}
+              <code>@external</code>.
+              <br />
+              D: <strong>the subgraph uses mock data sources</strong> and sends
+              no HTTP to port 8080. The two services are unrelated in code, so
+              do not spend time looking for it.
+              <br />
+              C is there, and it is the file you have to read closely.
             </>
           ),
         },
@@ -2638,10 +3061,12 @@ type Review { id body author: User product: Product }`,
         {
           path: "graphql-federation-practice/node-subgraph/src/index.js",
           role: "启动流程与 context 构造",
+          roleEn: "The startup sequence and how the context is built",
         },
         {
           path: "graphql-federation-practice/node-subgraph/package.json",
           role: "start / test script 与 federation 依赖",
+          roleEn: "The start and test scripts, and the federation dependency",
         },
       ],
       concepts: [
@@ -2810,6 +3235,7 @@ const typeDefs = gql(readFileSync(join(__dirname, 'schema.graphql'), { encoding:
 const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);`,
               {
                 filename: "关键的两行",
+                filenameEn: "The two lines that matter",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/index.js",
               },
@@ -2880,7 +3306,20 @@ npm start
 curl -X POST http://localhost:4000/ \\
   -H 'Content-Type: application/json' \\
   -d '{"query":"{ _service { sdl } }"}'`,
-              { filename: "办法一" },
+              {
+                filename: "办法一",
+                filenameEn: "Way one",
+                codeEn: `cd node-subgraph
+npm install
+npm start
+# → Subgraph ready at http://0.0.0.0:4000/
+# → Federation SDL available at http://0.0.0.0:4000/?query={_service{sdl}}
+
+# In another terminal:
+curl -X POST http://localhost:4000/ \\
+  -H 'Content-Type: application/json' \\
+  -d '{"query":"{ _service { sdl } }"}'`,
+              },
             ),
             real(
               "js",
@@ -2928,9 +3367,54 @@ const q2 = await run(
 console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               {
                 filename: "办法二（审计时实际用的脚本）",
+                filenameEn: "Way two (the script actually used in the audit)",
+                codeEn: `// verify-schema.mjs — put it in node-subgraph/, run: node verify-schema.mjs
+import { buildSubgraphSchema } from '@apollo/subgraph';
+import { graphql } from 'graphql';
+import gql from 'graphql-tag';
+import { readFileSync } from 'fs';
+import { resolvers, createShippingInfoLoader, createOrderLoader } from './src/resolvers/orderResolvers.js';
+import { OrderDataSource, InventoryDataSource, ShippingDataSource } from './src/dataSources/orderDataSource.js';
+
+const typeDefs = gql(readFileSync('./src/schema.graphql', 'utf-8'));
+const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);
+
+function ctx() {
+  const orderDataSource = new OrderDataSource();
+  const inventoryDataSource = new InventoryDataSource();
+  const shippingDataSource = new ShippingDataSource();
+  return {
+    dataSources: { orderDataSource, inventoryDataSource, shippingDataSource },
+    loaders: {
+      shippingInfoLoader: createShippingInfoLoader(shippingDataSource),
+      orderLoader: createOrderLoader(orderDataSource),
+    },
+    correlationId: 'verify-1',
+  };
+}
+
+const run = (source, variableValues) =>
+  graphql({ schema, source, contextValue: ctx(), variableValues });
+
+// ① does the federation SDL come out
+const sdl = await run('{ _service { sdl } }');
+console.log('SDL:', !!sdl.data?._service?.sdl, '| errors:', sdl.errors?.length ?? 0);
+
+// ② a plain query
+const q1 = await run('{ orders(userId:"123") { id status shippingInfo { status } } }');
+console.log('orders:', JSON.stringify(q1.data), q1.errors ?? '');
+
+// ③ the request the Router will send: _entities
+const q2 = await run(
+  'query($r:[_Any!]!){ _entities(representations:$r) { ... on User { id orders { id } } } }',
+  { r: [{ __typename: 'User', id: '123' }] }
+);
+console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
                 collapsible: true,
                 explanation:
                   "注意 _entities 的参数类型是 [_Any!]!，每个 representation 必须带 __typename 和 @key 声明的字段。这段脚本在审计时真实跑通了全部三项。",
+                explanationEn:
+                  "Note the argument type of _entities is [_Any!]!, and every representation must carry __typename plus the fields named in @key. This script really ran all three checks during the audit.",
               },
             ),
             real(
@@ -2953,8 +3437,12 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
 == createOrder empty items code: [ 'INVALID_INPUT' ]`,
               {
                 filename: "审计时的真实输出（参考解法下）",
+                filenameEn:
+                  "The real output from the audit (with the reference answer)",
                 explanation:
                   "这是 DrillLab 用来确认参考答案正确的证据。做完 Task 1 之后，你的实现应该能得到同样的输出。",
+                explanationEn:
+                  "This is the evidence DrillLab used to confirm the reference answer is right. After you finish Task 1, your implementation should print the same thing.",
               },
             ),
           ],
@@ -3019,6 +3507,7 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
           kind: "recognition",
           id: "g-build-subgraph",
           title: "_entities 这个字段是谁加的",
+          titleEn: "Who adds the _entities field",
           level: 1,
           prompt: (
             <p>
@@ -3026,11 +3515,18 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               <code>_entities</code>，但 Router 能查它。它从哪来？
             </p>
           ),
+          promptEn: (
+            <p>
+              <code>_entities</code> appears nowhere in{" "}
+              <code>schema.graphql</code>, yet the Router can query it. Where
+              does it come from?
+            </p>
+          ),
           options: [
-            { id: "a", label: "需要自己在 schema.graphql 里加" },
-            { id: "b", label: "buildSubgraphSchema 自动加的" },
-            { id: "c", label: "ApolloServer 加的" },
-            { id: "d", label: "Router 注入的" },
+            { id: "a", label: "需要自己在 schema.graphql 里加", labelEn: "You have to add it to schema.graphql yourself" },
+            { id: "b", label: "buildSubgraphSchema 自动加的", labelEn: "buildSubgraphSchema adds it for you" },
+            { id: "c", label: "ApolloServer 加的", labelEn: "ApolloServer adds it" },
+            { id: "d", label: "Router 注入的", labelEn: "The Router injects it" },
           ],
           answer: ["b"],
           explain: (
@@ -3044,11 +3540,26 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               <strong>你不用写，也不该写。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              <code>buildSubgraphSchema</code>, from{" "}
+              <code>@apollo/subgraph</code>, adds the two fields{" "}
+              <code>_service</code> and <code>_entities</code> while it
+              assembles the schema, along with the federation directive
+              definitions.
+              <br />
+              That is also the main difference between it and a plain{" "}
+              <code>makeExecutableSchema</code>.{" "}
+              <strong>You do not write those fields, and you should
+              not.</strong>
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-verify-how",
           title: "本地怎么验证 federation 部分",
+          titleEn: "How to check the Federation part locally",
           level: 1,
           prompt: (
             <p>
@@ -3056,11 +3567,18 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               在 federation 链路里能被正确调用。最直接的办法？
             </p>
           ),
+          promptEn: (
+            <p>
+              There is no Router in the repository. You want to confirm your{" "}
+              <code>User.orders</code> is called correctly along the federation
+              path. What is the most direct way?
+            </p>
+          ),
           options: [
-            { id: "a", label: "只能等提交后由判卷系统验证" },
-            { id: "b", label: "自己装 @apollo/gateway 搭一个 Router" },
-            { id: "c", label: "直接查 _entities 字段，传一个 { __typename: \"User\", id: \"123\" } 的 representation" },
-            { id: "d", label: "查 Query.orders 就够了，它们是同一条路径" },
+            { id: "a", label: "只能等提交后由判卷系统验证", labelEn: "You cannot; you have to submit and let the grader check it" },
+            { id: "b", label: "自己装 @apollo/gateway 搭一个 Router", labelEn: "Install @apollo/gateway yourself and stand up a Router" },
+            { id: "c", label: "直接查 _entities 字段，传一个 { __typename: \"User\", id: \"123\" } 的 representation", labelEn: "Query the _entities field directly, passing a { __typename: \"User\", id: \"123\" } representation" },
+            { id: "d", label: "查 Query.orders 就够了，它们是同一条路径", labelEn: "Querying Query.orders is enough; it is the same path" },
           ],
           answer: ["c"],
           explain: (
@@ -3074,6 +3592,22 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               <code>__resolveReference</code>）。两个都要验。
               <br />
               B 可行但没必要，而且擅自加依赖在考试里是风险动作。
+            </>
+          ),
+          explainEn: (
+            <>
+              <code>_entities</code> is exactly the request the Router sends.
+              Querying it directly reproduces the key hop of the federation
+              path on your own machine.
+              <br />
+              D is wrong: <code>Query.orders</code> and{" "}
+              <code>User.orders</code> are{" "}
+              <strong>two different resolvers</strong> on two different paths
+              (the second one goes through <code>__resolveReference</code>
+              first). Check both.
+              <br />
+              B works but is unnecessary, and adding a dependency on your own
+              initiative is a risky move in an exam.
             </>
           ),
         },
@@ -3128,10 +3662,12 @@ console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
         {
           path: "graphql-federation-practice/node-subgraph/src/schema.graphql",
           role: "@key 与 @external 的真实用法",
+          roleEn: "How @key and @external are actually used",
         },
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "__resolveReference 已给好，orders 要你写",
+          roleEn: "__resolveReference is given; orders is yours to write",
           edit: true,
         },
       ],
@@ -3227,6 +3763,15 @@ type Order {                     # ← 不是 entity：没有 @key
   ...
 }`,
               {
+                codeEn: `type User @key(fields: "id") {   # ← an entity: id is how you identify it
+  id: ID! @external
+  orders: [Order!]!
+}
+
+type Order {                     # ← not an entity: no @key
+  id: ID!
+  ...
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/schema.graphql",
               },
@@ -3399,6 +3944,7 @@ type Order {                     # ← 不是 entity：没有 @key
 },`,
               {
                 filename: "src/resolvers/orderResolvers.js（User 部分）",
+                filenameEn: "src/resolvers/orderResolvers.js (the User part)",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
                 highlight: [3, 4, 5],
@@ -3417,10 +3963,22 @@ type Order {                     # ← 不是 entity：没有 @key
 });`,
               {
                 filename: "测试怎么调它",
+                filenameEn: "How the test calls it",
+                codeEn: `it('should return orders for a user', async () => {
+  const user = { id: '123' };                              // ← that is all it takes
+  const orders = await resolvers.User.orders(user, {}, context);
+
+  expect(orders).toBeDefined();
+  expect(Array.isArray(orders)).toBe(true);
+  expect(orders.length).toBeGreaterThan(0);
+  expect(orders[0]).toHaveProperty('userId', '123');
+});`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/__tests__/resolvers.test.js",
                 explanation:
                   "测试直接调 resolver 函数，手工构造 parent 和 context。这意味着：你的 resolver 只要参数用法正确就能过测试，不需要整个 GraphQL 服务器跑起来。",
+                explanationEn:
+                  "The test calls the resolver function directly and builds parent and context by hand. That means your resolver passes as long as it uses its arguments correctly; you do not need the whole GraphQL server running.",
               },
             ),
           ],
@@ -3455,17 +4013,24 @@ type Order {                     # ← 不是 entity：没有 @key
           kind: "recognition",
           id: "g-key-meaning",
           title: "@key 在声明什么",
+          titleEn: "What @key declares",
           level: 1,
           prompt: (
             <p>
               <code>type User @key(fields: &quot;id&quot;)</code> 最准确的含义是？
             </p>
           ),
+          promptEn: (
+            <p>
+              What does <code>type User @key(fields: &quot;id&quot;)</code> mean,
+              most precisely?
+            </p>
+          ),
           options: [
-            { id: "a", label: "id 是数据库主键" },
-            { id: "b", label: "别的 subgraph 只要给出 id，就能定位到同一个 User" },
-            { id: "c", label: "id 字段不能为空" },
-            { id: "d", label: "查询 User 时必须传 id 参数" },
+            { id: "a", label: "id 是数据库主键", labelEn: "id is the database primary key" },
+            { id: "b", label: "别的 subgraph 只要给出 id，就能定位到同一个 User", labelEn: "Another subgraph only has to supply an id to locate the same User" },
+            { id: "c", label: "id 字段不能为空", labelEn: "The id field cannot be null" },
+            { id: "d", label: "查询 User 时必须传 id 参数", labelEn: "Querying User requires passing an id argument" },
           ],
           answer: ["b"],
           explain: (
@@ -3480,11 +4045,31 @@ type Order {                     # ← 不是 entity：没有 @key
               D 是 <code>Query</code> 字段参数的事，都和 @key 无关。
             </>
           ),
+          explainEn: (
+            <>
+              <code>@key</code> declares{" "}
+              <strong>how an object is identified across services</strong>. It
+              has <strong>no necessary connection</strong> to a database primary
+              key — it can be any combination of fields that identifies the
+              object uniquely.
+              <br />
+              A rule of thumb:{" "}
+              <strong>
+                when you see @key, do not start from the syntax. Ask which field
+                another service needs in order to find this object.
+              </strong>
+              <br />
+              C is what the exclamation mark in <code>ID!</code> says, and D is
+              about the arguments of a <code>Query</code> field. Neither has
+              anything to do with @key.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-parent-of-orders",
           title: "User.orders 里的 user 参数上有什么",
+          titleEn: "What the user argument of User.orders carries",
           level: 1,
           prompt: (
             <p>
@@ -3493,11 +4078,19 @@ type Order {                     # ← 不是 entity：没有 @key
               上有哪些属性？
             </p>
           ),
+          promptEn: (
+            <p>
+              <code>__resolveReference</code> returns{" "}
+              <code>{'{ id: user.id }'}</code>. So which properties does{" "}
+              <code>user</code> have inside{" "}
+              <code>User.orders(user, ...)</code>?
+            </p>
+          ),
           options: [
-            { id: "a", label: "id、name、email —— 完整的用户对象" },
-            { id: "b", label: "只有 id" },
-            { id: "c", label: "id 和 orders" },
-            { id: "d", label: "什么都没有，是空对象" },
+            { id: "a", label: "id、name、email —— 完整的用户对象", labelEn: "id, name and email — the complete user object" },
+            { id: "b", label: "只有 id", labelEn: "Only id" },
+            { id: "c", label: "id 和 orders", labelEn: "id and orders" },
+            { id: "d", label: "什么都没有，是空对象", labelEn: "Nothing at all; it is an empty object" },
           ],
           answer: ["b"],
           explain: (
@@ -3515,16 +4108,41 @@ type Order {                     # ← 不是 entity：没有 @key
               想用 <code>user.email</code> 去做什么，会拿到 undefined。
             </>
           ),
+          explainEn: (
+            <>
+              <strong>Only id.</strong> Whatever{" "}
+              <code>__resolveReference</code> returns becomes the{" "}
+              <code>parent</code> of the field resolvers below it. It returns{" "}
+              <code>{'{ id: user.id }'}</code> — one property.
+              <br />
+              That is a reasonable design here: this project has no user table,
+              and name and email belong to the Accounts subgraph.
+              <br />
+              <strong>
+                What that means in practice: your orders resolver can only use{" "}
+                <code>user.id</code>.
+              </strong>{" "}
+              Reach for <code>user.email</code> and you get undefined.
+            </>
+          ),
         },
         {
           kind: "fill-blank",
           id: "g-entity-blanks",
           title: "补全 entity 声明与引用解析",
+          titleEn: "Fill in the entity declaration and the reference resolver",
           level: 2,
           prompt: (
             <p>
               三个空。第一个是 directive，第二个是标记「这不是我的字段」，
               第三个是引用解析要返回什么。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Three blanks. The first is a directive, the second marks a field
+              as not belonging to this service, and the third is what the
+              reference resolver returns.
             </p>
           ),
           language: "graphql",
@@ -3549,6 +4167,8 @@ type User ___1___(fields: "id") {
               n: 1,
               accept: ["@key"],
               hint: "声明「靠哪个字段跨服务认人」的 directive。",
+              hintEn:
+                "The directive that says which field identifies the object across services.",
               why: (
                 <>
                   <code>@key</code>。它让 <code>User</code> 成为一个 entity，
@@ -3557,12 +4177,24 @@ type User ___1___(fields: "id") {
                   注意它必须写在<strong>类型名后面</strong>，不是字段上。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>@key</code>. It turns <code>User</code> into an entity,
+                  which is how the Router knows that an id is enough to find a
+                  User in this subgraph.
+                  <br />
+                  Note it goes <strong>after the type name</strong>, not on a
+                  field.
+                </>
+              ),
               width: 6,
             },
             {
               n: 2,
               accept: ["@external"],
               hint: "这个字段由别的 subgraph 提供，本服务只是引用。",
+              hintEn:
+                "Another subgraph provides this field; this service only references it.",
               why: (
                 <>
                   <code>@external</code>。表示 <code>id</code> 不是本 subgraph
@@ -3573,12 +4205,27 @@ type User ___1___(fields: "id") {
                   这一个对比就能看出「哪个字段是我的责任」。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>@external</code>. It says <code>id</code> is not
+                  defined by this subgraph, so you write no resolver for it.
+                  <br />
+                  <strong>
+                    And <code>orders</code> does not have it
+                  </strong>{" "}
+                  — that field is contributed by this subgraph, so you must
+                  implement it. That one contrast tells you which fields are
+                  your responsibility.
+                </>
+              ),
               width: 11,
             },
             {
               n: 3,
               accept: ["user.id"],
               hint: "Router 传进来的 representation 上有 __typename 和 @key 字段。",
+              hintEn:
+                "The representation the Router passes in carries __typename and the @key fields.",
               why: (
                 <>
                   <code>user.id</code>。传进来的 <code>user</code> 是
@@ -3588,6 +4235,20 @@ type User ___1___(fields: "id") {
                   <strong>返回值会成为下游所有字段 resolver 的 parent</strong> ——
                   所以你的 <code>orders</code> resolver 里
                   <code>user.id</code> 就是从这来的。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>user.id</code>. The <code>user</code> passed in is{" "}
+                  <code>{'{ __typename: "User", id: "123" }'}</code>, so take
+                  the id and return it as is.
+                  <br />
+                  <strong>
+                    The return value becomes the parent of every field resolver
+                    below
+                  </strong>{" "}
+                  — that is where <code>user.id</code> in your{" "}
+                  <code>orders</code> resolver comes from.
                 </>
               ),
               width: 9,
@@ -3645,11 +4306,13 @@ type User ___1___(fields: "id") {
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "两个 loader 工厂函数（其中一个有埋雷）",
+          roleEn: "Two loader factory functions, one with a planted bug",
           edit: true,
         },
         {
           path: "graphql-federation-practice/node-subgraph/package.json",
           role: "dependencies 里那个 dataloader 就是提示",
+          roleEn: "The dataloader in dependencies is the hint",
         },
       ],
       concepts: [
@@ -3723,6 +4386,17 @@ async shippingInfo(parent, _, { dataSources }) {
 // getShippingInfo('order-1')
 // getShippingInfo('order-2')
 // ... 共 100 行`,
+              {
+                codeEn: `// ✗ passes the tests, but one request per order
+async shippingInfo(parent, _, { dataSources }) {
+  return dataSources.shippingDataSource.getShippingInfo(parent.id);
+}
+
+// Ask for 100 orders and the log reads:
+// getShippingInfo('order-1')
+// getShippingInfo('order-2')
+// ... 100 lines in all`,
+              },
             ),
           ],
         },
@@ -3820,10 +4494,14 @@ async shippingInfo(parent, _, { dataSources }) {
 }`,
               {
                 filename: "src/resolvers/orderResolvers.js（这个 loader 是对的）",
+                filenameEn:
+                  "src/resolvers/orderResolvers.js (this loader is correct)",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
                 explanation:
                   "注意：这里仍然是 N 次 getShippingInfo 调用（用 Promise.all 并发）。真实系统里 batch 函数应该调一个「批量接口」（比如 WHERE id IN (...)）。这个项目的数据源没有批量接口，所以只能这样 —— 但合并的结构是对的，考点也在结构上。",
+                explanationEn:
+                  "Note this is still N calls to getShippingInfo, run concurrently with Promise.all. In a real system the batch function would call one batch API, such as WHERE id IN (...). The data source in this project has no batch API, so this is as far as you can go — but the structure of the merge is right, and the structure is what is being graded.",
               },
             ),
           ],
@@ -3922,8 +4600,19 @@ new DataLoader(async ids => {
 });`,
               {
                 filename: "长度与顺序的正确处理",
+                filenameEn: "Getting the length and the order right",
+                codeEn: `// The standard shape of a batch function in a real system
+new DataLoader(async ids => {
+  const rows = await db.query('SELECT * FROM shipping WHERE order_id IN (?)', [ids]);
+
+  // The database order is not guaranteed and missing rows never come back
+  const byId = new Map(rows.map(r => [r.order_id, r]));
+  return ids.map(id => byId.get(id) ?? null);   // length and order now both match
+});`,
                 explanation:
                   "这个项目里因为数据源没有批量接口，用 map + Promise.all 天然满足两条约束，不需要重排。但这个模式值得记住 —— 面试常问。",
+                explanationEn:
+                  "In this project the data source has no batch API, so map plus Promise.all satisfies both constraints on its own and no reordering is needed. The pattern is still worth remembering: interviewers ask about it often.",
               },
             ),
           ],
@@ -4010,6 +4699,16 @@ context: async ({ req }) => {
   return { dataSources: {...}, loaders: { shippingInfoLoader, orderLoader }, correlationId };
 }`,
               {
+                codeEn: `// ✓ what index.js does right: build them per request
+context: async ({ req }) => {
+  const orderDataSource = new OrderDataSource();
+  const shippingDataSource = new ShippingDataSource();
+
+  const shippingInfoLoader = createShippingInfoLoader(shippingDataSource);
+  const orderLoader = createOrderLoader(orderDataSource);
+
+  return { dataSources: {...}, loaders: { shippingInfoLoader, orderLoader }, correlationId };
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/index.js",
               },
@@ -4026,6 +4725,18 @@ export const resolvers = {
     }
   }
 };`,
+              {
+                codeEn: `// ✗ module top level: one cache shared by every request, stale and leaky
+const shippingInfoLoader = createShippingInfoLoader(new ShippingDataSource());
+
+export const resolvers = {
+  Order: {
+    async shippingInfo(parent) {
+      return shippingInfoLoader.load(parent.id);   // a global cache
+    }
+  }
+};`,
+              },
             ),
           ],
         },
@@ -4107,6 +4818,18 @@ export const resolvers = {
 }`,
               {
                 filename: "src/resolvers/orderResolvers.js（埋雷 1）",
+                filenameEn: "src/resolvers/orderResolvers.js (planted bug 1)",
+                codeEn: `function createOrderLoader(orderDataSource) {
+  return new DataLoader(async orderIds => {
+    console.log(\`[DataLoader] Batching \${orderIds.length} order requests\`);
+
+    const orders = await Promise.all(
+      orderIds.map(id => orderDataSource.getOrderById(id))   // ← no such method
+    );
+
+    return orders;
+  });
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
                 highlight: [6],
@@ -4120,13 +4843,15 @@ export const resolvers = {
           kind: "recognition",
           id: "g-dataloader-why",
           title: "DataLoader 靠什么把 N 次合并成 1 次",
+          titleEn: "How DataLoader turns N calls into 1",
           level: 1,
           prompt: <p>下面哪一条最准确？</p>,
+          promptEn: <p>Which of these is most accurate?</p>,
           options: [
-            { id: "a", label: "它在内部开了一个定时器，每 10ms 批量发一次" },
-            { id: "b", label: "它把同一个事件循环 tick 里的所有 load() 攒起来，tick 结束时调一次 batch 函数" },
-            { id: "c", label: "它把 SQL 查询改写成 JOIN" },
-            { id: "d", label: "它缓存了上一次请求的结果" },
+            { id: "a", label: "它在内部开了一个定时器，每 10ms 批量发一次", labelEn: "It runs a timer internally and sends a batch every 10ms" },
+            { id: "b", label: "它把同一个事件循环 tick 里的所有 load() 攒起来，tick 结束时调一次 batch 函数", labelEn: "It collects every load() made in the same event-loop tick and calls the batch function once when the tick ends" },
+            { id: "c", label: "它把 SQL 查询改写成 JOIN", labelEn: "It rewrites the SQL query as a JOIN" },
+            { id: "d", label: "它缓存了上一次请求的结果", labelEn: "It caches the result of the previous request" },
           ],
           answer: ["b"],
           explain: (
@@ -4143,11 +4868,28 @@ export const resolvers = {
               不是合并机制 —— 而且缓存不能跨请求，否则是 bug。
             </>
           ),
+          explainEn: (
+            <>
+              DataLoader uses the JavaScript microtask queue:{" "}
+              <code>load()</code> only records the key and returns a Promise,
+              and once all the synchronous code of the current tick has run, it
+              hands the collected keys to the batch function in one go.
+              <br />
+              The GraphQL executor happens to call <code>shippingInfo</code>{" "}
+              for every order inside the same tick, which is what makes the
+              merge possible.
+              <br />
+              D describes its <strong>other</strong> feature, caching within
+              one request, not the merging. And that cache must not cross
+              requests, or it is a bug.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-batch-rules",
           title: "batch 函数里哪种写法是错的",
+          titleEn: "Which return value from a batch function is wrong",
           level: 1,
           prompt: (
             <p>
@@ -4155,11 +4897,19 @@ export const resolvers = {
               其中 b 在数据库里不存在。下面哪种返回是<strong>错的</strong>?
             </p>
           ),
+          promptEn: (
+            <p>
+              The batch function receives{" "}
+              <code>ids = [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;]</code>,
+              and b does not exist in the database. Which of these return values
+              is <strong>wrong</strong>?
+            </p>
+          ),
           options: [
             { id: "a", label: "[rowA, null, rowC]" },
-            { id: "b", label: "[rowA, rowC]（把找不到的跳过）" },
+            { id: "b", label: "[rowA, rowC]（把找不到的跳过）", labelEn: "[rowA, rowC] (skip the one that was not found)" },
             { id: "c", label: "[rowA, new Error('not found'), rowC]" },
-            { id: "d", label: "A 和 C 都可以" },
+            { id: "d", label: "A 和 C 都可以", labelEn: "A and C are both fine" },
           ],
           answer: ["b"],
           explain: (
@@ -4176,16 +4926,42 @@ export const resolvers = {
               所以 batch 函数里<strong>永远不要 filter</strong>。
             </>
           ),
+          explainEn: (
+            <>
+              B breaks the hard rule that the length must equal the length of
+              keys. Worse, <strong>the order is now shifted</strong> —
+              DataLoader hands <code>rowC</code> to the <code>load()</code> that
+              asked for <code>b</code>, so b receives c&apos;s data.{" "}
+              <strong>
+                That kind of bug raises no error; the data is just wrong, and it
+                is very hard to track down.
+              </strong>
+              <br />
+              A and C are both legal: <code>null</code> means there is nothing,
+              and an <code>Error</code> object makes that one{" "}
+              <code>load()</code> promise reject.
+              <br />
+              So <strong>never filter inside a batch function</strong>.
+            </>
+          ),
         },
         {
           kind: "fill-blank",
           id: "g-loader-blanks",
           title: "修好 createOrderLoader 并写出 shippingInfo",
+          titleEn: "Fix createOrderLoader and write shippingInfo",
           level: 2,
           prompt: (
             <p>
               两个空。第一个要你填对数据源上<strong>真实存在</strong>的方法名，
               第二个要你用 loader 而不是数据源。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Two blanks. The first wants the name of a method that{" "}
+              <strong>really exists</strong> on the data source; the second
+              wants you to go through the loader rather than the data source.
             </p>
           ),
           language: "js",
@@ -4211,6 +4987,8 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
               n: 1,
               accept: ["getOrder"],
               hint: "去 orderDataSource.js 里数一数它到底有哪几个方法。",
+              hintEn:
+                "Open orderDataSource.js and count which methods it actually has.",
               why: (
                 <>
                   <code>getOrder</code>。<code>OrderDataSource</code> 上只有
@@ -4224,12 +5002,34 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
                   教训：<strong>写 resolver 前先把数据源的方法名抄一遍。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>getOrder</code>. <code>OrderDataSource</code> has only
+                  three methods: <code>getOrder</code>,{" "}
+                  <code>getOrdersByUserId</code> and <code>createOrder</code>.
+                  <br />
+                  <strong>
+                    The starter code writes <code>getOrderById</code>, and that
+                    method does not exist
+                  </strong>{" "}
+                  — one of the three planted bugs in the project. It produces{" "}
+                  <code>TypeError: ... is not a function</code>.
+                  <br />
+                  The lesson:{" "}
+                  <strong>
+                    copy out the method names of the data source before you
+                    write any resolver.
+                  </strong>
+                </>
+              ),
               width: 12,
             },
             {
               n: 2,
               accept: ["shippingInfoLoader"],
               hint: "context.loaders 里那两个 loader 的确切名字，看 index.js。",
+              hintEn:
+                "The exact names of the two loaders in context.loaders. Look in index.js.",
               why: (
                 <>
                   <code>shippingInfoLoader</code>。
@@ -4241,6 +5041,21 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
                   考点就是这个。绕过 loader 等于交白卷还得了分。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>shippingInfoLoader</code>.
+                  <br />
+                  <strong>
+                    Why must you use the loader rather than{" "}
+                    <code>dataSources.shippingDataSource.getShippingInfo</code>?
+                  </strong>{" "}
+                  The latter <strong>also passes the tests</strong>, but the
+                  TODO says plainly{" "}
+                  <em>using DataLoader to prevent N+1 queries</em> — that is
+                  what is being graded. Skipping the loader means passing the
+                  test without answering the question.
+                </>
+              ),
               width: 20,
             },
           ],
@@ -4249,11 +5064,18 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
           kind: "debug",
           id: "g-debug-loader-method",
           title: "Debug Lab · DataLoader 报 is not a function",
+          titleEn: "Debug Lab · DataLoader reports is not a function",
           level: 2,
           prompt: (
             <p>
               跑 <code>npm test</code>，其中一个 DataLoader 相关的测试挂了。
               报错指向 loader 内部。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You run <code>npm test</code> and one of the DataLoader tests
+              fails. The error points inside the loader.
             </p>
           ),
           errorOutput: `● Order Resolvers › DataLoader functionality › should batch multiple order requests
@@ -4288,24 +5110,43 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
 //   async getOrdersByUserId(userId) { ... }
 //   async createOrder(userId, items) { ... }
 // }`,
-            { filename: "src/resolvers/orderResolvers.js", highlight: [4] },
+            {
+              filename: "src/resolvers/orderResolvers.js",
+              highlight: [4],
+              codeEn: `function createOrderLoader(orderDataSource) {
+  return new DataLoader(async orderIds => {
+    const orders = await Promise.all(
+      orderIds.map(id => orderDataSource.getOrderById(id))
+    );
+    return orders;
+  });
+}
+
+// For reference: the methods OrderDataSource really has
+// class OrderDataSource {
+//   async getOrder(id) { ... }
+//   async getOrdersByUserId(userId) { ... }
+//   async createOrder(userId, items) { ... }
+// }`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "DataLoader 用法错误 —— batch 函数返回了错误的长度" },
-              { id: "b", label: "API 契约错误 —— 调用了数据源上不存在的方法" },
-              { id: "c", label: "异步错误 —— 少了 await" },
-              { id: "d", label: "schema 与 resolver 不匹配" },
+              { id: "a", label: "DataLoader 用法错误 —— batch 函数返回了错误的长度", labelEn: "Wrong DataLoader usage — the batch function returned the wrong length" },
+              { id: "b", label: "API 契约错误 —— 调用了数据源上不存在的方法", labelEn: "Broken API contract — it calls a method the data source does not have" },
+              { id: "c", label: "异步错误 —— 少了 await", labelEn: "An async mistake — a missing await" },
+              { id: "d", label: "schema 与 resolver 不匹配", labelEn: "The schema and the resolver do not match" },
             ],
             answer: "b",
           },
           locate: {
             question: "该改成什么？",
+            questionEn: "What should it be changed to?",
             options: [
               { id: "a", label: "orderDataSource.getOrder(id)" },
               { id: "b", label: "orderDataSource.getOrdersByUserId(id)" },
               { id: "c", label: "orderDataSource.orders.find(o => o.id === id)" },
-              { id: "d", label: "给 OrderDataSource 加一个 getOrderById 方法" },
+              { id: "d", label: "给 OrderDataSource 加一个 getOrderById 方法", labelEn: "Add a getOrderById method to OrderDataSource" },
             ],
             answer: "a",
           },
@@ -4325,6 +5166,20 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
 }`,
             {
               filename: "改对之后（审计时实测这样改后 10/10 通过）",
+              filenameEn:
+                "After the fix (measured in the audit: 10/10 tests pass)",
+              codeEn: `function createOrderLoader(orderDataSource) {
+  return new DataLoader(async orderIds => {
+    console.log(\`[DataLoader] Batching \${orderIds.length} order requests\`);
+
+    // FIX: OrderDataSource exposes getOrder(id), not getOrderById(id)
+    const orders = await Promise.all(
+      orderIds.map(id => orderDataSource.getOrder(id))
+    );
+
+    return orders;
+  });
+}`,
               highlight: [5, 6, 7, 8],
             },
           ),
@@ -4356,7 +5211,44 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>OrderDataSource</code> has only three methods:{" "}
+                <code>getOrder</code>, <code>getOrdersByUserId</code> and{" "}
+                <code>createOrder</code>. <code>getOrderById</code> does not
+                exist, so it is <code>undefined</code>, and calling undefined
+                throws a TypeError.
+              </p>
+              <p>
+                <strong>Why is this mistake so easy to make?</strong> Because{" "}
+                <code>getOrderById</code> is a{" "}
+                <strong>completely natural name</strong> — plenty of projects
+                do name it that. Whoever wrote the exam is counting on that:
+                you write what feels right instead of checking.
+              </p>
+              <p>
+                <strong>Why is option D not allowed?</strong> The README marks{" "}
+                <code>dataSources/orderDataSource.js</code> as{" "}
+                <strong>PROVIDED</strong>, meaning it is given to you and you
+                leave it alone. Change it and the grader may swap the original
+                back in, throwing away all your edits.{" "}
+                <strong>Only change files marked EDIT THIS.</strong>
+              </p>
+              <p>
+                The way to avoid this is plain:{" "}
+                <strong>
+                  before writing a resolver, open the data source file and copy
+                  every method name and signature onto paper.
+                </strong>{" "}
+                The lesson on reading the exam text gives you a ready-made
+                table.
+              </p>
+            </>
+          ),
           verify: "npm test   # should batch multiple order requests 应该通过",
+          verifyEn:
+            "npm test   # should batch multiple order requests must pass",
         },
       ],
       transfer: [

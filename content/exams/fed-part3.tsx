@@ -156,6 +156,105 @@ public class OrderController {
     }
 }`;
 
+// English side of CONTROLLER_SOLUTION. The line count must match it exactly,
+// because highlight is a line number. audit:code only pairs inline template
+// literals, so it cannot see a codeEn passed by constant like this one.
+const CONTROLLER_SOLUTION_EN = `@RestController
+public class OrderController {
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
+    private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<Map<String, String>> getRoot() {
+        return ResponseEntity.ok(Map.of(
+                "message", "Welcome to TechFlow Order Service API",
+                "status", "running"
+        ));
+    }
+
+    @GetMapping("/api/orders")
+    public ResponseEntity<List<Order>> getAllOrders(
+            @RequestParam(required = false) String userId) {
+        logger.info("GET /api/orders userId={}, correlationId={}", userId, correlationId());
+
+        // Optional filter: ?userId=123 narrows the set instead of adding a route
+        List<Order> orders = (userId == null || userId.isBlank())
+                ? orderService.getAllOrders()
+                : orderService.getOrdersByUserId(userId);
+
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/api/orders/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+        logger.info("GET /api/orders/{} correlationId={}", id, correlationId());
+
+        // When it is not found the service throws EntityNotFoundException,
+        // and GlobalExceptionHandler turns that into a 404
+        return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    @GetMapping("/api/orders/user/{userId}")
+    public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable String userId) {
+        logger.info("GET /api/orders/user/{} correlationId={}", userId, correlationId());
+        return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
+    }
+
+    @PostMapping("/api/orders")
+    public ResponseEntity<Order> createOrder(
+            @Valid @RequestBody CreateOrderRequest request) {
+        logger.info("POST /api/orders userId={}, correlationId={}",
+                request.getUserId(), correlationId());
+
+        Order created = orderService.createOrder(request);
+
+        // A successful create returns 201, not 200
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PatchMapping("/api/orders/{id}/status")
+    public ResponseEntity<Order> updateOrderStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> statusUpdate) {
+        String raw = statusUpdate.get("status");
+        logger.info("PATCH /api/orders/{}/status status={}, correlationId={}",
+                id, raw, correlationId());
+
+        if (raw == null || raw.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
+        }
+
+        final OrderStatus status;
+        try {
+            status = OrderStatus.valueOf(raw.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown status: " + raw);
+        }
+
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
+    }
+
+    @DeleteMapping("/api/orders/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+        logger.info("DELETE /api/orders/{} correlationId={}", id, correlationId());
+
+        orderService.deleteOrder(id);
+
+        // Nothing to return -> 204
+        return ResponseEntity.noContent().build();
+    }
+
+    /** The correlation id CorrelationIdFilter put in the MDC, to tie logs together */
+    private String correlationId() {
+        return MDC.get("correlationId");
+    }
+}`;
+
 const CONTROLLER_TEST = `@WebMvcTest(OrderController.class)
 class OrderControllerTest {
     @Autowired
@@ -248,18 +347,22 @@ export const fedTask2: Module = {
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/service/OrderService.java",
           role: "业务逻辑全在这里（PROVIDED）",
+          roleEn: "All the business logic is here (PROVIDED)",
         },
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/exception/GlobalExceptionHandler.java",
           role: "404 与 400 的统一出口（PROVIDED）",
+          roleEn: "The single place 404 and 400 come out of (PROVIDED)",
         },
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/config/CorrelationIdFilter.java",
           role: "把 correlation id 放进 MDC（PROVIDED）",
+          roleEn: "Puts the correlation id into the MDC (PROVIDED)",
         },
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/controller/OrderController.java",
           role: "六个 TODO",
+          roleEn: "Six TODOs",
           edit: true,
         },
       ],
@@ -535,6 +638,7 @@ public OrderController(OrderService orderService) {
 }`,
               {
                 filename: "OrderController.java（已给好）",
+                filenameEn: "OrderController.java (given to you)",
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/controller/OrderController.java",
               },
@@ -736,11 +840,14 @@ public void deleteOrder(Long id) {
 }`,
               {
                 filename: "OrderService.java（节选，PROVIDED）",
+                filenameEn: "OrderService.java (extract, PROVIDED)",
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/service/OrderService.java",
                 highlight: [5, 6, 11, 12],
                 explanation:
                   "orElseThrow 的意思是「Optional 里有值就取出来，没有就抛这个异常」。注意 service 已经自己打了日志、也自己读了 MDC —— 这是在给你示范控制器里该怎么做。",
+                explanationEn:
+                  "orElseThrow means \"take the value out of the Optional if there is one, otherwise throw this exception\". Note the service already logs and already reads the MDC itself. That is a demonstration of what your controller should do.",
               },
             ),
           ],
@@ -866,6 +973,7 @@ public class GlobalExceptionHandler {
 }`,
               {
                 filename: "GlobalExceptionHandler.java（全文，PROVIDED）",
+                filenameEn: "GlobalExceptionHandler.java (full file, PROVIDED)",
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/exception/GlobalExceptionHandler.java",
               },
@@ -961,6 +1069,7 @@ public class OrderItemRequest {
 }`,
               {
                 filename: "两个 DTO（PROVIDED）",
+                filenameEn: "The two DTOs (PROVIDED)",
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/dto/",
               },
@@ -1064,6 +1173,29 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 }`,
               {
                 filename: "CorrelationIdFilter.java（全文，PROVIDED）",
+                filenameEn: "CorrelationIdFilter.java (full file, PROVIDED)",
+                codeEn: `@Component
+public class CorrelationIdFilter extends OncePerRequestFilter {
+    private static final String HEADER = "X-Correlation-ID";
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String correlationId = request.getHeader(HEADER);
+        if (correlationId == null || correlationId.isBlank()) {
+            correlationId = UUID.randomUUID().toString();
+        }
+
+        MDC.put("correlationId", correlationId);
+        response.setHeader(HEADER, correlationId);
+
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            MDC.remove("correlationId");     // threads are reused, so clean up
+        }
+    }
+}`,
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/config/CorrelationIdFilter.java",
                 highlight: [13, 14, 19],
@@ -1144,6 +1276,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
           kind: "recognition",
           id: "g-spring-exception",
           title: "找不到订单时该怎么处理",
+          titleEn: "What to do when the order is not found",
           level: 1,
           prompt: (
             <p>
@@ -1153,11 +1286,19 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               控制器应该怎么写？
             </p>
           ),
+          promptEn: (
+            <p>
+              In the <code>getOrderById</code> endpoint,{" "}
+              <code>orderService.getOrderById(id)</code> throws{" "}
+              <code>EntityNotFoundException</code> when it finds nothing. How
+              should the controller be written?
+            </p>
+          ),
           options: [
-            { id: "a", label: "什么都不做，直接 return ResponseEntity.ok(orderService.getOrderById(id))" },
-            { id: "b", label: "try/catch 住，catch 里 return ResponseEntity.notFound().build()" },
-            { id: "c", label: "try/catch 住，catch 里 return null" },
-            { id: "d", label: "先调 existsById 检查一遍再取" },
+            { id: "a", label: "什么都不做，直接 return ResponseEntity.ok(orderService.getOrderById(id))", labelEn: "Do nothing special: return ResponseEntity.ok(orderService.getOrderById(id))" },
+            { id: "b", label: "try/catch 住，catch 里 return ResponseEntity.notFound().build()", labelEn: "Wrap it in try/catch and return ResponseEntity.notFound().build() from the catch" },
+            { id: "c", label: "try/catch 住，catch 里 return null", labelEn: "Wrap it in try/catch and return null from the catch" },
+            { id: "d", label: "先调 existsById 检查一遍再取", labelEn: "Call existsById to check first, then fetch" },
           ],
           answer: ["a"],
           explain: (
@@ -1178,11 +1319,30 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               <code>existsById</code>。
             </>
           ),
+          explainEn: (
+            <>
+              The project already has a <code>GlobalExceptionHandler</code>{" "}
+              marked <code>@RestControllerAdvice</code>, whose job is to turn{" "}
+              <code>EntityNotFoundException</code> into a 404 with a JSON body.{" "}
+              <strong>Just let the exception travel up.</strong>
+              <br />
+              B does produce a 404, but{" "}
+              <strong>the response body is gone</strong> (the global handler
+              returns <code>{"{ timestamp, status, message }"}</code>), and it
+              reimplements something that already works.
+              <br />
+              C is the worst: the 404 becomes a 200.
+              <br />
+              D is unnecessary, and <code>OrderService</code> does not expose{" "}
+              <code>existsById</code> anyway.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-spring-annotations",
           title: "这三个参数注解各从哪取值",
+          titleEn: "Where each of these parameter annotations reads from",
           level: 1,
           prompt: (
             <p>
@@ -1198,11 +1358,24 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               。<code>id</code> 和 <code>statusUpdate</code> 分别是什么？
             </p>
           ),
+          promptEn: (
+            <p>
+              The request is <code>PATCH /api/orders/7/status</code> with the
+              body <code>{'{"status":"SHIPPED"}'}</code>.
+              <br />
+              The method signature is{" "}
+              <code>
+                updateOrderStatus(@PathVariable Long id, @RequestBody
+                Map&lt;String,String&gt; statusUpdate)
+              </code>
+              . What are <code>id</code> and <code>statusUpdate</code>?
+            </p>
+          ),
           options: [
-            { id: "a", label: "id = 7L；statusUpdate = { \"status\": \"SHIPPED\" }" },
-            { id: "b", label: "id = null；statusUpdate = { \"id\": \"7\", \"status\": \"SHIPPED\" }" },
-            { id: "c", label: "id = 7L；statusUpdate = \"SHIPPED\"" },
-            { id: "d", label: "两个都从查询串取" },
+            { id: "a", label: "id = 7L；statusUpdate = { \"status\": \"SHIPPED\" }", labelEn: "id = 7L, statusUpdate = { \"status\": \"SHIPPED\" }" },
+            { id: "b", label: "id = null；statusUpdate = { \"id\": \"7\", \"status\": \"SHIPPED\" }", labelEn: "id = null, statusUpdate = { \"id\": \"7\", \"status\": \"SHIPPED\" }" },
+            { id: "c", label: "id = 7L；statusUpdate = \"SHIPPED\"", labelEn: "id = 7L, statusUpdate = \"SHIPPED\"" },
+            { id: "d", label: "两个都从查询串取", labelEn: "Both are read from the query string" },
           ],
           answer: ["a"],
           explain: (
@@ -1219,6 +1392,24 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               注意它是 <strong>Map 而不是 DTO</strong> ——
               所以<strong>没有 Bean Validation 保护</strong>，
               下一节会讲这意味着你必须自己校验。
+            </>
+          ),
+          explainEn: (
+            <>
+              <code>@PathVariable</code> reads from the{" "}
+              <strong>path</strong> —{" "}
+              <code>/api/orders/<strong>7</strong>/status</code> matches the{" "}
+              <code>{"{id}"}</code> segment, and Spring converts{" "}
+              <code>&quot;7&quot;</code> into <code>Long 7L</code> for you.
+              <br />
+              <code>@RequestBody</code> deserializes the whole request body
+              from JSON into a <code>Map</code>, so{" "}
+              <code>statusUpdate.get(&quot;status&quot;)</code> is what gives
+              you <code>&quot;SHIPPED&quot;</code>.
+              <br />
+              Note it is a <strong>Map, not a DTO</strong>, so{" "}
+              <strong>Bean Validation does not protect it</strong>. The next
+              lesson covers what that means: you have to validate it yourself.
             </>
           ),
         },
@@ -1274,11 +1465,13 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/controller/OrderController.java",
           role: "六个 TODO",
+          roleEn: "Six TODOs",
           edit: true,
         },
         {
           path: "graphql-federation-practice/java-service/src/test/java/com/techflow/orders/OrderControllerTest.java",
           role: "五个测试",
+          roleEn: "Five tests",
         },
       ],
       concepts: [
@@ -1326,11 +1519,13 @@ Implement REST endpoints in
 Use the provided \`OrderService\` for business logic.`,
               {
                 filename: "README.md（Task 2 原文）",
+                filenameEn: "README.md (the original Task 2 text)",
                 sourceFile: "graphql-federation-practice/README.md",
               },
             ),
             real("java", CONTROLLER_STARTER, {
               filename: "OrderController.java（starter）",
+              filenameEn: "OrderController.java (starter)",
               sourceFile:
                 "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/controller/OrderController.java",
               highlight: [24, 25, 30, 31, 36, 37, 43, 44, 51, 52, 57, 58],
@@ -1419,7 +1614,21 @@ Use the provided \`OrderService\` for business logic.`,
 #   ✓ shouldGetAllOrders      断言 isOk()  → return null 也是 200
 #   ✓ shouldGetOrderById      断言 isOk()  → 同上
 #   ✓ shouldUpdateOrderStatus 断言 isOk()  → 同上`,
-              { filename: "本机实测（scratchpad 副本，未改动源项目）" },
+              {
+                filename: "本机实测（scratchpad 副本，未改动源项目）",
+                filenameEn:
+                  "Measured locally (on a scratch copy; the source project was not touched)",
+                codeEn: `$ mvn test        # baseline: all six endpoints just return null
+
+[ERROR] Tests run: 5, Failures: 2, Errors: 0, Skipped: 0
+[ERROR]   OrderControllerTest.shouldCreateOrder:58 Status expected:<201> but was:<200>
+[ERROR]   OrderControllerTest.shouldDeleteOrder:74 Status expected:<204> but was:<200>
+
+# The three that pass:
+#   ✓ shouldGetAllOrders      asserts isOk()  → return null is a 200 too
+#   ✓ shouldGetOrderById      asserts isOk()  → same
+#   ✓ shouldUpdateOrderStatus asserts isOk()  → same`,
+              },
             ),
           ],
         },
@@ -1647,7 +1856,11 @@ public ResponseEntity<List<Order>> getAllOrders(
 
     return ResponseEntity.ok(orders);
 }`,
-              { filename: "第一个端点（参考答案）", highlight: [6, 7, 8] },
+              {
+                filename: "第一个端点（参考答案）",
+                filenameEn: "The first endpoint (reference answer)",
+                highlight: [6, 7, 8],
+              },
             ),
           ],
         },
@@ -1786,6 +1999,7 @@ public ResponseEntity<Order> updateOrderStatus(
 }`,
               {
                 filename: "PATCH 端点（参考答案）",
+                filenameEn: "The PATCH endpoint (reference answer)",
                 highlight: [9, 10, 11, 14, 15, 16, 17, 18],
               },
             ),
@@ -1837,6 +2051,9 @@ public ResponseEntity<Order> updateOrderStatus(
           code: [
             real("java", CONTROLLER_SOLUTION, {
               filename: "OrderController.java（完整参考答案，实测 5/5 通过）",
+              filenameEn:
+                "OrderController.java (the full reference answer, measured 5/5 passing)",
+              codeEn: CONTROLLER_SOLUTION_EN,
               collapsible: true,
             }),
             real(
@@ -1851,7 +2068,21 @@ public ResponseEntity<Order> updateOrderStatus(
 INFO c.t.orders.controller.OrderController : DELETE /api/orders/1 correlationId=0e157516-...
 INFO c.t.orders.controller.OrderController : PATCH /api/orders/1/status status=SHIPPED, correlationId=7b441d8d-...
 INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correlationId=3bf0f9c5-...`,
-              { filename: "审计时的真实输出（参考解法）" },
+              {
+                filename: "审计时的真实输出（参考解法）",
+                filenameEn:
+                  "The real output from the audit (with the reference answer)",
+                codeEn: `$ mvn test
+
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  18.694 s
+
+# The logs show correlationId being injected correctly:
+INFO c.t.orders.controller.OrderController : DELETE /api/orders/1 correlationId=0e157516-...
+INFO c.t.orders.controller.OrderController : PATCH /api/orders/1/status status=SHIPPED, correlationId=7b441d8d-...
+INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correlationId=3bf0f9c5-...`,
+              },
             ),
           ],
         },
@@ -1961,6 +2192,7 @@ INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correl
           code: [
             real("java", CONTROLLER_TEST, {
               filename: "OrderControllerTest.java（全文，PROVIDED）",
+              filenameEn: "OrderControllerTest.java (full file, PROVIDED)",
               sourceFile:
                 "graphql-federation-practice/java-service/src/test/java/com/techflow/orders/OrderControllerTest.java",
               highlight: [1, 5, 6, 25, 26, 27, 28, 29, 30, 31, 32, 33],
@@ -2032,7 +2264,40 @@ curl -i -s -X DELETE localhost:8080/api/orders/1
 
 # 7. correlation id 透传（响应头里应该有同一个 id）
 curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
-              { filename: "手动自检" },
+              {
+                filename: "手动自检",
+                filenameEn: "Checking it by hand",
+                codeEn: `cd java-service
+mvn spring-boot:run     # starts on 8080
+
+# 1. All of them, plus the optional filter (no test covers the filter)
+curl -s localhost:8080/api/orders
+curl -s "localhost:8080/api/orders?userId=123"     # should return only user 123
+
+# 2. One that exists vs one that does not (no test covers the 404)
+curl -i -s localhost:8080/api/orders/1             # 200 + JSON
+curl -i -s localhost:8080/api/orders/999           # 404 + { timestamp, status, message }
+
+# 3. Create (should be 201)
+curl -i -s -X POST localhost:8080/api/orders \\
+  -H 'Content-Type: application/json' \\
+  -d '{"userId":"123","items":[{"productId":"prod-789","quantity":2}]}'
+
+# 4. Create with validation failing (should be 400, no test covers it)
+curl -i -s -X POST localhost:8080/api/orders \\
+  -H 'Content-Type: application/json' \\
+  -d '{"userId":"","items":[]}'
+
+# 5. PATCH with an unknown status (should be 400 not 500, no test covers it)
+curl -i -s -X PATCH localhost:8080/api/orders/1/status \\
+  -H 'Content-Type: application/json' -d '{"status":"FLYING"}'
+
+# 6. Delete (should be 204 with an empty body)
+curl -i -s -X DELETE localhost:8080/api/orders/1
+
+# 7. correlation id passed through (the same id should be in the response header)
+curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
+              },
             ),
           ],
         },
@@ -2042,6 +2307,7 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
           kind: "recognition",
           id: "g-status-post",
           title: "POST 创建成功该返回什么",
+          titleEn: "What a successful POST should return",
           level: 1,
           prompt: (
             <p>
@@ -2049,11 +2315,17 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               该返回哪个状态码，怎么写？
             </p>
           ),
+          promptEn: (
+            <p>
+              <code>POST /api/orders</code> created an order successfully. Which
+              status code should it return, and how do you write that?
+            </p>
+          ),
           options: [
-            { id: "a", label: "ResponseEntity.ok(created) —— 200" },
-            { id: "b", label: "ResponseEntity.status(HttpStatus.CREATED).body(created) —— 201" },
-            { id: "c", label: "ResponseEntity.noContent().build() —— 204" },
-            { id: "d", label: "ResponseEntity.accepted().body(created) —— 202" },
+            { id: "a", label: "ResponseEntity.ok(created) —— 200", labelEn: "ResponseEntity.ok(created) — 200" },
+            { id: "b", label: "ResponseEntity.status(HttpStatus.CREATED).body(created) —— 201", labelEn: "ResponseEntity.status(HttpStatus.CREATED).body(created) — 201" },
+            { id: "c", label: "ResponseEntity.noContent().build() —— 204", labelEn: "ResponseEntity.noContent().build() — 204" },
+            { id: "d", label: "ResponseEntity.accepted().body(created) —— 202", labelEn: "ResponseEntity.accepted().body(created) — 202" },
           ],
           answer: ["b"],
           explain: (
@@ -2068,11 +2340,26 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               用于异步场景。
             </>
           ),
+          explainEn: (
+            <>
+              <strong>201 Created</strong> is the standard status code for a
+              successful create. The test asserts{" "}
+              <code>status().isCreated()</code> directly.
+              <br />
+              A is the most common mistake — <code>ResponseEntity.ok()</code> is
+              so familiar that your hands type it by themselves.{" "}
+              <strong>That test exists to catch exactly this.</strong>
+              <br />
+              C is for DELETE, and D (202 Accepted) means &ldquo;received, will
+              handle it later&rdquo;, which is for asynchronous work.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-null-passes",
           title: "为什么 return null 能骗过三个测试",
+          titleEn: "Why return null fools three of the tests",
           level: 1,
           prompt: (
             <p>
@@ -2080,11 +2367,17 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               五个测试却通过了三个。为什么？
             </p>
           ),
+          promptEn: (
+            <p>
+              At the baseline all six endpoints are just{" "}
+              <code>return null</code>, yet three of the five tests pass. Why?
+            </p>
+          ),
           options: [
-            { id: "a", label: "那三个测试写错了" },
-            { id: "b", label: "Spring 里控制器返回 null 会得到 200 + 空 body，而那三条测试断言的正好是 isOk()" },
-            { id: "c", label: "@MockBean 让所有断言都通过" },
-            { id: "d", label: "Maven 缓存了上次的结果" },
+            { id: "a", label: "那三个测试写错了", labelEn: "Those three tests are written wrong" },
+            { id: "b", label: "Spring 里控制器返回 null 会得到 200 + 空 body，而那三条测试断言的正好是 isOk()", labelEn: "In Spring, a controller returning null produces 200 with an empty body, and those three tests assert exactly isOk()" },
+            { id: "c", label: "@MockBean 让所有断言都通过", labelEn: "@MockBean makes every assertion pass" },
+            { id: "d", label: "Maven 缓存了上次的结果", labelEn: "Maven cached the previous result" },
           ],
           answer: ["b"],
           explain: (
@@ -2100,15 +2393,38 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               三个端点完全没实现，测试却是绿的。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              When a controller method returns <code>null</code>, Spring takes
+              it to mean &ldquo;you have handled the response yourself&rdquo;
+              and sends <strong>200 OK with an empty body</strong>.
+              <br />
+              The three tests that assert <code>isOk()</code> happen to match
+              that. Only the two asserting 201 and 204 catch the mistake.
+              <br />
+              <strong>
+                This is the most extreme case in the whole exam of a passing
+                test not meaning correct code: three endpoints are not
+                implemented at all and the tests are green.
+              </strong>
+            </>
+          ),
         },
         {
           kind: "fill-blank",
           id: "g-endpoints-blank",
           title: "补全三个关键端点的状态码与调用",
+          titleEn: "Fill in the status codes and calls of three key endpoints",
           level: 2,
           prompt: (
             <p>
               五个空。第 2、4、5 个是这道题真正的得分点。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Five blanks. Numbers 2, 4 and 5 are where the credit in this
+              question actually is.
             </p>
           ),
           language: "java",
@@ -2149,6 +2465,7 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
               n: 1,
               accept: ["ok"],
               hint: "成功且有内容返回。",
+              hintEn: "Success, and there is content to return.",
               why: (
                 <>
                   <code>ok</code> —— 200。
@@ -2160,12 +2477,25 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   自己 try/catch 反而会破坏它。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>ok</code> — 200.
+                  <br />
+                  Note you <strong>do not</strong> handle the not-found case
+                  here: <code>orderService.getOrderById</code> throws{" "}
+                  <code>EntityNotFoundException</code>, and{" "}
+                  <code>GlobalExceptionHandler</code> turns it into a 404. Your
+                  own try/catch would break that.
+                </>
+              ),
               width: 4,
             },
             {
               n: 2,
               accept: ["CREATED"],
               hint: "创建成功的标准状态码，测试断言 isCreated()。",
+              hintEn:
+                "The standard status code for a successful create. The test asserts isCreated().",
               why: (
                 <>
                   <code>CREATED</code> —— 201。
@@ -2176,12 +2506,26 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   <code>Status expected:&lt;201&gt; but was:&lt;200&gt;</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>CREATED</code> — 201.
+                  <br />
+                  <strong>
+                    This is one of the two mistakes the tests do catch.
+                  </strong>{" "}
+                  At the baseline <code>return null</code> produces 200, and the
+                  test reports{" "}
+                  <code>Status expected:&lt;201&gt; but was:&lt;200&gt;</code>.
+                </>
+              ),
               width: 9,
             },
             {
               n: 3,
               accept: ["BAD_REQUEST"],
               hint: "请求体里缺了必需字段，这是谁的错？",
+              hintEn:
+                "A required field is missing from the request body. Whose fault is that?",
               why: (
                 <>
                   <code>BAD_REQUEST</code> —— 400。客户端没给 status，
@@ -2195,12 +2539,28 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   测试没查这个，但它是明显的正确性问题。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>BAD_REQUEST</code> — 400. The client did not send a
+                  status, so the request itself is the problem.
+                  <br />
+                  <strong>What happens if you skip this check?</strong>{" "}
+                  <code>null.trim()</code> throws an NPE, the global handler
+                  does not handle NPE, so you get a{" "}
+                  <strong>500</strong> — the client&apos;s mistake reported as
+                  the server&apos;s.
+                  <br />
+                  No test checks this, but it is plainly a correctness problem.
+                </>
+              ),
               width: 14,
             },
             {
               n: 4,
               accept: ["valueOf"],
               hint: "Java enum 提供的「字符串转枚举」静态方法。",
+              hintEn:
+                "The static method a Java enum provides for turning a string into an enum value.",
               why: (
                 <>
                   <code>valueOf</code>。<strong>它大小写敏感</strong>，
@@ -2212,12 +2572,28 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   因为要把一种异常转成<strong>不同的</strong>状态码。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>valueOf</code>. <strong>It is case sensitive</strong>,
+                  which is why <code>toUpperCase()</code> comes first, and{" "}
+                  <strong>
+                    an invalid value throws IllegalArgumentException
+                  </strong>
+                  , which is why the real answer wraps it in a try/catch that
+                  turns it into a 400.
+                  <br />
+                  This is the one place in the whole question where a try/catch
+                  belongs, because it converts one kind of exception into a{" "}
+                  <strong>different</strong> status code.
+                </>
+              ),
               width: 9,
             },
             {
               n: 5,
               accept: ["noContent"],
               hint: "删除成功，没有任何内容可返回。",
+              hintEn: "The delete succeeded and there is nothing to return.",
               why: (
                 <>
                   <code>noContent</code> —— 204。
@@ -2232,6 +2608,22 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   <code>noContent()</code> 返回的是 builder。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>noContent</code> — 204.
+                  <br />
+                  How you know: <code>orderService.deleteOrder</code> returns{" "}
+                  <code>void</code>, so there is nothing to return → 204.
+                  <br />
+                  <strong>
+                    This is the second mistake the tests catch.
+                  </strong>{" "}
+                  The test reports{" "}
+                  <code>Status expected:&lt;204&gt; but was:&lt;200&gt;</code>.
+                  Note you still need <code>.build()</code> afterwards, because{" "}
+                  <code>noContent()</code> returns a builder.
+                </>
+              ),
               width: 12,
             },
           ],
@@ -2240,11 +2632,20 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
           kind: "code-completion",
           id: "g-endpoints-write",
           title: "不看答案，自己写出全部六个端点",
+          titleEn: "Write all six endpoints yourself, without looking at the answer",
           level: 3,
           prompt: (
             <p>
               六个端点一起写。业务逻辑全部调 <code>orderService</code>，
               你负责选对状态码、处理可选参数、转 enum、打日志。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Write all six endpoints. Every piece of business logic goes
+              through <code>orderService</code>; your job is picking the right
+              status codes, handling the optional parameter, converting the
+              enum, and logging.
             </p>
           ),
           language: "java",
@@ -2286,6 +2687,41 @@ public ResponseEntity<Order> updateOrderStatus(
 @DeleteMapping("/api/orders/{id}")
 public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
 }`,
+          starterEn: `// OrderService gives you:
+//   getAllOrders()                          -> List<Order>
+//   getOrderById(Long)                      -> Order (throws EntityNotFoundException if absent)
+//   getOrdersByUserId(String)               -> List<Order>
+//   createOrder(CreateOrderRequest)         -> Order
+//   updateOrderStatus(Long, OrderStatus)    -> Order (throws EntityNotFoundException if absent)
+//   deleteOrder(Long)                       -> void (throws EntityNotFoundException if absent)
+// GlobalExceptionHandler already maps EntityNotFoundException -> 404 and validation failure -> 400
+// correlation id: MDC.get("correlationId")
+
+@GetMapping("/api/orders")
+public ResponseEntity<List<Order>> getAllOrders(@RequestParam(required = false) String userId) {
+}
+
+@GetMapping("/api/orders/{id}")
+public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+}
+
+@GetMapping("/api/orders/user/{userId}")
+public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable String userId) {
+}
+
+@PostMapping("/api/orders")
+public ResponseEntity<Order> createOrder(@Valid @RequestBody CreateOrderRequest request) {
+}
+
+@PatchMapping("/api/orders/{id}/status")
+public ResponseEntity<Order> updateOrderStatus(
+        @PathVariable Long id,
+        @RequestBody Map<String, String> statusUpdate) {
+}
+
+@DeleteMapping("/api/orders/{id}")
+public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+}`,
           requirements: [
             "GET /api/orders：？userId= 传了就按用户过滤，没传返回全部；200",
             "GET /api/orders/{id}：200；不要 try/catch，让 404 由全局处理器给出",
@@ -2295,17 +2731,26 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
             "DELETE /api/orders/{id}：204 No Content",
             "六个端点都用 logger.info 打日志，并带上 MDC 里的 correlationId",
           ],
+          requirementsEn: [
+            "GET /api/orders: filter by user when ?userId= is given, otherwise return everything; 200",
+            "GET /api/orders/{id}: 200; no try/catch, let the global handler produce the 404",
+            "GET /api/orders/user/{userId}: 200",
+            "POST /api/orders: 201 Created",
+            "PATCH /api/orders/{id}/status: convert the string in the body into an OrderStatus; return 400 when it is missing or invalid; 200 on success",
+            "DELETE /api/orders/{id}: 204 No Content",
+            "All six endpoints log with logger.info and include the correlationId from the MDC",
+          ],
           checks: [
-            { label: "POST 用了 HttpStatus.CREATED（201）", must: "HttpStatus\\.CREATED" },
-            { label: "DELETE 用了 noContent()（204）", must: "noContent\\s*\\(\\s*\\)" },
-            { label: "GET /api/orders 处理了可选的 userId", must: "userId\\s*==\\s*null|isBlank\\s*\\(" },
-            { label: "可选过滤时调了 getOrdersByUserId", must: "getOrdersByUserId\\s*\\(" },
-            { label: "PATCH 用 valueOf 转 enum", must: "OrderStatus\\s*\\.\\s*valueOf" },
-            { label: "PATCH 做了 toUpperCase（valueOf 大小写敏感）", must: "toUpperCase\\s*\\(" },
-            { label: "PATCH 非法/缺失值返回 400", must: "BAD_REQUEST" },
-            { label: "没有 try/catch EntityNotFoundException（该交给全局处理器）", mustNot: "catch\\s*\\(\\s*EntityNotFoundException" },
-            { label: "打了日志", must: "logger\\.(info|debug)" },
-            { label: "日志里带了 correlationId", must: "correlationId" },
+            { label: "POST 用了 HttpStatus.CREATED（201）", labelEn: "POST uses HttpStatus.CREATED (201)", must: "HttpStatus\\.CREATED" },
+            { label: "DELETE 用了 noContent()（204）", labelEn: "DELETE uses noContent() (204)", must: "noContent\\s*\\(\\s*\\)" },
+            { label: "GET /api/orders 处理了可选的 userId", labelEn: "GET /api/orders handles the optional userId", must: "userId\\s*==\\s*null|isBlank\\s*\\(" },
+            { label: "可选过滤时调了 getOrdersByUserId", labelEn: "Calls getOrdersByUserId when filtering", must: "getOrdersByUserId\\s*\\(" },
+            { label: "PATCH 用 valueOf 转 enum", labelEn: "PATCH converts the enum with valueOf", must: "OrderStatus\\s*\\.\\s*valueOf" },
+            { label: "PATCH 做了 toUpperCase（valueOf 大小写敏感）", labelEn: "PATCH calls toUpperCase (valueOf is case sensitive)", must: "toUpperCase\\s*\\(" },
+            { label: "PATCH 非法/缺失值返回 400", labelEn: "PATCH returns 400 for a missing or invalid value", must: "BAD_REQUEST" },
+            { label: "没有 try/catch EntityNotFoundException（该交给全局处理器）", labelEn: "Does not try/catch EntityNotFoundException (the global handler takes it)", mustNot: "catch\\s*\\(\\s*EntityNotFoundException" },
+            { label: "打了日志", labelEn: "It logs", must: "logger\\.(info|debug)" },
+            { label: "日志里带了 correlationId", labelEn: "The log line carries correlationId", must: "correlationId" },
           ],
           hints: [
             "先给六个端点各回答一个问题：「成功时有内容返回吗？」「是新建了资源吗？」这两个答案就决定了状态码。另外注意哪些异常你不该管。",
@@ -2339,8 +2784,43 @@ try {
 // 日志
 private String correlationId() { return MDC.get("correlationId"); }`,
           ],
+          hintsEn: [
+            "Answer one question for each of the six endpoints: \"is there content to return on success?\" and \"did it create a resource?\" Those two answers decide the status code. Also note which exceptions are not yours to handle.",
+            "For 201 use ResponseEntity.status(HttpStatus.CREATED).body(...); for 204 use ResponseEntity.noContent().build(). Leave EntityNotFoundException to GlobalExceptionHandler; do not catch it. PATCH receives a Map, which Bean Validation does not protect, so you must turn both a missing and an invalid value into a 400 yourself.",
+            `getAllOrders: userId empty (null or blank) → getAllOrders(), otherwise getOrdersByUserId(userId), ok(...)
+getOrderById: ok(orderService.getOrderById(id))   // no catch
+getOrdersByUserId: ok(orderService.getOrdersByUserId(userId))
+createOrder: status(CREATED).body(orderService.createOrder(request))
+updateOrderStatus:
+  raw = statusUpdate.get("status")
+  raw empty → throw ResponseStatusException(BAD_REQUEST, ...)
+  try { status = OrderStatus.valueOf(raw.trim().toUpperCase()) }
+  catch (IllegalArgumentException) → throw ResponseStatusException(BAD_REQUEST, ...)
+  ok(orderService.updateOrderStatus(id, status))
+deleteOrder: orderService.deleteOrder(id); noContent().build()`,
+            `// POST
+return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request));
+
+// DELETE
+orderService.deleteOrder(id);
+return ResponseEntity.noContent().build();
+
+// the conversion part of PATCH
+final OrderStatus status;
+try {
+    status = OrderStatus.valueOf(raw.trim().toUpperCase());
+} catch (IllegalArgumentException ex) {
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown status: " + raw);
+}
+
+// logging
+private String correlationId() { return MDC.get("correlationId"); }`,
+          ],
           solution: real("java", CONTROLLER_SOLUTION, {
             filename: "参考答案（审计实测：mvn test 5/5 通过，BUILD SUCCESS）",
+            filenameEn:
+              "Reference answer (measured in the audit: mvn test 5/5, BUILD SUCCESS)",
+            codeEn: CONTROLLER_SOLUTION_EN,
             collapsible: true,
           }),
         },
@@ -2348,11 +2828,19 @@ private String correlationId() { return MDC.get("correlationId"); }`,
           kind: "debug",
           id: "g-debug-404-swallowed",
           title: "Debug Lab · 查一个不存在的订单，返回了 200",
+          titleEn: "Debug Lab · Asking for an order that does not exist returns 200",
           level: 3,
           prompt: (
             <p>
               五个测试全过。但手动 curl 一个不存在的 id，
               得到 200 和一个空 body。期望是 404 加一段 JSON。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              All five tests pass. But curl an id that does not exist by hand
+              and you get a 200 with an empty body. It should be a 404 with a
+              piece of JSON.
             </p>
           ),
           errorOutput: `$ curl -i -s localhost:8080/api/orders/999
@@ -2365,6 +2853,16 @@ Content-Length: 0
 # { "timestamp": "...", "status": 404, "message": "Order not found with id: 999" }
 
 # mvn test：Tests run: 5, Failures: 0   ← 测试全过！`,
+          errorOutputEn: `$ curl -i -s localhost:8080/api/orders/999
+
+HTTP/1.1 200
+Content-Length: 0
+
+# Expected:
+# HTTP/1.1 404
+# { "timestamp": "...", "status": 404, "message": "Order not found with id: 999" }
+
+# mvn test: Tests run: 5, Failures: 0   ← every test passes!`,
           broken: demo(
             "java",
             `@GetMapping("/api/orders/{id}")
@@ -2376,24 +2874,38 @@ public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
         return null;
     }
 }`,
-            { filename: "有问题的实现", highlight: [4, 6, 7] },
+            {
+              filename: "有问题的实现",
+              filenameEn: "The broken implementation",
+              codeEn: `@GetMapping("/api/orders/{id}")
+public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    logger.info("GET /api/orders/{} correlationId={}", id, correlationId());
+    try {
+        return ResponseEntity.ok(orderService.getOrderById(id));
+    } catch (EntityNotFoundException ex) {
+        return null;
+    }
+}`,
+              highlight: [4, 6, 7],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "状态码写错了 —— ok 该换成别的" },
-              { id: "b", label: "异常处理错误 —— 自己 catch 掉了本该交给全局处理器的异常" },
-              { id: "c", label: "路由错误 —— @PathVariable 没绑上" },
-              { id: "d", label: "依赖注入错误 —— orderService 是 null" },
+              { id: "a", label: "状态码写错了 —— ok 该换成别的", labelEn: "The status code is wrong — ok should be something else" },
+              { id: "b", label: "异常处理错误 —— 自己 catch 掉了本该交给全局处理器的异常", labelEn: "Wrong error handling — it catches an exception that belongs to the global handler" },
+              { id: "c", label: "路由错误 —— @PathVariable 没绑上", labelEn: "A routing mistake — @PathVariable is not bound" },
+              { id: "d", label: "依赖注入错误 —— orderService 是 null", labelEn: "A dependency-injection mistake — orderService is null" },
             ],
             answer: "b",
           },
           locate: {
             question: "该怎么改？",
+            questionEn: "How should it be changed?",
             options: [
-              { id: "a", label: "整个 try/catch 删掉，让异常冒出去给 GlobalExceptionHandler" },
-              { id: "b", label: "catch 里改成 return ResponseEntity.notFound().build()" },
-              { id: "c", label: "catch 里改成 throw new RuntimeException(ex)" },
-              { id: "d", label: "把 @GetMapping 改成 @RequestMapping" },
+              { id: "a", label: "整个 try/catch 删掉，让异常冒出去给 GlobalExceptionHandler", labelEn: "Delete the whole try/catch and let the exception reach GlobalExceptionHandler" },
+              { id: "b", label: "catch 里改成 return ResponseEntity.notFound().build()", labelEn: "Change the catch to return ResponseEntity.notFound().build()" },
+              { id: "c", label: "catch 里改成 throw new RuntimeException(ex)", labelEn: "Change the catch to throw new RuntimeException(ex)" },
+              { id: "d", label: "把 @GetMapping 改成 @RequestMapping", labelEn: "Change @GetMapping to @RequestMapping" },
             ],
             answer: "a",
           },
@@ -2407,7 +2919,18 @@ public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
     // 由 GlobalExceptionHandler 转成带 JSON 体的 404
     return ResponseEntity.ok(orderService.getOrderById(id));
 }`,
-            { filename: "改对之后（实测 5/5 通过）" },
+            {
+              filename: "改对之后（实测 5/5 通过）",
+              filenameEn: "After the fix (measured 5/5 passing)",
+              codeEn: `@GetMapping("/api/orders/{id}")
+public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    logger.info("GET /api/orders/{} correlationId={}", id, correlationId());
+
+    // When it is not found the service throws EntityNotFoundException,
+    // and GlobalExceptionHandler turns it into a 404 with a JSON body
+    return ResponseEntity.ok(orderService.getOrderById(id));
+}`,
+            },
           ),
           rootCause: (
             <>
@@ -2446,8 +2969,50 @@ public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                The project already has a <code>GlobalExceptionHandler</code>{" "}
+                marked <code>@RestControllerAdvice</code>, whose job is to turn{" "}
+                <code>EntityNotFoundException</code> into a{" "}
+                <strong>404 with a structured JSON body</strong>.
+              </p>
+              <p>
+                Once the controller catches it, the exception never reaches the
+                global handler. And <code>return null</code> makes Spring send a
+                200 with an empty body — <strong>the 404 became a 200.</strong>
+              </p>
+              <p>
+                <strong>Why is option B not good enough either?</strong>{" "}
+                <code>ResponseEntity.notFound().build()</code> gets the status
+                code right (404), but{" "}
+                <strong>the response body is gone</strong>. The global handler
+                returns <code>{"{ timestamp, status, message }"}</code>, and
+                clients use message to work out what happened. It also
+                reimplements something that already works: change the shape of
+                your 404 later and you have to change it in two places.
+              </p>
+              <p>
+                <strong>
+                  The general rule: when a project has a global exception
+                  handler, controllers do not try/catch
+                </strong>
+                , unless you are converting an exception into a{" "}
+                <strong>different</strong> status code — for example turning{" "}
+                <code>IllegalArgumentException</code> into a 400 inside PATCH.
+              </p>
+              <p>
+                <strong>Note that no test can catch this bug</strong>: in the
+                tests <code>orderService</code> is a mock and never throws{" "}
+                <code>EntityNotFoundException</code>. Only a manual curl finds
+                it.
+              </p>
+            </>
+          ),
           verify:
             "mvn spring-boot:run，然后 curl -i localhost:8080/api/orders/999 应该得到 404 + JSON",
+          verifyEn:
+            "mvn spring-boot:run, then curl -i localhost:8080/api/orders/999 should give 404 + JSON",
         },
       ],
       mistakes: [
@@ -2456,6 +3021,10 @@ public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
             "java",
             `// ✗ POST 用了 ok()
 return ResponseEntity.ok(orderService.createOrder(request));`,
+            {
+              codeEn: `// ✗ POST using ok()
+return ResponseEntity.ok(orderService.createOrder(request));`,
+            },
           ),
           why: (
             <>
@@ -2484,6 +3053,11 @@ return ResponseEntity.ok(orderService.createOrder(request));`,
             `// ✗ DELETE 返回了 200
 orderService.deleteOrder(id);
 return ResponseEntity.ok().build();`,
+            {
+              codeEn: `// ✗ DELETE returning 200
+orderService.deleteOrder(id);
+return ResponseEntity.ok().build();`,
+            },
           ),
           why: (
             <>
@@ -2511,6 +3085,11 @@ return ResponseEntity.ok().build();`,
             `// ✗ PATCH 直接 valueOf，没挡非法值
 OrderStatus status = OrderStatus.valueOf(statusUpdate.get("status"));
 return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
+            {
+              codeEn: `// ✗ PATCH calling valueOf directly, with no guard against invalid values
+OrderStatus status = OrderStatus.valueOf(statusUpdate.get("status"));
+return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
+            },
           ),
           why: (
             <>
@@ -2554,6 +3133,14 @@ public ResponseEntity<List<Order>> getAllOrders(
         @RequestParam(required = false) String userId) {
     return ResponseEntity.ok(orderService.getAllOrders());   // userId 白收了
 }`,
+            {
+              codeEn: `// ✗ ignoring the optional userId parameter
+@GetMapping("/api/orders")
+public ResponseEntity<List<Order>> getAllOrders(
+        @RequestParam(required = false) String userId) {
+    return ResponseEntity.ok(orderService.getAllOrders());   // userId accepted for nothing
+}`,
+            },
           ),
           why: (
             <>
@@ -2644,11 +3231,13 @@ export const fedWritten: Module = {
         {
           path: "graphql-federation-practice/QUESTIONS.md",
           role: "两道题的原文",
+          roleEn: "The two questions as written",
           edit: true,
         },
         {
           path: "graphql-federation-practice/java-service/src/main/resources/application.properties",
           role: "项目里真实的配置（和题面给的片段不完全一样）",
+          roleEn: "The real configuration in the project, which is not quite the snippet in the question",
         },
       ],
       concepts: [
@@ -2817,6 +3406,7 @@ in a federated graph and describe one caching strategy to mitigate the
 performance impact.`,
               {
                 filename: "QUESTIONS.md（第 1 题原文）",
+                filenameEn: "QUESTIONS.md (the original text of question 1)",
                 sourceFile: "graphql-federation-practice/QUESTIONS.md",
               },
             ),
@@ -2835,7 +3425,23 @@ Orders subgraph 即使自己只要 10ms，也要等到 500ms 之后才被调用
 更糟的连锁：Router 的连接池 / 线程被长时间占用
    ↓ 一个慢 subgraph 拖住整个 Router 的吞吐
 所有查询（哪怕完全不碰 User）都开始变慢`,
-              { filename: "影响的传导路径" },
+              {
+                filename: "影响的传导路径",
+                filenameEn: "How the effect propagates",
+                codeEn: `User subgraph is slow (500ms+)
+   ↓
+In the Router query plan, fetching User's @key fields is a prerequisite
+   ↓
+The Router needs { __typename: "User", id } before it can ask Orders
+   ↓ so the two steps are serial, they cannot run in parallel
+Orders subgraph needs only 10ms itself, but waits until the 500ms is up
+   ↓
+Total latency the client sees ≈ 500 + 10 + Router overhead
+   ↓
+Worse knock-on effect: Router connection pool / threads held a long time
+   ↓ one slow subgraph holds back the throughput of the whole Router
+Every query slows down, even the ones that never touch User`,
+              },
             ),
           ],
         },
@@ -2922,7 +3528,58 @@ User.orders）的前置步骤，这两步必须串行。因此任何涉及 User 
   对高频组合查询考虑在 Router 前加响应级缓存。`,
               {
                 filename: "第 1 题参考答案（DrillLab 自出）",
+                filenameEn: "Reference answer to question 1 (written by DrillLab)",
                 collapsible: true,
+                codeEn: `**Conclusion**
+
+High latency in the User subgraph does not stay inside the User fields. In
+the Router query plan, fetching User's @key fields must finish before User
+extension fields on other subgraphs (Orders' User.orders) can be resolved,
+so the two steps run in sequence. Any query touching User then has a tail
+latency above 500ms, and busy Router connections slow unrelated queries too.
+
+**Mechanism**
+
+1. The query plan runs in stages. The Router first asks the Accounts subgraph
+   for User and its @key field (id). Only with that entity representation can
+   it call Orders with _entities(representations: [{ __typename: "User", id }]).
+   The second call needs the first call's output, so they cannot overlap.
+2. The times add up. Total ≈ Accounts(500ms) + Orders(10ms) + Router overhead.
+   Making Orders faster on its own changes nothing.
+3. Resource amplification. Each Router-to-Accounts connection is held for the
+   full 500ms. As QPS rises, Little's Law (concurrency ≈ arrival rate × time
+   in system) puts the needed concurrency dozens of times higher. Once the
+   pool is empty requests queue, and every other subgraph slows down too.
+4. Timeouts and partial failure. If the Router sets a subgraph timeout, 500ms
+   trips it: User fields return null with errors and the client sees partial data.
+
+**Mitigation: entity caching at the Router layer**
+
+For an entity like User, which changes rarely and is referenced everywhere,
+put a cache keyed by entity key between the Router and Accounts (Apollo
+Router entity caching, with Redis behind it):
+
+- Cache key: subgraph name + __typename + @key value + the requested fields.
+  Example: accounts:User:id=123:{name,email}.
+- A hit skips the call to Accounts; the first serial step drops to about 1ms.
+- Set the TTL by how stale the data may be; 60–300s suits user profiles.
+- Active invalidation: Accounts tells the cache to delete when a profile
+  changes (write-through or event-driven), instead of waiting for the TTL.
+- Add stale-while-revalidate: return the old value, then refresh in the
+  background. That removes the latency spike at the moment of expiry.
+
+**Costs and limits**
+
+- Consistency gets weaker. Inside the TTL you read old data, so this only
+  fits fields that tolerate seconds of staleness, not balance or permissions.
+- The cache key must include the field set, or different queries pollute it.
+- Shard by caller identity, or data leaks across users. That is security,
+  not only correctness.
+- A cache treats the symptom. The hit rate is never 100%; cold starts and
+  long-tail keys still cost 500ms. The real fix is finding why Accounts is
+  slow (N+1, missing index, slow dependency). The cache only buys time.
+- Also worth doing: timeouts and a circuit breaker on subgraph requests, APQ
+  (automatic persisted queries) to shrink bodies, a response cache in front.`,
               },
             ),
           ],
@@ -2989,6 +3646,7 @@ spring.datasource.password=\${DB_PASSWORD}
 management.endpoints.web.exposure.include=*`,
               {
                 filename: "QUESTIONS.md 里给的片段",
+                filenameEn: "The snippet given in QUESTIONS.md",
                 sourceFile: "graphql-federation-practice/QUESTIONS.md",
               },
             ),
@@ -2999,10 +3657,14 @@ server.address=0.0.0.0
 management.endpoints.web.exposure.include=*`,
               {
                 filename: "项目里真实的 application.properties（全文）",
+                filenameEn:
+                  "The real application.properties in the project (full file)",
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/resources/application.properties",
                 explanation:
                   "只有三行，没有数据源配置 —— 因为这个项目用的是内存仓库。这也再次印证 orders.db 是干扰项。",
+                explanationEn:
+                  "Only three lines, and no data-source configuration, because this project uses an in-memory repository. That is one more confirmation that orders.db is a distractor.",
               },
             ),
           ],
@@ -3219,7 +3881,114 @@ spring.lifecycle.timeout-per-shutdown-phase=20s
 **理由**：配置是部署产物的一部分，需要和代码一样做审查与分环境管理。`,
               {
                 filename: "第 2 题参考答案（DrillLab 自出）",
+                filenameEn: "Reference answer to question 2 (written by DrillLab)",
                 collapsible: true,
+                codeEn: `### Problem 1 (the most serious): every actuator endpoint is exposed
+
+management.endpoints.web.exposure.include=*
+
+**Risk**: this line opens every actuator endpoint on the business port:
+- /actuator/env — prints all environment variables, so DB_PASSWORD leaks
+- /actuator/heapdump — a downloadable heap dump holding credentials and data
+- /actuator/configprops, /actuator/beans — expose the internal structure
+- /actuator/loggers — writable, so an attacker can hide traces or fill the disk
+In EKS, if this Service sits behind an Ingress, all of that faces the internet.
+
+**Fix**
+management.endpoints.web.exposure.include=health,info,prometheus
+management.endpoint.health.show-details=never
+management.endpoint.health.probes.enabled=true
+management.server.port=8081
+management.endpoints.web.base-path=/internal
+
+**Why**: an allowlist replaces the wildcard (deny by default). Management moves
+to its own port 8081, so Ingress exposes only 8080 and ops traffic stays inside
+the cluster. health hides details; probes.enabled gives k8s its two probes.
+
+
+### Problem 2: how the database password is managed
+
+spring.datasource.password=\${DB_PASSWORD}
+
+**Risk**: the placeholder itself is fine, but it moves the question to who sets
+that environment variable. In EKS that is usually a ConfigMap or the env block
+of a Deployment, and both show the value in plain text under kubectl describe,
+land in etcd (not encrypted by default), reach CI logs, and enter version
+control with the yaml. Env vars are also visible via /proc/PID/environ.
+
+**Fix**
+- Use AWS Secrets Manager with External Secrets Operator, or the
+  Secrets Store CSI Driver, to mount the password into the container as a file,
+  and read it with spring.config.import=optional:file:/mnt/secrets/
+- Turn on RDS IAM auth and use short-lived tokens instead of a static password
+- Enable automatic rotation; HikariCP max-lifetime then renews connections
+- Give the Pod an IRSA role with least privilege
+
+**Why**: a long-lived static password is the hardest risk to handle: once it
+leaks you cannot trace it, and rotation is expensive. A mounted file beats an
+env var (not in /proc/environ, not inherited). IAM auth removes the secret.
+
+
+### Problem 3: no TLS, and the database connection is not encrypted either
+
+**Risk**: server.port=8080 is plain HTTP, and the JDBC URL has no sslmode.
+Even inside a VPC, plaintext traffic breaks most compliance rules (PCI-DSS,
+HIPAA) and does not stop sniffing from elsewhere in the same VPC.
+
+**Fix**
+spring.datasource.url=jdbc:postgresql://\${DB_HOST}:5432/orders?sslmode=verify-full&sslrootcert=/etc/ssl/certs/rds-ca.pem
+server.forward-headers-strategy=framework
+
+**Why**: application TLS usually terminates at the Ingress or in a service mesh
+(mTLS), so leaving 8080 on HTTP is an acceptable choice — but you must say that
+a TLS termination layer sits in front, and set forward-headers-strategy so the
+app reads the original protocol (otherwise redirects fall back to http). On the
+database side sslmode=verify-full forces encryption and checks the certificate.
+
+
+### Problem 4: no connection pool settings, no timeouts, no retries
+
+**Risk**: defaults in production mean no capacity planning. A slow dependency
+empties the pool, blocks threads, times out health checks, and k8s restarts.
+
+**Fix**
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=2
+spring.datasource.hikari.connection-timeout=3000
+spring.datasource.hikari.max-lifetime=1800000
+spring.datasource.hikari.validation-timeout=1000
+spring.mvc.async.request-timeout=5000
+
+**Why**: derive the pool size from DB max connections ÷ replica count; bigger
+is not better. A short connection-timeout makes a request fail quickly instead
+of queueing forever. Keep max-lifetime below the database idle timeout so you
+never hand out a connection the server has already closed.
+
+
+### Problem 5: no graceful shutdown
+
+**Risk**: during an EKS rolling update the Pod drops connections the moment it
+gets SIGTERM; in-flight requests are cut off and clients see 502.
+
+**Fix**
+server.shutdown=graceful
+spring.lifecycle.timeout-per-shutdown-phase=20s
+
+**Why**: graceful stops accepting new requests but finishes the in-flight ones.
+The timeout must be shorter than the k8s terminationGracePeriodSeconds (30s by
+default), or SIGKILL interrupts the shutdown.
+
+
+### Problem 6: one config file, no separation between environments
+
+**Risk**: the same properties file serves dev/staging/prod, so one edit hits
+every environment, and loose local debug settings travel into production.
+
+**Fix**: split it into application.yml (shared) plus application-prod.yml, and
+activate with SPRING_PROFILES_ACTIVE=prod. Every secret comes from an external
+Secret and never enters the image. Add a prod-profile config check step in CI.
+
+**Why**: config ships with the artifact, so review it and split it per environment, like code.`,
               },
             ),
           ],
@@ -3310,11 +4079,18 @@ spring.lifecycle.timeout-per-shutdown-phase=20s
           kind: "recognition",
           id: "g-written-worst",
           title: "哪一行是最严重的安全问题",
+          titleEn: "Which line is the most serious security problem",
           level: 1,
           prompt: (
             <p>
               题面给的六行配置里，哪一行能<strong>直接</strong>
               导致数据库口令泄漏？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Of the six configuration lines in the question, which one can{" "}
+              <strong>directly</strong> leak the database password?
             </p>
           ),
           code: real(
@@ -3351,11 +4127,33 @@ management.endpoints.web.exposure.include=*`,
               <strong>把它当成安全问题会暴露对容器网络的不理解。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              <code>include=*</code> opens <strong>every</strong> actuator
+              endpoint on the business port, and{" "}
+              <code>/actuator/env</code> prints all environment variables —{" "}
+              <code>DB_PASSWORD</code> in plain text.{" "}
+              <code>/actuator/heapdump</code> is worse still: the whole heap can
+              be downloaded.
+              <br />
+              B, using a placeholder, is <strong>correct in itself</strong> and
+              better than hardcoding. The question of who sets that variable is
+              a credential-management problem, not a problem with this line.
+              <br />
+              <strong>A is required inside a container</strong>: without
+              binding to 0.0.0.0 nothing outside the Pod can connect.{" "}
+              <strong>
+                Calling it a security problem shows you do not understand
+                container networking.
+              </strong>
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-written-serial",
           title: "为什么 User subgraph 慢会拖慢 Orders subgraph",
+          titleEn: "Why a slow User subgraph slows the Orders subgraph down",
           level: 1,
           prompt: (
             <p>
@@ -3365,11 +4163,19 @@ management.endpoints.web.exposure.include=*`,
               总延迟大约是多少，为什么？
             </p>
           ),
+          promptEn: (
+            <p>
+              A client asks for{" "}
+              <code>{"{ user(id:\"1\") { name orders { id } } }"}</code>. The
+              Accounts subgraph takes 500ms, the Orders subgraph only 10ms.
+              Roughly what is the total latency, and why?
+            </p>
+          ),
           options: [
-            { id: "a", label: "约 500ms —— 两个 subgraph 并行请求，取最慢的那个" },
-            { id: "b", label: "约 510ms —— Router 必须先拿到 User 的 id 才能去问 Orders，两步串行" },
-            { id: "c", label: "约 10ms —— Orders 有缓存" },
-            { id: "d", label: "约 250ms —— 平均值" },
+            { id: "a", label: "约 500ms —— 两个 subgraph 并行请求，取最慢的那个", labelEn: "About 500ms — both subgraphs are asked in parallel, so the slower one wins" },
+            { id: "b", label: "约 510ms —— Router 必须先拿到 User 的 id 才能去问 Orders，两步串行", labelEn: "About 510ms — the Router must have the User id before it can ask Orders, so the two steps run one after another" },
+            { id: "c", label: "约 10ms —— Orders 有缓存", labelEn: "About 10ms — Orders has a cache" },
+            { id: "d", label: "约 250ms —— 平均值", labelEn: "About 250ms — the average" },
           ],
           answer: ["b"],
           explain: (
@@ -3386,17 +4192,42 @@ management.endpoints.web.exposure.include=*`,
               这个「串行依赖」就是第 1 题要你解释的核心机制。
             </>
           ),
+          explainEn: (
+            <>
+              In the Router query plan these two steps{" "}
+              <strong>depend on each other</strong>: to send{" "}
+              <code>_entities(representations: [{'{ __typename: "User", id }'}])</code>{" "}
+              to Orders, it must first get that <code>id</code> from Accounts.{" "}
+              <strong>So they cannot run in parallel.</strong>
+              <br />
+              A only holds when the fields from the two subgraphs do not depend
+              on each other — asking for <code>user</code> and{" "}
+              <code>topProducts</code> together, for example.
+              <br />
+              This serial dependency is the mechanism Question 1 asks you to
+              explain.
+            </>
+          ),
         },
         {
           kind: "code-completion",
           id: "g-written-fix",
           title: "写出 actuator 那一条的修正配置",
+          titleEn: "Write the corrected configuration for the actuator line",
           level: 3,
           prompt: (
             <p>
               针对 <code>management.endpoints.web.exposure.include=*</code>，
               写出修正后的配置。至少要做到：白名单、管理端口分离、
               health 不泄漏细节、支持 k8s 探针。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Write the corrected configuration for{" "}
+              <code>management.endpoints.web.exposure.include=*</code>. At a
+              minimum: an allow list, management on its own port, a health
+              endpoint that leaks no detail, and support for Kubernetes probes.
             </p>
           ),
           generated: true,
@@ -3410,26 +4241,43 @@ management.endpoints.web.exposure.include=*`,
 #   4. 支持 k8s 的 liveness / readiness 探针
 
 `,
+          starterEn: `# Fix management.endpoints.web.exposure.include=*
+# Requirements:
+#   1. Replace * with an allow list
+#   2. Move the management endpoints to their own port
+#   3. health must not show downstream detail
+#   4. Support the Kubernetes liveness / readiness probes
+
+`,
           requirements: [
             "用白名单列出需要的端点，不用 *",
             "management.server.port 设成与业务端口不同的值",
             "health 端点不显示详情",
             "开启 health probes（liveness / readiness）",
           ],
+          requirementsEn: [
+            "List the endpoints you need in an allow list; do not use *",
+            "Set management.server.port to something other than the business port",
+            "The health endpoint shows no details",
+            "Turn on the health probes (liveness and readiness)",
+          ],
           checks: [
             {
               label: "用了白名单（include 后面不是 *）",
+              labelEn: "Uses an allow list (what follows include is not *)",
               must: "management\\.endpoints\\.web\\.exposure\\.include\\s*=\\s*[a-z]",
             },
-            { label: "没有留下 include=*", mustNot: "exposure\\.include\\s*=\\s*\\*" },
-            { label: "至少暴露了 health", must: "include[^\\n]*health" },
-            { label: "管理端点挪到了独立端口", must: "management\\.server\\.port\\s*=" },
+            { label: "没有留下 include=*", labelEn: "No include=* left behind", mustNot: "exposure\\.include\\s*=\\s*\\*" },
+            { label: "至少暴露了 health", labelEn: "Exposes at least health", must: "include[^\\n]*health" },
+            { label: "管理端点挪到了独立端口", labelEn: "Management endpoints moved to their own port", must: "management\\.server\\.port\\s*=" },
             {
               label: "health 不显示详情",
+              labelEn: "health shows no details",
               must: "management\\.endpoint\\.health\\.show-details\\s*=\\s*never",
             },
             {
               label: "开启了 k8s 探针支持",
+              labelEn: "Kubernetes probe support is turned on",
               must: "management\\.endpoint\\.health\\.probes\\.enabled\\s*=\\s*true",
             },
           ],
@@ -3441,6 +4289,19 @@ management.endpoint.health.show-details=never
 management.endpoint.health.probes.enabled=true
 management.server.port=另一个端口
 （可选）management.endpoints.web.base-path=/internal`,
+            `management.endpoints.web.exposure.include=health,info,prometheus
+management.endpoint.health.show-details=never
+management.endpoint.health.probes.enabled=true
+management.server.port=8081`,
+          ],
+          hintsEn: [
+            "Start by asking which actuator endpoints operations actually need. Everything else should be closed. Then think: if the management endpoints share a port with the business endpoints, can the Ingress separate them?",
+            "Four settings: exposure.include (the allow list), management.server.port (its own port), endpoint.health.show-details, and endpoint.health.probes.enabled.",
+            `management.endpoints.web.exposure.include=the few endpoints you need, comma separated
+management.endpoint.health.show-details=never
+management.endpoint.health.probes.enabled=true
+management.server.port=a different port
+(optional) management.endpoints.web.base-path=/internal`,
             `management.endpoints.web.exposure.include=health,info,prometheus
 management.endpoint.health.show-details=never
 management.endpoint.health.probes.enabled=true
@@ -3467,8 +4328,28 @@ server.shutdown=graceful
 spring.lifecycle.timeout-per-shutdown-phase=20s`,
             {
               filename: "参考答案（DrillLab 自出）",
+              filenameEn: "Reference answer (written by DrillLab)",
+              codeEn: `# An allow list instead of a wildcard: deny by default, open only what operations need
+management.endpoints.web.exposure.include=health,info,prometheus
+
+# health shows no downstream detail, so the internal topology and dependency state stay private
+management.endpoint.health.show-details=never
+
+# Split liveness from readiness so the Kubernetes probes can use them separately
+# (a failed liveness restarts the Pod, a failed readiness only removes it from traffic)
+management.endpoint.health.probes.enabled=true
+
+# Management endpoints move to their own port: the Ingress exposes only 8080
+management.server.port=8081
+management.endpoints.web.base-path=/internal
+
+# While here: graceful shutdown, so a rolling update does not cut off in-flight requests
+server.shutdown=graceful
+spring.lifecycle.timeout-per-shutdown-phase=20s`,
               explanation:
                 "关键是「默认拒绝」这个思路：白名单而不是黑名单。另外 probes.enabled 那一条很多人不知道 —— liveness 和 readiness 的语义完全不同，共用一个 health 端点会导致「下游数据库抖动一下，Pod 被重启」这种事故。",
+              explanationEn:
+                "The important idea is deny by default: an allow list, not a block list. The probes.enabled line is also one many people do not know. liveness and readiness mean completely different things, and sharing one health endpoint leads to accidents like \"the downstream database wobbled for a second, so the Pod was restarted\".",
             },
           ),
         },

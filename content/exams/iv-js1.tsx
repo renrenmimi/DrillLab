@@ -300,7 +300,27 @@ console.log({} === {});          // false（两个不同的地址）
 console.log("a" === "a");        // true （比的是值）
 console.log(typeof null);        // "object" ← 历史 bug
 console.log(Array.isArray([]));  // true  ← 判断数组要用这个`,
-              { filename: "值和地址" },
+              {
+                filename: "值和地址",
+                filenameEn: "Values and addresses",
+                codeEn: `// Primitive value: the value is copied
+let a = 1;
+let b = a;
+b = 2;
+console.log(a);        // 1 —— a did not change
+
+// Reference value: the address is copied
+let o1 = { n: 1 };
+let o2 = o1;           // a second remote control for the same object
+o2.n = 2;
+console.log(o1.n);     // 2 ← it changed!
+
+// Comparing
+console.log({} === {});          // false (two different addresses)
+console.log("a" === "a");        // true  (the values are compared)
+console.log(typeof null);        // "object" ← a historical bug
+console.log(Array.isArray([]));  // true  ← use this to test for an array`,
+              },
             ),
           ],
         },
@@ -500,8 +520,26 @@ Number("")       // 0   ← 注意，空字符串转数字是 0
 Number(" ")      // 0   ← 空白也是 0，校验输入要小心`,
               {
                 filename: "隐式转换速查",
+                filenameEn: "Coercion quick reference",
+                codeEn: `1 + "1"          // "11"    + with a string means concatenate
+"3" - 1          // 2       - always converts to number
+"3" * "4"        // 12
+1 + true         // 2       true -> 1
+1 + null         // 1       null -> 0
+1 + undefined    // NaN     undefined -> NaN
+
+[] + []          // ""      toString of an empty array is ""
+[] + {}          // "[object Object]"
+[1,2] + [3]      // "1,23"  join with commas, then concatenate
+
+Number("42px")   // NaN     the whole string has to be valid
+parseInt("42px") // 42      reads until it cannot read further
+Number("")       // 0   ← note: an empty string converts to 0
+Number(" ")      // 0   ← whitespace is 0 too, so validate input carefully`,
                 explanation:
                   "面试不会让你背全表，但会给两三个式子让你推。掌握「+ 看字符串、其他看数字」和「六个假值」就够推。",
+                explanationEn:
+                  "An interview will not ask you to recite the whole table, but it will give you two or three expressions to work out. Remember that + looks for a string while every other operator converts to number, plus the six falsy values, and that is enough.",
               },
             ),
           ],
@@ -638,7 +676,20 @@ NaN == NaN        // false  和自己都不相等
 
 0 === "0"         // false  类型不同，到此为止
 Object.is(NaN, NaN) // true  ← React 用它判断 state 变没变`,
-              { filename: "为什么别用 ==" },
+              {
+                filename: "为什么别用 ==",
+                filenameEn: "Why you should not use ==",
+                codeEn: `0 == "0"          // true   the string converts to a number
+0 == ""           // true   "" -> 0
+0 == false        // true   false -> 0
+null == undefined // true   a special case
+null == 0         // false  null only equals undefined
+[] == false       // true   [] -> "" -> 0
+NaN == NaN        // false  not even equal to itself
+
+0 === "0"         // false  different types, so it stops there
+Object.is(NaN, NaN) // true  ← React uses this to decide whether state changed`,
+              },
             ),
           ],
         },
@@ -759,7 +810,24 @@ count ?? 10                 // 0   ✓
 {list.length && <List />}       // ✗ 空列表时页面上多一个 0
 {list.length > 0 && <List />}   // ✓
 {list.length ? <List /> : null} // ✓ 也可以`,
-              { filename: "短路的三个实际用法与两个坑" },
+              {
+                filename: "短路的三个实际用法与两个坑",
+                filenameEn: "Three real uses of short-circuiting, and two traps",
+                codeEn: `// Short-circuiting returns the operand itself
+console.log(1 && 2);          // 2
+console.log(0 && 2);          // 0    ← not false
+console.log("" || "default"); // "default"
+
+// The difference between || and ??
+const count = 0;
+count || 10                 // 10  ✗ 0 is treated as "nothing was passed"
+count ?? 10                 // 0   ✓
+
+// The classic React conditional-rendering trap
+{list.length && <List />}       // ✗ an empty list prints a stray 0 on the page
+{list.length > 0 && <List />}   // ✓
+{list.length ? <List /> : null} // ✓ this works too`,
+              },
             ),
           ],
         },
@@ -950,7 +1018,28 @@ let b = 1;
 const o = { n: 1 };
 o.n = 2;          // ✓ 可以
 o = { n: 3 };     // ✗ TypeError: Assignment to constant variable`,
-              { filename: "三个必背的例子" },
+              {
+                filename: "三个必背的例子",
+                filenameEn: "Three examples worth memorising",
+                codeEn: `// The classic loop question
+for (var i = 0; i < 3; i++) setTimeout(() => console.log(i));
+// 3 3 3 —— there is only one i, and by the time the callbacks run it is 3
+
+for (let j = 0; j < 3; j++) setTimeout(() => console.log(j));
+// 0 1 2 —— every iteration gets a new j
+
+// TDZ
+console.log(a);   // undefined      var is hoisted as undefined
+var a = 1;
+
+console.log(b);   // ReferenceError: Cannot access 'b' before initialization
+let b = 1;
+
+// const locks the binding, not the contents
+const o = { n: 1 };
+o.n = 2;          // ✓ allowed
+o = { n: 3 };     // ✗ TypeError: Assignment to constant variable`,
+              },
             ),
           ],
         },
@@ -1069,7 +1158,24 @@ b.x = 9;          console.log(a.x);        // 1  ✓ 独立
 b.inner.y = 9;    console.log(a.inner.y);  // 9  ✗ 还是共享的
 
 const c = structuredClone(a);   // 深拷贝，嵌套也独立`,
-              { filename: "改属性 vs 换指向" },
+              {
+                filename: "改属性 vs 换指向",
+                filenameEn: "Changing a property vs pointing somewhere else",
+                codeEn: `function mutate(o) { o.n = 2; }      // change a property
+function reassign(o) { o = { n: 3 }; } // point at something else
+
+const obj = { n: 1 };
+mutate(obj);    console.log(obj.n);  // 2 ← the outside changed
+reassign(obj);  console.log(obj.n);  // 2 ← the outside did not change (not 3)
+
+// A shallow copy only covers one level
+const a = { x: 1, inner: { y: 2 } };
+const b = { ...a };
+b.x = 9;          console.log(a.x);        // 1  ✓ independent
+b.inner.y = 9;    console.log(a.inner.y);  // 9  ✗ still shared
+
+const c = structuredClone(a);   // a deep copy, so nested objects are separate too`,
+              },
             ),
           ],
         },
@@ -1230,7 +1336,26 @@ new Set([{ id: 1 }, { id: 1 }]).size;   // 2 ← 引用不同
 // 按内容去重要用 Map
 const byId = new Map(items.map((i) => [i.id, i]));
 const deduped = [...byId.values()];`,
-              { filename: "Set 的两个真实用途" },
+              {
+                filename: "Set 的两个真实用途",
+                filenameEn: "Two real uses for Set",
+                codeEn: `// Dedupe in one line
+const unique = [...new Set([1, 2, 2, 3])];   // [1, 2, 3]
+
+// Checking for duplicates in a loop: O(n²) -> O(n)
+const seen = new Set();
+for (const x of list) {
+  if (seen.has(x)) continue;   // O(1); arr.includes here would be O(n)
+  seen.add(x);
+}
+
+// It cannot dedupe objects
+new Set([{ id: 1 }, { id: 1 }]).size;   // 2 ← different references
+
+// To dedupe by content, use a Map
+const byId = new Map(items.map((i) => [i.id, i]));
+const deduped = [...byId.values()];`,
+              },
             ),
           ],
         },
@@ -1430,7 +1555,28 @@ console.log(new Map().get("toString")); // undefined ✓ 干净
 // Map 不能直接 JSON
 JSON.stringify(m);                    // "{}" ← 全丢了
 JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
-              { filename: "两个真实会踩的差别" },
+              {
+                filename: "两个真实会踩的差别",
+                filenameEn: "Two differences you will actually hit",
+                codeEn: `// Object keys are converted to strings
+const o = {};
+o[1] = "a";
+o["1"] = "b";
+console.log(o);          // { "1": "b" } ← only one key!
+
+const m = new Map();
+m.set(1, "a").set("1", "b");
+console.log(m.size);     // 2 ← the number 1 and the string "1" are different keys
+
+// Prototype pollution
+const dict = {};
+console.log(dict["toString"]);   // ƒ toString() ← a value appears from nowhere
+console.log(new Map().get("toString")); // undefined ✓ clean
+
+// A Map does not turn into JSON directly
+JSON.stringify(m);                    // "{}" ← everything is lost
+JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
+              },
             ),
           ],
         },
@@ -1682,7 +1828,22 @@ const obj = {
   arrow: () => console.log(this.name),      // undefined ← 外层是模块/window
   normal() { console.log(this.name); },     // "A"       ← 调用时决定
 };`,
-              { filename: "三种写法的实际差别" },
+              {
+                filename: "三种写法的实际差别",
+                filenameEn: "How the three forms actually differ",
+                codeEn: `sayHi();                              // ✓ runs —— a function declaration is hoisted whole
+function sayHi() { console.log("hi"); }
+
+sayHey();                             // ✗ TypeError: sayHey is not a function
+var sayHey = function () {};          // only the name was hoisted; it is still undefined here
+
+// An arrow function's this is the outer this at the place it was defined
+const obj = {
+  name: "A",
+  arrow: () => console.log(this.name),      // undefined ← the outside is the module/window
+  normal() { console.log(this.name); },     // "A"       ← decided at call time
+};`,
+              },
             ),
           ],
         },
@@ -1889,7 +2050,32 @@ const withLogger = (Comp) => (props) => {
   console.log("render", Comp.name);
   return <Comp {...props} />;
 };`,
-              { filename: "高阶函数的三种典型形态" },
+              {
+                filename: "高阶函数的三种典型形态",
+                filenameEn: "Three typical shapes of a higher-order function",
+                codeEn: `// Returning a function: a counter that remembers its count
+function makeCounter() {
+  let n = 0;                    // kept alive by the closure
+  return () => ++n;
+}
+const next = makeCounter();
+next(); next();                 // 2
+
+// A very common live-coding question: debounce
+function debounce(fn, delay = 300) {
+  let timer = null;                        // state that lives in the closure
+  return function (...args) {
+    clearTimeout(timer);                   // every call first cancels the previous one
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };                                       // use function, not an arrow, to forward this
+}
+
+// A React HOC is a higher-order function too: takes a component, returns a component
+const withLogger = (Comp) => (props) => {
+  console.log("render", Comp.name);
+  return <Comp {...props} />;
+};`,
+              },
             ),
           ],
         },
@@ -2015,7 +2201,27 @@ const tax = (n) => n * rate;
 
 // ✓ 纯：所有依赖都从参数进来
 const tax = (n, rate) => n * rate;`,
-              { filename: "怎么把不纯改纯" },
+              {
+                filename: "怎么把不纯改纯",
+                filenameEn: "How to turn an impure function into a pure one",
+                codeEn: `// ✗ Impure: it changes the array that was passed in
+function addItem(list, item) {
+  list.push(item);
+  return list;
+}
+
+// ✓ Pure: it returns a new array
+function addItem(list, item) {
+  return [...list, item];
+}
+
+// ✗ Impure: the output depends on something outside
+let rate = 0.1;
+const tax = (n) => n * rate;
+
+// ✓ Pure: every input arrives as a parameter
+const tax = (n, rate) => n * rate;`,
+              },
             ),
           ],
         },
@@ -2226,7 +2432,18 @@ const tax = (n, rate) => n * rate;`,
   console.log(a);   // 1          ✓ var 无视 {}
   console.log(b);   // ReferenceError
 }`,
-              { filename: "函数作用域 vs 块作用域" },
+              {
+                filename: "函数作用域 vs 块作用域",
+                filenameEn: "Function scope vs block scope",
+                codeEn: `function f() {
+  if (true) {
+    var a = 1;      // function scope
+    let b = 2;      // block scope
+  }
+  console.log(a);   // 1          ✓ var ignores {}
+  console.log(b);   // ReferenceError
+}`,
+              },
             ),
           ],
         },
@@ -2373,7 +2590,24 @@ var foo = function () {};
 
 bar();                       // ReferenceError: Cannot access 'bar' ...
 let bar = function () {};`,
-              { filename: "四种提升行为" },
+              {
+                filename: "四种提升行为",
+                filenameEn: "Four hoisting behaviours",
+                codeEn: `console.log(fn());   // "ok"      a function declaration is hoisted whole
+console.log(v);      // undefined var is hoisted as undefined
+console.log(l);      // ReferenceError (TDZ)
+
+function fn() { return "ok"; }
+var v = 1;
+let l = 2;
+
+// Tell the two "not a function" errors apart
+foo();                       // TypeError: foo is not a function
+var foo = function () {};
+
+bar();                       // ReferenceError: Cannot access 'bar' ...
+let bar = function () {};`,
+              },
             ),
           ],
         },
@@ -2488,7 +2722,31 @@ function run() {
   show();                   // "定义时的 x" ← 不是调用处那个
 }
 run();`,
-              { filename: "由内到外，且在定义时确定" },
+              {
+                filename: "由内到外，且在定义时确定",
+                filenameEn: "From inside out, and fixed where the function is defined",
+                codeEn: `const g = "global";
+
+function outer() {
+  const o = "outer";
+  function inner() {
+    const i = "inner";
+    console.log(i, o, g);   // all three are found: inner -> outer -> global
+  }
+  inner();
+  // console.log(i);        // ✗ the outer scope cannot see the inner one
+}
+
+// Lexical scope: the chain follows where it was defined, not where it is called
+const x = "the x at the definition site";
+function show() { console.log(x); }
+
+function run() {
+  const x = "the x at the call site";
+  show();                   // "the x at the definition site" ← not the call-site one
+}
+run();`,
+              },
             ),
           ],
         },
@@ -2641,7 +2899,31 @@ function f() {
 }
 f();              // [3, 3, 3]  —— 三个闭包共享同一个 i
                   // 把 var 换成 let 就是 [0, 1, 2]`,
-              { filename: "闭包的两道必考题" },
+              {
+                filename: "闭包的两道必考题",
+                filenameEn: "Two closure questions that always come up",
+                codeEn: `// Private state: the outside cannot reach count, only the methods change it
+function createCounter() {
+  let count = 0;                     // not reachable from outside
+  return {
+    inc: () => ++count,
+    get: () => count,
+  };
+}
+const c = createCounter();
+c.inc(); c.inc();
+c.get();          // 2
+c.count;          // undefined ← genuinely private
+
+// A classic interview question: what does this print?
+function f() {
+  const fns = [];
+  for (var i = 0; i < 3; i++) fns.push(() => i);
+  return fns.map((fn) => fn());
+}
+f();              // [3, 3, 3]  —— the three closures share one i
+                  // change var to let and you get [0, 1, 2]`,
+              },
             ),
           ],
         },
@@ -2766,8 +3048,28 @@ const warn = log("WARN");
 warn("磁盘快满了");     // [WARN] 磁盘快满了`,
               {
                 filename: "柯里化",
+                filenameEn: "Currying",
+                codeEn: `// A generic curry by hand: if there are enough arguments, run; otherwise keep collecting
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) return fn.apply(this, args);
+    return (...rest) => curried.apply(this, [...args, ...rest]);
+  };
+}
+
+const add = curry((a, b, c) => a + b + c);
+add(1)(2)(3);      // 6
+add(1, 2)(3);      // 6
+add(1)(2, 3);      // 6
+
+// A real use: reusing an argument
+const log = (level) => (msg) => console.log(\`[\${level}] \${msg}\`);
+const warn = log("WARN");
+warn("disk almost full");   // [WARN] disk almost full`,
                 explanation:
                   "关键是 fn.length —— 函数声明时的形参个数。注意带默认值或 ...rest 的参数不计入 length，所以这个通用实现对它们不适用。",
+                explanationEn:
+                  "The key is fn.length —— the number of parameters the function declares. Note that a parameter with a default value, and a ...rest parameter, do not count towards length, so this generic implementation does not work for them.",
               },
             ),
           ],
@@ -2881,7 +3183,29 @@ function () {}();     // ✗ SyntaxError —— 被当成函数声明
 (function () {})();   // ✓ 括号让它变成表达式
 !function () {}();    // ✓ 一元运算符也行
 void function () {}();// ✓`,
-              { filename: "IIFE 与它今天的位置" },
+              {
+                filename: "IIFE 与它今天的位置",
+                filenameEn: "The IIFE and where it fits today",
+                codeEn: `// The classic form
+(function () {
+  var private = "not visible from outside";
+})();
+
+// Where it is still genuinely used: when you need an async scope
+useEffect(() => {
+  (async () => {
+    const res = await fetch(url);
+    // ...
+  })();
+  return () => { /* cleanup */ };
+}, [url]);
+
+// Why the parentheses are needed
+function () {}();     // ✗ SyntaxError —— read as a function declaration
+(function () {})();   // ✓ the parentheses turn it into an expression
+!function () {}();    // ✓ a unary operator works too
+void function () {}();// ✓`,
+              },
             ),
           ],
         },

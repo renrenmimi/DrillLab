@@ -90,6 +90,95 @@ export const resolvers = {
 
 export { createShippingInfoLoader, createOrderLoader };`;
 
+// English side of STARTER_RESOLVERS. The line count must match it exactly,
+// because highlight is a line number. audit:code only pairs inline template
+// literals, so it cannot see a pair passed by constant like this one.
+const STARTER_RESOLVERS_EN = `import DataLoader from 'dataloader';
+import { GraphQLError } from 'graphql';
+
+// Custom error codes
+const ErrorCodes = {
+  ORDER_NOT_FOUND: 'ORDER_NOT_FOUND',
+  INVALID_INPUT: 'INVALID_INPUT',
+  INVENTORY_ERROR: 'INVENTORY_ERROR',
+  SERVICE_ERROR: 'SERVICE_ERROR'
+};
+
+// DataLoader for batching shipping info requests
+function createShippingInfoLoader(shippingDataSource) { /* given to you, correct */ }
+
+// DataLoader for batching order requests
+function createOrderLoader(orderDataSource) {
+  return new DataLoader(async orderIds => {
+    const orders = await Promise.all(
+      orderIds.map(id => orderDataSource.getOrderById(id))   // ← planted bug 1
+    );
+    return orders;
+  });
+}
+
+export const resolvers = {
+  User: {
+    __resolveReference(user, { dataSources, loaders }) {
+      return { id: user.id };                                // given to you
+    },
+
+    async orders(user, _, { dataSources, loaders, correlationId }) {
+      // TODO: Implement orders resolver with proper error handling and correlation ID tracing
+      return [];                                             // ← TODO 1
+    }
+  },
+
+  Order: {
+    async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
+      // TODO: Implement shipping info resolver using DataLoader to prevent N+1 queries
+      return null;                                           // ← TODO 2
+    }
+  },
+
+  Query: {
+    async order(_, { id }, { dataSources, loaders, correlationId }) {
+      // TODO: Implement order query using DataLoader with structured error handling
+      return null;                                           // ← TODO 3
+    },
+
+    async orders(_, { userId }, { dataSources, correlationId }) {
+      // TODO: Implement orders query with error handling and correlation ID logging
+      return [];                                             // ← TODO 4
+    }
+  },
+
+  Mutation: {
+    async createOrder(_, { userId, items }, { dataSources, correlationId }) {
+      try {
+        console.log(\`[\${correlationId}] Creating order for userId: \${userId}\`);
+
+        if (!userId || !items || items.length === 0) {
+          throw new GraphQLError('Invalid order input', {
+            extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+          });
+        }
+
+        const order = await dataSources.orderAPI.createOrder({ userId, items });  // ← planted bug 2
+        console.log(\`[\${correlationId}] Order created: \${order.id}\`);
+
+        return order;
+      } catch (error) {
+        console.error(\`[\${correlationId}] Error creating order:\`, error.message);
+        throw new GraphQLError('Failed to create order', {                        // ← planted bug 3
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            originalError: error.message
+          }
+        });
+      }
+    }
+  }
+};
+
+export { createShippingInfoLoader, createOrderLoader };`;
+
 const DATA_SOURCE_TABLE = `class OrderDataSource {
   getOrder(id)                      → 一条 order，找不到返回 undefined
   getOrdersByUserId(userId)         → order 数组，找不到返回 []
@@ -108,6 +197,27 @@ class InventoryDataSource {
 
 class ShippingDataSource {
   getShippingInfo(orderId)          → 物流信息，只有 order-456/457 有，其余 null
+}`;
+
+// English side of DATA_SOURCE_TABLE. Same line count, same layout.
+const DATA_SOURCE_TABLE_EN = `class OrderDataSource {
+  getOrder(id)                      → one order; undefined when not found
+  getOrdersByUserId(userId)         → array of orders; [] when not found
+  createOrder(userId, items)        → a new order (uses item.price for the total!)
+
+  Seed data:
+    order-456  userId '123'  SHIPPED    299.99
+    order-457  userId '123'  DELIVERED   89.99
+    order-458  userId '456'  PENDING    199.99
+}
+
+class InventoryDataSource {
+  getInventoryStatus(productIds)    → nothing anywhere needs it (a distractor)
+  getProductPrice(productId)        → price; unknown product falls back to 99.99  ★ createOrder needs it
+}
+
+class ShippingDataSource {
+  getShippingInfo(orderId)          → shipping info; only order-456/457 have it, others null
 }`;
 
 export const fedTask1: Module = {
@@ -148,15 +258,18 @@ export const fedTask1: Module = {
         {
           path: "graphql-federation-practice/README.md",
           role: "任务清单与 EDIT THIS / PROVIDED 标注",
+          roleEn: "The task list and the EDIT THIS / PROVIDED markers",
         },
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "唯一要改的文件",
+          roleEn: "The only file you change",
           edit: true,
         },
         {
           path: "graphql-federation-practice/node-subgraph/__tests__/resolvers.test.js",
           role: "10 个判卷测试",
+          roleEn: "The ten tests that decide the marks",
         },
       ],
       concepts: [
@@ -200,6 +313,7 @@ The starter code also contains related TODOs and integration issues
 that may need attention.`,
               {
                 filename: "README.md（Task 1 原文）",
+                filenameEn: "README.md (the original Task 1 text)",
                 sourceFile: "graphql-federation-practice/README.md",
               },
             ),
@@ -325,6 +439,9 @@ that may need attention.`,
           code: [
             real("js", STARTER_RESOLVERS, {
               filename: "src/resolvers/orderResolvers.js（starter 全貌，已标注）",
+              filenameEn:
+                "src/resolvers/orderResolvers.js (the whole starter, annotated)",
+              codeEn: STARTER_RESOLVERS_EN,
               sourceFile:
                 "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
               highlight: [23, 36, 43, 51, 56, 71, 78],
@@ -386,12 +503,15 @@ that may need attention.`,
 }`,
               {
                 filename: "context 的确切键名",
+                filenameEn: "The exact key names in context",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/index.js",
               },
             ),
             real("text", DATA_SOURCE_TABLE, {
               filename: "三个数据源的方法与数据",
+              filenameEn: "The methods and data of the three data sources",
+              codeEn: DATA_SOURCE_TABLE_EN,
               sourceFile:
                 "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
             }),
@@ -435,7 +555,11 @@ added 424 packages in 11s
 
 $ npm test
 Tests:       6 failed, 4 passed, 10 total`,
-              { filename: "本机实测", sourceFile: "graphql-federation-practice/node-subgraph" },
+              {
+                filename: "本机实测",
+                filenameEn: "Measured on this machine",
+                sourceFile: "graphql-federation-practice/node-subgraph",
+              },
             ),
           ],
         },
@@ -690,6 +814,7 @@ Tests:       6 failed, 4 passed, 10 total`,
           kind: "recognition",
           id: "g-fake-pass",
           title: "为什么基线里有 4 个测试是通过的",
+          titleEn: "Why 4 tests already pass at the baseline",
           level: 1,
           prompt: (
             <p>
@@ -697,11 +822,17 @@ Tests:       6 failed, 4 passed, 10 total`,
               <code>return null</code>，为什么还有 4 个测试通过？
             </p>
           ),
+          promptEn: (
+            <p>
+              All four TODOs contain nothing but <code>return []</code> or{" "}
+              <code>return null</code>. So why do 4 tests still pass?
+            </p>
+          ),
           options: [
-            { id: "a", label: "那 4 个测试写错了" },
-            { id: "b", label: "其中 3 个断言的正好是「返回空」，空实现刚好满足；第 4 个测的是本来就正确的 shipping loader" },
-            { id: "c", label: "jest 有缓存" },
-            { id: "d", label: "那 4 个测试被 skip 了" },
+            { id: "a", label: "那 4 个测试写错了", labelEn: "Those 4 tests are written wrong" },
+            { id: "b", label: "其中 3 个断言的正好是「返回空」，空实现刚好满足；第 4 个测的是本来就正确的 shipping loader", labelEn: "3 of them assert that the result is empty, which the empty implementation happens to satisfy; the 4th tests the shipping loader, which was already correct" },
+            { id: "c", label: "jest 有缓存", labelEn: "jest is using a cache" },
+            { id: "d", label: "那 4 个测试被 skip 了", labelEn: "Those 4 tests are skipped" },
           ],
           answer: ["b"],
           explain: (
@@ -717,11 +848,29 @@ Tests:       6 failed, 4 passed, 10 total`,
               绿色不等于做对了。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              The three &ldquo;returns empty when there is no data&rdquo; tests
+              are <strong>passing by accident</strong> —{" "}
+              <code>return []</code> and <code>return null</code> happen to
+              satisfy their assertions.
+              <br />
+              The fourth one, the DataLoader batching test for shipping, passes
+              for real, because <code>createShippingInfoLoader</code> has no
+              planted bug in it.
+              <br />
+              <strong>
+                So those three tests constrain your implementation not at all.
+                Green does not mean correct.
+              </strong>
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "g-fix-where",
           title: "埋雷 1 该在哪个文件修",
+          titleEn: "Which file should planted bug 1 be fixed in",
           level: 1,
           prompt: (
             <p>
@@ -730,11 +879,18 @@ Tests:       6 failed, 4 passed, 10 total`,
               正确的修法是？
             </p>
           ),
+          promptEn: (
+            <p>
+              <code>createOrderLoader</code> calls{" "}
+              <code>orderDataSource.getOrderById(id)</code>, which does not
+              exist. What is the right fix?
+            </p>
+          ),
           options: [
-            { id: "a", label: "在 orderDataSource.js 里加一个 getOrderById 方法" },
-            { id: "b", label: "把 loader 里的调用改成 getOrder(id)" },
-            { id: "c", label: "两个都行，看个人喜好" },
-            { id: "d", label: "改测试，让它不测这个 loader" },
+            { id: "a", label: "在 orderDataSource.js 里加一个 getOrderById 方法", labelEn: "Add a getOrderById method to orderDataSource.js" },
+            { id: "b", label: "把 loader 里的调用改成 getOrder(id)", labelEn: "Change the call inside the loader to getOrder(id)" },
+            { id: "c", label: "两个都行，看个人喜好", labelEn: "Either one; it is a matter of taste" },
+            { id: "d", label: "改测试，让它不测这个 loader", labelEn: "Edit the test so it stops testing this loader" },
           ],
           answer: ["b"],
           explain: (
@@ -750,20 +906,42 @@ Tests:       6 failed, 4 passed, 10 total`,
               D 更不行 —— 改判卷器等于作弊，而且测试也是 PROVIDED。
             </>
           ),
+          explainEn: (
+            <>
+              The README marks <code>orderDataSource.js</code> as{" "}
+              <strong>PROVIDED</strong>, and the grader may swap the original
+              back in — your added method disappears and the loader breaks
+              again.
+              <br />
+              <strong>Only change files marked EDIT THIS.</strong> Here the only
+              file to change is{" "}
+              <code>src/resolvers/orderResolvers.js</code>.
+              <br />
+              D is worse: editing the grader is cheating, and the tests are
+              PROVIDED too.
+            </>
+          ),
         },
         {
           kind: "ordering",
           id: "g-task1-order",
           title: "把 Task 1 的推进顺序排对",
+          titleEn: "Put the steps of Task 1 in the right order",
           level: 1,
           prompt: <p>拿到 node-subgraph，最合理的动作顺序？</p>,
+          promptEn: (
+            <p>
+              You have just opened node-subgraph. What is the most sensible
+              order to work in?
+            </p>
+          ),
           items: [
-            { id: "e", label: "逐个实现四个 TODO" },
-            { id: "b", label: "读 schema.graphql，记下四个返回类型的可空性" },
-            { id: "a", label: "npm install，然后 npm test 拿到 6 failed / 4 passed 的基线" },
-            { id: "f", label: "npm test 转绿，再写个 verify 脚本查 _service 和 _entities" },
-            { id: "c", label: "读 index.js 和 dataSources，抄下 context 键名与方法名" },
-            { id: "d", label: "修三处埋雷" },
+            { id: "e", label: "逐个实现四个 TODO", labelEn: "Implement the four TODOs one by one" },
+            { id: "b", label: "读 schema.graphql，记下四个返回类型的可空性", labelEn: "Read schema.graphql and note the nullability of the four return types" },
+            { id: "a", label: "npm install，然后 npm test 拿到 6 failed / 4 passed 的基线", labelEn: "npm install, then npm test to get the 6 failed / 4 passed baseline" },
+            { id: "f", label: "npm test 转绿，再写个 verify 脚本查 _service 和 _entities", labelEn: "Once npm test is green, write a verify script that checks _service and _entities" },
+            { id: "c", label: "读 index.js 和 dataSources，抄下 context 键名与方法名", labelEn: "Read index.js and the dataSources, and copy out the context keys and method names" },
+            { id: "d", label: "修三处埋雷", labelEn: "Fix the three planted bugs" },
           ],
           answer: ["a", "b", "c", "d", "e", "f"],
           explain: (
@@ -779,12 +957,29 @@ Tests:       6 failed, 4 passed, 10 total`,
               会被埋雷的报错干扰，白花时间怀疑自己的代码。
             </>
           ),
+          explainEn: (
+            <>
+              Install the dependencies and get a baseline → read the schema, so
+              you know what shape to return → read index.js and the data
+              sources, so you know what you can call →{" "}
+              <strong>fix the planted bugs first</strong> (otherwise you write
+              the TODOs correctly and the tests are still red, and you conclude
+              your own code is wrong) → write the TODOs → verify last.
+              <br />
+              <strong>Fixing the planted bugs first really matters.</strong>{" "}
+              Planted bug 1 makes the DataLoader test fail, so if you start with{" "}
+              <code>Query.order</code>, which uses orderLoader, that bug&rsquo;s
+              error message gets in your way and you waste time doubting your
+              own code.
+            </>
+          ),
         },
       ],
       callouts: [
         {
           tone: "note",
           title: "这个项目是重建版",
+          titleEn: "This project is a rebuild",
           body: (
             <p>
               这个参考项目是<strong>为练习专门搭的</strong>：结构、TODO、测试、
@@ -1061,7 +1256,14 @@ Tests:       6 failed, 4 passed, 10 total`,
 async orders(user, _, { dataSources }) {
   return dataSources.orderDataSource.getOrdersByUserId(user.id);
 }`,
-              { filename: "推导 · 第一步" },
+              {
+                filename: "推导 · 第一步",
+                filenameEn: "Working it out · step one",
+                codeEn: `// Step one
+async orders(user, _, { dataSources }) {
+  return dataSources.orderDataSource.getOrdersByUserId(user.id);
+}`,
+              },
             ),
             demo(
               "js",
@@ -1078,7 +1280,23 @@ async orders(user, _, { dataSources, correlationId }) {
     });
   }
 }`,
-              { filename: "推导 · 第二、三步" },
+              {
+                filename: "推导 · 第二、三步",
+                filenameEn: "Working it out · steps two and three",
+                codeEn: `// Step two plus step three
+async orders(user, _, { dataSources, correlationId }) {
+  try {
+    console.log(\`[\${correlationId}] Resolving User.orders for userId: \${user.id}\`);
+    const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+    return orders ?? [];
+  } catch (error) {
+    console.error(\`[\${correlationId}] Error resolving User.orders:\`, error.message);
+    throw new GraphQLError('Failed to fetch orders for user', {
+      extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId, originalError: error.message }
+    });
+  }
+}`,
+              },
             ),
           ],
         },
@@ -1189,7 +1407,27 @@ try {
   if (error instanceof GraphQLError) throw error;
   throw new GraphQLError('Failed to fetch orders', { ... });
 }`,
-              { filename: "一行之差" },
+              {
+                filename: "一行之差",
+                filenameEn: "One line apart",
+                codeEn: `// ✗ no check: the INVALID_INPUT you threw gets swallowed by your own catch
+try {
+  if (!userId) throw new GraphQLError('userId is required', {
+    extensions: { code: 'INVALID_INPUT', correlationId }
+  });
+  ...
+} catch (error) {
+  throw new GraphQLError('Failed to fetch orders', {
+    extensions: { code: 'SERVICE_ERROR', correlationId }   // ← now it says SERVICE_ERROR
+  });
+}
+
+// ✓ let an already structured error through first
+} catch (error) {
+  if (error instanceof GraphQLError) throw error;
+  throw new GraphQLError('Failed to fetch orders', { ... });
+}`,
+              },
             ),
           ],
         },
@@ -1242,6 +1480,28 @@ try {
 }`,
               {
                 filename: "User.orders（参考答案，实测通过）",
+                filenameEn: "User.orders (reference answer, measured to pass)",
+                codeEn: `async orders(user, _, { dataSources, loaders, correlationId }) {
+  try {
+    console.log(\`[\${correlationId}] Resolving User.orders for userId: \${user.id}\`);
+
+    const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+
+    // the schema says [Order!]! -> never return null
+    return orders ?? [];
+  } catch (error) {
+    if (error instanceof GraphQLError) throw error;
+
+    console.error(\`[\${correlationId}] Error resolving User.orders:\`, error.message);
+    throw new GraphQLError('Failed to fetch orders for user', {
+      extensions: {
+        code: ErrorCodes.SERVICE_ERROR,
+        correlationId,
+        originalError: error.message
+      }
+    });
+  }
+}`,
                 highlight: [8, 10],
               },
             ),
@@ -1300,6 +1560,7 @@ try {
 });`,
               {
                 filename: "__tests__/resolvers.test.js（两个相关测试）",
+                filenameEn: "__tests__/resolvers.test.js (the two related tests)",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/__tests__/resolvers.test.js",
               },
@@ -1314,7 +1575,18 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
      {"id":"order-456","status":"SHIPPED"},
      {"id":"order-457","status":"DELIVERED"}]}]}
    errors: []`,
-              { filename: "federation 链路验证" },
+              {
+                filename: "federation 链路验证",
+                filenameEn: "Checking the federation path",
+                codeEn: `# Walking the federation path with _entities (output measured in the audit)
+query($r:[_Any!]!){ _entities(representations:$r){ ... on User { id orders { id status } } } }
+variables: { "r": [{ "__typename": "User", "id": "123" }] }
+
+→ {"_entities":[{"id":"123","orders":[
+     {"id":"order-456","status":"SHIPPED"},
+     {"id":"order-457","status":"DELIVERED"}]}]}
+   errors: []`,
+              },
             ),
           ],
         },
@@ -1324,11 +1596,19 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
           kind: "fill-blank",
           id: "g-t1-blank",
           title: "补全 User.orders",
+          titleEn: "Fill in User.orders",
           level: 2,
           prompt: (
             <p>
               四个空。第 2 个是数据源上的<strong>真实方法名</strong>，
               第 4 个是那行最容易漏的防御。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The second is the{" "}
+              <strong>method name that really exists</strong> on the data
+              source; the fourth is the guard people most often forget.
             </p>
           ),
           language: "js",
@@ -1356,6 +1636,8 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
               n: 1,
               accept: ["id"],
               hint: "__resolveReference 返回了什么？parent 上只有那一个属性。",
+              hintEn:
+                "What did __resolveReference return? The parent has only that one property.",
               why: (
                 <>
                   <code>id</code>。<code>__resolveReference</code> 返回的是
@@ -1364,12 +1646,22 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
                   会拿到 undefined。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>id</code>. <code>__resolveReference</code> returns{" "}
+                  <code>{'{ id: user.id }'}</code>, so the parent{" "}
+                  <strong>only has id</strong>. Reach for{" "}
+                  <code>user.email</code> and you get undefined.
+                </>
+              ),
               width: 4,
             },
             {
               n: 2,
               accept: ["getOrdersByUserId"],
               hint: "去 orderDataSource.js 核对真实方法名，别凭直觉写。",
+              hintEn:
+                "Check the real method name in orderDataSource.js. Do not write what feels right.",
               why: (
                 <>
                   <code>getOrdersByUserId</code>。
@@ -1382,12 +1674,26 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
                   这类「听起来很合理但不存在」的名字正是这个项目埋雷的手法。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>getOrdersByUserId</code>.{" "}
+                  <code>OrderDataSource</code> has only three methods:{" "}
+                  <code>getOrder</code>, <code>getOrdersByUserId</code> and{" "}
+                  <code>createOrder</code>.
+                  <br />
+                  <code>getOrders</code>, <code>findByUserId</code> and{" "}
+                  <code>getUserOrders</code> do not exist. Names that sound
+                  reasonable but are not there is exactly how this project
+                  plants its bugs.
+                </>
+              ),
               width: 20,
             },
             {
               n: 3,
               accept: ["??", "||"],
               hint: "schema 说这个字段是 [Order!]!。",
+              hintEn: "The schema says this field is [Order!]!.",
               why: (
                 <>
                   <code>??</code>。<code>[Order!]!</code> 双重非空，
@@ -1398,12 +1704,25 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
                   「没有订单」的正确表达是 <code>[]</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>??</code>. <code>[Order!]!</code> is non-null twice, so
+                  returning null triggers{" "}
+                  <code>Cannot return null for non-nullable field</code> and
+                  the error moves upward.
+                  <br />
+                  The right way to say &ldquo;no orders&rdquo; is{" "}
+                  <code>[]</code>.
+                </>
+              ),
               width: 4,
             },
             {
               n: 4,
               accept: ["instanceof"],
               hint: "怎么判断「这个错误已经是我构造过的结构化错误」？",
+              hintEn:
+                "How do you tell that this error is already a structured error you built?",
               why: (
                 <>
                   <code>instanceof</code>。
@@ -1417,6 +1736,22 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
                   <strong>这正是项目里埋雷 3 的病因。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>instanceof</code>.{" "}
+                  <code>if (error instanceof GraphQLError) throw error;</code>
+                  <br />
+                  Without that line, the{" "}
+                  <code>INVALID_INPUT</code> or <code>ORDER_NOT_FOUND</code>{" "}
+                  you threw yourself gets rewrapped by your own catch as{" "}
+                  <code>SERVICE_ERROR</code>, and the client is told something
+                  completely wrong.
+                  <br />
+                  <strong>
+                    This is precisely the cause of planted bug 3 in the project.
+                  </strong>
+                </>
+              ),
               width: 12,
             },
           ],
@@ -1425,11 +1760,19 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
           kind: "code-completion",
           id: "g-t1-write",
           title: "不看答案，自己写出 User.orders",
+          titleEn: "Write User.orders yourself, without looking at the answer",
           level: 3,
           prompt: (
             <p>
               按 TODO 的三条要求写完整实现。检查器会核对方法名、兜底、
               错误处理和 correlation id。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Write the full implementation against the three requirements in
+              the TODO. The checker looks at the method name, the fallback, the
+              error handling and the correlation id.
             </p>
           ),
           language: "js",
@@ -1438,6 +1781,16 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
             "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           starter: `// TODO: Implement orders resolver with proper error handling and correlation ID tracing
 // schema: orders: [Order!]!   （双重非空）
+// context: { dataSources: { orderDataSource, inventoryDataSource, shippingDataSource },
+//            loaders: { shippingInfoLoader, orderLoader },
+//            correlationId }
+// OrderDataSource: getOrder(id) / getOrdersByUserId(userId) / createOrder(userId, items)
+
+async orders(user, _, { dataSources, loaders, correlationId }) {
+
+}`,
+          starterEn: `// TODO: Implement orders resolver with proper error handling and correlation ID tracing
+// schema: orders: [Order!]!   (non-null twice)
 // context: { dataSources: { orderDataSource, inventoryDataSource, shippingDataSource },
 //            loaders: { shippingInfoLoader, orderLoader },
 //            correlationId }
@@ -1455,25 +1808,37 @@ async orders(user, _, { dataSources, loaders, correlationId }) {
             "已经是 GraphQLError 的错误要原样往上抛，不要重新包装",
             "日志里带上 correlationId",
           ],
+          requirementsEn: [
+            "Use user.id to fetch that user's orders",
+            "Call a method that really exists on the data source",
+            "Never return null or undefined (the schema says [Order!]!)",
+            "Wrap it in try/catch and throw a GraphQLError on failure",
+            "Put code and correlationId in the error's extensions",
+            "Rethrow an error that is already a GraphQLError untouched, without rewrapping it",
+            "Include correlationId in the log line",
+          ],
           checks: [
             {
               label: "调用了 getOrdersByUserId（真实存在的方法）",
+              labelEn: "Calls getOrdersByUserId, a method that exists",
               must: "getOrdersByUserId\\s*\\(",
             },
             {
               label: "没有调用不存在的方法（getOrders / findByUser 等）",
+              labelEn: "Calls no method that does not exist (getOrders, findByUser and so on)",
               mustNot: "\\.(getOrders|findByUser|getUserOrders|getOrderById)\\s*\\(",
             },
-            { label: "用了 user.id 作为参数", must: "user\\.id" },
-            { label: "对 null/undefined 做了兜底（？？ [] 或 || []）", must: "(\\?\\?|\\|\\|)\\s*\\[\\s*\\]" },
-            { label: "用 try/catch 包住", must: "try[\\s\\S]*catch" },
-            { label: "抛了 GraphQLError", must: "throw new GraphQLError" },
-            { label: "extensions 里带了 correlationId", must: "extensions[\\s\\S]{0,160}correlationId" },
+            { label: "用了 user.id 作为参数", labelEn: "Passes user.id as the argument", must: "user\\.id" },
+            { label: "对 null/undefined 做了兜底（？？ [] 或 || []）", labelEn: "Falls back for null and undefined (?? [] or || [])", must: "(\\?\\?|\\|\\|)\\s*\\[\\s*\\]" },
+            { label: "用 try/catch 包住", labelEn: "Wrapped in try/catch", must: "try[\\s\\S]*catch" },
+            { label: "抛了 GraphQLError", labelEn: "Throws a GraphQLError", must: "throw new GraphQLError" },
+            { label: "extensions 里带了 correlationId", labelEn: "extensions carries correlationId", must: "extensions[\\s\\S]{0,160}correlationId" },
             {
               label: "先放行已结构化的错误（instanceof GraphQLError）",
+              labelEn: "Lets an already structured error through first (instanceof GraphQLError)",
               must: "instanceof\\s+GraphQLError",
             },
-            { label: "日志里用了 correlationId", must: "(console\\.(log|error))[\\s\\S]{0,60}correlationId" },
+            { label: "日志里用了 correlationId", labelEn: "The log line uses correlationId", must: "(console\\.(log|error))[\\s\\S]{0,60}correlationId" },
           ],
           hints: [
             "先问三个问题：这个用户的 id 从哪个参数拿？该调哪个数据源的哪个方法？schema 说这个字段能不能是 null？",
@@ -1490,6 +1855,26 @@ async orders(user, _, { dataSources, loaders, correlationId }) {
             `const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
 return orders ?? [];
 // catch 里：
+if (error instanceof GraphQLError) throw error;
+throw new GraphQLError('Failed to fetch orders for user', {
+  extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId, originalError: error.message }
+});`,
+          ],
+          hintsEn: [
+            "Start with three questions: which argument holds this user's id? Which method on which data source should you call? Does the schema allow this field to be null?",
+            "user.id comes from what __resolveReference returned. Check the method name in orderDataSource.js (it is not getOrders). The schema says [Order!]!, so fall back to []. Wrap the whole thing in try/catch, and make the first line of the catch check error instanceof GraphQLError.",
+            `try {
+  log a line that includes correlationId
+  const orders = await dataSource.getOrdersByUserId(user.id)
+  return orders, falling back to []
+} catch (error) {
+  if error is already a GraphQLError, rethrow it untouched
+  log the error
+  throw a new GraphQLError with code and correlationId in extensions
+}`,
+            `const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+return orders ?? [];
+// inside the catch:
 if (error instanceof GraphQLError) throw error;
 throw new GraphQLError('Failed to fetch orders for user', {
   extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId, originalError: error.message }
@@ -1518,7 +1903,32 @@ throw new GraphQLError('Failed to fetch orders for user', {
     });
   }
 }`,
-            { filename: "参考答案（审计实测：相关测试通过）" },
+            {
+              filename: "参考答案（审计实测：相关测试通过）",
+              filenameEn:
+                "Reference answer (measured in the audit: the related tests pass)",
+              codeEn: `async orders(user, _, { dataSources, loaders, correlationId }) {
+  try {
+    console.log(\`[\${correlationId}] Resolving User.orders for userId: \${user.id}\`);
+
+    const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+
+    // the schema says [Order!]! -> never return null
+    return orders ?? [];
+  } catch (error) {
+    if (error instanceof GraphQLError) throw error;
+
+    console.error(\`[\${correlationId}] Error resolving User.orders:\`, error.message);
+    throw new GraphQLError('Failed to fetch orders for user', {
+      extensions: {
+        code: ErrorCodes.SERVICE_ERROR,
+        correlationId,
+        originalError: error.message
+      }
+    });
+  }
+}`,
+            },
           ),
         },
       ],
@@ -1530,6 +1940,12 @@ throw new GraphQLError('Failed to fetch orders for user', {
 async orders(user, _, { loaders }) {
   return loaders.orderLoader.load(user.id);
 }`,
+            {
+              codeEn: `// ✗ uses the loader instead of the data source
+async orders(user, _, { loaders }) {
+  return loaders.orderLoader.load(user.id);
+}`,
+            },
           ),
           why: (
             <>
@@ -1561,6 +1977,12 @@ async orders(user, _, { loaders }) {
 async orders(user, _, { dataSources }) {
   return await dataSources.orderDataSource.getOrdersByUserId(user.id);
 }`,
+            {
+              codeEn: `// ✗ forgot the fallback
+async orders(user, _, { dataSources }) {
+  return await dataSources.orderDataSource.getOrdersByUserId(user.id);
+}`,
+            },
           ),
           why: (
             <>
@@ -1788,6 +2210,17 @@ async shippingInfo(parent, _, { loaders }) {
 async shippingInfo(parent, _, { dataSources }) {
   return dataSources.shippingDataSource.getShippingInfo(parent.id);
 }`,
+              {
+                codeEn: `// ✓ goes through the loader — this answers the N+1 question
+async shippingInfo(parent, _, { loaders }) {
+  return loaders.shippingInfoLoader.load(parent.id);
+}
+
+// ✗ calls the data source directly — tests still pass, but one request per order
+async shippingInfo(parent, _, { dataSources }) {
+  return dataSources.shippingDataSource.getShippingInfo(parent.id);
+}`,
+              },
             ),
             real(
               "js",
@@ -1807,6 +2240,21 @@ it('should return null for order without shipping info', async () => {
 });`,
               {
                 filename: "两个相关测试",
+                filenameEn: "The two related tests",
+                codeEn: `it('should return shipping info for an order', async () => {
+  const order = { id: 'order-456' };                    // ← just one order
+  const shippingInfo = await resolvers.Order.shippingInfo(order, {}, context);
+
+  expect(shippingInfo).toBeDefined();
+  expect(shippingInfo).toHaveProperty('status');
+  expect(shippingInfo).toHaveProperty('trackingNumber');
+});
+
+it('should return null for order without shipping info', async () => {
+  const order = { id: 'order-999' };
+  const shippingInfo = await resolvers.Order.shippingInfo(order, {}, context);
+  expect(shippingInfo).toBeNull();                      // ← note it is toBeNull
+});`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/__tests__/resolvers.test.js",
                 highlight: [2, 12],
@@ -1933,6 +2381,29 @@ it('should return null for order without shipping info', async () => {
 }`,
               {
                 filename: "Order.shippingInfo（参考答案，实测通过）",
+                filenameEn:
+                  "Order.shippingInfo (reference answer, measured to pass)",
+                codeEn: `async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
+  try {
+    // going through the loader is what keeps this field from causing N+1
+    const shippingInfo = await loaders.shippingInfoLoader.load(parent.id);
+
+    // ShippingInfo is nullable in the schema -> null is a legal answer
+    return shippingInfo ?? null;
+  } catch (error) {
+    if (error instanceof GraphQLError) throw error;
+
+    console.error(\`[\${correlationId}] Error resolving Order.shippingInfo:\`, error.message);
+    throw new GraphQLError('Failed to fetch shipping info', {
+      extensions: {
+        code: ErrorCodes.SERVICE_ERROR,
+        correlationId,
+        orderId: parent.id,
+        originalError: error.message
+      }
+    });
+  }
+}`,
                 highlight: [4, 7],
               },
             ),
@@ -1985,7 +2456,7 @@ it('should return null for order without shipping info', async () => {
     shippingInfo { status trackingNumber }
   }
 }`,
-              { filename: "验证用的查询" },
+              { filename: "验证用的查询", filenameEn: "The query used to check it" },
             ),
             real(
               "text",
@@ -1999,7 +2470,20 @@ it('should return null for order without shipping info', async () => {
    "shippingInfo":{"status":"IN_TRANSIT","trackingNumber":"TRACK123456"}},
   {"id":"order-457","status":"DELIVERED",
    "shippingInfo":{"status":"DELIVERED","trackingNumber":"TRACK123457"}}]}`,
-              { filename: "合并生效的证据" },
+              {
+                filename: "合并生效的证据",
+                filenameEn: "Evidence the batching worked",
+                codeEn: `# The log you want (one line, N=2)
+[corr-...] Query.orders userId: 123
+[DataLoader] Batching 2 shipping info requests
+
+# The response measured in the audit (with the reference answer)
+{"orders":[
+  {"id":"order-456","status":"SHIPPED",
+   "shippingInfo":{"status":"IN_TRANSIT","trackingNumber":"TRACK123456"}},
+  {"id":"order-457","status":"DELIVERED",
+   "shippingInfo":{"status":"DELIVERED","trackingNumber":"TRACK123457"}}]}`,
+              },
             ),
           ],
         },
@@ -2009,11 +2493,18 @@ it('should return null for order without shipping info', async () => {
           kind: "fill-blank",
           id: "g-t2-blank",
           title: "补全 Order.shippingInfo",
+          titleEn: "Fill in Order.shippingInfo",
           level: 2,
           prompt: (
             <p>
               三个空。第 1 个决定你答不答得到 N+1 考点，
               第 3 个决定第二条测试过不过。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Three blanks. The first decides whether you answer the N+1
+              question at all; the third decides whether the second test passes.
             </p>
           ),
           language: "js",
@@ -2038,6 +2529,8 @@ it('should return null for order without shipping info', async () => {
               n: 1,
               accept: ["loaders"],
               hint: "TODO 原文点名了要用什么。context 里哪个键放着它？",
+              hintEn:
+                "The TODO names what to use. Which key in context holds it?",
               why: (
                 <>
                   <code>loaders</code>。TODO 原文写的是
@@ -2048,12 +2541,27 @@ it('should return null for order without shipping info', async () => {
                   但那样 N+1 这个考点就没答到 —— 这一问的分主要在这里。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>loaders</code>. The TODO says{" "}
+                  <em>using DataLoader to prevent N+1 queries</em>.
+                  <br />
+                  Writing{" "}
+                  <code>dataSources.shippingDataSource.getShippingInfo(...)</code>{" "}
+                  <strong>also passes both tests</strong>, because each test
+                  only asks for one order. But then the N+1 question goes
+                  unanswered, and that is where most of the credit for this part
+                  sits.
+                </>
+              ),
               width: 9,
             },
             {
               n: 2,
               accept: ["id"],
               hint: "parent 是那个 order 对象。loader 的 key 是什么？",
+              hintEn:
+                "parent is that order object. What is the loader's key?",
               why: (
                 <>
                   <code>id</code>。<code>shippingInfoLoader</code> 的 batch 函数
@@ -2065,12 +2573,27 @@ it('should return null for order without shipping info', async () => {
                   <code>status</code> 等属性。别传成 <code>parent.userId</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>id</code>. The batch function of{" "}
+                  <code>shippingInfoLoader</code> calls{" "}
+                  <code>getShippingInfo(orderId)</code>, so the key is the order
+                  id.
+                  <br />
+                  <code>parent</code> is the order object returned one level
+                  up. It has <code>id</code>, <code>userId</code>,{" "}
+                  <code>status</code> and so on. Do not pass{" "}
+                  <code>parent.userId</code> by mistake.
+                </>
+              ),
               width: 4,
             },
             {
               n: 3,
               accept: ["null"],
               hint: "schema 说 ShippingInfo 可空；而测试断言的是 toBeNull()。",
+              hintEn:
+                "The schema says ShippingInfo is nullable, and the test asserts toBeNull().",
               why: (
                 <>
                   <code>null</code>。两个理由：
@@ -2085,6 +2608,23 @@ it('should return null for order without shipping info', async () => {
                   写成 <code>[]</code> 或 <code>{"{}"}</code> 都会让测试挂。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>null</code>, for two reasons:
+                  <br />① In the schema{" "}
+                  <code>shippingInfo: ShippingInfo</code> has no{" "}
+                  <code>!</code>, so it is nullable.
+                  <br />② The test uses{" "}
+                  <code>expect(shippingInfo).toBeNull()</code> —{" "}
+                  <strong>
+                    <code>undefined</code> is not <code>null</code>
+                  </strong>
+                  , and that assertion would fail. So fall back to null
+                  explicitly.
+                  <br />
+                  <code>[]</code> or <code>{"{}"}</code> both break the test.
+                </>
+              ),
               width: 6,
             },
           ],
@@ -2093,6 +2633,7 @@ it('should return null for order without shipping info', async () => {
           kind: "recognition",
           id: "g-t2-why-loader",
           title: "为什么不能直接调数据源",
+          titleEn: "Why you cannot just call the data source",
           level: 1,
           prompt: (
             <p>
@@ -2100,11 +2641,17 @@ it('should return null for order without shipping info', async () => {
               能让两条测试都通过。为什么还是错的？
             </p>
           ),
+          promptEn: (
+            <p>
+              <code>dataSources.shippingDataSource.getShippingInfo(parent.id)</code>{" "}
+              makes both tests pass. So why is it still wrong?
+            </p>
+          ),
           options: [
-            { id: "a", label: "它会返回 undefined 而不是 null" },
-            { id: "b", label: "TODO 原文明确要求用 DataLoader 防 N+1；查 N 个订单会产生 N 次数据源调用" },
-            { id: "c", label: "shippingDataSource 不在 context 里" },
-            { id: "d", label: "它是同步的，不能 await" },
+            { id: "a", label: "它会返回 undefined 而不是 null", labelEn: "It returns undefined instead of null" },
+            { id: "b", label: "TODO 原文明确要求用 DataLoader 防 N+1；查 N 个订单会产生 N 次数据源调用", labelEn: "The TODO explicitly asks for DataLoader to prevent N+1; asking for N orders produces N calls to the data source" },
+            { id: "c", label: "shippingDataSource 不在 context 里", labelEn: "shippingDataSource is not in context" },
+            { id: "d", label: "它是同步的，不能 await", labelEn: "It is synchronous, so you cannot await it" },
           ],
           answer: ["b"],
           explain: (
@@ -2119,6 +2666,23 @@ it('should return null for order without shipping info', async () => {
               验证方式：数日志里 <code>[DataLoader] Batching</code> 的行数。
             </>
           ),
+          explainEn: (
+            <>
+              Each test only asks for one order, so it <strong>cannot see</strong>{" "}
+              the difference. But the TODO names DataLoader, and asking for 100
+              orders with a direct data-source call produces 100 requests.
+              <br />
+              <strong>
+                This is the third place in this project where a passing test
+                does not mean correct code
+              </strong>{" "}
+              (the first two: the three tests that pass by accident, and the
+              Java side scoring 3/5 while returning null everywhere).
+              <br />
+              How to check: count the{" "}
+              <code>[DataLoader] Batching</code> lines in the log.
+            </>
+          ),
         },
       ],
       mistakes: [
@@ -2130,6 +2694,13 @@ async shippingInfo(parent, _, { loaders }) {
   await new Promise((r) => setTimeout(r, 0));       // 多余的一跳
   return loaders.shippingInfoLoader.load(parent.id);
 }`,
+            {
+              codeEn: `// ✗ awaiting each one inside the resolver breaks the merge
+async shippingInfo(parent, _, { loaders }) {
+  await new Promise((r) => setTimeout(r, 0));       // an extra hop for nothing
+  return loaders.shippingInfoLoader.load(parent.id);
+}`,
+            },
           ),
           why: (
             <>
@@ -2161,6 +2732,12 @@ async shippingInfo(parent, _, { loaders }) {
 async shippingInfo(parent, _, { loaders }) {
   return loaders.orderLoader.load(parent.id);
 }`,
+            {
+              codeEn: `// ✗ the wrong loader
+async shippingInfo(parent, _, { loaders }) {
+  return loaders.orderLoader.load(parent.id);
+}`,
+            },
           ),
           why: (
             <>
@@ -2239,6 +2816,7 @@ async shippingInfo(parent, _, { loaders }) {
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "Query.order 与 Query.orders",
+          roleEn: "Query.order and Query.orders",
           edit: true,
         },
       ],
@@ -2477,6 +3055,13 @@ async shippingInfo(parent, _, { loaders }) {
 };`,
               {
                 filename: "starter 里给好的错误码表",
+                filenameEn: "The error-code table the starter gives you",
+                codeEn: `const ErrorCodes = {
+  ORDER_NOT_FOUND: 'ORDER_NOT_FOUND',   // ← used by Query.order
+  INVALID_INPUT: 'INVALID_INPUT',       // ← used by Query.orders and createOrder
+  INVENTORY_ERROR: 'INVENTORY_ERROR',   // ← unused in the reference answer
+  SERVICE_ERROR: 'SERVICE_ERROR'        // ← the catch-all
+};`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
               },
@@ -2515,6 +3100,37 @@ async shippingInfo(parent, _, { loaders }) {
 }`,
               {
                 filename: "Query.order（参考答案）",
+                filenameEn: "Query.order (reference answer)",
+                codeEn: `async order(_, { id }, { dataSources, loaders, correlationId }) {
+  try {
+    console.log(\`[\${correlationId}] Query.order id: \${id}\`);
+
+    const order = await loaders.orderLoader.load(id);
+
+    if (!order) {
+      throw new GraphQLError(\`Order not found: \${id}\`, {
+        extensions: {
+          code: ErrorCodes.ORDER_NOT_FOUND,
+          correlationId,
+          orderId: id
+        }
+      });
+    }
+
+    return order;
+  } catch (error) {
+    if (error instanceof GraphQLError) throw error;   // ← the key line: let the one above through
+
+    console.error(\`[\${correlationId}] Error in Query.order:\`, error.message);
+    throw new GraphQLError('Failed to fetch order', {
+      extensions: {
+        code: ErrorCodes.SERVICE_ERROR,
+        correlationId,
+        originalError: error.message
+      }
+    });
+  }
+}`,
                 highlight: [5, 7, 19],
               },
             ),
@@ -2678,6 +3294,8 @@ async shippingInfo(parent, _, { loaders }) {
 }`,
               {
                 filename: "Query.orders（参考答案，实测两条测试通过）",
+                filenameEn:
+                  "Query.orders (reference answer, both tests measured to pass)",
                 highlight: [1, 5, 15, 17],
               },
             ),
@@ -2764,10 +3382,17 @@ async shippingInfo(parent, _, { loaders }) {
           kind: "fill-blank",
           id: "g-t34-blank",
           title: "补全两个 Query resolver",
+          titleEn: "Fill in both Query resolvers",
           level: 2,
           prompt: (
             <p>
               四个空横跨两个 resolver。注意它们数据来源不同、兜底策略不同。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks across two resolvers. Note they read from different
+              places and need different fallbacks.
             </p>
           ),
           language: "js",
@@ -2810,6 +3435,8 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
               n: 1,
               accept: ["orderLoader"],
               hint: "TODO 说用 DataLoader。context.loaders 里有两个，选按 order id 取的那个。",
+              hintEn:
+                "The TODO says use DataLoader. context.loaders holds two; pick the one keyed by order id.",
               why: (
                 <>
                   <code>orderLoader</code>。它的 batch 函数调
@@ -2818,12 +3445,24 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   别选 <code>shippingInfoLoader</code> —— 那个取的是物流信息。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>orderLoader</code>. Its batch function calls{" "}
+                  <code>getOrder(id)</code>, which is exactly &ldquo;fetch one
+                  order by its id&rdquo;.
+                  <br />
+                  Do not pick <code>shippingInfoLoader</code> — that one fetches
+                  shipping information.
+                </>
+              ),
               width: 13,
             },
             {
               n: 2,
               accept: ["ORDER_NOT_FOUND"],
               hint: "starter 里给好的 ErrorCodes 表里，哪个是为这个场景准备的？",
+              hintEn:
+                "In the ErrorCodes table the starter gives you, which one was prepared for this case?",
               why: (
                 <>
                   <code>ORDER_NOT_FOUND</code>。
@@ -2834,12 +3473,28 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   看到一个没用上的错误码，就该想「它是为哪个场景准备的」。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>ORDER_NOT_FOUND</code>. The <code>ErrorCodes</code>{" "}
+                  table has it ready, and <strong>this is the only place that
+                  uses it</strong>.
+                  <br />
+                  <strong>
+                    A constant someone prepared for you is a hint about what to
+                    throw.
+                  </strong>{" "}
+                  When you see an unused error code, ask which case it was
+                  prepared for.
+                </>
+              ),
               width: 18,
             },
             {
               n: 3,
               accept: ["userId"],
               hint: "schema: orders(userId: ID!)。参数从哪个位置解构？",
+              hintEn:
+                "schema: orders(userId: ID!). Which argument do you destructure it from?",
               why: (
                 <>
                   <code>userId</code>。它在 <strong>args</strong>（第二个参数）里，
@@ -2852,12 +3507,31 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   <strong>同样一个「用户 id」，在两个 resolver 里来自不同参数。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>userId</code>. It lives in <strong>args</strong>, the
+                  second argument, because the schema declares{" "}
+                  <code>orders(userId: ID!)</code>.
+                  <br />
+                  The first argument is <code>_</code> — the parent of a
+                  top-level Query field means nothing.
+                  <br />
+                  Compare <code>User.orders</code>: there the id comes from{" "}
+                  <strong>parent</strong>, because it is a field on User.{" "}
+                  <strong>
+                    The same user id arrives through different arguments in the
+                    two resolvers.
+                  </strong>
+                </>
+              ),
               width: 8,
             },
             {
               n: 4,
               accept: ["[]"],
               hint: "schema 说 [Order!]!。「没有订单」怎么表达？",
+              hintEn:
+                "The schema says [Order!]!. How do you express \"no orders\"?",
               why: (
                 <>
                   <code>[]</code>。双重非空 → 不能返回 null，
@@ -2868,6 +3542,19 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   <strong>同一个项目里两种兜底策略，依据全在 schema 的感叹号上。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>[]</code>. Non-null twice means you cannot return null,
+                  but an empty array is legal.
+                  <br />
+                  Compare <code>Query.order</code> above: that one is nullable,
+                  so it can — and does — throw when it finds nothing.{" "}
+                  <strong>
+                    Two different fallbacks in the same project, and the
+                    exclamation marks in the schema decide which is which.
+                  </strong>
+                </>
+              ),
               width: 5,
             },
           ],
@@ -2876,11 +3563,20 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
           kind: "code-completion",
           id: "g-t34-write",
           title: "不看答案，自己写出两个 Query resolver",
+          titleEn:
+            "Write both Query resolvers yourself, without looking at the answer",
           level: 3,
           prompt: (
             <p>
               两个函数一起写。注意它们的数据来源、兜底策略、
               context 解构都不一样。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Write both functions together. They differ in where they read
+              from, what they fall back to, and what they destructure out of
+              context.
             </p>
           ),
           language: "js",
@@ -2902,6 +3598,21 @@ async order(_, { id }, { dataSources, loaders, correlationId }) {
 async orders(_, { userId }, { dataSources, correlationId }) {
 
 }`,
+          starterEn: `// schema:
+//   order(id: ID!): Order              nullable
+//   orders(userId: ID!): [Order!]!     non-null twice
+// context: { dataSources: { orderDataSource, ... }, loaders: { orderLoader, shippingInfoLoader }, correlationId }
+// ErrorCodes: ORDER_NOT_FOUND / INVALID_INPUT / INVENTORY_ERROR / SERVICE_ERROR
+
+// TODO: Implement order query using DataLoader with structured error handling
+async order(_, { id }, { dataSources, loaders, correlationId }) {
+
+},
+
+// TODO: Implement orders query with error handling and correlation ID logging
+async orders(_, { userId }, { dataSources, correlationId }) {
+
+}`,
           requirements: [
             "Query.order 用 orderLoader 取数据",
             "Query.order 找不到时抛带 ORDER_NOT_FOUND code 的 GraphQLError",
@@ -2911,16 +3622,25 @@ async orders(_, { userId }, { dataSources, correlationId }) {
             "两个都用 try/catch，catch 里先放行已有的 GraphQLError",
             "两个都在日志里带上 correlationId",
           ],
+          requirementsEn: [
+            "Query.order reads through orderLoader",
+            "When Query.order finds nothing, it throws a GraphQLError carrying the ORDER_NOT_FOUND code",
+            "Query.orders reads through orderDataSource.getOrdersByUserId",
+            "Query.orders validates userId and throws INVALID_INPUT when it is not valid",
+            "Query.orders never returns null (the schema says [Order!]!)",
+            "Both use try/catch, and the catch lets an existing GraphQLError through first",
+            "Both include correlationId in their log line",
+          ],
           checks: [
-            { label: "Query.order 用了 orderLoader.load", must: "orderLoader\\s*\\.\\s*load" },
-            { label: "抛了 ORDER_NOT_FOUND", must: "ORDER_NOT_FOUND" },
-            { label: "Query.orders 用了 getOrdersByUserId", must: "getOrdersByUserId\\s*\\(" },
-            { label: "Query.orders 校验了 userId", must: "if\\s*\\(\\s*!\\s*userId" },
-            { label: "用了 INVALID_INPUT", must: "INVALID_INPUT" },
-            { label: "非空列表兜底成 []", must: "(\\?\\?|\\|\\|)\\s*\\[\\s*\\]" },
-            { label: "两处都放行了已结构化的错误", must: "instanceof\\s+GraphQLError[\\s\\S]*instanceof\\s+GraphQLError" },
-            { label: "日志带了 correlationId", must: "console\\.(log|error)[\\s\\S]{0,60}correlationId" },
-            { label: "Query.orders 没有误用 loader", mustNot: "orders\\s*\\([\\s\\S]{0,200}loaders\\.\\w+\\.load" },
+            { label: "Query.order 用了 orderLoader.load", labelEn: "Query.order uses orderLoader.load", must: "orderLoader\\s*\\.\\s*load" },
+            { label: "抛了 ORDER_NOT_FOUND", labelEn: "Throws ORDER_NOT_FOUND", must: "ORDER_NOT_FOUND" },
+            { label: "Query.orders 用了 getOrdersByUserId", labelEn: "Query.orders uses getOrdersByUserId", must: "getOrdersByUserId\\s*\\(" },
+            { label: "Query.orders 校验了 userId", labelEn: "Query.orders validates userId", must: "if\\s*\\(\\s*!\\s*userId" },
+            { label: "用了 INVALID_INPUT", labelEn: "Uses INVALID_INPUT", must: "INVALID_INPUT" },
+            { label: "非空列表兜底成 []", labelEn: "The non-null list falls back to []", must: "(\\?\\?|\\|\\|)\\s*\\[\\s*\\]" },
+            { label: "两处都放行了已结构化的错误", labelEn: "Both places let an already structured error through", must: "instanceof\\s+GraphQLError[\\s\\S]*instanceof\\s+GraphQLError" },
+            { label: "日志带了 correlationId", labelEn: "The log line carries correlationId", must: "console\\.(log|error)[\\s\\S]{0,60}correlationId" },
+            { label: "Query.orders 没有误用 loader", labelEn: "Query.orders does not reach for a loader by mistake", mustNot: "orders\\s*\\([\\s\\S]{0,200}loaders\\.\\w+\\.load" },
           ],
           hints: [
             "先分清两个字段的差别：一个取单条（可空）、一个取列表（非空）。schema 的感叹号决定了它们「找不到时」的行为完全不同。",
@@ -2940,6 +3660,43 @@ async orders(_, { userId }, ctx) {
     if (!userId) throw 带 INVALID_INPUT 的 GraphQLError
     return (await 数据源.getOrdersByUserId(userId)) ?? []
   } catch (e) { 同上 }
+}`,
+            `// Query.order
+const order = await loaders.orderLoader.load(id);
+if (!order) {
+  throw new GraphQLError(\`Order not found: \${id}\`, {
+    extensions: { code: ErrorCodes.ORDER_NOT_FOUND, correlationId, orderId: id }
+  });
+}
+return order;
+
+// Query.orders
+if (!userId) {
+  throw new GraphQLError('userId is required', {
+    extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+  });
+}
+const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
+return orders ?? [];`,
+          ],
+          hintsEn: [
+            "Start by separating the two fields: one fetches a single record (nullable), the other a list (non-null). The exclamation marks in the schema make their \"found nothing\" behaviour completely different.",
+            "Query.order uses loaders.orderLoader.load(id) and throws ORDER_NOT_FOUND when it finds nothing. Query.orders uses dataSources.orderDataSource.getOrdersByUserId(userId) and falls back to []. Both need try/catch, and the first line of each catch lets a GraphQLError through.",
+            `async order(_, { id }, ctx) {
+  try {
+    log a line
+    const order = await loaders.orderLoader.load(id)
+    if (not found) throw a GraphQLError with ORDER_NOT_FOUND
+    return order
+  } catch (e) { let a GraphQLError through, otherwise wrap as SERVICE_ERROR }
+}
+
+async orders(_, { userId }, ctx) {
+  try {
+    log a line
+    if (!userId) throw a GraphQLError with INVALID_INPUT
+    return (await dataSource.getOrdersByUserId(userId)) ?? []
+  } catch (e) { same as above }
 }`,
             `// Query.order
 const order = await loaders.orderLoader.load(id);
@@ -3022,6 +3779,8 @@ async orders(_, { userId }, { dataSources, correlationId }) {
 }`,
             {
               filename: "参考答案（审计实测：Query.orders 两条测试通过；Query.order 用 order-999 实测返回 ORDER_NOT_FOUND）",
+              filenameEn:
+                "Reference answer (measured in the audit: both Query.orders tests pass, and Query.order returns ORDER_NOT_FOUND for order-999)",
               collapsible: true,
             },
           ),
@@ -3035,6 +3794,12 @@ async orders(_, { userId }, { dataSources, correlationId }) {
 async orders(_, { userId }, { loaders }) {
   return loaders.orderLoader.load(userId);
 }`,
+            {
+              codeEn: `// ✗ Query.orders reaching for a loader too
+async orders(_, { userId }, { loaders }) {
+  return loaders.orderLoader.load(userId);
+}`,
+            },
           ),
           why: (
             <>
@@ -3073,6 +3838,11 @@ async orders(_, { userId }, { loaders }) {
             `// ✗ 找不到时返回 null（Query.order）
 const order = await loaders.orderLoader.load(id);
 return order ?? null;`,
+            {
+              codeEn: `// ✗ returning null when nothing is found (Query.order)
+const order = await loaders.orderLoader.load(id);
+return order ?? null;`,
+            },
           ),
           why: (
             <>
@@ -3149,11 +3919,13 @@ return order ?? null;`,
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
           role: "三处埋雷都在这里",
+          roleEn: "All three planted bugs are in here",
           edit: true,
         },
         {
           path: "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
           role: "核对方法名与签名的依据（PROVIDED，别改）",
+          roleEn: "What you check method names and signatures against (PROVIDED, do not change)",
         },
       ],
       concepts: [
@@ -3300,7 +4072,15 @@ orderIds.map(id => orderDataSource.getOrderById(id))
 
 // 后
 orderIds.map(id => orderDataSource.getOrder(id))`,
-              { filename: "埋雷 1 的修复" },
+              {
+                filename: "埋雷 1 的修复",
+                filenameEn: "The fix for planted bug 1",
+                codeEn: `// before
+orderIds.map(id => orderDataSource.getOrderById(id))
+
+// after
+orderIds.map(id => orderDataSource.getOrder(id))`,
+              },
             ),
           ],
         },
@@ -3410,6 +4190,14 @@ async createOrder(userId, items) {          // ← 两个位置参数
 }`,
               {
                 filename: "核对依据",
+                filenameEn: "What you check against",
+                codeEn: `// The real signature of the data source, and what it does inside
+async createOrder(userId, items) {          // ← two positional arguments
+  const totalAmount = items.reduce((sum, item) => {
+    return sum + item.price * item.quantity;  // ← it needs item.price
+  }, 0);
+  ...
+}`,
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/dataSources/orderDataSource.js",
               },
@@ -3428,8 +4216,21 @@ const pricedItems = await Promise.all(
 const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);`,
               {
                 filename: "埋雷 2 的修复",
+                filenameEn: "The fix for planted bug 2",
+                codeEn: `// After the fix: look up price first, then use the right key name and signature
+const pricedItems = await Promise.all(
+  items.map(async item => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    price: await dataSources.inventoryDataSource.getProductPrice(item.productId)
+  }))
+);
+
+const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);`,
                 explanation:
                   "map 的回调是 async，所以必须外套 Promise.all —— 这是 Foundations 那门课讲过的固定套路。",
+                explanationEn:
+                  "The map callback is async, so it has to be wrapped in Promise.all. This is the fixed pattern the Foundations course covers.",
               },
             ),
           ],
@@ -3510,7 +4311,10 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
       137 |       } catch (error) {
       138 |         expect(error.extensions).toBeDefined();
     > 139 |         expect(error.extensions.code).toBe('INVALID_INPUT');`,
-              { filename: "本机实测的报错" },
+              {
+                filename: "本机实测的报错",
+                filenameEn: "The failure as it really appears locally",
+              },
             ),
             demo(
               "js",
@@ -3531,7 +4335,27 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
     extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId, originalError: error.message }
   });
 }`,
-              { filename: "埋雷 3 的修复（一行）" },
+              {
+                filename: "埋雷 3 的修复（一行）",
+                filenameEn: "The fix for planted bug 3 (one line)",
+                codeEn: `// before: your own error gets swallowed by your own catch
+} catch (error) {
+  console.error(\`[\${correlationId}] Error creating order:\`, error.message);
+  throw new GraphQLError('Failed to create order', {
+    extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId, originalError: error.message }
+  });
+}
+
+// after: let an already structured error through first
+} catch (error) {
+  if (error instanceof GraphQLError) throw error;
+
+  console.error(\`[\${correlationId}] Error creating order:\`, error.message);
+  throw new GraphQLError('Failed to create order', {
+    extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId, originalError: error.message }
+  });
+}`,
+              },
             ),
           ],
         },
@@ -3617,6 +4441,53 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
 }`,
               {
                 filename: "Mutation.createOrder（修复后，实测 10/10 通过）",
+                filenameEn:
+                  "Mutation.createOrder (after the fixes, measured 10/10 passing)",
+                codeEn: `async createOrder(_, { userId, items }, { dataSources, correlationId }) {
+  try {
+    console.log(\`[\${correlationId}] Creating order for userId: \${userId}\`);
+
+    if (!userId || !items || items.length === 0) {
+      throw new GraphQLError('Invalid order input', {
+        extensions: {
+          code: ErrorCodes.INVALID_INPUT,
+          correlationId
+        }
+      });
+    }
+
+    // OrderItemInput only carries productId + quantity.
+    // OrderDataSource.createOrder computes item.price * item.quantity inside,
+    // so the price has to be fetched from the inventory service first.
+    const pricedItems = await Promise.all(
+      items.map(async item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: await dataSources.inventoryDataSource.getProductPrice(item.productId)
+      }))
+    );
+
+    // FIX: in context it is called orderDataSource, not orderAPI,
+    // and the signature is createOrder(userId, items) — two positional arguments.
+    const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);
+    console.log(\`[\${correlationId}] Order created: \${order.id}\`);
+
+    return order;
+  } catch (error) {
+    // FIX: do not rewrap an error that is already a structured GraphQLError,
+    // or INVALID_INPUT reaches the client as SERVICE_ERROR.
+    if (error instanceof GraphQLError) throw error;
+
+    console.error(\`[\${correlationId}] Error creating order:\`, error.message);
+    throw new GraphQLError('Failed to create order', {
+      extensions: {
+        code: ErrorCodes.SERVICE_ERROR,
+        correlationId,
+        originalError: error.message
+      }
+    });
+  }
+}`,
                 highlight: [17, 18, 19, 20, 21, 22, 23, 26, 33],
                 collapsible: true,
               },
@@ -3645,7 +4516,11 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
 
 Test Suites: 1 passed, 1 total
 Tests:       10 passed, 10 total`,
-              { filename: "审计时的真实输出（参考解法）" },
+              {
+                filename: "审计时的真实输出（参考解法）",
+                filenameEn:
+                  "The real output from the audit (with the reference answer)",
+              },
             ),
           ],
         },
@@ -3726,11 +4601,18 @@ Tests:       10 passed, 10 total`,
           kind: "debug",
           id: "g-debug-orderapi",
           title: "Debug Lab · Cannot read properties of undefined",
+          titleEn: "Debug Lab · Cannot read properties of undefined",
           level: 3,
           prompt: (
             <p>
               <code>Mutation.createOrder</code> 的测试挂了。
               报错说在读一个 undefined 的属性。自己分诊。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The <code>Mutation.createOrder</code> test fails. The error says
+              something read a property of undefined. Diagnose it yourself.
             </p>
           ),
           errorOutput: `● Order Resolvers › Mutation.createOrder resolver › should create a new order successfully
@@ -3745,6 +4627,18 @@ Tests:       10 passed, 10 total`,
   console.error
     [test-correlation-id] Error creating order: Cannot read properties of
     undefined (reading 'createOrder')`,
+          errorOutputEn: `● Order Resolvers › Mutation.createOrder resolver › should create a new order successfully
+
+    GraphQLError: Failed to create order
+
+      91 |       } catch (error) {
+      92 |         console.error(\`[\${correlationId}] Error creating order:\`, error.message);
+    > 93 |         throw new GraphQLError('Failed to create order', {
+
+# Scroll up: the raw error that console.error printed is
+  console.error
+    [test-correlation-id] Error creating order: Cannot read properties of
+    undefined (reading 'createOrder')`,
           broken: demo(
             "js",
             `const order = await dataSources.orderAPI.createOrder({ userId, items });
@@ -3755,19 +4649,32 @@ Tests:       10 passed, 10 total`,
 //   loaders: { shippingInfoLoader, orderLoader },
 //   correlationId
 // };`,
-            { filename: "src/resolvers/orderResolvers.js", highlight: [1] },
+            {
+              filename: "src/resolvers/orderResolvers.js",
+              highlight: [1],
+              codeEn: `const order = await dataSources.orderAPI.createOrder({ userId, items });
+
+// For reference: what the context function in index.js returns
+// return {
+//   dataSources: { orderDataSource, inventoryDataSource, shippingDataSource },
+//   loaders: { shippingInfoLoader, orderLoader },
+//   correlationId
+// };`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "异步错误 —— 少了 await" },
-              { id: "b", label: "context 键名错误 —— dataSources 里没有 orderAPI 这个键" },
-              { id: "c", label: "schema 与 resolver 不匹配" },
-              { id: "d", label: "DataLoader 用法错误" },
+              { id: "a", label: "异步错误 —— 少了 await", labelEn: "An async mistake — a missing await" },
+              { id: "b", label: "context 键名错误 —— dataSources 里没有 orderAPI 这个键", labelEn: "A wrong key in context — dataSources has no orderAPI key" },
+              { id: "c", label: "schema 与 resolver 不匹配", labelEn: "The schema and the resolver do not match" },
+              { id: "d", label: "DataLoader 用法错误", labelEn: "Wrong DataLoader usage" },
             ],
             answer: "b",
           },
           locate: {
             question: "改成什么才对？（注意签名也有问题）",
+            questionEn:
+              "What should it become? (Note the signature is wrong too.)",
             options: [
               { id: "a", label: "dataSources.orderDataSource.createOrder(userId, pricedItems)" },
               { id: "b", label: "dataSources.orderDataSource.createOrder({ userId, items })" },
@@ -3789,7 +4696,21 @@ const pricedItems = await Promise.all(
 
 // 键名 orderDataSource，签名 (userId, items) 两个位置参数
 const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);`,
-            { filename: "改对之后（审计实测通过）" },
+            {
+              filename: "改对之后（审计实测通过）",
+              filenameEn: "After the fix (measured to pass in the audit)",
+              codeEn: `// Fetch price first: OrderItemInput has no price, but the data source needs it
+const pricedItems = await Promise.all(
+  items.map(async item => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    price: await dataSources.inventoryDataSource.getProductPrice(item.productId)
+  }))
+);
+
+// Key name orderDataSource, signature (userId, items) as two positional arguments
+const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);`,
+            },
           ),
           rootCause: (
             <>
@@ -3831,17 +4752,74 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>Three problems stacked together:</p>
+              <ol>
+                <li>
+                  <strong>The key name.</strong>{" "}
+                  <code>dataSources.orderAPI</code> is <code>undefined</code>,
+                  and reading <code>.createOrder</code> off it throws a
+                  TypeError straight away. The real key is{" "}
+                  <code>orderDataSource</code>.
+                </li>
+                <li>
+                  <strong>The signature.</strong> The real signature is{" "}
+                  <code>createOrder(userId, items)</code>, two positional
+                  arguments. Pass one object and{" "}
+                  <code>userId</code> inside the data source becomes that
+                  object, <code>items</code> is undefined, and{" "}
+                  <code>items.reduce</code> throws next.
+                </li>
+                <li>
+                  <strong>The missing price.</strong>{" "}
+                  <code>OrderItemInput</code> has only productId and quantity,
+                  while the data source computes{" "}
+                  <code>item.price * item.quantity</code>.{" "}
+                  <strong>Option B fixes the first two and misses this
+                  one</strong> — the test then fails on{" "}
+                  <code>expect(order.items[0].price).toBeDefined()</code>.
+                </li>
+              </ol>
+              <p>
+                <strong>How to read this error message:</strong> the outermost{" "}
+                <code>GraphQLError: Failed to create order</code> is{" "}
+                <strong>the wrapper you added yourself</strong>, and it hides
+                the real cause.{" "}
+                <strong>
+                  Scroll up to the original message printed by{" "}
+                  <code>console.error</code>
+                </strong>{" "}
+                — that is the actual fault.
+              </p>
+              <p>
+                It also shows why a wrapper should keep{" "}
+                <code>originalError: error.message</code>: without it the real
+                cause is gone for good.
+              </p>
+            </>
+          ),
           verify: "npm test   # should create a new order successfully 应该通过",
+          verifyEn:
+            "npm test   # should create a new order successfully must pass",
         },
         {
           kind: "debug",
           id: "g-debug-swallowed",
           title: "Debug Lab · 错误码不对（不报错的那种 bug）",
+          titleEn: "Debug Lab · The wrong error code (the kind of bug that throws nothing)",
           level: 3,
           prompt: (
             <p>
               代码跑得通，没有异常。但测试说错误码不对。
               这是三处埋雷里最值得理解的一处。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The code runs and raises no exception, but the test says the error
+              code is wrong. Of the three planted bugs, this is the one most
+              worth understanding.
             </p>
           ),
           errorOutput: `● Order Resolvers › Error handling › should return structured error for validation failures
@@ -3853,6 +4831,21 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
 
 # 测试代码：
 #   const input = { userId: '789', items: [] };     ← 空 items，应该被校验拦下
+#   try {
+#     await resolvers.Mutation.createOrder({}, input, context);
+#     throw new Error('Should have thrown an error');
+#   } catch (error) {
+#     expect(error.extensions.code).toBe('INVALID_INPUT');
+#   }`,
+          errorOutputEn: `● Order Resolvers › Error handling › should return structured error for validation failures
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "INVALID_INPUT"
+    Received: "SERVICE_ERROR"
+
+# The test code:
+#   const input = { userId: '789', items: [] };     ← empty items, validation should stop it
 #   try {
 #     await resolvers.Mutation.createOrder({}, input, context);
 #     throw new Error('Should have thrown an error');
@@ -3875,24 +4868,42 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
     extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId }
   });
 }`,
-            { filename: "src/resolvers/orderResolvers.js", highlight: [3, 11] },
+            {
+              filename: "src/resolvers/orderResolvers.js",
+              highlight: [3, 11],
+              codeEn: `try {
+  if (!userId || !items || items.length === 0) {
+    throw new GraphQLError('Invalid order input', {
+      extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+    });
+  }
+  const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);
+  return order;
+} catch (error) {
+  console.error(\`[\${correlationId}] Error creating order:\`, error.message);
+  throw new GraphQLError('Failed to create order', {
+    extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId }
+  });
+}`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "校验逻辑写错了 —— 空数组没被识别" },
-              { id: "b", label: "错误处理设计缺陷 —— 自己抛的结构化错误被自己的 catch 重新包装了" },
-              { id: "c", label: "异步错误 —— throw 在 async 函数里不生效" },
-              { id: "d", label: "测试写错了" },
+              { id: "a", label: "校验逻辑写错了 —— 空数组没被识别", labelEn: "The validation is wrong — an empty array is not detected" },
+              { id: "b", label: "错误处理设计缺陷 —— 自己抛的结构化错误被自己的 catch 重新包装了", labelEn: "A flaw in the error handling — the structured error it threw is rewrapped by its own catch" },
+              { id: "c", label: "异步错误 —— throw 在 async 函数里不生效", labelEn: "An async mistake — throw does not work inside an async function" },
+              { id: "d", label: "测试写错了", labelEn: "The test is written wrong" },
             ],
             answer: "b",
           },
           locate: {
             question: "该在哪里加什么？",
+            questionEn: "What should be added, and where?",
             options: [
-              { id: "a", label: "catch 块第一行加 if (error instanceof GraphQLError) throw error;" },
-              { id: "b", label: "把校验移到 try 块外面" },
-              { id: "c", label: "把 SERVICE_ERROR 改成 INVALID_INPUT" },
-              { id: "d", label: "去掉整个 try/catch" },
+              { id: "a", label: "catch 块第一行加 if (error instanceof GraphQLError) throw error;", labelEn: "Add if (error instanceof GraphQLError) throw error; as the first line of the catch" },
+              { id: "b", label: "把校验移到 try 块外面", labelEn: "Move the validation outside the try block" },
+              { id: "c", label: "把 SERVICE_ERROR 改成 INVALID_INPUT", labelEn: "Change SERVICE_ERROR to INVALID_INPUT" },
+              { id: "d", label: "去掉整个 try/catch", labelEn: "Remove the try/catch altogether" },
             ],
             answer: "a",
           },
@@ -3912,7 +4923,25 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
     }
   });
 }`,
-            { filename: "改对之后（一行）", highlight: [4] },
+            {
+              filename: "改对之后（一行）",
+              filenameEn: "After the fix (one line)",
+              codeEn: `} catch (error) {
+  // Let an already structured GraphQLError through untouched,
+  // otherwise INVALID_INPUT is downgraded to SERVICE_ERROR
+  if (error instanceof GraphQLError) throw error;
+
+  console.error(\`[\${correlationId}] Error creating order:\`, error.message);
+  throw new GraphQLError('Failed to create order', {
+    extensions: {
+      code: ErrorCodes.SERVICE_ERROR,
+      correlationId,
+      originalError: error.message
+    }
+  });
+}`,
+              highlight: [4],
+            },
           ),
           rootCause: (
             <>
@@ -3950,7 +4979,52 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                A <code>catch</code> catches <strong>anything</strong> thrown
+                inside the <code>try</code> block, including the{" "}
+                <code>INVALID_INPUT</code> you built with care. It then gets
+                rewrapped as <code>SERVICE_ERROR</code>.
+              </p>
+              <p>
+                <strong>Why is this the most important of the three?</strong>{" "}
+                Because <strong>nothing reports it</strong>. The code runs
+                normally and the client does receive a GraphQLError — the code
+                inside it is just wrong.
+              </p>
+              <p>
+                The consequence in production is concrete:{" "}
+                <code>INVALID_INPUT</code> tells the client &ldquo;your request
+                is wrong, fix it and come back&rdquo;, while{" "}
+                <code>SERVICE_ERROR</code> tells it &ldquo;the server had a
+                temporary fault, please retry&rdquo;. The client follows the
+                second meaning and{" "}
+                <strong>
+                  retries a request that can never succeed
+                </strong>
+                , while your dashboard shows a spike in service errors and the
+                real story is that someone keeps sending an empty array.
+              </p>
+              <p>
+                <strong>Option B, moving the validation outside the try,</strong>{" "}
+                also makes this test pass, but it is a worse design: validation
+                and main logic drift apart, it reads less well, and any other
+                business error thrown inside the try still gets swallowed later.{" "}
+                <strong>The right answer is the type check inside the
+                catch.</strong>
+              </p>
+              <p>
+                The pattern is worth memorising:{" "}
+                <strong>
+                  wherever a catch block wraps errors uniformly, its first line
+                  should let already wrapped errors through.
+                </strong>
+              </p>
+            </>
+          ),
           verify: "npm test   # 10 个测试应该全部通过",
+          verifyEn: "npm test   # all 10 tests should pass",
         },
       ],
       transfer: [

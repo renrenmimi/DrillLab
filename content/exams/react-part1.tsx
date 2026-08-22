@@ -108,8 +108,16 @@ export const reactMentalModel: Module = {
       whyForAssessmentEn:
         "In Q1 the four components are already written for you, and you add the logic inside them. Before you add anything, you have to see which component renders which, and where the data comes from. Otherwise you put the code in the wrong component.",
       sourceFiles: [
-        { path: "react-notes-app/src/App.tsx", role: "整个应用的根组件，只有 5 行" },
-        { path: "react-notes-app/src/components/NoteItem/index.tsx", role: "最简单的展示型组件" },
+        {
+          path: "react-notes-app/src/App.tsx",
+          role: "整个应用的根组件，只有 5 行",
+          roleEn: "The root component of the whole app, five lines long",
+        },
+        {
+          path: "react-notes-app/src/components/NoteItem/index.tsx",
+          role: "最简单的展示型组件",
+          roleEn: "The simplest presentational component",
+        },
       ],
       concepts: [
         {
@@ -179,9 +187,12 @@ function App() {
 export default App;`,
               {
                 filename: "src/App.tsx（全文）",
+                filenameEn: "src/App.tsx (full file)",
                 sourceFile: "react-notes-app/src/App.tsx",
                 explanation:
                   "这个文件唯一的作用是「把根组件指向 NoteManager」。Q1 的所有逻辑都不在这里 —— 别在这个文件里改东西。",
+                explanationEn:
+                  "This file does one thing: point the root component at NoteManager. None of the Q1 logic lives here, so do not change anything in it.",
               },
             ),
           ],
@@ -289,6 +300,7 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {
 export default NoteItem;`,
               {
                 filename: "src/components/NoteItem/index.tsx（全文）",
+                filenameEn: "src/components/NoteItem/index.tsx (full file)",
                 sourceFile: "react-notes-app/src/components/NoteItem/index.tsx",
                 highlight: [13, 14, 16, 21],
               },
@@ -341,7 +353,17 @@ export default NoteItem;`,
     │                            向下：noteToEdit（决定回填与按钮文字）
     └── NoteTable                纯展示：把 notes 摊成表格
         └── NoteItem × N         纯展示 + 上报 onEdit / onDelete`,
-              { filename: "组件树" },
+              {
+                filename: "组件树",
+                filenameEn: "Component tree",
+                codeEn: `App                              renders only NoteManager
+└── NoteManager                  ★ owns two states: notes[] and noteToEdit
+    ├── NoteForm                 owns two local states: title / content
+    │                            up:   onSubmit(note)
+    │                            down: noteToEdit (prefill + button text)
+    └── NoteTable                display only: lays notes out as a table
+        └── NoteItem × N         display only + reports onEdit / onDelete`,
+              },
             ),
           ],
         },
@@ -400,8 +422,10 @@ export default NoteItem;`,
           kind: "recognition",
           id: "r-jsx-brace",
           title: "哪一行会把变量的值显示出来",
+          titleEn: "Which line prints the value of a variable",
           level: 1,
           prompt: <p>下面哪一行会在页面上显示这条笔记的标题内容？</p>,
+          promptEn: <p>Which line below shows the title of this note on the page?</p>,
           options: [
             { id: "a", label: "<td>note.title</td>" },
             { id: "b", label: "<td>{note.title}</td>" },
@@ -417,16 +441,33 @@ export default NoteItem;`,
               D 的 <code>value</code> 不是 <code>&lt;td&gt;</code> 的有效属性。
             </>
           ),
+          explainEn: (
+            <>
+              Curly braces are the switch back into JavaScript. A prints the ten
+              characters <code>note.title</code> as text. C is template string
+              syntax, which does nothing in JSX, so it prints{" "}
+              <code>$&#123;note.title&#125;</code> as text. In D,{" "}
+              <code>value</code> is not a valid attribute on{" "}
+              <code>&lt;td&gt;</code>.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-where-code",
           title: "三道题的代码该写在哪个文件",
+          titleEn: "Which file the code for the three tasks belongs in",
           level: 1,
           prompt: (
             <p>
               Q1 的三个任务（Add / Delete / Edit）都要改动笔记列表。
               这些逻辑主要写在哪个文件里？
+            </p>
+          ),
+          promptEn: (
+            <p>
+              All three tasks in Q1 (Add / Delete / Edit) change the note list.
+              Which file holds most of that logic?
             </p>
           ),
           options: [
@@ -445,6 +486,16 @@ export default NoteItem;`,
               它们都不碰列表本身。
             </>
           ),
+          explainEn: (
+            <>
+              The <code>notes</code> state lives in <code>NoteManager</code>, and
+              all three tasks change that list. <code>NoteForm</code> only
+              collects the input and reports it up through{" "}
+              <code>onSubmit</code>. <code>NoteItem</code> only reports the
+              clicks up through <code>onEdit</code> / <code>onDelete</code>.
+              Neither one touches the list itself.
+            </>
+          ),
         },
       ],
       mistakes: [
@@ -457,6 +508,14 @@ function noteItem() { return <tr>...</tr>; }
 export default function App() {
   return <noteItem />;   // React 当成 HTML 标签处理
 }`,
+            {
+              codeEn: `// ✗ Name starts with a lowercase letter — nothing appears, and no error
+function noteItem() { return <tr>...</tr>; }
+
+export default function App() {
+  return <noteItem />;   // React reads this as an HTML tag
+}`,
+            },
           ),
           why: (
             <>
@@ -485,6 +544,13 @@ return (
   <td>{note.title}</td>
   <td>{note.content}</td>
 );`,
+            {
+              codeEn: `// ✗ Two sibling elements returned
+return (
+  <td>{note.title}</td>
+  <td>{note.content}</td>
+);`,
+            },
           ),
           why: (
             <>
@@ -572,8 +638,16 @@ return (
       whyForAssessmentEn:
         "All three Q1 tasks have the same shape: the child reports an event, then the parent changes state. If passing a function through props is not clear to you, both the Delete task and the Edit task will stop you.",
       sourceFiles: [
-        { path: "react-notes-app/src/components/NoteTable/index.tsx", role: "把 props 原样往下传" },
-        { path: "react-notes-app/src/components/NoteItem/index.tsx", role: "调用 props 里的函数上报" },
+        {
+          path: "react-notes-app/src/components/NoteTable/index.tsx",
+          role: "把 props 原样往下传",
+          roleEn: "Passes props straight down",
+        },
+        {
+          path: "react-notes-app/src/components/NoteItem/index.tsx",
+          role: "调用 props 里的函数上报",
+          roleEn: "Reports upwards by calling a function from props",
+        },
       ],
       concepts: [
         {
@@ -698,10 +772,13 @@ return (
 };`,
               {
                 filename: "src/components/NoteTable/index.tsx（节选）",
+                filenameEn: "src/components/NoteTable/index.tsx (extract)",
                 sourceFile: "react-notes-app/src/components/NoteTable/index.tsx",
                 highlight: [13, 16, 18, 19],
                 explanation:
                   "注意第 13 行的 data-testid=\"notes-list\" —— 判卷测试就是靠它找到表格主体的。README 明确写了「不得修改任何 data-testid」。",
+                explanationEn:
+                  "Look at data-testid=\"notes-list\" on line 13. That is how the grading test finds the table body. The README says plainly that no data-testid may be changed.",
               },
             ),
           ],
@@ -779,6 +856,18 @@ const handleDelete = (id: number) => {
 </button>`,
               {
                 filename: "一条完整的事件链",
+                filenameEn: "One complete event chain",
+                codeEn: `// NoteManager (the parent): define the handler, pass it down
+const handleDelete = (id: number) => {
+  setNotes((prev) => prev.filter((note) => note.id !== id));
+};
+
+<NoteTable notes={notes} onDelete={handleDelete} onEdit={handleEdit} />
+
+// NoteItem (the grandchild): call it when the click happens
+<button onClick={() => onDelete(note.id)} className="danger">
+  Delete
+</button>`,
                 sourceFile:
                   "react-notes-app/src/components/NoteManager/index.tsx 与 NoteItem/index.tsx",
               },
@@ -867,6 +956,13 @@ const handleDelete = (id: number) => {
 
 <button onClick={() => onDelete(note.id)}>Delete</button>
 {/*             ↑ 收到一个函数。点击时才执行。这才是对的。*/}`,
+              {
+                codeEn: `<button onClick={onDelete(note.id)}>Delete</button>
+{/*             ↑ runs during render. React receives undefined.*/}
+
+<button onClick={() => onDelete(note.id)}>Delete</button>
+{/*             ↑ receives a function. It runs on click. This one is right.*/}`,
+              },
             ),
           ],
         },
@@ -876,12 +972,20 @@ const handleDelete = (id: number) => {
           kind: "fill-blank",
           id: "r-props-blanks",
           title: "补全 NoteItem 的两个按钮",
+          titleEn: "Fill in the two buttons of NoteItem",
           level: 2,
           prompt: (
             <p>
               这是 <code>NoteItem</code> 真实的两个按钮。
               一个要传整条笔记，一个只传 id —— 想清楚各自要传什么，
               以及怎么才能「点击时才执行」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              These are the two real buttons of <code>NoteItem</code>. One passes
+              the whole note, the other passes only the id. Decide what each one
+              has to pass, and how to make it run only on the click.
             </p>
           ),
           language: "tsx",
@@ -902,6 +1006,7 @@ const handleDelete = (id: number) => {
               n: 1,
               accept: ["() =>", "()=>", "() = >"],
               hint: "要「点的时候才执行」，而且要传参数。",
+              hintEn: "It has to run only on the click, and it has to pass an argument.",
               why: (
                 <>
                   <code>() =&gt;</code>。需要传参数时，必须包一层箭头函数，
@@ -910,18 +1015,39 @@ const handleDelete = (id: number) => {
                   因为 <code>NoteForm</code> 要用它的 title 和 content 回填表单。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>() =&gt;</code>. When you need to pass an argument you must
+                  wrap it in an arrow function, otherwise{" "}
+                  <code>onEdit(note)</code> runs right away during the render.
+                  What gets passed here is <strong>the whole note</strong>,
+                  because <code>NoteForm</code> needs its title and content to
+                  prefill the form.
+                </>
+              ),
               width: 8,
             },
             {
               n: 2,
               accept: ["note.id"],
               hint: "看 onDelete 的类型：(id: number) => void。",
+              hintEn: "Look at the type of onDelete: (id: number) => void.",
               why: (
                 <>
                   <code>note.id</code>。<code>onDelete</code> 的类型签名是
                   <code>(id: number) =&gt; void</code>，只要 id。
                   README 也明确写了删除要<strong>「按 id」</strong>——
                   传整条 note 会类型报错，按 title 删则违反题目要求。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>note.id</code>. The type signature of{" "}
+                  <code>onDelete</code> is <code>(id: number) =&gt; void</code>,
+                  so it wants the id and nothing else. The README also says the
+                  delete has to work <strong>by id</strong>. Passing the whole
+                  note is a type error, and deleting by title breaks the
+                  requirement.
                 </>
               ),
               width: 9,
@@ -932,6 +1058,7 @@ const handleDelete = (id: number) => {
           kind: "debug",
           id: "r-debug-immediate-call",
           title: "Debug Lab · 页面一打开，所有笔记就消失了",
+          titleEn: "Debug Lab · every note disappears the moment the page opens",
           level: 2,
           prompt: (
             <p>
@@ -939,11 +1066,24 @@ const handleDelete = (id: number) => {
               有时候浏览器还会卡住。先判断类型，再找病灶。
             </p>
           ),
+          promptEn: (
+            <p>
+              Add two notes, then reload the page (assume the notes are saved
+              somewhere). The table goes empty at once, and sometimes the browser
+              stops responding. First name the kind of error, then find the line
+              that causes it.
+            </p>
+          ),
           errorOutput: `Warning: Maximum update depth exceeded. This can happen when a component
 repeatedly calls setState inside componentWillUpdate or componentDidUpdate.
 React limits the number of nested updates to prevent infinite loops.
 
 （另一种表现：没有任何报错，但表格永远是空的）`,
+          errorOutputEn: `Warning: Maximum update depth exceeded. This can happen when a component
+repeatedly calls setState inside componentWillUpdate or componentDidUpdate.
+React limits the number of nested updates to prevent infinite loops.
+
+(Another symptom: no warning at all, but the table stays empty forever.)`,
           broken: demo(
             "tsx",
             `const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {
@@ -960,24 +1100,37 @@ React limits the number of nested updates to prevent infinite loops.
     </tr>
   );
 };`,
-            { filename: "有问题的 NoteItem", highlight: [7, 10] },
+            {
+              filename: "有问题的 NoteItem",
+              filenameEn: "The NoteItem with the bug",
+              highlight: [7, 10],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "类型错误 —— props 类型写错了" },
-              { id: "b", label: "事件处理器错误 —— 渲染时就调用了函数，而不是把函数传下去" },
-              { id: "c", label: "状态更新错误 —— 改了原数组" },
-              { id: "d", label: "异步错误 —— 少了 await" },
+              { id: "a", label: "类型错误 —— props 类型写错了", labelEn: "A type error — the props types are wrong" },
+              {
+                id: "b",
+                label: "事件处理器错误 —— 渲染时就调用了函数，而不是把函数传下去",
+                labelEn: "An event handler error — the function is called during the render instead of being passed down",
+              },
+              { id: "c", label: "状态更新错误 —— 改了原数组", labelEn: "A state update error — the original array was changed" },
+              { id: "d", label: "异步错误 —— 少了 await", labelEn: "An async error — an await is missing" },
             ],
             answer: "b",
           },
           locate: {
             question: "第 7 行和第 10 行错在哪？",
+            questionEn: "What is wrong on line 7 and line 10?",
             options: [
-              { id: "a", label: "少了一层箭头函数：应该是 onClick={() => onDelete(note.id)}" },
-              { id: "b", label: "应该写成 onclick 而不是 onClick" },
-              { id: "c", label: "note.id 应该改成 note" },
-              { id: "d", label: "className 的位置不对" },
+              {
+                id: "a",
+                label: "少了一层箭头函数：应该是 onClick={() => onDelete(note.id)}",
+                labelEn: "An arrow function wrapper is missing: it should be onClick={() => onDelete(note.id)}",
+              },
+              { id: "b", label: "应该写成 onclick 而不是 onClick", labelEn: "It should be onclick, not onClick" },
+              { id: "c", label: "note.id 应该改成 note", labelEn: "note.id should be note" },
+              { id: "d", label: "className 的位置不对", labelEn: "className is in the wrong place" },
             ],
             answer: "a",
           },
@@ -992,6 +1145,7 @@ React limits the number of nested updates to prevent infinite loops.
 </button>`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteItem/index.tsx",
             },
           ),
@@ -1012,6 +1166,31 @@ React limits the number of nested updates to prevent infinite loops.
                 记住这条判别法：<strong>onClick 后面的花括号里，
                 要么是一个名字，要么是一个箭头函数。
                 出现「名字 + 括号」就一定是错的。</strong>
+              </p>
+            </>
+          ),
+          rootCauseEn: (
+            <>
+              <p>
+                Inside the curly braces of{" "}
+                <code>onClick={"{onDelete(note.id)}"}</code> there is a{" "}
+                <strong>function call</strong>, and it runs while the JSX is
+                being evaluated — that is, during the render. React receives its
+                return value, <code>undefined</code>, so an actual click does
+                nothing.
+              </p>
+              <p>
+                It gets worse: render, call onDelete, setState, render again,
+                call onDelete again. That is an endless loop, and React throws{" "}
+                <code>Maximum update depth exceeded</code>.
+              </p>
+              <p>
+                Remember this rule of thumb:{" "}
+                <strong>
+                  inside the curly braces after onClick you write either a name
+                  or an arrow function. A name followed by parentheses is always
+                  wrong.
+                </strong>
               </p>
             </>
           ),
@@ -1088,6 +1267,7 @@ React limits the number of nested updates to prevent infinite loops.
         {
           path: "react-notes-app/src/components/NoteManager/index.tsx",
           role: "两个 state 与三个 handler 的全部真实代码",
+          roleEn: "The full real code for the two pieces of state and the three handlers",
         },
       ],
       concepts: [
@@ -1152,6 +1332,20 @@ const NoteManager = () => {
   const [notes, setNotes] = useState<Note[]>([]);   // 初始值只在第一次生效
   ...
 };`,
+              {
+                codeEn: `// ✗ A plain variable: reset on every render
+const NoteManager = () => {
+  let notes: Note[] = [];          // an empty array on every render
+  const add = (n: Note) => { notes.push(n); };   // it goes in, and the next render loses it
+  ...
+};
+
+// ✓ useState: React remembers it for you
+const NoteManager = () => {
+  const [notes, setNotes] = useState<Note[]>([]);   // the initial value only counts the first time
+  ...
+};`,
+              },
             ),
           ],
         },
@@ -1230,9 +1424,12 @@ const NoteManager = () => {
   const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);`,
               {
                 filename: "src/components/NoteManager/index.tsx（开头）",
+                filenameEn: "src/components/NoteManager/index.tsx (the opening)",
                 sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
                 explanation:
                   "noteToEdit 用 null 表示「现在不在编辑任何东西」。这个 state 是 Task 3 的核心 —— 它同时决定了「表单里显示什么」和「按钮上写 Add 还是 Update」。",
+                explanationEn:
+                  "A null value for noteToEdit means nothing is being edited right now. This piece of state is the center of Task 3: it decides both what the form shows and whether the button reads Add or Update.",
               },
             ),
           ],
@@ -1295,6 +1492,15 @@ setNotes([...notes, b]);   // notes 还是旧的 → 结果 [b]，a 丢了
 // 函数式更新
 setNotes((prev) => [...prev, a]);   // prev = []      → [a]
 setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
+              {
+                codeEn: `// Say you want to add two notes at once
+setNotes([...notes, a]);   // notes is the old value → result [a]
+setNotes([...notes, b]);   // notes is still old     → result [b], a is gone
+
+// Functional update
+setNotes((prev) => [...prev, a]);   // prev = []      → [a]
+setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
+              },
             ),
           ],
         },
@@ -1353,18 +1559,45 @@ setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
           kind: "ordering",
           id: "r-render-order",
           title: "把一次点击的顺序排对",
+          titleEn: "Put the steps of one click in order",
           level: 1,
           prompt: (
             <p>
               用户点了某一行的 Delete 按钮。把下面五件事按发生顺序排好。
             </p>
           ),
+          promptEn: (
+            <p>
+              The user clicked the Delete button on one row. Put the five things
+              below in the order they happen.
+            </p>
+          ),
           items: [
-            { id: "d", label: "React 重新执行 NoteManager 函数，拿到新的 JSX" },
-            { id: "a", label: "NoteItem 的 onClick 触发，调用 onDelete(note.id)" },
-            { id: "e", label: "React 对比新旧 JSX，把变化的部分写进真实 DOM" },
-            { id: "b", label: "NoteManager 里的 handleDelete 执行，调用 setNotes(...)" },
-            { id: "c", label: "React 记下 notes 的新值，标记这个组件需要重新渲染" },
+            {
+              id: "d",
+              label: "React 重新执行 NoteManager 函数，拿到新的 JSX",
+              labelEn: "React runs the NoteManager function again and gets new JSX",
+            },
+            {
+              id: "a",
+              label: "NoteItem 的 onClick 触发，调用 onDelete(note.id)",
+              labelEn: "The onClick of NoteItem fires and calls onDelete(note.id)",
+            },
+            {
+              id: "e",
+              label: "React 对比新旧 JSX，把变化的部分写进真实 DOM",
+              labelEn: "React compares the new JSX with the old one and writes only the differences into the real DOM",
+            },
+            {
+              id: "b",
+              label: "NoteManager 里的 handleDelete 执行，调用 setNotes(...)",
+              labelEn: "handleDelete inside NoteManager runs and calls setNotes(...)",
+            },
+            {
+              id: "c",
+              label: "React 记下 notes 的新值，标记这个组件需要重新渲染",
+              labelEn: "React records the new value of notes and marks this component for a re-render",
+            },
           ],
           answer: ["a", "b", "c", "d", "e"],
           explain: (
@@ -1376,16 +1609,34 @@ setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
               它只是「预约一次重新渲染」，新值在下一次渲染里才看得到。
             </>
           ),
+          explainEn: (
+            <>
+              The event travels up from <code>NoteItem</code> at the bottom, the
+              handler in the parent runs, the setter updates the state, React
+              runs the component function again, and the DOM is updated after the
+              comparison. <strong>Note that setNotes does not change the notes
+              variable right away</strong> — it only asks for one more render, and
+              the new value is visible in that next render.
+            </>
+          ),
         },
         {
           kind: "code-completion",
           id: "r-write-state",
           title: "自己写出 NoteManager 的两个 state 和删除逻辑",
+          titleEn: "Write the two states of NoteManager and the delete logic yourself",
           level: 3,
           prompt: (
             <p>
               只给你组件外壳。按要求补出两个 state 和 <code>handleDelete</code>。
               不要看下面的答案，先自己写。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You get only the shell of the component. Add the two states and{" "}
+              <code>handleDelete</code> as described. Write it yourself before you
+              look at the answer below.
             </p>
           ),
           language: "tsx",
@@ -1406,29 +1657,65 @@ const NoteManager: React.FC = () => {
 };
 
 export default NoteManager;`,
+          starterEn: `import { useState } from "react";
+import type { Note } from "../../types/Note";
+
+const NoteManager: React.FC = () => {
+  // 1. the note list, empty at the start
+  // 2. the note being edited right now, null when there is none
+
+  // 3. delete one note by id
+  const handleDelete = (id: number) => {
+  };
+
+  return null; // this exercise only looks at the three spots above
+};
+
+export default NoteManager;`,
           requirements: [
             "用 useState 声明 notes，类型是 Note[]，初始值为空数组",
             "用 useState 声明 noteToEdit，类型是 Note | null，初始值为 null",
             "handleDelete 按 id 移除对应笔记，必须用函数式更新，不许改动原数组",
           ],
+          requirementsEn: [
+            "Declare notes with useState, typed Note[], starting as an empty array",
+            "Declare noteToEdit with useState, typed Note | null, starting as null",
+            "handleDelete removes the matching note by id, using a functional update, without changing the original array",
+          ],
           checks: [
             {
               label: "notes 用了 useState<Note[]>([])",
+              labelEn: "notes uses useState<Note[]>([])",
               must: "useState\\s*<\\s*Note\\s*\\[\\s*\\]\\s*>\\s*\\(\\s*\\[\\s*\\]\\s*\\)",
             },
             {
               label: "noteToEdit 用了 useState<Note | null>(null)",
+              labelEn: "noteToEdit uses useState<Note | null>(null)",
               must: "useState\\s*<\\s*Note\\s*\\|\\s*null\\s*>\\s*\\(\\s*null\\s*\\)",
             },
-            { label: "handleDelete 里用了 filter", must: "filter" },
-            { label: "用了函数式更新 setNotes(prev => ...)", must: "setNotes\\s*\\(\\s*\\(?\\s*prev" },
-            { label: "按 id 比较，用的是 !==", must: "!==\\s*id" },
-            { label: "没有用 push / splice 改原数组", mustNot: "\\.(push|splice)\\s*\\(" },
+            { label: "handleDelete 里用了 filter", labelEn: "handleDelete uses filter", must: "filter" },
+            {
+              label: "用了函数式更新 setNotes(prev => ...)",
+              labelEn: "A functional update is used: setNotes(prev => ...)",
+              must: "setNotes\\s*\\(\\s*\\(?\\s*prev",
+            },
+            { label: "按 id 比较，用的是 !==", labelEn: "The comparison is by id, with !==", must: "!==\\s*id" },
+            {
+              label: "没有用 push / splice 改原数组",
+              labelEn: "The original array is not changed with push / splice",
+              mustNot: "\\.(push|splice)\\s*\\(",
+            },
           ],
           hints: [
             "两个 state 的初始值都「看不出类型」（空数组、null），所以泛型参数必须显式写。",
             "删除要用 filter，它是唯一会让数组变短的方法。改动写在 setNotes 里。",
             "setNotes(prev => prev.filter(每一条 => 这条的 id 不等于要删的 id))",
+            "setNotes((prev) => prev.filter((note) => note.id !== id));",
+          ],
+          hintsEn: [
+            "Neither initial value shows its type on its own (an empty array, null), so you have to write the type parameter yourself.",
+            "Deleting means filter — it is the only method that makes an array shorter. The change goes inside setNotes.",
+            "setNotes(prev => prev.filter(each one => the id of this one is not the id to delete))",
             "setNotes((prev) => prev.filter((note) => note.id !== id));",
           ],
           solution: real(
@@ -1442,6 +1729,7 @@ export default NoteManager;`,
   };`,
             {
               filename: "参考答案（与项目里的实现一致）",
+              filenameEn: "Reference answer (same as the project's own code)",
               sourceFile: "react-notes-app/src/components/NoteManager/index.tsx",
             },
           ),
@@ -1453,6 +1741,10 @@ export default NoteManager;`,
             "tsx",
             `// ✗ 直接赋值 —— React 完全不知道发生了什么
 notes = [...notes, newNote];`,
+            {
+              codeEn: `// ✗ Assigning straight to the variable — React never learns anything happened
+notes = [...notes, newNote];`,
+            },
           ),
           why: (
             <>
@@ -1477,6 +1769,11 @@ notes = [...notes, newNote];`,
             `// ✗ 以为 setState 是同步的
 setNotes((prev) => [...prev, newNote]);
 console.log(notes.length);   // 还是旧的长度！`,
+            {
+              codeEn: `// ✗ Assuming setState is synchronous
+setNotes((prev) => [...prev, newNote]);
+console.log(notes.length);   // still the old length!`,
+            },
           ),
           why: (
             <>

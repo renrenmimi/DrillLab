@@ -95,7 +95,9 @@ export function DrillDetail({ id }: { id: string }) {
               <span className="foot-dir">
                 <T zh="← 上一题" en="← Previous" />
               </span>
-              <span className="foot-title">{prev.zh}</span>
+              <span className="foot-title">
+                <T zh={prev.zh} en={prev.en} />
+              </span>
             </Link>
           ) : (
             <div className="foot-spacer" />
@@ -105,7 +107,9 @@ export function DrillDetail({ id }: { id: string }) {
               <span className="foot-dir">
                 <T zh="下一题 →" en="Next →" />
               </span>
-              <span className="foot-title">{next.zh}</span>
+              <span className="foot-title">
+                <T zh={next.zh} en={next.en} />
+              </span>
             </Link>
           ) : (
             <div className="foot-spacer" />

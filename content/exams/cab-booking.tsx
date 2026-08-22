@@ -401,6 +401,7 @@ const cabBooking: Exam = {
     {
       path: "cab-booking-context",
       role: "参考项目。6 个组件 + 1 个 Context + 4 个测试",
+      roleEn: "Reference project. Six components, one Context, four tests",
     },
   ],
   prerequisites: ["foundations"],
@@ -458,8 +459,16 @@ const cabBooking: Exam = {
           whyForAssessmentEn:
             "Scoring here is driven entirely by data-testid. The page can look right, and one wrong testid still fails every check around it. Reading the tests before writing code saves half of the rework. Test 4, which keeps only the three newest rides, is the dividing line: a slice in the wrong direction, a missing reverse, or changing the state array in place all fail on that one test.",
           sourceFiles: [
-            { path: "cab-booking-context/src/test/App.test.jsx", role: "四个测试，判分的全部依据" },
-            { path: "cab-booking-context/src/data/data.json", role: "三组六辆车，分组顺序来自这里的键顺序" },
+            {
+              path: "cab-booking-context/src/test/App.test.jsx",
+              role: "四个测试，判分的全部依据",
+              roleEn: "Four tests, and the whole basis for the marks",
+            },
+            {
+              path: "cab-booking-context/src/data/data.json",
+              role: "三组六辆车，分组顺序来自这里的键顺序",
+              roleEn: "Six cars in three groups; the group order comes from the key order here",
+            },
           ],
           concepts: [
             {
@@ -631,6 +640,7 @@ const cabBooking: Exam = {
               code: [
                 real("jsx", SRC_TESTS, {
                   filename: "src/test/App.test.jsx（判分的全部依据）",
+                  filenameEn: "src/test/App.test.jsx (the whole basis of the grade)",
                   sourceFile: "cab-booking-context/src/test/App.test.jsx",
                   collapsible: true,
                 }),
@@ -851,7 +861,14 @@ const cabBooking: Exam = {
               kind: "recognition",
               level: 1,
               title: "哪个断言决定了「分组顺序」不能自己定？",
+              titleEn: "Which assertion makes the group order fixed?",
               prompt: <>测试 2 里有一行让「Sedan / SUV / Luxury 的顺序」变成硬要求。是哪一行？</>,
+              promptEn: (
+                <>
+                  One line in test 2 turns the order of Sedan / SUV / Luxury into a hard
+                  requirement. Which line?
+                </>
+              ),
               options: [
                 { id: "a", label: "expect(screen.getByTestId(\"all-cabs-section\")).toBeInTheDocument()" },
                 {
@@ -874,16 +891,37 @@ const cabBooking: Exam = {
                   <strong>反而是「我来排个序」会把它弄坏。</strong>
                 </>
               ),
+              explainEn: (
+                <>
+                  <code>toEqual</code> compares an <strong>ordered array</strong>. Take
+                  the text of the three <code>car-type-heading</code> nodes in DOM order
+                  and it has to be exactly{" "}
+                  <code>[&quot;Sedan&quot;, &quot;SUV&quot;, &quot;Luxury&quot;]</code>.
+                  <br />
+                  The good news is you do not have to arrange this — it is the key order
+                  of <code>data.json</code>, so plain{" "}
+                  <code>Object.keys(cabData).map(...)</code> is right.{" "}
+                  <strong>It is sorting it yourself that breaks it.</strong>
+                </>
+              ),
             },
             {
               id: "cb-testid-fill",
               kind: "fill-blank",
               level: 2,
               title: "补齐 RideHistory 的两个 testid 和互斥逻辑",
+              titleEn: "Fill in the two testids of RideHistory and the either-or logic",
               prompt: (
                 <>
                   空的时候只能出现 <code>no-ride-title</code>，
                   有记录的时候只能出现 <code>history-cabs</code>。把三个空填上。
+                </>
+              ),
+              promptEn: (
+                <>
+                  When it is empty only <code>no-ride-title</code> may appear; when there
+                  are records only <code>history-cabs</code> may appear. Fill in the
+                  three blanks.
                 </>
               ),
               language: "jsx",
@@ -918,6 +956,7 @@ const cabBooking: Exam = {
                   n: 1,
                   accept: ["history-cabs"],
                   hint: "测试用 getAllByTestId 数它的条数",
+                  hintEn: "The tests count these with getAllByTestId.",
                   why: (
                     <>
                       测试 3 和测试 4 都用 <code>history-cabs</code> 找历史条目，
@@ -927,11 +966,22 @@ const cabBooking: Exam = {
                       挂错地方会变成只有 1 个，测试 4 直接红。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      Tests 3 and 4 both use <code>history-cabs</code> to find the
+                      history entries, and test 4 counts them with{" "}
+                      <code>toHaveLength(3)</code>. So it has to sit on{" "}
+                      <strong>every <code>&lt;li&gt;</code></strong>, not on the outer{" "}
+                      <code>&lt;ul&gt;</code> — put it in the wrong place and there is
+                      only 1 of them, and test 4 fails.
+                    </>
+                  ),
                 },
                 {
                   n: 2,
                   accept: ["no-ride-title"],
                   hint: "测试 1 用它断言空状态",
+                  hintEn: "Test 1 uses it to assert the empty state.",
                   why: (
                     <>
                       测试 1：<code>getByTestId(&quot;no-ride-title&quot;)</code>。
@@ -941,17 +991,35 @@ const cabBooking: Exam = {
                       不能把空状态那段一直渲染着。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      Test 1: <code>getByTestId(&quot;no-ride-title&quot;)</code>. Note
+                      that it and <code>history-cabs</code>{" "}
+                      <strong>can never exist at the same moment</strong>, so these have
+                      to be the two branches of one conditional. You cannot leave the
+                      empty-state block rendered all the time.
+                    </>
+                  ),
                 },
                 {
                   n: 3,
                   accept: ["No ride history yet.", "No ride history yet"],
                   hint: "测试 1 用 toHaveTextContent 比这句话",
+                  hintEn: "Test 1 compares this sentence with toHaveTextContent.",
                   why: (
                     <>
                       <code>toHaveTextContent(&quot;No ride history yet.&quot;)</code> ——
                       文字必须对得上。<strong>这类「文案即断言」的地方
                       千万别自己改写</strong>，
                       「暂无记录」或者 &ldquo;No rides yet&rdquo; 都会红。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>toHaveTextContent(&quot;No ride history yet.&quot;)</code> —
+                      the text has to match. <strong>Never rewrite wording that an
+                      assertion compares</strong>; anything else, including
+                      &ldquo;No rides yet&rdquo;, fails.
                     </>
                   ),
                 },
@@ -970,7 +1038,18 @@ const cabBooking: Exam = {
     </li>
   ))}
 </ul>`,
-                { filename: "挂错层级" },
+                {
+                  filename: "挂错层级",
+                  filenameEn: "Placed on the wrong level",
+                  codeEn: `// ✕ the testid sits on the outer node — test 4 counts only 1
+<ul className="history-list" data-testid="history-cabs">
+  {latestRides.map((ride, index) => (
+    <li key={ride.id}>
+      <span>{ride.name}</span>
+    </li>
+  ))}
+</ul>`,
+                },
               ),
               why: (
                 <>
@@ -1067,7 +1146,11 @@ const cabBooking: Exam = {
             "This is the fastest way to fail the whole task. handleSelectCab lives in App and calls updateBookedCabDetails, so App itself is a reader of the Context. If you write the Provider inside the return of App, App cannot reach the context, the throw guard fires at once, and all four tests fail.",
           sourceFiles: [
             { path: "cab-booking-context/src/context/CabContext.js", role: "Context 三件套。注意扩展名是 .js 而里面有 JSX", edit: true },
-            { path: "cab-booking-context/src/index.jsx", role: "Provider 包在 App 外面的那一层" },
+            {
+              path: "cab-booking-context/src/index.jsx",
+              role: "Provider 包在 App 外面的那一层",
+              roleEn: "The layer where the Provider wraps App",
+            },
           ],
           concepts: [
             {
@@ -1188,6 +1271,7 @@ const cabBooking: Exam = {
               code: [
                 real("jsx", SRC_CONTEXT, {
                   filename: "src/context/CabContext.js（源项目原文 —— 注意扩展名）",
+                  filenameEn: "src/context/CabContext.js (as in the source project — note the extension)",
                   sourceFile: "cab-booking-context/src/context/CabContext.js",
                   highlight: [3, 26, 27, 28],
                 }),
@@ -1289,6 +1373,7 @@ const cabBooking: Exam = {
               code: [
                 real("jsx", SRC_INDEX, {
                   filename: "src/index.jsx（Provider 在 App 外面）",
+                  filenameEn: "src/index.jsx (the Provider wraps App)",
                   sourceFile: "cab-booking-context/src/index.jsx",
                   highlight: [9, 10, 11],
                 }),
@@ -1309,7 +1394,25 @@ const App = () => {
 // 实际报错：
 // Error: useCabContext must be used within a CabProvider
 // → 四个测试全红，而且报错指向 App，很容易以为是 App 写错了`,
-                  { filename: "把 Provider 放错层级会怎样（示意）" },
+                  {
+                    filename: "把 Provider 放错层级会怎样（示意）",
+                    filenameEn: "What happens when the Provider sits on the wrong level (illustration)",
+                    codeEn: `// ✕ wrong: the Provider is written inside App
+const App = () => {
+  const [currentPage, setCurrentPage] = useState("home");
+  const { updateBookedCabDetails } = useCabContext();   // ← this line runs first
+                                                        //   the Provider below is not mounted yet
+  return (
+    <CabProvider>                                       {/* ← 太晚了 */}
+      <div className="App">…</div>
+    </CabProvider>
+  );
+};
+
+// the actual error:
+// Error: useCabContext must be used within a CabProvider
+// → all four tests fail, and the error points at App, so App looks like the culprit`,
+                  },
                 ),
               ],
             },
@@ -1426,6 +1529,7 @@ const App = () => {
               code: [
                 real("jsx", SRC_APP, {
                   filename: "src/App.jsx（唯一的写入口在这里被调用）",
+                  filenameEn: "src/App.jsx (the only write path is called here)",
                   sourceFile: "cab-booking-context/src/App.jsx",
                   highlight: [14, 16, 17, 18, 19],
                 }),
@@ -1457,7 +1561,14 @@ const App = () => {
               kind: "fill-blank",
               level: 2,
               title: "补齐 Context 三件套",
+              titleEn: "Fill in the three parts of the Context",
               prompt: <>四个空。第 4 个空是这道题的守卫，写错了就等于没有守卫。</>,
+              promptEn: (
+                <>
+                  Four blanks. The fourth one is the guard, and getting it wrong is the
+                  same as having no guard at all.
+                </>
+              ),
               language: "jsx",
               filename: "src/context/CabContext.jsx",
               template: `import { createContext, useContext, useState } from "react";
@@ -1498,12 +1609,22 @@ export { CabProvider, useCabContext };`,
                   n: 1,
                   accept: ["createContext"],
                   hint: "从 react 里 import 的那个",
+                  hintEn: "The one imported from react.",
                   why: (
                     <>
                       <code>createContext()</code> 造管道。
                       源项目<strong>没传默认值</strong> ——
                       所以没套 Provider 时 <code>useContext</code> 返回{" "}
                       <code>undefined</code>，正好被第 4 个空的守卫抓住。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      <code>createContext()</code> lays the pipe. The source project
+                      passes <strong>no default value</strong>, so with no Provider
+                      around it <code>useContext</code> returns{" "}
+                      <code>undefined</code> — which is exactly what the guard in blank 4
+                      catches.
                     </>
                   ),
                 },
@@ -1515,6 +1636,7 @@ export { CabProvider, useCabContext };`,
                     "prev => [...prev, details]",
                   ],
                   hint: "追加一条，返回新数组",
+                  hintEn: "Append one item and return a new array.",
                   why: (
                     <>
                       <strong>两种都接受，但它们不等价。</strong>
@@ -1531,11 +1653,31 @@ export { CabProvider, useCabContext };`,
                       两种都不许用 <code>push</code> —— 那是原地修改，React 看不到变化。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <strong>Both are accepted, but they are not the same.</strong>
+                      <br />
+                      The source project writes{" "}
+                      <code>[...rideHistory, details]</code>, which reads the{" "}
+                      <code>rideHistory</code> captured in the closure.{" "}
+                      <strong>Call it twice inside one event and you lose an
+                      entry.</strong> The tests never hit this, because every booking is
+                      separated by a full page switch and re-render.
+                      <br />
+                      <code>(prev) =&gt; [...prev, details]</code> is a functional update
+                      and <strong>always reads the latest value</strong>, which is the
+                      safer form. Part 3 covers this difference on its own.
+                      <br />
+                      Neither form may use <code>push</code> — that changes the array in
+                      place, and React sees no change.
+                    </>
+                  ),
                 },
                 {
                   n: 3,
                   accept: ["Provider"],
                   hint: "Context 对象上那个组件",
+                  hintEn: "The component that sits on the Context object.",
                   why: (
                     <>
                       <code>CabContext.Provider</code>。
@@ -1546,11 +1688,23 @@ export { CabProvider, useCabContext };`,
                       这种不闭合的会直接编译不过。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>CabContext.Provider</code>. Its <code>value</code> is exactly
+                      what <code>useContext</code> hands back inside the subtree.
+                      <br />
+                      Note that the opening and closing tags are{" "}
+                      <strong>the same blank</strong> — an unmatched{" "}
+                      <code>&lt;CabContext.Provider&gt;…&lt;/CabContext&gt;</code> does
+                      not compile.
+                    </>
+                  ),
                 },
                 {
                   n: 4,
                   accept: ["!context", "context === undefined", "!ctx"],
                   hint: "拿不到的时候是什么值？",
+                  hintEn: "What is the value when there is nothing to get?",
                   why: (
                     <>
                       没套 Provider 时 <code>useContext</code> 返回{" "}
@@ -1564,6 +1718,20 @@ export { CabProvider, useCabContext };`,
                       「忘了套 Provider」。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      With no Provider around it, <code>useContext</code> returns{" "}
+                      <code>undefined</code>, so <code>!context</code> is true and the
+                      error is thrown.
+                      <br />
+                      <strong>The value of the guard is turning the error into plain
+                      words.</strong> Without it you see{" "}
+                      <code>Cannot destructure property &apos;rideHistory&apos; of
+                      undefined</code> and go looking at{" "}
+                      <code>rideHistory</code> — when the real cause is a missing
+                      Provider.
+                    </>
+                  ),
                 },
               ],
             },
@@ -1572,11 +1740,19 @@ export { CabProvider, useCabContext };`,
               kind: "code-completion",
               level: 3,
               title: "从签名写出整个 CabContext",
+              titleEn: "Write the whole CabContext from the signature",
               prompt: (
                 <>
                   只给你 import 和导出。三件套自己写出来，
                   包括那个守卫。检查器会查守卫、查不可变更新、
                   以及<strong>不许用 push</strong>。
+                </>
+              ),
+              promptEn: (
+                <>
+                  You only get the import and the export. Write the three parts
+                  yourself, including the guard. The checker looks for the guard, for an
+                  immutable update, and for <strong>no use of push</strong>.
                 </>
               ),
               language: "jsx",
@@ -1592,6 +1768,17 @@ export { CabProvider, useCabContext };`,
 // 5. 导出 CabProvider 和 useCabContext
 
 `,
+              starterEn: `import { createContext, useContext, useState } from "react";
+
+// Requirements:
+// 1. create the Context, with no default value
+// 2. CabProvider keeps two states: bookedCabDetails (starts null), rideHistory (starts [])
+// 3. updateBookedCabDetails(details): make it the current cab + append to history (immutably)
+// 4. useCabContext(): read the context, and throw when there is none
+//    "useCabContext must be used within a CabProvider"
+// 5. export CabProvider and useCabContext
+
+`,
               requirements: [
                 "createContext() 不传默认值 —— 这样没套 Provider 时是 undefined，守卫才抓得住",
                 "两个 state：bookedCabDetails 初始 null、rideHistory 初始 []",
@@ -1599,29 +1786,42 @@ export { CabProvider, useCabContext };`,
                 "useCabContext 里有 if 守卫 + throw，错误信息要出现 CabProvider",
                 "命名导出 CabProvider 和 useCabContext",
               ],
+              requirementsEn: [
+                "createContext() takes no default value — that way it is undefined with no Provider around, which is what the guard catches",
+                "Two states: bookedCabDetails starts null, rideHistory starts []",
+                "updateBookedCabDetails changes both states, and the history update is immutable (spread), never push",
+                "useCabContext has an if guard plus a throw, and the message mentions CabProvider",
+                "Named exports for CabProvider and useCabContext",
+              ],
               checks: [
                 {
                   label: "createContext 没传默认值",
+                  labelEn: "createContext takes no default value",
                   must: "createContext\\(\\s*\\)",
                 },
                 {
                   label: "两个 useState，初值分别是 null 和 []",
+                  labelEn: "Two useState calls, starting at null and []",
                   must: "useState\\(null\\)[\\s\\S]*useState\\(\\[\\]\\)",
                 },
                 {
                   label: "历史是不可变追加（展开运算符）",
+                  labelEn: "The history is appended immutably (spread)",
                   must: "\\.\\.\\.(rideHistory|prev)\\s*,",
                 },
                 {
                   label: "没有用 push（那是原地修改，React 看不到）",
+                  labelEn: "push is not used (it changes the array in place, and React sees nothing)",
                   mustNot: "\\.push\\(",
                 },
                 {
                   label: "守卫抛错，信息里有 CabProvider",
+                  labelEn: "The guard throws, and the message contains CabProvider",
                   must: "throw new Error\\([^)]*CabProvider",
                 },
                 {
                   label: "导出了 CabProvider 和 useCabContext",
+                  labelEn: "CabProvider and useCabContext are both exported",
                   must: "export\\s*\\{[^}]*CabProvider[^}]*useCabContext[^}]*\\}",
                 },
               ],
@@ -1631,8 +1831,16 @@ export { CabProvider, useCabContext };`,
                 "updateBookedCabDetails 里两句 set：一句 setBookedCabDetails(details)，一句 setRideHistory 追加。追加要造新数组。",
                 "守卫：const context = useContext(CabContext); if (!context) throw new Error(\"useCabContext must be used within a CabProvider\"); return context;",
               ],
+              hintsEn: [
+                "The order of the three parts: createContext → the Provider component → the custom hook. Work out which one needs which.",
+                "The Provider is an ordinary component. It takes { children } and returns a <CabContext.Provider value={...}>{children}</CabContext.Provider>.",
+                "updateBookedCabDetails has two set calls: setBookedCabDetails(details), and setRideHistory appending. The append has to build a new array.",
+                "The guard: const context = useContext(CabContext); if (!context) throw new Error(\"useCabContext must be used within a CabProvider\"); return context;",
+              ],
               solution: real("jsx", SRC_CONTEXT, {
                 filename: "src/context/CabContext.jsx（参考答案 —— 源项目原文，仅改扩展名）",
+                filenameEn:
+                  "src/context/CabContext.jsx (reference answer — the source project text, only the extension changed)",
                 sourceFile: "cab-booking-context/src/context/CabContext.js",
               }),
             },
@@ -1647,7 +1855,16 @@ const updateBookedCabDetails = (details) => {
   rideHistory.push(details);        // 原地改了同一个数组
   setRideHistory(rideHistory);      // 传的还是同一个引用
 };`,
-                { filename: "原地修改" },
+                {
+                  filename: "原地修改",
+                  filenameEn: "Changed in place",
+                  codeEn: `// ✕ appending with push — React sees no change
+const updateBookedCabDetails = (details) => {
+  setBookedCabDetails(details);
+  rideHistory.push(details);        // the same array was changed in place
+  setRideHistory(rideHistory);      // the same reference goes back in
+};`,
+                },
               ),
               why: (
                 <>
@@ -1685,7 +1902,15 @@ const useCabContext = () => {
   const context = useContext(CabContext);
   return context ?? { rideHistory: [], bookedCabDetails: null };
 };`,
-                { filename: "把守卫改成兜底" },
+                {
+                  filename: "把守卫改成兜底",
+                  filenameEn: "The guard turned into a fallback",
+                  codeEn: `// ✕ the guard became a default fallback — the error is now hidden
+const useCabContext = () => {
+  const context = useContext(CabContext);
+  return context ?? { rideHistory: [], bookedCabDetails: null };
+};`,
+                },
               ),
               why: (
                 <>
@@ -1800,7 +2025,11 @@ const useCabContext = () => {
             "The task gives you no router, so you have to decide how a page is represented. Four booleans (isHome, isLoading and so on) can work, but when two of them are true at the same time two pages render together, and the getByTestId in test 3 throws because it finds more than one match. A single string state rules that situation out from the start.",
           sourceFiles: [
             { path: "cab-booking-context/src/App.jsx", role: "状态机本体，四个页面的开关都在这里", edit: true },
-            { path: "cab-booking-context/src/components/Home/Home.jsx", role: "首页，把 onBookClick 往上抛" },
+            {
+              path: "cab-booking-context/src/components/Home/Home.jsx",
+              role: "首页，把 onBookClick 往上抛",
+              roleEn: "The home page; it raises onBookClick upwards",
+            },
           ],
           concepts: [
             {
@@ -1955,6 +2184,7 @@ const useCabContext = () => {
               code: [
                 real("jsx", SRC_APP, {
                   filename: "src/App.jsx（四个 && 就是状态机）",
+                  filenameEn: "src/App.jsx (four && operators are the state machine)",
                   sourceFile: "cab-booking-context/src/App.jsx",
                   highlight: [25, 29, 33, 37],
                 }),
@@ -2072,6 +2302,7 @@ const useCabContext = () => {
               code: [
                 real("jsx", SRC_HOME, {
                   filename: "src/components/Home/Home.jsx（只往上抛回调）",
+                  filenameEn: "src/components/Home/Home.jsx (it only passes the callback up)",
                   sourceFile: "cab-booking-context/src/components/Home/Home.jsx",
                   highlight: [15],
                 }),
@@ -2103,14 +2334,21 @@ const useCabContext = () => {
               kind: "ordering",
               level: 1,
               title: "把一次完整预订的六步排好",
+              titleEn: "Put the six steps of one full booking in order",
               prompt: <>从点「Book a Cab」到历史里出现记录，中间发生了什么？按顺序排。</>,
+              promptEn: (
+                <>
+                  What happens between pressing &ldquo;Book a Cab&rdquo; and the record
+                  appearing in the history? Put the steps in order.
+                </>
+              ),
               items: [
                 { id: "s1", label: "setCurrentPage(\"cab-options\")" },
-                { id: "s2", label: "updateBookedCabDetails(cab) —— 写 Context 的两个 state" },
+                { id: "s2", label: "updateBookedCabDetails(cab) —— 写 Context 的两个 state", labelEn: "updateBookedCabDetails(cab) — writes both states in the Context" },
                 { id: "s3", label: "setCurrentPage(\"loading\")" },
-                { id: "s4", label: "Loading 的 useEffect 里 setTimeout 1000ms 到期" },
+                { id: "s4", label: "Loading 的 useEffect 里 setTimeout 1000ms 到期", labelEn: "The setTimeout of 1000ms inside the useEffect of Loading fires" },
                 { id: "s5", label: "onComplete() → setCurrentPage(\"cab-confirmation\")" },
-                { id: "s6", label: "onConfirm() → setCurrentPage(\"home\")，首页读到新的 rideHistory" },
+                { id: "s6", label: "onConfirm() → setCurrentPage(\"home\")，首页读到新的 rideHistory", labelEn: "onConfirm() → setCurrentPage(\"home\"), and the home page reads the new rideHistory" },
               ],
               answer: ["s1", "s2", "s3", "s4", "s5", "s6"],
               explain: (
@@ -2134,13 +2372,43 @@ const useCabContext = () => {
                   <strong>它不需要任何人通知它</strong>。
                 </>
               ),
+              explainEn: (
+                <>
+                  <strong>The order of steps 2 and 3 is worth a look.</strong>{" "}
+                  <code>handleSelectCab</code> calls{" "}
+                  <code>updateBookedCabDetails(cab)</code> first and{" "}
+                  <code>setCurrentPage(&quot;loading&quot;)</code> second.
+                  <br />
+                  <strong>In practice the order of those two makes no
+                  difference</strong> — React groups several setState calls from one
+                  event into a single re-render (this is called{" "}
+                  <strong>batching</strong>), so there is no renderable state in between
+                  where the Context is written but the page has not switched.
+                  <br />
+                  Writing the data first and switching the page second is an order for{" "}
+                  <strong>people</strong>: get the data ready, then move the interface
+                  forward.
+                  <br />
+                  <strong>Step 6 is the important one:</strong> back on the home page{" "}
+                  <code>RideHistory</code> mounts again and reads the already-updated{" "}
+                  <code>rideHistory</code> out of the Context —{" "}
+                  <strong>nobody has to notify it</strong>.
+                </>
+              ),
             },
             {
               id: "cb-app-fill",
               kind: "fill-blank",
               level: 2,
               title: "补齐 App 的状态机",
+              titleEn: "Fill in the state machine of App",
               prompt: <>五个空。注意第 4 个空是这道题最容易写反的地方。</>,
+              promptEn: (
+                <>
+                  Five blanks. The fourth one is the easiest place in this exercise to
+                  get backwards.
+                </>
+              ),
               language: "jsx",
               filename: "src/App.jsx",
               template: `const App = () => {
@@ -2179,6 +2447,7 @@ const useCabContext = () => {
                   n: 1,
                   accept: ["\"home\"", "'home'"],
                   hint: "测试 1 一上来就查首页",
+                  hintEn: "Test 1 looks at the home page straight away.",
                   why: (
                     <>
                       初始页必须是 <code>home</code> —— 测试 1 <code>render</code>
@@ -2188,11 +2457,21 @@ const useCabContext = () => {
                       因为后面三个测试第一步都是点 <code>book-button</code>。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      The first page has to be <code>home</code> — test 1 looks for{" "}
+                      <code>book-button</code> right after <code>render</code>, with no
+                      click at all. <strong>Get the initial value wrong and all four
+                      tests fail</strong>, because the first step of the other three is
+                      also pressing <code>book-button</code>.
+                    </>
+                  ),
                 },
                 {
                   n: 2,
                   accept: ["updateBookedCabDetails"],
                   hint: "App 只需要写，不需要读",
+                  hintEn: "App only writes; it never reads.",
                   why: (
                     <>
                       <code>App</code> 是<strong>只写</strong>的消费者 ——
@@ -2204,11 +2483,25 @@ const useCabContext = () => {
                       才知道它用了 Context 的哪几样东西。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>App</code> is a <strong>write-only</strong> consumer — it
+                      shows neither the cab name nor the history.
+                      <br />
+                      One habit worth keeping: <strong>destructure only what you
+                      actually use</strong>. Writing{" "}
+                      <code>const ctx = useCabContext()</code> and then{" "}
+                      <code>ctx.xxx</code> everywhere works too, but anyone reading the
+                      code has to go through the whole component to find out which parts
+                      of the Context it touches.
+                    </>
+                  ),
                 },
                 {
                   n: 3,
                   accept: ["updateBookedCabDetails"],
                   hint: "和第 2 个空同一个函数",
+                  hintEn: "The same function as blank 2.",
                   why: (
                     <>
                       一句就够 —— 它内部已经同时改了
@@ -2219,11 +2512,22 @@ const useCabContext = () => {
                       测试 4 数出来 4 条而不是 3 条。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      One line is enough — inside itself it already changes both{" "}
+                      <code>bookedCabDetails</code> and <code>rideHistory</code>.
+                      <br />
+                      <strong>Add another <code>setRideHistory</code> here and the
+                      history gains a duplicate row</strong>, so test 4 counts 4 instead
+                      of 3.
+                    </>
+                  ),
                 },
                 {
                   n: 4,
                   accept: ["handleSelectCab"],
                   hint: "传函数本身，不是调用它",
+                  hintEn: "Pass the function itself, do not call it.",
                   why: (
                     <>
                       <strong>这里写 <code>handleSelectCab</code>，
@@ -2240,11 +2544,29 @@ const useCabContext = () => {
                       比如上面那几个 <code>{"() => setCurrentPage(\"...\")"}</code>。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <strong>Write <code>handleSelectCab</code> here, not{" "}
+                      <code>handleSelectCab()</code>.</strong> The parentheses make it run
+                      during render — <code>cab</code> is <code>undefined</code>, an empty
+                      row lands in the history right away, and calling{" "}
+                      <code>setCurrentPage</code> during render causes{" "}
+                      <strong>endless re-rendering</strong>.
+                      <br />
+                      There is also no need for{" "}
+                      <code>{"(cab) => handleSelectCab(cab)"}</code> — that passes the
+                      same argument straight through, so the extra wrapper buys nothing.{" "}
+                      <strong>Wrap it in an arrow function only when you have to supply
+                      an argument</strong>, as in those{" "}
+                      <code>{"() => setCurrentPage(\"...\")"}</code> above.
+                    </>
+                  ),
                 },
                 {
                   n: 5,
                   accept: ["setCurrentPage(\"home\")", "setCurrentPage('home')"],
                   hint: "点完确认回哪儿？",
+                  hintEn: "Where do you go after pressing confirm?",
                   why: (
                     <>
                       回首页。<strong>测试 3 和 4 都依赖这一条</strong> ——
@@ -2256,6 +2578,19 @@ const useCabContext = () => {
                       <strong>每一轮都要能从确认页回到首页再点一次
                       <code>book-button</code></strong>。
                       这一条写错，测试 4 第二轮就找不到按钮了。
+                    </>
+                  ),
+                  whyEn: (
+                    <>
+                      Back to the home page. <strong>Tests 3 and 4 both depend on
+                      this</strong> — after pressing <code>confirm-button</code> they look
+                      straight for <code>history-cabs</code>, and the history lives on the
+                      home page.
+                      <br />
+                      Test 4 is harder still: it books four cabs in a row, and{" "}
+                      <strong>every round has to get from the confirmation page back to
+                      the home page and press <code>book-button</code> again</strong>. Get
+                      this wrong and test 4 cannot find the button on its second round.
                     </>
                   ),
                 },
@@ -2281,7 +2616,25 @@ const handleSelectCab = (cab) => {
 // 测试 3：getByTestId("loading") 能过
 // 但如果两个页面里有同名 testid，就会报
 // "Found multiple elements by: [data-testid=...]"`,
-                { filename: "四个 boolean 的下场（示意）" },
+                {
+                  filename: "四个 boolean 的下场（示意）",
+                  filenameEn: "Where four booleans lead (illustration)",
+                  codeEn: `// ✕ using four booleans for the page
+const [isHome, setIsHome] = useState(true);
+const [isOptions, setIsOptions] = useState(false);
+const [isLoading, setIsLoading] = useState(false);
+const [isConfirm, setIsConfirm] = useState(false);
+
+const handleSelectCab = (cab) => {
+  updateBookedCabDetails(cab);
+  setIsLoading(true);          // setIsOptions(false) was forgotten
+};
+
+// result: cab-options and loading render at the same time
+// test 3: getByTestId("loading") still passes
+// but if the two pages share a testid name, you get
+// "Found multiple elements by: [data-testid=...]"`,
+                },
               ),
               why: (
                 <>
@@ -2375,7 +2728,11 @@ const handleSelectCab = (cab) => {
           whyForAssessmentEn:
             "Test 2 checks nine things at once: one container, three group headings in order, and 6 of each of the five card fields. This lesson satisfies all nine together. The group order is a free point: use Object.keys as it comes and you are right, while sorting it yourself makes it wrong.",
           sourceFiles: [
-            { path: "cab-booking-context/src/data/data.json", role: "三组六辆车，键顺序 Sedan → SUV → Luxury" },
+            {
+              path: "cab-booking-context/src/data/data.json",
+              role: "三组六辆车，键顺序 Sedan → SUV → Luxury",
+              roleEn: "Six cars in three groups, keyed in the order Sedan → SUV → Luxury",
+            },
             { path: "cab-booking-context/src/components/CabOptions/CabOptions.jsx", role: "外层分组", edit: true },
             { path: "cab-booking-context/src/components/CabOptions/CabCard.jsx", role: "五个字段都在这里", edit: true },
           ],
@@ -2684,6 +3041,7 @@ const handleSelectCab = (cab) => {
               code: [
                 real("jsx", SRC_CARD, {
                   filename: "src/components/CabOptions/CabCard.jsx（五个 testid）",
+                  filenameEn: "src/components/CabOptions/CabCard.jsx (five testids)",
                   sourceFile: "cab-booking-context/src/components/CabOptions/CabCard.jsx",
                   highlight: [4, 6, 9, 12, 17],
                 }),
@@ -2718,10 +3076,18 @@ const handleSelectCab = (cab) => {
               kind: "recognition",
               level: 1,
               title: "哪个 key 在历史列表里会出问题？",
+              titleEn: "Which key goes wrong in the history list?",
               prompt: (
                 <>
                   用户连订了两次同一辆 Ford Fusion（<code>id: 1</code>）。
                   历史列表用下面哪个 key 会报「重复 key」警告？
+                </>
+              ),
+              promptEn: (
+                <>
+                  The user books the same Ford Fusion (<code>id: 1</code>) twice in a
+                  row. Which of these keys makes the history list warn about duplicate
+                  keys?
                 </>
               ),
               options: [
@@ -2750,16 +3116,44 @@ const handleSelectCab = (cab) => {
                   <strong>结论：id 提供身份，index 只用来消歧。</strong>
                 </>
               ),
+              explainEn: (
+                <>
+                  <strong>B.</strong> Both records have <code>ride.id</code> of 1, so
+                  React reports{" "}
+                  <code>Encountered two children with the same key, \`1\`</code>.
+                  <br />
+                  A and D both carry the <code>index</code>, so they never repeat. Plain
+                  index in C never repeats either — <strong>but it has a different
+                  problem</strong>: the history shows the newest first, so adding a record
+                  shifts the index of every older row by one, which means{" "}
+                  <strong>the data behind each key changes</strong> and React re-renders
+                  every row as if its content changed. This list has only three rows and
+                  no inputs, so nothing looks wrong; but give each row an{" "}
+                  <code>&lt;input&gt;</code> and what the user typed ends up on the wrong
+                  row.
+                  <br />
+                  <strong>So: the id supplies identity, and the index is only there to
+                  break ties.</strong>
+                </>
+              ),
             },
             {
               id: "cb-card-write",
               kind: "code-completion",
               level: 3,
               title: "从零写出 CabCard",
+              titleEn: "Write CabCard from an empty file",
               prompt: (
                 <>
                   只给你 props 签名。五个 testid 自己写出来，
                   别忘了 <code>alt</code> 和 <code>type=&quot;button&quot;</code>。
+                </>
+              ),
+              promptEn: (
+                <>
+                  You only get the props signature. Write the five testids yourself, and
+                  do not forget <code>alt</code> and{" "}
+                  <code>type=&quot;button&quot;</code>.
                 </>
               ),
               language: "jsx",
@@ -2777,6 +3171,19 @@ const handleSelectCab = (cab) => {
 
 const CabCard = ({ cab, onSelectCab }) => {
 `,
+              starterEn: `// props: { cab, onSelectCab }
+// cab = { id, name, type, price, image }
+//
+// Requirements:
+// 1. image: data-testid="cab-card-img", src from cab.image, alt from cab.name
+// 2. name: data-testid="cab-card-name"
+// 3. type: data-testid="cab-card-type", showing "Type: <type>"
+// 4. price: data-testid="cab-card-price", showing "Fare: $<price>"
+// 5. button: data-testid="cab-card-select-button", text Select,
+//    clicking calls onSelectCab(cab), and it needs type="button"
+
+const CabCard = ({ cab, onSelectCab }) => {
+`,
               requirements: [
                 "五个 data-testid 一个不少：cab-card-img / -name / -type / -price / -select-button",
                 "img 要有 alt（测试不查，但没有 alt 是真实的可访问性缺陷）",
@@ -2784,19 +3191,29 @@ const CabCard = ({ cab, onSelectCab }) => {
                 "onClick 里包一层箭头函数把 cab 传进去，不是直接传 onSelectCab",
                 "价格前面要有 $ —— 历史列表的断言查的是 \"$20\"",
               ],
+              requirementsEn: [
+                "All five data-testid values: cab-card-img / -name / -type / -price / -select-button",
+                "The img needs an alt (the tests do not check it, but a missing alt is a real accessibility defect)",
+                "The button needs type=\"button\" — without it, inside a <form> it becomes a submit button",
+                "Wrap the onClick in an arrow function that passes cab in; do not pass onSelectCab directly",
+                "The price needs a $ in front — the history assertion looks for \"$20\"",
+              ],
               checks: [
                 {
                   label: "五个 testid 都在",
+                  labelEn: "All five testids are there",
                   must: "cab-card-img[\\s\\S]*cab-card-name[\\s\\S]*cab-card-type[\\s\\S]*cab-card-price[\\s\\S]*cab-card-select-button",
                 },
-                { label: "img 有 alt", must: "<img[\\s\\S]{0,200}?alt=" },
-                { label: "按钮写了 type=\"button\"", must: "type=\"button\"" },
+                { label: "img 有 alt", labelEn: "The img has an alt", must: "<img[\\s\\S]{0,200}?alt=" },
+                { label: "按钮写了 type=\"button\"", labelEn: "The button has type=\"button\"", must: "type=\"button\"" },
                 {
                   label: "onClick 包了箭头函数，把 cab 传进去",
+                  labelEn: "onClick wraps an arrow function that passes cab in",
                   must: "onClick=\\{\\s*\\(\\s*\\)\\s*=>\\s*onSelectCab\\(\\s*cab\\s*\\)",
                 },
                 {
                   label: "没有直接把 onSelectCab 当 onClick（那样收到的是事件对象）",
+                  labelEn: "onSelectCab is not used as onClick directly (that would hand it the event object)",
                   mustNot: "onClick=\\{\\s*onSelectCab\\s*\\}",
                 },
               ],
@@ -2806,8 +3223,16 @@ const CabCard = ({ cab, onSelectCab }) => {
                 "结构：<article><img …/><div><p name/><p type/><p price/><button/></div></article>。价格那行是 Fare: ${cab.price}，注意 $ 在 JSX 里要转义成 \\${...} 还是直接写 —— 直接写 $ 再跟 {cab.price} 就行。",
                 "onClick={() => onSelectCab(cab)}；img 是 <img src={cab.image} alt={cab.name} data-testid=\"cab-card-img\" />。",
               ],
+              hintsEn: [
+                "A card is one article holding an image and a block of content. List the five elements first, then add a testid to each.",
+                "The button's onClick has to pass cab out, so you cannot write onClick={onSelectCab} — that would pass the click event instead.",
+                "Structure: <article><img …/><div><p name/><p type/><p price/><button/></div></article>. The price line is Fare: ${cab.price}; write the $ plainly and follow it with {cab.price}.",
+                "onClick={() => onSelectCab(cab)}; the image is <img src={cab.image} alt={cab.name} data-testid=\"cab-card-img\" />.",
+              ],
               solution: real("jsx", SRC_CARD, {
                 filename: "src/components/CabOptions/CabCard.jsx（参考答案 —— 源项目原文）",
+                filenameEn:
+                  "src/components/CabOptions/CabCard.jsx (reference answer — the source project text)",
                 sourceFile: "cab-booking-context/src/components/CabOptions/CabCard.jsx",
               }),
             },
@@ -2826,7 +3251,20 @@ const CabCard = ({ cab, onSelectCab }) => {
 
 // .sort() 出来是字典序：["Luxury", "SUV", "Sedan"]
 // 断言要的是：      ["Sedan", "SUV", "Luxury"]`,
-                { filename: "多余的排序" },
+                {
+                  filename: "多余的排序",
+                  filenameEn: "A sort that was not needed",
+                  codeEn: `// ✕ sorting the groups yourself — test 2 fails
+{Object.keys(cabData).sort().map((type) => (
+  <section key={type}>
+    <h3 data-testid="car-type-heading">{type}</h3>
+    …
+  </section>
+))}
+
+// .sort() gives dictionary order: ["Luxury", "SUV", "Sedan"]
+// the assertion wants:            ["Sedan", "SUV", "Luxury"]`,
+                },
               ),
               why: (
                 <>
@@ -2875,7 +3313,19 @@ const CabCard = ({ cab, onSelectCab }) => {
 // → updateBookedCabDetails(clickEvent)
 // → 确认页显示 undefined is on the way
 // → 历史里那条记录的 name 和 price 都是 undefined`,
-                { filename: "忘了包箭头函数" },
+                {
+                  filename: "忘了包箭头函数",
+                  filenameEn: "The arrow function was left out",
+                  codeEn: `// ✕ using onSelectCab as onClick directly
+<button data-testid="cab-card-select-button" onClick={onSelectCab}>
+  Select
+</button>
+
+// onClick passes the click event object in as the first argument
+// → updateBookedCabDetails(clickEvent)
+// → the confirmation page shows undefined is on the way
+// → the name and price of that history entry are both undefined`,
+                },
               ),
               why: (
                 <>
@@ -2981,7 +3431,11 @@ const CabCard = ({ cab, onSelectCab }) => {
             "This is the standard way effect cleanup gets examined, and the Timer (useEffect cleanup) task on this site tests the same point. The test uses a fake timer to turn the 1 second into a single line, so the delay has to be exactly 1000. Write 900 or 1200 and the page is in the wrong state after advanceTimersByTime(1000).",
           sourceFiles: [
             { path: "cab-booking-context/src/components/Loading/Loading.jsx", role: "setTimeout + clearTimeout", edit: true },
-            { path: "cab-booking-context/src/test/App.test.jsx", role: "fake timer 的用法在 beforeEach / afterEach 里" },
+            {
+              path: "cab-booking-context/src/test/App.test.jsx",
+              role: "fake timer 的用法在 beforeEach / afterEach 里",
+              roleEn: "How the fake timer is used, in beforeEach and afterEach",
+            },
           ],
           concepts: [
             {
@@ -3331,7 +3785,30 @@ it("completes a booking …", () => {
     "Ford Fusion is on the way and will arrive shortly.",
   );
 });`,
-                  { filename: "fake timer 三步（摘自源项目测试，加注释）" },
+                  {
+                    filename: "fake timer 三步（摘自源项目测试，加注释）",
+                    filenameEn: "Three steps with fake timers (from the source project tests, annotated)",
+                    codeEn: `// the three steps that control time in the tests (as used in App.test.jsx)
+beforeEach(() => {
+  vi.useFakeTimers();                 // ① freeze the clock
+});
+
+afterEach(() => {
+  vi.runOnlyPendingTimers();          // ③ drain the timers that have not fired
+  vi.useRealTimers();                 //    restore the real clock
+});
+
+it("completes a booking …", () => {
+  // …select a cab…
+  expect(screen.getByTestId("loading")).toBeInTheDocument();
+
+  act(() => { vi.advanceTimersByTime(1000); });   // ② move the clock 1 second by hand
+
+  expect(screen.getByTestId("confirm-message")).toHaveTextContent(
+    "Ford Fusion is on the way and will arrive shortly.",
+  );
+});`,
+                  },
                 ),
               ],
             },
@@ -3363,7 +3840,14 @@ it("completes a booking …", () => {
               kind: "fill-blank",
               level: 2,
               title: "补齐 Loading 的四个空",
+              titleEn: "Fill in the four blanks of Loading",
               prompt: <>第 3 个空是这道题的送分点，第 4 个空是这道题的良心。</>,
+              promptEn: (
+                <>
+                  Blank 3 is the one that earns the marks. Blank 4 is the one that is
+                  simply the right thing to do.
+                </>
+              ),
               language: "jsx",
               filename: "src/components/Loading/Loading.jsx",
               template: `import { useEffect } from "react";
@@ -3390,6 +3874,7 @@ const Loading = ({ onComplete }) => {
                   n: 1,
                   accept: ["useEffect"],
                   hint: "副作用要放在哪里",
+                  hintEn: "Where does a side effect belong?",
                   why: (
                     <>
                       <code>setTimeout</code> 是副作用，
@@ -3397,11 +3882,19 @@ const Loading = ({ onComplete }) => {
                       <code>StrictMode</code> 下一次挂载就开两个。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <code>setTimeout</code> is a side effect. Written in the component
+                      body it <strong>starts a new one on every render</strong>, and under{" "}
+                      <code>StrictMode</code> a single mount starts two.
+                    </>
+                  ),
                 },
                 {
                   n: 2,
                   accept: ["setTimeout"],
                   hint: "只跑一次，不是反复跑",
+                  hintEn: "It runs once, not over and over.",
                   why: (
                     <>
                       <strong>是 <code>setTimeout</code> 不是
@@ -3412,11 +3905,22 @@ const Loading = ({ onComplete }) => {
                       要是忘了清理，它会<strong>每秒把用户拽回确认页一次</strong>。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <strong>It is <code>setTimeout</code>, not{" "}
+                      <code>setInterval</code></strong> — all you need is one jump after
+                      one second. With <code>setInterval</code> it only stops once the
+                      component unmounts and the cleanup runs; forget the cleanup and it{" "}
+                      <strong>drags the user back to the confirmation page once a
+                      second</strong>.
+                    </>
+                  ),
                 },
                 {
                   n: 3,
                   accept: ["1000"],
                   hint: "测试拨的是多少毫秒？",
+                  hintEn: "How many milliseconds do the tests move the clock?",
                   why: (
                     <>
                       测试写的是 <code>vi.advanceTimersByTime(1000)</code>，
@@ -3428,11 +3932,22 @@ const Loading = ({ onComplete }) => {
                       <strong>测试 3 和 4 全红</strong>。
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      The tests write <code>vi.advanceTimersByTime(1000)</code>, so the
+                      delay <strong>has to be 1000 or less</strong>, and 1000 fits the
+                      task best (it asks for a simulated delay of one second).
+                      <br />
+                      Write 1200 and after one second the timer has not fired, the page
+                      is still loading, and <strong>tests 3 and 4 both fail</strong>.
+                    </>
+                  ),
                 },
                 {
                   n: 4,
                   accept: ["clearTimeout(timer)"],
                   hint: "组件走了，定时器也得走",
+                  hintEn: "The component leaves, so the timer has to leave too.",
                   why: (
                     <>
                       <strong>四个测试都不会因为少了这一句而失败</strong> ——
@@ -3448,6 +3963,22 @@ const Loading = ({ onComplete }) => {
                       <strong>该写的清理就写上，别等测试来逼你。</strong>
                     </>
                   ),
+                  whyEn: (
+                    <>
+                      <strong>None of the four tests fails without this line</strong> —
+                      in this task <code>Loading</code> has no other way out.
+                      <br />
+                      But add a Cancel button and leaving it out gives you &ldquo;the user
+                      is already back on the home page, and one second later the page
+                      jumps to the confirmation screen by itself&rdquo;. From React 18
+                      onwards there is also{" "}
+                      <strong>no warning about updating state on an unmounted
+                      component</strong>, so you get no hint at all.
+                      <br />
+                      <strong>Write the cleanup because it belongs there, not because a
+                      test forced you to.</strong>
+                    </>
+                  ),
                 },
               ],
             },
@@ -3456,12 +3987,22 @@ const Loading = ({ onComplete }) => {
               kind: "debug",
               level: 2,
               title: "Debug Lab：定时器永远不到期",
+              titleEn: "Debug Lab: the timer never fires",
               prompt: (
                 <>
                   测试 3 报「找不到 <code>confirm-message</code>」，
                   而 DOM 快照显示页面还停在 loading。
                   先读报错，再看下面那个 <code>Loading</code> 组件 ——
                   <strong>它和源项目差一个东西</strong>。
+                </>
+              ),
+              promptEn: (
+                <>
+                  Test 3 reports that it cannot find{" "}
+                  <code>confirm-message</code>, and the DOM snapshot shows the page still
+                  sitting on loading. Read the error first, then look at the{" "}
+                  <code>Loading</code> component below —{" "}
+                  <strong>one thing in it differs from the source project</strong>.
                 </>
               ),
               errorOutput: `FAIL  src/test/App.test.jsx > React: Cab Booking > completes a booking and adds it to ride history
@@ -3500,29 +4041,51 @@ Ignored nodes: comments, script, style
     </main>
   );
 };`,
-                { filename: "src/components/Loading/Loading.jsx（有问题的版本）" },
+                {
+                  filename: "src/components/Loading/Loading.jsx（有问题的版本）",
+                  filenameEn: "src/components/Loading/Loading.jsx (the broken version)",
+                  codeEn: `const Loading = ({ onComplete }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (onComplete) onComplete();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  });                                  // ← where is the dependency array?
+
+  return (
+    <main data-testid="loading" className="loading-container">
+      <div className="spinner" aria-hidden="true" />
+      <h1>Loading...</h1>
+    </main>
+  );
+};`,
+                },
               ),
               classify: {
                 options: [
-                  { id: "a", label: "testid 写错了 —— confirm-message 拼错或漏了" },
-                  { id: "b", label: "effect 的依赖数组漏了，导致定时器每次渲染都被清掉重开" },
-                  { id: "c", label: "Context 没套 Provider" },
-                  { id: "d", label: "延迟时间大于 1000，fake timer 拨不到" },
+                  { id: "a", label: "testid 写错了 —— confirm-message 拼错或漏了", labelEn: "The testid is wrong — confirm-message is misspelled or missing" },
+                  { id: "b", label: "effect 的依赖数组漏了，导致定时器每次渲染都被清掉重开", labelEn: "The effect has no dependency array, so the timer is cleared and restarted on every render" },
+                  { id: "c", label: "Context 没套 Provider", labelEn: "The Context has no Provider around it" },
+                  { id: "d", label: "延迟时间大于 1000，fake timer 拨不到", labelEn: "The delay is longer than 1000, so the fake timer never reaches it" },
                 ],
                 answer: "b",
               },
               locate: {
                 question: "从报错的 DOM 快照看，页面停在哪个状态？这说明问题出在哪？",
+                questionEn: "From the DOM snapshot in the error, which state is the page stuck in, and what does that point at?",
                 options: [
-                  { id: "a", label: "停在 loading —— 所以是 Loading 组件没有触发 onComplete" },
-                  { id: "b", label: "停在首页 —— 所以是 book-button 的回调没接上" },
-                  { id: "c", label: "停在 cab-options —— 所以是 onSelectCab 没传下去" },
-                  { id: "d", label: "DOM 是空的 —— 所以是 render 就抛错了" },
+                  { id: "a", label: "停在 loading —— 所以是 Loading 组件没有触发 onComplete", labelEn: "Stuck on loading — so the Loading component never fired onComplete" },
+                  { id: "b", label: "停在首页 —— 所以是 book-button 的回调没接上", labelEn: "Stuck on the home page — so the book-button callback is not wired up" },
+                  { id: "c", label: "停在 cab-options —— 所以是 onSelectCab 没传下去", labelEn: "Stuck on cab-options — so onSelectCab was never passed down" },
+                  { id: "d", label: "DOM 是空的 —— 所以是 render 就抛错了", labelEn: "The DOM is empty — so render itself threw" },
                 ],
                 answer: "a",
               },
               fixed: real("jsx", SRC_LOADING, {
                 filename: "src/components/Loading/Loading.jsx（修好：补上依赖数组）",
+                filenameEn:
+                  "src/components/Loading/Loading.jsx (fixed: the dependency array is back)",
                 sourceFile: "cab-booking-context/src/components/Loading/Loading.jsx",
                 highlight: [10],
               }),
@@ -3573,6 +4136,36 @@ Ignored nodes: comments, script, style
                   </p>
                 </>
               ),
+              rootCauseEn: (
+                <>
+                  <p>
+                    <strong>
+                      Root cause: the file contains JSX but its extension is{" "}
+                      <code>.js</code>.
+                    </strong>{" "}
+                    Vite transforms with esbuild, and{" "}
+                    <strong>esbuild picks its loader by file extension</strong>.
+                    The js loader does not parse syntax like{" "}
+                    <code>&lt;CabContext.Provider&gt;</code>.
+                  </p>
+                  <p>
+                    <strong>Three ways to tell, any one of them is enough:</strong>
+                  </p>
+                  <ul>
+                    <li>
+                      The last line of the error <strong>says it outright</strong>:{" "}
+                      <code>make sure to name the file with the .jsx or .tsx extension</code>.
+                    </li>
+                    <li>
+                      The error points at the line with the JSX tag, not at any
+                      logic.
+                    </li>
+                    <li>
+                      Renaming the file alone fixes it, with no change inside.
+                    </li>
+                  </ul>
+                </>
+              ),
               verify: "npx vitest run",
             },
           ],
@@ -3591,7 +4184,21 @@ useEffect(() => {
 // setCurrentPage("cab-confirmation")
 // 用户点了 Okay 想回首页 —— 1 秒后被拽回确认页
 // 而且这个定时器永远不会停`,
-                { filename: "setInterval + 无清理" },
+                {
+                  filename: "setInterval + 无清理",
+                  filenameEn: "setInterval with no cleanup",
+                  codeEn: `// ✕ using setInterval, and forgetting the cleanup
+useEffect(() => {
+  setInterval(() => {
+    if (onComplete) onComplete();
+  }, 1000);
+}, [onComplete]);
+
+// symptom: after the jump to the confirmation page, once a second it calls
+// setCurrentPage("cab-confirmation") again
+// the user presses Okay to go home — one second later they are dragged back
+// and this timer never stops`,
+                },
               ),
               why: (
                 <>
@@ -3885,7 +4492,26 @@ history.slice(-3).reverse();
 // slice 越界是安全的：
 ["A"].slice(-3);   // ["A"]
 [].slice(-3);      // []`,
-                  { filename: "四条记录走一遍（示意）" },
+                  {
+                    filename: "四条记录走一遍（示意）",
+                    filenameEn: "Four records, step by step (illustration)",
+                    codeEn: `const history = ["Ford Fusion", "Honda Accord", "Toyota Highlander", "Ford Explorer"];
+//                     ↑ oldest (booking 1)                        newest (booking 4) ↑
+
+history.slice(-3);
+// ["Honda Accord", "Toyota Highlander", "Ford Explorer"]   ← the three newest ✓
+
+history.slice(0, 3);
+// ["Ford Fusion", "Honda Accord", "Toyota Highlander"]     ← the three oldest ✕
+
+history.slice(-3).reverse();
+// ["Ford Explorer", "Toyota Highlander", "Honda Accord"]   ← newest at the top ✓
+//    this is exactly the order test 4 asserts
+
+// slice is safe out of range:
+["A"].slice(-3);   // ["A"]
+[].slice(-3);      // []`,
+                  },
                 ),
               ],
             },
@@ -4102,7 +4728,26 @@ const latestRides = rideHistory.slice(-3).toReversed();
 // ✓ 或者先复制再翻
 const latestRides = [...rideHistory].reverse().slice(0, 3);
 //   注意这个顺序也对，但多复制了整个数组`,
-                  { filename: "四种写法对比（示意）" },
+                  {
+                    filename: "四种写法对比（示意）",
+                    filenameEn: "Four versions side by side (illustration)",
+                    codeEn: `// ✓ safe: slice built a new array first, so reverse changes that copy
+const latestRides = rideHistory.slice(-3).reverse();
+
+// ✕ dangerous: reversing the state itself
+const latestRides = rideHistory.reverse();
+//                              ↑ this changes the state array
+//   the reference did not change → React does not re-render
+//   the next append lands after the reversed items → the order falls apart
+//   it reverses once per render → twice under StrictMode, invisible in development
+
+// ✓ another safe form (ES2023)
+const latestRides = rideHistory.slice(-3).toReversed();
+
+// ✓ or copy first, then reverse
+const latestRides = [...rideHistory].reverse().slice(0, 3);
+//   this order is correct too, but it copies the whole array`,
+                  },
                 ),
               ],
             },
@@ -4284,6 +4929,7 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
               kind: "recognition",
               level: 1,
               title: "哪些写法能让测试 4 全绿？（多选）",
+              titleEn: "Which versions make test 4 pass? (more than one)",
               prompt: (
                 <>
                   历史是 <code>[Fusion, Accord, Highlander, Explorer]</code>
@@ -4291,6 +4937,14 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
                   断言要求：3 条、顺序
                   <code>Explorer / Highlander / Accord</code>、
                   <code>Fusion</code> 不在 DOM 里。
+                </>
+              ),
+              promptEn: (
+                <>
+                  The history is <code>[Fusion, Accord, Highlander, Explorer]</code>{" "}
+                  (oldest → newest). The assertions want: 3 entries, in the order{" "}
+                  <code>Explorer / Highlander / Accord</code>, and{" "}
+                  <code>Fusion</code> not in the DOM.
                 </>
               ),
               options: [
@@ -4334,16 +4988,60 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
                   也是为什么不能只看一次测试结果。</strong>
                 </>
               ),
+              explainEn: (
+                <>
+                  <strong>A, C and E are all correct.</strong>
+                  <ul>
+                    <li>
+                      <strong>A</strong> — what the source project writes.{" "}
+                      <code>slice</code> builds a new array first, and{" "}
+                      <code>reverse</code> changes that copy.
+                    </li>
+                    <li>
+                      <strong>C</strong> — copy the whole thing, reverse it, take the
+                      first three. Same result. <strong>It copies the entire
+                      array</strong>, which does not matter with only a few entries.
+                    </li>
+                    <li>
+                      <strong>E</strong> — <code>toReversed()</code> (ES2023) returns a
+                      new array by itself, which is the clearest of the three.
+                    </li>
+                  </ul>
+                  <strong>B is wrong:</strong> it takes the three oldest and reverses
+                  them, giving <code>Highlander / Accord / Fusion</code>. The count is
+                  right and the order even looks reversed,{" "}
+                  <strong>but Fusion is still there, so the last assertion
+                  fails</strong>.
+                  <br />
+                  <strong>D is the most hidden mistake:</strong> the resulting array{" "}
+                  <strong>is correct</strong> (<code>Explorer / Highlander / Accord</code>
+                  ) and the first test run may even pass — but{" "}
+                  <code>reverse()</code>{" "}
+                  <strong>has already reversed the state in place</strong>. The next
+                  booking appends after the reversed items, so the order is wrong from
+                  then on, and it reverses again on every render.{" "}
+                  <strong>This is the classic &ldquo;right this time, wrong from now
+                  on&rdquo;, and it is why one green test run is not proof.</strong>
+                </>
+              ),
             },
             {
               id: "cb-history-write",
               kind: "code-completion",
               level: 3,
               title: "从零写出 RideHistory",
+              titleEn: "Write RideHistory from an empty file",
               prompt: (
                 <>
                   从 Context 读历史，取最新三条、最新在最上，
                   空的时候显示空状态。检查器会挡住原地修改。
+                </>
+              ),
+              promptEn: (
+                <>
+                  Read the history out of the Context, take the three newest with the
+                  newest at the top, and show the empty state when there is nothing. The
+                  checker blocks changes made in place.
                 </>
               ),
               language: "jsx",
@@ -4360,6 +5058,18 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
 
 const RideHistory = () => {
 `,
+              starterEn: `import { useCabContext } from "../../context/CabContext";
+
+// Requirements:
+// 1. read rideHistory out of the Context
+// 2. take the three newest, with the newest at the top
+// 3. with records: a <ul> holding one <li data-testid="history-cabs"> per entry,
+//    showing the cab name and $price
+// 4. when empty: <p data-testid="no-ride-title">No ride history yet.</p>
+// 5. never change the state in place (no reverse / sort / push on rideHistory)
+
+const RideHistory = () => {
+`,
               requirements: [
                 "从 useCabContext() 里读 rideHistory",
                 "取最新三条并让最新的排在最上面（slice(-3).reverse() 或等价写法）",
@@ -4368,31 +5078,45 @@ const RideHistory = () => {
                 "空历史显示 <p data-testid=\"no-ride-title\">No ride history yet.</p>，且此时不渲染列表",
                 "key 不能只用 ride.id —— 同一辆车可以被订两次",
               ],
+              requirementsEn: [
+                "Read rideHistory out of useCabContext()",
+                "Take the three newest and put the newest at the top (slice(-3).reverse() or an equivalent)",
+                "Never call reverse or sort on rideHistory directly — that changes the state in place",
+                "One <li data-testid=\"history-cabs\"> per record, holding the cab name and the $price",
+                "An empty history shows <p data-testid=\"no-ride-title\">No ride history yet.</p> and renders no list",
+                "The key cannot be ride.id alone — the same cab can be booked twice",
+              ],
               checks: [
                 {
                   label: "读了 rideHistory",
+                  labelEn: "rideHistory is read",
                   must: "useCabContext\\(\\)[\\s\\S]{0,120}rideHistory",
                 },
                 {
                   label: "取的是最新三条（slice(-3) 或先复制再翻转）",
+                  labelEn: "It takes the three newest (slice(-3), or a copy then a reverse)",
                   must: "slice\\(\\s*-3\\s*\\)|\\[\\s*\\.\\.\\.rideHistory\\s*\\]\\s*\\.(reverse|toReversed)",
                 },
                 {
                   label: "做了反转（最新在最上）",
+                  labelEn: "It reverses them (newest at the top)",
                   must: "reverse\\(\\)|toReversed\\(\\)",
                 },
                 {
                   label: "没有直接 reverse / sort 到 state 上",
+                  labelEn: "reverse and sort are not applied to the state",
                   mustNot: "rideHistory\\s*\\.\\s*(reverse|sort)\\s*\\(",
                 },
-                { label: "没有 push", mustNot: "\\.push\\(" },
-                { label: "两个 testid 都在", must: "history-cabs[\\s\\S]*no-ride-title|no-ride-title[\\s\\S]*history-cabs" },
+                { label: "没有 push", labelEn: "push is not used", mustNot: "\\.push\\(" },
+                { label: "两个 testid 都在", labelEn: "Both testids are there", must: "history-cabs[\\s\\S]*no-ride-title|no-ride-title[\\s\\S]*history-cabs" },
                 {
                   label: "空状态文案照抄原文",
+                  labelEn: "The empty-state wording is copied exactly",
                   must: "No ride history yet\\.",
                 },
                 {
                   label: "key 不是裸 ride.id",
+                  labelEn: "The key is not a bare ride.id",
                   mustNot: "key=\\{\\s*ride\\.id\\s*\\}",
                 },
               ],
@@ -4402,8 +5126,16 @@ const RideHistory = () => {
                 "const latestRides = rideHistory.slice(-3).reverse();\n然后 return 里：{latestRides.length > 0 ? ( <ul>…</ul> ) : ( <p data-testid=\"no-ride-title\">…</p> )}",
                 "每条：<li key={`${ride.id}-${index}`} data-testid=\"history-cabs\"><span>{ride.name}</span><strong>${ride.price}</strong></li>",
               ],
+              hintsEn: [
+                "Two jobs: first work out which three entries to show and in what order, then decide between the with-records and no-records renders.",
+                "Building the list uses slice together with reverse. The point is to keep reverse away from the state — work out whether slice returns the original array or a new one.",
+                "const latestRides = rideHistory.slice(-3).reverse();\nThen in the return: {latestRides.length > 0 ? ( <ul>…</ul> ) : ( <p data-testid=\"no-ride-title\">…</p> )}",
+                "Each entry: <li key={`${ride.id}-${index}`} data-testid=\"history-cabs\"><span>{ride.name}</span><strong>${ride.price}</strong></li>",
+              ],
               solution: real("jsx", SRC_HISTORY, {
                 filename: "src/components/Home/RideHistory.jsx（参考答案 —— 源项目原文）",
+                filenameEn:
+                  "src/components/Home/RideHistory.jsx (reference answer — the source project text)",
                 sourceFile: "cab-booking-context/src/components/Home/RideHistory.jsx",
               }),
             },
@@ -4418,7 +5150,16 @@ const RideHistory = () => {
   const latestRides = rideHistory.reverse().slice(0, 3);
   …
 };`,
-                { filename: "原地翻转 state" },
+                {
+                  filename: "原地翻转 state",
+                  filenameEn: "Reversing the state in place",
+                  codeEn: `// ✕ calling reverse on the state itself
+const RideHistory = () => {
+  const { rideHistory } = useCabContext();
+  const latestRides = rideHistory.reverse().slice(0, 3);
+  …
+};`,
+                },
               ),
               why: (
                 <>
@@ -4464,7 +5205,18 @@ const RideHistory = () => {
 // 单独 render CabConfirmation 时（或任何 bookedCabDetails 还是 null 的时刻）：
 // TypeError: Cannot read properties of null (reading 'name')
 // → 整个组件树白屏，因为没有 error boundary`,
-                { filename: "少一个问号" },
+                {
+                  filename: "少一个问号",
+                  filenameEn: "One question mark missing",
+                  codeEn: `// ✕ the optional chain was left out
+<p data-testid="confirm-message">
+  {bookedCabDetails.name} is on the way and will arrive shortly.
+</p>
+
+// rendering CabConfirmation on its own (or any moment when bookedCabDetails is null):
+// TypeError: Cannot read properties of null (reading 'name')
+// → the whole component tree goes blank, because there is no error boundary`,
+                },
               ),
               why: (
                 <>
@@ -4589,7 +5341,11 @@ const RideHistory = () => {
             "This is another example of theme 3 on this site: the project you are given can be broken itself. This case is the worst one. It is not that one test fails, it is that 0 tests start. In a real exam, being able to decide within two minutes that the setup is at fault and not your code decides how you spend the rest of your time.",
           sourceFiles: [
             { path: "cab-booking-context/src/context/CabContext.js", role: "缺陷本体：.js 扩展名 + 文件里有 JSX", edit: true },
-            { path: "cab-booking-context/vite.config.mjs", role: "另一种（不推荐的）修法会改这里" },
+            {
+              path: "cab-booking-context/vite.config.mjs",
+              role: "另一种（不推荐的）修法会改这里",
+              roleEn: "The other fix, the one not recommended, changes this",
+            },
           ],
           concepts: [
             {
@@ -4796,8 +5552,12 @@ Error: Failed to parse source for import analysis because the content contains i
       Tests  no tests`,
                   {
                     filename: "npx vitest run 的真实输出（本机实测，路径已改短）",
+                    filenameEn:
+                      "The real output of npx vitest run (measured here, with paths shortened)",
                     explanation:
                       "「Tests no tests」这五个字是最重要的信号 —— 一个测试都没跑起来。这时候去改组件代码是白费功夫。",
+                    explanationEn:
+                      "The words \"Tests  no tests\" are the signal that matters most: not one test even started. Editing the component code at this point is wasted effort.",
                   },
                 ),
               ],
@@ -5183,8 +5943,30 @@ const value = useMemo(
 // 否则它每次都是新函数，useMemo 的依赖每次都变 —— 记忆化等于没做。`,
                   {
                     filename: "两处改法（示意 —— 不是源项目代码）",
+                    filenameEn: "Two ways to change it (illustration — not source project code)",
+                    codeEn: `// what the source project writes — correct in this app
+const updateBookedCabDetails = (details) => {
+  setBookedCabDetails(details);
+  setRideHistory([...rideHistory, details]);   // reads the value in the closure
+};
+
+// the safer form — always use this when the update depends on the old value
+const updateBookedCabDetails = useCallback((details) => {
+  setBookedCabDetails(details);
+  setRideHistory((prev) => [...prev, details]);  // React hands you the latest value
+}, []);                                          // empty deps: the function identity never changes
+
+// memoising value
+const value = useMemo(
+  () => ({ bookedCabDetails, updateBookedCabDetails, rideHistory }),
+  [bookedCabDetails, updateBookedCabDetails, rideHistory],
+);
+// note: updateBookedCabDetails has to be held steady by useCallback first,
+// or it is a new function every time, the useMemo deps change every time, and memoising does nothing.`,
                     explanation:
                       "最后那句注释是这一组最容易踩的坑：useMemo 的依赖里放了一个每次都新建的函数，等于白写。useCallback 和 useMemo 通常成对出现，就是这个原因。",
+                    explanationEn:
+                      "That last comment is the easiest trap in this pair: put a function that is rebuilt every time into the useMemo dependencies and the memoising achieves nothing. That is why useCallback and useMemo usually appear together.",
                   },
                 ),
               ],
@@ -5218,12 +6000,21 @@ const value = useMemo(
               kind: "debug",
               level: 2,
               title: "Debug Lab：0 个测试跑起来",
+              titleEn: "Debug Lab: zero tests run",
               prompt: (
                 <>
                   README 说「先运行完整答案熟悉流程」。
                   <code>npm install</code> 成功，
                   <code>npx vitest run</code> 却是下面这个输出。
                   <strong>注意最后一行的「no tests」。</strong>
+                </>
+              ),
+              promptEn: (
+                <>
+                  The README says to run the finished answer first to get used to the
+                  flow. <code>npm install</code> succeeds, and{" "}
+                  <code>npx vitest run</code> gives the output below.{" "}
+                  <strong>Look at the &ldquo;no tests&rdquo; on the last line.</strong>
                 </>
               ),
               errorOutput: ` RUN  v2.1.8 /Users/you/cab-booking-context
@@ -5249,30 +6040,34 @@ Error: Failed to parse source for import analysis because the content contains i
       Tests  no tests`,
               broken: real("jsx", SRC_CONTEXT, {
                 filename: "src/context/CabContext.js ← 注意这个扩展名",
+                filenameEn: "src/context/CabContext.js ← look at that extension",
                 sourceFile: "cab-booking-context/src/context/CabContext.js",
                 highlight: [19],
               }),
               classify: {
                 options: [
-                  { id: "a", label: "语法错误 —— 代码里少了个括号或标签没闭合" },
-                  { id: "b", label: "构建配置问题 —— 文件里有 JSX，但扩展名让 esbuild 用了 js loader" },
-                  { id: "c", label: "依赖缺失 —— 忘了 npm install" },
-                  { id: "d", label: "测试写错了 —— App.test.jsx 里的 import 路径不对" },
+                  { id: "a", label: "语法错误 —— 代码里少了个括号或标签没闭合", labelEn: "Syntax error — a bracket is missing or a tag is not closed" },
+                  { id: "b", label: "构建配置问题 —— 文件里有 JSX，但扩展名让 esbuild 用了 js loader", labelEn: "Build setup problem — the file holds JSX, but the extension made esbuild pick the js loader" },
+                  { id: "c", label: "依赖缺失 —— 忘了 npm install", labelEn: "Missing dependencies — npm install was not run" },
+                  { id: "d", label: "测试写错了 —— App.test.jsx 里的 import 路径不对", labelEn: "The test is wrong — an import path in App.test.jsx is off" },
                 ],
                 answer: "b",
               },
               locate: {
                 question: "「Tests no tests」这一行说明什么？",
+                questionEn: "What does the \"Tests no tests\" line tell you?",
                 options: [
-                  { id: "a", label: "测试全跑了但断言都失败" },
-                  { id: "b", label: "一个测试都没跑起来 —— 挂在收集/转换阶段，去改组件是白费功夫" },
-                  { id: "c", label: "测试文件被 .gitignore 忽略了" },
-                  { id: "d", label: "vitest 版本太老，不认识 describe" },
+                  { id: "a", label: "测试全跑了但断言都失败", labelEn: "Every test ran but every assertion failed" },
+                  { id: "b", label: "一个测试都没跑起来 —— 挂在收集/转换阶段，去改组件是白费功夫", labelEn: "Not one test started — it failed while collecting and transforming, so editing components is wasted effort" },
+                  { id: "c", label: "测试文件被 .gitignore 忽略了", labelEn: "The test file is ignored by .gitignore" },
+                  { id: "d", label: "vitest 版本太老，不认识 describe", labelEn: "The vitest version is too old and does not know describe" },
                 ],
                 answer: "b",
               },
               fixed: real("jsx", SRC_CONTEXT, {
                 filename: "src/context/CabContext.jsx ← 只改了文件名，内容一个字没动",
+                filenameEn:
+                  "src/context/CabContext.jsx ← only the file name changed, not one character inside",
                 sourceFile: "cab-booking-context/src/context/CabContext.js",
               }),
               rootCause: (
@@ -5325,36 +6120,103 @@ Error: Failed to parse source for import analysis because the content contains i
                   </p>
                 </>
               ),
+              rootCauseEn: (
+                <>
+                  <p>
+                    <strong>The cause: the file holds JSX but its extension is{" "}
+                    <code>.js</code>.</strong> Vite transforms with esbuild, and{" "}
+                    <strong>esbuild picks its loader from the extension</strong>. The js
+                    loader does not parse syntax like{" "}
+                    <code>&lt;CabContext.Provider&gt;</code>.
+                  </p>
+                  <p>
+                    <strong>Three pieces of evidence, any one of which is enough:</strong>
+                  </p>
+                  <ul>
+                    <li>
+                      the last line of the error <strong>says it outright</strong>:{" "}
+                      <code>make sure to name the file with the .jsx or .tsx
+                      extension</code>;
+                    </li>
+                    <li>
+                      <code>Plugin: vite:import-analysis</code> — the error comes from a{" "}
+                      <strong>build plugin</strong>, not from React and not from vitest;
+                    </li>
+                    <li>
+                      <code>Tests no tests</code> —{" "}
+                      <strong>it did not even get through collection</strong>. The test
+                      code never ran, so this cannot be an assertion or a component
+                      problem.
+                    </li>
+                  </ul>
+                  <p>
+                    <strong>The fix:{" "}
+                    <code>mv CabContext.js CabContext.jsx</code>.</strong> Every import
+                    writes <code>from &quot;./context/CabContext&quot;</code> with no
+                    extension, so the bundler resolves it and{" "}
+                    <strong>not one import line has to change</strong>.
+                  </p>
+                  <p>
+                    <strong>Do not edit <code>vite.config.mjs</code> to add{" "}
+                    <code>loader: {"{ \".js\": \"jsx\" }"}</code>.</strong> That makes
+                    every <code>.js</code> file in the project parse as JSX, which{" "}
+                    <strong>turns one badly named file into a project-wide rule</strong>,
+                    and it breaks again the moment you change build tools.
+                  </p>
+                  <p>
+                    <strong>The bigger lesson:</strong>{" "}
+                    <strong>when the error says &ldquo;no tests&rdquo;, do not edit your
+                    own code.</strong> First tell &ldquo;the tests ran and failed&rdquo;
+                    apart from &ldquo;the tests never ran&rdquo; — the two send you to
+                    completely different places.
+                  </p>
+                </>
+              ),
               verify: "npx vitest run   # 期望：Test Files 1 passed / Tests 4 passed",
+              verifyEn: "npx vitest run   # expected: Test Files 1 passed / Tests 4 passed",
             },
             {
               id: "cb-better-recognition",
               kind: "recognition",
               level: 1,
               title: "下面哪些说法是对的？（多选）",
+              titleEn: "Which of these statements are correct? (more than one)",
               prompt: <>关于源项目那两处「能过但可以更好」的写法。</>,
+              promptEn: (
+                <>
+                  About the two places in the source project that pass the tests but
+                  could be better.
+                </>
+              ),
               options: [
                 {
                   id: "a",
                   label:
                     "setRideHistory([...rideHistory, details]) 在同一个事件里连调两次会丢一条记录",
+                  labelEn:
+                    "setRideHistory([...rideHistory, details]) loses one entry if it is called twice inside the same event",
                 },
                 {
                   id: "b",
                   label: "Provider 的 value 是字面量对象，所以每次 Provider 渲染都会让全部消费者重渲染",
+                  labelEn: "The Provider's value is an object literal, so every render of the Provider re-renders every consumer",
                 },
                 {
                   id: "c",
                   label: "给 value 套 React.memo 就能挡住消费者的重渲染",
+                  labelEn: "Wrapping value in React.memo stops consumers from re-rendering",
                 },
                 {
                   id: "d",
                   label:
                     "useMemo 的依赖里如果放了一个每次新建的函数，记忆化等于没做 —— 所以通常要先 useCallback",
+                  labelEn:
+                    "If the useMemo dependencies hold a function that is rebuilt every time, the memoising does nothing — which is why useCallback usually comes first",
                 },
                 {
                   id: "e",
                   label: "这两处都是 bug，测试没抓到是测试写得不够好",
+                  labelEn: "Both places are bugs, and the tests missing them means the tests are not good enough",
                 },
               ],
               answer: ["a", "b", "d"],
@@ -5388,6 +6250,38 @@ Error: Failed to parse source for import analysis because the content contains i
                   把正确代码说成 bug，在 code review 里是要挨批的。
                 </>
               ),
+              explainEn: (
+                <>
+                  <strong>A is correct.</strong> A closure reads the value from that
+                  render. This task never hits it, because every booking is separated by
+                  a full re-render.
+                  <br />
+                  <strong>B is correct.</strong> An object literal is a new reference
+                  every time, and <code>useContext</code> compares references to decide
+                  whether something changed.
+                  <br />
+                  <strong>C is wrong.</strong> <code>React.memo</code> only stops props
+                  changes; <strong>a context change goes straight through memo</strong>.
+                  This is a very common misunderstanding. To stop it you keep value
+                  itself from changing (<code>useMemo</code>), or you split the context
+                  into smaller pieces.
+                  <br />
+                  <strong>D is correct, and it is the easiest trap.</strong> In{" "}
+                  <code>useMemo(() =&gt; ({"{ fn }"}), [fn])</code>, <code>fn</code> is
+                  rebuilt every time, so the dependency changes every time and{" "}
+                  <code>useMemo</code> recomputes every time.{" "}
+                  <strong>That is why <code>useCallback</code> and{" "}
+                  <code>useMemo</code> usually appear together.</strong>
+                  <br />
+                  <strong>E is wrong, and this is the important one.</strong> They are{" "}
+                  <strong>not bugs</strong>: under the real conditions of this app (few
+                  consumers, a Provider that only re-renders because of its own state, no
+                  two calls inside one event), both versions are entirely correct.{" "}
+                  <strong>What you need is the condition under which each becomes a
+                  problem</strong> — calling correct code a bug is the sort of thing that
+                  gets picked up in code review.
+                </>
+              ),
             },
           ],
           mistakes: [
@@ -5403,7 +6297,19 @@ export default defineConfig({
   },
   test: { environment: "jsdom", setupFiles: "./src/test/setup.js", globals: true },
 });`,
-                { filename: "不推荐的修法" },
+                {
+                  filename: "不推荐的修法",
+                  filenameEn: "The fix we do not recommend",
+                  codeEn: `// ✕ hiding one file's problem behind a global setting
+// vite.config.mjs
+export default defineConfig({
+  plugins: [react()],
+  esbuild: {
+    loader: { ".js": "jsx" },     // parse every .js file as JSX
+  },
+  test: { environment: "jsdom", setupFiles: "./src/test/setup.js", globals: true },
+});`,
+                },
               ),
               why: (
                 <>
@@ -5516,8 +6422,16 @@ export default defineConfig({
           whyForAssessmentEn:
             "A real exam looks exactly like this: one repository, one README, one set of tests, and no answer. In the first three parts you were reading along. In this lesson you do it yourself. Not finishing does not mean the earlier work was wasted. Wherever you get stuck is your real weak point.",
           sourceFiles: [
-            { path: "cab-booking-context/src/test/App.test.jsx", role: "唯一允许看的东西：四个测试" },
-            { path: "cab-booking-context/src/data/data.json", role: "数据可以照抄，那不是考点" },
+            {
+              path: "cab-booking-context/src/test/App.test.jsx",
+              role: "唯一允许看的东西：四个测试",
+              roleEn: "The only thing you may look at: the four tests",
+            },
+            {
+              path: "cab-booking-context/src/data/data.json",
+              role: "数据可以照抄，那不是考点",
+              roleEn: "The data can be copied as it is; it is not what is being tested",
+            },
           ],
           concepts: [
             {
@@ -5699,10 +6613,18 @@ export default defineConfig({
               kind: "from-scratch",
               level: 4,
               title: "空文件夹里做出整个 Cab Booking",
+              titleEn: "Build the whole of Cab Booking from an empty folder",
               prompt: (
                 <>
                   只给需求和文件清单。<strong>不给任何代码。</strong>
                   卡住了按四级提示走，答案在最后一道门后面。
+                </>
+              ),
+              promptEn: (
+                <>
+                  You get the requirements and the file list only.{" "}
+                  <strong>No code at all.</strong> If you get stuck, work through the four
+                  levels of hints. The answer sits behind the last door.
                 </>
               ),
               requirements: [
@@ -5717,43 +6639,62 @@ export default defineConfig({
                 "状态必须放在 Context 里：createContext + Provider + 自定义 hook（hook 里带「不在 Provider 内就抛错」的守卫），Provider 包在 App 外面",
                 "数据用 data.json：三个类型各两辆车，Sedan 第一辆是 Ford Fusion / $20，SUV 两辆是 Toyota Highlander / Ford Explorer，Sedan 第二辆是 Honda Accord",
               ],
+              requirementsEn: [
+                "Home page: a big heading \"Book a Safe Ride with HackerRide\", a button with data-testid=\"book-button\", and the ride history area below it",
+                "Ride history: with no records show <p data-testid=\"no-ride-title\">No ride history yet.</p>; with records show one <li data-testid=\"history-cabs\"> per entry, holding the cab name and the $price",
+                "The ride history shows the three newest entries only, newest at the top",
+                "Pressing book-button opens the cab page: a container with data-testid=\"all-cabs-section\", three groups by type, each with one <h3 data-testid=\"car-type-heading\">, and the order has to be Sedan / SUV / Luxury",
+                "One card per cab, with five testids: cab-card-img / cab-card-name / cab-card-type / cab-card-price / cab-card-select-button. The type reads \"Type: X\" and the price reads \"Fare: $N\"",
+                "Pressing Select on a card: record that cab as the current booking, append it to the history, then go to the loading page with data-testid=\"loading\"",
+                "The loading page moves to the confirmation page after 1000ms; the confirmation page shows data-testid=\"confirm-message\" reading \"<cab name> is on the way and will arrive shortly.\"",
+                "The confirmation page has data-testid=\"confirm-button\"; pressing it returns to the home page, where the history now shows that cab",
+                "The state has to live in a Context: createContext + Provider + a custom hook (the hook carries a guard that throws when it is used outside the Provider), and the Provider wraps App",
+                "The data comes from data.json: two cabs per type, the first Sedan is Ford Fusion / $20, the two SUVs are Toyota Highlander / Ford Explorer, and the second Sedan is Honda Accord",
+              ],
               fileList: [
                 { path: "package.json", role: "vite + react + vitest + jsdom + @testing-library/react + @testing-library/jest-dom" },
-                { path: "vite.config.mjs", role: "plugins: [react()]，test 段配 environment: \"jsdom\" / globals / setupFiles" },
-                { path: "index.html", role: "一个 <div id=\"root\">" },
-                { path: "src/index.jsx", role: "createRoot，用 <CabProvider> 包住 <App />" },
-                { path: "src/App.jsx", role: "currentPage 状态机 + handleSelectCab" },
-                { path: "src/context/CabContext.jsx", role: "三件套。注意扩展名 —— 里面有 JSX" },
-                { path: "src/components/AppHeader.jsx", role: "只显示标题，没有 testid" },
+                { path: "vite.config.mjs", role: "plugins: [react()]，test 段配 environment: \"jsdom\" / globals / setupFiles", roleEn: "plugins: [react()], and a test section with environment: \"jsdom\" / globals / setupFiles" },
+                { path: "index.html", role: "一个 <div id=\"root\">", roleEn: "one <div id=\"root\">" },
+                { path: "src/index.jsx", role: "createRoot，用 <CabProvider> 包住 <App />", roleEn: "createRoot, with <CabProvider> wrapping <App />" },
+                { path: "src/App.jsx", role: "currentPage 状态机 + handleSelectCab", roleEn: "the currentPage state machine + handleSelectCab" },
+                { path: "src/context/CabContext.jsx", role: "三件套。注意扩展名 —— 里面有 JSX", roleEn: "the three parts. Watch the extension — this file holds JSX" },
+                { path: "src/components/AppHeader.jsx", role: "只显示标题，没有 testid", roleEn: "shows the title only, no testid" },
                 { path: "src/components/Home/Home.jsx", role: "hero + book-button + <RideHistory />" },
-                { path: "src/components/Home/RideHistory.jsx", role: "空状态 / 最新三条倒序" },
-                { path: "src/components/CabOptions/CabOptions.jsx", role: "Object.keys 分组" },
-                { path: "src/components/CabOptions/CabCard.jsx", role: "五个 testid" },
+                { path: "src/components/Home/RideHistory.jsx", role: "空状态 / 最新三条倒序", roleEn: "the empty state / the three newest in reverse" },
+                { path: "src/components/CabOptions/CabOptions.jsx", role: "Object.keys 分组", roleEn: "grouping with Object.keys" },
+                { path: "src/components/CabOptions/CabCard.jsx", role: "五个 testid", roleEn: "the five testids" },
                 { path: "src/components/Loading/Loading.jsx", role: "setTimeout 1000 + clearTimeout" },
                 { path: "src/components/CabConfirmation/CabConfirmation.jsx", role: "?.name + confirm-button" },
-                { path: "src/data/data.json", role: "三组六辆车，键顺序 Sedan → SUV → Luxury" },
+                { path: "src/data/data.json", role: "三组六辆车，键顺序 Sedan → SUV → Luxury", roleEn: "six cabs in three groups, with the key order Sedan → SUV → Luxury" },
                 { path: "src/test/setup.js", role: "import \"@testing-library/jest-dom\"" },
-                { path: "src/test/App.test.jsx", role: "把源项目那四个测试原样放进来 —— 这是你的判分依据" },
+                { path: "src/test/App.test.jsx", role: "把源项目那四个测试原样放进来 —— 这是你的判分依据", roleEn: "copy the source project's four tests in unchanged — this is what grades you" },
               ],
               commands: [
                 {
                   cmd: "npm install",
                   expect: "装完无报错。React 18/19 都可以，测试用的 API 没差别",
+                  expectEn: "It finishes with no errors. React 18 or 19 both work; the APIs the tests use are the same",
                 },
                 {
                   cmd: "npx vitest run",
                   expect:
                     "刚放进测试文件时应该是 4 failed / 4 total，报错都是 Unable to find an element by: [data-testid=...]。全部做完是 Test Files 1 passed / Tests 4 passed (4)",
+                  expectEn:
+                    "Right after you drop the test file in it should be 4 failed / 4 total, all reporting Unable to find an element by: [data-testid=...]. When everything is done it is Test Files 1 passed / Tests 4 passed (4)",
                 },
                 {
                   cmd: "npx vitest run 2>&1 | grep -c 'no tests'",
                   expect:
                     "0。如果不是 0，说明你也踩了 .js 里写 JSX 那个坑 —— 把带 JSX 的文件改名成 .jsx",
+                  expectEn:
+                    "0. Anything else means you hit the JSX-in-a-.js-file problem too — rename the files that hold JSX to .jsx",
                 },
                 {
                   cmd: "npm run dev",
                   expect:
                     "浏览器里手动走一遍：首页 → 选车 → 加载 1 秒 → 确认 → 回首页看到历史。连订四辆，历史应该只有三条且最新在最上",
+                  expectEn:
+                    "Walk through it by hand in the browser: home page → pick a cab → 1 second of loading → confirm → back to the home page with the history there. Book four in a row and the history should hold three, newest at the top",
                 },
               ],
               hints: [
@@ -5761,6 +6702,12 @@ export default defineConfig({
                 "两处结构性决定要先定：① Provider 包在哪一层 —— 注意 App 自己也要用 Context 里的写入函数，所以它不能是提供者；② 「页面」怎么表示 —— 没有 react-router，用一个字符串 state 加几个 && 就行，别用多个 boolean。定完这两个，剩下的都是填空。",
                 "Context：createContext() 不给默认值；Provider 里两个 useState（当前车初始 null、历史初始 []）；一个函数同时改这两个 state；自定义 hook 里 if (!context) throw。\nApp：useState(\"home\")；handleSelectCab 先写 Context 再切页面；四个 currentPage === \"...\" && <某页 />。\nRideHistory：先算 latestRides = 历史的最后三条再反转，然后三元决定渲染列表还是空状态。\nLoading：useEffect 里 setTimeout(onComplete, 1000)，return 里 clearTimeout。",
                 "两个最容易错的具体写法：\n① 历史取最新三条倒序 —— rideHistory.slice(-3).reverse()。slice 必须在前面，因为 reverse() 原地修改，直接 rideHistory.reverse() 会翻掉 state。\n② 确认页 —— {bookedCabDetails?.name} is on the way and will arrive shortly. 那个问号不能省，初始值是 null。\n另外：CabCard 的按钮是 onClick={() => onSelectCab(cab)}，不能直接传 onSelectCab（那样收到的是点击事件）；历史列表的 key 用 `${ride.id}-${index}`，同一辆车能被订两次。",
+              ],
+              hintsEn: [
+                "Do not write components yet. Read all four tests, then copy out a table: which component holds each of the 13 data-testid values, how many of each, and what text is inside. Then answer one question — which data has to be shared across components? (Two things: the cab currently booked, and the ride history. Everything else is local.)",
+                "Two structural decisions come first. ① Which level the Provider sits at — note that App itself uses the write function from the Context, so App cannot be the provider. ② How a \"page\" is represented — there is no react-router, so one string state plus a few && operators is enough; do not use several booleans. Once those two are settled, the rest is filling in blanks.",
+                "Context: createContext() with no default value; two useState calls in the Provider (current cab starts null, history starts []); one function that changes both states; and if (!context) throw inside the custom hook.\nApp: useState(\"home\"); handleSelectCab writes the Context first, then switches the page; four currentPage === \"...\" && <SomePage /> lines.\nRideHistory: compute latestRides as the last three of the history, reversed, then use a conditional to render either the list or the empty state.\nLoading: setTimeout(onComplete, 1000) inside useEffect, and clearTimeout in the returned function.",
+                "The two easiest places to get wrong:\n① The three newest in reverse — rideHistory.slice(-3).reverse(). slice has to come first, because reverse() changes the array in place, so rideHistory.reverse() would reverse the state.\n② The confirmation page — {bookedCabDetails?.name} is on the way and will arrive shortly. That question mark cannot be dropped; the initial value is null.\nAlso: the CabCard button is onClick={() => onSelectCab(cab)}, never onSelectCab directly (that hands it the click event); and the history list key is `${ride.id}-${index}`, because the same cab can be booked twice.",
               ],
               solution: [
                 real("jsx", SRC_CONTEXT, {
@@ -5821,7 +6768,24 @@ $ npx vitest run
 # 现在怎么办？四条全红，不知道从哪查。
 # Provider 层级错了？testid 拼错了？状态机没接上？
 # 三种原因都会导致这个输出。`,
-                { filename: "一次写完的下场（示意）" },
+                {
+                  filename: "一次写完的下场（示意）",
+                  filenameEn: "Where writing it all at once leads (illustration)",
+                  codeEn: `# ✕ writing all six components first, and only then running the tests
+
+$ npx vitest run
+ ✗ renders the home page and empty ride history
+ ✗ shows grouped cab options with all required card fields
+ ✗ completes a booking and adds it to ride history
+ ✗ keeps only the newest three rides
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+
+# now what? All four are red and there is nowhere to start.
+# Wrong Provider level? Misspelled testid? State machine not connected?
+# All three causes produce this same output.`,
+                },
               ),
               why: (
                 <>

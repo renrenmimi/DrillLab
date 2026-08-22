@@ -83,7 +83,11 @@ export function ExamOverview({ examId }: { examId: string }) {
             <FileExplorer
               showContent
               title={<T zh="源项目" en="Source project" />}
-              files={exam.sourceProjects.map((p) => ({ path: p.path, role: p.role }))}
+              // FileExplorer 收 LocalizedString；补了 roleEn 的映射成双语
+              files={exam.sourceProjects.map((p) => ({
+                path: p.path,
+                role: p.roleEn ? { zh: p.role, en: p.roleEn } : p.role,
+              }))}
             />
           </>
         )}

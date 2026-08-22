@@ -173,7 +173,25 @@ new Dog("旺财").speak();          // "旺财 汪汪"
 // class 只是语法糖，底下是原型链
 Object.getPrototypeOf(Dog.prototype) === Animal.prototype;   // true
 new Dog("x") instanceof Animal;                              // true`,
-              { filename: "四个特征与原型链" },
+              {
+                filename: "四个特征与原型链",
+                filenameEn: "The four traits and the prototype chain",
+                codeEn: `class Animal {
+  #secret = "a private field, unreachable from outside";   // encapsulation
+  constructor(name) { this.name = name; }
+  speak() { return \`\${this.name} makes a sound\`; }   // encapsulation
+}
+
+class Dog extends Animal {
+  speak() { return \`\${this.name} woof\`; }   // polymorphism: overrides the parent
+}
+
+new Dog("旺财").speak();          // the name is data, so it stays: <name> woof
+
+// class is only syntax sugar; a prototype chain sits underneath
+Object.getPrototypeOf(Dog.prototype) === Animal.prototype;   // true
+new Dog("x") instanceof Animal;                              // true`,
+              },
             ),
           ],
         },
@@ -339,7 +357,34 @@ class Btn extends React.Component {
   }
   handle() { console.log(this.props); }
 }`,
-              { filename: "四条规则与隐式丢失" },
+              {
+                filename: "四条规则与隐式丢失",
+                filenameEn: "The four rules, and losing the implicit binding",
+                codeEn: `const obj = {
+  name: "obj",
+  show() { console.log(this.name); },
+};
+
+obj.show();                    // "obj"      implicit binding: look left of the dot
+const f = obj.show;
+f();                           // undefined  the implicit binding is lost
+f.call({ name: "call" });      // "call"     explicit binding
+setTimeout(obj.show, 0);       // undefined  pass it out and the binding is gone
+setTimeout(() => obj.show(), 0); // "obj"    one wrapper keeps it
+
+// An arrow function ignores these rules, and call cannot change it either
+const arrow = () => console.log(this);
+arrow.call({ a: 1 });          // still the outer this
+
+// Why a React class component needs bind
+class Btn extends React.Component {
+  constructor(p) {
+    super(p);
+    this.handle = this.handle.bind(this);   // without bind, this is undefined in onClick
+  }
+  handle() { console.log(this.props); }
+}`,
+              },
             ),
           ],
         },
@@ -519,8 +564,30 @@ Function.prototype.myBind = function (ctx, ...preset) {
 };`,
               {
                 filename: "三者对比与手写 bind",
+                filenameEn: "The three compared, and bind written by hand",
+                codeEn: `function greet(greeting, mark) {
+  return \`\${greeting}, \${this.name}\${mark}\`;
+}
+const who = { name: "小明" };
+
+greet.call(who, "你好", "！");       // the greeting, then the name, then the mark
+greet.apply(who, ["你好", "！"]);    // the same, but the arguments arrive as an array
+const hi = greet.bind(who, "你好"); // returns a new function with the first argument preset
+hi("？");                            // the same string, ending in a question mark
+
+// Write bind by hand (a very common live-coding question)
+Function.prototype.myBind = function (ctx, ...preset) {
+  const fn = this;
+  return function bound(...args) {
+    // With new, this is the new object and ctx must be ignored —— the spec requires it
+    const isNew = this instanceof bound;
+    return fn.apply(isNew ? this : ctx, [...preset, ...args]);
+  };
+};`,
                 explanation:
                   "手写 bind 的加分项就是那个 isNew 判断：规范规定 new 一个 bound 函数时，绑定的 this 应该被忽略。多数人会漏。",
+                explanationEn:
+                  "What earns extra credit when you write bind by hand is that isNew check: the spec says that when a bound function is called with new, the bound this must be ignored. Most people leave it out.",
               },
             ),
           ],
@@ -748,8 +815,30 @@ console.log("6 同步");
 //   · await 之后的代码等价于 .then 里的代码，是微任务`,
               {
                 filename: "必须能推出来的那道题",
+                filenameEn: "The question you have to be able to work out",
+                codeEn: `console.log("1 sync");
+
+setTimeout(() => console.log("2 macrotask"), 0);
+
+Promise.resolve().then(() => console.log("3 microtask"));
+
+(async () => {
+  console.log("4 sync (everything before await is sync)");
+  await null;
+  console.log("5 microtask (after await)");
+})();
+
+console.log("6 sync");
+
+// Output: 1 sync -> 4 sync -> 6 sync -> 3 microtask -> 5 microtask -> 2 macrotask
+//
+// The two key points:
+//   · the body of an async function runs synchronously until the first await
+//   · the code after await is the same as code inside .then, so it is a microtask`,
                 explanation:
                   "面试给的题基本是这个变体。抓住两条：同步先跑完；微任务在宏任务前，且一次清空。",
+                explanationEn:
+                  "The question you get in an interview is almost always a variant of this one. Hold on to two rules: all synchronous code runs first; microtasks run before macrotasks, and the whole microtask queue is drained at once.",
               },
             ),
           ],
@@ -922,7 +1011,21 @@ const [user, posts] = await Promise.all([fetchUser(), fetchPosts()]);
 // 有依赖时串行才是对的
 const user = await fetchUser();
 const posts = await fetchPosts(user.id);   // 必须先有 user.id`,
-              { filename: "async/await 最常见的性能错误" },
+              {
+                filename: "async/await 最常见的性能错误",
+                filenameEn: "The most common performance mistake with async/await",
+                codeEn: `// ✗ One after the other: total time = a + b
+const user = await fetchUser();      // wait 200ms
+const posts = await fetchPosts();    // wait another 200ms  -> 400ms in total
+
+// ✓ Side by side: total time = max(a, b)
+const [user, posts] = await Promise.all([fetchUser(), fetchPosts()]);
+//                                       ↑ both requests go out at once   -> 200ms total
+
+// When one depends on the other, going one at a time is correct
+const user = await fetchUser();
+const posts = await fetchPosts(user.id);   // user.id has to exist first`,
+              },
             ),
           ],
         },
@@ -1040,7 +1143,31 @@ try {
 } catch (err) {
   handle(err);              // 一处兜住全部
 }`,
-              { filename: "同一段逻辑的两种写法" },
+              {
+                filename: "同一段逻辑的两种写法",
+                filenameEn: "The same logic written two ways",
+                codeEn: `// Callback hell
+getUser(id, (err, user) => {
+  if (err) return handle(err);
+  getPosts(user.id, (err, posts) => {
+    if (err) return handle(err);            // the same line again
+    getComments(posts[0].id, (err, comments) => {
+      if (err) return handle(err);          // and once more
+      render(comments);
+    });
+  });
+});
+
+// async/await
+try {
+  const user = await getUser(id);
+  const posts = await getPosts(user.id);
+  const comments = await getComments(posts[0].id);
+  render(comments);
+} catch (err) {
+  handle(err);              // one place catches all of them
+}`,
+              },
             ),
           ],
         },
@@ -1163,7 +1290,30 @@ try {
 Promise.resolve(1).finally(() => 99).then(console.log);   // 1，不是 99
 // 但抛错会覆盖
 Promise.resolve(1).finally(() => { throw new Error("x"); }).catch(e => console.log(e.message)); // "x"`,
-              { filename: "finally 的三个性质" },
+              {
+                filename: "finally 的三个性质",
+                filenameEn: "Three properties of finally",
+                codeEn: `fetch(url)
+  .then((r) => r.json())
+  .then(setData)
+  .catch(setError)
+  .finally(() => setLoading(false));   // turn loading off whether it worked or not
+
+// The same thing written with async
+try {
+  const r = await fetch(url);
+  setData(await r.json());
+} catch (e) {
+  setError(e.message);
+} finally {
+  setLoading(false);         // ← put it here, not only at the end of try
+}
+
+// finally passes the value through; its return value is ignored
+Promise.resolve(1).finally(() => 99).then(console.log);   // 1, not 99
+// But throwing does replace it
+Promise.resolve(1).finally(() => { throw new Error("x"); }).catch(e => console.log(e.message)); // "x"`,
+              },
             ),
           ],
         },
@@ -1315,7 +1465,34 @@ if (!row) throw new NotFoundError(\`user \${id} 不存在\`);
 
 // 兜底
 window.addEventListener("unhandledrejection", (e) => report(e.reason));`,
-              { filename: "四条实践" },
+              {
+                filename: "四条实践",
+                filenameEn: "Four practices",
+                codeEn: `// ✗ Never caught —— the callback runs in a later turn of the event loop
+try {
+  setTimeout(() => { throw new Error("failed"); }, 0);
+} catch (e) {
+  console.log("this line is never reached");
+}
+
+// ✓ Catch an async error inside the async chain
+try {
+  await somethingAsync();
+} catch (e) { /* ✓ */ }
+
+// ✗ Swallowing the error: the caller cannot tell "not there" from "it failed"
+async function getUser(id) {
+  try { return await api.get(id); }
+  catch { return null; }
+}
+
+// ✓ Let it throw, or throw an error that has a type
+class NotFoundError extends Error {}
+if (!row) throw new NotFoundError(\`user \${id} not found\`);
+
+// A last line of defence
+window.addEventListener("unhandledrejection", (e) => report(e.reason));`,
+              },
             ),
           ],
         },
@@ -1506,7 +1683,28 @@ const withTimeout = (p, ms) =>
 const c = new AbortController();
 setTimeout(() => c.abort(), 5000);
 await fetch(url, { signal: c.signal });`,
-              { filename: "四个方法与超时" },
+              {
+                filename: "四个方法与超时",
+                filenameEn: "The four methods, and timeouts",
+                codeEn: `// All of them have to succeed
+const [user, posts] = await Promise.all([getUser(), getPosts()]);
+
+// You need the result of each one
+const results = await Promise.allSettled(files.map(upload));
+const failed = results.filter((r) => r.status === "rejected");
+
+// Timeout: race only means "stop waiting"; the request is still in flight
+const withTimeout = (p, ms) =>
+  Promise.race([
+    p,
+    new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms)),
+  ]);
+
+// Better: AbortController really does cancel the request
+const c = new AbortController();
+setTimeout(() => c.abort(), 5000);
+await fetch(url, { signal: c.signal });`,
+              },
             ),
           ],
         },
@@ -1824,7 +2022,26 @@ table.addEventListener("click", (e) => {
 // target vs currentTarget
 // e.target        = 真正被点的元素（可能是按钮里的 span）
 // e.currentTarget = 监听器挂在哪（这里永远是 table）`,
-              { filename: "事件委托的标准写法" },
+              {
+                filename: "事件委托的标准写法",
+                filenameEn: "The standard way to write event delegation",
+                codeEn: `// ✗ One listener per row, and rows added later have no behaviour
+document.querySelectorAll("tr .del").forEach((btn) =>
+  btn.addEventListener("click", onDelete),
+);
+
+// ✓ Delegation: one listener, and new rows behave correctly on their own
+table.addEventListener("click", (e) => {
+  // closest, not matches —— the user may click the icon inside the button
+  const btn = e.target.closest(".del");
+  if (!btn) return;                       // a click on empty space just returns
+  onDelete(btn.dataset.id);
+});
+
+// target vs currentTarget
+// e.target        = the element actually clicked (maybe a span inside the button)
+// e.currentTarget = where the listener is attached (always the table here)`,
+              },
             ),
           ],
         },
@@ -2644,7 +2861,30 @@ async function request(url, opts = {}) {
     clearTimeout(t);
   }
 }`,
-              { filename: "两者的核心差别与自制 wrapper" },
+              {
+                filename: "两者的核心差别与自制 wrapper",
+                filenameEn: "The main difference, and a wrapper of your own",
+                codeEn: `// fetch: a 404 also counts as "success", so you have to check it yourself
+const res = await fetch(url);
+if (!res.ok) throw new Error(\`HTTP \${res.status}\`);   // ← leave this line out and you get a bug
+const data = await res.json();
+
+// axios: it throws on anything that is not 2xx, and data is already parsed
+const { data } = await axios.get(url);
+
+// Wrap fetch yourself and you close most of the gap
+async function request(url, opts = {}) {
+  const c = new AbortController();
+  const t = setTimeout(() => c.abort(), opts.timeout ?? 10000);
+  try {
+    const res = await fetch(url, { ...opts, signal: c.signal });
+    if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+    return await res.json();
+  } finally {
+    clearTimeout(t);
+  }
+}`,
+              },
             ),
           ],
         },

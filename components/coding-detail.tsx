@@ -23,7 +23,7 @@ import type { CodeExample, CodingProblem, Lesson } from "@/content/types";
 import { CodeBlock } from "./code";
 import { CodingWorkspace } from "./coding-workspace";
 import { HintPanel, SolutionGate } from "./hint-panel";
-import { AnswerTabs, Section } from "./lesson-kit";
+import { AnswerTabs, Section, BilingualList } from "./lesson-kit";
 import { L, T, type LocalizedString } from "./t";
 
 /* ---------- 从现有内容里找东西，不复制 ---------- */
@@ -143,15 +143,18 @@ export function CodingDetail({ id }: { id: string }) {
           n="01"
           title={<T zh="题面" en="The problem" />}
         >
-          <div className="cd-brief">{problem.brief}</div>
+          <div className="cd-brief">
+            <T zh={problem.brief} en={problem.briefEn} />
+          </div>
 
           <div className="minihead">
             <T zh="验收标准" en="Acceptance criteria" />
           </div>
           <ul className="ws-req">
-            {problem.requirements.map((r, i) => (
-              <li key={i}>{r}</li>
-            ))}
+            <BilingualList
+              zh={problem.requirements}
+              en={problem.requirementsEn}
+            />
           </ul>
 
           <p className="dimmer" style={{ fontSize: 13.5 }}>
@@ -205,9 +208,9 @@ export function CodingDetail({ id }: { id: string }) {
                       <Section
                         id={`explain-${c.id}`}
                         key={c.id}
-                        lede={c.lede}
+                        lede={c.lede ? <T zh={c.lede} en={c.ledeEn} /> : undefined}
                         n={String(i + 1).padStart(2, "0")}
-                        title={c.heading}
+                        title={<T zh={c.heading} en={c.headingEn} />}
                       >
                         {c.bodyEn ? (
                           <AnswerTabs en={c.bodyEn} id={`cd-${c.id}`} zh={c.body} />
@@ -244,13 +247,19 @@ export function CodingDetail({ id }: { id: string }) {
               {hints.length > 0 ? (
                 <>
                   <p className="sec-lede">
-                    提示是一级一级放的。四级看完还写不出来，再开答案门。
+                    <T
+                      zh="提示是一级一级放的。四级看完还写不出来，再开答案门。"
+                      en="The hints come one level at a time. If all four leave you stuck, open the answer."
+                    />
                   </p>
                   <HintPanel hints={hints} />
                 </>
               ) : (
                 <p className="sec-lede">
-                  这道题没有配套的分级提示 —— 卡住了先看上面的讲解那一节。
+                  <T
+                    zh="这道题没有配套的分级提示 —— 卡住了先看上面的讲解那一节。"
+                    en="This problem has no graded hints. If you are stuck, read the walkthrough above first."
+                  />
                 </p>
               )}
 
@@ -277,16 +286,24 @@ export function CodingDetail({ id }: { id: string }) {
         <nav className="lesson-foot" aria-label="上一道 / 下一道">
           {prev ? (
             <Link className="foot-link" data-dir="prev" href={`/code/${prev.id}`}>
-              <span className="foot-dir">← 上一道</span>
-              <span className="foot-title">{prev.title}</span>
+              <span className="foot-dir">
+                <T zh="← 上一道" en="← Previous" />
+              </span>
+              <span className="foot-title">
+                <T zh={prev.title} en={prev.titleEn} />
+              </span>
             </Link>
           ) : (
             <div className="foot-spacer" />
           )}
           {next ? (
             <Link className="foot-link" data-dir="next" href={`/code/${next.id}`}>
-              <span className="foot-dir">下一道 →</span>
-              <span className="foot-title">{next.title}</span>
+              <span className="foot-dir">
+                <T zh="下一道 →" en="Next →" />
+              </span>
+              <span className="foot-title">
+                <T zh={next.title} en={next.titleEn} />
+              </span>
             </Link>
           ) : (
             <div className="foot-spacer" />
@@ -301,18 +318,26 @@ export function CodingDetail({ id }: { id: string }) {
           </div>
           <ul className="rail-toc">
             <li>
-              <a href="#brief">01 题面</a>
+              <a href="#brief">
+                01 <T zh="题面" en="The problem" />
+              </a>
             </li>
             <li>
-              <a href="#workspace">02 工作区</a>
+              <a href="#workspace">
+                02 <T zh="工作区" en="Workspace" />
+              </a>
             </li>
             {explain && (
               <li>
-                <a href="#explain">03 展开讲解</a>
+                <a href="#explain">
+                  03 <T zh="展开讲解" en="Walkthrough" />
+                </a>
               </li>
             )}
             <li>
-              <a href="#solution">04 参考答案</a>
+              <a href="#solution">
+                04 <T zh="参考答案" en="Reference solution" />
+              </a>
             </li>
           </ul>
         </div>
@@ -323,10 +348,13 @@ export function CodingDetail({ id }: { id: string }) {
               <T zh="出处" en="Comes from" />
             </div>
             <Link href={lessonPath(explain.examId, explain.lesson.id)}>
-              {explain.lesson.title}
+              <T zh={explain.lesson.title} en={explain.lesson.titleEn} />
             </Link>
             <p className="dimmer" style={{ fontSize: 12.5, marginTop: 8, lineHeight: 1.6 }}>
-              题面、需求、答案全部引用那一节，没有第二份。
+              <T
+                zh="题面、需求、答案全部引用那一节，没有第二份。"
+                en="The problem, the requirements and the answer all reference that lesson. There is no second copy."
+              />
             </p>
           </div>
         )}

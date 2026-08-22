@@ -42,6 +42,7 @@ interface Spec {
    * 题面推不出来，所以在这里直接写一句。
    */
   brief?: string;
+  briefEn?: string;
   /**
    * 显式覆盖验收标准。
    *
@@ -53,6 +54,8 @@ interface Spec {
    * 有这个字段就在这里把整道题的要求写全，不去改那个练习。
    */
   requirements?: string[];
+  /** 英文版验收标准。长度必须和 requirements 完全一致，否则渲染端整段回落中文。 */
+  requirementsEn?: string[];
   /**
    * 显式覆盖参考答案。
    *
@@ -592,6 +595,16 @@ const SPECS: Spec[] = [
       "Check all / Uncheck all 按「当前是否已全部完成」整体反转",
       "Clear completed 只删已完成的",
     ],
+    requirementsEn: [
+      "The Add button is disabled while the input is empty or holds only spaces",
+      "Submitting clears the input and appends the new item to the end of the list",
+      "The checkbox toggles done on one item: use map plus object spread, and never change the original object",
+      "Delete removes a single item with filter, never with splice",
+      "visible, remaining and allDone are all derived values. Do not add state for them",
+      "The all / active / done filter only changes what is shown. Switching back to all brings every item back",
+      "Check all / Uncheck all flips every item at once, based on whether they are all done right now",
+      "Clear completed removes only the items that are already done",
+    ],
   },
   {
     id: "timer",
@@ -613,6 +626,14 @@ const SPECS: Spec[] = [
       "没在跑的时候不该有定时器",
       "Reset 归零并且停下",
     ],
+    requirementsEn: [
+      "Show format(seconds), starting at 00:00. The button switches between Start and Pause",
+      "While it is running, the count goes up by 1 every second",
+      "You must use the updater form setSeconds(s => s + 1). Otherwise a stale closure keeps the count stuck at 1",
+      "The effect must return a cleanup function that calls clearInterval. Without it, restarting stacks up intervals and the timer keeps ticking after unmount",
+      "No interval should exist while the timer is not running",
+      "Reset sets the count back to zero and stops the timer",
+    ],
   },
   {
     id: "fetch-user",
@@ -631,6 +652,13 @@ const SPECS: Spec[] = [
       "userId 变了要重新取，并且先回到 loading，不留上一个人的数据在屏幕上",
       "竞态：旧请求晚回来不许覆盖新数据（effect 里立 ignore 开关，清理函数置 true）",
       "切 userId / 卸载时用 AbortController 掐掉在飞的请求；AbortError 不是错误，不给用户看",
+    ],
+    requirementsEn: [
+      "Three states: loading, error, and success which shows name and email",
+      "fetch only rejects when the network layer fails. Check res.ok yourself for 404 and 500, and put HTTP plus the status code in the error message",
+      "When userId changes, fetch again and go back to loading first, so the previous user's data never stays on screen",
+      "Race condition: an old response that arrives late must not overwrite newer data. Declare an ignore flag inside the effect and set it to true in the cleanup function",
+      "Use AbortController to cancel the in-flight request when userId changes or the component unmounts. An AbortError is not a real failure, so do not show it to the user",
     ],
   },
   {
@@ -655,6 +683,16 @@ const SPECS: Spec[] = [
       "同一个 parent 连加两条，按加入顺序排在后面",
       "不许 push / splice / 直接赋值，也不许 JSON.parse(JSON.stringify(...)) 深拷贝",
     ],
+    requirementsEn: [
+      "countComments counts every comment recursively. nodes.length is wrong because it only counts the top level",
+      "maxDepth returns the depth of the deepest path. An empty array gives 0",
+      "addReply finds the node where id === parentId and appends reply to the end of its replies",
+      "The target node can sit at any depth, so search downwards recursively. A top-level node must work too",
+      "Return a brand new tree and leave the original completely untouched. The test deep-freezes it, so any change throws",
+      "When parentId does not exist anywhere, the contents of the tree stay the same",
+      "Adding two replies to the same parent keeps them in the order they were added",
+      "Do not use push, splice or direct assignment, and do not deep-copy with JSON.parse(JSON.stringify(...))",
+    ],
   },
   {
     id: "theme-context",
@@ -676,6 +714,15 @@ const SPECS: Spec[] = [
       "toggleTheme 引用稳定：theme 变了它也不变（useCallback）",
       "theme 没变时 context value 不换新对象（useMemo）",
       "一次事件里连调两次 toggleTheme 要回到原点 —— 必须用函数式更新",
+    ],
+    requirementsEn: [
+      "The default is light: the card shows light and the button reads Switch to Dark. After switching to dark the button reads Switch to Light",
+      "The card background follows the theme: light uses #fff, dark uses #222",
+      "Several consumers under the same Provider all change together. That is the whole reason Context exists",
+      "Calling useTheme() with no Provider around it must throw immediately, and the message must contain ThemeProvider",
+      "toggleTheme keeps a stable identity: it stays the same function when theme changes (useCallback)",
+      "While theme has not changed, the context value must not be a new object (useMemo)",
+      "Calling toggleTheme twice inside one event must land back on the starting theme. That needs the updater form",
     ],
   },
 
@@ -701,6 +748,15 @@ const SPECS: Spec[] = [
       "传了 value 就是受控：内部不留自己的值，点击只调 onChange",
       "max 决定画几颗星",
     ],
+    requirementsEn: [
+      "Hovering star n lights up the first n stars. This is only a preview, so the selected value must not change",
+      "When the mouse leaves the whole component, the display goes back to the selected value",
+      "Clicking star n sets the rating to n. Clicking that same star again clears it to 0",
+      "Every star is a button, aria-label is `${n} star`, and aria-pressed marks the selected one",
+      "There are only two pieces of state (the selected value and the hovered one). How many stars light up is derived",
+      "Passing value makes the component controlled: keep no value of your own inside, and a click only calls onChange",
+      "max decides how many stars are drawn",
+    ],
   },
   {
     id: "use-local-storage",
@@ -722,6 +778,15 @@ const SPECS: Spec[] = [
       "脏数据 parse 不了、或隐私模式下 setItem 抛错，都要吞掉，不许让组件炸",
       "值变了写回 localStorage",
       "返回 [value, setValue] 元组，setValue 支持函数式更新",
+    ],
+    requirementsEn: [
+      "The name must start with use. ESLint only applies the hooks rules to functions with that prefix",
+      "Lazy initialization: read localStorage once on the first render, not on every render",
+      "When the key is not there, fall back to initial",
+      "What you store is JSON, and you read it back with JSON.parse, so objects and arrays come back unchanged",
+      "Two failures must be caught so the component keeps working: data that JSON.parse cannot read, and setItem throwing in private mode",
+      "When the value changes, write it back to localStorage",
+      "Return a [value, setValue] tuple, and setValue must accept the updater form",
     ],
   },
   {
@@ -771,6 +836,14 @@ const SPECS: Spec[] = [
       "播完靠 onEnded 把状态同步回 Play",
       "进度靠 onTimeUpdate 同步到界面（显示整秒）",
     ],
+    requirementsEn: [
+      "Use useRef to reach the <audio> node, and call its play() / pause() from the buttons",
+      "The button text switches between Play and Pause as the playback state changes",
+      "Stop calls pause(), sets currentTime back to zero, and puts the button back to Play. currentTime is written straight to the DOM, it does not go through state",
+      "play() can be refused by the browser autoplay policy. When it is refused, do not set the state to playing",
+      "When the audio reaches the end, onEnded puts the state back to Play",
+      "onTimeUpdate keeps the progress in sync on screen (shown in whole seconds)",
+    ],
   },
   {
     id: "dropdown",
@@ -790,6 +863,13 @@ const SPECS: Spec[] = [
       "按 Escape 关闭，别的键不关",
       "卸载时必须解绑 document 上的监听器；没展开时不该挂监听器",
       "触发器 aria-haspopup=\"listbox\" + aria-expanded；列表 role=\"listbox\"，每项 role=\"option\" + aria-selected",
+    ],
+    requirementsEn: [
+      "Clicking the trigger opens the list. Picking an option closes it and puts that option's label on the trigger",
+      "A click anywhere outside the component closes it. A click inside the component must not close it (useRef plus node.contains)",
+      "Escape closes it. No other key closes it",
+      "Remove the listener on document when the component unmounts, and do not attach one while the list is closed",
+      "The trigger has aria-haspopup=\"listbox\" and aria-expanded. The list has role=\"listbox\", and every item has role=\"option\" plus aria-selected",
     ],
   },
   {
@@ -811,6 +891,14 @@ const SPECS: Spec[] = [
       "派生数据用 selector：selectVisible / selectRemaining / selectFilter",
       "筛选不能改底层数据 —— 切回 all 时全部条目都还在",
       "reducer 要能脱离 React 单独测（所以这道题的测试里一行 render 都没有）",
+    ],
+    requirementsEn: [
+      "Use createSlice to write added, toggled, removed, clearedDone and filterChanged",
+      "The id is generated in prepare, not in the reducer. A reducer has to be pure: running the same action twice must give the same result",
+      "Immer hands you a draft proxy, but the state object passed in must not be changed. The test proves it with a frozen state",
+      "Derived data goes through selectors: selectVisible, selectRemaining and selectFilter",
+      "Filtering must not change the underlying data. Switching back to all brings every item back",
+      "The reducer must be testable on its own, without React. That is why the tests for this problem never call render",
     ],
   },
 
@@ -844,6 +932,20 @@ const SPECS: Spec[] = [
       "点 confirm-button 回首页，此时历史里能看到刚订的车",
       "历史只显示最新三条、最新的排最上面；reverse() 原地修改，别翻到 state 上",
       "有记录时每条一个 <li data-testid=\"history-cabs\">（含车名和 $价格）；没记录时只显示 <p data-testid=\"no-ride-title\">No ride history yet.</p>，两者互斥",
+    ],
+    requirementsEn: [
+      "The Context holds two things: bookedCabDetails (the current booking, starts as null) and rideHistory (every ride, starts as [])",
+      "updateBookedCabDetails(cab) does two things in one call: it sets the current booking and appends to the history. The append has to build a new array, never push",
+      "The custom hook useCabContext() carries a guard: with no Provider around it, it throws, and the message contains CabProvider. Do not cover up that error by giving createContext a fake default value",
+      "One string state drives all four pages (home / cab-options / loading / cab-confirmation) and starts at home. Do not use several booleans",
+      "Clicking book-button goes to cab-options, and the home page must disappear. Only one page is on screen at a time",
+      "Clicking Select on a card writes to the Context first and then moves to loading. Both happen inside the same handler",
+      "Loading calls onComplete 1000ms after it mounts. Use setTimeout, not setInterval",
+      "The effect in Loading must have a cleanup function. Once it has unmounted it must not call onComplete",
+      "On the confirmation page, confirm-message reads \"<cab name> is on the way and will arrive shortly.\" bookedCabDetails starts as null, so you need ?.",
+      "Clicking confirm-button returns to the home page, and the ride you just booked is visible in the history",
+      "The history shows only the newest three rides, newest at the top. reverse() changes the array in place, so do not run it on the state array",
+      "With rides in the history, each one is a <li data-testid=\"history-cabs\"> holding the cab name and the $ price. With none, the only thing on screen is <p data-testid=\"no-ride-title\">No ride history yet.</p>. The two never appear together",
     ],
     solution: [
     tested("tsx", "import { createContext, useContext, useState } from \"react\";\nimport type { ReactNode } from \"react\";\nimport type { Cab } from \"./data\";\n\nexport interface CabContextValue {\n  bookedCabDetails: Cab | null;\n  rideHistory: Cab[];\n  updateBookedCabDetails: (cab: Cab) => void;\n}\n\nconst CabContext = createContext<CabContextValue | undefined>(undefined);\n\nexport function CabProvider({ children }: { children: ReactNode }) {\n  const [bookedCabDetails, setBookedCabDetails] = useState<Cab | null>(null);\n  const [rideHistory, setRideHistory] = useState<Cab[]>([]);\n\n  const updateBookedCabDetails = (cab: Cab) => {\n    setBookedCabDetails(cab);\n    setRideHistory((prev) => [...prev, cab]);\n  };\n\n  const value = { bookedCabDetails, rideHistory, updateBookedCabDetails };\n\n  return <CabContext.Provider value={value}>{children}</CabContext.Provider>;\n}\n\nexport function useCabContext(): CabContextValue {\n  const context = useContext(CabContext);\n\n  if (!context) {\n    throw new Error(\"useCabContext must be used within a CabProvider\");\n  }\n\n  return context;\n}\n", {
@@ -891,6 +993,16 @@ const SPECS: Spec[] = [
       "编辑是原地替换 —— 位置不变、总数不变（「先删再加」会把它挪到末尾）",
       "更新完表单清空，按钮变回 Add",
       "连着点两条的 Edit，表单要跟着换 —— 查 effect 的依赖写对没有",
+    ],
+    requirementsEn: [
+      "Both fields need real content before you can submit. Spaces alone do not count, and the button stays disabled",
+      "A new note is appended to the end of the list, not inserted at the top",
+      "After a successful submit, both fields are cleared",
+      "Delete removes only the note you clicked. Use filter, not splice",
+      "Clicking Edit loads that note into the form, and the button text becomes Update",
+      "Editing replaces the note in place: same position, same total count. Deleting it and adding it again would move it to the end",
+      "After the update the form is cleared and the button reads Add again",
+      "Clicking Edit on one note and then on another must swap what the form shows. This checks that the effect has the right dependencies",
     ],
   },
   {
@@ -1082,6 +1194,7 @@ function build(): CodingProblem[] {
 
     // 需求和答案的形状按练习类型取
     let requirements: string[] = [];
+    let requirementsEn: string[] | undefined;
     let solution: CodingProblem["solution"] = [];
 
     // 显式覆盖优先于一切派生 —— 见 Spec.requirements 的注释。
@@ -1093,19 +1206,25 @@ function build(): CodingProblem[] {
     // 自带题面的题就是「不从来源练习派生需求」的意思，所以它得先判。
     if (SELF_BRIEF.has(spec.id)) {
       requirements = REQUIREMENTS_FALLBACK[spec.id] ?? [];
+      requirementsEn = REQUIREMENTS_FALLBACK_EN[spec.id];
       solution = solutionFromLesson(spec.explain);
     } else if (ex.kind === "code-completion") {
       const cc = ex as CodeCompletionExercise;
       requirements = cc.requirements;
+      // 英文也要跟着派生 —— 只取中文的话，coding 题页面上的验收标准
+      // 在英文模式下会整段回落中文（spring-endpoints 就这么漏了 9 条）
+      requirementsEn = cc.requirementsEn;
       solution = [cc.solution];
     } else if (ex.kind === "from-scratch") {
       const fs = ex as FromScratchExercise;
       requirements = fs.requirements;
+      requirementsEn = fs.requirementsEn;
       solution = fs.solution;
     } else if (ex.kind === "fill-blank") {
       // Dropdown 和 RTK 那两道只有填空练习 —— 需求从它的空位说明里推不出来，
       // 所以显式在这里列，并从讲解那一节取参考答案。
       requirements = REQUIREMENTS_FALLBACK[spec.id] ?? [];
+      requirementsEn = REQUIREMENTS_FALLBACK_EN[spec.id];
       solution = solutionFromLesson(spec.explain);
     }
 
@@ -1128,7 +1247,11 @@ function build(): CodingProblem[] {
       minutes: spec.minutes,
       // 自带题面优先；没写就用来源练习的 prompt
       brief: spec.brief ?? ex.prompt,
+      // spec 自带的优先；否则退回来源练习的题面 —— 那一侧 promptEn 已经填过了
+      briefEn: spec.briefEn ?? ex.promptEn,
       requirements,
+      // spec 自带的优先；没有就用回落表的英文（目前只有 tabs 走这条）
+      requirementsEn: spec.requirementsEn ?? requirementsEn,
       runnable: spec.runnable,
       commands: spec.commands,
       explainLessonId: spec.explain,
@@ -1170,6 +1293,26 @@ const REQUIREMENTS_FALLBACK: Record<string, string[]> = {
     "context value 之外的派生数据用 selector，组件只订阅自己要的那部分",
     "筛选不能改底层数据 —— 切回 all 时全部条目都还在",
     "reducer 要能脱离 React 单独测",
+  ],
+};
+
+/**
+ * REQUIREMENTS_FALLBACK 的英文版。
+ *
+ * 【为什么只有 tabs】
+ * 上面那张表里只有 tabs 是活的：player / dropdown / rtk-todo 三个 spec 自带
+ * 显式 requirements，build() 里 `if (spec.requirements)` 会覆盖回落值，
+ * 所以那三条永远走不到。给死代码补英文只是增加维护面。
+ *
+ * 长度必须和中文那一份一致 —— 平行数组靠下标对齐。
+ */
+const REQUIREMENTS_FALLBACK_EN: Record<string, string[]> = {
+  tabs: [
+    "Clicking a tab switches the panel, and the first one is active by default",
+    "initialId can name which one starts active",
+    "Only one piece of state holds activeId; the visible panel and the highlight are both derived from it",
+    'role="tablist" / role="tab" with aria-selected, and role="tabpanel"',
+    "aria-controls and aria-labelledby tie each tab to its panel",
   ],
 };
 

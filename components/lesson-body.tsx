@@ -122,7 +122,12 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
 
         {lesson.sourceFiles && lesson.sourceFiles.length > 0 && (
           <FileExplorer
-            files={lesson.sourceFiles}
+            // role 在内容里是普通字符串，FileExplorer 收的是 LocalizedString ——
+            // 补了 roleEn 的映射成双语，没补的原样传（<Loc> 会当纯中文渲染）
+            files={lesson.sourceFiles.map((f) => ({
+              ...f,
+              role: f.roleEn ? { zh: f.role, en: f.roleEn } : f.role,
+            }))}
             showContent
             title={
               <T

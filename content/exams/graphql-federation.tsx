@@ -530,127 +530,267 @@ const reviewsMock: MockExam = {
     {
       id: "t1",
       title: "Task 1 · Author 上的两个字段",
+      titleEn: "Task 1 · The two fields on Author",
       requirement: [
         "Author.reviews：按 author.id 取全部评论。schema 是 [Review!]!，绝不返回 null",
         "Author.averageRating：用 ratingDataSource.computeAverage 计算。schema 是 Float（可空），没有评论时返回 null",
         "两个都要 try/catch + 结构化错误 + correlationId 日志",
         "catch 第一行必须放行已经是 GraphQLError 的错误",
       ],
+      requirementEn: [
+        "Author.reviews: fetch all reviews by author.id. The schema says [Review!]!, so never return null",
+        "Author.averageRating: compute it with ratingDataSource.computeAverage. The schema says Float, which is nullable, so return null when there are no reviews",
+        "Both need try/catch, a structured error, and a correlationId in the log",
+        "The first line of the catch must let an error through if it is already a GraphQLError",
+      ],
       rubric: [
-        { points: 6, label: "reviews 用了正确的数据源方法并兜底成 []" },
-        { points: 6, label: "averageRating 返回 null 而不是 0（区分「没有数据」和「平均分是 0」）" },
-        { points: 4, label: "两个 resolver 都带 try/catch 与 correlationId" },
-        { points: 4, label: "catch 里放行了已结构化的 GraphQLError" },
+        {
+          points: 6,
+          label: "reviews 用了正确的数据源方法并兜底成 []",
+          labelEn: "reviews uses the right data source method and falls back to []",
+        },
+        {
+          points: 6,
+          label: "averageRating 返回 null 而不是 0（区分「没有数据」和「平均分是 0」）",
+          labelEn: "averageRating returns null rather than 0, so no data is distinct from an average of 0",
+        },
+        {
+          points: 4,
+          label: "两个 resolver 都带 try/catch 与 correlationId",
+          labelEn: "Both resolvers have try/catch and a correlationId",
+        },
+        {
+          points: 4,
+          label: "catch 里放行了已结构化的 GraphQLError",
+          labelEn: "The catch lets an already structured GraphQLError through",
+        },
       ],
     },
     {
       id: "t2",
       title: "Task 2 · 复合 key 的 entity",
+      titleEn: "Task 2 · An entity with a composite key",
       requirement: [
         'Book.__resolveReference：Book 的 @key 是 "isbn edition" 两个字段，返回的对象必须同时保留这两个',
         "Book.reviews：必须同时按 isbn 和 edition 过滤 —— 只按 isbn 会把其他版本的评论混进来",
         "注意 edition 是 Int、isbn 是 String，别把类型搞混",
       ],
+      requirementEn: [
+        "Book.__resolveReference: the @key on Book is the two fields \"isbn edition\", so the object you return has to keep both",
+        "Book.reviews: filter by isbn and edition together — filtering by isbn alone mixes in reviews of other editions",
+        "Note that edition is an Int and isbn a String; do not mix the types up",
+      ],
       rubric: [
-        { points: 8, label: "__resolveReference 返回了两个 key 字段（不是只有 isbn）" },
-        { points: 8, label: "Book.reviews 同时用了 isbn 和 edition 过滤" },
-        { points: 3, label: "调了 fetchByBook 而不是自己在 resolver 里 filter" },
+        {
+          points: 8,
+          label: "__resolveReference 返回了两个 key 字段（不是只有 isbn）",
+          labelEn: "__resolveReference returns both key fields, not isbn alone",
+        },
+        {
+          points: 8,
+          label: "Book.reviews 同时用了 isbn 和 edition 过滤",
+          labelEn: "Book.reviews filters on isbn and edition together",
+        },
+        {
+          points: 3,
+          label: "调了 fetchByBook 而不是自己在 resolver 里 filter",
+          labelEn: "Calls fetchByBook instead of filtering inside the resolver",
+        },
       ],
     },
     {
       id: "t3",
       title: "Task 3 · Review.reviewer 与 DataLoader 契约",
+      titleEn: "Task 3 · Review.reviewer and the DataLoader contract",
       requirement: [
         "Review.reviewer：用 loaders.reviewerLoader 防 N+1，不许直接调数据源",
         "schema 里 reviewer 可空，找不到时返回 null（测试断言 toBeNull）",
         "修好 createReviewerLoader 里的两处问题：方法名，以及那个会破坏长度/顺序契约的 filter",
       ],
+      requirementEn: [
+        "Review.reviewer: use loaders.reviewerLoader to avoid N+1; do not call the data source directly",
+        "reviewer is nullable in the schema, so return null when there is no match (the test asserts toBeNull)",
+        "Fix the two problems in createReviewerLoader: the method name, and the filter that breaks the length and order contract",
+      ],
       rubric: [
-        { points: 6, label: "走了 loader 而不是直接调 reviewerDataSource" },
-        { points: 8, label: "修掉了 batch 函数里的 filter（长度与顺序必须与 keys 对齐）" },
-        { points: 5, label: "用了数据源上真实存在的方法名（lookupReviewer，不是 getReviewer）" },
-        { points: 3, label: "找不到时显式返回 null" },
+        {
+          points: 6,
+          label: "走了 loader 而不是直接调 reviewerDataSource",
+          labelEn: "Goes through the loader instead of calling reviewerDataSource directly",
+        },
+        {
+          points: 8,
+          label: "修掉了 batch 函数里的 filter（长度与顺序必须与 keys 对齐）",
+          labelEn: "The filter in the batch function is gone; length and order must line up with keys",
+        },
+        {
+          points: 5,
+          label: "用了数据源上真实存在的方法名（lookupReviewer，不是 getReviewer）",
+          labelEn: "Uses the method name the data source actually has: lookupReviewer, not getReviewer",
+        },
+        {
+          points: 3,
+          label: "找不到时显式返回 null",
+          labelEn: "Returns null explicitly when there is no match",
+        },
       ],
     },
     {
       id: "t4",
       title: "Task 4 · 两个 Query",
+      titleEn: "Task 4 · The two queries",
       requirement: [
         "Query.review：用 reviewLoader；找不到抛带 REVIEW_NOT_FOUND code 的 GraphQLError",
         "Query.reviews：校验 authorId；schema 是 [Review!]! 所以兜底 []",
         "两个都带 correlationId 日志",
       ],
+      requirementEn: [
+        "Query.review: use reviewLoader; when there is no match, throw a GraphQLError carrying the REVIEW_NOT_FOUND code",
+        "Query.reviews: validate authorId; the schema says [Review!]!, so fall back to []",
+        "Both need a correlationId in the log",
+      ],
       rubric: [
-        { points: 5, label: "Query.review 用了 loader" },
-        { points: 6, label: "找不到时抛 REVIEW_NOT_FOUND（不是 SERVICE_ERROR）" },
-        { points: 5, label: "Query.reviews 校验了 authorId 并兜底 []" },
+        {
+          points: 5,
+          label: "Query.review 用了 loader",
+          labelEn: "Query.review uses the loader",
+        },
+        {
+          points: 6,
+          label: "找不到时抛 REVIEW_NOT_FOUND（不是 SERVICE_ERROR）",
+          labelEn: "Throws REVIEW_NOT_FOUND when there is no match, not SERVICE_ERROR",
+        },
+        {
+          points: 5,
+          label: "Query.reviews 校验了 authorId 并兜底 []",
+          labelEn: "Query.reviews validates authorId and falls back to []",
+        },
       ],
     },
     {
       id: "t5",
       title: "Task 5 · 修好 Mutation.createReview",
+      titleEn: "Task 5 · Fix Mutation.createReview",
       requirement: [
         "它注释说「提供作参考」，但它是坏的 —— 自己找出并修好全部问题",
         "至少有三处：数据源键名、insertReview 的调用方式、以及 catch 吞掉结构化错误",
         "还有一处最隐蔽：insertReview 内部要用 reviewer.displayName 写审计日志，所以传进去之前必须先把 reviewer 查出来附上",
       ],
+      requirementEn: [
+        "Its comment says it is provided for reference, but it is broken — find and fix everything wrong with it",
+        "There are at least three: the data source key name, the way insertReview is called, and a catch that swallows a structured error",
+        "One more is the least obvious: insertReview writes an audit log using reviewer.displayName, so the reviewer has to be looked up and attached before it is passed in",
+      ],
       rubric: [
-        { points: 5, label: "修对了数据源键名（reviewDataSource，不是 reviewAPI）" },
-        { points: 5, label: "按真实签名调用 insertReview（五个位置参数，不是一个对象）" },
-        { points: 8, label: "创建前先查出 reviewer 并附上（本题最隐蔽的一处）" },
-        { points: 6, label: "catch 第一行放行已结构化的 GraphQLError，让 INVALID_INPUT 传得出去" },
+        {
+          points: 5,
+          label: "修对了数据源键名（reviewDataSource，不是 reviewAPI）",
+          labelEn: "The data source key name is correct: reviewDataSource, not reviewAPI",
+        },
+        {
+          points: 5,
+          label: "按真实签名调用 insertReview（五个位置参数，不是一个对象）",
+          labelEn: "insertReview is called with its real signature: five positional arguments, not one object",
+        },
+        {
+          points: 8,
+          label: "创建前先查出 reviewer 并附上（本题最隐蔽的一处）",
+          labelEn: "The reviewer is looked up and attached before creating, the least obvious part of this task",
+        },
+        {
+          points: 6,
+          label: "catch 第一行放行已结构化的 GraphQLError，让 INVALID_INPUT 传得出去",
+          labelEn: "The first line of the catch lets a structured GraphQLError through, so INVALID_INPUT reaches the caller",
+        },
       ],
     },
     {
       id: "t6",
       title: "Task 6 · 验证",
+      titleEn: "Task 6 · Verify",
       requirement: [
         "npm test 全部 14 个测试通过",
         "自己写一个 verify 脚本：查 _service 的 SDL、用 _entities 分别解析 Author 和 Book（后者要传两个 key 字段）",
         "在日志里确认 reviewerLoader 的批量合并真的发生了（一行 Batching，N 大于 1）",
       ],
+      requirementEn: [
+        "All 14 tests pass under npm test",
+        "Write a verify script yourself: read the SDL from _service, and resolve Author and Book separately through _entities (the second one takes two key fields)",
+        "Confirm in the log that reviewerLoader really did batch (one Batching line, with N greater than 1)",
+      ],
       rubric: [
-        { points: 8, label: "14 个测试全过" },
-        { points: 6, label: "verify 脚本能用 _entities 解析复合 key 的 Book" },
-        { points: 4, label: "确认了 DataLoader 的合并（日志里 N > 1）" },
+        {
+          points: 8,
+          label: "14 个测试全过",
+          labelEn: "All 14 tests pass",
+        },
+        {
+          points: 6,
+          label: "verify 脚本能用 _entities 解析复合 key 的 Book",
+          labelEn: "The verify script resolves a composite-key Book through _entities",
+        },
+        {
+          points: 4,
+          label: "确认了 DataLoader 的合并（日志里 N > 1）",
+          labelEn: "DataLoader batching is confirmed, with N > 1 in the log",
+        },
       ],
     },
   ],
   starter: [
     demo("graphql", MOCK_SCHEMA, {
       filename: "src/schema.graphql（PROVIDED —— 精读它，可空性决定你的兜底策略）",
+      filenameEn: "src/schema.graphql (PROVIDED — read it closely; nullability decides your fallback)",
       collapsible: true,
       explanation:
         "四处先标出来：Author.reviews 和 Book.reviews 都是 [Review!]!（双重非空）；Author.averageRating 是 Float（可空）；Review.reviewer 可空；Book 的 @key 是两个字段。",
+      explanationEn:
+        "Mark four things before you start. Author.reviews and Book.reviews are both [Review!]! — a non-null list of non-null items. Author.averageRating is Float, so it may be null. Review.reviewer may be null. Book has a @key made of two fields.",
     }),
     demo("js", MOCK_DATASOURCE, {
       filename: "src/dataSources/reviewDataSource.js（PROVIDED —— 抄一张方法名表）",
+      filenameEn: "src/dataSources/reviewDataSource.js (PROVIDED — copy out a table of method names)",
       collapsible: true,
       explanation:
         "真实方法名：fetchReview / fetchByAuthor / fetchByBook / insertReview / lookupReviewer / computeAverage。starter 里有一处调了不存在的方法。",
+      explanationEn:
+        "The real method names are fetchReview / fetchByAuthor / fetchByBook / insertReview / lookupReviewer / computeAverage. One call in the starter uses a method that does not exist.",
     }),
     tested("js", MOCK_STARTER, {
       filename: "src/resolvers/reviewResolvers.js（EDIT THIS —— 7 个 TODO + 6 处埋雷）",
+      filenameEn: "src/resolvers/reviewResolvers.js (EDIT THIS — 7 TODOs plus 6 planted bugs)",
       collapsible: true,
       explanation:
         "这是 DrillLab 自出的模拟题，不是源项目内容。六处埋雷没有任何标注 —— 和真实考试一样，只有 README 里那句「可能存在集成问题」。",
+      explanationEn:
+        "DrillLab wrote this mock task; it does not come from the source project. None of the six planted bugs is marked. That matches the real exam, where the only warning is one README line saying integration problems may exist.",
     }),
   ],
   tests: [
     tested("js", MOCK_TESTS, {
       filename: "__tests__/resolvers.test.js（判卷器，14 个测试）",
+      filenameEn: "__tests__/resolvers.test.js (the marker, 14 tests)",
       collapsible: true,
       explanation:
         "比真实项目多了三条针对性测试：averageRating 的 toBeNull、Book.__resolveReference 的两个 key 字段、以及 reviewerLoader 的长度/顺序契约。这三条正是真实项目测不到但你该会的地方。",
+      explanationEn:
+        "Three tests here go past what the real project checks: toBeNull for averageRating, the two key fields of Book.__resolveReference, and the length and order contract of reviewerLoader. Those three cover exactly what the real project leaves untested but you are still expected to know.",
     }),
   ],
   commands: [
-    { cmd: "npm install", expect: "依赖装好" },
-    { cmd: "npm test", expect: "Tests: 14 passed, 14 total（starter 状态下的基线是 10 failed / 4 passed）" },
+    { cmd: "npm install", expect: "依赖装好", expectEn: "Dependencies installed" },
+    {
+      cmd: "npm test",
+      expect: "Tests: 14 passed, 14 total（starter 状态下的基线是 10 failed / 4 passed）",
+      expectEn:
+        "Tests: 14 passed, 14 total (the baseline in the starter state is 10 failed / 4 passed)",
+    },
     {
       cmd: "node verify-schema.mjs",
       expect:
         "SDL 含两个 @key（单字段的 Author 和复合字段的 Book）；_entities 能分别解析两者；日志里 reviewerLoader 出现一行 Batching 且 N > 1",
+      expectEn:
+        "The SDL carries two @key directives, a single-field one on Author and a composite one on Book; _entities resolves both; the log shows one Batching line for reviewerLoader with N > 1",
     },
   ],
   walkthrough: [
@@ -905,7 +1045,29 @@ Book: {
 __resolveReference(book) {
   return { isbn: book.isbn };
 }`,
-          { filename: "复合 key 的正确处理" },
+          {
+            filename: "复合 key 的正确处理",
+            filenameEn: "Handling a composite key correctly",
+            codeEn: `// ✓ Both key fields have to be kept
+Book: {
+  __resolveReference(book) {
+    return { isbn: book.isbn, edition: book.edition };
+  },
+
+  async reviews(book, _, { dataSources, correlationId }) {
+    const reviews = await dataSources.reviewDataSource.fetchByBook(
+      book.isbn,
+      book.edition          // ← pass both, or other editions mix in
+    );
+    return reviews ?? [];
+  }
+}
+
+// ✗ Only one kept — edition is undefined downstream
+__resolveReference(book) {
+  return { isbn: book.isbn };
+}`,
+          },
         ),
       ],
     },
@@ -985,7 +1147,19 @@ return avg ?? 0;
 
 // ✗ || null —— 真实平均分是 0 时会被谎报成「没有数据」
 return avg || null;`,
-          { filename: "?? 和 || 的区别在这里是致命的" },
+          {
+            filename: "?? 和 || 的区别在这里是致命的",
+            filenameEn: "Here ?? and || are not interchangeable",
+            codeEn: `// ✓ Let null carry the meaning of no data
+const avg = await dataSources.ratingDataSource.computeAverage(author.id);
+return avg ?? null;
+
+// ✗ ?? 0 — reports no reviews as an average score of 0
+return avg ?? 0;
+
+// ✗ || null — a real average of 0 gets reported as no data
+return avg || null;`,
+          },
         ),
       ],
     },
@@ -1095,7 +1269,22 @@ function createReviewerLoader(reviewerDataSource) {
     return reviewers;      // 不 filter，不排序
   });
 }`,
-          { filename: "修好之后" },
+          {
+            filename: "修好之后",
+            filenameEn: "After the fix",
+            codeEn: `// ✓ Same length and order as keys; null stands for a missing one
+function createReviewerLoader(reviewerDataSource) {
+  return new DataLoader(async authorIds => {
+    console.log(\`[DataLoader] Batching \${authorIds.length} reviewer lookups\`);
+
+    const reviewers = await Promise.all(
+      authorIds.map(id => reviewerDataSource.lookupReviewer(id))   // real method name
+    );
+
+    return reviewers;      // no filter, no sorting
+  });
+}`,
+          },
         ),
       ],
     },
@@ -1285,9 +1474,12 @@ function createReviewerLoader(reviewerDataSource) {
   solution: [
     tested("js", MOCK_SOLUTION, {
       filename: "src/resolvers/reviewResolvers.js（参考答案）",
+      filenameEn: "src/resolvers/reviewResolvers.js (reference answer)",
       collapsible: true,
       explanation:
         "这份答案多了一个 wrap 高阶函数，把「catch 里放行 GraphQLError 再包装」这段重复逻辑抽掉了。真实考试里写不写都行 —— 但如果你自己想到了这一步，说明你真的理解了那个模式，而不是在复制粘贴。",
+      explanationEn:
+        "This answer adds one extra helper, wrap. It pulls out the repeated logic of letting an already structured GraphQLError pass through the catch block and wrapping everything else. In the real exam you can skip that helper. But if you reached for it yourself, you understand the pattern instead of copying it.",
     }),
   ],
 };
@@ -1315,6 +1507,7 @@ const fedExam: Exam = {
     {
       path: "graphql-federation-practice",
       role: "参考项目。本机实测基线：subgraph 6 failed / 4 passed，Java 5 run / 2 failures",
+      roleEn: "Reference project. Measured baseline: subgraph 6 failed / 4 passed, Java 5 run / 2 failures",
     },
   ],
   prerequisites: ["foundations"],

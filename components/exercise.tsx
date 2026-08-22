@@ -21,6 +21,7 @@ import type {
   RecognitionExercise,
 } from "@/content/types";
 import { useProgress } from "@/lib/progress";
+import { BilingualList } from "./lesson-kit";
 import { L, T } from "./t";
 import { CodeBlock, CodeFragment, DiffView, EditableCode, TerminalCommand } from "./code";
 import { HintPanel, SolutionGate } from "./hint-panel";
@@ -62,7 +63,9 @@ function ExShell({
         <span className="ex-kind">
           <T zh={KIND_LABEL[ex.kind].zh} en={KIND_LABEL[ex.kind].en} />
         </span>
-        <span className="ex-title">{ex.title}</span>
+        <span className="ex-title">
+          <T zh={ex.title} en={ex.titleEn} />
+        </span>
         <span className="ex-head-right">
           {ex.generated && (
             <span
@@ -82,7 +85,9 @@ function ExShell({
         </span>
       </div>
       <div className="ex-body">
-        <div className="ex-prompt">{ex.prompt}</div>
+        <div className="ex-prompt">
+          <T zh={ex.prompt} en={ex.promptEn} />
+        </div>
         {children}
       </div>
     </div>
@@ -139,7 +144,7 @@ function Recognition({ ex, examId }: { ex: RecognitionExercise; examId: string }
               {KEYS[i]}
             </span>
             <span className="opt-label mono" style={{ fontSize: 14 }}>
-              {o.label}
+              <T zh={o.label} en={o.labelEn} />
             </span>
           </button>
         ))}
@@ -197,7 +202,9 @@ function Recognition({ ex, examId }: { ex: RecognitionExercise; examId: string }
             <span className="blank-why-n">
                   <T en="Why" zh="为什么" />
                 </span>
-            <span>{ex.explain}</span>
+            <span>
+              <T zh={ex.explain} en={ex.explainEn} />
+            </span>
           </div>
         </div>
       )}
@@ -225,7 +232,11 @@ function Ordering({ ex, examId }: { ex: OrderingExercise; examId: string }) {
     setOrder(next);
   };
 
-  const label = (id: string) => ex.items.find((i) => i.id === id)?.label ?? id;
+  // 返回 <T>，因为条目标签是双语的（labelEn 可能缺，<T> 会回落中文）
+  const label = (id: string) => {
+    const it = ex.items.find((i) => i.id === id);
+    return it ? <T zh={it.label} en={it.labelEn} /> : id;
+  };
 
   return (
     <ExShell ex={ex} examId={examId}>
@@ -292,7 +303,9 @@ function Ordering({ ex, examId }: { ex: OrderingExercise; examId: string }) {
             <span className="blank-why-n">
                   <T en="Why" zh="为什么" />
                 </span>
-            <span>{ex.explain}</span>
+            <span>
+              <T zh={ex.explain} en={ex.explainEn} />
+            </span>
           </div>
         </div>
       )}
@@ -326,7 +339,11 @@ const norm = (s: string) => s.trim().replace(/\s+/g, " ");
 function FillBlank({ ex, examId }: { ex: FillBlankExercise; examId: string }) {
   const t = useT();
   const { markExercise } = useProgress();
-  const lines = useMemo(() => parseTemplate(ex.template), [ex.template]);
+  // 空位是靠 ___n___ 占位符对齐的，所以英文模板必须占位符一致。
+  // 这里用 t() 而不是 <T> 双份渲染：模板要先解析成空位再渲染，
+  // 渲染两份等于出现两套输入框，一套是隐藏的 —— 那会让 Tab 键走进看不见的框。
+  const template = t(ex.template, ex.templateEn ?? ex.template);
+  const lines = useMemo(() => parseTemplate(template), [template]);
   const [vals, setVals] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
   const [showHints, setShowHints] = useState(false);
@@ -346,7 +363,11 @@ function FillBlank({ ex, examId }: { ex: FillBlankExercise; examId: string }) {
       <div className="blank-code">
         <div className="codewin-bar">
           <span className="codewin-lang">{ex.language.toUpperCase()}</span>
-          {ex.filename && <span className="codewin-name">{ex.filename}</span>}
+          {ex.filename && (
+            <span className="codewin-name">
+              <T zh={ex.filename} en={ex.filenameEn} />
+            </span>
+          )}
           <span className="codewin-bar-right">
             <span className="codewin-flag">
               <T en={`${ex.blanks.length} blanks`} zh={`${ex.blanks.length} 个空`} />
@@ -462,7 +483,9 @@ function FillBlank({ ex, examId }: { ex: FillBlankExercise; examId: string }) {
               <span className="blank-why-n">
                     <T en={`Blank ${b.n}`} zh={`空 ${b.n}`} />
                   </span>
-              <span>{b.hint}</span>
+              <span>
+                <T zh={b.hint} en={b.hintEn} />
+              </span>
             </div>
           ))}
         </div>
@@ -486,7 +509,7 @@ function FillBlank({ ex, examId }: { ex: FillBlankExercise; examId: string }) {
                   </span>
                 )}
                 <br />
-                {b.why}
+                <T zh={b.why} en={b.whyEn} />
               </span>
             </div>
           ))}
@@ -520,7 +543,7 @@ function CodeCompletion({ ex, examId }: { ex: CodeCompletionExercise; examId: st
       let ok = true;
       if (c.must) ok = ok && new RegExp(c.must, "m").test(src);
       if (c.mustNot) ok = ok && !new RegExp(c.mustNot, "m").test(src);
-      return { label: c.label, ok };
+      return { label: c.label, labelEn: c.labelEn, ok };
     });
   }, [value, ex.checks]);
 
@@ -532,9 +555,7 @@ function CodeCompletion({ ex, examId }: { ex: CodeCompletionExercise; examId: st
         <T en="Requirements" zh="要求" />
       </div>
       <ul style={{ fontSize: 15, color: "var(--ink-2)" }}>
-        {ex.requirements.map((r, i) => (
-          <li key={i}>{r}</li>
-        ))}
+        <BilingualList zh={ex.requirements} en={ex.requirementsEn} />
       </ul>
 
       <EditableCode
@@ -588,13 +609,15 @@ function CodeCompletion({ ex, examId }: { ex: CodeCompletionExercise; examId: st
               <span className="check-mark" aria-hidden>
                 {r.ok ? "✓" : "✕"}
               </span>
-              <span>{r.label}</span>
+              <span>
+                <T zh={r.label} en={r.labelEn} />
+              </span>
             </div>
           ))}
         </div>
       )}
 
-      <HintPanel hints={ex.hints} />
+      <HintPanel hints={ex.hints} hintsEn={ex.hintsEn} />
 
       <div style={{ marginTop: 16 }}>
         <SolutionGate>
@@ -652,7 +675,9 @@ function Debug({ ex, examId }: { ex: DebugExercise; examId: string }) {
             zh="第 1 步 · 先看现象和代码，别急着改"
           />
         </div>
-        <div className="errbox-body">{ex.errorOutput}</div>
+        <div className="errbox-body">
+          <T zh={ex.errorOutput} en={ex.errorOutputEn} />
+        </div>
       </div>
 
       <CodeBlock ex={ex.broken} />
@@ -684,7 +709,9 @@ function Debug({ ex, examId }: { ex: DebugExercise; examId: string }) {
               <span className="opt-key" aria-hidden>
                 {KEYS[i]}
               </span>
-              <span className="opt-label">{o.label}</span>
+              <span className="opt-label">
+                <T zh={o.label} en={o.labelEn} />
+              </span>
             </button>
           ))}
         </div>
@@ -723,7 +750,9 @@ function Debug({ ex, examId }: { ex: DebugExercise; examId: string }) {
           <div className="debug-step-head">
             <T en="Step 3 · where the fault is" zh="第 3 步 · 病灶在哪" />
           </div>
-          <p style={{ fontSize: 15, color: "var(--ink-2)" }}>{ex.locate.question}</p>
+          <p style={{ fontSize: 15, color: "var(--ink-2)" }}>
+            <T zh={ex.locate.question} en={ex.locate.questionEn} />
+          </p>
           {/* 代码在第 1 步已经给全了。只有**长到会滚出屏幕**的才在这里再放一份
               收起的供对照 —— 短代码重复贴一遍纯属噪音，而且 collapsible 只是
               max-height: 300px，内容不到那么高就会出现一个「展开全部 4 行」
@@ -801,14 +830,20 @@ function Debug({ ex, examId }: { ex: DebugExercise; examId: string }) {
             <div className="debug-step-head">
               <T en="Step 5 · verify it yourself" zh="第 5 步 · 自己验证" />
             </div>
-            <TerminalCommand steps={[{ cmd: ex.verify }]} />
+            <TerminalCommand
+              steps={[
+                {
+                  cmd: ex.verifyEn ? { zh: ex.verify, en: ex.verifyEn } : ex.verify,
+                },
+              ]}
+            />
           </div>
 
           <div className="callout" data-tone="why">
             <strong className="callout-title">
               <T en="Root cause" zh="根本原因" />
             </strong>
-            {ex.rootCause}
+            <T zh={ex.rootCause} en={ex.rootCauseEn} />
           </div>
 
           <div className="ex-actions">
@@ -857,9 +892,7 @@ function FromScratch({ ex, examId }: { ex: FromScratchExercise; examId: string }
           />
         </div>
         <ul className="ws-req">
-          {ex.requirements.map((r, i) => (
-            <li key={i}>{r}</li>
-          ))}
+          <BilingualList zh={ex.requirements} en={ex.requirementsEn} />
         </ul>
       </div>
 
@@ -876,7 +909,9 @@ function FromScratch({ ex, examId }: { ex: FromScratchExercise; examId: string }
           {ex.fileList.map((f) => (
             <div key={f.path} className="ft-row">
               <span className="ft-path">{f.path}</span>
-              <span className="ft-role">{f.role}</span>
+              <span className="ft-role">
+                <T zh={f.role} en={f.roleEn} />
+              </span>
             </div>
           ))}
         </div>
@@ -885,9 +920,14 @@ function FromScratch({ ex, examId }: { ex: FromScratchExercise; examId: string }
       <div className="minihead">
         <T en="Verify it locally like this" zh="写完后在本机这样验证" />
       </div>
-      <TerminalCommand steps={ex.commands.map((c) => ({ cmd: c.cmd, out: c.expect }))} />
+      <TerminalCommand
+        steps={ex.commands.map((c) => ({
+          cmd: c.cmd,
+          out: c.expectEn ? { zh: c.expect, en: c.expectEn } : c.expect,
+        }))}
+      />
 
-      <HintPanel hints={ex.hints} />
+      <HintPanel hints={ex.hints} hintsEn={ex.hintsEn} />
 
       <div style={{ marginTop: 18 }}>
         <SolutionGate

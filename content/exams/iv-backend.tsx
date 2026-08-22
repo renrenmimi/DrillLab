@@ -218,7 +218,20 @@ console.log("6 同步");
 //       -> 2 timers 和 3 check（这两个的相对顺序在主模块里不保证）
 //
 // 记住：nextTick 比 Promise 更优先，这是 Node 独有的`,
-              { filename: "Node 的执行顺序" },
+              {
+    codeEn: `console.log("1 sync");
+
+setTimeout(() => console.log("2 timers"), 0);
+setImmediate(() => console.log("3 check"));
+Promise.resolve().then(() => console.log("4 promise microtask"));
+process.nextTick(() => console.log("5 nextTick"));
+
+console.log("6 sync");
+
+// Output: 1 sync -> 6 sync -> 5 nextTick -> 4 promise microtask
+//         -> 2 timers and 3 check (their relative order is not guaranteed in the main module)
+//
+// Remember: nextTick runs before Promise, and that part is specific to Node`, filename: "Node 的执行顺序" },
             ),
           ],
         },
@@ -422,7 +435,29 @@ app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: "internal" });
 });`,
-              { filename: "一个请求经过的全部环节" },
+              {
+    codeEn: `app.use(express.json());               // 1 parse the body
+app.use(cors());                      // 2 general
+app.use(correlationId);               // a correlation id, so logs can be tied together
+app.use(auth);                        // 3 authentication
+
+app.get("/orders/:id", async (req, res, next) => {
+  try {
+    const order = await db.find(req.params.id);
+    if (!order) return res.status(404).json({ error: "not found" });  // do not forget return
+    res.json(order);
+  } catch (e) {
+    next(e);                          // Express 4 does not catch async errors for you
+  }
+});
+
+app.use((req, res) => res.status(404).json({ error: "no route" }));
+
+// The error-handling middleware must take four arguments; with three it never runs
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: "internal" });
+});`, filename: "一个请求经过的全部环节" },
             ),
           ],
         },
@@ -1392,7 +1427,22 @@ CREATE TABLE orders (
 
 -- PostgreSQL 不会自动给外键列建索引，JOIN 会慢
 CREATE INDEX idx_orders_user_id ON orders(user_id);`,
-              { filename: "建表时的三个要点" },
+              {
+    codeEn: `CREATE TABLE users (
+  id    BIGSERIAL PRIMARY KEY,          -- primary key: unique, not null, indexed automatically
+  email TEXT UNIQUE NOT NULL            -- a unique constraint is not the same as a primary key
+);
+
+CREATE TABLE orders (
+  id      BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL
+          REFERENCES users(id)
+          ON DELETE RESTRICT,           -- a user with orders left cannot be deleted
+  total   NUMERIC(10,2) NOT NULL
+);
+
+-- PostgreSQL does not index a foreign key column for you, and the JOIN gets slow
+CREATE INDEX idx_orders_user_id ON orders(user_id);`, filename: "建表时的三个要点" },
             ),
           ],
         },
@@ -1671,7 +1721,19 @@ server: {
   proxy: { "/api": { target: "http://localhost:4000", changeOrigin: true } },
 }
 // 浏览器看到的是同源的 /api/...，不触发 CORS`,
-              { filename: "两种最常用的解法" },
+              {
+    codeEn: `// On the server (the correct way)
+app.use(cors({
+  origin: "https://app.example.com",   // with cookies you cannot use *
+  credentials: true,
+  maxAge: 86400,                       // cache the preflight result
+}));
+
+// A proxy during development (vite.config.ts)
+server: {
+  proxy: { "/api": { target: "http://localhost:4000", changeOrigin: true } },
+}
+// The browser sees /api/... on the same origin, so CORS is never triggered`, filename: "两种最常用的解法" },
             ),
           ],
         },

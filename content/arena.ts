@@ -105,10 +105,13 @@ function build(): ArenaChallenge[] {
           out.push({
             id: fs.id,
             title: fs.title,
+            titleEn: fs.titleEn,
             scenario: meta.scenario,
             scenarioEn: meta.scenarioEn,
             minutes: meta.minutes,
             requirements: fs.requirements,
+            // 来源练习这三样都已经有英文，只是原来没派生出来
+            requirementsEn: fs.requirementsEn,
             fileList: fs.fileList,
             commands: fs.commands,
             sourceExerciseId: fs.id,
@@ -139,6 +142,21 @@ function build(): ArenaChallenge[] {
           `【${t.title}】`,
           ...t.requirement,
         ]),
+        // 英文侧同样平铺。
+        //
+        // 【条件为什么只看 requirementEn】
+        // 原来要求每个 task 都有 titleEn，结果 React 那套模拟考整段都没英文 ——
+        // 它有两个 task 叫「Task 1 · Create」「Task 2 · Close」，本来就是英文，
+        // 所以从来没人给它们加 titleEn。标题缺英文回落中文没问题（就是同一个词），
+        // 但**需求**的条数必须每个 task 都对得上，否则平铺后整体错位。
+        requirementsEn: mock.tasks.every(
+          (t) => t.requirementEn && t.requirementEn.length === t.requirement.length,
+        )
+          ? mock.tasks.flatMap((t) => [
+              `【${t.titleEn ?? t.title}】`,
+              ...(t.requirementEn ?? []),
+            ])
+          : undefined,
         // 模拟考没有 fileList，用 starter 的文件名当清单
         fileList: mock.starter
           .filter((c): c is CodeExample & { filename: string } => !!c.filename)

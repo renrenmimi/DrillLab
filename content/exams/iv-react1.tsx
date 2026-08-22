@@ -528,7 +528,21 @@ const el = React.createElement(
 {if (ok) <A />}          // ✗ 语法错误
 {ok ? <A /> : null}      // ✓
 {ok && <A />}            // ✓（注意 0 会被渲染出来，见 #281）`,
-              { filename: "JSX 编译成什么" },
+              {
+    codeEn: `// What you write
+const el = <button className="btn" onClick={handle}>Click me</button>;
+
+// After Babel compiles it (before React 17)
+const el = React.createElement(
+  "button",
+  { className: "btn", onClick: handle },
+  "Click me",
+);
+
+// Only an expression can go inside {}
+{if (ok) <A />}          // ✗ syntax error
+{ok ? <A /> : null}      // ✓
+{ok && <A />}            // ✓ (careful: 0 does get rendered, see #281)`, filename: "JSX 编译成什么" },
             ),
           ],
         },
@@ -692,9 +706,20 @@ const el = React.createElement(
 // ✓ 稳定的业务 id
 {todos.map((t) => <Row key={t.id} todo={t} />)}`,
               {
+    codeEn: `// The virtual DOM is just a plain object
+{ type: "button", props: { className: "btn", children: "Click me" } }
+
+// ✗ index as key: insert one at the front and every key changes
+{todos.map((t, i) => <Row key={i} todo={t} />)}
+
+// ✓ a stable id from the data
+{todos.map((t) => <Row key={t.id} todo={t} />)}`,
                 filename: "key 的选择",
+                filenameEn: "Choosing the key",
                 explanation:
                   "只有「列表永不重排、不增删中间项」时 index 才安全。既然多数列表都会变，直接养成用 id 的习惯。",
+                explanationEn:
+                  "An index is only safe when the list is never reordered and no item is inserted or removed in the middle. Most lists do change, so make using an id your default habit.",
               },
             ),
           ],
@@ -1719,7 +1744,20 @@ function Child({ onChange }) {
 <Layout sidebar={<Nav />}>
   <Article />          {/* Layout 不需要知道 Article 要什么 props */}
 </Layout>`,
-              { filename: "两种最常用的方式" },
+              {
+    codeEn: `// Child to parent: pass a callback down
+function Parent() {
+  const [text, setText] = useState("");
+  return <Child onChange={setText} />;      // the parent supplies the callback
+}
+function Child({ onChange }) {
+  return <input onChange={(e) => onChange(e.target.value)} />;
+}
+
+// Compose with children, so the middle layer is not forced to pass things through
+<Layout sidebar={<Nav />}>
+  <Article />          {/* Layout does not need to know what props Article wants */}
+</Layout>`, filename: "两种最常用的方式" },
             ),
           ],
         },
@@ -1905,7 +1943,16 @@ const [text, setText] = useState("");        // 注意初始值是 ""，不是 u
 const ref = useRef(null);
 <input ref={ref} defaultValue="初始" />
 <button onClick={() => console.log(ref.current.value)}>读</button>`,
-              { filename: "两种写法" },
+              {
+    codeEn: `// Controlled: a closed loop of value -> onChange -> setState -> value
+const [text, setText] = useState("");        // note the initial value is "", not undefined
+<input value={text} onChange={(e) => setText(e.target.value)} />
+<button disabled={text.trim() === ""}>Submit</button>   {/* validation is easy only when controlled */}
+
+// Uncontrolled: the value lives in the DOM
+const ref = useRef(null);
+<input ref={ref} defaultValue="initial" />
+<button onClick={() => console.log(ref.current.value)}>Read</button>`, filename: "两种写法" },
             ),
           ],
         },
@@ -2257,7 +2304,16 @@ const ref = useRef(null);
 const item = useMemo(() => ({ ...raw }), [raw]);
 const onPick = useCallback((id) => pick(id), [pick]);
 <Row item={item} onPick={onPick} />`,
-              { filename: "memo 生效的前提" },
+              {
+    codeEn: `const Row = React.memo(function Row({ item, onPick }) { … });
+
+// ✗ memo achieves nothing: both props are a new reference every render
+<Row item={{ ...raw }} onPick={() => pick(raw.id)} />
+
+// ✓ keep the references stable, and memo starts to mean something
+const item = useMemo(() => ({ ...raw }), [raw]);
+const onPick = useCallback((id) => pick(id), [pick]);
+<Row item={item} onPick={onPick} />`, filename: "memo 生效的前提" },
             ),
           ],
         },
@@ -2373,7 +2429,20 @@ const onPick = useCallback((id) => pick(id), [pick]);
     <dd>{r.desc}</dd>
   </React.Fragment>
 ))}`,
-              { filename: "Fragment 的两个真实场景" },
+              {
+    codeEn: `// ✗ an extra div inside tr: invalid HTML, and the layout breaks
+<tr><div><td>A</td><td>B</td></div></tr>
+
+// ✓
+<tr><><td>A</td><td>B</td></></tr>
+
+// A list needs a key, so the short form cannot be used
+{rows.map((r) => (
+  <React.Fragment key={r.id}>
+    <dt>{r.term}</dt>
+    <dd>{r.desc}</dd>
+  </React.Fragment>
+))}`, filename: "Fragment 的两个真实场景" },
             ),
           ],
         },
@@ -2533,7 +2602,22 @@ function Page() {
   if (!user) return <Login />;
   return <Content user={user} />;
 }`,
-              { filename: "HOC 与 hook 的对比" },
+              {
+    codeEn: `// HOC
+function withAuth(Comp) {
+  return function Wrapped(props) {
+    const user = useUser();
+    if (!user) return <Login />;
+    return <Comp {...props} user={user} />;   // remember to pass props through
+  };
+}
+
+// The same thing with a hook: flat, and you can see where the value came from
+function Page() {
+  const user = useUser();          // ← it is obvious where user comes from
+  if (!user) return <Login />;
+  return <Content user={user} />;
+}`, filename: "HOC 与 hook 的对比" },
             ),
           ],
         },

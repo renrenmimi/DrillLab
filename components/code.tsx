@@ -9,7 +9,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { highlight, LANG_LABEL, type Lang } from "@/lib/highlight";
 import { useT } from "@/lib/locale";
-import { Loc, T, type LocalizedString } from "./t";
+import { Loc, T, pick, type LocalizedString } from "./t";
 import type { CodeExample } from "@/content/types";
 
 /* ---------- 复制按钮 ---------- */
@@ -141,13 +141,23 @@ export function CodeBlock({ ex }: { ex: CodeExample }) {
   const { copied, copy } = useCopy();
   const t = useT();
   const [open, setOpen] = useState(!ex.collapsible);
-  const lineCount = ex.code.trimEnd().split("\n").length;
+  // 行数和复制按钮要的是纯字符串，用 t() 解析。
+  // 【正文不能这么做】useLocale 初始是 zh，挂载后才切成 en，
+  // 用 t() 取正文会让英文读者看到一闪的中文代码。所以正文走 <T> 双份渲染，
+  // 由 CSS 隐掉一份 —— 和站里其它内容一个机制，没有闪动。
+  // 行数差一位、复制按钮闪一下，看不见也无所谓。
+  const codeForCopy = t(ex.code, ex.codeEn ?? ex.code);
+  const lineCount = codeForCopy.trimEnd().split("\n").length;
 
   return (
     <div className="codewin">
       <div className="codewin-bar">
         <span className="codewin-lang">{LANG_LABEL[ex.language]}</span>
-        {ex.filename && <span className="codewin-name">{ex.filename}</span>}
+        {ex.filename && (
+          <span className="codewin-name">
+            <T zh={ex.filename} en={ex.filenameEn} />
+          </span>
+        )}
         <span className="codewin-bar-right">
           <span
             className="codewin-flag"
@@ -159,7 +169,7 @@ export function CodeBlock({ ex }: { ex: CodeExample }) {
           <button
             aria-label={t("复制代码", "Copy code")}
             className="codewin-copy"
-            onClick={() => copy(ex.code)}
+            onClick={() => copy(codeForCopy)}
             type="button"
           >
             {copied ? <T en="Copied" zh="已复制" /> : <T en="Copy" zh="复制" />}
@@ -172,11 +182,30 @@ export function CodeBlock({ ex }: { ex: CodeExample }) {
             横滚条才有东西可滚；同时每行的 min-width: 100% 是相对它算的，
             所以高亮行的背景能一直铺到最长那一行的末尾。见 styles/code.css。 */}
         <div className="cl-wrap">
-          <CodeLines
-            code={ex.code}
-            lang={ex.language}
-            highlightLines={ex.highlight}
-          />
+          {ex.codeEn ? (
+            <T
+              zh={
+                <CodeLines
+                  code={ex.code}
+                  lang={ex.language}
+                  highlightLines={ex.highlight}
+                />
+              }
+              en={
+                <CodeLines
+                  code={ex.codeEn}
+                  lang={ex.language}
+                  highlightLines={ex.highlight}
+                />
+              }
+            />
+          ) : (
+            <CodeLines
+              code={ex.code}
+              lang={ex.language}
+              highlightLines={ex.highlight}
+            />
+          )}
         </div>
       </div>
 
@@ -203,7 +232,11 @@ export function CodeBlock({ ex }: { ex: CodeExample }) {
         </div>
       )}
 
-      {ex.explanation && <div className="codewin-note">{ex.explanation}</div>}
+      {ex.explanation && (
+        <div className="codewin-note">
+          <T zh={ex.explanation} en={ex.explanationEn} />
+        </div>
+      )}
     </div>
   );
 }
@@ -211,7 +244,16 @@ export function CodeBlock({ ex }: { ex: CodeExample }) {
 /* ---------- TerminalCommand ---------- */
 
 export interface TermStep {
-  cmd: string;
+  /**
+   * 命令本身。
+   *
+   * 【为什么可以是双语的】
+   * 有些命令带 shell 注释，中文写在注释里，比如
+   * `npm test   # 10 个测试应该全部通过`。命令部分两种语言一样，
+   * 注释部分不一样，所以整条要能双语。
+   * 纯命令直接写字符串就行。
+   */
+  cmd: LocalizedString;
   /**
    * 真实输出或说明（可选）。写在这里的都应该是实际跑出来的。
    * 可以是双语的 —— 模拟考的「怎么跑起来」那段命令注释就是双语。
@@ -239,11 +281,17 @@ export function TerminalCommand({
             <span className="term-prompt" aria-hidden>
               $
             </span>
-            <span className="term-cmd">{s.cmd}</span>
+            <span className="term-cmd">
+              <Loc v={s.cmd} />
+            </span>
             <button
-              aria-label={t(`复制命令 ${s.cmd}`, `Copy command ${s.cmd}`)}
+              // aria-label 和复制都要纯字符串，所以在这里按当前语言解析一次
+              aria-label={t(
+                `复制命令 ${pick(s.cmd, "zh")}`,
+                `Copy command ${pick(s.cmd, "en")}`,
+              )}
               className="term-copy"
-              onClick={() => copy(s.cmd)}
+              onClick={() => copy(t(pick(s.cmd, "zh"), pick(s.cmd, "en")))}
               type="button"
             >
               {copied ? "✓" : <T en="Copy" zh="复制" />}

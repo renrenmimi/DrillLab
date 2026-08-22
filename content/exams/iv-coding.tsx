@@ -91,6 +91,82 @@ const Dropdown: React.FC<Props> = ({ options, onSelect }) => {
 
 export default Dropdown;`;
 
+const C_DROPDOWN_EN = `import React, { useEffect, useRef, useState } from "react";
+
+export interface Option { id: string; label: string }
+
+interface Props {
+  options: Option[];
+  onSelect?: (id: string) => void;
+}
+
+const Dropdown: React.FC<Props> = ({ options, onSelect }) => {
+  const [open, setOpen] = useState(false);
+  const [picked, setPicked] = useState<Option | null>(null);
+  // useRef holds the DOM node: used to tell whether a click landed on me
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;                   // Closed, so no listener needed — that saves one
+
+    const onDocClick = (e: MouseEvent) => {
+      // e.target is the node that was really clicked; contains asks whether it is inside my subtree
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    // Cleanup: without it, every open adds another pair of listeners, and after unmount they would setState on an unmounted component
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const choose = (o: Option) => {
+    setPicked(o);
+    setOpen(false);
+    onSelect?.(o.id);
+  };
+
+  return (
+    <div ref={boxRef} data-testid="dropdown">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        data-testid="dropdown-trigger"
+      >
+        {picked ? picked.label : "Select…"}
+      </button>
+
+      {open && (
+        <ul role="listbox" data-testid="dropdown-list">
+          {options.map((o) => (
+            <li key={o.id}>
+              <button
+                role="option"
+                aria-selected={picked?.id === o.id}
+                onClick={() => choose(o)}
+                data-testid={\`option-\${o.id}\`}
+              >
+                {o.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export default Dropdown;`;
+
 const C_TABS = `import React, { useState } from "react";
 
 export interface Tab { id: string; label: string; content: React.ReactNode }
@@ -120,6 +196,49 @@ const Tabs: React.FC<{ tabs: Tab[]; initialId?: string }> = ({ tabs, initialId }
       </div>
 
       {/* 只渲染激活的那个面板 */}
+      <div
+        role="tabpanel"
+        id={\`panel-\${active.id}\`}
+        aria-labelledby={\`tab-\${active.id}\`}
+        data-testid="panel"
+      >
+        {active.content}
+      </div>
+    </div>
+  );
+};
+
+export default Tabs;`;
+
+const C_TABS_EN = `import React, { useState } from "react";
+
+export interface Tab { id: string; label: string; content: React.ReactNode }
+
+const Tabs: React.FC<{ tabs: Tab[]; initialId?: string }> = ({ tabs, initialId }) => {
+  // Only "which one is active" is stored; the current panel is derived from it
+  const [activeId, setActiveId] = useState(initialId ?? tabs[0]?.id);
+
+  const active = tabs.find((t) => t.id === activeId) ?? tabs[0];
+
+  return (
+    <div data-testid="tabs">
+      <div role="tablist">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={t.id === active.id}
+            aria-controls={\`panel-\${t.id}\`}
+            id={\`tab-\${t.id}\`}
+            onClick={() => setActiveId(t.id)}
+            data-testid={\`tab-\${t.id}\`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Only the active panel is rendered */}
       <div
         role="tabpanel"
         id={\`panel-\${active.id}\`}
@@ -167,11 +286,61 @@ const StarRating: React.FC<Props> = ({ max = 5, value, onChange }) => {
         <button
           key={n}
           type="button"
-          aria-label={\`\${n} 星\`}
+          aria-label={\`\${n} star\`}
           aria-pressed={n === current}
           data-filled={n <= shown}
           onMouseEnter={() => setHover(n)}
           onClick={() => set(n === current ? 0 : n)}   // 再点同一颗就清零
+          data-testid={\`star-\${n}\`}
+        >
+          {n <= shown ? "★" : "☆"}
+        </button>
+      ))}
+      <output data-testid="stars-value">{current}</output>
+    </div>
+  );
+};
+
+export default StarRating;`;
+
+const C_STARS_EN = `import React, { useState } from "react";
+
+interface Props {
+  max?: number;
+  value?: number;                 // Pass it and the component is controlled
+  onChange?: (v: number) => void;
+}
+
+const StarRating: React.FC<Props> = ({ max = 5, value, onChange }) => {
+  const [inner, setInner] = useState(0);
+  const [hover, setHover] = useState<number | null>(null);
+
+  const isControlled = value !== undefined;
+  const current = isControlled ? value : inner;
+
+  // Show the hovered star if there is a hover, otherwise the picked one — this is derived data
+  const shown = hover ?? current;
+
+  const set = (v: number) => {
+    if (!isControlled) setInner(v);
+    onChange?.(v);
+  };
+
+  return (
+    <div
+      data-testid="stars"
+      data-value={current}
+      onMouseLeave={() => setHover(null)}
+    >
+      {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
+        <button
+          key={n}
+          type="button"
+          aria-label={\`\${n} star\`}
+          aria-pressed={n === current}
+          data-filled={n <= shown}
+          onMouseEnter={() => setHover(n)}
+          onClick={() => set(n === current ? 0 : n)}   // Clicking the same star again resets to zero
           data-testid={\`star-\${n}\`}
         >
           {n <= shown ? "★" : "☆"}
@@ -233,6 +402,55 @@ const Player: React.FC<{ src: string }> = ({ src }) => {
 
 export default Player;`;
 
+const C_PLAYER_EN = `import React, { useRef, useState } from "react";
+
+const Player: React.FC<{ src: string }> = ({ src }) => {
+  // The other use of useRef: hold a DOM node so you can call its imperative API
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [time, setTime] = useState(0);
+
+  const toggle = async () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+      setPlaying(false);
+    } else {
+      await el.play();          // play() returns a Promise, and browser policy may refuse it
+      setPlaying(true);
+    }
+  };
+
+  const stop = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    el.pause();
+    el.currentTime = 0;         // Set the DOM property directly, without going through state
+    setPlaying(false);
+    setTime(0);
+  };
+
+  return (
+    <div data-testid="player">
+      <audio
+        ref={audioRef}
+        src={src}
+        onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
+        onEnded={() => setPlaying(false)}
+        data-testid="audio"
+      />
+      <button onClick={toggle} data-testid="toggle">
+        {playing ? "Pause" : "Play"}
+      </button>
+      <button onClick={stop} data-testid="stop">Stop</button>
+      <output data-testid="time">{Math.floor(time)}</output>
+    </div>
+  );
+};
+
+export default Player;`;
+
 const C_HOOK = `import { useEffect, useState } from "react";
 
 /**
@@ -259,6 +477,34 @@ export function useLocalStorage<T>(key: string, initial: T) {
   }, [key, value]);
 
   return [value, setValue] as const;   // as const 让返回类型是元组而不是数组
+}`;
+
+const C_HOOK_EN = `import { useEffect, useState } from "react";
+
+/**
+ * Tie a value to localStorage.
+ * The name has to start with use — ESLint checks the hooks rules only for that prefix.
+ */
+export function useLocalStorage<T>(key: string, initial: T) {
+  // Lazy initialisation: localStorage is read once on the first render, not on every render
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const raw = window.localStorage.getItem(key);
+      return raw === null ? initial : (JSON.parse(raw) as T);
+    } catch {
+      return initial;          // Private mode or bad data: fall back to the default instead of breaking the component
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      /* A failed write only affects persistence, not this session */
+    }
+  }, [key, value]);
+
+  return [value, setValue] as const;   // as const makes the return type a tuple instead of an array
 }`;
 
 const C_CARD_T = `export type ColumnId = "todo" | "doing" | "done";
@@ -295,6 +541,98 @@ export function moveCard(
     ...board,
     [from]: board[from].filter((c) => c.id !== cardId), // 源列去掉
     [to]: [...board[to], card],                        // 目标列追加
+  };
+}
+
+const Kanban: React.FC<{ initial: Board }> = ({ initial }) => {
+  const [board, setBoard] = useState<Board>(initial);
+  const [text, setText] = useState("");
+
+  const add = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (text.trim() === "") return;
+    const card: Card = { id: Date.now(), title: text.trim() };
+    setBoard((prev) => ({ ...prev, todo: [...prev.todo, card] }));
+    setText("");
+  };
+
+  const move = (from: ColumnId, to: ColumnId, id: number) =>
+    setBoard((prev) => moveCard(prev, from, to, id));
+
+  return (
+    <div data-testid="kanban">
+      <form onSubmit={add}>
+        <input value={text} onChange={(e) => setText(e.target.value)} data-testid="card-input" />
+        <button type="submit" disabled={text.trim() === ""} data-testid="card-submit">
+          Add
+        </button>
+      </form>
+
+      {COLUMNS.map((col, ci) => (
+        <section key={col.id} data-testid={\`col-\${col.id}\`}>
+          <h3>
+            {col.label}
+            <span data-testid={\`count-\${col.id}\`}>{board[col.id].length}</span>
+          </h3>
+          <ul>
+            {board[col.id].map((c) => (
+              <li key={c.id} data-testid={\`card-\${c.id}\`} data-col={col.id}>
+                <span>{c.title}</span>
+                {ci > 0 && (
+                  <button
+                    aria-label={\`把 \${c.title} 左移\`}
+                    onClick={() => move(col.id, COLUMNS[ci - 1].id, c.id)}
+                  >
+                    ←
+                  </button>
+                )}
+                {ci < COLUMNS.length - 1 && (
+                  <button
+                    aria-label={\`把 \${c.title} 右移\`}
+                    onClick={() => move(col.id, COLUMNS[ci + 1].id, c.id)}
+                  >
+                    →
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+};
+
+export default Kanban;`;
+
+const C_KANBAN_EN = `import React, { useState } from "react";
+import type { Board, Card, ColumnId } from "../../types/Card";
+
+export const COLUMNS: { id: ColumnId; label: string }[] = [
+  { id: "todo", label: "待办" },
+  { id: "doing", label: "进行中" },
+  { id: "done", label: "已完成" },
+];
+
+/**
+ * Move one card from one column to another and return a brand new board.
+ * The key point: one action changes two arrays, and both of them have to be new arrays.
+ */
+export function moveCard(
+  board: Board,
+  from: ColumnId,
+  to: ColumnId,
+  cardId: number,
+): Board {
+  if (from === to) return board;                       // nothing moved, so return it as it is
+
+  const card = board[from].find((c) => c.id === cardId);
+  if (!card) return board;                             // not found either, so return it as it is
+
+  return {
+    ...board,
+    [from]: board[from].filter((c) => c.id !== cardId), // drop it from the source column
+    [to]: [...board[to], card],                        // append it to the target column
   };
 }
 
@@ -652,6 +990,299 @@ test("[378] 新增的卡进 todo 列", async () => {
   expect(screen.getByTestId("count-todo")).toHaveTextContent("3");
 });`;
 
+const C_TEST_EN = `import { act, render, renderHook, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import Dropdown from "./components/Dropdown";
+import Tabs from "./components/Tabs";
+import StarRating from "./components/StarRating";
+import Player from "./components/Player";
+import Kanban, { moveCard } from "./components/Kanban";
+import { useLocalStorage } from "./hooks/useLocalStorage";
+import type { Board } from "./types/Card";
+
+/* ---------------- #366 Dropdown ---------------- */
+
+const OPTS = [
+  { id: "a", label: "苹果" },
+  { id: "b", label: "香蕉" },
+];
+
+test("[366] the trigger opens it; picking an option closes it and shows the choice", async () => {
+  render(<Dropdown options={OPTS} />);
+  expect(screen.queryByTestId("dropdown-list")).toBeNull();
+
+  await userEvent.click(screen.getByTestId("dropdown-trigger"));
+  expect(screen.getByTestId("dropdown-list")).toBeInTheDocument();
+  expect(screen.getByTestId("dropdown-trigger")).toHaveAttribute("aria-expanded", "true");
+
+  await userEvent.click(screen.getByTestId("option-b"));
+  expect(screen.queryByTestId("dropdown-list")).toBeNull();
+  expect(screen.getByTestId("dropdown-trigger")).toHaveTextContent("香蕉");
+});
+
+test("[366] a click outside closes it, a click inside does not", async () => {
+  render(
+    <div>
+      <Dropdown options={OPTS} />
+      <button data-testid="outside">外面</button>
+    </div>,
+  );
+  await userEvent.click(screen.getByTestId("dropdown-trigger"));
+
+  // Click inside itself: should not close
+  await userEvent.click(screen.getByTestId("dropdown-list"));
+  expect(screen.getByTestId("dropdown-list")).toBeInTheDocument();
+
+  // Click outside: should close
+  await userEvent.click(screen.getByTestId("outside"));
+  expect(screen.queryByTestId("dropdown-list")).toBeNull();
+});
+
+test("[366] Escape closes it", async () => {
+  render(<Dropdown options={OPTS} />);
+  await userEvent.click(screen.getByTestId("dropdown-trigger"));
+  await userEvent.keyboard("{Escape}");
+  expect(screen.queryByTestId("dropdown-list")).toBeNull();
+});
+
+test("[366] the document listeners are removed after unmount (the cleanup works)", async () => {
+  const add = vi.spyOn(document, "addEventListener");
+  const remove = vi.spyOn(document, "removeEventListener");
+
+  const { unmount } = render(<Dropdown options={OPTS} />);
+  await userEvent.click(screen.getByTestId("dropdown-trigger"));   // it only binds once open
+  const added = add.mock.calls.filter(([t]) => t === "mousedown" || t === "keydown").length;
+  expect(added).toBe(2);
+
+  unmount();
+  const removed = remove.mock.calls.filter(([t]) => t === "mousedown" || t === "keydown").length;
+  expect(removed).toBe(2);   // without the cleanup function this would be 0
+
+  add.mockRestore();
+  remove.mockRestore();
+});
+
+/* ---------------- #367 Tabs ---------------- */
+
+const TABS = [
+  { id: "one", label: "第一", content: <p>内容一</p> },
+  { id: "two", label: "第二", content: <p>内容二</p> },
+  { id: "three", label: "第三", content: <p>内容三</p> },
+];
+
+test("[367] the first tab is active by default, and only the active panel renders", () => {
+  render(<Tabs tabs={TABS} />);
+  expect(screen.getByTestId("tab-one")).toHaveAttribute("aria-selected", "true");
+  expect(screen.getByTestId("panel")).toHaveTextContent("内容一");
+  expect(screen.queryByText("内容二")).toBeNull();
+});
+
+test("[367] clicking the second one switches, and aria-selected follows", async () => {
+  render(<Tabs tabs={TABS} />);
+  await userEvent.click(screen.getByTestId("tab-two"));
+
+  expect(screen.getByTestId("panel")).toHaveTextContent("内容二");
+  expect(screen.getByTestId("tab-two")).toHaveAttribute("aria-selected", "true");
+  expect(screen.getByTestId("tab-one")).toHaveAttribute("aria-selected", "false");
+});
+
+test("[367] initialId sets which tab starts active", () => {
+  render(<Tabs tabs={TABS} initialId="three" />);
+  expect(screen.getByTestId("panel")).toHaveTextContent("内容三");
+});
+
+/* ---------------- #368 StarRating ---------------- */
+
+test("[368] clicking the third star scores 3, and the first three fill in", async () => {
+  render(<StarRating />);
+  await userEvent.click(screen.getByTestId("star-3"));
+
+  expect(screen.getByTestId("stars-value")).toHaveTextContent("3");
+  expect(screen.getByTestId("star-3")).toHaveAttribute("data-filled", "true");
+  expect(screen.getByTestId("star-4")).toHaveAttribute("data-filled", "false");
+});
+
+test("[368] hover previews, and moving out returns to the picked value", async () => {
+  render(<StarRating />);
+  await userEvent.click(screen.getByTestId("star-2"));
+
+  await userEvent.hover(screen.getByTestId("star-5"));
+  expect(screen.getByTestId("star-5")).toHaveAttribute("data-filled", "true");   // the preview
+
+  await userEvent.unhover(screen.getByTestId("star-5"));
+  // note that unhover only left that one star; you have to leave the whole container
+  await userEvent.pointer({ target: document.body });
+  expect(screen.getByTestId("stars")).toHaveAttribute("data-value", "2");        // the picked value did not change
+});
+
+test("[368] clicking the same star again resets to zero", async () => {
+  render(<StarRating />);
+  await userEvent.click(screen.getByTestId("star-4"));
+  await userEvent.click(screen.getByTestId("star-4"));
+  expect(screen.getByTestId("stars-value")).toHaveTextContent("0");
+});
+
+test("[368] in controlled mode it does not change its own value, it only calls onChange", async () => {
+  const onChange = vi.fn();
+  render(<StarRating value={1} onChange={onChange} />);
+  await userEvent.click(screen.getByTestId("star-5"));
+
+  expect(onChange).toHaveBeenCalledWith(5);
+  expect(screen.getByTestId("stars")).toHaveAttribute("data-value", "1");   // still the 1 the parent passed in
+});
+
+/* ---------------- #373 Player (useRef driving the DOM) ---------------- */
+
+let play: ReturnType<typeof vi.spyOn>;
+let pause: ReturnType<typeof vi.spyOn>;
+
+beforeEach(() => {
+  // jsdom does not implement media playback; play() throws Not implemented, so it needs a stub
+  play = vi
+    .spyOn(HTMLMediaElement.prototype, "play")
+    .mockImplementation(() => Promise.resolve());
+  pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  play.mockRestore();
+  pause.mockRestore();
+});
+
+test("[373] clicking Play calls audio.play(), clicking again calls pause()", async () => {
+  render(<Player src="/a.mp3" />);
+  expect(screen.getByTestId("toggle")).toHaveTextContent("Play");
+
+  await userEvent.click(screen.getByTestId("toggle"));
+  expect(play).toHaveBeenCalledTimes(1);
+  expect(screen.getByTestId("toggle")).toHaveTextContent("Pause");
+
+  await userEvent.click(screen.getByTestId("toggle"));
+  expect(pause).toHaveBeenCalledTimes(1);
+  expect(screen.getByTestId("toggle")).toHaveTextContent("Play");
+});
+
+test("[373] Stop sets currentTime back to zero and halts playback", async () => {
+  render(<Player src="/a.mp3" />);
+  const audio = screen.getByTestId("audio") as HTMLAudioElement;
+
+  await userEvent.click(screen.getByTestId("toggle"));
+  audio.currentTime = 30;
+  await userEvent.click(screen.getByTestId("stop"));
+
+  expect(audio.currentTime).toBe(0);          // what changed is the DOM property itself
+  expect(screen.getByTestId("toggle")).toHaveTextContent("Play");
+});
+
+/* ---------------- #375 a custom hook ---------------- */
+
+test("[375] useLocalStorage uses the default the first time, and writes it to localStorage", () => {
+  localStorage.clear();
+  const { result } = renderHook(() => useLocalStorage("k", { n: 1 }));
+
+  expect(result.current[0]).toEqual({ n: 1 });
+  expect(JSON.parse(localStorage.getItem("k")!)).toEqual({ n: 1 });
+});
+
+test("[375] an existing value is read back instead of using the default", () => {
+  localStorage.setItem("k", JSON.stringify("存过的"));
+  const { result } = renderHook(() => useLocalStorage("k", "默认"));
+  expect(result.current[0]).toBe("存过的");
+});
+
+test("[375] setValue writes back in step", () => {
+  localStorage.clear();
+  const { result } = renderHook(() => useLocalStorage("k", 0));
+
+  act(() => result.current[1](42));
+  expect(result.current[0]).toBe(42);
+  expect(localStorage.getItem("k")).toBe("42");
+});
+
+test("[375] bad data does not break the component; it falls back to the default", () => {
+  localStorage.setItem("k", "{不是合法 JSON");
+  const { result } = renderHook(() => useLocalStorage("k", "兜底"));
+  expect(result.current[0]).toBe("兜底");
+});
+
+test("[375] two components each call it once = two independent states (shared logic, not shared state)", () => {
+  localStorage.clear();
+  const a = renderHook(() => useLocalStorage("shared", 0));
+  const b = renderHook(() => useLocalStorage("shared", 0));
+
+  act(() => a.result.current[1](5));
+  expect(a.result.current[0]).toBe(5);
+  expect(b.result.current[0]).toBe(0);   // b does not follow along
+});
+
+/* ---------------- #378 Kanban ---------------- */
+
+const board = (): Board => ({
+  todo: [{ id: 1, title: "写文档" }, { id: 2, title: "改 bug" }],
+  doing: [{ id: 3, title: "评审" }],
+  done: [],
+});
+
+function deepFreeze<T>(o: T): T {
+  Object.freeze(o);
+  Object.values(o as Record<string, unknown>).forEach((v) => {
+    if (v && typeof v === "object" && !Object.isFrozen(v)) deepFreeze(v);
+  });
+  return o;
+}
+
+test("[378] moveCard moves the card to the target column and does not change the original board", () => {
+  const original = deepFreeze(board());
+  const next = moveCard(original, "todo", "doing", 1);
+
+  expect(next.todo.map((c) => c.id)).toEqual([2]);
+  expect(next.doing.map((c) => c.id)).toEqual([3, 1]);
+  // the original object was not touched at all
+  expect(original.todo.map((c) => c.id)).toEqual([1, 2]);
+  expect(original.doing.map((c) => c.id)).toEqual([3]);
+});
+
+test("[378] a no-op move, or a card that is not found, returns the very same reference", () => {
+  const b = board();
+  expect(moveCard(b, "todo", "todo", 1)).toBe(b);
+  expect(moveCard(b, "todo", "done", 999)).toBe(b);
+});
+
+test("[378] untouched columns keep the original array reference (only the changed parts are rebuilt)", () => {
+  const b = board();
+  const next = moveCard(b, "todo", "doing", 1);
+  expect(next.done).toBe(b.done);        // done did not move, so the reference is unchanged
+  expect(next.todo).not.toBe(b.todo);    // what moved has to be a new array
+});
+
+test("[378] clicking move-right changes the card's column and the counts follow", async () => {
+  render(<Kanban initial={board()} />);
+  expect(screen.getByTestId("count-todo")).toHaveTextContent("2");
+  expect(screen.getByTestId("card-1")).toHaveAttribute("data-col", "todo");
+
+  await userEvent.click(screen.getByLabelText("把 写文档 右移"));
+
+  expect(screen.getByTestId("card-1")).toHaveAttribute("data-col", "doing");
+  expect(screen.getByTestId("count-todo")).toHaveTextContent("1");
+  expect(screen.getByTestId("count-doing")).toHaveTextContent("2");
+});
+
+test("[378] the first column has no move-left button, the last has no move-right", () => {
+  render(<Kanban initial={board()} />);
+  expect(screen.queryByLabelText("把 写文档 左移")).toBeNull();   // todo is the first column
+  expect(screen.getByLabelText("把 评审 右移")).toBeInTheDocument();
+});
+
+test("[378] a newly added card goes into the todo column", async () => {
+  render(<Kanban initial={board()} />);
+  await userEvent.type(screen.getByTestId("card-input"), "新任务");
+  await userEvent.click(screen.getByTestId("card-submit"));
+
+  expect(screen.getByTestId("col-todo")).toHaveTextContent("新任务");
+  expect(screen.getByTestId("count-todo")).toHaveTextContent("3");
+});`;
+
 const C_SLICE = `import { createSlice, nanoid } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
@@ -708,10 +1339,76 @@ export const selectVisible = (s: { todos: TodosState }) => {
   return items.filter((t) => (filter === "done" ? t.done : !t.done));
 };`;
 
+const C_SLICE_EN = `import { createSlice, nanoid } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+
+export type Filter = "all" | "active" | "done";
+export interface Todo { id: string; text: string; done: boolean }
+export interface TodosState { items: Todo[]; filter: Filter }
+
+const initialState: TodosState = { items: [], filter: "all" };
+
+const todosSlice = createSlice({
+  name: "todos",
+  initialState,
+  reducers: {
+    // It looks like state is being changed, but the Immer built into RTK hands you
+    // a draft proxy and produces a new object — so "state is read-only" still holds.
+    added: {
+      // prepare lets the action creator take only text and build the id here — that way
+      // nanoid() never appears in the reducer, and the reducer stays a pure function.
+      reducer(state, action: PayloadAction<Todo>) {
+        state.items.push(action.payload);
+      },
+      prepare(text: string) {
+        return { payload: { id: nanoid(), text: text.trim(), done: false } };
+      },
+    },
+    toggled(state, action: PayloadAction<string>) {
+      const t = state.items.find((x) => x.id === action.payload);
+      if (t) t.done = !t.done;
+    },
+    removed(state, action: PayloadAction<string>) {
+      state.items = state.items.filter((x) => x.id !== action.payload);
+    },
+    clearedDone(state) {
+      state.items = state.items.filter((x) => !x.done);
+    },
+    filterChanged(state, action: PayloadAction<Filter>) {
+      state.filter = action.payload;
+    },
+  },
+});
+
+export const { added, toggled, removed, clearedDone, filterChanged } = todosSlice.actions;
+export default todosSlice.reducer;
+
+/* ---------- selectors: a component subscribes only to the part it really uses ---------- */
+
+export const selectFilter = (s: { todos: TodosState }) => s.todos.filter;
+export const selectRemaining = (s: { todos: TodosState }) =>
+  s.todos.items.filter((t) => !t.done).length;
+
+export const selectVisible = (s: { todos: TodosState }) => {
+  const { items, filter } = s.todos;
+  if (filter === "all") return items;
+  return items.filter((t) => (filter === "done" ? t.done : !t.done));
+};`;
+
 const C_STORE = `import { configureStore } from "@reduxjs/toolkit";
 import todos from "./todosSlice";
 
 // configureStore 默认就装好了 thunk 和 DevTools，不用自己 applyMiddleware
+export const makeStore = () => configureStore({ reducer: { todos } });
+
+export type AppStore = ReturnType<typeof makeStore>;
+export type RootState = ReturnType<AppStore["getState"]>;
+export type AppDispatch = AppStore["dispatch"];`;
+
+const C_STORE_EN = `import { configureStore } from "@reduxjs/toolkit";
+import todos from "./todosSlice";
+
+// configureStore already sets up thunk and DevTools; no applyMiddleware needed
 export const makeStore = () => configureStore({ reducer: { todos } });
 
 export type AppStore = ReturnType<typeof makeStore>;
@@ -750,6 +1447,81 @@ const TodoApp: React.FC = () => {
           e.preventDefault();
           if (invalid) return;
           dispatch(added(text));      // prepare 里生成 id
+          setText("");
+        }}
+      >
+        <input value={text} onChange={(e) => setText(e.target.value)} data-testid="input" />
+        <button type="submit" disabled={invalid} data-testid="submit">Add</button>
+      </form>
+
+      <span data-testid="remaining">{remaining} left</span>
+      <button onClick={() => dispatch(clearedDone())} data-testid="clear-done">Clear done</button>
+
+      {(["all", "active", "done"] as Filter[]).map((f) => (
+        <button
+          key={f}
+          onClick={() => dispatch(filterChanged(f))}
+          aria-pressed={filter === f}
+          data-testid={\`filter-\${f}\`}
+        >
+          {f}
+        </button>
+      ))}
+
+      <ul data-testid="list">
+        {visible.map((t) => (
+          <li key={t.id} data-done={t.done}>
+            <input
+              type="checkbox"
+              checked={t.done}
+              onChange={() => dispatch(toggled(t.id))}
+              aria-label={\`toggle \${t.text}\`}
+            />
+            <span>{t.text}</span>
+            <button onClick={() => dispatch(removed(t.id))} aria-label={\`delete \${t.text}\`}>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default TodoApp;`;
+
+const C_RTKAPP_EN = `import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  added,
+  clearedDone,
+  filterChanged,
+  removed,
+  selectFilter,
+  selectRemaining,
+  selectVisible,
+  toggled,
+  type Filter,
+} from "../../store/todosSlice";
+
+const TodoApp: React.FC = () => {
+  const dispatch = useDispatch();
+  // Three selectors, each subscribing to one small part: a re-render happens only when
+  // that part changes. Context cannot do this (one context change re-renders every consumer)
+  const visible = useSelector(selectVisible);
+  const remaining = useSelector(selectRemaining);
+  const filter = useSelector(selectFilter);
+
+  const [text, setText] = useState("");
+  const invalid = text.trim() === "";
+
+  return (
+    <div data-testid="todo-app">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (invalid) return;
+          dispatch(added(text));      // the id is built in prepare
           setText("");
         }}
       >
@@ -906,6 +1678,135 @@ test("[371] 勾选一条，remaining 减一", async () => {
 });
 
 test("[371] 筛选不会丢数据，切回 all 两条都在", async () => {
+  renderApp();
+  for (const t of ["A", "B"]) {
+    await userEvent.type(screen.getByTestId("input"), t);
+    await userEvent.click(screen.getByTestId("submit"));
+  }
+  await userEvent.click(screen.getByLabelText("toggle A"));
+
+  await userEvent.click(screen.getByTestId("filter-done"));
+  expect(screen.getByTestId("list")).toHaveTextContent("A");
+  expect(screen.getByTestId("list")).not.toHaveTextContent("B");
+
+  await userEvent.click(screen.getByTestId("filter-all"));
+  expect(screen.getByTestId("list")).toHaveTextContent("A");
+  expect(screen.getByTestId("list")).toHaveTextContent("B");
+});`;
+
+const C_RTKTEST_EN = `import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Provider } from "react-redux";
+import { expect, test } from "vitest";
+import TodoApp from "./components/TodoApp";
+import { makeStore } from "./store";
+import reducer, {
+  added,
+  clearedDone,
+  filterChanged,
+  removed,
+  selectVisible,
+  toggled,
+  type TodosState,
+} from "./store/todosSlice";
+
+const empty: TodosState = { items: [], filter: "all" };
+
+/* ---------- a reducer is a pure function, so it can be unit-tested without React ---------- */
+
+test("[371] added appends one item and does not change the old state (Immer produces a new object)", () => {
+  const next = reducer(empty, added("买牛奶"));
+
+  expect(next.items).toHaveLength(1);
+  expect(next.items[0].text).toBe("买牛奶");
+  expect(next.items[0].done).toBe(false);
+  expect(empty.items).toHaveLength(0);      // the old state was not touched
+  expect(next).not.toBe(empty);             // it is a new object
+});
+
+test("[371] added trims, and the id is built in prepare (the reducer stays pure)", () => {
+  const next = reducer(empty, added("  写文档  "));
+  expect(next.items[0].text).toBe("写文档");
+  expect(next.items[0].id).toBeTruthy();
+
+  // dispatch the same text twice and the ids differ — proof the reducer does not compute the id
+  const a = added("x");
+  const b = added("x");
+  expect(a.payload.id).not.toBe(b.payload.id);
+});
+
+test("[371] toggled flips only the item it matched", () => {
+  let s = reducer(empty, added("A"));
+  s = reducer(s, added("B"));
+  const idA = s.items[0].id;
+
+  const next = reducer(s, toggled(idA));
+  expect(next.items[0].done).toBe(true);
+  expect(next.items[1].done).toBe(false);
+});
+
+test("[371] removed deletes by id; clearedDone deletes only the finished ones", () => {
+  let s = reducer(empty, added("A"));
+  s = reducer(s, added("B"));
+  const [a, b] = s.items;
+
+  expect(reducer(s, removed(a.id)).items.map((t) => t.text)).toEqual(["B"]);
+
+  s = reducer(s, toggled(b.id));
+  expect(reducer(s, clearedDone()).items.map((t) => t.text)).toEqual(["A"]);
+});
+
+test("[371] selectVisible derives from filter and does not change the underlying data", () => {
+  let s = reducer(empty, added("A"));
+  s = reducer(s, added("B"));
+  s = reducer(s, toggled(s.items[0].id));
+
+  const withFilter = (f: Parameters<typeof filterChanged>[0]) => ({
+    todos: reducer(s, filterChanged(f)),
+  });
+
+  expect(selectVisible({ todos: s }).map((t) => t.text)).toEqual(["A", "B"]);
+  expect(selectVisible(withFilter("done")).map((t) => t.text)).toEqual(["A"]);
+  expect(selectVisible(withFilter("active")).map((t) => t.text)).toEqual(["B"]);
+
+  // filtering only affects what you see; the underlying items are still two
+  expect(s.items).toHaveLength(2);
+});
+
+/* ---------- integration test: the component plus the Provider ---------- */
+
+const renderApp = () =>
+  render(
+    <Provider store={makeStore()}>
+      <TodoApp />
+    </Provider>,
+  );
+
+test("[371] adding through the UI updates both the list and the count", async () => {
+  renderApp();
+  expect(screen.getByTestId("submit")).toBeDisabled();
+
+  await userEvent.type(screen.getByTestId("input"), "买牛奶");
+  await userEvent.click(screen.getByTestId("submit"));
+
+  expect(screen.getByTestId("list")).toHaveTextContent("买牛奶");
+  expect(screen.getByTestId("remaining")).toHaveTextContent("1 left");
+  expect(screen.getByTestId("input")).toHaveValue("");
+});
+
+test("[371] ticking one item lowers remaining by one", async () => {
+  renderApp();
+  await userEvent.type(screen.getByTestId("input"), "A");
+  await userEvent.click(screen.getByTestId("submit"));
+  await userEvent.type(screen.getByTestId("input"), "B");
+  await userEvent.click(screen.getByTestId("submit"));
+
+  expect(screen.getByTestId("remaining")).toHaveTextContent("2 left");
+  await userEvent.click(screen.getByLabelText("toggle A"));
+  expect(screen.getByTestId("remaining")).toHaveTextContent("1 left");
+});
+
+test("[371] filtering loses no data; switch back to all and both items are there", async () => {
   renderApp();
   for (const t of ["A", "B"]) {
     await userEvent.type(screen.getByTestId("input"), t);
@@ -1353,6 +2254,7 @@ export const ivCoding: Module = {
           kind: "recognition",
           id: "iv-coding-recog",
           title: "认出考点：这道题在考什么",
+          titleEn: "Name the point: what is this question testing",
           level: 1,
           generated: true,
           prompt: (
@@ -1361,11 +2263,18 @@ export const ivCoding: Module = {
               这道题<strong>最核心</strong>的考点是哪一个？
             </p>
           ),
+          promptEn: (
+            <p>
+              The interviewer says: &ldquo;Build a Kanban board where a card can move
+              between three columns.&rdquo; Which is the <strong>central</strong> point
+              this question tests?
+            </p>
+          ),
           options: [
-            { id: "a", label: "拖拽事件（HTML5 drag and drop API）的用法" },
-            { id: "b", label: "一次操作要同时对两个数组做不可变更新，且只能触发一次 state 变化" },
-            { id: "c", label: "CSS Grid 三列布局" },
-            { id: "d", label: "useEffect 的依赖数组怎么写" },
+            { id: "a", label: "拖拽事件（HTML5 drag and drop API）的用法", labelEn: "How to use drag events (the HTML5 drag and drop API)" },
+            { id: "b", label: "一次操作要同时对两个数组做不可变更新，且只能触发一次 state 变化", labelEn: "One action has to update two arrays immutably, and may cause only one state change" },
+            { id: "c", label: "CSS Grid 三列布局", labelEn: "A three-column CSS Grid layout" },
+            { id: "d", label: "useEffect 的依赖数组怎么写", labelEn: "How to write the dependency array of useEffect" },
           ],
           answer: ["b"],
           explain: (
@@ -1395,6 +2304,44 @@ export const ivCoding: Module = {
                 顺带一个加分点：<strong>没被碰到的那一列应该复用原数组引用</strong>，
                 这样用了 <code>React.memo</code> 的列不会白重渲染 ——
                 和评论树那道题「只重建路径」是同一个思路。
+              </p>
+            </>
+          ),
+          explainEn: (
+            <>
+              <p>
+                <strong>B.</strong> Dragging is only the outer shell of the interaction —
+                replace it with two arrow buttons in an interview and the point of the
+                question is untouched (and easier to test).
+              </p>
+              <p>
+                The real difficulty is that{" "}
+                <strong>
+                  moving one card has to change both the source column and the target
+                  column
+                </strong>
+                . Writing two <code>setState</code> calls (remove from the source, then
+                add to the target) does get batched in React 18, but{" "}
+                <strong>they are still two separate operations in your logic</strong> —
+                add a check or an early return between them and a card disappears.
+              </p>
+              <p>
+                <strong>
+                  The right answer is a pure function{" "}
+                  <code>moveCard(board, from, to, id)</code> that returns the complete new
+                  board in one step
+                </strong>
+                . That function can be unit-tested without React, and it cannot produce a
+                half-updated state.
+              </p>
+              <p>
+                One more point in your favour:{" "}
+                <strong>
+                  a column that was not touched should keep its original array reference
+                </strong>
+                , so a column wrapped in <code>React.memo</code> does not re-render for
+                nothing — the same idea as rebuilding only the path in the comment-tree
+                question.
               </p>
             </>
           ),
@@ -1566,6 +2513,8 @@ export const ivCoding: Module = {
           code: [
             tested("tsx", C_DROPDOWN, {
               filename: "src/components/Dropdown/index.tsx（实测通过）",
+              filenameEn: "src/components/Dropdown/index.tsx (passes in a real run)",
+              codeEn: C_DROPDOWN_EN,
               collapsible: true,
             }),
           ],
@@ -1666,6 +2615,8 @@ export const ivCoding: Module = {
           code: [
             tested("tsx", C_TABS, {
               filename: "src/components/Tabs/index.tsx（实测通过）",
+              filenameEn: "src/components/Tabs/index.tsx (passes in a real run)",
+              codeEn: C_TABS_EN,
             }),
           ],
         },
@@ -1772,6 +2723,8 @@ export const ivCoding: Module = {
           code: [
             tested("tsx", C_STARS, {
               filename: "src/components/StarRating/index.tsx（实测通过）",
+              filenameEn: "src/components/StarRating/index.tsx (passes in a real run)",
+              codeEn: C_STARS_EN,
               collapsible: true,
             }),
             demo(
@@ -1784,7 +2737,18 @@ const shown = hover || current;
 
 // ✗ 用 span：键盘用不了
 <span onClick={...}>★</span>`,
-              { filename: "三种常见错法" },
+              {
+                filename: "三种常见错法",
+                filenameEn: "Three common wrong versions",
+                codeEn: `// ✗ using || : this goes wrong once 0 stars is allowed
+const shown = hover || current;
+
+// ✗ onMouseLeave on every star: moving between stars makes it flicker
+<button onMouseEnter={...} onMouseLeave={() => setHover(null)} />
+
+// ✗ using span: the keyboard cannot reach it
+<span onClick={...}>★</span>`,
+              },
             ),
           ],
         },
@@ -1794,12 +2758,19 @@ const shown = hover || current;
           kind: "fill-blank",
           id: "iv-coding-dropdown-blank",
           title: "补全「点外面关掉」",
+          titleEn: "Fill in \"click outside closes it\"",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 2 个用错会导致「点自己内部也关掉」，
               第 4 个漏了会泄漏监听器。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. Get the 2nd one wrong and a click inside the dropdown closes
+              it too; miss the 4th one and you leak a listener.
             </p>
           ),
           language: "tsx",
@@ -1823,6 +2794,7 @@ useEffect(() => {
               n: 1,
               accept: ["useRef"],
               hint: "要拿到一个 DOM 节点，而且它不参与渲染。",
+              hintEn: "You need to hold a DOM node, and it takes no part in rendering.",
               why: (
                 <>
                   <code>useRef</code>。
@@ -1833,12 +2805,24 @@ useEffect(() => {
                   用 <code>useState</code> 存 DOM 节点会造成多余渲染。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>useRef</code>.
+                  <br />
+                  A DOM node is not data that rendering reads, and changing it should not
+                  cause a re-render — that is exactly what <code>useRef</code> is for.
+                  Keeping a DOM node in <code>useState</code> causes renders you do not
+                  need.
+                </>
+              ),
               width: 8,
             },
             {
               n: 2,
               accept: ["contains"],
               hint: "用户点的可能是容器内部的按钮，不是容器本身。",
+              hintEn:
+                "What the user clicked may be a button inside the container, not the container itself.",
               why: (
                 <>
                   <code>contains</code>。
@@ -1852,12 +2836,28 @@ useEffect(() => {
                   <strong>要处理「点在子元素上」的情况</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>contains</code>.
+                  <br />
+                  Write <code>e.target === boxRef.current</code> instead and{" "}
+                  <strong>
+                    a click on any element inside counts as a click outside
+                  </strong>
+                  , so the list closes the moment it opens.
+                  <br />
+                  This is the same reason event delegation uses{" "}
+                  <code>e.target.closest()</code>:{" "}
+                  <strong>you have to handle a click that landed on a child</strong>.
+                </>
+              ),
               width: 10,
             },
             {
               n: 3,
               accept: ["mousedown", "click", "pointerdown"],
               hint: "比 click 更早的那个鼠标事件更合适。",
+              hintEn: "The mouse event that comes before click is the better fit.",
               why: (
                 <>
                   <code>mousedown</code>（<code>click</code> 也能过，
@@ -1871,12 +2871,25 @@ useEffect(() => {
                   关闭反应也更快。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>mousedown</code> (<code>click</code> also passes, but it is the
+                  weaker choice).
+                  <br />
+                  The problem with <code>click</code>: it fires{" "}
+                  <strong>between press and release</strong>, and if the DOM changes in
+                  between (say the element you pressed on is removed),{" "}
+                  <code>click</code> may never fire at all. <code>mousedown</code> comes
+                  earlier, is more reliable, and closes the list faster.
+                </>
+              ),
               width: 12,
             },
             {
               n: 4,
               accept: ["removeEventListener"],
               hint: "把这一次 effect 建立的东西拆掉。",
+              hintEn: "Take down whatever this run of the effect set up.",
               why: (
                 <>
                   <code>removeEventListener</code>。
@@ -1889,6 +2902,21 @@ useEffect(() => {
                   卸载后监听器还活着并对已卸载组件 setState。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>removeEventListener</code>.
+                  <br />
+                  <strong>
+                    The first argument has to match the one you registered with exactly
+                  </strong>
+                  , and the second has to be <strong>the same function reference</strong>{" "}
+                  — passing a fresh arrow function removes nothing, which is the classic
+                  mistake here.
+                  <br />
+                  Miss it and every open adds another pair of listeners; after unmount
+                  they are still alive and call setState on an unmounted component.
+                </>
+              ),
               width: 21,
             },
           ],
@@ -1897,6 +2925,7 @@ useEffect(() => {
           kind: "code-completion",
           id: "iv-coding-stars-write",
           title: "自己写出星级评分",
+          titleEn: "Write the star rating yourself",
           level: 3,
           generated: true,
           prompt: (
@@ -1904,6 +2933,13 @@ useEffect(() => {
               hover 预览 + 点击选中 + 再点清零。
               检查器会查 <code>??</code>、
               <code>onMouseLeave</code> 的位置和无障碍。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Hover to preview, click to pick, click the same star again to reset. The
+              checker looks at <code>??</code>, where <code>onMouseLeave</code> sits, and
+              accessibility.
             </p>
           ),
           language: "tsx",
@@ -1923,6 +2959,21 @@ useEffect(() => {
     </div>
   );
 };`,
+          starterEn: `const StarRating: React.FC<{ max?: number }> = ({ max = 5 }) => {
+  // 1. Two pieces of state: the picked value, and the star under the cursor (there may be none)
+
+
+  // 2. The shown value: the hovered one if there is a hover, otherwise the picked one
+
+
+  return (
+    <div data-testid="stars">
+      {/* 3. Render max stars: hover previews, click picks, clicking the same one resets */}
+
+      <output data-testid="stars-value">{/* the picked value */}</output>
+    </div>
+  );
+};`,
           requirements: [
             "hover 到第 n 颗时前 n 颗显示为选中样式（预览）",
             "鼠标移出整个组件后回到已选值",
@@ -1930,16 +2981,23 @@ useEffect(() => {
             "每颗星是 button，带 aria-label，键盘可用",
             "显示值必须是派生的，不许再开第三个 state",
           ],
+          requirementsEn: [
+            "Hovering star n shows the first n stars in the filled style (a preview)",
+            "Moving the mouse out of the whole component goes back to the picked value",
+            "Clicking star n sets the score to n; clicking the same star again resets to zero",
+            "Every star is a button with an aria-label, and works from the keyboard",
+            "The shown value has to be derived; a third piece of state is not allowed",
+          ],
           checks: [
-            { label: "hover 用 number | null（或初始 null）", must: "useState<number \\| null>|useState\\(\\s*null\\s*\\)" },
-            { label: "显示值用 ?? 而不是 ||", must: "\\?\\?" },
-            { label: "没有用 || 做兜底", mustNot: "hover\\s*\\|\\|" },
-            { label: "onMouseLeave 挂在容器上（出现在 map 之前）", must: "onMouseLeave[\\s\\S]{0,400}\\.map\\s*\\(|Array\\.from" },
-            { label: "用 Array.from 或类似方式渲染 max 颗", must: "Array\\.from|\\[\\s*\\.\\.\\.\\s*Array" },
-            { label: "星星是 button 元素", must: "<button" },
-            { label: "带 aria-label", must: "aria-label" },
-            { label: "再点同一颗清零", must: "===?\\s*current\\s*\\?\\s*0|current\\s*===?\\s*\\w+\\s*\\?\\s*0" },
-            { label: "没有为「显示值」再开一个 state", mustNot: "useState[^\\n]*shown|setShown" },
+            { label: "hover 用 number | null（或初始 null）", labelEn: "hover is number | null (or starts as null)", must: "useState<number \\| null>|useState\\(\\s*null\\s*\\)" },
+            { label: "显示值用 ?? 而不是 ||", labelEn: "The shown value uses ?? and not ||", must: "\\?\\?" },
+            { label: "没有用 || 做兜底", labelEn: "No || used as the fallback", mustNot: "hover\\s*\\|\\|" },
+            { label: "onMouseLeave 挂在容器上（出现在 map 之前）", labelEn: "onMouseLeave sits on the container, so it appears before the map", must: "onMouseLeave[\\s\\S]{0,400}\\.map\\s*\\(|Array\\.from" },
+            { label: "用 Array.from 或类似方式渲染 max 颗", labelEn: "Renders max stars with Array.from or something similar", must: "Array\\.from|\\[\\s*\\.\\.\\.\\s*Array" },
+            { label: "星星是 button 元素", labelEn: "Each star is a button element", must: "<button" },
+            { label: "带 aria-label", labelEn: "Has an aria-label", must: "aria-label" },
+            { label: "再点同一颗清零", labelEn: "Clicking the same star again resets to zero", must: "===?\\s*current\\s*\\?\\s*0|current\\s*===?\\s*\\w+\\s*\\?\\s*0" },
+            { label: "没有为「显示值」再开一个 state", labelEn: "No extra state added for the shown value", mustNot: "useState[^\\n]*shown|setShown" },
           ],
           hints: [
             "先想清楚：屏幕上「第 n 颗要不要点亮」这个判断，依据是哪个值？鼠标在星星上时和不在时，这个依据一样吗？如果不一样，你需要几个 state？",
@@ -1954,7 +3012,7 @@ const shown = hover ?? current
       onMouseEnter={() => 设 hover 为 n}
       onClick={() => 设 current 为「n 等于 current 就 0，否则 n」}
       data-filled={n <= shown}
-      aria-label={\`\${n} 星\`}
+      aria-label={\`\${n} star\`}
     >{n <= shown ? "★" : "☆"}</button>
   ))
 </div>`,
@@ -1968,7 +3026,46 @@ return (
       <button
         key={n}
         type="button"
-        aria-label={\`\${n} 星\`}
+        aria-label={\`\${n} star\`}
+        data-filled={n <= shown}
+        onMouseEnter={() => setHover(n)}
+        onClick={() => setCurrent(n === current ? 0 : n)}
+      >
+        {n <= shown ? "★" : "☆"}
+      </button>
+    ))}
+    <output data-testid="stars-value">{current}</output>
+  </div>
+);`,
+          ],
+          hintsEn: [
+            "Work this out first: when the screen decides whether star n is lit, which value is it reading? Is that the same value while the mouse is over the stars as when it is not? If it is not the same, how many pieces of state do you need?",
+            "Two pieces of state: current (the picked value) and hover (number | null). The shown value is shown = hover ?? current — it has to be ??, because when hover is 0, || would treat it as no hover. onMouseLeave goes on the outermost container, not on each star.",
+            `const [current, setCurrent] = useState(0)
+const [hover, setHover] = useState<number | null>(null)
+const shown = hover ?? current
+
+<div onMouseLeave={() => clear hover}>
+  Array.from({ length: max }, (_, i) => i + 1).map(n => (
+    <button
+      onMouseEnter={() => set hover to n}
+      onClick={() => set current to "0 if n equals current, otherwise n"}
+      data-filled={n <= shown}
+      aria-label={\`\${n} star\`}
+    >{n <= shown ? "★" : "☆"}</button>
+  ))
+</div>`,
+            `const [current, setCurrent] = useState(0);
+const [hover, setHover] = useState<number | null>(null);
+const shown = hover ?? current;
+
+return (
+  <div data-testid="stars" data-value={current} onMouseLeave={() => setHover(null)}>
+    {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
+      <button
+        key={n}
+        type="button"
+        aria-label={\`\${n} star\`}
         data-filled={n <= shown}
         onMouseEnter={() => setHover(n)}
         onClick={() => setCurrent(n === current ? 0 : n)}
@@ -1982,6 +3079,8 @@ return (
           ],
           solution: tested("tsx", C_STARS, {
             filename: "参考答案（实测通过，含受控模式）",
+            filenameEn: "Reference answer (passes in a real run, controlled mode included)",
+            codeEn: C_STARS_EN,
             collapsible: true,
           }),
         },
@@ -1994,6 +3093,12 @@ return (
 const onDocClick = (e: MouseEvent) => {
   if (e.target !== boxRef.current) setOpen(false);
 };`,
+            {
+              codeEn: `// ✗ testing with e.target === ref.current
+const onDocClick = (e: MouseEvent) => {
+  if (e.target !== boxRef.current) setOpen(false);
+};`,
+            },
           ),
           why: (
             <>
@@ -2024,6 +3129,13 @@ useEffect(() => {
   document.addEventListener("mousedown", (e) => handle(e));
   return () => document.removeEventListener("mousedown", (e) => handle(e));
 }, [open]);`,
+            {
+              codeEn: `// ✗ a brand new function is passed when removing
+useEffect(() => {
+  document.addEventListener("mousedown", (e) => handle(e));
+  return () => document.removeEventListener("mousedown", (e) => handle(e));
+}, [open]);`,
+            },
           ),
           why: (
             <>
@@ -2056,6 +3168,12 @@ useEffect(() => {
 const [tabs, setTabs] = useState(
   raw.map((t, i) => ({ ...t, isActive: i === 0 })),
 );`,
+            {
+              codeEn: `// ✗ storing an isActive flag on every tab
+const [tabs, setTabs] = useState(
+  raw.map((t, i) => ({ ...t, isActive: i === 0 })),
+);`,
+            },
           ),
           why: (
             <>
@@ -2296,6 +3414,8 @@ const [tabs, setTabs] = useState(
           code: [
             tested("tsx", C_PLAYER, {
               filename: "src/components/Player/index.tsx（实测通过）",
+              filenameEn: "src/components/Player/index.tsx (passes in a real run)",
+              codeEn: C_PLAYER_EN,
               collapsible: true,
             }),
           ],
@@ -2392,7 +3512,25 @@ test("点 Play 调 audio.play()，再点调 pause()", async () => {
   await userEvent.click(screen.getByTestId("toggle"));
   expect(pause).toHaveBeenCalledTimes(1);
 });`,
-              { filename: "怎么测一个播放器" },
+              {
+                filename: "怎么测一个播放器",
+                filenameEn: "How to test a player",
+                codeEn: `// jsdom does not implement media playback, so it has to be stubbed
+beforeEach(() => {
+  play = vi.spyOn(HTMLMediaElement.prototype, "play")
+           .mockImplementation(() => Promise.resolve());
+  pause = vi.spyOn(HTMLMediaElement.prototype, "pause")
+            .mockImplementation(() => {});
+});
+
+test("clicking Play calls audio.play(), clicking again calls pause()", async () => {
+  render(<Player src="/a.mp3" />);
+  await userEvent.click(screen.getByTestId("toggle"));
+  expect(play).toHaveBeenCalledTimes(1);
+  await userEvent.click(screen.getByTestId("toggle"));
+  expect(pause).toHaveBeenCalledTimes(1);
+});`,
+              },
             ),
           ],
         },
@@ -2501,6 +3639,8 @@ test("点 Play 调 audio.play()，再点调 pause()", async () => {
           code: [
             tested("ts", C_HOOK, {
               filename: "src/hooks/useLocalStorage.ts（实测通过）",
+              filenameEn: "src/hooks/useLocalStorage.ts (passes in a real run)",
+              codeEn: C_HOOK_EN,
             }),
             demo(
               "ts",
@@ -2512,7 +3652,18 @@ const [v, setV] = useState(() => JSON.parse(localStorage.getItem(key)!));
 
 // ✗ 返回普通数组，类型是 (T | Setter)[]，解构后类型全错
 return [value, setValue];        // 少了 as const`,
-              { filename: "三个常见错法" },
+              {
+                filename: "三个常见错法",
+                filenameEn: "Three common wrong versions",
+                codeEn: `// ✗ reads localStorage on every render
+const [v, setV] = useState(JSON.parse(localStorage.getItem(key)!));
+
+// ✗ no fallback: private mode or bad data leaves a blank screen
+const [v, setV] = useState(() => JSON.parse(localStorage.getItem(key)!));
+
+// ✗ returns a plain array, so the type is (T | Setter)[] and destructuring types are all wrong
+return [value, setValue];        // as const is missing`,
+              },
             ),
           ],
         },
@@ -2566,10 +3717,13 @@ return [value, setValue];        // 少了 as const`,
 
  Test Files  1 passed (1)
       Tests  24 passed (24)`,
-              { filename: "验证命令" },
+              { filename: "验证命令", filenameEn: "The command used to check it" },
             ),
             tested("tsx", C_TEST, {
               filename: "src/Coding.test.tsx（DrillLab 自出，本机跑过 24/24）",
+              filenameEn:
+                "src/Coding.test.tsx (written by DrillLab; 24/24 in a real run on this machine)",
+              codeEn: C_TEST_EN,
               collapsible: true,
             }),
           ],
@@ -2580,12 +3734,19 @@ return [value, setValue];        // 少了 as const`,
           kind: "code-completion",
           id: "iv-coding-hook-write",
           title: "自己写出 useLocalStorage",
+          titleEn: "Write useLocalStorage yourself",
           level: 3,
           generated: true,
           prompt: (
             <p>
               四个考点全都会被检查：惰性初始化、try/catch 兜底、
               依赖带 key、<code>as const</code>。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              All four points get checked: lazy initialisation, a try/catch fallback,{" "}
+              <code>key</code> in the dependency list, and <code>as const</code>.
             </p>
           ),
           language: "ts",
@@ -2604,6 +3765,20 @@ return [value, setValue];        // 少了 as const`,
 export function useLocalStorage<T>(key: string, initial: T) {
 
 }`,
+          starterEn: `import { useEffect, useState } from "react";
+
+/**
+ * Tie a value to localStorage.
+ *
+ * Requirements:
+ *   · Read from localStorage on the first render; use initial if there is nothing there
+ *   · Write back to localStorage when the value changes
+ *   · Do not let the component break when localStorage is unavailable or holds bad data
+ *   · Return [value, setValue], typed as a tuple
+ */
+export function useLocalStorage<T>(key: string, initial: T) {
+
+}`,
           requirements: [
             "读 localStorage 只在首次渲染发生一次（惰性初始化）",
             "读和写都要有 try/catch",
@@ -2611,16 +3786,23 @@ export function useLocalStorage<T>(key: string, initial: T) {
             "effect 的依赖里要有 key 和 value",
             "返回元组，用 as const",
           ],
+          requirementsEn: [
+            "Reading localStorage happens once, on the first render (lazy initialisation)",
+            "Both the read and the write need a try/catch",
+            "JSON serialising and deserialising",
+            "The effect's dependency list holds key and value",
+            "Return a tuple, using as const",
+          ],
           checks: [
-            { label: "useState 用了惰性初始化（传函数）", must: "useState[^\\n]*\\(\\s*\\(\\s*\\)\\s*=>" },
-            { label: "没有在 useState 里直接调用读取", mustNot: "useState\\s*\\(\\s*(JSON\\.parse|window\\.localStorage|localStorage)" },
-            { label: "读的时候有 try/catch", must: "try\\s*\\{[\\s\\S]{0,200}getItem[\\s\\S]{0,200}\\}\\s*catch" },
-            { label: "写的时候用了 setItem", must: "setItem" },
-            { label: "写的时候也有 try/catch", must: "try\\s*\\{[\\s\\S]{0,160}setItem[\\s\\S]{0,120}\\}\\s*catch" },
-            { label: "用了 JSON.stringify / JSON.parse", must: "JSON\\.stringify" },
-            { label: "effect 依赖里有 key 和 value", must: "\\[\\s*key\\s*,\\s*value\\s*\\]" },
-            { label: "返回值用 as const（元组类型）", must: "as const" },
-            { label: "没有把 localStorage 读写放在渲染主体里裸调", mustNot: "^\\s*const\\s+\\w+\\s*=\\s*(window\\.)?localStorage\\.getItem" },
+            { label: "useState 用了惰性初始化（传函数）", labelEn: "useState is given a function, so initialisation is lazy", must: "useState[^\\n]*\\(\\s*\\(\\s*\\)\\s*=>" },
+            { label: "没有在 useState 里直接调用读取", labelEn: "The read is not called directly inside useState", mustNot: "useState\\s*\\(\\s*(JSON\\.parse|window\\.localStorage|localStorage)" },
+            { label: "读的时候有 try/catch", labelEn: "The read is wrapped in try/catch", must: "try\\s*\\{[\\s\\S]{0,200}getItem[\\s\\S]{0,200}\\}\\s*catch" },
+            { label: "写的时候用了 setItem", labelEn: "The write uses setItem", must: "setItem" },
+            { label: "写的时候也有 try/catch", labelEn: "The write is wrapped in try/catch too", must: "try\\s*\\{[\\s\\S]{0,160}setItem[\\s\\S]{0,120}\\}\\s*catch" },
+            { label: "用了 JSON.stringify / JSON.parse", labelEn: "Uses JSON.stringify and JSON.parse", must: "JSON\\.stringify" },
+            { label: "effect 依赖里有 key 和 value", labelEn: "The effect dependencies hold key and value", must: "\\[\\s*key\\s*,\\s*value\\s*\\]" },
+            { label: "返回值用 as const（元组类型）", labelEn: "The return value uses as const, so the type is a tuple", must: "as const" },
+            { label: "没有把 localStorage 读写放在渲染主体里裸调", labelEn: "No bare localStorage read or write in the render body", mustNot: "^\\s*const\\s+\\w+\\s*=\\s*(window\\.)?localStorage\\.getItem" },
           ],
           hints: [
             "先问自己两个问题：读 localStorage 这件事应该发生几次？如果 localStorage 里存的是一段被人手改坏的 JSON，你的组件会怎样？",
@@ -2658,8 +3840,46 @@ useEffect(() => {
 
 return [value, setValue] as const;`,
           ],
+          hintsEn: [
+            "Ask yourself two questions first: how many times should reading localStorage happen? And if localStorage holds a piece of JSON someone has broken by hand, what happens to your component?",
+            "useState accepts an initialiser function, which React calls only on the first render — that is lazy initialisation. Both the read and the write need a try/catch: localStorage throws in private mode, and JSON.parse throws on bad data. Finally, return [value, setValue] as const.",
+            `const [value, setValue] = useState<T>(() => {
+  try {
+    read raw
+    return initial if raw is null, otherwise JSON.parse it
+  } catch {
+    return initial
+  }
+})
+
+useEffect(() => {
+  try { write JSON.stringify(value) } catch {}
+}, [key, value])
+
+return [value, setValue] as const`,
+            `const [value, setValue] = useState<T>(() => {
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw === null ? initial : (JSON.parse(raw) as T);
+  } catch {
+    return initial;
+  }
+});
+
+useEffect(() => {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* A failed write only affects persistence */
+  }
+}, [key, value]);
+
+return [value, setValue] as const;`,
+          ],
           solution: tested("ts", C_HOOK, {
             filename: "参考答案（实测通过）",
+            filenameEn: "Reference answer (passes in a real run)",
+            codeEn: C_HOOK_EN,
           }),
         },
       ],
@@ -2670,6 +3890,11 @@ return [value, setValue] as const;`,
             `// ✗ 用 state 存 DOM 节点
 const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 <audio ref={setAudio} />`,
+            {
+              codeEn: `// ✗ keeping the DOM node in state
+const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+<audio ref={setAudio} />`,
+            },
           ),
           why: (
             <>
@@ -2701,6 +3926,11 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
             `// ✗ 忘了 onEnded
 <audio ref={audioRef} src={src} />
 // 播完之后按钮还显示 "Pause"`,
+            {
+              codeEn: `// ✗ onEnded was forgotten
+<audio ref={audioRef} src={src} />
+// After playback ends the button still reads "Pause"`,
+            },
           ),
           why: (
             <>
@@ -2912,12 +4142,17 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
           code: [
             tested("ts", C_SLICE, {
               filename: "src/store/todosSlice.ts（实测 8/8 通过）",
+              filenameEn: "src/store/todosSlice.ts (8/8 in a real run)",
+              codeEn: C_SLICE_EN,
               collapsible: true,
             }),
             tested("ts", C_STORE, {
               filename: "src/store/index.ts",
+              codeEn: C_STORE_EN,
               explanation:
                 "configureStore 默认就装好了 thunk 和 DevTools —— 不用再手写 applyMiddleware(thunk) 和那段 window.__REDUX_DEVTOOLS_EXTENSION__ 判断。",
+              explanationEn:
+                "configureStore already sets up thunk and DevTools, so you no longer write applyMiddleware(thunk) by hand, nor that window.__REDUX_DEVTOOLS_EXTENSION__ check.",
             }),
           ],
         },
@@ -3010,6 +4245,8 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
           code: [
             tested("tsx", C_RTKAPP, {
               filename: "src/components/TodoApp/index.tsx（实测通过）",
+              filenameEn: "src/components/TodoApp/index.tsx (passes in a real run)",
+              codeEn: C_RTKAPP_EN,
               collapsible: true,
             }),
             demo(
@@ -3023,7 +4260,19 @@ const { visible, remaining } = useSelector((s) => ({
 // ✓ 拆开，各自比较各自的值
 const visible = useSelector(selectVisible);
 const remaining = useSelector(selectRemaining);`,
-              { filename: "useSelector 最常见的性能坑" },
+              {
+                filename: "useSelector 最常见的性能坑",
+                filenameEn: "The most common performance trap with useSelector",
+                codeEn: `// ✗ the selector returns a new object: every store change re-renders
+const { visible, remaining } = useSelector((s) => ({
+  visible: selectVisible(s),
+  remaining: selectRemaining(s),
+}));
+
+// ✓ split them, so each one is compared against its own value
+const visible = useSelector(selectVisible);
+const remaining = useSelector(selectRemaining);`,
+              },
             ),
           ],
         },
@@ -3174,6 +4423,8 @@ const remaining = useSelector(selectRemaining);`,
           code: [
             tested("tsx", C_RTKTEST, {
               filename: "src/Rtk.test.tsx（DrillLab 自出，本机跑过 8/8）",
+              filenameEn: "src/Rtk.test.tsx (written by DrillLab, 8/8 locally)",
+              codeEn: C_RTKTEST_EN,
               collapsible: true,
             }),
             tested(
@@ -3184,7 +4435,16 @@ $ npx vitest run
 
  Test Files  1 passed (1)
       Tests  8 passed (8)`,
-              { filename: "验证命令" },
+              {
+                filename: "验证命令",
+                filenameEn: "The command used to check it",
+                codeEn: `# This problem installs its own dependencies (the other problems here reuse the node_modules of react-notes-app)
+$ npm i @reduxjs/toolkit react-redux
+$ npx vitest run
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)`,
+              },
             ),
           ],
         },
@@ -3194,12 +4454,19 @@ $ npx vitest run
           kind: "fill-blank",
           id: "iv-coding-rtk-blank",
           title: "补全 createSlice",
+          titleEn: "Fill in createSlice",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 3 个空是这道题的加分点，
               第 4 个空写错会让 reducer 不纯。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The 3rd one is the bonus point of this question; get the 4th
+              one wrong and the reducer is no longer pure.
             </p>
           ),
           language: "ts",
@@ -3227,6 +4494,8 @@ $ npx vitest run
               n: 1,
               accept: ["createSlice"],
               hint: "Redux Toolkit 里一次生成 reducer 和 actions 的那个函数。",
+              hintEn:
+                "The Redux Toolkit function that produces the reducer and the actions in one go.",
               why: (
                 <>
                   <code>createSlice</code>。
@@ -3238,12 +4507,26 @@ $ npx vitest run
                   <strong>老写法要手写的三份样板全省了</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>createSlice</code>.
+                  <br />
+                  It produces <code>slice.reducer</code>, <code>slice.actions</code> and
+                  the action types (shaped like <code>&quot;todos/added&quot;</code>) at
+                  once —{" "}
+                  <strong>
+                    all three pieces of boilerplate the old style made you write by hand
+                  </strong>
+                  .
+                </>
+              ),
               width: 12,
             },
             {
               n: 2,
               accept: ["push"],
               hint: "在 createSlice 里可以直接「改」state。",
+              hintEn: "Inside createSlice you are allowed to change state directly.",
               why: (
                 <>
                   <code>push</code>。
@@ -3260,12 +4543,31 @@ $ npx vitest run
                   <code>[...arr, x]</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>push</code>.
+                  <br />
+                  <strong>This does not break the immutability rule</strong> —{" "}
+                  <code>createSlice</code> has Immer built in, so what you hold is a{" "}
+                  <strong>draft proxy</strong>. Your changes are recorded and a new object
+                  is produced; the old state is untouched.
+                  <br />
+                  <strong>
+                    But you only get this inside <code>createSlice</code> and{" "}
+                    <code>createReducer</code>
+                  </strong>
+                  . In a component or an ordinary function you still write{" "}
+                  <code>[...arr, x]</code>.
+                </>
+              ),
               width: 6,
             },
             {
               n: 3,
               accept: ["prepare"],
               hint: "在「创建 action」的时候做点事，而不是在 reducer 里做。",
+              hintEn:
+                "Do the work at the moment the action is created, not inside the reducer.",
               why: (
                 <>
                   <code>prepare</code>。
@@ -3283,12 +4585,28 @@ $ npx vitest run
                   <strong>时间旅行调试直接失效</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>prepare</code>.
+                  <br />
+                  It lets the action creator take only <code>text</code> while the payload
+                  carries a complete <code>Todo</code>.
+                  <br />
+                  <strong>Why it has to be this way</strong>: the id comes from a random
+                  generator, and <strong>a reducer has to be a pure function</strong>. Put{" "}
+                  <code>nanoid()</code> or <code>Date.now()</code> in it and it is no
+                  longer pure — the same state plus the same action gives a different
+                  result, and{" "}
+                  <strong>time-travel debugging stops working entirely</strong>.
+                </>
+              ),
               width: 9,
             },
             {
               n: 4,
               accept: ["nanoid", "crypto.randomUUID"],
               hint: "Redux Toolkit 自带的 id 生成器。",
+              hintEn: "The id generator that comes with Redux Toolkit.",
               why: (
                 <>
                   <code>nanoid</code>（RTK 直接导出，
@@ -3297,6 +4615,18 @@ $ npx vitest run
                   <code>crypto.randomUUID()</code> 也行。
                   <strong>关键是它在
                   <code>prepare</code> 里调，不在 reducer 里调。</strong>
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>nanoid</code> (RTK exports it directly, so there is no extra
+                  package to install).
+                  <br />
+                  <code>crypto.randomUUID()</code> works too.{" "}
+                  <strong>
+                    What matters is that it is called inside <code>prepare</code>, not
+                    inside the reducer.
+                  </strong>
                 </>
               ),
               width: 8,
@@ -3312,6 +4642,12 @@ $ npx vitest run
 added(state, action: PayloadAction<string>) {
   state.items.push({ id: nanoid(), text: action.payload, done: false });
 }`,
+            {
+              codeEn: `// ✗ building the id inside the reducer
+added(state, action: PayloadAction<string>) {
+  state.items.push({ id: nanoid(), text: action.payload, done: false });
+}`,
+            },
           ),
           why: (
             <>
@@ -3346,6 +4682,13 @@ const { visible, remaining } = useSelector((s) => ({
   visible: selectVisible(s),
   remaining: selectRemaining(s),
 }));`,
+            {
+              codeEn: `// ✗ the selector returns a new object
+const { visible, remaining } = useSelector((s) => ({
+  visible: selectVisible(s),
+  remaining: selectRemaining(s),
+}));`,
+            },
           ),
           why: (
             <>
@@ -3382,6 +4725,13 @@ export function addTodo(state: TodosState, todo: Todo) {
   state.items.push(todo);          // 这里没有草稿代理，是真的改了原对象
   return state;
 }`,
+            {
+              codeEn: `// ✗ carrying the Immer privilege outside createSlice
+export function addTodo(state: TodosState, todo: Todo) {
+  state.items.push(todo);          // there is no draft proxy here; this really changes the original object
+  return state;
+}`,
+            },
           ),
           why: (
             <>
@@ -3680,6 +5030,8 @@ export function addTodo(state: TodosState, todo: Todo) {
           code: [
             tested("tsx", C_KANBAN, {
               filename: "src/components/Kanban/index.tsx（实测通过）",
+              filenameEn: "src/components/Kanban/index.tsx (passes as measured)",
+              codeEn: C_KANBAN_EN,
               collapsible: true,
             }),
             demo(
@@ -3693,7 +5045,19 @@ const move = (from, to, id) => {
 
 // ✗ 没动也造新对象：白渲染一次
 if (from === to) return { ...board };`,
-              { filename: "两种错法" },
+              {
+                filename: "两种错法",
+                filenameEn: "Two wrong versions",
+                codeEn: `// ✗ two setState calls: risk of a half-updated state, and no way to unit-test it
+const move = (from, to, id) => {
+  const card = board[from].find((c) => c.id === id);
+  setBoard((b) => ({ ...b, [from]: b[from].filter((c) => c.id !== id) }));
+  setBoard((b) => ({ ...b, [to]: [...b[to], card] }));   // card came from the old board
+};
+
+// ✗ builds a new object even when nothing moved: one render for nothing
+if (from === to) return { ...board };`,
+              },
             ),
           ],
         },
@@ -3703,12 +5067,20 @@ if (from === to) return { ...board };`,
           kind: "code-completion",
           id: "iv-coding-kanban-write",
           title: "写出 moveCard",
+          titleEn: "Write moveCard",
           level: 3,
           generated: true,
           prompt: (
             <p>
               一次操作同时改两个数组，而且不许碰原 board。
               检查器会查两个边界和「未动的列复用引用」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              One action changes two arrays, and the board you were handed must not be
+              touched. The checker looks at the two edge cases and at whether untouched
+              columns keep their original reference.
             </p>
           ),
           language: "ts",
@@ -3733,6 +5105,26 @@ export function moveCard(
 ): Board {
 
 }`,
+          starterEn: `import type { Board, ColumnId } from "../../types/Card";
+// type Board = Record<ColumnId, Card[]>
+
+/**
+ * Move the card with cardId from column from to column to, and return a brand new board.
+ *
+ * Requirements:
+ *   · When from and to are the same, return it as it is (the same reference)
+ *   · When the card is not found, return it as it is
+ *   · Do not change the board you were handed (the caller deep-freezes it)
+ *   · Columns that were not touched keep their original array reference
+ */
+export function moveCard(
+  board: Board,
+  from: ColumnId,
+  to: ColumnId,
+  cardId: number,
+): Board {
+
+}`,
           requirements: [
             "from === to 时返回同一个引用，不造新对象",
             "找不到卡时返回同一个引用",
@@ -3740,16 +5132,23 @@ export function moveCard(
             "只改这两列，其余列复用原数组",
             "不许 push / splice / 直接赋值",
           ],
+          requirementsEn: [
+            "When from === to, return the same reference and build no new object",
+            "When the card is not found, return the same reference",
+            "Drop it from the source column with filter, and append to the target column with spread",
+            "Only those two columns change; the rest keep their original arrays",
+            "No push, no splice, no direct assignment",
+          ],
           checks: [
-            { label: "处理了 from === to 并原样返回", must: "from\\s*===?\\s*to[\\s\\S]{0,40}return\\s+board" },
-            { label: "先找卡片", must: "board\\s*\\[\\s*from\\s*\\]\\s*\\.find" },
-            { label: "找不到时原样返回", must: "(!card|card\\s*===?\\s*undefined)[\\s\\S]{0,40}return\\s+board" },
-            { label: "用展开保留其余列", must: "\\{\\s*\\.\\.\\.\\s*board\\s*," },
-            { label: "源列用 filter", must: "\\[\\s*from\\s*\\]\\s*:\\s*board\\s*\\[\\s*from\\s*\\]\\s*\\.filter" },
-            { label: "目标列用数组展开追加", must: "\\[\\s*to\\s*\\]\\s*:\\s*\\[\\s*\\.\\.\\.\\s*board\\s*\\[\\s*to\\s*\\]\\s*,\\s*card\\s*\\]" },
-            { label: "没有 push / splice / unshift", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
-            { label: "没有深拷贝", mustNot: "JSON\\.parse|structuredClone" },
-            { label: "没有直接给 board 的列赋值", mustNot: "board\\s*\\[[^\\]]+\\]\\s*=[^=]" },
+            { label: "处理了 from === to 并原样返回", labelEn: "Handles from === to and returns the board as it is", must: "from\\s*===?\\s*to[\\s\\S]{0,40}return\\s+board" },
+            { label: "先找卡片", labelEn: "Finds the card first", must: "board\\s*\\[\\s*from\\s*\\]\\s*\\.find" },
+            { label: "找不到时原样返回", labelEn: "Returns the board as it is when the card is not found", must: "(!card|card\\s*===?\\s*undefined)[\\s\\S]{0,40}return\\s+board" },
+            { label: "用展开保留其余列", labelEn: "Keeps the other columns with a spread", must: "\\{\\s*\\.\\.\\.\\s*board\\s*," },
+            { label: "源列用 filter", labelEn: "The source column uses filter", must: "\\[\\s*from\\s*\\]\\s*:\\s*board\\s*\\[\\s*from\\s*\\]\\s*\\.filter" },
+            { label: "目标列用数组展开追加", labelEn: "The target column appends with an array spread", must: "\\[\\s*to\\s*\\]\\s*:\\s*\\[\\s*\\.\\.\\.\\s*board\\s*\\[\\s*to\\s*\\]\\s*,\\s*card\\s*\\]" },
+            { label: "没有 push / splice / unshift", labelEn: "No push, splice or unshift", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
+            { label: "没有深拷贝", labelEn: "No deep copy", mustNot: "JSON\\.parse|structuredClone" },
+            { label: "没有直接给 board 的列赋值", labelEn: "No direct assignment to a column of board", mustNot: "board\\s*\\[[^\\]]+\\]\\s*=[^=]" },
           ],
           hints: [
             "先在纸上画三列，把要移动的那张卡圈出来。问自己：这次操作之后，哪几个数组的内容变了？没变的那些，需要造新数组吗？如果造了会有什么代价？",
@@ -3762,6 +5161,29 @@ return {
   ...board,
   [from]: board[from] 去掉这张卡,
   [to]: board[to] 后面加上这张卡,
+}`,
+            `if (from === to) return board;
+
+const card = board[from].find((c) => c.id === cardId);
+if (!card) return board;
+
+return {
+  ...board,
+  [from]: board[from].filter((c) => c.id !== cardId),
+  [to]: [...board[to], card],
+};`,
+          ],
+          hintsEn: [
+            "Draw three columns on paper first and circle the card you are moving. Then ask yourself: after this move, which arrays have different contents? For the ones that did not change, do you need new arrays? What would it cost if you built them anyway?",
+            "Return an object literal: start with ...board to carry every column over, then use the computed keys [from] and [to] to replace those two. Filter the card out of the source column, and write [...the old one, card] for the target. The two early returns at the top return board itself, not { ...board }.",
+            `if (from === to) return board
+const card = find the matching id in board[from]
+if (!card) return board
+
+return {
+  ...board,
+  [from]: board[from] without this card,
+  [to]: board[to] with this card appended,
 }`,
             `if (from === to) return board;
 
@@ -3795,8 +5217,28 @@ return {
 }`,
             {
               filename: "参考答案（实测通过，含深冻结与引用复用两条断言）",
+              filenameEn: "Reference answer (passes as measured, including the deep-freeze and reference-reuse assertions)",
+              codeEn: `export function moveCard(
+  board: Board,
+  from: ColumnId,
+  to: ColumnId,
+  cardId: number,
+): Board {
+  if (from === to) return board;                       // nothing moved, so return it as it is
+
+  const card = board[from].find((c) => c.id === cardId);
+  if (!card) return board;                             // not found either, so return it as it is
+
+  return {
+    ...board,
+    [from]: board[from].filter((c) => c.id !== cardId), // drop it from the source column
+    [to]: [...board[to], card],                        // append it to the target column
+  };
+}`,
               explanation:
                 "{ ...board } 只浅拷贝顶层，所以没被列出来的列复用的是原数组引用 —— 测试里用 expect(next.done).toBe(b.done) 验证了这一点。",
+              explanationEn:
+                "{ ...board } copies only the top level, so a column you did not list keeps the original array reference. The test checks this with expect(next.done).toBe(b.done).",
             },
           ),
         },

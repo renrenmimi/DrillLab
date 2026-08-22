@@ -237,6 +237,244 @@ log('Mutation.createOrder:', JSON.stringify(q5.data), '| errors:', JSON.stringif
 const q6 = await run('mutation { createOrder(userId:"789", items:[]) { id } }');
 log('createOrder empty items code:', q6.errors?.map(e => e.extensions.code));`;
 
+// English side of FULL_RESOLVERS. The line count must match it exactly, because
+// highlight is a line number. audit:code only pairs inline template literals,
+// so it cannot see a codeEn passed by constant like this one.
+const FULL_RESOLVERS_EN = `import DataLoader from 'dataloader';
+import { GraphQLError } from 'graphql';
+
+const ErrorCodes = {
+  ORDER_NOT_FOUND: 'ORDER_NOT_FOUND',
+  INVALID_INPUT: 'INVALID_INPUT',
+  INVENTORY_ERROR: 'INVENTORY_ERROR',
+  SERVICE_ERROR: 'SERVICE_ERROR'
+};
+
+function createShippingInfoLoader(shippingDataSource) {
+  return new DataLoader(async orderIds => {
+    console.log(\`[DataLoader] Batching \${orderIds.length} shipping info requests\`);
+    const shippingInfos = await Promise.all(
+      orderIds.map(id => shippingDataSource.getShippingInfo(id))
+    );
+    return shippingInfos;
+  });
+}
+
+function createOrderLoader(orderDataSource) {
+  return new DataLoader(async orderIds => {
+    console.log(\`[DataLoader] Batching \${orderIds.length} order requests\`);
+    // FIX (planted bug 1): the data source exposes getOrder(id), not getOrderById(id)
+    const orders = await Promise.all(
+      orderIds.map(id => orderDataSource.getOrder(id))
+    );
+    return orders;
+  });
+}
+
+export const resolvers = {
+  User: {
+    __resolveReference(user, { dataSources, loaders }) {
+      return { id: user.id };
+    },
+
+    async orders(user, _, { dataSources, loaders, correlationId }) {
+      try {
+        console.log(\`[\${correlationId}] Resolving User.orders for userId: \${user.id}\`);
+        const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+        return orders ?? [];                     // schema: [Order!]!
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        console.error(\`[\${correlationId}] Error resolving User.orders:\`, error.message);
+        throw new GraphQLError('Failed to fetch orders for user', {
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            originalError: error.message
+          }
+        });
+      }
+    }
+  },
+
+  Order: {
+    async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
+      try {
+        // Going through the loader is what turns N calls into 1
+        const shippingInfo = await loaders.shippingInfoLoader.load(parent.id);
+        return shippingInfo ?? null;             // schema: ShippingInfo (nullable)
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        console.error(\`[\${correlationId}] Error resolving Order.shippingInfo:\`, error.message);
+        throw new GraphQLError('Failed to fetch shipping info', {
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            orderId: parent.id,
+            originalError: error.message
+          }
+        });
+      }
+    }
+  },
+
+  Query: {
+    async order(_, { id }, { dataSources, loaders, correlationId }) {
+      try {
+        console.log(\`[\${correlationId}] Query.order id: \${id}\`);
+        const order = await loaders.orderLoader.load(id);
+
+        if (!order) {
+          throw new GraphQLError(\`Order not found: \${id}\`, {
+            extensions: {
+              code: ErrorCodes.ORDER_NOT_FOUND,
+              correlationId,
+              orderId: id
+            }
+          });
+        }
+        return order;
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        console.error(\`[\${correlationId}] Error in Query.order:\`, error.message);
+        throw new GraphQLError('Failed to fetch order', {
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            originalError: error.message
+          }
+        });
+      }
+    },
+
+    async orders(_, { userId }, { dataSources, correlationId }) {
+      try {
+        console.log(\`[\${correlationId}] Query.orders userId: \${userId}\`);
+
+        if (!userId) {
+          throw new GraphQLError('userId is required', {
+            extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+          });
+        }
+
+        const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
+        return orders ?? [];
+      } catch (error) {
+        if (error instanceof GraphQLError) throw error;
+        console.error(\`[\${correlationId}] Error in Query.orders:\`, error.message);
+        throw new GraphQLError('Failed to fetch orders', {
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            originalError: error.message
+          }
+        });
+      }
+    }
+  },
+
+  Mutation: {
+    async createOrder(_, { userId, items }, { dataSources, correlationId }) {
+      try {
+        console.log(\`[\${correlationId}] Creating order for userId: \${userId}\`);
+
+        if (!userId || !items || items.length === 0) {
+          throw new GraphQLError('Invalid order input', {
+            extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+          });
+        }
+
+        // OrderItemInput has only productId + quantity, while the data source
+        // computes item.price * item.quantity -> fetch the price first
+        const pricedItems = await Promise.all(
+          items.map(async item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: await dataSources.inventoryDataSource.getProductPrice(item.productId)
+          }))
+        );
+
+        // FIX (planted bug 2): in context it is orderDataSource, signature (userId, items)
+        const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);
+        console.log(\`[\${correlationId}] Order created: \${order.id}\`);
+
+        return order;
+      } catch (error) {
+        // FIX (planted bug 3): let an already structured error through untouched,
+        // otherwise INVALID_INPUT reaches the client as SERVICE_ERROR
+        if (error instanceof GraphQLError) throw error;
+
+        console.error(\`[\${correlationId}] Error creating order:\`, error.message);
+        throw new GraphQLError('Failed to create order', {
+          extensions: {
+            code: ErrorCodes.SERVICE_ERROR,
+            correlationId,
+            originalError: error.message
+          }
+        });
+      }
+    }
+  }
+};
+
+export { createShippingInfoLoader, createOrderLoader };`;
+
+// English side of VERIFY_SCRIPT. Same rule: the line count must match.
+const VERIFY_SCRIPT_EN = `// verify-schema.mjs — put it in node-subgraph/, run: node verify-schema.mjs
+import { buildSubgraphSchema } from '@apollo/subgraph';
+import { graphql } from 'graphql';
+import gql from 'graphql-tag';
+import { readFileSync } from 'fs';
+import { resolvers, createShippingInfoLoader, createOrderLoader } from './src/resolvers/orderResolvers.js';
+import { OrderDataSource, InventoryDataSource, ShippingDataSource } from './src/dataSources/orderDataSource.js';
+
+const typeDefs = gql(readFileSync('./src/schema.graphql', 'utf-8'));
+const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);
+
+function ctx() {
+  const orderDataSource = new OrderDataSource();
+  const inventoryDataSource = new InventoryDataSource();
+  const shippingDataSource = new ShippingDataSource();
+  return {
+    dataSources: { orderDataSource, inventoryDataSource, shippingDataSource },
+    loaders: {
+      shippingInfoLoader: createShippingInfoLoader(shippingDataSource),
+      orderLoader: createOrderLoader(orderDataSource),
+    },
+    correlationId: 'verify-1',
+  };
+}
+
+const run = (source, variableValues) =>
+  graphql({ schema, source, contextValue: ctx(), variableValues });
+
+const log = console.log;
+console.log = () => {};   // silence the resolver logs, show only results
+
+const sdl = await run('{ _service { sdl } }');
+log('SDL emitted:', !!sdl.data?._service?.sdl, '| errors:', sdl.errors?.length ?? 0);
+log('SDL has @key:', /@key\\(fields:\\s*"id"\\)/.test(sdl.data._service.sdl));
+
+const q1 = await run('{ orders(userId:"123") { id status totalAmount shippingInfo { status trackingNumber } } }');
+log('Query.orders + shippingInfo:', JSON.stringify(q1.data), '| errors:', JSON.stringify(q1.errors ?? []));
+
+const q2 = await run('{ order(id:"order-457") { id userId status } }');
+log('Query.order:', JSON.stringify(q2.data));
+
+const q3 = await run('{ order(id:"order-999") { id } }');
+log('Query.order not found code:', q3.errors?.map(e => e.extensions.code));
+
+const q4 = await run(
+  'query($r:[_Any!]!){ _entities(representations:$r) { ... on User { id orders { id status } } } }',
+  { r: [{ __typename: 'User', id: '123' }] }
+);
+log('_entities User.orders:', JSON.stringify(q4.data), '| errors:', JSON.stringify(q4.errors ?? []));
+
+const q5 = await run('mutation { createOrder(userId:"789", items:[{productId:"prod-789", quantity:2}]) { id totalAmount items { productId quantity price } } }');
+log('Mutation.createOrder:', JSON.stringify(q5.data), '| errors:', JSON.stringify(q5.errors ?? []));
+
+const q6 = await run('mutation { createOrder(userId:"789", items:[]) { id } }');
+log('createOrder empty items code:', q6.errors?.map(e => e.extensions.code));`;
+
 export const fedMastery: Module = {
   id: "fed-mastery",
   stage: "Federation · 第 6 部分",
@@ -276,6 +514,7 @@ export const fedMastery: Module = {
         {
           path: "graphql-federation-practice/node-subgraph/src/",
           role: "所有故障都基于这个项目的真实代码",
+          roleEn: "Every fault is based on the real code of this project",
         },
       ],
       concepts: [
@@ -740,6 +979,7 @@ export const fedMastery: Module = {
           code: [
             real("js", VERIFY_SCRIPT, {
               filename: "verify-schema.mjs",
+              codeEn: VERIFY_SCRIPT_EN,
               collapsible: true,
             }),
             real(
@@ -758,7 +998,10 @@ _entities User.orders: {"_entities":[{"id":"123","orders":[
 Mutation.createOrder: {"createOrder":{"id":"order-1785737900978","totalAmount":299.98,
   "items":[{"productId":"prod-789","quantity":2,"price":149.99}]}} | errors: []
 createOrder empty items code: [ 'INVALID_INPUT' ]`,
-              { filename: "审计时的真实输出" },
+              {
+                filename: "审计时的真实输出",
+                filenameEn: "The real output from the audit",
+              },
             ),
           ],
         },
@@ -768,12 +1011,21 @@ createOrder empty items code: [ 'INVALID_INPUT' ]`,
           kind: "debug",
           id: "g-lab-resolver-name",
           title: "故障 1 · resolver 写了，字段还是 null",
+          titleEn: "Fault 1 · the resolver is written, the field is still null",
           level: 3,
           prompt: (
             <p>
               你确信写了 <code>shippingInfo</code> 的实现，
               测试也不报错，但查询返回的 <code>shippingInfo</code> 是
               <code>null</code>。控制台里连你加的 log 都没打印。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You are sure you wrote an implementation for{" "}
+              <code>shippingInfo</code>, and no test reports anything, but the
+              query returns <code>shippingInfo</code> as <code>null</code>. Not
+              even the log line you added prints on the console.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -785,6 +1037,15 @@ errors: []
 
 # 你在 resolver 第一行加的 console.log('>>> shippingInfo called')
 # 一次都没打印。`,
+          errorOutputEn: `# No error at all.
+$ node verify-schema.mjs
+Query.orders + shippingInfo: {"orders":[
+  {"id":"order-456","status":"SHIPPED","shippingInfo":null},
+  {"id":"order-457","status":"DELIVERED","shippingInfo":null}]}
+errors: []
+
+# The console.log('>>> shippingInfo called') you added as the resolver's first line
+# never printed, not once.`,
           broken: demo(
             "js",
             `export const resolvers = {
@@ -802,24 +1063,43 @@ errors: []
 //   ...
 //   shippingInfo: ShippingInfo
 // }`,
-            { filename: "src/resolvers/orderResolvers.js", highlight: [3] },
+            {
+              filename: "src/resolvers/orderResolvers.js",
+              highlight: [3],
+              codeEn: `export const resolvers = {
+  Order: {
+    async shipping(parent, _, { loaders }) {          // ← the name
+      console.log('>>> shippingInfo called');
+      return loaders.shippingInfoLoader.load(parent.id);
+    }
+  },
+  ...
+};
+
+// For reference, schema.graphql says:
+// type Order {
+//   ...
+//   shippingInfo: ShippingInfo
+// }`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "非空违约 —— 忘了兜底" },
-              { id: "b", label: "名字不匹配 —— resolver 的键名和 schema 字段名不一致，这个 resolver 从未被调用" },
-              { id: "c", label: "DataLoader 用法错误" },
-              { id: "d", label: "context 键名错误" },
+              { id: "a", label: "非空违约 —— 忘了兜底", labelEn: "A non-null violation — the fallback is missing" },
+              { id: "b", label: "名字不匹配 —— resolver 的键名和 schema 字段名不一致，这个 resolver 从未被调用", labelEn: "A name mismatch — the resolver key does not match the schema field name, so this resolver is never called" },
+              { id: "c", label: "DataLoader 用法错误", labelEn: "Wrong DataLoader usage" },
+              { id: "d", label: "context 键名错误", labelEn: "A wrong key name in context" },
             ],
             answer: "b",
           },
           locate: {
             question: "该改哪里？",
+            questionEn: "What should be changed?",
             options: [
-              { id: "a", label: "把 resolver 的键名从 shipping 改成 shippingInfo" },
-              { id: "b", label: "把 schema 里的字段名改成 shipping" },
-              { id: "c", label: "在 resolver 里加 return null 兜底" },
-              { id: "d", label: "把它挪到 resolvers.Query 下面" },
+              { id: "a", label: "把 resolver 的键名从 shipping 改成 shippingInfo", labelEn: "Rename the resolver key from shipping to shippingInfo" },
+              { id: "b", label: "把 schema 里的字段名改成 shipping", labelEn: "Rename the schema field to shipping" },
+              { id: "c", label: "在 resolver 里加 return null 兜底", labelEn: "Add a return null fallback inside the resolver" },
+              { id: "d", label: "把它挪到 resolvers.Query 下面", labelEn: "Move it under resolvers.Query" },
             ],
             answer: "a",
           },
@@ -831,7 +1111,10 @@ errors: []
     return shippingInfo ?? null;
   }
 },`,
-            { filename: "改对之后" },
+            {
+              filename: "改对之后",
+              filenameEn: "After the fix",
+            },
           ),
           rootCause: (
             <>
@@ -863,17 +1146,64 @@ errors: []
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <strong>A resolver is just a key on an ordinary object.</strong>{" "}
+                When the executor resolves <code>Order.shippingInfo</code> it
+                looks for <code>resolvers.Order.shippingInfo</code>, does not
+                find it (you wrote <code>shipping</code>), and falls back to the{" "}
+                <strong>default resolver</strong>, which reads{" "}
+                <code>parent.shippingInfo</code>.
+              </p>
+              <p>
+                And the order object the data source returns{" "}
+                <strong>has no</strong> <code>shippingInfo</code> property,
+                because shipping lives in another service. So the value is{" "}
+                <code>undefined</code>, which serializes as <code>null</code>.{" "}
+                <strong>The field is nullable, so nothing reports an
+                error.</strong>
+              </p>
+              <p>
+                <strong>
+                  &ldquo;The log never printed&rdquo; is the decisive clue.
+                </strong>{" "}
+                It says the function was never called, which rules out a logic
+                mistake and points straight at a wrong name or wrong place.{" "}
+                <strong>
+                  When a field is silently null, the first thing to do is put a
+                  log on the first line of the resolver and confirm whether it
+                  runs at all.
+                </strong>
+              </p>
+              <p>
+                <strong>Why is option B, editing the schema, not allowed?</strong>{" "}
+                <code>schema.graphql</code> is PROVIDED, and renaming the field
+                would break the client contract and the tests.
+              </p>
+            </>
+          ),
           verify: "node verify-schema.mjs   # shippingInfo 应该有值，且日志出现 Batching",
+          verifyEn:
+            "node verify-schema.mjs   # shippingInfo should have a value, and the log should show Batching",
         },
         {
           kind: "debug",
           id: "g-lab-nonnull",
           title: "故障 2 · Cannot return null for non-nullable field",
+          titleEn: "Fault 2 · Cannot return null for non-nullable field",
           level: 2,
           prompt: (
             <p>
               查一个没有订单的用户，整个 <code>data</code> 变成了
               <code>null</code>，而且 errors 里有一条很长的消息。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You query a user who has no orders, the whole <code>data</code>{" "}
+              turns into <code>null</code>, and errors carries one very long
+              message.
             </p>
           ),
           errorOutput: `$ node verify-schema.mjs
@@ -886,6 +1216,16 @@ errors: [{
 }]
 
 # 更严重的情况：如果查询是嵌套的，整个 data 会变成 null`,
+          errorOutputEn: `$ node verify-schema.mjs
+Query.orders: {"orders":null}
+
+errors: [{
+  "message": "Cannot return null for non-nullable field Query.orders.",
+  "path": ["orders"],
+  "extensions": { "code": "INTERNAL_SERVER_ERROR" }
+}]
+
+# Worse case: if the query is nested, the whole data object turns into null`,
           broken: demo(
             "js",
             `async orders(_, { userId }, { dataSources, correlationId }) {
@@ -897,23 +1237,49 @@ errors: [{
 // type Query {
 //   orders(userId: ID!): [Order!]!   ← 双重非空
 // }`,
-            { filename: "src/resolvers/orderResolvers.js", highlight: [3] },
+            {
+              filename: "src/resolvers/orderResolvers.js",
+              highlight: [3],
+              codeEn: `async orders(_, { userId }, { dataSources, correlationId }) {
+  const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
+  return orders;                     // the data source may return undefined
+}
+
+// For reference, schema.graphql says:
+// type Query {
+//   orders(userId: ID!): [Order!]!   ← non-null twice
+// }`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "非空违约 —— schema 声明了非空，resolver 返回了 null/undefined" },
-              { id: "b", label: "名字不匹配" },
-              { id: "c", label: "composition 失败" },
-              { id: "d", label: "跨模块契约错误" },
+              {
+                id: "a",
+                label: "非空违约 —— schema 声明了非空，resolver 返回了 null/undefined",
+                labelEn:
+                  "A non-null violation — the schema declares non-null and the resolver returned null/undefined",
+              },
+              { id: "b", label: "名字不匹配", labelEn: "A name mismatch" },
+              { id: "c", label: "composition 失败", labelEn: "A composition failure" },
+              {
+                id: "d",
+                label: "跨模块契约错误",
+                labelEn: "A broken contract between modules",
+              },
             ],
             answer: "a",
           },
           locate: {
             question: "该怎么改？",
+            questionEn: "What should be changed?",
             options: [
               { id: "a", label: "return orders ?? [];" },
-              { id: "b", label: "把 schema 改成 orders(userId: ID!): [Order!]" },
-              { id: "c", label: "在外面套 try/catch" },
+              {
+                id: "b",
+                label: "把 schema 改成 orders(userId: ID!): [Order!]",
+                labelEn: "Change the schema to orders(userId: ID!): [Order!]",
+              },
+              { id: "c", label: "在外面套 try/catch", labelEn: "Wrap it in try/catch" },
               { id: "d", label: "return orders || null;" },
             ],
             answer: "a",
@@ -922,7 +1288,12 @@ errors: [{
             "js",
             `const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
 return orders ?? [];        // 双重非空 -> 「没有」用空数组表达`,
-            { filename: "改对之后" },
+            {
+              filename: "改对之后",
+              filenameEn: "After the fix",
+              codeEn: `const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
+return orders ?? [];        // non-null twice -> say "none" with an empty array`,
+            },
           ),
           rootCause: (
             <>
@@ -958,17 +1329,71 @@ return orders ?? [];        // 双重非空 -> 「没有」用空数组表达`,
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>[Order!]!</code> is non-null twice:{" "}
+                <strong>
+                  the list itself cannot be null, and neither can an element.
+                </strong>{" "}
+                But <strong>an empty array is valid</strong> — the correct way to
+                say &ldquo;this user has no orders&rdquo; is <code>[]</code>.
+              </p>
+              <p>
+                <strong>Why does the whole data turn into null?</strong> When a
+                non-null field returns null, the GraphQL executor{" "}
+                <strong>bubbles the null upward</strong>: it sets this field to
+                null, and if the parent field is also non-null the parent turns
+                to null as well, all the way up until it reaches a nullable
+                ancestor, or the root, where <code>data</code> becomes null.{" "}
+                <strong>
+                  So one resolver with no fallback can leave the client with no
+                  data at all.
+                </strong>
+              </p>
+              <p>
+                <strong>Option B, making the schema nullable,</strong> is the
+                classic fix that only makes the error message go away. The schema
+                is PROVIDED and it is the contract with the client, so editing it
+                pushes the problem onto every caller, who must all check for null
+                from now on.{" "}
+                <strong>
+                  When the schema says non-null, it is asking you to guarantee
+                  non-null.
+                </strong>
+              </p>
+              <p>
+                Note that the data source in this project is written with{" "}
+                <code>filter</code>, so it actually returns <code>[]</code>{" "}
+                rather than undefined, which means this bug{" "}
+                <strong>does not really fire</strong> in the current
+                implementation. But you should not depend on an implementation
+                detail of the data source —{" "}
+                <strong>write to the contract in the schema.</strong>
+              </p>
+            </>
+          ),
           verify: "node verify-schema.mjs   # orders 应该是 []，errors 为空",
+          verifyEn:
+            "node verify-schema.mjs   # orders should be [], and errors should be empty",
         },
         {
           kind: "debug",
           id: "g-lab-loader-order",
           title: "故障 3 · A 拿到了 B 的数据",
+          titleEn: "Fault 3 · A receives B's data",
           level: 3,
           prompt: (
             <p>
               查两个订单的物流，返回的数据<strong>对上了错的订单</strong>。
               没有任何报错。这是 DataLoader 最阴险的一类误用。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You query the shipping info for two orders and the data comes back{" "}
+              <strong>attached to the wrong order</strong>. Nothing reports an
+              error. This is the hardest kind of DataLoader misuse to notice.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -983,6 +1408,18 @@ return orders ?? [];        // 双重非空 -> 「没有」用空数组表达`,
 #   order-457 -> null
 
 # 日志：[DataLoader] Batching 2 shipping info requests   ← 合并是生效的`,
+          errorOutputEn: `# No error at all.
+# Query: { orders(userId:"123") { id shippingInfo { trackingNumber } } }
+#
+# Expected:
+#   order-456 -> TRACK123456
+#   order-457 -> TRACK123457
+#
+# Actual:
+#   order-456 -> TRACK123457     ← got the other one's number!
+#   order-457 -> null
+
+# Log: [DataLoader] Batching 2 shipping info requests   ← the batching does work`,
           broken: demo(
             "js",
             `function createShippingInfoLoader(shippingDataSource) {
@@ -997,24 +1434,58 @@ return orders ?? [];        // 双重非空 -> 「没有」用空数组表达`,
     return all.filter(info => info !== null);
   });
 }`,
-            { filename: "src/resolvers/orderResolvers.js", highlight: [10] },
+            {
+              filename: "src/resolvers/orderResolvers.js",
+              highlight: [10],
+              codeEn: `function createShippingInfoLoader(shippingDataSource) {
+  return new DataLoader(async orderIds => {
+    console.log(\`[DataLoader] Batching \${orderIds.length} shipping info requests\`);
+
+    const all = await Promise.all(
+      orderIds.map(id => shippingDataSource.getShippingInfo(id))
+    );
+
+    // "drop the ones with no shipping info" — this looks reasonable
+    return all.filter(info => info !== null);
+  });
+}`,
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "名字不匹配" },
-              { id: "b", label: "DataLoader 契约违约 —— batch 函数返回的数组长度/顺序必须与 keys 一一对应" },
-              { id: "c", label: "非空违约" },
-              { id: "d", label: "异步错误 —— 少了 await" },
+              { id: "a", label: "名字不匹配", labelEn: "A name mismatch" },
+              {
+                id: "b",
+                label: "DataLoader 契约违约 —— batch 函数返回的数组长度/顺序必须与 keys 一一对应",
+                labelEn:
+                  "A broken DataLoader contract — the array the batch function returns must match keys in both length and order",
+              },
+              { id: "c", label: "非空违约", labelEn: "A non-null violation" },
+              {
+                id: "d",
+                label: "异步错误 —— 少了 await",
+                labelEn: "An async mistake — a missing await",
+              },
             ],
             answer: "b",
           },
           locate: {
             question: "第 10 行错在哪？",
+            questionEn: "What is wrong on line 10?",
             options: [
-              { id: "a", label: "不能 filter —— 会改变长度，导致结果按下标错位分发" },
-              { id: "b", label: "应该改成 all.filter(info => info)" },
-              { id: "c", label: "应该改成 all.sort()" },
-              { id: "d", label: "应该在 filter 后面加 .reverse()" },
+              {
+                id: "a",
+                label: "不能 filter —— 会改变长度，导致结果按下标错位分发",
+                labelEn:
+                  "filter is not allowed here — it changes the length, so results are handed out to the wrong index",
+              },
+              { id: "b", label: "应该改成 all.filter(info => info)", labelEn: "It should be all.filter(info => info)" },
+              { id: "c", label: "应该改成 all.sort()", labelEn: "It should be all.sort()" },
+              {
+                id: "d",
+                label: "应该在 filter 后面加 .reverse()",
+                labelEn: "It should have .reverse() after filter",
+              },
             ],
             answer: "a",
           },
@@ -1026,7 +1497,16 @@ return orders ?? [];        // 双重非空 -> 「没有」用空数组表达`,
 
 // 长度与顺序必须和 orderIds 一一对应，「没有」用 null 占位
 return shippingInfos;`,
-            { filename: "改对之后（这也是项目里原本正确的写法）" },
+            {
+              filename: "改对之后（这也是项目里原本正确的写法）",
+              filenameEn: "After the fix (this is also what the project had originally)",
+              codeEn: `const shippingInfos = await Promise.all(
+  orderIds.map(id => shippingDataSource.getShippingInfo(id))
+);
+
+// Length and order must match orderIds one to one; use null to hold "none"
+return shippingInfos;`,
+            },
           ),
           rootCause: (
             <>
@@ -1069,18 +1549,71 @@ return shippingInfos;`,
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <strong>DataLoader hands out results by index</strong>:{" "}
+                <code>results[0]</code> goes to <code>keys[0]</code>, and{" "}
+                <code>results[1]</code> goes to <code>keys[1]</code>.
+              </p>
+              <p>
+                <code>filter</code> turns <code>[info456, null]</code> into{" "}
+                <code>[info456]</code> if 457 has no shipping info — or, in this
+                example, turns <code>[null, info457]</code> into{" "}
+                <code>[info457]</code>, so <code>info457</code> is handed to{" "}
+                <code>orderIds[0]</code>, which is order-456, while order-457
+                reads past the end of the array and gets{" "}
+                <code>undefined</code>.
+              </p>
+              <p>
+                <strong>Why is this the hardest kind to notice?</strong> Because{" "}
+                <strong>nothing reports an error; only the data is wrong.</strong>{" "}
+                And &ldquo;drop the empty values&rdquo; looks like a perfectly
+                reasonable thing to do. Elsewhere it is reasonable. Inside a batch
+                function it is fatal.
+              </p>
+              <p>
+                <strong>
+                  Two hard rules for a batch function; memorize them:
+                </strong>
+                <br />① the length of the returned array === the length of keys;
+                <br />② result number i belongs to key number i.
+                <br />
+                Use <code>null</code> to hold the place of &ldquo;none&rdquo;, and
+                an <code>Error</code> object to hold the place of &ldquo;this one
+                failed&rdquo;. <strong>Never skip an entry.</strong>
+              </p>
+              <p>
+                In a real system, when you call a bulk endpoint (
+                <code>WHERE id IN (...)</code>), the database does not promise an
+                order and does not return the missing rows at all, so you have to
+                reorder with a Map:{" "}
+                <code>ids.map(id =&gt; byId.get(id) ?? null)</code>.
+              </p>
+            </>
+          ),
           verify:
             "node verify-schema.mjs   # order-456 应该对上 TRACK123456，457 对上 TRACK123457",
+          verifyEn:
+            "node verify-schema.mjs   # order-456 should match TRACK123456, and 457 should match TRACK123457",
         },
         {
           kind: "debug",
           id: "g-lab-java-500",
           title: "故障 4 · PATCH 传了小写状态，返回 500",
+          titleEn: "Fault 4 · PATCH sends a lowercase status and gets a 500",
           level: 2,
           prompt: (
             <p>
               Java 那边。<code>mvn test</code> 全过，
               但客户端传小写的 <code>shipped</code> 时服务返回 500。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              This one is on the Java side. <code>mvn test</code> passes
+              everything, but the service returns 500 when the client sends the
+              lowercase <code>shipped</code>.
             </p>
           ),
           errorOutput: `$ curl -i -X PATCH localhost:8080/api/orders/1/status \\
@@ -1097,6 +1630,20 @@ java.lang.IllegalArgumentException: No enum constant
     at c.t.orders.controller.OrderController.updateOrderStatus(OrderController.java:71)
 
 # mvn test：Tests run: 5, Failures: 0   ← 测试全过`,
+          errorOutputEn: `$ curl -i -X PATCH localhost:8080/api/orders/1/status \\
+    -H 'Content-Type: application/json' -d '{"status":"shipped"}'
+
+HTTP/1.1 500
+{"timestamp":"...","status":500,"error":"Internal Server Error"}
+
+# Server log:
+java.lang.IllegalArgumentException: No enum constant
+  com.techflow.orders.model.OrderStatus.shipped
+    at java.base/java.lang.Enum.valueOf(Enum.java:293)
+    at com.techflow.orders.model.OrderStatus.valueOf(OrderStatus.java:3)
+    at c.t.orders.controller.OrderController.updateOrderStatus(OrderController.java:71)
+
+# mvn test: Tests run: 5, Failures: 0   ← every test passes`,
           broken: demo(
             "java",
             `@PatchMapping("/api/orders/{id}/status")
@@ -1110,20 +1657,44 @@ public ResponseEntity<Order> updateOrderStatus(
           ),
           classify: {
             options: [
-              { id: "a", label: "状态码语义错误 —— 客户端输入问题被报成了服务器错误" },
-              { id: "b", label: "依赖注入错误" },
-              { id: "c", label: "路由错误" },
-              { id: "d", label: "全局异常处理器配置错误" },
+              {
+                id: "a",
+                label: "状态码语义错误 —— 客户端输入问题被报成了服务器错误",
+                labelEn:
+                  "Wrong status code meaning — a client input problem is reported as a server error",
+              },
+              { id: "b", label: "依赖注入错误", labelEn: "A dependency injection mistake" },
+              { id: "c", label: "路由错误", labelEn: "A routing mistake" },
+              {
+                id: "d",
+                label: "全局异常处理器配置错误",
+                labelEn: "A misconfigured global exception handler",
+              },
             ],
             answer: "a",
           },
           locate: {
             question: "第 5 行需要补什么？",
+            questionEn: "What needs to be added on line 5?",
             options: [
-              { id: "a", label: "toUpperCase() + try/catch 转成 400，另外还要挡 null" },
-              { id: "b", label: "把 Map 换成 String" },
-              { id: "c", label: "给 GlobalExceptionHandler 加一个 @ExceptionHandler(Exception.class)" },
-              { id: "d", label: "把 @RequestBody 改成 @RequestParam" },
+              {
+                id: "a",
+                label: "toUpperCase() + try/catch 转成 400，另外还要挡 null",
+                labelEn:
+                  "toUpperCase() plus try/catch to turn it into a 400, and also guard against null",
+              },
+              { id: "b", label: "把 Map 换成 String", labelEn: "Replace Map with String" },
+              {
+                id: "c",
+                label: "给 GlobalExceptionHandler 加一个 @ExceptionHandler(Exception.class)",
+                labelEn:
+                  "Add an @ExceptionHandler(Exception.class) to GlobalExceptionHandler",
+              },
+              {
+                id: "d",
+                label: "把 @RequestBody 改成 @RequestParam",
+                labelEn: "Change @RequestBody to @RequestParam",
+              },
             ],
             answer: "a",
           },
@@ -1142,7 +1713,7 @@ try {
 }
 
 return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
-            { filename: "改对之后" },
+            { filename: "改对之后", filenameEn: "After the fix" },
           ),
           rootCause: (
             <>
@@ -1180,8 +1751,57 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>Enum.valueOf</code> is{" "}
+                <strong>case sensitive</strong>, and it throws{" "}
+                <code>IllegalArgumentException</code> when it cannot find the
+                constant. <code>GlobalExceptionHandler</code> only handles{" "}
+                <code>EntityNotFoundException</code> and{" "}
+                <code>MethodArgumentNotValidException</code>, so this exception
+                travels all the way up to the default Spring handler, which
+                answers <strong>500</strong>.
+              </p>
+              <p>
+                <strong>Why does this matter?</strong> A 500 means &ldquo;the
+                server failed internally, it is not your fault, please try
+                again&rdquo;. The client will retry, and the retry will never
+                succeed.{" "}
+                <strong>
+                  The correct signal is 400: &ldquo;your input is wrong, fix it
+                  and come back&rdquo;.
+                </strong>
+              </p>
+              <p>
+                <strong>Why is option C a bad idea?</strong> Adding a catch-all{" "}
+                <code>@ExceptionHandler(Exception.class)</code> turns{" "}
+                <strong>every</strong> unexpected exception into the same status
+                code, which hides real server failures.{" "}
+                <strong>
+                  Handle the problem at the point closest to it, not in an outer
+                  layer that catches everything.
+                </strong>
+              </p>
+              <p>
+                Also note that <code>null</code> needs a guard: when the body is{" "}
+                <code>{"{}"}</code>, <code>get</code> returns null,{" "}
+                <code>valueOf(null)</code> throws an NPE, and that is a 500 as
+                well.
+              </p>
+              <p>
+                <strong>Why do the tests miss this?</strong> The tests only send
+                the valid uppercase <code>SHIPPED</code>.{" "}
+                <strong>
+                  One more problem that only a manual curl can find.
+                </strong>
+              </p>
+            </>
+          ),
           verify:
             "curl -i -X PATCH localhost:8080/api/orders/1/status -H 'Content-Type: application/json' -d '{\"status\":\"shipped\"}'   # 应该 200（大小写宽容）；传 FLYING 应该 400",
+          verifyEn:
+            "curl -i -X PATCH localhost:8080/api/orders/1/status -H 'Content-Type: application/json' -d '{\"status\":\"shipped\"}'   # should be 200 (case is accepted either way); sending FLYING should be 400",
         },
       ],
       transfer: [
@@ -1267,6 +1887,7 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
         {
           path: "graphql-federation-practice/",
           role: "参考项目 —— 做完之后再对照，不要提前看",
+          roleEn: "The reference project — compare against it after you finish; do not look early",
         },
       ],
       concepts: [
@@ -1426,6 +2047,7 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
           kind: "from-scratch",
           id: "g-rebuild-subgraph",
           title: "从零重建 Task 1 · Orders subgraph",
+          titleEn: "Rebuild Task 1 · the Orders subgraph",
           level: 4,
           prompt: (
             <p>
@@ -1433,6 +2055,17 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
               实现四个 resolver 加一个 mutation，让 10 个测试全过，
               并且 <code>_service</code> 和 <code>_entities</code> 都能正常工作。
               <strong>不要打开源项目的 orderResolvers.js。</strong>
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Starting from an empty directory, build an Apollo Federation
+              subgraph. Write four resolvers plus one mutation, get all 10 tests
+              passing, and make both <code>_service</code> and{" "}
+              <code>_entities</code> work.{" "}
+              <strong>
+                Do not open orderResolvers.js from the source project.
+              </strong>
             </p>
           ),
           requirements: [
@@ -1450,41 +2083,76 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
             "所有 resolver 都用 try/catch，catch 第一行放行已有的 GraphQLError",
             "所有日志和错误 extensions 里带上 correlationId",
           ],
+          requirementsEn: [
+            "Start a subgraph with @apollo/server + @apollo/subgraph, listening on 4000",
+            "Read the schema from a .graphql file and assemble it with buildSubgraphSchema",
+            "Build the context per request: three data sources, two DataLoaders, one correlationId",
+            "Take correlationId from the x-correlation-id request header, and generate one when it is absent",
+            "Write User.__resolveReference: turn the representation into a local object",
+            "Write User.orders: read orders by user.id; the type is [Order!]!, so never return null",
+            "Write Order.shippingInfo: it must go through the DataLoader to prevent N+1; it is nullable, so return null when nothing is found",
+            "Write Query.order: go through the DataLoader; when nothing is found, throw a GraphQLError carrying ORDER_NOT_FOUND",
+            "Write Query.orders: validate userId; the type is [Order!]!, so fall back to []",
+            "Write Mutation.createOrder: look up product prices to complete items first, then create; throw INVALID_INPUT when validation fails",
+            "The batch function of both DataLoaders: the array it returns must match keys in both length and order",
+            "Wrap every resolver in try/catch, and let an existing GraphQLError pass through on the first line of catch",
+            "Carry correlationId in every log line and in the extensions of every error",
+          ],
           fileList: [
             {
               path: "package.json",
               role: '自己写：type: module、start / test script（test 要带 NODE_OPTIONS=--experimental-vm-modules）、依赖 @apollo/server @apollo/subgraph graphql graphql-tag dataloader，devDep jest @jest/globals，以及内嵌 jest 配置',
+              roleEn:
+                'You write it: type: module, the start / test scripts (test needs NODE_OPTIONS=--experimental-vm-modules), the dependencies @apollo/server @apollo/subgraph graphql graphql-tag dataloader, the devDependencies jest @jest/globals, and an inline jest config',
             },
             {
               path: "src/schema.graphql",
               role: "★ 抄源项目的（这是题目）：User entity + Order/OrderItem/ShippingInfo + enum + Query/Mutation + input",
+              roleEn:
+                "★ Copy it from the source project (this is the question): the User entity + Order/OrderItem/ShippingInfo + enum + Query/Mutation + input",
             },
             {
               path: "src/dataSources/orderDataSource.js",
               role: "★ 抄源项目的（这是题目）：三个 mock 数据源类。注意 OrderDataSource 只有 getOrder / getOrdersByUserId / createOrder",
+              roleEn:
+                "★ Copy it from the source project (this is the question): three mock data source classes. Note that OrderDataSource has only getOrder / getOrdersByUserId / createOrder",
             },
             {
               path: "src/index.js",
               role: "★ 自己写：读 schema、buildSubgraphSchema、ApolloServer + formatError、startStandaloneServer、每请求造 context",
+              roleEn:
+                "★ You write it: read the schema, buildSubgraphSchema, ApolloServer + formatError, startStandaloneServer, and build the context per request",
             },
             {
               path: "src/resolvers/orderResolvers.js",
               role: "★★ 自己写：两个 loader 工厂 + resolvers（User / Order / Query / Mutation）+ ErrorCodes",
+              roleEn:
+                "★★ You write it: two loader factories + the resolvers (User / Order / Query / Mutation) + ErrorCodes",
             },
             {
               path: "__tests__/resolvers.test.js",
               role: "★ 抄源项目的（这是判卷器）：10 个测试，beforeEach 里重建 dataSources 与 loaders",
+              roleEn:
+                "★ Copy it from the source project (this is what grades you): 10 tests, with dataSources and loaders rebuilt in beforeEach",
             },
             {
               path: "verify-schema.mjs",
               role: "★ 自己写：进程内查 _service、普通查询、_entities、mutation",
+              roleEn:
+                "★ You write it: query _service in process, then a normal query, then _entities, then the mutation",
             },
           ],
           commands: [
-            { cmd: "npm install", expect: "依赖装好，出现 node_modules 与 package-lock.json" },
+            {
+              cmd: "npm install",
+              expect: "依赖装好，出现 node_modules 与 package-lock.json",
+              expectEn:
+                "The dependencies install, and node_modules and package-lock.json appear",
+            },
             {
               cmd: "npm start",
               expect: "打印 Subgraph ready at http://0.0.0.0:4000/",
+              expectEn: "It prints Subgraph ready at http://0.0.0.0:4000/",
             },
             {
               cmd: "npm test",
@@ -1494,6 +2162,8 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
               cmd: "node verify-schema.mjs",
               expect:
                 "SDL 出得来且含 @key；orders + shippingInfo 有值；order-999 返回 ORDER_NOT_FOUND；_entities 能拿到 orders；createOrder 的 items[0].price 有值且 totalAmount > 0；空 items 返回 INVALID_INPUT",
+              expectEn:
+                "The SDL comes out and contains @key; orders + shippingInfo have values; order-999 returns ORDER_NOT_FOUND; _entities can read orders; items[0].price from createOrder has a value and totalAmount > 0; empty items returns INVALID_INPUT",
             },
           ],
           hints: [
@@ -1542,9 +2212,58 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
 // ③ 每个 catch 的第一行
 if (error instanceof GraphQLError) throw error;`,
           ],
+          hintsEn: [
+            "Do not think about resolvers yet. Ask three questions first: how does the schema get into the server? Who creates the things in context, and when? Why must a DataLoader be created fresh for every request? Once those three are clear, index.js writes itself.",
+            "You need four groups of resolvers: User (__resolveReference + orders), Order (shippingInfo), Query (order + orders), and Mutation (createOrder). Before writing them, do two things: ① copy out a table of the data source method names; ② mark down whether each schema field is nullable. Those two tables stop most of the mistakes. Also note that OrderItemInput has no price, but the data source needs it to compute the total.",
+            `index.js:
+  read schema.graphql -> gql() -> buildSubgraphSchema([{ typeDefs, resolvers }])
+  new ApolloServer({ schema, formatError })
+  startStandaloneServer(server, { listen, context: async ({ req }) => {
+    correlationId = req.headers['x-correlation-id'] || generate one
+    new the three data sources; use them to new the two loaders
+    return { dataSources: {...}, loaders: {...}, correlationId }
+  }})
+
+orderResolvers.js:
+  createXxxLoader(ds) = new DataLoader(async keys => {
+    return await Promise.all(keys.map(k => ds.someMethod(k)))   // length and order must line up
+  })
+
+  User.__resolveReference(user) -> { id: user.id }
+  User.orders(user, _, ctx)     -> ds.orderDataSource.getOrdersByUserId(user.id) ?? []
+  Order.shippingInfo(parent,…)  -> loaders.shippingInfoLoader.load(parent.id) ?? null
+  Query.order(_, {id}, ctx)     -> loaders.orderLoader.load(id); if absent, throw ORDER_NOT_FOUND
+  Query.orders(_, {userId}, ctx)-> validate userId; read from ds; ?? []
+  Mutation.createOrder          -> validate; fill in price with getProductPrice; ds.createOrder(userId, pricedItems)
+
+  around every resolver: try { … } catch (e) {
+    if (e instanceof GraphQLError) throw e;
+    throw new GraphQLError(msg, { extensions: { code, correlationId, originalError } });
+  }`,
+            `// The two places that go wrong most often, given to you directly:
+
+// ① the method name inside the loader (there is no getOrderById on the data source)
+orderIds.map(id => orderDataSource.getOrder(id))
+
+// ② the mutation must fill in price first, the key is orderDataSource, and the signature takes two positional arguments
+const pricedItems = await Promise.all(
+  items.map(async item => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    price: await dataSources.inventoryDataSource.getProductPrice(item.productId)
+  }))
+);
+const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);
+
+// ③ the first line of every catch
+if (error instanceof GraphQLError) throw error;`,
+          ],
           solution: [
             real("js", FULL_RESOLVERS, {
               filename: "src/resolvers/orderResolvers.js（完整参考答案，实测 10/10 通过）",
+              filenameEn:
+                "src/resolvers/orderResolvers.js (the full reference answer, measured 10/10 passing)",
+              codeEn: FULL_RESOLVERS_EN,
               collapsible: true,
             }),
             real(
@@ -1577,6 +2296,7 @@ if (error instanceof GraphQLError) throw error;`,
 }`,
               {
                 filename: "package.json（与源项目一致）",
+                filenameEn: "package.json (identical to the source project)",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/package.json",
                 collapsible: true,
@@ -1584,6 +2304,8 @@ if (error instanceof GraphQLError) throw error;`,
             ),
             real("js", VERIFY_SCRIPT, {
               filename: "verify-schema.mjs（自己写的验证脚本）",
+              filenameEn: "verify-schema.mjs (the check script you write yourself)",
+              codeEn: VERIFY_SCRIPT_EN,
               collapsible: true,
             }),
           ],
@@ -1592,12 +2314,23 @@ if (error instanceof GraphQLError) throw error;`,
           kind: "from-scratch",
           id: "g-rebuild-controller",
           title: "从零重建 Task 2 · Spring Boot 控制器",
+          titleEn: "Rebuild Task 2 · the Spring Boot controller",
           level: 4,
           prompt: (
             <p>
               给你 <code>OrderService</code> 的方法签名和五个测试。
               自己搭一个 Spring Boot 项目，写出六个端点。
               <strong>不要打开源项目的 OrderController.java。</strong>
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You are given the method signatures of <code>OrderService</code>{" "}
+              and five tests. Set up a Spring Boot project yourself and write six
+              endpoints.{" "}
+              <strong>
+                Do not open OrderController.java from the source project.
+              </strong>
             </p>
           ),
           requirements: [
@@ -1613,27 +2346,44 @@ if (error instanceof GraphQLError) throw error;`,
             "自己写一个 CorrelationIdFilter：读 X-Correlation-ID 头，没有就生成 UUID，放进 MDC，finally 里清理",
             "自己写 GlobalExceptionHandler：EntityNotFoundException → 404，MethodArgumentNotValidException → 400",
           ],
+          requirementsEn: [
+            "Spring Boot 3.3 + Java 17, with the web / validation / actuator / test dependencies",
+            "One @RestController, with OrderService injected through the constructor",
+            "GET /api/orders: filter by user when ?userId= is given, return everything when it is not; 200",
+            "GET /api/orders/{id}: 200; when nothing is found, the global exception handler answers 404 (do not catch it in the controller)",
+            "GET /api/orders/user/{userId}: 200",
+            "POST /api/orders: validate the request body with @Valid; on success return 201 Created",
+            'PATCH /api/orders/{id}/status: the body is {"status":"..."}; convert it to OrderStatus; a missing or invalid value returns 400; on success 200',
+            "DELETE /api/orders/{id}: 204 No Content",
+            "All six endpoints log through SLF4J and carry the correlationId from MDC",
+            "Write your own CorrelationIdFilter: read the X-Correlation-ID header, generate a UUID when it is absent, put it in MDC, and clear it in finally",
+            "Write your own GlobalExceptionHandler: EntityNotFoundException → 404, MethodArgumentNotValidException → 400",
+          ],
           fileList: [
             {
               path: "pom.xml",
               role: "parent 用 spring-boot-starter-parent 3.3.2，java.version 17，四个依赖 + spring-boot-maven-plugin",
+              roleEn:
+                "The parent is spring-boot-starter-parent 3.3.2, java.version is 17, four dependencies + spring-boot-maven-plugin",
             },
-            { path: "src/main/resources/application.properties", role: "server.port=8080 就够（顺便按书面题的结论收紧 actuator）" },
+            { path: "src/main/resources/application.properties", role: "server.port=8080 就够（顺便按书面题的结论收紧 actuator）", roleEn: "server.port=8080 is enough (and tighten actuator while you are here, following the written question)" },
             { path: "src/main/java/.../OrderServiceApplication.java", role: "@SpringBootApplication + main" },
-            { path: "src/main/java/.../model/Order.java、OrderItem.java、OrderStatus.java", role: "★ 抄源项目的（这是题目）" },
-            { path: "src/main/java/.../dto/CreateOrderRequest.java、OrderItemRequest.java", role: "★ 抄源项目的：带 @NotBlank / @NotEmpty / @Min / @Valid" },
-            { path: "src/main/java/.../repository/OrderRepository.java、InMemoryOrderRepository.java", role: "★ 抄源项目的：接口 + 内存实现（含一条种子数据）" },
-            { path: "src/main/java/.../service/OrderService.java", role: "★ 抄源项目的（这是题目）：六个方法，三个会抛 EntityNotFoundException" },
-            { path: "src/main/java/.../exception/EntityNotFoundException.java、GlobalExceptionHandler.java", role: "★ 自己写：两个 @ExceptionHandler" },
-            { path: "src/main/java/.../config/CorrelationIdFilter.java", role: "★ 自己写：OncePerRequestFilter + MDC" },
-            { path: "src/main/java/.../controller/OrderController.java", role: "★★ 自己写：六个端点" },
-            { path: "src/test/java/.../OrderControllerTest.java", role: "★ 抄源项目的（这是判卷器）：@WebMvcTest + @MockBean + 五个测试" },
+            { path: "src/main/java/.../model/Order.java、OrderItem.java、OrderStatus.java", role: "★ 抄源项目的（这是题目）", roleEn: "★ Copy it from the source project (this is the question)" },
+            { path: "src/main/java/.../dto/CreateOrderRequest.java、OrderItemRequest.java", role: "★ 抄源项目的：带 @NotBlank / @NotEmpty / @Min / @Valid", roleEn: "★ Copy it from the source project: it carries @NotBlank / @NotEmpty / @Min / @Valid" },
+            { path: "src/main/java/.../repository/OrderRepository.java、InMemoryOrderRepository.java", role: "★ 抄源项目的：接口 + 内存实现（含一条种子数据）", roleEn: "★ Copy it from the source project: the interface + an in-memory implementation (with one seed record)" },
+            { path: "src/main/java/.../service/OrderService.java", role: "★ 抄源项目的（这是题目）：六个方法，三个会抛 EntityNotFoundException", roleEn: "★ Copy it from the source project (this is the question): six methods, three of which throw EntityNotFoundException" },
+            { path: "src/main/java/.../exception/EntityNotFoundException.java、GlobalExceptionHandler.java", role: "★ 自己写：两个 @ExceptionHandler", roleEn: "★ You write it: two @ExceptionHandler methods" },
+            { path: "src/main/java/.../config/CorrelationIdFilter.java", role: "★ 自己写：OncePerRequestFilter + MDC", roleEn: "★ You write it: OncePerRequestFilter + MDC" },
+            { path: "src/main/java/.../controller/OrderController.java", role: "★★ 自己写：六个端点", roleEn: "★★ You write it: six endpoints" },
+            { path: "src/test/java/.../OrderControllerTest.java", role: "★ 抄源项目的（这是判卷器）：@WebMvcTest + @MockBean + 五个测试", roleEn: "★ Copy it from the source project (this is what grades you): @WebMvcTest + @MockBean + five tests" },
           ],
           commands: [
             { cmd: "mvn test", expect: "Tests run: 5, Failures: 0, Errors: 0 — BUILD SUCCESS" },
             {
               cmd: "mvn spring-boot:run",
               expect: "服务起在 8080，日志里能看到 Started OrderServiceApplication",
+              expectEn:
+                "The service starts on 8080, and the log shows Started OrderServiceApplication",
             },
             {
               cmd: 'curl -i -s localhost:8080/api/orders/999',
@@ -1642,22 +2392,28 @@ if (error instanceof GraphQLError) throw error;`,
             {
               cmd: `curl -i -s -X POST localhost:8080/api/orders -H 'Content-Type: application/json' -d '{"userId":"123","items":[{"productId":"prod-789","quantity":2}]}'`,
               expect: "201 Created + 订单 JSON（totalAmount 应为 299.98）",
+              expectEn: "201 Created + the order JSON (totalAmount should be 299.98)",
             },
             {
               cmd: `curl -i -s -X POST localhost:8080/api/orders -H 'Content-Type: application/json' -d '{"userId":"","items":[]}'`,
               expect: "400 Bad Request（Bean Validation 生效）",
+              expectEn: "400 Bad Request (Bean Validation is working)",
             },
             {
               cmd: `curl -i -s -X PATCH localhost:8080/api/orders/1/status -H 'Content-Type: application/json' -d '{"status":"FLYING"}'`,
               expect: "400 Bad Request（不是 500）",
+              expectEn: "400 Bad Request (not 500)",
             },
             {
               cmd: "curl -i -s -X DELETE localhost:8080/api/orders/1",
               expect: "204 No Content，body 为空",
+              expectEn: "204 No Content, with an empty body",
             },
             {
               cmd: `curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               expect: "响应头里有同一个 X-Correlation-ID；服务端日志里也是它",
+              expectEn:
+                "The response header carries the same X-Correlation-ID, and so does the server log",
             },
           ],
           hints: [
@@ -1695,6 +2451,52 @@ orderService.deleteOrder(id);
 return ResponseEntity.noContent().build();
 
 // ③ PATCH 的安全转换
+String raw = statusUpdate.get("status");
+if (raw == null || raw.isBlank()) {
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
+}
+final OrderStatus status;
+try {
+    status = OrderStatus.valueOf(raw.trim().toUpperCase());
+} catch (IllegalArgumentException ex) {
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown status: " + raw);
+}`,
+          ],
+          hintsEn: [
+            'Answer two questions for each of the six endpoints first: "on success, is there content to return?" and "did it create a new resource?" Those two answers settle the status code. Then ask one more: "when nothing is found, whose job is it?"',
+            'For 201 use ResponseEntity.status(HttpStatus.CREATED).body(...); for 204 use ResponseEntity.noContent().build(). Hand EntityNotFoundException to @RestControllerAdvice and do not catch it in the controller. The only place that should try/catch is the enum conversion in PATCH, because IllegalArgumentException has to become a 400. Read correlationId with MDC.get("correlationId") instead of passing it down as a parameter.',
+            `getAllOrders(userId):
+  userId is null or blank -> service.getAllOrders(), otherwise service.getOrdersByUserId(userId)
+  ok(result)
+
+getOrderById(id):  ok(service.getOrderById(id))       // do not catch; let the 404 travel up
+getOrdersByUserId: ok(service.getOrdersByUserId(userId))
+createOrder:       status(CREATED).body(service.createOrder(request))
+
+updateOrderStatus(id, map):
+  raw = map.get("status")
+  raw is empty -> throw ResponseStatusException(BAD_REQUEST, ...)
+  try { status = OrderStatus.valueOf(raw.trim().toUpperCase()) }
+  catch (IllegalArgumentException) -> throw ResponseStatusException(BAD_REQUEST, ...)
+  ok(service.updateOrderStatus(id, status))
+
+deleteOrder(id):   service.deleteOrder(id); noContent().build()
+
+CorrelationIdFilter:
+  extends OncePerRequestFilter
+  read the header, use UUID.randomUUID() when empty
+  MDC.put + response.setHeader
+  try { chain.doFilter } finally { MDC.remove }   // threads are reused, so it must be cleared`,
+            `// The three points that lose the most marks, given to you directly:
+
+// ① the status code for POST
+return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request));
+
+// ② the status code for DELETE
+orderService.deleteOrder(id);
+return ResponseEntity.noContent().build();
+
+// ③ the safe conversion in PATCH
 String raw = statusUpdate.get("status");
 if (raw == null || raw.isBlank()) {
     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
@@ -1789,6 +2591,86 @@ public class OrderController {
 }`,
               {
                 filename: "OrderController.java（参考答案，实测 mvn test 5/5 通过）",
+                filenameEn:
+                  "OrderController.java (reference answer, measured with mvn test 5/5 passing)",
+                codeEn: `@RestController
+public class OrderController {
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
+    private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @GetMapping("/api/orders")
+    public ResponseEntity<List<Order>> getAllOrders(
+            @RequestParam(required = false) String userId) {
+        logger.info("GET /api/orders userId={}, correlationId={}", userId, correlationId());
+
+        List<Order> orders = (userId == null || userId.isBlank())
+                ? orderService.getAllOrders()
+                : orderService.getOrdersByUserId(userId);
+
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/api/orders/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+        logger.info("GET /api/orders/{} correlationId={}", id, correlationId());
+        // When nothing is found the service throws EntityNotFoundException -> GlobalExceptionHandler turns it into 404
+        return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    @GetMapping("/api/orders/user/{userId}")
+    public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable String userId) {
+        logger.info("GET /api/orders/user/{} correlationId={}", userId, correlationId());
+        return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
+    }
+
+    @PostMapping("/api/orders")
+    public ResponseEntity<Order> createOrder(
+            @Valid @RequestBody CreateOrderRequest request) {
+        logger.info("POST /api/orders userId={}, correlationId={}",
+                request.getUserId(), correlationId());
+
+        Order created = orderService.createOrder(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);   // 201
+    }
+
+    @PatchMapping("/api/orders/{id}/status")
+    public ResponseEntity<Order> updateOrderStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> statusUpdate) {
+        String raw = statusUpdate.get("status");
+        logger.info("PATCH /api/orders/{}/status status={}, correlationId={}",
+                id, raw, correlationId());
+
+        if (raw == null || raw.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
+        }
+
+        final OrderStatus status;
+        try {
+            status = OrderStatus.valueOf(raw.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown status: " + raw);
+        }
+
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
+    }
+
+    @DeleteMapping("/api/orders/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+        logger.info("DELETE /api/orders/{} correlationId={}", id, correlationId());
+        orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();                        // 204
+    }
+
+    private String correlationId() {
+        return MDC.get("correlationId");
+    }
+}`,
                 collapsible: true,
               },
             ),
@@ -1847,6 +2729,28 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 }`,
               {
                 filename: "CorrelationIdFilter.java",
+                codeEn: `@Component
+public class CorrelationIdFilter extends OncePerRequestFilter {
+    private static final String HEADER = "X-Correlation-ID";
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String correlationId = request.getHeader(HEADER);
+        if (correlationId == null || correlationId.isBlank()) {
+            correlationId = UUID.randomUUID().toString();
+        }
+
+        MDC.put("correlationId", correlationId);
+        response.setHeader(HEADER, correlationId);
+
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            MDC.remove("correlationId");   // threads are reused, so this must be cleared
+        }
+    }
+}`,
                 sourceFile:
                   "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/config/CorrelationIdFilter.java",
                 collapsible: true,

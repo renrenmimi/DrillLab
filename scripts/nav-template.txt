@@ -48,6 +48,7 @@ export interface NavModule {
 export interface NavMock {
   id: string;
   title: string;
+  titleEn?: string;
   scenario: string;
   mirrors: string;
   minutes: number;
@@ -70,7 +71,7 @@ export interface NavExam {
   stack: string[];
   status: string;
   prerequisites: string[];
-  sourceProjects: { path: string; role: string }[];
+  sourceProjects: { path: string; role: string; roleEn?: string }[];
   lessonCount: number;
   exerciseCount: number;
   minutes: number;

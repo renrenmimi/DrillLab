@@ -46,6 +46,28 @@ const REF_DEBOUNCE = `export function debounce<T extends (...args: never[]) => v
   return debounced;
 }`;
 
+const REF_DEBOUNCE_EN = `export function debounce<T extends (...args: never[]) => void>(
+  fn: T,
+  delay: number,
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  const debounced = (...args: Parameters<T>) => {
+    if (timer !== null) clearTimeout(timer);   // The key line: clear the old timer, so the clock restarts
+    timer = setTimeout(() => {
+      timer = null;
+      fn(...args);                             // Only the last call's arguments get this far
+    }, delay);
+  };
+
+  debounced.cancel = () => {
+    if (timer !== null) clearTimeout(timer);
+    timer = null;
+  };
+
+  return debounced;
+}`;
+
 const REF_THROTTLE = `export function throttle<T extends (...args: never[]) => void>(
   fn: T,
   interval: number,
@@ -65,6 +87,35 @@ const REF_THROTTLE = `export function throttle<T extends (...args: never[]) => v
       lastArgs = args;                // 记住窗口内最后一次的参数
       if (timer === null) {
         timer = setTimeout(() => {    // trailing：窗口结束补一枪
+          timer = null;
+          lastTime = Date.now();
+          if (lastArgs !== null) fn(...lastArgs);
+          lastArgs = null;
+        }, remaining);
+      }
+    }
+  };
+}`;
+
+const REF_THROTTLE_EN = `export function throttle<T extends (...args: never[]) => void>(
+  fn: T,
+  interval: number,
+): (...args: Parameters<T>) => void {
+  let lastTime = 0;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let lastArgs: Parameters<T> | null = null;
+
+  return (...args: Parameters<T>) => {
+    const now = Date.now();
+    const remaining = interval - (now - lastTime);
+
+    if (remaining <= 0) {
+      lastTime = now;
+      fn(...args);                    // leading: the window is open, run now
+    } else {
+      lastArgs = args;                // keep the args of the last call inside the window
+      if (timer === null) {
+        timer = setTimeout(() => {    // trailing: run once more when the window closes
           timer = null;
           lastTime = Date.now();
           if (lastArgs !== null) fn(...lastArgs);
@@ -98,6 +149,29 @@ const REF_CLONE_CORE = `export function deepClone<T>(value: T, seen = new WeakMa
   return out as T;
 }`;
 
+const REF_CLONE_CORE_EN = `export function deepClone<T>(value: T, seen = new WeakMap<object, unknown>()): T {
+  if (value === null || typeof value !== "object") return value;
+
+  const obj = value as unknown as object;
+  if (seen.has(obj)) return seen.get(obj) as T;   // seen it -> hand back its clone (stops cycles)
+
+  if (value instanceof Date) return new Date(value.getTime()) as unknown as T;
+
+  if (Array.isArray(value)) {
+    const out: unknown[] = [];
+    seen.set(obj, out);               // [record first, recurse after] — this line is why a cycle does not recurse forever
+    for (const v of value) out.push(deepClone(v, seen));
+    return out as unknown as T;
+  }
+
+  const out: Record<string, unknown> = {};
+  seen.set(obj, out);
+  for (const key of Object.keys(value)) {
+    out[key] = deepClone((value as Record<string, unknown>)[key], seen);
+  }
+  return out as T;
+}`;
+
 const REF_PALL = `export function promiseAll<T>(items: (T | Promise<T>)[]): Promise<T[]> {
   return new Promise((resolve, reject) => {
     const results: T[] = new Array(items.length);
@@ -116,11 +190,38 @@ const REF_PALL = `export function promiseAll<T>(items: (T | Promise<T>)[]): Prom
   });
 }`;
 
+const REF_PALL_EN = `export function promiseAll<T>(items: (T | Promise<T>)[]): Promise<T[]> {
+  return new Promise((resolve, reject) => {
+    const results: T[] = new Array(items.length);
+    let remaining = items.length;
+    if (remaining === 0) {
+      resolve(results);               // Empty input: finish now, or the counter waits for a zero that never arrives
+      return;
+    }
+    items.forEach((item, i) => {
+      Promise.resolve(item).then((value) => {
+        results[i] = value;           // Write by index — the input decides the order, not who finished first
+        remaining -= 1;
+        if (remaining === 0) resolve(results);
+      }, reject);                     // If any one of them fails, the whole thing fails right away
+    });
+  });
+}`;
+
 const REF_EMITTER_CORE = `emit(event: string, ...args: unknown[]): boolean {
   const list = this.listeners.get(event);
   if (!list || list.length === 0) return false;
   // 拷贝一份再遍历 —— once 触发时会 off 自己，
   // 直接遍历原数组会让它旁边的监听器被跳过
+  for (const fn of [...list]) fn(...args);
+  return true;
+}`;
+
+const REF_EMITTER_CORE_EN = `emit(event: string, ...args: unknown[]): boolean {
+  const list = this.listeners.get(event);
+  if (!list || list.length === 0) return false;
+  // Copy the array before walking it — a once listener removes itself while it runs,
+  // and walking the original array would then skip the listener next to it
   for (const fn of [...list]) fn(...args);
   return true;
 }`;
@@ -131,6 +232,16 @@ const REF_CURRY = `export function curry<T extends (...args: never[]) => unknown
       return fn(...(args as never[]));
     }
     // 每次都返回新函数、拼出新数组 —— add1 复用一百次也互不污染
+    return (...more: unknown[]) => curried(...args, ...more);
+  };
+}`;
+
+const REF_CURRY_EN = `export function curry<T extends (...args: never[]) => unknown>(fn: T) {
+  return function curried(...args: unknown[]): unknown {
+    if (args.length >= fn.length) {
+      return fn(...(args as never[]));
+    }
+    // Every step returns a new function and builds a new array — reuse add1 a hundred times and the calls stay separate
     return (...more: unknown[]) => curried(...args, ...more);
   };
 }`;
@@ -155,6 +266,32 @@ const REF_LRU = `export class LRUCache<K, V> {
     this.map.set(key, value);
     if (this.map.size > this.capacity) {
       // Map 按插入序遍历 —— 迭代器的第一个键就是最久没被碰过的
+      const oldest = this.map.keys().next().value as K;
+      this.map.delete(oldest);
+    }
+  }
+}`;
+
+const REF_LRU_EN = `export class LRUCache<K, V> {
+  private map = new Map<K, V>();
+
+  constructor(private capacity: number) {
+    if (capacity < 1) throw new Error("capacity must be at least 1");
+  }
+
+  get(key: K): V | undefined {
+    if (!this.map.has(key)) return undefined;
+    const value = this.map.get(key) as V;
+    this.map.delete(key);       // Delete then re-insert = move it to the newest end
+    this.map.set(key, value);
+    return value;
+  }
+
+  put(key: K, value: V): void {
+    if (this.map.has(key)) this.map.delete(key);
+    this.map.set(key, value);
+    if (this.map.size > this.capacity) {
+      // A Map iterates in insertion order — the first key is the one untouched for longest
       const oldest = this.map.keys().next().value as K;
       this.map.delete(oldest);
     }
@@ -280,6 +417,8 @@ export const ivHand: Module = {
           code: [
             tested("ts", REF_DEBOUNCE, {
               filename: "debounce.ts（参考解法 —— scratchpad vitest 4 / 4）",
+              filenameEn: "debounce.ts (reference solution — scratchpad vitest 4 / 4)",
+              codeEn: REF_DEBOUNCE_EN,
             }),
           ],
         },
@@ -354,6 +493,8 @@ export const ivHand: Module = {
           code: [
             tested("ts", REF_THROTTLE, {
               filename: "throttle.ts（参考解法 —— scratchpad vitest 4 / 4）",
+              filenameEn: "throttle.ts (reference solution — scratchpad vitest 4 / 4)",
+              codeEn: REF_THROTTLE_EN,
             }),
           ],
         },
@@ -362,6 +503,7 @@ export const ivHand: Module = {
         {
           tone: "trap",
           title: "测试环境的一个真实限制",
+          titleEn: "A real limit of the test environment",
           body: (
             <>
               浏览器沙箱里没有 fake timer，而且每个 <code>setTimeout</code>
@@ -372,6 +514,19 @@ export const ivHand: Module = {
               —— 后者在慢环境里必然抖。你自己写计时类测试时也该这么设计。
             </>
           ),
+          bodyEn: (
+            <>
+              The browser sandbox has no fake timers, and every <code>setTimeout</code>
+              really does land a few hundred milliseconds late. So the tests for these
+              two problems{" "}
+              <strong>
+                only assert that something has happened, after waiting long enough, and
+                never assert that something has not happened yet
+              </strong>{" "}
+              — the second kind is bound to be flaky on a slow machine. Design your own
+              timing tests the same way.
+            </>
+          ),
         },
       ],
       exercises: [
@@ -380,11 +535,19 @@ export const ivHand: Module = {
           kind: "code-completion",
           level: 3,
           title: "手写 debounce（带 cancel）",
+          titleEn: "Write debounce by hand (with cancel)",
           prompt: (
             <>
               把「每次都立刻调用」的半成品改成真正的 debounce：
               连续调用只在停手 delay 毫秒后执行最后一次，
               <code>cancel()</code> 能取消挂着的那次。
+            </>
+          ),
+          promptEn: (
+            <>
+              Turn this half-finished version, which calls through immediately every
+              time, into a real debounce: a burst of calls runs only once, delay ms
+              after the last one, and <code>cancel()</code> drops the pending run.
             </>
           ),
           language: "ts",
@@ -402,17 +565,36 @@ export const ivHand: Module = {
   debounced.cancel = () => {};
   return debounced;
 }`,
+          starterEn: `export function debounce<T extends (...args: never[]) => void>(
+  fn: T,
+  delay: number,
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
+  void delay;
+  // TODO 1: keep a timer; on every call clear the old one and set a new one — that restarts the clock.
+  const debounced = (...args: Parameters<T>) => {
+    fn(...args);
+  };
+  // TODO 2: cancel clears the pending timer.
+  debounced.cancel = () => {};
+  return debounced;
+}`,
           requirements: [
             "调用 debounced() 不许立刻执行 fn",
             "一串连续调用只在停手 delay 毫秒后执行一次，参数用最后那次的",
             "两串隔开的调用各自触发一次",
             "cancel() 取消还没发生的那次调用",
           ],
+          requirementsEn: [
+            "Calling debounced() must not run fn right away",
+            "A burst of calls runs once, delay ms after the last call, with the arguments of that last call",
+            "Two bursts separated by a pause each fire once",
+            "cancel() drops the call that has not happened yet",
+          ],
           checks: [
-            { label: "有 timer 状态且先清后设（重新计时）", must: "clearTimeout" },
-            { label: "用 setTimeout 延迟执行", must: "setTimeout\\(" },
-            { label: "cancel 里也清 timer", must: "cancel[\\s\\S]*?clearTimeout" },
-            { label: "没有把 fn 直接同步调用留在外面", mustNot: "^\\s*fn\\(\\.\\.\\.args\\);\\s*$" },
+            { label: "有 timer 状态且先清后设（重新计时）", labelEn: "Keeps a timer, clears it before setting a new one (restarts the clock)", must: "clearTimeout" },
+            { label: "用 setTimeout 延迟执行", labelEn: "Uses setTimeout to delay the call", must: "setTimeout\\(" },
+            { label: "cancel 里也清 timer", labelEn: "cancel clears the timer too", must: "cancel[\\s\\S]*?clearTimeout" },
+            { label: "没有把 fn 直接同步调用留在外面", labelEn: "No leftover synchronous call to fn at the top level", mustNot: "^\\s*fn\\(\\.\\.\\.args\\);\\s*$" },
           ],
           hints: [
             "timer 必须存在返回的函数外面（闭包里），不然每次调用都是新的、清不掉旧的。",
@@ -420,8 +602,16 @@ export const ivHand: Module = {
             "setTimeout 的回调里先把 timer 置回 null，再 fn(...args) —— args 是闭包捕获的最后一次参数。",
             "cancel：if (timer !== null) clearTimeout(timer); timer = null。",
           ],
+          hintsEn: [
+            "The timer has to live outside the returned function, in the closure. Inside, every call gets a fresh one and the old one can never be cleared.",
+            "Two steps inside debounced: if (timer !== null) clearTimeout(timer), then timer = setTimeout(..., delay).",
+            "In the setTimeout callback, set timer back to null first, then call fn(...args) — args is the last set of arguments the closure captured.",
+            "cancel: if (timer !== null) clearTimeout(timer); timer = null.",
+          ],
           solution: tested("ts", REF_DEBOUNCE, {
             filename: "debounce.ts（scratchpad vitest 4 / 4）",
+            filenameEn: "debounce.ts (scratchpad vitest 4 / 4)",
+            codeEn: REF_DEBOUNCE_EN,
           }),
         },
         {
@@ -429,10 +619,18 @@ export const ivHand: Module = {
           kind: "code-completion",
           level: 3,
           title: "手写 throttle（leading + trailing）",
+          titleEn: "Write throttle by hand (leading + trailing)",
           prompt: (
             <>
               把「直接透传」的半成品改成真正的 throttle：窗口开头立刻执行，
               窗口内压住，窗口结束用最后一次的参数补一枪。
+            </>
+          ),
+          promptEn: (
+            <>
+              Turn this pass-everything-through version into a real throttle: run once
+              at the start of the window, hold back the calls inside it, then run once
+              more at the end of the window with the arguments of the last call.
             </>
           ),
           language: "ts",
@@ -448,16 +646,33 @@ export const ivHand: Module = {
     fn(...args);
   };
 }`,
+          starterEn: `export function throttle<T extends (...args: never[]) => void>(
+  fn: T,
+  interval: number,
+): (...args: Parameters<T>) => void {
+  void interval;
+  // TODO: keep a lastTime and a trailing timer.
+  //       Window still open -> store the args and set a timer that runs when it closes.
+  return (...args: Parameters<T>) => {
+    fn(...args);
+  };
+}`,
           requirements: [
             "第一次调用立刻执行（leading）",
             "窗口内的后续调用不执行",
             "窗口结束时用窗口内最后一次的参数补执行（trailing）",
             "窗口过了之后再调用，又立刻执行",
           ],
+          requirementsEn: [
+            "The first call runs immediately (leading)",
+            "Later calls inside the same window do not run",
+            "When the window closes, run once more with the arguments of the last call in it (trailing)",
+            "A call after the window has passed runs immediately again",
+          ],
           checks: [
-            { label: "用时间戳判断窗口", must: "Date\\.now\\(\\)" },
-            { label: "trailing 用 setTimeout 补执行", must: "setTimeout\\(" },
-            { label: "存了窗口内最后一次的参数", must: "lastArgs|latest" },
+            { label: "用时间戳判断窗口", labelEn: "Uses a timestamp to decide where the window is", must: "Date\\.now\\(\\)" },
+            { label: "trailing 用 setTimeout 补执行", labelEn: "The trailing run goes through setTimeout", must: "setTimeout\\(" },
+            { label: "存了窗口内最后一次的参数", labelEn: "Stores the arguments of the last call in the window", must: "lastArgs|latest" },
           ],
           hints: [
             "三个闭包变量：lastTime（上次执行的时间戳）、timer、lastArgs。",
@@ -465,8 +680,16 @@ export const ivHand: Module = {
             "remaining > 0：lastArgs = args；如果 timer 还没挂，setTimeout(补枪, remaining)。",
             "补枪回调里：timer = null、lastTime = Date.now()、fn(...lastArgs)、lastArgs = null。",
           ],
+          hintsEn: [
+            "Three closure variables: lastTime (the timestamp of the last run), timer, and lastArgs.",
+            "On every call compute remaining = interval - (Date.now() - lastTime). If remaining <= 0, run now and update lastTime.",
+            "If remaining > 0: set lastArgs = args, and if no timer is pending, setTimeout(the trailing run, remaining).",
+            "Inside the trailing callback: timer = null, lastTime = Date.now(), fn(...lastArgs), lastArgs = null.",
+          ],
           solution: tested("ts", REF_THROTTLE, {
             filename: "throttle.ts（scratchpad vitest 4 / 4）",
+            filenameEn: "throttle.ts (scratchpad vitest 4 / 4)",
+            codeEn: REF_THROTTLE_EN,
           }),
         },
       ],
@@ -482,7 +705,18 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
     timer = setTimeout(() => fn(...args), delay);
   };
 }`,
-            { filename: "状态放错了地方" },
+            {
+              filename: "状态放错了地方",
+              filenameEn: "The state is in the wrong place",
+              codeEn: `// ✕ the timer moved inside the returned function — every call gets a new variable, so the old one can never be cleared
+export function debounce(fn: (...a: unknown[]) => void, delay: number) {
+  return (...args: unknown[]) => {
+    let timer: ReturnType<typeof setTimeout> | null = null;  // null every single time
+    if (timer !== null) clearTimeout(timer);                 // never true
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}`,
+            },
           ),
           why: (
             <>
@@ -645,6 +879,9 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           code: [
             tested("ts", REF_CLONE_CORE, {
               filename: "deepClone.ts（核心分支 —— 完整版含 Map/Set，scratchpad vitest 6 / 6）",
+              filenameEn:
+                "deepClone.ts (the core branches — the full version also handles Map and Set; scratchpad vitest 6 / 6)",
+              codeEn: REF_CLONE_CORE_EN,
             }),
           ],
         },
@@ -757,6 +994,8 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           code: [
             tested("ts", REF_CURRY, {
               filename: "curry.ts（参考解法 —— scratchpad vitest 3 / 3）",
+              filenameEn: "curry.ts (reference solution — scratchpad vitest 3 / 3)",
+              codeEn: REF_CURRY_EN,
             }),
           ],
         },
@@ -767,11 +1006,20 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           kind: "code-completion",
           level: 3,
           title: "手写 deepClone（防循环）",
+          titleEn: "Write deepClone by hand (cycle-safe)",
           prompt: (
             <>
               把「直接返回原值」的半成品写成完整的 deepClone：分支覆盖
               Date / Map / Set / 数组 / 普通对象，循环引用不爆栈。
               <strong>不许用 JSON.parse(JSON.stringify(x))。</strong>
+            </>
+          ),
+          promptEn: (
+            <>
+              Grow this return-the-input version into a full deepClone: branches for
+              Date, Map, Set, arrays and plain objects, and a circular reference must
+              not recurse forever.{" "}
+              <strong>JSON.parse(JSON.stringify(x)) is not allowed.</strong>
             </>
           ),
           language: "ts",
@@ -782,6 +1030,12 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
   //       每造一个新容器，立刻 seen.set(原对象, 新容器) —— 这一步防循环。
   return value;
 }`,
+          starterEn: `export function deepClone<T>(value: T, seen = new WeakMap<object, unknown>()): T {
+  void seen;
+  // TODO: handle primitives first, then branch on Date / Map / Set / Array / plain object.
+  //       Right after you build a new container, call seen.set(original, new one) — that is the cycle guard.
+  return value;
+}`,
           requirements: [
             "原始值和 null 原样返回",
             "嵌套对象 / 数组逐层克隆，每一层都是新引用",
@@ -789,12 +1043,19 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
             "循环引用不爆栈（WeakMap 登记「原对象 → 克隆」）",
             "不许用 JSON.parse(JSON.stringify(x))",
           ],
+          requirementsEn: [
+            "Primitives and null come back unchanged",
+            "Nested objects and arrays are cloned level by level, and every level is a new reference",
+            "A Date becomes a new Date; Map and Set are deep-cloned",
+            "A circular reference does not recurse forever (a WeakMap records original to clone)",
+            "JSON.parse(JSON.stringify(x)) is not allowed",
+          ],
           checks: [
-            { label: "用 WeakMap（或 seen）防循环", must: "seen\\.(has|get|set)" },
-            { label: "处理了 Date", must: "instanceof Date" },
-            { label: "区分数组与对象", must: "Array\\.isArray" },
-            { label: "没有用 JSON 大法", mustNot: "JSON\\.parse" },
-            { label: "没有用原生 structuredClone 代劳", mustNot: "structuredClone" },
+            { label: "用 WeakMap（或 seen）防循环", labelEn: "Uses a WeakMap (or seen) as the cycle guard", must: "seen\\.(has|get|set)" },
+            { label: "处理了 Date", labelEn: "Handles Date", must: "instanceof Date" },
+            { label: "区分数组与对象", labelEn: "Tells arrays and objects apart", must: "Array\\.isArray" },
+            { label: "没有用 JSON 大法", labelEn: "Does not fall back on the JSON trick", mustNot: "JSON\\.parse" },
+            { label: "没有用原生 structuredClone 代劳", labelEn: "Does not let the built-in structuredClone do the work", mustNot: "structuredClone" },
           ],
           hints: [
             "第一行先把非对象挡回去：value === null || typeof value !== \"object\" 就原样返回。",
@@ -802,8 +1063,17 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
             "每个容器分支的固定节奏：造新容器 → seen.set(原对象, 新容器) → 再递归填内容。次序不能反。",
             "普通对象分支：for (const key of Object.keys(value)) out[key] = deepClone(value[key], seen)。",
           ],
+          hintsEn: [
+            "Turn away non-objects on the first line: if value === null || typeof value !== \"object\", return it unchanged.",
+            "Then check seen: if seen.has(obj), return seen.get(obj) straight away — this is the exit for a circular reference.",
+            "Every container branch follows the same order: build the new container, then seen.set(original, new one), then recurse to fill it. Do not swap those steps.",
+            "The plain-object branch: for (const key of Object.keys(value)) out[key] = deepClone(value[key], seen).",
+          ],
           solution: tested("ts", REF_CLONE_CORE, {
             filename: "deepClone.ts（核心 —— 完整版含 Map/Set 分支，vitest 6 / 6）",
+            filenameEn:
+              "deepClone.ts (the core — the full version also has Map and Set branches; vitest 6 / 6)",
+            codeEn: REF_CLONE_CORE_EN,
           }),
         },
         {
@@ -811,11 +1081,22 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           kind: "code-completion",
           level: 3,
           title: "手写 flatten（depth 语义对齐原生 flat）",
+          titleEn: "Write flatten by hand (depth behaves like the built-in flat)",
           prompt: (
             <>
               把「只做浅拷贝」的半成品写成真正的 flatten：默认压一层，
               depth 控制层数，Infinity 全压平，不改输入。
               <strong>不许调用原生 <code>.flat()</code>。</strong>
+            </>
+          ),
+          promptEn: (
+            <>
+              Grow this shallow-copy version into a real flatten: one level by default,
+              depth decides how many levels, Infinity flattens everything, and the input
+              is never changed.{" "}
+              <strong>
+                Calling the built-in <code>.flat()</code> is not allowed.
+              </strong>
             </>
           ),
           language: "ts",
@@ -825,22 +1106,39 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
   // TODO: 遍历。是数组且 depth > 0 -> 递归展开（depth - 1）；否则原样收进结果。
   return [...arr];
 }`,
+          starterEn: `export function flatten(arr: unknown[], depth = 1): unknown[] {
+  void depth;
+  // TODO: walk the input. An array and depth > 0 -> recurse with depth - 1; otherwise push the item as it is.
+  return [...arr];
+}`,
           requirements: [
             "默认 depth 为 1，与 Array.prototype.flat 一致",
             "depth 控制展开层数，Infinity 全压平",
             "depth 0 返回浅拷贝，不是原数组引用",
             "不改输入数组；不许调用原生 .flat()",
           ],
+          requirementsEn: [
+            "depth is 1 by default, the same as Array.prototype.flat",
+            "depth decides how many levels are opened up; Infinity flattens everything",
+            "depth 0 returns a shallow copy, not a reference to the input array",
+            "The input array is never changed, and the built-in .flat() is not allowed",
+          ],
           checks: [
-            { label: "判断了「是数组且还有层数」", must: "Array\\.isArray[\\s\\S]*depth" },
-            { label: "递归时层数减一", must: "depth - 1" },
-            { label: "没有调用原生 flat", mustNot: "\\.flat\\(" },
+            { label: "判断了「是数组且还有层数」", labelEn: "Checks both that the item is an array and that depth is left", must: "Array\\.isArray[\\s\\S]*depth" },
+            { label: "递归时层数减一", labelEn: "Lowers depth by one when recursing", must: "depth - 1" },
+            { label: "没有调用原生 flat", labelEn: "Does not call the built-in flat", mustNot: "\\.flat\\(" },
           ],
           hints: [
             "外层一个结果数组，for...of 遍历输入。",
             "分支条件是「Array.isArray(item) && depth > 0」—— 两个条件缺一不可。",
             "递归展开用 out.push(...flatten(item, depth - 1))。",
             "否则 out.push(item) 原样收进去 —— 空数组会在展开分支里自然消失。",
+          ],
+          hintsEn: [
+            "Keep one result array on the outside, and walk the input with for...of.",
+            "The branch condition is Array.isArray(item) && depth > 0 — you need both halves.",
+            "To open up a level, write out.push(...flatten(item, depth - 1)).",
+            "Otherwise out.push(item) keeps the item as it is. An empty array simply disappears in the recursing branch.",
           ],
           solution: tested(
             "ts",
@@ -855,7 +1153,10 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
   }
   return out;
 }`,
-            { filename: "flatten.ts（scratchpad vitest 6 / 6）" },
+            {
+              filename: "flatten.ts（scratchpad vitest 6 / 6）",
+              filenameEn: "flatten.ts (scratchpad vitest 6 / 6)",
+            },
           ),
         },
         {
@@ -863,11 +1164,19 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           kind: "code-completion",
           level: 3,
           title: "手写 curry（部分应用可复用）",
+          titleEn: "Write curry by hand (partial applications stay reusable)",
           prompt: (
             <>
               把「直接返回 fn」的半成品写成真正的 curry：参数攒够
               <code>fn.length</code> 就执行，可任意分组，
               部分应用复用互不污染。
+            </>
+          ),
+          promptEn: (
+            <>
+              Grow this return-fn-directly version into a real curry: run as soon as{" "}
+              <code>fn.length</code> arguments have arrived, accept them in any grouping,
+              and let a partial application be reused without one call affecting another.
             </>
           ),
           language: "ts",
@@ -877,15 +1186,25 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
   //       (...more) => curried(...args, ...more)。
   return fn as (...args: unknown[]) => unknown;
 }`,
+          starterEn: `export function curry<T extends (...args: never[]) => unknown>(fn: T) {
+  // TODO: recurse. Enough args -> fn(...args); not enough -> return
+  //       (...more) => curried(...args, ...more).
+  return fn as (...args: unknown[]) => unknown;
+}`,
           requirements: [
             "攒够 fn.length 个参数就执行",
             "参数可以任意分组：c(1)(2)(3) / c(1, 2)(3) / c(1)(2, 3)",
             "部分应用可复用：const add1 = c(1) 之后多次调用互不污染",
           ],
+          requirementsEn: [
+            "Runs as soon as fn.length arguments have arrived",
+            "Arguments may come in any grouping: c(1)(2)(3), c(1, 2)(3), c(1)(2, 3)",
+            "A partial application is reusable: after const add1 = c(1), calling add1 many times gives independent results",
+          ],
           checks: [
-            { label: "用 fn.length 判断攒够没有", must: "fn\\.length" },
-            { label: "攒参数是拼新数组（展开），不是 push", must: "\\.\\.\\.args" },
-            { label: "没有往共享数组上 push", mustNot: "\\.push\\(" },
+            { label: "用 fn.length 判断攒够没有", labelEn: "Uses fn.length to decide whether enough arguments have arrived", must: "fn\\.length" },
+            { label: "攒参数是拼新数组（展开），不是 push", labelEn: "Collects arguments by building a new array with spread, not by push", must: "\\.\\.\\.args" },
+            { label: "没有往共享数组上 push", labelEn: "Never pushes onto a shared array", mustNot: "\\.push\\(" },
           ],
           hints: [
             "写一个内部递归函数 curried(...args)。",
@@ -893,8 +1212,16 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
             "不够就 return (...more) => curried(...args, ...more) —— 注意是拼出新数组。",
             "共 6 行。写完自测一下 const add1 = c(1); add1(2,3); add1(10,20) 两次结果对不对。",
           ],
+          hintsEn: [
+            "Write an inner recursive function, curried(...args).",
+            "If args.length >= fn.length, return fn(...args).",
+            "If not, return (...more) => curried(...args, ...more) — note that this builds a new array.",
+            "Six lines in total. When you are done, check yourself: const add1 = c(1); add1(2,3); add1(10,20) — are both results right?",
+          ],
           solution: tested("ts", REF_CURRY, {
             filename: "curry.ts（scratchpad vitest 3 / 3）",
+            filenameEn: "curry.ts (scratchpad vitest 3 / 3)",
+            codeEn: REF_CURRY_EN,
           }),
         },
       ],
@@ -911,7 +1238,19 @@ const clone = JSON.parse(JSON.stringify(source));
 // { d: new Date() }       -> { d: "2026-..." }（Date 变字符串）
 // { m: new Map([...]) }   -> { m: {} }     （Map/Set 变空对象）
 // a.self = a              -> TypeError     （循环引用直接抛错）`,
-            { filename: "JSON.parse(JSON.stringify(x)) 的全部代价" },
+            {
+              filename: "JSON.parse(JSON.stringify(x)) 的全部代价",
+              filenameEn: "Everything JSON.parse(JSON.stringify(x)) costs you",
+              codeEn: `// ✕ the JSON trick — giving this as your answer in an interview counts as not answering
+const clone = JSON.parse(JSON.stringify(source));
+
+// What it quietly drops or damages:
+// { a: undefined }        -> {}            (the key is simply gone)
+// { fn: () => {} }        -> {}            (the function is gone)
+// { d: new Date() }       -> { d: "2026-..." }(the Date became a string)
+// { m: new Map([...]) }   -> { m: {} }     (Map and Set became empty objects)
+// a.self = a              -> TypeError     (a circular reference throws)`,
+            },
           ),
           why: (
             <>
@@ -1080,6 +1419,9 @@ const clone = JSON.parse(JSON.stringify(source));
           code: [
             tested("ts", REF_PALL, {
               filename: "promiseAll.ts（参考解法 —— scratchpad vitest 6 / 6，含 allSettled）",
+              filenameEn:
+                "promiseAll.ts (reference solution — scratchpad vitest 6 / 6, allSettled included)",
+              codeEn: REF_PALL_EN,
             }),
           ],
         },
@@ -1148,6 +1490,8 @@ const clone = JSON.parse(JSON.stringify(source));
           code: [
             tested("ts", REF_EMITTER_CORE, {
               filename: "emitter.ts（emit 的关键 —— 完整版 6 / 6）",
+              filenameEn: "emitter.ts (the key part of emit — the full version scores 6 / 6)",
+              codeEn: REF_EMITTER_CORE_EN,
             }),
           ],
         },
@@ -1208,6 +1552,8 @@ const clone = JSON.parse(JSON.stringify(source));
           code: [
             tested("ts", REF_LRU, {
               filename: "lru.ts（参考解法 —— scratchpad vitest 5 / 5）",
+              filenameEn: "lru.ts (reference solution — scratchpad vitest 5 / 5)",
+              codeEn: REF_LRU_EN,
             }),
           ],
         },
@@ -1218,10 +1564,20 @@ const clone = JSON.parse(JSON.stringify(source));
           kind: "code-completion",
           level: 3,
           title: "手写 Promise.all + allSettled",
+          titleEn: "Write Promise.all and allSettled by hand",
           prompt: (
             <>
               把两个「直接 resolve 空数组」的半成品写成真的。
               <strong>不许调用原生 Promise.all / Promise.allSettled。</strong>
+            </>
+          ),
+          promptEn: (
+            <>
+              Both half-finished functions just resolve with an empty array. Make them
+              real.{" "}
+              <strong>
+                Calling the built-in Promise.all or Promise.allSettled is not allowed.
+              </strong>
             </>
           ),
           language: "ts",
@@ -1241,6 +1597,21 @@ export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled
   // TODO: 把每一项包成「永远成功、结果里带 status」的 Promise，再交给 promiseAll。
   return Promise.resolve([]);
 }`,
+          starterEn: `export function promiseAll<T>(items: (T | Promise<T>)[]): Promise<T[]> {
+  void items;
+  // TODO: inside new Promise, use forEach + write by index + a counter; pass reject as the second argument of .then.
+  return Promise.resolve([]);
+}
+
+export type Settled<T> =
+  | { status: "fulfilled"; value: T }
+  | { status: "rejected"; reason: unknown };
+
+export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled<T>[]> {
+  void items;
+  // TODO: wrap each item in a Promise that always succeeds and carries a status, then hand it to promiseAll.
+  return Promise.resolve([]);
+}`,
           requirements: [
             "结果按输入顺序排，不是完成顺序（下标写入，不许 push）",
             "空数组立刻 resolve([])",
@@ -1248,12 +1619,19 @@ export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled
             "任何一个 reject，整体立刻 reject，不等慢的",
             "allSettled 永不 reject，逐项报 { status, value | reason }",
           ],
+          requirementsEn: [
+            "Results follow the input order, not the finishing order (write by index; push is not allowed)",
+            "An empty array resolves with [] straight away",
+            "Plain values mixed into the array are fine",
+            "If any one rejects, the whole thing rejects at once and does not wait for the slow ones",
+            "allSettled never rejects; it reports { status, value | reason } for each item",
+          ],
           checks: [
-            { label: "手写了 executor", must: "new Promise" },
-            { label: "按下标写入结果", must: "results\\[i\\]|results\\[index\\]" },
-            { label: "普通值包了一层", must: "Promise\\.resolve\\(" },
-            { label: "没有调用原生 Promise.all", mustNot: "Promise\\.all\\(" },
-            { label: "没有调用原生 allSettled", mustNot: "Promise\\.allSettled\\(" },
+            { label: "手写了 executor", labelEn: "Writes the executor by hand", must: "new Promise" },
+            { label: "按下标写入结果", labelEn: "Writes results by index", must: "results\\[i\\]|results\\[index\\]" },
+            { label: "普通值包了一层", labelEn: "Wraps plain values one level", must: "Promise\\.resolve\\(" },
+            { label: "没有调用原生 Promise.all", labelEn: "Does not call the built-in Promise.all", mustNot: "Promise\\.all\\(" },
+            { label: "没有调用原生 allSettled", labelEn: "Does not call the built-in allSettled", mustNot: "Promise\\.allSettled\\(" },
           ],
           hints: [
             "promiseAll 的骨架：new Promise((resolve, reject) => { ... })，里面 results 数组 + remaining 计数器。",
@@ -1261,8 +1639,16 @@ export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled
             "items.forEach((item, i) => Promise.resolve(item).then(value => { results[i] = value; remaining -= 1; if (remaining === 0) resolve(results); }, reject))。",
             "allSettled：items.map(item => Promise.resolve(item).then(v => ({status:\"fulfilled\",value:v}), r => ({status:\"rejected\",reason:r})))，再交给 promiseAll。",
           ],
+          hintsEn: [
+            "The frame of promiseAll: new Promise((resolve, reject) => { ... }), holding a results array and a remaining counter.",
+            "Check for empty first: if remaining === 0, resolve(results) right away.",
+            "items.forEach((item, i) => Promise.resolve(item).then(value => { results[i] = value; remaining -= 1; if (remaining === 0) resolve(results); }, reject)).",
+            "allSettled: items.map(item => Promise.resolve(item).then(v => ({status:\"fulfilled\",value:v}), r => ({status:\"rejected\",reason:r}))), then hand that to promiseAll.",
+          ],
           solution: tested("ts", REF_PALL, {
             filename: "promiseAll.ts（vitest 6 / 6，allSettled 在完整版里）",
+            filenameEn: "promiseAll.ts (vitest 6 / 6; allSettled is in the full version)",
+            codeEn: REF_PALL_EN,
           }),
         },
         {
@@ -1270,10 +1656,18 @@ export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled
           kind: "code-completion",
           level: 3,
           title: "手写 EventEmitter",
+          titleEn: "Write an EventEmitter by hand",
           prompt: (
             <>
               把空骨架填成完整的 EventEmitter：on / off / once / emit。
               重点：once 触发时不能挤掉同一事件的其他监听器。
+            </>
+          ),
+          promptEn: (
+            <>
+              Fill the empty skeleton in to a complete EventEmitter: on, off, once and
+              emit. The point to watch: when a once listener fires, it must not push
+              aside the other listeners on the same event.
             </>
           ),
           language: "ts",
@@ -1307,22 +1701,63 @@ export class EventEmitter {
     return false;
   }
 }`,
+          starterEn: `type Listener = (...args: unknown[]) => void;
+
+export class EventEmitter {
+  private listeners = new Map<string, Listener[]>();
+
+  on(event: string, fn: Listener): this {
+    void event; void fn;
+    // TODO
+    return this;
+  }
+
+  off(event: string, fn: Listener): this {
+    void event; void fn;
+    // TODO: filter that one out; do not splice the array you are walking.
+    return this;
+  }
+
+  once(event: string, fn: Listener): this {
+    void event; void fn;
+    // TODO: add a wrapper — off(itself) first, then call fn.
+    return this;
+  }
+
+  emit(event: string, ...args: unknown[]): boolean {
+    void event; void args;
+    // TODO: nobody listening -> return false; otherwise walk a [...list] copy and return true.
+    return false;
+  }
+}`,
           requirements: [
             "on 注册；emit 按注册顺序调用所有监听器并传参",
             "off 只移除指定的那一个监听器",
             "once 只触发一次，且不挤掉同一事件的其他监听器",
             "emit 返回「有没有人在听」",
           ],
+          requirementsEn: [
+            "on registers a listener; emit calls every listener in registration order and passes the arguments along",
+            "off removes only the one listener it was given",
+            "once fires exactly once, and does not push aside the other listeners on the same event",
+            "emit returns whether anyone was listening",
+          ],
           checks: [
-            { label: "emit 遍历前拷贝了列表", must: "\\[\\.\\.\\." },
-            { label: "once 包了 wrapper 并自我移除", must: "once[\\s\\S]*off\\(" },
-            { label: "off 用 filter（不改正在遍历的数组）", must: "\\.filter\\(" },
+            { label: "emit 遍历前拷贝了列表", labelEn: "emit copies the list before walking it", must: "\\[\\.\\.\\." },
+            { label: "once 包了 wrapper 并自我移除", labelEn: "once adds a wrapper that removes itself", must: "once[\\s\\S]*off\\(" },
+            { label: "off 用 filter（不改正在遍历的数组）", labelEn: "off uses filter, so it does not change the array being walked", must: "\\.filter\\(" },
           ],
           hints: [
             "on：取出（或新建）该事件的数组，push 进去，存回 Map。",
             "off：this.listeners.set(event, list.filter(l => l !== fn))。",
             "once 的 wrapper：const wrapper = (...args) => { this.off(event, wrapper); fn(...args); }; 然后 on(event, wrapper)。",
             "emit：没人听返回 false；否则 for (const fn of [...list]) fn(...args)，返回 true —— 拷贝那步是 once 不挤掉邻居的关键。",
+          ],
+          hintsEn: [
+            "on: take the array for that event (or make a new one), push the listener in, and set it back on the Map.",
+            "off: this.listeners.set(event, list.filter(l => l !== fn)).",
+            "The once wrapper: const wrapper = (...args) => { this.off(event, wrapper); fn(...args); }; then on(event, wrapper).",
+            "emit: return false if nobody is listening; otherwise for (const fn of [...list]) fn(...args) and return true. That copy is what keeps once from pushing its neighbours aside.",
           ],
           solution: tested(
             "ts",
@@ -1364,7 +1799,10 @@ export class EventEmitter {
     return true;
   }
 }`,
-            { filename: "emitter.ts（scratchpad vitest 6 / 6）" },
+            {
+              filename: "emitter.ts（scratchpad vitest 6 / 6）",
+              filenameEn: "emitter.ts (scratchpad vitest 6 / 6)",
+            },
           ),
         },
         {
@@ -1372,10 +1810,18 @@ export class EventEmitter {
           kind: "code-completion",
           level: 3,
           title: "手写 LRUCache（用 Map，不写链表）",
+          titleEn: "Write an LRUCache by hand (use a Map, no linked list)",
           prompt: (
             <>
               把「什么都没存」的骨架写成真正的 LRU：超容量淘汰最久未使用，
               get 和 put 都要刷新「最近用过」。
+            </>
+          ),
+          promptEn: (
+            <>
+              This skeleton stores nothing. Turn it into a real LRU: over capacity, drop
+              the entry that has gone unused the longest, and both get and put must mark
+              an entry as recently used.
             </>
           ),
           language: "ts",
@@ -1402,6 +1848,28 @@ export class EventEmitter {
     return this.map.size;
   }
 }`,
+          starterEn: `export class LRUCache<K, V> {
+  private map = new Map<K, V>();
+
+  constructor(private capacity: number) {
+    if (capacity < 1) throw new Error("capacity must be at least 1");
+  }
+
+  get(key: K): V | undefined {
+    void key;
+    // TODO: on a hit -> delete then re-insert (that refreshes it), and return the value.
+    return undefined;
+  }
+
+  put(key: K, value: V): void {
+    void key; void value;
+    // TODO: delete an existing key first; after set, if over capacity delete map.keys().next().value.
+  }
+
+  get size(): number {
+    return this.map.size;
+  }
+}`,
           requirements: [
             "get / put 基本读写；get 不到返回 undefined",
             "超容量时淘汰最久未使用的那条",
@@ -1409,9 +1877,16 @@ export class EventEmitter {
             "put 已存在的 key：更新值并刷新",
             "capacity 为 1 也要正确",
           ],
+          requirementsEn: [
+            "Basic reads and writes through get and put; a miss on get returns undefined",
+            "Over capacity, drop the entry that has gone unused the longest",
+            "A hit on get marks that entry as recently used",
+            "put on a key that already exists updates the value and marks it as recently used",
+            "A capacity of 1 still behaves correctly",
+          ],
           checks: [
-            { label: "刷新 = 删掉再放回", must: "delete\\(" },
-            { label: "淘汰迭代器的第一个键", must: "keys\\(\\)\\.next\\(\\)" },
+            { label: "刷新 = 删掉再放回", labelEn: "Refreshing means delete then re-insert", must: "delete\\(" },
+            { label: "淘汰迭代器的第一个键", labelEn: "Drops the first key from the iterator", must: "keys\\(\\)\\.next\\(\\)" },
           ],
           hints: [
             "核心洞察：Map 按插入序遍历。「删掉再 set」= 挪到最新；keys().next().value = 最旧。",
@@ -1419,8 +1894,16 @@ export class EventEmitter {
             "put：has 就先 delete；set；然后 size > capacity 时删 keys().next().value。",
             "先写 get 后写 put，两个都围绕「删掉再放回」这一个动作。",
           ],
+          hintsEn: [
+            "The one idea to see: a Map iterates in insertion order. Delete-then-set moves an entry to the newest end; keys().next().value is the oldest.",
+            "get: if !has, return undefined; otherwise read the value, delete, set it back, and return it.",
+            "put: if has, delete first; then set; then if size > capacity, delete keys().next().value.",
+            "Write get before put. Both are built around the same single move: delete then re-insert.",
+          ],
           solution: tested("ts", REF_LRU, {
             filename: "lru.ts（scratchpad vitest 5 / 5）",
+            filenameEn: "lru.ts (scratchpad vitest 5 / 5)",
+            codeEn: REF_LRU_EN,
           }),
         },
       ],
@@ -1437,7 +1920,19 @@ items.forEach((item) => {
 });
 
 // promiseAll([slow("a"), fast("b")]) 会得到 ["b", "a"] —— 测试第一条就红`,
-            { filename: "Promise.all 手写题的第一名错法" },
+            {
+              filename: "Promise.all 手写题的第一名错法",
+              filenameEn: "The number one wrong answer to the Promise.all question",
+              codeEn: `// ✕ collecting results with push — the order becomes "whoever finished first comes first"
+items.forEach((item) => {
+  Promise.resolve(item).then((value) => {
+    results.push(value);              // the fast one cut the line
+    if (results.length === items.length) resolve(results);
+  }, reject);
+});
+
+// promiseAll([slow("a"), fast("b")]) gives you ["b", "a"] — the very first test goes red`,
+            },
           ),
           why: (
             <>

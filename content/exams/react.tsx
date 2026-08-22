@@ -198,11 +198,33 @@ const ticketMock: MockExam = {
         "优先级下拉默认选中 medium",
         "提交后清空表单（标题清空，优先级回到 medium）",
       ],
+      requirementEn: [
+        "Fill in a title, pick a priority, and after Create the new ticket appears at the end of the list",
+        "While the title is empty (spaces only counts as empty) the Create button must be disabled",
+        "The priority dropdown starts on medium",
+        "The form clears after submitting: the title empties and the priority goes back to medium",
+      ],
       rubric: [
-        { points: 8, label: "两个表单控件都是受控的（value + onChange）" },
-        { points: 6, label: "用不可变更新追加到末尾，没有 push" },
-        { points: 4, label: "disabled 是派生数据，不是额外的 state" },
-        { points: 2, label: "提交后正确重置表单" },
+        {
+          points: 8,
+          label: "两个表单控件都是受控的（value + onChange）",
+          labelEn: "Both form controls are controlled, with value and onChange",
+        },
+        {
+          points: 6,
+          label: "用不可变更新追加到末尾，没有 push",
+          labelEn: "Appends without changing the original array; no push",
+        },
+        {
+          points: 4,
+          label: "disabled 是派生数据，不是额外的 state",
+          labelEn: "disabled is derived, not a second piece of state",
+        },
+        {
+          points: 2,
+          label: "提交后正确重置表单",
+          labelEn: "The form resets correctly after submitting",
+        },
       ],
     },
     {
@@ -212,83 +234,172 @@ const ticketMock: MockExam = {
         "点某一行的 Close，该工单按 id 从列表移除",
         "两条标题相同的工单，只移除被点的那一条",
       ],
+      requirementEn: [
+        "Clicking Close on a row removes that ticket from the list by id",
+        "With two tickets that share a title, only the one that was clicked is removed",
+      ],
       rubric: [
-        { points: 8, label: "用 filter 并按 id 比较" },
-        { points: 4, label: "没有修改原数组（无 splice）" },
-        { points: 3, label: "回调只接收 id，没有多余参数" },
+        {
+          points: 8,
+          label: "用 filter 并按 id 比较",
+          labelEn: "Uses filter and compares by id",
+        },
+        {
+          points: 4,
+          label: "没有修改原数组（无 splice）",
+          labelEn: "The original array is untouched; no splice",
+        },
+        {
+          points: 3,
+          label: "回调只接收 id，没有多余参数",
+          labelEn: "The callback takes only the id, with no extra arguments",
+        },
       ],
     },
     {
       id: "t3",
       title: "Task 3 · Reassign（就地编辑）",
+      titleEn: "Task 3 · Reassign (edit in place)",
       requirement: [
         "点某一行的 Reassign：标题和优先级回填进表单，按钮文字变成 Save",
         "改完提交：该工单在原位置被更新，顺序不变",
         "提交后退出改派模式：表单清空、按钮回到 Create",
         "改派时必须复用原 id",
       ],
+      requirementEn: [
+        "Clicking Reassign on a row puts its title and priority back into the form, and the button now reads Save",
+        "Submitting the change updates that ticket in place; the order does not change",
+        "Submitting leaves reassign mode: the form clears and the button goes back to Create",
+        "Reassigning has to reuse the original id",
+      ],
       rubric: [
-        { points: 10, label: "用 map 就地替换，顺序不变（不是先删再加）" },
-        { points: 6, label: "useEffect 依赖数组只放 ticketToEdit" },
-        { points: 5, label: "提交时复用旧 id" },
-        { points: 4, label: "提交后把 ticketToEdit 设回 null" },
-        { points: 3, label: "按钮文字 Save / Create 严格一致" },
+        {
+          points: 10,
+          label: "用 map 就地替换，顺序不变（不是先删再加）",
+          labelEn: "Replaces in place with map so the order holds; not a remove followed by an add",
+        },
+        {
+          points: 6,
+          label: "useEffect 依赖数组只放 ticketToEdit",
+          labelEn: "The useEffect dependency array holds only ticketToEdit",
+        },
+        {
+          points: 5,
+          label: "提交时复用旧 id",
+          labelEn: "The original id is reused on submit",
+        },
+        {
+          points: 4,
+          label: "提交后把 ticketToEdit 设回 null",
+          labelEn: "ticketToEdit is set back to null after submitting",
+        },
+        {
+          points: 3,
+          label: "按钮文字 Save / Create 严格一致",
+          labelEn: "The button text is exactly Save or Create, with nothing in between",
+        },
       ],
     },
     {
       id: "t4",
       title: "Task 4 · Filter by priority（新增考点）",
+      titleEn: "Task 4 · Filter by priority (a point the real Q1 does not have)",
       requirement: [
         '顶部有一个筛选下拉（data-testid="filter-priority"），选项：all / low / medium / high',
         "选中某个优先级后，列表只显示该优先级的工单",
         "筛选不能影响底层数据 —— 切回 all 应该恢复全部",
         "筛选结果必须是派生数据，不许再开一个 state 存筛选后的数组",
       ],
+      requirementEn: [
+        "There is a filter dropdown at the top (data-testid=\"filter-priority\") with the options all / low / medium / high",
+        "Picking a priority shows only the tickets with that priority",
+        "Filtering must not touch the underlying data — switching back to all brings everything back",
+        "The filtered result has to be derived data; do not add a second piece of state holding the filtered array",
+      ],
       rubric: [
-        { points: 8, label: "只用一个 state 存筛选条件" },
-        { points: 8, label: "可见列表是派生出来的（不是第二份 state）" },
-        { points: 4, label: "筛选状态下的删除/编辑依然按 id 正确作用于原数据" },
+        {
+          points: 8,
+          label: "只用一个 state 存筛选条件",
+          labelEn: "One piece of state holds the filter",
+        },
+        {
+          points: 8,
+          label: "可见列表是派生出来的（不是第二份 state）",
+          labelEn: "The visible list is derived, not a second copy in state",
+        },
+        {
+          points: 4,
+          label: "筛选状态下的删除/编辑依然按 id 正确作用于原数据",
+          labelEn: "With a filter on, delete and edit still act on the right item by id",
+        },
       ],
     },
     {
       id: "t5",
       title: "Task 5 · 工程质量",
+      titleEn: "Task 5 · Engineering quality",
       requirement: [
         "列表用 map 渲染，key 用 ticket.id",
         "所有 data-testid 与需求一致",
         "npx tsc --noEmit 无错误",
         "五个测试全过",
       ],
+      requirementEn: [
+        "The list is rendered with map, using ticket.id as the key",
+        "Every data-testid matches the requirements",
+        "npx tsc --noEmit reports no errors",
+        "All five tests pass",
+      ],
       rubric: [
-        { points: 5, label: "key 用了稳定 id，不是 index" },
-        { points: 5, label: "类型检查通过，Priority 用了联合类型" },
-        { points: 7, label: "五个测试全过" },
+        {
+          points: 5,
+          label: "key 用了稳定 id，不是 index",
+          labelEn: "The key is a stable id, not the index",
+        },
+        {
+          points: 5,
+          label: "类型检查通过，Priority 用了联合类型",
+          labelEn: "Type checking passes, and Priority is a union type",
+        },
+        {
+          points: 7,
+          label: "五个测试全过",
+          labelEn: "All five tests pass",
+        },
       ],
     },
   ],
   starter: [
     tested("ts", MOCK_STARTER, {
       filename: "starter 代码骨架（13 个 TODO）",
+      filenameEn: "The starter skeleton (13 TODOs)",
       collapsible: true,
       explanation:
         "这是 DrillLab 自出的模拟题，不是源项目内容。把它拆成对应文件后自己实现。注意 data-testid 全部被测试依赖，不能改。",
+      explanationEn:
+        "DrillLab wrote this mock task; it does not come from the source project. Split it into the matching files and write the implementation yourself. Every data-testid is used by a test, so do not rename them.",
     }),
   ],
   tests: [
     tested("tsx", MOCK_TEST_FILE, {
       filename: "src/TicketBoard.test.tsx（判卷器，五个测试）",
+      filenameEn: "src/TicketBoard.test.tsx (the marker, five tests)",
       collapsible: true,
       explanation:
         "第五个测试是真实 Q1 没有的 —— 它查筛选。注意 userEvent.selectOptions 用来操作 <select>，这是本模拟题新引入的 API。",
+      explanationEn:
+        "The fifth test is not part of the real Q1. It checks filtering. Note userEvent.selectOptions, the API for driving a <select>; this mock task is where it first appears.",
     }),
   ],
   commands: [
-    { cmd: "npm install", expect: "依赖装好" },
+    { cmd: "npm install", expect: "依赖装好", expectEn: "Dependencies installed" },
     { cmd: "npx vitest run", expect: "Tests 5 passed (5)" },
     {
       cmd: "npm run dev",
       expect:
         "手动验证：① 建三条同名工单，关闭中间那条，只消失一条 ② 改派中间那条，位置不变 ③ 筛选到 high 之后再切回 all，数据完整",
+      expectEn:
+        "Check by hand: (1) create three tickets with the same title, close the middle one, and only one disappears; (2) reassign the middle one and it stays in place; (3) filter to high, switch back to all, and nothing is lost",
     },
   ],
   walkthrough: [
@@ -503,8 +614,11 @@ const ticketMock: MockExam = {
 </select>`,
           {
             filename: "受控的 select",
+            filenameEn: "A controlled select",
             explanation:
               "as Priority 是必要的 —— e.target.value 只知道自己是 string。也可以把 state 类型放宽成 string，但那会失去联合类型的保护，不划算。",
+            explanationEn:
+              "The as Priority cast is needed: TypeScript only knows e.target.value is a string. You could widen the state type to string instead, but then you lose the protection the union type gives you. Not a good trade.",
           },
         ),
       ],
@@ -578,7 +692,21 @@ const visibleTickets =
 const handleClose = (id: number) => {
   setTickets((prev) => prev.filter((t) => t.id !== id));
 };`,
-          { filename: "筛选的正确实现" },
+          {
+            filename: "筛选的正确实现",
+            filenameEn: "The correct way to filter",
+            codeEn: `const [tickets, setTickets] = useState<Ticket[]>([]);
+const [filter, setFilter] = useState<"all" | Priority>("all");
+
+// Derived data: recomputed on every render, always matches tickets + filter
+const visibleTickets =
+  filter === "all" ? tickets : tickets.filter((t) => t.priority === filter);
+
+// Note: every write acts on tickets, never on visibleTickets
+const handleClose = (id: number) => {
+  setTickets((prev) => prev.filter((t) => t.id !== id));
+};`,
+          },
         ),
         demo(
           "tsx",
@@ -594,7 +722,22 @@ const handleClose = (id: number) => {
   setTickets(visibleTickets.filter((t) => t.id !== id));
   //         ↑ 被筛掉的工单全没了
 };`,
-          { filename: "两种错法" },
+          {
+            filename: "两种错法",
+            filenameEn: "Two wrong versions",
+            codeEn: `// ✗ Common mistake: two copies of the data, kept in sync by useEffect
+const [tickets, setTickets] = useState<Ticket[]>([]);
+const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
+useEffect(() => {
+  setFilteredTickets(filter === "all" ? tickets : tickets.filter(...));
+}, [tickets, filter]);
+
+// ✗ Worse: the write acts on the filtered array
+const handleClose = (id: number) => {
+  setTickets(visibleTickets.filter((t) => t.id !== id));
+  //         ↑ every ticket the filter hid is now gone
+};`,
+          },
         ),
       ],
     },
@@ -721,7 +864,69 @@ const TicketBoard: React.FC = () => {
 };
 
 export default TicketBoard;`,
-      { filename: "src/components/TicketBoard/index.tsx（参考答案）", collapsible: true },
+      {
+        filename: "src/components/TicketBoard/index.tsx（参考答案）",
+        filenameEn: "src/components/TicketBoard/index.tsx (reference answer)",
+        collapsible: true,
+        codeEn: `import { useState } from "react";
+import type { Priority, Ticket } from "../../types/Ticket";
+import TicketForm from "../TicketForm";
+import TicketList from "../TicketList";
+
+const TicketBoard: React.FC = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [ticketToEdit, setTicketToEdit] = useState<Ticket | null>(null);
+  const [filter, setFilter] = useState<"all" | Priority>("all");
+
+  // Derived data — never store it in state
+  const visibleTickets =
+    filter === "all" ? tickets : tickets.filter((t) => t.priority === filter);
+
+  const handleSubmitTicket = (submitted: Ticket) => {
+    if (ticketToEdit) {
+      setTickets((prev) =>
+        prev.map((t) => (t.id === submitted.id ? submitted : t)),
+      );
+      setTicketToEdit(null);
+    } else {
+      setTickets((prev) => [...prev, submitted]);
+    }
+  };
+
+  // Acts on tickets, not on visibleTickets
+  const handleClose = (id: number) => {
+    setTickets((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const handleReassign = (ticket: Ticket) => {
+    setTicketToEdit(ticket);
+  };
+
+  return (
+    <div data-testid="ticket-board">
+      <select
+        value={filter}
+        onChange={(e) => setFilter(e.target.value as "all" | Priority)}
+        data-testid="filter-priority"
+      >
+        <option value="all">all</option>
+        <option value="low">low</option>
+        <option value="medium">medium</option>
+        <option value="high">high</option>
+      </select>
+
+      <TicketForm onSubmit={handleSubmitTicket} ticketToEdit={ticketToEdit} />
+      <TicketList
+        tickets={visibleTickets}
+        onClose={handleClose}
+        onReassign={handleReassign}
+      />
+    </div>
+  );
+};
+
+export default TicketBoard;`,
+      },
     ),
     tested(
       "tsx",
@@ -786,7 +991,72 @@ const TicketForm: React.FC<TicketFormProps> = ({ onSubmit, ticketToEdit }) => {
 };
 
 export default TicketForm;`,
-      { filename: "src/components/TicketForm/index.tsx（参考答案）", collapsible: true },
+      {
+        filename: "src/components/TicketForm/index.tsx（参考答案）",
+        filenameEn: "src/components/TicketForm/index.tsx (reference answer)",
+        collapsible: true,
+        codeEn: `import React, { useState, useEffect } from "react";
+import type { Priority, Ticket } from "../../types/Ticket";
+
+interface TicketFormProps {
+  onSubmit: (ticket: Ticket) => void;
+  ticketToEdit: Ticket | null;
+}
+
+const TicketForm: React.FC<TicketFormProps> = ({ onSubmit, ticketToEdit }) => {
+  const [subject, setSubject] = useState("");
+  const [priority, setPriority] = useState<Priority>("medium");
+
+  useEffect(() => {
+    if (ticketToEdit) {
+      setSubject(ticketToEdit.subject);
+      setPriority(ticketToEdit.priority);
+    } else {
+      setSubject("");
+      setPriority("medium");
+    }
+  }, [ticketToEdit]);
+
+  const isInvalid = subject.trim() === "";
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isInvalid) return;
+    onSubmit({
+      id: ticketToEdit ? ticketToEdit.id : Date.now(),   // reuse the old id
+      subject: subject.trim(),
+      priority,
+    });
+    setSubject("");
+    setPriority("medium");
+  };
+
+  return (
+    <form onSubmit={handleSubmit} data-testid="ticket-form">
+      <input
+        type="text"
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
+        data-testid="ticket-subject"
+      />
+      <select
+        value={priority}
+        onChange={(e) => setPriority(e.target.value as Priority)}
+        data-testid="ticket-priority"
+      >
+        <option value="low">low</option>
+        <option value="medium">medium</option>
+        <option value="high">high</option>
+      </select>
+      <button type="submit" disabled={isInvalid} data-testid="ticket-submit">
+        {ticketToEdit ? "Save" : "Create"}
+      </button>
+    </form>
+  );
+};
+
+export default TicketForm;`,
+      },
     ),
     tested(
       "tsx",
@@ -847,6 +1117,7 @@ const reactExam: Exam = {
     {
       path: "react-notes-app",
       role: "参考项目。Vite + React 18 + TS strict + Vitest。本机实测 4 个测试全过（仓库里是完成版）",
+      roleEn: "Reference project. Vite + React 18 + TS strict + Vitest. All four tests pass as measured; the repo holds the finished version",
     },
   ],
   prerequisites: ["foundations"],

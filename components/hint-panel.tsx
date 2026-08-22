@@ -23,9 +23,17 @@ const STEP_LABEL: LocalizedString[] = [
   L("提示 4 · 局部代码", "Hint 4 · partial code"),
 ];
 
-export function HintPanel({ hints }: { hints: string[] }) {
+export function HintPanel({
+  hints,
+  hintsEn,
+}: {
+  hints: string[];
+  /** 英文版。长度必须和 hints 一致，否则整组回落中文 —— 见 BilingualList */
+  hintsEn?: string[];
+}) {
   const [shown, setShown] = useState(0);
   const left = hints.length - shown;
+  const en = hintsEn && hintsEn.length === hints.length ? hintsEn : undefined;
 
   return (
     <div className="hints">
@@ -85,7 +93,7 @@ export function HintPanel({ hints }: { hints: string[] }) {
                 <T en={`Hint ${i + 1}`} zh={`提示 ${i + 1}`} />
               )}
             </span>
-            {h}
+            {en ? <T zh={h} en={en[i]} /> : h}
           </div>
         ))
       )}

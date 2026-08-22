@@ -29,11 +29,30 @@ export type CodeLang =
 
 export interface CodeExample {
   language: CodeLang;
-  /** 显示在代码窗标题栏的文件名 */
+  /**
+   * 显示在代码窗标题栏的文件名。
+   * 注意它常被当**标题**用，不只是路径 —— 「改对之后」「验证命令」
+   * 「本机实测输出」都是这个字段，所以需要英文版。纯路径不用加。
+   */
   filename?: string;
+  filenameEn?: string;
   code: string;
+  /**
+   * 英文版代码 —— **只有注释和面向读者的字符串不同，可执行的行必须逐字节相同。**
+   *
+   * 【为什么这条约束是硬的】
+   * `highlight` 是行号。英文注释一旦比中文多占或少占一行，高亮就指到别的行，
+   * 而且**不会报错**，只是默默指错 —— 比缺英文难发现得多。
+   * 所以 codeEn 的行数必须和 code 完全一致。
+   * 有个审计脚本查这件事：scripts/audit-code-lines.mjs。
+   *
+   * 另外：测试数据里的字符串（比如 `body: '很好'`）**不要翻译** ——
+   * 那是数据不是文案，改了就和真实项目对不上了。只翻注释，和明确写给读者看的字符串。
+   */
+  codeEn?: string;
   /** 代码窗下方的说明 */
   explanation?: ReactNode;
+  explanationEn?: ReactNode;
   /**
    * 这段代码在源项目里的真实路径，例如
    * "react-notes-app/src/components/NoteManager/index.tsx"。
@@ -80,7 +99,9 @@ export interface ConceptSection {
 export interface Callout {
   tone: ConceptTone;
   title: string;
+  titleEn?: string;
   body: ReactNode;
+  bodyEn?: ReactNode;
 }
 
 /* ============================================================
@@ -95,9 +116,12 @@ interface ExerciseBase {
   lessonId?: string;
   examId?: string;
   title: string;
+  /** 见 Lesson.titleEn */
+  titleEn?: string;
   /** Level 1 认得出 / 2 填空 / 3 写整块 / 4 从零建 */
   level: ExerciseLevel;
   prompt: ReactNode;
+  promptEn?: ReactNode;
   /** DrillLab 自出题（非源项目原题）必须为 true */
   generated?: boolean;
   sourceFile?: string;
@@ -109,10 +133,11 @@ export interface RecognitionExercise extends ExerciseBase {
   level: 1;
   /** 可选：题干里附一段代码 */
   code?: CodeExample;
-  options: { id: string; label: string }[];
+  options: { id: string; label: string; labelEn?: string }[];
   /** 正确选项 id；多选时给多个 */
   answer: string[];
   explain: ReactNode;
+  explainEn?: ReactNode;
 }
 
 /** Level 1 —— 把乱序步骤排对 */
@@ -120,9 +145,10 @@ export interface OrderingExercise extends ExerciseBase {
   kind: "ordering";
   level: 1;
   /** 打乱后展示给用户的条目；正确顺序由 answer 决定 */
-  items: { id: string; label: string }[];
+  items: { id: string; label: string; labelEn?: string }[];
   answer: string[];
   explain: ReactNode;
+  explainEn?: ReactNode;
 }
 
 /** Level 2 —— 挖空。code 里用 ___1___ ___2___ 标记空位 */
@@ -130,16 +156,25 @@ export interface FillBlankExercise extends ExerciseBase {
   kind: "fill-blank";
   level: 2;
   language: CodeLang;
+  /** 常被当标题用（「两个真实片段」），不只是路径，所以要英文版 */
   filename?: string;
+  filenameEn?: string;
   /** 含 ___n___ 占位符的代码 */
   template: string;
+  /**
+   * 英文版模板。约束和 CodeExample.codeEn 一样：**行数必须一致**，
+   * 而且 ___n___ 占位符的**个数、编号、位置都不能变** —— 空位是靠它们对齐的。
+   */
+  templateEn?: string;
   blanks: {
     n: number;
     /** 可接受的答案（去空白后比较，大小写敏感）；第一个是展示用的标准答案 */
     accept: string[];
     hint: string;
+    hintEn?: string;
     /** 为什么是这个 —— 提交后展示 */
     why: ReactNode;
+    whyEn?: ReactNode;
     /** 输入框宽度（字符数），默认按标准答案长度 */
     width?: number;
   }[];
@@ -150,18 +185,27 @@ export interface CodeCompletionExercise extends ExerciseBase {
   kind: "code-completion";
   level: 3;
   language: CodeLang;
+  /** 常被当标题用，不只是路径 —— 见 CodeExample.filenameEn */
   filename?: string;
+  filenameEn?: string;
   /** 预填的骨架（通常是签名 + 注释要求） */
   starter: string;
+  /** 英文版骨架。约束同 CodeExample.codeEn：行数必须一致 */
+  starterEn?: string;
   requirements: string[];
+  /** 英文版。长度必须和 requirements 一致 —— 理由见 Lesson.objectivesEn */
+  requirementsEn?: string[];
   /** 文本级校验：必须出现 / 必须不出现 */
   checks: {
     label: string;
+    labelEn?: string;
     /** 正则（对去掉注释后的代码做匹配） */
     must?: string;
     mustNot?: string;
   }[];
   hints: string[];
+  /** 英文版。长度必须和 hints 一致 */
+  hintsEn?: string[];
   solution: CodeExample;
 }
 
@@ -171,24 +215,36 @@ export interface DebugExercise extends ExerciseBase {
   level: 2 | 3;
   /** 真实报错文本（尽量原样） */
   errorOutput: string;
+  /**
+   * 英文版。
+   *
+   * 【为什么这个也需要英文】
+   * 报错正文本身是原样保留的，但这些块里常掺着中文标注行
+   * （`# 更严重的情况：…`、`# 复现：…`），那是给读者的说明，不是报错的一部分。
+   * 报错行照抄，标注行译 —— 和 codeEn 一个道理。
+   */
+  errorOutputEn?: string;
   /** 出错的代码 */
   broken: CodeExample;
   /** 「这是什么类型的错误」多选 */
   classify: {
-    options: { id: string; label: string }[];
+    options: { id: string; label: string; labelEn?: string }[];
     answer: string;
   };
   /** 「病灶在哪个文件/哪一行」 */
   locate: {
     question: string;
-    options: { id: string; label: string }[];
+    questionEn?: string;
+    options: { id: string; label: string; labelEn?: string }[];
     answer: string;
   };
   fixed: CodeExample;
   /** 根因解释 */
   rootCause: ReactNode;
+  rootCauseEn?: ReactNode;
   /** 怎么验证修好了 */
   verify: string;
+  verifyEn?: string;
 }
 
 /** 从零重写 */
@@ -197,12 +253,15 @@ export interface FromScratchExercise extends ExerciseBase {
   level: 4;
   /** 要求（用户视角的需求，不给代码） */
   requirements: string[];
+  /** 英文版。长度必须和 requirements 一致 */
+  requirementsEn?: string[];
   /** 需要自己建的文件清单 */
-  fileList: { path: string; role: string }[];
+  fileList: { path: string; role: string; roleEn?: string }[];
   /** 本机验证命令 */
-  commands: { cmd: string; expect: string }[];
+  commands: { cmd: string; expect: string; expectEn?: string }[];
   /** 四级递进提示 */
   hints: [string, string, string, string];
+  hintsEn?: [string, string, string, string];
   solution: CodeExample[];
 }
 
@@ -255,7 +314,7 @@ export interface Lesson {
   whyForAssessmentEn?: string;
   concepts: ConceptSection[];
   /** 涉及的源项目文件。edit: true 表示「这个文件需要你动手改」，页面上会高亮 */
-  sourceFiles?: { path: string; role: string; edit?: boolean }[];
+  sourceFiles?: { path: string; role: string; roleEn?: string; edit?: boolean }[];
   callouts?: Callout[];
   exercises?: Exercise[];
   /** 常见错误 */
@@ -350,11 +409,11 @@ export interface MockExam {
     /** 英文版。长度必须和 requirement 一致 —— 理由见 Lesson.objectivesEn */
     requirementEn?: string[];
     /** 评分点 */
-    rubric: { points: number; label: string }[];
+    rubric: { points: number; label: string; labelEn?: string }[];
   }[];
   starter: CodeExample[];
   tests?: CodeExample[];
-  commands?: { cmd: string; expect: string }[];
+  commands?: { cmd: string; expect: string; expectEn?: string }[];
   /** 交卷后才展示 */
   walkthrough: ConceptSection[];
   solution: CodeExample[];
@@ -379,7 +438,7 @@ export interface Exam {
   tests: string;
   testsEn?: string;
   /** 源项目在本机的真实路径（可为空，如 Foundations） */
-  sourceProjects: { path: string; role: string }[];
+  sourceProjects: { path: string; role: string; roleEn?: string }[];
   /** 前置考试 id */
   prerequisites: string[];
   /** 技术栈标签 */
@@ -439,13 +498,17 @@ export interface CodingProblem {
   minutes: number;
   /** 题面：要做什么、验收标准 */
   brief: ReactNode;
+  /** 英文版题面。见 Lesson.titleEn 里那段为什么是旁挂字段 */
+  briefEn?: ReactNode;
   requirements: string[];
+  /** 英文版。长度必须和 requirements 一致 —— 理由见 Lesson.objectivesEn */
+  requirementsEn?: string[];
   /** React/JS 能在浏览器里跑；GraphQL/Java 不能 */
   runnable: boolean;
   /** runnable 时必填 */
   sandbox?: SandboxSpec;
   /** 不可运行时给终端命令 */
-  commands?: { cmd: string; expect: string }[];
+  commands?: { cmd: string; expect: string; expectEn?: string }[];
   /** 「展开讲解」引用哪一节 */
   explainLessonId?: string;
   /** 参考答案，放在门后 */
@@ -496,9 +559,11 @@ export interface ArenaChallenge {
   minutes: number;
   /** 用户视角的需求，不给代码 */
   requirements: string[];
-  fileList: { path: string; role: string }[];
+  /** 英文版。长度必须和 requirements 一致 —— 理由见 Lesson.objectivesEn */
+  requirementsEn?: string[];
+  fileList: { path: string; role: string; roleEn?: string }[];
   /** 本机验收命令 */
-  commands: { cmd: string; expect: string }[];
+  commands: { cmd: string; expect: string; expectEn?: string }[];
   /** 从哪个 from-scratch / mock 派生（复用现有内容，不新写） */
   sourceExerciseId?: string;
   sourceMockId?: string;

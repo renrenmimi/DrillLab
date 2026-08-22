@@ -120,6 +120,7 @@ export const reactHooks: Module = {
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
           role: "两个受控输入 + 表单提交的完整实现",
+          roleEn: "The complete implementation of the two controlled inputs and the form submit",
         },
       ],
       concepts: [
@@ -212,10 +213,23 @@ export const reactHooks: Module = {
 />`,
               {
                 filename: "src/components/NoteForm/index.tsx（节选）",
+                filenameEn: "src/components/NoteForm/index.tsx (excerpt)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 highlight: [6, 7],
+                codeEn: `const [title, setTitle] = useState("");
+
+<input
+  type="text"
+  placeholder="Title"
+  value={title}                                  // ① state decides what is shown
+  onChange={(e) => setTitle(e.target.value)}     // ② typing writes back to state
+  data-testid="form-input"
+  className="form-input"
+/>`,
                 explanation:
                   "e.target 就是那个 input 元素，e.target.value 是它此刻的内容。textarea 的写法完全一样 —— 项目里 content 就是这么做的。",
+                explanationEn:
+                  "e.target is that input element, and e.target.value is its content right now. A textarea is written the same way — that is how content is done in the project.",
               },
             ),
           ],
@@ -276,7 +290,7 @@ export const reactHooks: Module = {
               `Warning: You provided a \`value\` prop to a form field without an
 \`onChange\` handler. This will render a read-only field. If the field should
 be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnly\`.`,
-              { filename: "React 的警告" },
+              { filename: "React 的警告", filenameEn: "The warning from React" },
             ),
           ],
         },
@@ -378,6 +392,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
 };`,
               {
                 filename: "src/components/NoteForm/index.tsx（节选）",
+                filenameEn: "src/components/NoteForm/index.tsx (excerpt)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 highlight: [2, 5],
               },
@@ -416,6 +431,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           code: [
             real("tsx", NOTE_FORM_FULL, {
               filename: "src/components/NoteForm/index.tsx（全文）",
+              filenameEn: "src/components/NoteForm/index.tsx (whole file)",
               sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
               highlight: [10, 11, 23, 70],
               collapsible: true,
@@ -428,11 +444,18 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           kind: "fill-blank",
           id: "r-controlled-blanks",
           title: "补全受控输入的闭环",
+          titleEn: "Complete the loop of a controlled input",
           level: 2,
           prompt: (
             <p>
               把 <code>NoteForm</code> 里 textarea 那一段补全。
               三个空构成一个完整的闭环。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Fill in the textarea part of <code>NoteForm</code>. The three blanks
+              together form one complete loop.
             </p>
           ),
           language: "tsx",
@@ -452,11 +475,19 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               n: 1,
               accept: ["useState"],
               hint: "让 React 替你记住这个值的那个 Hook。",
+              hintEn: "The Hook that asks React to remember this value for you.",
               why: (
                 <>
                   <code>useState</code>。初始值 <code>&quot;&quot;</code>
                   已经说明了类型是 string，所以这里<strong>不需要</strong>
                   写泛型参数。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>useState</code>. The initial value{" "}
+                  <code>&quot;&quot;</code> already says the type is string, so you{" "}
+                  <strong>do not need</strong> a generic parameter here.
                 </>
               ),
               width: 10,
@@ -465,11 +496,19 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               n: 2,
               accept: ["content"],
               hint: "显示什么，由 state 里的当前值决定。",
+              hintEn: "What is shown is decided by the current value in state.",
               why: (
                 <>
                   <code>content</code>。这条把「state → 界面」这半边接上了。
                   写成 <code>setContent</code> 是把函数塞进 value，
                   React 会警告并显示一堆奇怪的东西。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>content</code>. This connects the &ldquo;state →
+                  screen&rdquo; half. Writing <code>setContent</code> here puts a
+                  function into value; React warns and shows something strange.
                 </>
               ),
               width: 9,
@@ -478,6 +517,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               n: 3,
               accept: ["e.target.value", "event.target.value"],
               hint: "从事件对象里取出输入框此刻的内容。",
+              hintEn: "Take the input's current content out of the event object.",
               why: (
                 <>
                   <code>e.target.value</code>。<code>e.target</code>
@@ -488,6 +528,18 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
                   <code>e.target.text</code>（textarea 也用 value，不是 text）。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>e.target.value</code>. <code>e.target</code> is the DOM
+                  element that fired the event, and <code>.value</code> is its
+                  current content. This connects the other half, &ldquo;screen →
+                  state&rdquo;, and the loop is complete.
+                  <br />
+                  Common wrong answers: <code>e.value</code> (<code>e</code> is the
+                  event, not the element) and <code>e.target.text</code> (a textarea
+                  also uses value, not text).
+                </>
+              ),
               width: 17,
             },
           ],
@@ -496,11 +548,19 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           kind: "debug",
           id: "r-debug-preventdefault",
           title: "Debug Lab · 点 Add 之后页面闪一下，笔记没了",
+          titleEn: "Debug Lab · the page blinks after Add and the note is gone",
           level: 2,
           prompt: (
             <p>
               填好标题和内容，点 Add。页面明显闪了一下，
               地址栏出现了 <code>?</code>，表格还是空的。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Fill in a title and some content, then press Add. The page clearly
+              blinks, a <code>?</code> appears in the address bar, and the table is
+              still empty.
             </p>
           ),
           errorOutput: `# 没有 JavaScript 报错。
@@ -509,6 +569,12 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
 #   - 地址栏从 http://localhost:5173/ 变成 http://localhost:5173/?
 #   - 输入框被清空，表格依然是空的
 #   - React DevTools 里所有 state 都回到了初始值`,
+          errorOutputEn: `# No JavaScript error.
+# Symptom: after clicking Add
+#   - the whole page reloaded once
+#   - the address bar changed from http://localhost:5173/ to http://localhost:5173/?
+#   - the inputs were cleared and the table is still empty
+#   - in React DevTools every piece of state is back to its initial value`,
           broken: demo(
             "tsx",
             `const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -518,24 +584,25 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
   setTitle("");
   setContent("");
 };`,
-            { filename: "有问题的 handleSubmit" },
+            { filename: "有问题的 handleSubmit", filenameEn: "The broken handleSubmit" },
           ),
           classify: {
             options: [
-              { id: "a", label: "状态更新错误 —— 改了原数组" },
-              { id: "b", label: "浏览器默认行为没被拦住 —— 表单原生提交导致页面刷新" },
-              { id: "c", label: "类型错误 —— event 类型写错了" },
-              { id: "d", label: "异步错误 —— onSubmit 应该 await" },
+              { id: "a", label: "状态更新错误 —— 改了原数组", labelEn: "State update error — the original array was mutated" },
+              { id: "b", label: "浏览器默认行为没被拦住 —— 表单原生提交导致页面刷新", labelEn: "The browser default was not stopped — the native form submit reloads the page" },
+              { id: "c", label: "类型错误 —— event 类型写错了", labelEn: "Type error — the type of event is wrong" },
+              { id: "d", label: "异步错误 —— onSubmit 应该 await", labelEn: "Async error — onSubmit should be awaited" },
             ],
             answer: "b",
           },
           locate: {
             question: "缺了哪一行？",
+            questionEn: "Which line is missing?",
             options: [
-              { id: "a", label: "函数第一行应该是 event.preventDefault();" },
-              { id: "b", label: "应该在 onSubmit 之后加 return false;" },
-              { id: "c", label: "button 的 type 应该改成 button" },
-              { id: "d", label: "form 上应该加 method=\"post\"" },
+              { id: "a", label: "函数第一行应该是 event.preventDefault();", labelEn: "The first line of the function should be event.preventDefault();" },
+              { id: "b", label: "应该在 onSubmit 之后加 return false;", labelEn: "return false; should be added after onSubmit" },
+              { id: "c", label: "button 的 type 应该改成 button", labelEn: "The button's type should be changed to button" },
+              { id: "d", label: "form 上应该加 method=\"post\"", labelEn: "method=\"post\" should be added to the form" },
             ],
             answer: "a",
           },
@@ -548,6 +615,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
 };`,
             {
               filename: "改对之后",
+              filenameEn: "After the fix",
               sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
               highlight: [2],
             },
@@ -573,7 +641,32 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                When <code>&lt;button type=&quot;submit&quot;&gt;</code> is clicked,
+                the browser runs the form&rsquo;s{" "}
+                <strong>default submit behaviour</strong>: it encodes the form data
+                into the URL, starts a navigation, and reloads the page. Once the
+                page reloads, the whole React app restarts and every piece of state
+                is reset.
+              </p>
+              <p>
+                The <code>?</code> in the address bar is the evidence of that
+                default behaviour — seeing it is almost enough for the diagnosis.
+              </p>
+              <p>
+                Look at option C (changing the button to{" "}
+                <code>type=&quot;button&quot;</code>). It does stop the submit, but
+                then the <code>form</code>&rsquo;s <code>onSubmit</code> never fires,
+                so you also have to move the handler to the button&rsquo;s{" "}
+                <code>onClick</code> — and submitting with the Enter key stops
+                working. <strong>The correct answer is preventDefault.</strong>
+              </p>
+            </>
+          ),
           verify: "npx vitest run   # 应该看到 4 passed",
+          verifyEn: "npx vitest run   # you should see 4 passed",
         },
       ],
       mistakes: [
@@ -582,6 +675,10 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
             "tsx",
             `// ✗ onChange 里忘了 .value
 <input value={title} onChange={(e) => setTitle(e.target)} />`,
+            {
+              codeEn: `// ✗ .value is missing inside onChange
+<input value={title} onChange={(e) => setTitle(e.target)} />`,
+            },
           ),
           why: (
             <>
@@ -608,6 +705,11 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
             `// ✗ 提交后忘了清空表单
 onSubmit(newNote);
 // 少了 setTitle("") 和 setContent("")`,
+            {
+              codeEn: `// ✗ the form is not cleared after submitting
+onSubmit(newNote);
+// setTitle("") and setContent("") are missing`,
+            },
           ),
           why: (
             <>
@@ -695,7 +797,11 @@ onSubmit(newNote);
       whyForAssessmentEn:
         "The Q1 table is produced by map. A wrong key here makes rows show the wrong content after a delete, and the tests may not catch it.",
       sourceFiles: [
-        { path: "react-notes-app/src/components/NoteTable/index.tsx", role: "map 渲染 + key" },
+        {
+          path: "react-notes-app/src/components/NoteTable/index.tsx",
+          role: "map 渲染 + key",
+          roleEn: "Rendered with map, and the key",
+        },
       ],
       concepts: [
         {
@@ -763,6 +869,7 @@ onSubmit(newNote);
 </tbody>`,
               {
                 filename: "src/components/NoteTable/index.tsx（节选）",
+                filenameEn: "src/components/NoteTable/index.tsx (excerpt)",
                 sourceFile: "react-notes-app/src/components/NoteTable/index.tsx",
                 highlight: [4],
               },
@@ -825,7 +932,7 @@ onSubmit(newNote);
 
 Check the render method of \`NoteTable\`. See https://react.dev/link/warning-keys
 for more information.`,
-              { filename: "缺 key 的警告" },
+              { filename: "缺 key 的警告", filenameEn: "The warning about a missing key" },
             ),
           ],
         },
@@ -902,7 +1009,22 @@ for more information.`,
   渲染①    [A(key=101), B(key=102), C(key=103)]
   渲染②    [A(key=101), C(key=103)]
            → React 认为「102 消失了」→ 精确删掉 B，A 和 C 原样不动 ✓`,
-              { filename: "两种 key 的差别" },
+              {
+                filename: "两种 key 的差别",
+                filenameEn: "The difference between the two keys",
+                codeEn: `key = index:
+  render ①  [A(key=0), B(key=1), C(key=2)]
+  delete B
+  render ②  [A(key=0), C(key=1)]
+                        ↑ last round this key belonged to B
+           → React decides: the key=1 component is still here, contents changed
+           → so it reuses B's instance, internal state included, to show C
+
+key = note.id:
+  render ①  [A(key=101), B(key=102), C(key=103)]
+  render ②  [A(key=101), C(key=103)]
+           → React decides: 102 is gone → removes exactly B, A and C stay ✓`,
+              },
             ),
           ],
         },
@@ -964,12 +1086,20 @@ for more information.`,
           kind: "recognition",
           id: "r-key-choice",
           title: "这个列表该用什么当 key",
+          titleEn: "What should this list use as its key",
           level: 1,
           prompt: (
             <p>
               <code>notes</code> 里每条是{" "}
               <code>{"{ id: number; title: string; content: string }"}</code>，
               用户可以删除任意一条。下面哪个是最合适的 key?
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Each item in <code>notes</code> is{" "}
+              <code>{"{ id: number; title: string; content: string }"}</code>, and the
+              user can delete any of them. Which of these is the best key?
             </p>
           ),
           options: [
@@ -991,18 +1121,39 @@ for more information.`,
               <strong>全部销毁重建</strong>，性能差且所有内部 state 丢失。
             </>
           ),
+          explainEn: (
+            <>
+              <code>note.id</code> is unique and travels with the data, so it is the
+              answer.
+              <br />
+              A mismatches component instances once the list allows deletion.
+              <br />
+              C is not guaranteed to be unique — two notes can share a title.
+              <br />
+              D is the worst: every render produces new keys, so React{" "}
+              <strong>destroys and rebuilds the whole list</strong>. It is slow and
+              every piece of inner state is lost.
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-map-return",
           title: "哪一段什么都不会渲染",
+          titleEn: "Which one renders nothing at all",
           level: 1,
           prompt: <p>下面哪一段会导致表格里一行都不出现（而且不报错）？</p>,
+          promptEn: (
+            <p>
+              Which of these makes the table show no rows at all, without reporting an
+              error?
+            </p>
+          ),
           options: [
             { id: "a", label: "{notes.map((note) => (<NoteItem key={note.id} note={note} ... />))}" },
             { id: "b", label: "{notes.map((note) => { <NoteItem key={note.id} note={note} ... /> })}" },
             { id: "c", label: "{notes.map((note) => { return <NoteItem key={note.id} note={note} ... />; })}" },
-            { id: "d", label: "A 和 C 都能正常渲染" },
+            { id: "d", label: "A 和 C 都能正常渲染", labelEn: "A and C both render correctly" },
           ],
           answer: ["b"],
           explain: (
@@ -1016,6 +1167,21 @@ for more information.`,
               <br />
               这是「箭头函数两种写法」最常见的翻车点：
               <strong>看到「列表空白但数据有值」，先去数括号。</strong>
+            </>
+          ),
+          explainEn: (
+            <>
+              B uses a curly-brace function body with <strong>no return</strong>, so
+              every callback returns <code>undefined</code>. The map produces a row of
+              undefined values and React renders nothing —{" "}
+              <strong>and reports no error</strong>.
+              <br />
+              A uses parentheses, which return implicitly. C uses curly braces plus an
+              explicit return. The two are equivalent.
+              <br />
+              This is the most common slip between the two arrow-function forms:{" "}
+              <strong>when the list is blank but the data is there, count the
+              brackets first.</strong>
             </>
           ),
         },
@@ -1090,6 +1256,7 @@ for more information.`,
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
           role: "第 17–25 行那个 useEffect",
+          roleEn: "The useEffect on lines 17 to 25",
         },
       ],
       concepts: [
@@ -1265,10 +1432,13 @@ for more information.`,
 }, [noteToEdit]);`,
               {
                 filename: "src/components/NoteForm/index.tsx（第 17–25 行）",
+                filenameEn: "src/components/NoteForm/index.tsx (lines 17–25)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 highlight: [9],
                 explanation:
                   "第 9 行那个 [noteToEdit] 是整段的开关。改成 [] 就只在首次渲染跑一次，点 Edit 永远不回填；去掉它就变成每次渲染都跑，直接死循环。",
+                explanationEn:
+                  "The [noteToEdit] on line 9 is the switch for the whole block. Change it to [] and the effect runs only on the first render, so Edit never prefills. Remove it and the effect runs on every render, which is an endless loop.",
               },
             ),
           ],
@@ -1345,11 +1515,18 @@ for more information.`,
           kind: "fill-blank",
           id: "r-effect-blanks",
           title: "补全编辑回填的 useEffect",
+          titleEn: "Complete the useEffect that prefills the form for editing",
           level: 2,
           prompt: (
             <p>
               这是 <code>NoteForm</code> 里那个决定 Task 3 成败的 effect。
               两个空：一个分支条件，一个依赖数组。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              This is the effect in <code>NoteForm</code> that decides whether Task 3
+              passes. Two blanks: one branch condition, one dependency array.
             </p>
           ),
           language: "tsx",
@@ -1369,6 +1546,7 @@ for more information.`,
               n: 1,
               accept: ["noteToEdit"],
               hint: "noteToEdit 的类型是 Note | null。要区分「有」和「没有」。",
+              hintEn: "The type of noteToEdit is Note | null. You have to tell \u201cthere is one\u201d from \u201cthere is none\u201d.",
               why: (
                 <>
                   <code>noteToEdit</code>。类型是 <code>Note | null</code>，
@@ -1381,12 +1559,24 @@ for more information.`,
                   这叫<strong>类型收窄</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>noteToEdit</code>. Its type is <code>Note | null</code>, so you
+                  can use it as the condition directly (<code>null</code> is falsy).
+                  <br />
+                  That <code>if</code> does one more thing: in strict mode TypeScript
+                  knows that inside the <code>if</code>, <code>noteToEdit</code> cannot
+                  be null, which is why <code>noteToEdit.title</code> does not raise an
+                  error. This is called <strong>type narrowing</strong>.
+                </>
+              ),
               width: 12,
             },
             {
               n: 2,
               accept: ["[noteToEdit]"],
               hint: "只在「外面换了要编辑的笔记」时才需要重新同步。",
+              hintEn: "You only need to sync again when the note to edit is swapped from outside.",
               why: (
                 <>
                   <code>[noteToEdit]</code>。
@@ -1400,6 +1590,19 @@ for more information.`,
                   因为 effect 自己改了 title 和 content。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>[noteToEdit]</code>.
+                  <br />
+                  Write <code>[]</code> → pressing Edit does not prefill (the button
+                  text does change, which is misleading).
+                  <br />
+                  Write nothing → the effect runs on every render: an endless loop.
+                  <br />
+                  Write <code>[noteToEdit, title, content]</code> → also an endless
+                  loop, because the effect itself changes title and content.
+                </>
+              ),
               width: 14,
             },
           ],
@@ -1408,11 +1611,18 @@ for more information.`,
           kind: "debug",
           id: "r-debug-effect-loop",
           title: "Debug Lab · 点 Edit 之后页面卡死",
+          titleEn: "Debug Lab · the page freezes after you press Edit",
           level: 3,
           prompt: (
             <p>
               点某一行的 Edit 按钮，浏览器标签页转圈，控制台刷出大量警告。
               请判断类型并定位。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Press the Edit button on any row. The browser tab spins and the console
+              fills up with warnings. Classify the error, then locate it.
             </p>
           ),
           errorOutput: `Warning: Maximum update depth exceeded. This can happen when a component
@@ -1434,24 +1644,25 @@ prevent an infinite loop.`,
     setContent("");
   }
 }, [noteToEdit, title, content]);`,
-            { filename: "有问题的依赖数组", highlight: [9] },
+            { filename: "有问题的依赖数组", filenameEn: "The broken dependency array", highlight: [9] },
           ),
           classify: {
             options: [
-              { id: "a", label: "语法错误 —— 依赖数组写法不合法" },
-              { id: "b", label: "useEffect 依赖错误 —— 依赖里包含了 effect 自己会修改的 state" },
-              { id: "c", label: "props 错误 —— noteToEdit 没传下来" },
-              { id: "d", label: "受控输入错误 —— onChange 写错了" },
+              { id: "a", label: "语法错误 —— 依赖数组写法不合法", labelEn: "Syntax error — the dependency array is not valid" },
+              { id: "b", label: "useEffect 依赖错误 —— 依赖里包含了 effect 自己会修改的 state", labelEn: "useEffect dependency error — a dependency holds state the effect itself changes" },
+              { id: "c", label: "props 错误 —— noteToEdit 没传下来", labelEn: "props error — noteToEdit was never passed down" },
+              { id: "d", label: "受控输入错误 —— onChange 写错了", labelEn: "Controlled input error — onChange is wrong" },
             ],
             answer: "b",
           },
           locate: {
             question: "第 9 行该怎么改？",
+            questionEn: "How should line 9 change?",
             options: [
-              { id: "a", label: "改成 [noteToEdit]" },
-              { id: "b", label: "改成 []" },
-              { id: "c", label: "整个依赖数组删掉" },
-              { id: "d", label: "改成 [noteToEdit, setTitle, setContent]" },
+              { id: "a", label: "改成 [noteToEdit]", labelEn: "Change it to [noteToEdit]" },
+              { id: "b", label: "改成 []", labelEn: "Change it to []" },
+              { id: "c", label: "整个依赖数组删掉", labelEn: "Delete the whole dependency array" },
+              { id: "d", label: "改成 [noteToEdit, setTitle, setContent]", labelEn: "Change it to [noteToEdit, setTitle, setContent]" },
             ],
             answer: "a",
           },
@@ -1460,6 +1671,7 @@ prevent an infinite loop.`,
             `}, [noteToEdit]);`,
             {
               filename: "改对之后（只改最后一行）",
+              filenameEn: "After the fix (only the last line changes)",
               sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
             },
           ),
@@ -1485,7 +1697,31 @@ prevent an infinite loop.`,
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                This is how the loop starts turning: the effect runs → it calls{" "}
+                <code>setTitle</code> → <code>title</code> changed → a re-render is
+                triggered → React sees that <code>title</code> in the dependency list
+                changed → the effect runs again → it calls <code>setTitle</code> again
+                → and so on.
+              </p>
+              <p>
+                <strong>The rule: state that an effect changes must never appear in
+                that effect&rsquo;s own dependency array.</strong>{" "}
+                A dependency array should hold only the reason this sync happens —
+                here that is <code>noteToEdit</code>.
+              </p>
+              <p>
+                About option D: the two setters <code>setTitle</code> and{" "}
+                <code>setContent</code> have a <strong>stable identity</strong> (React
+                guarantees the same function on every render), so putting them in the
+                dependency array causes no loop. It just achieves nothing.
+              </p>
+            </>
+          ),
           verify: "npx vitest run   # 第 4 个测试「edits a note in place」应该通过",
+          verifyEn: "npx vitest run   # the fourth test, \"edits a note in place\", should pass",
         },
       ],
       mistakes: [
@@ -1498,6 +1734,14 @@ const NoteForm = ({ noteToEdit }) => {
   if (noteToEdit) setTitle(noteToEdit.title);   // 渲染期间调 setState
   ...
 };`,
+            {
+              codeEn: `// ✗ syncing straight inside the component body — an endless loop
+const NoteForm = ({ noteToEdit }) => {
+  const [title, setTitle] = useState("");
+  if (noteToEdit) setTitle(noteToEdit.title);   // setState during render
+  ...
+};`,
+            },
           ),
           why: (
             <>
@@ -1525,6 +1769,12 @@ const NoteForm = ({ noteToEdit }) => {
 useEffect(() => {
   if (noteToEdit) { setTitle(noteToEdit.title); ... }
 }, []);`,
+            {
+              codeEn: `// ✗ dependencies written as [] — Edit does not prefill
+useEffect(() => {
+  if (noteToEdit) { setTitle(noteToEdit.title); ... }
+}, []);`,
+            },
           ),
           why: (
             <>
@@ -1621,10 +1871,12 @@ useEffect(() => {
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
           role: "isFormInvalid 与按钮文字",
+          roleEn: "isFormInvalid and the button text",
         },
         {
           path: "react-notes-app/src/components/NoteManager/index.tsx",
           role: "状态提升的落点",
+          roleEn: "Where the lifted state ends up",
         },
       ],
       concepts: [
@@ -1698,9 +1950,17 @@ useEffect(() => {
 if (isFormInvalid) return;      // handleSubmit 里再挡一次`,
               {
                 filename: "src/components/NoteForm/index.tsx（节选）",
+                filenameEn: "src/components/NoteForm/index.tsx (excerpt)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
+                codeEn: `const isFormInvalid = title.trim() === "" || content.trim() === "";
+
+// used in two places:
+<button type="submit" disabled={isFormInvalid} data-testid="form-submit-button">
+if (isFormInvalid) return;      // handleSubmit blocks it a second time`,
                 explanation:
                   "注意 .trim() —— 只输入空格也算无效。这个细节题目没写，但它是合理实现的一部分，而且测试里 disabled 那条也能覆盖到初始空值的情况。",
+                explanationEn:
+                  "Note the .trim() — spaces only still counts as invalid. The task never says this, but it is part of a sensible implementation, and the disabled assertion in the tests covers the empty initial values too.",
               },
             ),
           ],
@@ -1777,6 +2037,7 @@ if (isFormInvalid) return;      // handleSubmit 里再挡一次`,
 </button>`,
               {
                 filename: "src/components/NoteForm/index.tsx（节选）",
+                filenameEn: "src/components/NoteForm/index.tsx (excerpt)",
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 highlight: [6],
               },
@@ -1867,7 +2128,17 @@ noteToEdit   NoteItem 产生 + NoteForm 消费    NoteManager（共同祖先）
 title        只有 NoteForm 用                 NoteForm（自己留着）
 content      只有 NoteForm 用                 NoteForm（自己留着）
 isFormInvalid 由 title/content 算出           不是 state，当场算`,
-              { filename: "四个值的归属" },
+              {
+                filename: "四个值的归属",
+                filenameEn: "Where the four values belong",
+                codeEn: `who needs it                    →  where it should live
+─────────────────────────────────────────────────
+notes        NoteTable reads + NoteForm changes  NoteManager (shared ancestor)
+noteToEdit   NoteItem creates + NoteForm uses    NoteManager (shared ancestor)
+title        only NoteForm uses it               NoteForm (keeps it local)
+content      only NoteForm uses it               NoteForm (keeps it local)
+isFormInvalid computed from title/content        not state, computed inline`,
+              },
             ),
           ],
         },
@@ -1877,6 +2148,7 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
           kind: "recognition",
           id: "r-derived-or-state",
           title: "哪个应该做成 state",
+          titleEn: "Which one should become state",
           level: 1,
           prompt: (
             <p>
@@ -1884,11 +2156,17 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
               这个数字应该怎么实现？
             </p>
           ),
+          promptEn: (
+            <p>
+              Say you have to add a line to Notes Manager that shows how many notes
+              there are right now. How should that number be produced?
+            </p>
+          ),
           options: [
-            { id: "a", label: "新增一个 useState<number>(0)，在增删时同步维护" },
-            { id: "b", label: "直接用 notes.length，不新增 state" },
-            { id: "c", label: "用 useEffect 监听 notes，把长度写进另一个 state" },
-            { id: "d", label: "存到 localStorage 里" },
+            { id: "a", label: "新增一个 useState<number>(0)，在增删时同步维护", labelEn: "Add a useState<number>(0) and keep it up to date on every add and delete" },
+            { id: "b", label: "直接用 notes.length，不新增 state", labelEn: "Use notes.length directly, with no new state" },
+            { id: "c", label: "用 useEffect 监听 notes，把长度写进另一个 state", labelEn: "Watch notes with useEffect and write the length into another state" },
+            { id: "d", label: "存到 localStorage 里", labelEn: "Keep it in localStorage" },
           ],
           answer: ["b"],
           explain: (
@@ -1902,11 +2180,25 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
               判断口诀：<strong>能从现有 state 算出来的，就别存。</strong>
             </>
           ),
+          explainEn: (
+            <>
+              <code>notes.length</code> is the answer. It is <strong>always</strong>{" "}
+              in step with notes, because it is recomputed on every render.
+              <br />
+              A and C both store one fact twice, so the moment one side is not
+              updated the two disagree. C also costs an extra render, because the
+              setState inside the effect starts another round.
+              <br />
+              The rule of thumb: <strong>if you can compute it from state you already
+              have, do not store it.</strong>
+            </>
+          ),
         },
         {
           kind: "recognition",
           id: "r-where-state-lives",
           title: "这个 state 该住哪",
+          titleEn: "Where should this state live",
           level: 1,
           prompt: (
             <p>
@@ -1915,11 +2207,18 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
               搜索关键词这个 state 该放在哪？
             </p>
           ),
+          promptEn: (
+            <p>
+              Say you add a search box above NoteForm, as a direct child of
+              NoteManager. Once a keyword is typed, the table shows only the notes
+              that match. Where should the state holding that keyword go?
+            </p>
+          ),
           options: [
-            { id: "a", label: "NoteTable —— 它负责显示筛选结果" },
-            { id: "b", label: "NoteItem —— 每一行自己判断要不要显示" },
-            { id: "c", label: "NoteManager —— 搜索框和表格的共同祖先" },
-            { id: "d", label: "NoteForm —— 它已经管着输入了" },
+            { id: "a", label: "NoteTable —— 它负责显示筛选结果", labelEn: "NoteTable — it is the one showing the filtered result" },
+            { id: "b", label: "NoteItem —— 每一行自己判断要不要显示", labelEn: "NoteItem — each row decides for itself whether to show" },
+            { id: "c", label: "NoteManager —— 搜索框和表格的共同祖先", labelEn: "NoteManager — the common ancestor of the search box and the table" },
+            { id: "d", label: "NoteForm —— 它已经管着输入了", labelEn: "NoteForm — it already handles the inputs" },
           ],
           answer: ["c"],
           explain: (
@@ -1936,16 +2235,39 @@ isFormInvalid 由 title/content 算出           不是 state，当场算`,
               解法都是「一个 state 存条件 + 一个派生数组」。
             </>
           ),
+          explainEn: (
+            <>
+              The search box produces the keyword and the table consumes it. Their
+              closest common ancestor is <code>NoteManager</code>.
+              <br />
+              Then, inside <code>NoteManager</code>, compute{" "}
+              <code>const visible = notes.filter(n =&gt; n.title.includes(keyword))</code>{" "}
+              as <strong>computed data</strong> and pass it to{" "}
+              <code>NoteTable</code>. <strong>Do not</strong> open a second{" "}
+              <code>filteredNotes</code> state for it.
+              <br />
+              This is also the most common React interview variation: add filtering,
+              add sorting. The answer is always one state for the condition plus one
+              computed array.
+            </>
+          ),
         },
         {
           kind: "code-completion",
           id: "r-write-derived",
           title: "写出派生数据与按钮文字",
+          titleEn: "Write the computed value and the button text",
           level: 3,
           prompt: (
             <p>
               补出 <code>isFormInvalid</code> 和按钮的两处动态部分。
               注意：只输入空格也应该算无效。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Fill in <code>isFormInvalid</code> and the two changing parts of the
+              button. Note: spaces only should also count as invalid.
             </p>
           ),
           language: "tsx",
@@ -1969,6 +2291,24 @@ return (
     </button>
   </form>
 );`,
+          starterEn: `const [title, setTitle] = useState("");
+const [content, setContent] = useState("");
+
+// 1. is the form invalid: title or content empty (spaces only counts as empty)
+const isFormInvalid =
+
+return (
+  <form onSubmit={handleSubmit} data-testid="note-form">
+    {/* ...the two inputs... */}
+    <button
+      type="submit"
+      /* 2. disable it while the form is invalid */
+      data-testid="form-submit-button"
+    >
+      {/* 3. show Update in edit mode, Add otherwise */}
+    </button>
+  </form>
+);`,
           requirements: [
             "isFormInvalid 是一个普通 const，不许用 useState",
             "只输入空格也要判定为无效（用 trim）",
@@ -1976,19 +2316,32 @@ return (
             "按钮文字：noteToEdit 存在时是 Update，否则是 Add（大小写必须一致）",
             "不许改动 data-testid",
           ],
+          requirementsEn: [
+            "isFormInvalid is a plain const; useState is not allowed",
+            "Spaces only must also count as invalid (use trim)",
+            "The button is disabled while the form is invalid",
+            "Button text: Update when noteToEdit exists, otherwise Add (the capitals must match)",
+            "Do not change any data-testid",
+          ],
           checks: [
-            { label: "isFormInvalid 用了 trim()", must: "isFormInvalid[^\\n]*trim\\s*\\(\\s*\\)" },
-            { label: "同时检查了 title 和 content", must: "isFormInvalid[^\\n]*title[^\\n]*content" },
-            { label: "没有把 isFormInvalid 做成 state", mustNot: "useState[^\\n]*[Ii]nvalid" },
-            { label: "按钮上有 disabled={isFormInvalid}", must: "disabled\\s*=\\s*\\{\\s*isFormInvalid\\s*\\}" },
-            { label: "按钮文字用了三元判断 noteToEdit", must: "noteToEdit\\s*\\?" },
-            { label: "文字是 \"Update\" 和 \"Add\"（大小写正确）", must: '"Update"[\\s\\S]*"Add"' },
-            { label: "data-testid 没被改动", must: 'data-testid="form-submit-button"' },
+            { label: "isFormInvalid 用了 trim()", labelEn: "isFormInvalid uses trim()", must: "isFormInvalid[^\\n]*trim\\s*\\(\\s*\\)" },
+            { label: "同时检查了 title 和 content", labelEn: "Both title and content are checked", must: "isFormInvalid[^\\n]*title[^\\n]*content" },
+            { label: "没有把 isFormInvalid 做成 state", labelEn: "isFormInvalid was not turned into state", mustNot: "useState[^\\n]*[Ii]nvalid" },
+            { label: "按钮上有 disabled={isFormInvalid}", labelEn: "The button carries disabled={isFormInvalid}", must: "disabled\\s*=\\s*\\{\\s*isFormInvalid\\s*\\}" },
+            { label: "按钮文字用了三元判断 noteToEdit", labelEn: "The button text uses a ternary on noteToEdit", must: "noteToEdit\\s*\\?" },
+            { label: "文字是 \"Update\" 和 \"Add\"（大小写正确）", labelEn: "The words are \"Update\" and \"Add\" with the right capitals", must: '"Update"[\\s\\S]*"Add"' },
+            { label: "data-testid 没被改动", labelEn: "No data-testid was changed", must: 'data-testid="form-submit-button"' },
           ],
           hints: [
             "「表单无效」= 标题空 或者 内容空。两个条件用 || 连起来。",
             "「只有空格也算空」意味着比较之前要先 trim()。按钮文字用三元表达式，写在 JSX 的花括号里。",
             "const isFormInvalid = 标题去空白后 === \"\" || 内容去空白后 === \"\";\n按钮里写 {条件 ? \"Update\" : \"Add\"}",
+            'const isFormInvalid = title.trim() === "" || content.trim() === "";\n<button type="submit" disabled={isFormInvalid} data-testid="form-submit-button">',
+          ],
+          hintsEn: [
+            "\"The form is invalid\" = the title is empty OR the content is empty. Join the two conditions with ||.",
+            "\"Spaces only counts as empty\" means you call trim() before comparing. The button text is a ternary expression, written inside JSX curly braces.",
+            "const isFormInvalid = title with whitespace removed === \"\" || content with whitespace removed === \"\";\nIn the button write {condition ? \"Update\" : \"Add\"}",
             'const isFormInvalid = title.trim() === "" || content.trim() === "";\n<button type="submit" disabled={isFormInvalid} data-testid="form-submit-button">',
           ],
           solution: real(
@@ -2004,6 +2357,7 @@ return (
 </button>`,
             {
               filename: "参考答案（与项目里的实现一致）",
+              filenameEn: "Reference answer (same as the implementation in the project)",
               sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
             },
           ),

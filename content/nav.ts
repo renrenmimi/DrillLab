@@ -48,6 +48,7 @@ export interface NavModule {
 export interface NavMock {
   id: string;
   title: string;
+  titleEn?: string;
   scenario: string;
   mirrors: string;
   minutes: number;
@@ -70,7 +71,7 @@ export interface NavExam {
   stack: string[];
   status: string;
   prerequisites: string[];
-  sourceProjects: { path: string; role: string }[];
+  sourceProjects: { path: string; role: string; roleEn?: string }[];
   lessonCount: number;
   exerciseCount: number;
   minutes: number;
@@ -160,11 +161,13 @@ const PAYLOAD: NavPayload = {
       "sourceProjects": [
         {
           "path": "react-notes-app",
-          "role": "React Capstone，提供真实 package.json / tsconfig / vite 配置"
+          "role": "React Capstone，提供真实 package.json / tsconfig / vite 配置",
+          "roleEn": "React Capstone, the source of the real package.json, tsconfig and vite config"
         },
         {
           "path": "graphql-federation-practice",
-          "role": "Federation Capstone，提供真实 subgraph package.json / pom.xml"
+          "role": "Federation Capstone，提供真实 subgraph package.json / pom.xml",
+          "roleEn": "Federation Capstone, the source of the real subgraph package.json and pom.xml"
         }
       ],
       "lessonCount": 9,
@@ -314,7 +317,8 @@ const PAYLOAD: NavPayload = {
       "sourceProjects": [
         {
           "path": "react-notes-app",
-          "role": "参考项目。Vite + React 18 + TS strict + Vitest。本机实测 4 个测试全过（仓库里是完成版）"
+          "role": "参考项目。Vite + React 18 + TS strict + Vitest。本机实测 4 个测试全过（仓库里是完成版）",
+          "roleEn": "Reference project. Vite + React 18 + TS strict + Vitest. All four tests pass as measured; the repo holds the finished version"
         }
       ],
       "lessonCount": 21,
@@ -581,6 +585,7 @@ const PAYLOAD: NavPayload = {
         {
           "id": "support-tickets",
           "title": "模拟考 A · Support Ticket Board",
+          "titleEn": "Mock exam A · Support Ticket Board",
           "scenario": "IT 支持工单看板。可以新建工单（标题 + 优先级）、关闭工单、改派（编辑）工单，还能按优先级筛选。业务场景换了，数据结构多了一个枚举字段和一个筛选状态，但底层要你会的东西和 Notes Manager 一模一样。",
           "mirrors": "与真实 Q1 完全相同的考点：受控输入、列表渲染与 key、useState 的三种不可变更新（增 / 删 / 就地替换）、useEffect 同步外部 prop、派生数据、状态提升、双模式按钮与 id 复用。额外增加一个「筛选」考点 —— 这是这类题最常见的变式方向。",
           "minutes": 75,
@@ -686,7 +691,8 @@ const PAYLOAD: NavPayload = {
       "sourceProjects": [
         {
           "path": "graphql-federation-practice",
-          "role": "参考项目。本机实测基线：subgraph 6 failed / 4 passed，Java 5 run / 2 failures"
+          "role": "参考项目。本机实测基线：subgraph 6 failed / 4 passed，Java 5 run / 2 failures",
+          "roleEn": "Reference project. Measured baseline: subgraph 6 failed / 4 passed, Java 5 run / 2 failures"
         }
       ],
       "lessonCount": 17,
@@ -917,6 +923,7 @@ const PAYLOAD: NavPayload = {
         {
           "id": "book-reviews",
           "title": "模拟考 B · Book Reviews Subgraph",
+          "titleEn": "Mock exam B · Book Reviews Subgraph",
           "scenario": "图书评论 subgraph。它既不拥有 Author 也不拥有 Book —— 两者都由 Catalog subgraph 提供，本服务只往它们身上挂 reviews 和 averageRating。Book 用的是复合 key（isbn + edition），这是真实项目里很常见、但比单字段 key 更容易写错的情况。",
           "mirrors": "与真实 Task 1 相同的考点：entity 与 @key、__resolveReference、字段 resolver 的 parent、schema 可空性决定的兜底策略、DataLoader 防 N+1 及其长度/顺序契约、结构化错误与 correlation id、以及「catch 不要吞掉已结构化错误」。新增三个考点：复合 @key、可空标量字段（null 与 0 的区别）、以及一处「batch 函数用了 filter」的埋雷。",
           "minutes": 90,
@@ -1408,7 +1415,8 @@ const PAYLOAD: NavPayload = {
       "sourceProjects": [
         {
           "path": "cab-booking-context",
-          "role": "参考项目。6 个组件 + 1 个 Context + 4 个测试"
+          "role": "参考项目。6 个组件 + 1 个 Context + 4 个测试",
+          "roleEn": "Reference project. Six components, one Context, four tests"
         }
       ],
       "lessonCount": 8,
@@ -3134,6 +3142,7 @@ const PAYLOAD: NavPayload = {
     {
       "id": "r-rebuild-q1",
       "title": "从零重建 Q1 · Notes Manager",
+      "titleEn": "Rebuild Q1 · Notes Manager",
       "scenarioEn": "An empty folder. Start a Vite + React + TS project yourself, install the dependencies yourself, and write the Notes Manager add, edit and delete so all four tests pass. Do not change a single data-testid in the test file.",
       "scenario": "空文件夹。自己起一个 Vite + React + TS 项目，自己装依赖，把 Notes Manager 的增删改写出来并让四个测试全过。测试文件的 data-testid 一个都不能改。",
       "minutes": 75,
@@ -3146,6 +3155,7 @@ const PAYLOAD: NavPayload = {
     {
       "id": "r-rebuild-q2",
       "title": "从零重建 Q2 · 并发任务调度器",
+      "titleEn": "Rebuild Q2 · the concurrent task runner",
       "scenarioEn": "An empty folder. Implement an async task scheduler with a concurrency limit: never run more than the limit at once, keep results in input order, and report a failed task as rejected instead of letting the whole batch fail.",
       "scenario": "空文件夹。实现一个带并发上限的异步任务调度器：并发数不得超过上限、结果顺序与输入一致、失败的任务以 rejected 出现而不是让整批崩掉。",
       "minutes": 45,
@@ -3171,6 +3181,7 @@ const PAYLOAD: NavPayload = {
     {
       "id": "g-rebuild-subgraph",
       "title": "从零重建 Task 1 · Orders subgraph",
+      "titleEn": "Rebuild Task 1 · the Orders subgraph",
       "scenarioEn": "An empty folder. Build an Apollo Federation subgraph yourself: write the schema, write the four resolvers, use DataLoader to avoid N+1, put extensions.code on errors, and make all ten tests pass.",
       "scenario": "空文件夹。自己搭一个 Apollo Federation subgraph：写 schema、写四个 resolver、用 DataLoader 防 N+1、错误带上 extensions.code，并让十个测试全过。",
       "minutes": 90,
@@ -3183,6 +3194,7 @@ const PAYLOAD: NavPayload = {
     {
       "id": "g-rebuild-controller",
       "title": "从零重建 Task 2 · Spring Boot 控制器",
+      "titleEn": "Rebuild Task 2 · the Spring Boot controller",
       "scenarioEn": "An empty folder, or an empty Spring Initializr skeleton. Write the six REST endpoints: method, path, status code, where each parameter comes from, validation, and exception handling, with all five tests passing.",
       "scenario": "空文件夹（或一个空的 Spring Initializr 骨架）。把六个 REST 端点写出来：方法、路径、状态码、参数来源、校验、异常处理，五个测试全过。",
       "minutes": 75,
@@ -3208,6 +3220,7 @@ const PAYLOAD: NavPayload = {
     {
       "id": "cb-from-scratch",
       "title": "空文件夹里做出整个 Cab Booking",
+      "titleEn": "Build the whole of Cab Booking from an empty folder",
       "scenarioEn": "An empty folder. You get four tests and one data file. Build a Cab Booking app: Context holds the current booking and the ride history, four pages switch through one state machine, and the history keeps only the three most recent with the newest first. All four tests pass.",
       "scenario": "空文件夹。只有四个测试和一份数据文件：搭一个 Cab Booking 应用 —— Context 存「当前预订」和「行程历史」，四个页面用一个状态机切换，历史只留最新三条且最新在最上。四个测试全过。",
       "minutes": 60,

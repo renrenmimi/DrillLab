@@ -117,6 +117,107 @@ const TodoList: React.FC = () => {
 };
 
 export default TodoList;`;
+const TODO_SOLUTION_EN = `import React, { useState } from "react";
+import type { Filter, Todo } from "../../types/Todo";
+
+const TodoList: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [text, setText] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+
+  // Three derived values: each computed from todos, none of them a state
+  const visible =
+    filter === "all"
+      ? todos
+      : todos.filter((t) => (filter === "done" ? t.done : !t.done));
+  const remaining = todos.filter((t) => !t.done).length;
+  const allDone = todos.length > 0 && remaining === 0;
+
+  const isInvalid = text.trim() === "";
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isInvalid) return;
+    setTodos((prev) => [...prev, { id: Date.now(), text: text.trim(), done: false }]);
+    setText("");
+  };
+
+  // Toggle one item in place: map plus an object spread, original untouched
+  const toggle = (id: number) => {
+    setTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
+    );
+  };
+
+  const remove = (id: number) => {
+    setTodos((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Check all / uncheck all: one shared target value from whether all are done
+  const toggleAll = () => {
+    const next = !allDone;
+    setTodos((prev) => prev.map((t) => ({ ...t, done: next })));
+  };
+
+  const clearDone = () => {
+    setTodos((prev) => prev.filter((t) => !t.done));
+  };
+
+  return (
+    <div data-testid="todo-app">
+      <form onSubmit={handleSubmit} data-testid="todo-form">
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          data-testid="todo-input"
+        />
+        <button type="submit" disabled={isInvalid} data-testid="todo-submit">
+          Add
+        </button>
+      </form>
+
+      <div>
+        <button onClick={toggleAll} data-testid="toggle-all">
+          {allDone ? "Uncheck all" : "Check all"}
+        </button>
+        <button onClick={clearDone} data-testid="clear-done">
+          Clear completed
+        </button>
+        <span data-testid="remaining">{remaining} left</span>
+      </div>
+
+      <div>
+        {(["all", "active", "done"] as Filter[]).map((f) => (
+          <button key={f} onClick={() => setFilter(f)} data-testid={\`filter-\${f}\`}
+                  aria-pressed={filter === f}>
+            {f}
+          </button>
+        ))}
+      </div>
+
+      <ul data-testid="todo-list">
+        {visible.map((todo) => (
+          <li key={todo.id} data-done={todo.done}>
+            <input
+              type="checkbox"
+              checked={todo.done}
+              onChange={() => toggle(todo.id)}
+              aria-label={\`toggle \${todo.text}\`}
+            />
+            <span>{todo.text}</span>
+            <button onClick={() => remove(todo.id)} aria-label={\`delete \${todo.text}\`}>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default TodoList;`;
+
 
 const TIMER_SOLUTION = `import React, { useEffect, useState } from "react";
 
@@ -163,6 +264,52 @@ const Timer: React.FC = () => {
 };
 
 export default Timer;`;
+const TIMER_SOLUTION_EN = `import React, { useEffect, useState } from "react";
+
+const pad = (n: number) => String(n).padStart(2, "0");
+export const format = (totalSeconds: number) =>
+  \`\${pad(Math.floor(totalSeconds / 60))}:\${pad(totalSeconds % 60)}\`;
+
+const Timer: React.FC = () => {
+  const [seconds, setSeconds] = useState(0);
+  const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    if (!running) return;          // not running, so build no interval
+
+    const id = setInterval(() => {
+      // The updater form is required. This callback was created in one render of
+      // the effect, so setSeconds(seconds + 1) would always read that render's
+      // seconds (a stale closure) and the count would freeze at 1.
+      setSeconds((s) => s + 1);
+    }, 1000);
+
+    // Cleanup: runs when running changes, and again when the component unmounts.
+    // Without it -> every switch to true adds one more interval and the count
+    //             speeds up; after unmount the interval runs on -> a memory leak.
+    return () => clearInterval(id);
+  }, [running]);
+
+  const reset = () => {
+    setRunning(false);
+    setSeconds(0);
+  };
+
+  return (
+    <div data-testid="timer">
+      <output data-testid="display">{format(seconds)}</output>
+      <button onClick={() => setRunning((r) => !r)} data-testid="toggle">
+        {running ? "Pause" : "Start"}
+      </button>
+      <button onClick={reset} data-testid="reset">
+        Reset
+      </button>
+    </div>
+  );
+};
+
+export default Timer;`;
+
 
 const FETCH_SOLUTION = `import React, { useEffect, useState } from "react";
 import type { User } from "../../types/User";
@@ -222,6 +369,65 @@ const UserCard: React.FC<{ userId: number }> = ({ userId }) => {
 };
 
 export default UserCard;`;
+const FETCH_SOLUTION_EN = `import React, { useEffect, useState } from "react";
+import type { User } from "../../types/User";
+
+const UserCard: React.FC<{ userId: number }> = ({ userId }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // ignore is the switch for whether this request still counts.
+    // When userId changes, the cleanup of the old effect sets it to true first,
+    // so a late old response cannot overwrite new data. That settles the race.
+    let ignore = false;
+    const controller = new AbortController();
+
+    setLoading(true);
+    setError(null);
+    setUser(null);
+
+    (async () => {
+      try {
+        const res = await fetch(\`/api/users/\${userId}\`, { signal: controller.signal });
+
+        // fetch only rejects when the network layer fails.
+        // A 404 or 500 is a failure response received successfully, so check
+        // res.ok yourself or you will use the error page as data.
+        if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+
+        const data: User = await res.json();
+        if (!ignore) setUser(data);
+      } catch (e) {
+        // Cancelling on purpose is not an error, so do not show it to the user
+        const err = e as Error;
+        if (!ignore && err.name !== "AbortError") setError(err.message);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+
+    return () => {
+      ignore = true;
+      controller.abort();   // also cut off the request in flight and save bandwidth
+    };
+  }, [userId]);
+
+  if (loading) return <p data-testid="loading">Loading…</p>;
+  if (error) return <p data-testid="error">出错了：{error}</p>;
+  if (!user) return <p data-testid="empty">没有数据</p>;
+
+  return (
+    <article data-testid="user">
+      <h2 data-testid="user-name">{user.name}</h2>
+      <p data-testid="user-email">{user.email}</p>
+    </article>
+  );
+};
+
+export default UserCard;`;
+
 
 const TREE_HELPERS = `import type { Comment } from "../../types/Comment";
 
@@ -245,6 +451,29 @@ export function addReply(nodes: Comment[], parentId: number, reply: Comment): Co
     return { ...node, replies: addReply(node.replies, parentId, reply) };
   });
 }`;
+const TREE_HELPERS_EN = `import type { Comment } from "../../types/Comment";
+
+/** Count every comment recursively, replies at every level included */
+export function countComments(nodes: Comment[]): number {
+  return nodes.reduce((sum, n) => sum + 1 + countComments(n.replies), 0);
+}
+
+/**
+ * Add one reply under a node of the tree, and return a brand new tree.
+ *
+ * The key point: every node on the path from the root to the target becomes a
+ * new object, but **do not** deep-copy the tree. Untouched branches are reused.
+ */
+export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
+  return nodes.map((node) => {
+    if (node.id === parentId) {
+      return { ...node, replies: [...node.replies, reply] };
+    }
+    // the target may be deeper down, so keep looking
+    return { ...node, replies: addReply(node.replies, parentId, reply) };
+  });
+}`;
+
 
 const TREE_SOLUTION = `interface NodeProps {
   comment: Comment;
@@ -334,6 +563,95 @@ const CommentTree: React.FC<{ initial: Comment[] }> = ({ initial }) => {
 };
 
 export default CommentTree;`;
+const TREE_SOLUTION_EN = `interface NodeProps {
+  comment: Comment;
+  depth: number;
+  onReply: (parentId: number, text: string) => void;
+}
+
+const CommentNode: React.FC<NodeProps> = ({ comment, depth, onReply }) => {
+  const [open, setOpen] = useState(true);
+  const [replying, setReplying] = useState(false);
+  const [text, setText] = useState("");
+
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (text.trim() === "") return;
+    onReply(comment.id, text.trim());
+    setText("");
+    setReplying(false);
+  };
+
+  return (
+    <li
+      data-testid={\`comment-\${comment.id}\`}
+      data-depth={depth}
+      style={{ marginLeft: depth * 16 }}
+    >
+      <span data-testid={\`author-\${comment.id}\`}>{comment.author}</span>
+      <span data-testid={\`body-\${comment.id}\`}>{comment.body}</span>
+
+      <button onClick={() => setReplying((v) => !v)} aria-label={\`reply to \${comment.author}\`}>
+        Reply
+      </button>
+
+      {comment.replies.length > 0 && (
+        <button onClick={() => setOpen((v) => !v)} aria-label={\`toggle \${comment.author}\`}>
+          {open ? \`Hide \${comment.replies.length}\` : \`Show \${comment.replies.length}\`}
+        </button>
+      )}
+
+      {replying && (
+        <form onSubmit={submit}>
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            data-testid={\`reply-input-\${comment.id}\`}
+          />
+          <button type="submit" data-testid={\`reply-submit-\${comment.id}\`}>Send</button>
+        </form>
+      )}
+
+      {/* Recursion: the component renders itself.
+          No if is needed to stop it: with empty replies, map produces nothing. */}
+      {open && comment.replies.length > 0 && (
+        <ul>
+          {comment.replies.map((child) => (
+            <CommentNode key={child.id} comment={child} depth={depth + 1} onReply={onReply} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
+
+const CommentTree: React.FC<{ initial: Comment[] }> = ({ initial }) => {
+  const [comments, setComments] = useState<Comment[]>(initial);
+
+  const handleReply = (parentId: number, text: string) => {
+    const reply: Comment = {
+      id: Date.now() + Math.random(),
+      author: "我",
+      body: text,
+      replies: [],
+    };
+    setComments((prev) => addReply(prev, parentId, reply));
+  };
+
+  return (
+    <div data-testid="comment-tree">
+      <span data-testid="total">{countComments(comments)}</span>
+      <ul>
+        {comments.map((c) => (
+          <CommentNode key={c.id} comment={c} depth={0} onReply={handleReply} />
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default CommentTree;`;
+
 
 /* ---------------- 主题切换（Context）：本机跑出 8/8 的那几个文件 ---------------- */
 
@@ -371,6 +689,41 @@ export function useTheme(): ThemeContextValue {
   if (!ctx) throw new Error("useTheme 必须在 <ThemeProvider> 里面用");
   return ctx;
 }`;
+const THEME_CONTEXT_EN = `import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+
+export type Theme = "light" | "dark";
+
+export interface ThemeContextValue {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+// The default value is undefined, to pair with the guard inside useTheme below:
+// a missing Provider fails at once instead of quietly using a made-up theme.
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<Theme>("light");
+
+  // Updater form: called twice inside one event, it still flips back correctly
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  }, []);
+
+  // The value has to be memoized. Otherwise every Provider render builds a new
+  // object and every component calling useTheme() re-renders, theme unchanged.
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme has to be used inside <ThemeProvider>");
+  return ctx;
+}`;
+
 
 const THEME_BUTTON = `import React from "react";
 import { useTheme } from "../../context/ThemeContext";
@@ -429,6 +782,23 @@ const ThemeApp: React.FC = () => (
 );
 
 export default ThemeApp;`;
+const THEME_APP_EN = `import React from "react";
+import { ThemeProvider } from "../../context/ThemeContext";
+import ThemeToggleButton from "../ThemeToggleButton";
+import ThemedCard from "../ThemedCard";
+
+// The whole App sits inside the Provider: only its subtree can call useTheme()
+const ThemeApp: React.FC = () => (
+  <ThemeProvider>
+    <ThemeToggleButton />
+    <ThemedCard>
+      <p>Card content</p>
+    </ThemedCard>
+  </ThemeProvider>
+);
+
+export default ThemeApp;`;
+
 
 const THEME_TEST = `import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -543,6 +913,120 @@ test("一次事件里连调两次 toggleTheme，应该原样回来（函数式�
   // 两次都读到同一个旧 theme，结果会停在 dark
   expect(screen.getByTestId("theme-name")).toHaveTextContent("light");
 });`;
+const THEME_TEST_EN = `import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { expect, test, vi } from "vitest";
+import ThemeApp from "./components/ThemeApp";
+import ThemedCard from "./components/ThemedCard";
+import ThemeToggleButton from "./components/ThemeToggleButton";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
+
+test("默认是 light，按钮说 Switch to Dark", () => {
+  render(<ThemeApp />);
+  expect(screen.getByTestId("theme-name")).toHaveTextContent("light");
+  expect(screen.getByTestId("theme-toggle")).toHaveTextContent("Switch to Dark");
+  expect(screen.getByTestId("themed-card")).toHaveStyle({ backgroundColor: "#fff" });
+});
+
+test("点一下变 dark：按钮文字和卡片底色一起变", async () => {
+  render(<ThemeApp />);
+  await userEvent.click(screen.getByTestId("theme-toggle"));
+
+  expect(screen.getByTestId("theme-name")).toHaveTextContent("dark");
+  expect(screen.getByTestId("theme-toggle")).toHaveTextContent("Switch to Light");
+  expect(screen.getByTestId("themed-card")).toHaveStyle({ backgroundColor: "#222" });
+});
+
+test("再点一下切回 light", async () => {
+  render(<ThemeApp />);
+  await userEvent.click(screen.getByTestId("theme-toggle"));
+  await userEvent.click(screen.getByTestId("theme-toggle"));
+
+  expect(screen.getByTestId("theme-name")).toHaveTextContent("light");
+  expect(screen.getByTestId("themed-card")).toHaveStyle({ backgroundColor: "#fff" });
+});
+
+test("同一个 Provider 下的多个消费者一起变（这才是 Context 的意义）", async () => {
+  render(
+    <ThemeProvider>
+      <ThemeToggleButton />
+      <div data-testid="a"><ThemedCard /></div>
+      <div data-testid="b"><ThemedCard /></div>
+    </ThemeProvider>,
+  );
+
+  const names = () => screen.getAllByTestId("theme-name").map((n) => n.textContent);
+  expect(names()).toEqual(["light", "light"]);
+
+  await userEvent.click(screen.getByTestId("theme-toggle"));
+  expect(names()).toEqual(["dark", "dark"]);
+});
+
+test("没套 Provider 就用 useTheme()，必须立刻报错", () => {
+  // React prints the expected error to console.error, so silence it here
+  const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+  expect(() => render(<ThemedCard />)).toThrow("useTheme has to be used inside <ThemeProvider>");
+  spy.mockRestore();
+});
+
+test("toggleTheme 是稳定引用：theme 变了它也不变", async () => {
+  const seen: (() => void)[] = [];
+  const Probe = () => {
+    const { toggleTheme } = useTheme();
+    seen.push(toggleTheme);
+    return <button onClick={toggleTheme} data-testid="probe">go</button>;
+  };
+
+  render(<ThemeProvider><Probe /></ThemeProvider>);
+  await userEvent.click(screen.getByTestId("probe"));
+
+  expect(seen.length).toBeGreaterThan(1);          // it really did re-render
+  expect(new Set(seen).size).toBe(1);              // but toggleTheme stayed one function
+});
+
+test("theme 没变时 context value 不换新对象（useMemo 生效）", () => {
+  const values: unknown[] = [];
+  const Probe = () => {
+    values.push(useTheme());
+    return null;
+  };
+
+  const { rerender } = render(<ThemeProvider><Probe /></ThemeProvider>);
+  rerender(<ThemeProvider><Probe /></ThemeProvider>);   // parent re-renders, theme unchanged
+
+  expect(values.length).toBeGreaterThan(1);
+  expect(new Set(values).size).toBe(1);
+});
+
+test("一次事件里连调两次 toggleTheme，应该原样回来（函数式更新的证据）", async () => {
+  const Twice = () => {
+    const { toggleTheme } = useTheme();
+    return (
+      <button
+        data-testid="twice"
+        onClick={() => {
+          toggleTheme();
+          toggleTheme();
+        }}
+      >
+        go
+      </button>
+    );
+  };
+
+  render(
+    <ThemeProvider>
+      <Twice />
+      <ThemedCard />
+    </ThemeProvider>,
+  );
+
+  await userEvent.click(screen.getByTestId("twice"));
+  // Two flips = back to the start. Written as setTheme(theme === "light" ? ... ),
+  // both calls read the same old theme and it stops on dark
+  expect(screen.getByTestId("theme-name")).toHaveTextContent("light");
+});`;
+
 
 /* ---------------- 配套测试（就是本机跑出 36/36 的那五个文件） ---------------- */
 
@@ -629,6 +1113,90 @@ test("clear completed removes only done todos", async () => {
   expect(screen.getByTestId("todo-list")).not.toHaveTextContent("A");
   expect(screen.getByTestId("todo-list")).toHaveTextContent("B");
 });`;
+const TODO_TEST_EN = `import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import TodoList from "./components/TodoList";
+
+const add = async (text: string) => {
+  await userEvent.type(screen.getByTestId("todo-input"), text);
+  await userEvent.click(screen.getByTestId("todo-submit"));
+};
+
+test("adds a todo and clears the input", async () => {
+  render(<TodoList />);
+  await add("买牛奶");
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("买牛奶");
+  expect(screen.getByTestId("todo-input")).toHaveValue("");
+});
+
+test("submit disabled when input is only whitespace", async () => {
+  render(<TodoList />);
+  expect(screen.getByTestId("todo-submit")).toBeDisabled();
+  await userEvent.type(screen.getByTestId("todo-input"), "   ");
+  expect(screen.getByTestId("todo-submit")).toBeDisabled();
+});
+
+test("toggles one todo without touching the others", async () => {
+  render(<TodoList />);
+  await add("A");
+  await add("B");
+  await userEvent.click(screen.getByLabelText("toggle A"));
+
+  const items = screen.getByTestId("todo-list").querySelectorAll("li");
+  expect(items[0].getAttribute("data-done")).toBe("true");
+  expect(items[1].getAttribute("data-done")).toBe("false");
+});
+
+test("remaining count is derived, not stored", async () => {
+  render(<TodoList />);
+  await add("A");
+  await add("B");
+  expect(screen.getByTestId("remaining")).toHaveTextContent("2 left");
+  await userEvent.click(screen.getByLabelText("toggle A"));
+  expect(screen.getByTestId("remaining")).toHaveTextContent("1 left");
+});
+
+test("filters without losing data", async () => {
+  render(<TodoList />);
+  await add("A");
+  await add("B");
+  await userEvent.click(screen.getByLabelText("toggle A"));
+
+  await userEvent.click(screen.getByTestId("filter-active"));
+  expect(screen.getByTestId("todo-list")).not.toHaveTextContent("A");
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("B");
+
+  await userEvent.click(screen.getByTestId("filter-done"));
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("A");
+  expect(screen.getByTestId("todo-list")).not.toHaveTextContent("B");
+
+  // Back to all and both are still there: filtering must not touch the data
+  await userEvent.click(screen.getByTestId("filter-all"));
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("A");
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("B");
+});
+
+test("toggle all then uncheck all", async () => {
+  render(<TodoList />);
+  await add("A");
+  await add("B");
+  await userEvent.click(screen.getByTestId("toggle-all"));
+  expect(screen.getByTestId("remaining")).toHaveTextContent("0 left");
+  await userEvent.click(screen.getByTestId("toggle-all"));
+  expect(screen.getByTestId("remaining")).toHaveTextContent("2 left");
+});
+
+test("clear completed removes only done todos", async () => {
+  render(<TodoList />);
+  await add("A");
+  await add("B");
+  await userEvent.click(screen.getByLabelText("toggle A"));
+  await userEvent.click(screen.getByTestId("clear-done"));
+
+  expect(screen.getByTestId("todo-list")).not.toHaveTextContent("A");
+  expect(screen.getByTestId("todo-list")).toHaveTextContent("B");
+});`;
+
 
 const TIMER_TEST = `import { act, render, screen, fireEvent } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
@@ -704,6 +1272,81 @@ test("unmount clears the interval（不再有活着的定时器）", () => {
   unmount();
   expect(vi.getTimerCount()).toBe(0);
 });`;
+const TIMER_TEST_EN = `import { act, render, screen, fireEvent } from "@testing-library/react";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import Timer, { format } from "./components/Timer";
+
+beforeEach(() => vi.useFakeTimers());
+afterEach(() => vi.useRealTimers());
+
+const advance = (ms: number) => act(() => vi.advanceTimersByTime(ms));
+
+test("formats seconds as mm:ss", () => {
+  expect(format(0)).toBe("00:00");
+  expect(format(9)).toBe("00:09");
+  expect(format(65)).toBe("01:05");
+  expect(format(600)).toBe("10:00");
+});
+
+test("does not tick before start", () => {
+  render(<Timer />);
+  advance(5000);
+  expect(screen.getByTestId("display")).toHaveTextContent("00:00");
+});
+
+test("counts up once per second while running", () => {
+  render(<Timer />);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(3000);
+  expect(screen.getByTestId("display")).toHaveTextContent("00:03");
+});
+
+test("pause stops the clock and keeps the value", () => {
+  render(<Timer />);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(2000);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(5000);
+  expect(screen.getByTestId("display")).toHaveTextContent("00:02");
+});
+
+test("start/pause many times does not speed up（清理函数生效的证据）", () => {
+  render(<Timer />);
+  for (let i = 0; i < 4; i++) {
+    fireEvent.click(screen.getByTestId("toggle")); // start
+    advance(1000);
+    fireEvent.click(screen.getByTestId("toggle")); // pause
+  }
+  // Four rounds of 1 second each -> exactly 4. Without clearInterval: 1+2+3+4=10
+  expect(screen.getByTestId("display")).toHaveTextContent("00:04");
+});
+
+test("reset stops and zeroes", () => {
+  render(<Timer />);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(3000);
+  fireEvent.click(screen.getByTestId("reset"));
+  expect(screen.getByTestId("display")).toHaveTextContent("00:00");
+  expect(screen.getByTestId("toggle")).toHaveTextContent("Start");
+  advance(3000);
+  expect(screen.getByTestId("display")).toHaveTextContent("00:00");
+});
+
+test("crosses the minute boundary", () => {
+  render(<Timer />);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(61000);
+  expect(screen.getByTestId("display")).toHaveTextContent("01:01");
+});
+
+test("unmount clears the interval（不再有活着的定时器）", () => {
+  const { unmount } = render(<Timer />);
+  fireEvent.click(screen.getByTestId("toggle"));
+  advance(1000);
+  unmount();
+  expect(vi.getTimerCount()).toBe(0);
+});`;
+
 
 const FETCH_TEST = `import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
@@ -794,6 +1437,96 @@ test("aborts the in-flight request on unmount", async () => {
   unmount();
   expect(signals[0].aborted).toBe(true);
 });`;
+const FETCH_TEST_EN = `import { render, screen, waitFor } from "@testing-library/react";
+import { afterEach, expect, test, vi } from "vitest";
+import UserCard from "./components/UserCard";
+
+type Deferred<T> = { promise: Promise<T>; resolve: (v: T) => void; reject: (e: unknown) => void };
+function deferred<T>(): Deferred<T> {
+  let resolve!: (v: T) => void;
+  let reject!: (e: unknown) => void;
+  const promise = new Promise<T>((res, rej) => { resolve = res; reject = rej; });
+  return { promise, resolve, reject };
+}
+
+const okRes = (body: unknown) => ({ ok: true, status: 200, json: async () => body });
+
+afterEach(() => { vi.unstubAllGlobals(); });
+
+test("shows loading first, then the data", async () => {
+  const d = deferred<unknown>();
+  vi.stubGlobal("fetch", vi.fn(() => d.promise));
+
+  render(<UserCard userId={1} />);
+  expect(screen.getByTestId("loading")).toBeInTheDocument();
+
+  d.resolve(okRes({ id: 1, name: "张三", email: "z@example.com" }));
+  expect(await screen.findByTestId("user-name")).toHaveTextContent("张三");
+  expect(screen.getByTestId("user-email")).toHaveTextContent("z@example.com");
+  expect(screen.queryByTestId("loading")).toBeNull();
+});
+
+test("treats a 404 as an error（fetch 不会因为 404 而 reject）", async () => {
+  vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 404, json: async () => ({}) })));
+
+  render(<UserCard userId={9} />);
+  expect(await screen.findByTestId("error")).toHaveTextContent("HTTP 404");
+});
+
+test("shows an error when the network fails", async () => {
+  vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("Failed to fetch"); }));
+
+  render(<UserCard userId={1} />);
+  expect(await screen.findByTestId("error")).toHaveTextContent("Failed to fetch");
+});
+
+test("refetches when userId changes", async () => {
+  const spy = vi.fn(async (url: string) =>
+    okRes({ id: Number(url.split("/").pop()), name: \`用户\${url.split("/").pop()}\`, email: "x@y.z" }),
+  );
+  vi.stubGlobal("fetch", spy);
+
+  const { rerender } = render(<UserCard userId={1} />);
+  expect(await screen.findByTestId("user-name")).toHaveTextContent("用户1");
+
+  rerender(<UserCard userId={2} />);
+  expect(await screen.findByTestId("user-name")).toHaveTextContent("用户2");
+  expect(spy).toHaveBeenCalledTimes(2);
+});
+
+test("a slow stale response must not overwrite the newer one（竞态）", async () => {
+  const slow = deferred<unknown>();   // userId 1, slow
+  const fast = deferred<unknown>();   // userId 2, fast
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((url: string) => (url.endsWith("/1") ? slow.promise : fast.promise)),
+  );
+
+  const { rerender } = render(<UserCard userId={1} />);
+  rerender(<UserCard userId={2} />);          // the user switched to 2 at once
+
+  fast.resolve(okRes({ id: 2, name: "用户2", email: "b@x.z" }));
+  expect(await screen.findByTestId("user-name")).toHaveTextContent("用户2");
+
+  // only now does the old request come back, and it has to be ignored
+  slow.resolve(okRes({ id: 1, name: "用户1", email: "a@x.z" }));
+  await waitFor(() => expect(screen.getByTestId("user-name")).toHaveTextContent("用户2"));
+  expect(screen.getByTestId("user-name")).not.toHaveTextContent("用户1");
+});
+
+test("aborts the in-flight request on unmount", async () => {
+  const signals: AbortSignal[] = [];
+  vi.stubGlobal("fetch", vi.fn((_url: string, init: RequestInit) => {
+    signals.push(init.signal as AbortSignal);
+    return new Promise(() => {});   // never settles
+  }));
+
+  const { unmount } = render(<UserCard userId={1} />);
+  expect(signals[0].aborted).toBe(false);
+  unmount();
+  expect(signals[0].aborted).toBe(true);
+});`;
+
 
 const TREE_TEST = `import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -890,6 +1623,102 @@ test("折叠只藏自己的子树，不影响别人", async () => {
   expect(screen.getByTestId("comment-1")).toBeInTheDocument();
   expect(screen.getByTestId("comment-5")).toBeInTheDocument();  // 另一个顶层还在
 });`;
+const TREE_TEST_EN = `import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { expect, test } from "vitest";
+import CommentTree, { addReply, countComments } from "./components/CommentTree";
+import type { Comment } from "./types/Comment";
+
+/** Three levels of nesting: 1 -> 2 -> 4, plus siblings 3 and 5 */
+const tree = (): Comment[] => [
+  {
+    id: 1, author: "A", body: "顶层", replies: [
+      { id: 2, author: "B", body: "二层", replies: [
+        { id: 4, author: "D", body: "三层", replies: [] },
+      ]},
+      { id: 3, author: "C", body: "二层旁边", replies: [] },
+    ],
+  },
+  { id: 5, author: "E", body: "另一个顶层", replies: [] },
+];
+
+/** Deep freeze: if the component changes the original tree, strict mode throws */
+function deepFreeze<T>(o: T): T {
+  Object.freeze(o);
+  Object.values(o as Record<string, unknown>).forEach((v) => {
+    if (v && typeof v === "object" && !Object.isFrozen(v)) deepFreeze(v);
+  });
+  return o;
+}
+
+test("countComments 递归数到所有层级", () => {
+  expect(countComments(tree())).toBe(5);
+  expect(countComments([])).toBe(0);
+});
+
+test("addReply 挂到深层节点，且不改原树", () => {
+  const original = deepFreeze(tree());
+  const next = addReply(original, 4, { id: 99, author: "F", body: "四层", replies: [] });
+
+  // it is attached in the new tree
+  expect(countComments(next)).toBe(6);
+  expect(next[0].replies[0].replies[0].replies[0].id).toBe(99);
+  // the original tree never moved
+  expect(countComments(original)).toBe(5);
+  expect(original[0].replies[0].replies[0].replies).toHaveLength(0);
+});
+
+test("addReply 只重建路径上的节点，旁边的分支保持同一个引用", () => {
+  const original = tree();
+  const next = addReply(original, 2, { id: 88, author: "F", body: "x", replies: [] });
+
+  // the nodes on the path have to be new objects
+  expect(next).not.toBe(original);
+  expect(next[0]).not.toBe(original[0]);
+  expect(next[0].replies[0]).not.toBe(original[0].replies[0]);
+  // the untouched leaf still holds the same content
+  expect(next[1].body).toBe(original[1].body);
+});
+
+test("渲染出三层，并按深度缩进", () => {
+  render(<CommentTree initial={tree()} />);
+  expect(screen.getByTestId("comment-1").getAttribute("data-depth")).toBe("0");
+  expect(screen.getByTestId("comment-2").getAttribute("data-depth")).toBe("1");
+  expect(screen.getByTestId("comment-4").getAttribute("data-depth")).toBe("2");
+  expect(screen.getByTestId("total")).toHaveTextContent("5");
+});
+
+test("空 replies 就是递归的终止条件（叶子不再往下渲染）", () => {
+  render(<CommentTree initial={[{ id: 7, author: "Z", body: "孤零零", replies: [] }]} />);
+  expect(screen.getByTestId("comment-7")).toBeInTheDocument();
+  // a leaf has no collapse button, because it has no children
+  expect(screen.queryByLabelText("toggle Z")).toBeNull();
+});
+
+test("给三层的评论再回复，落在正确的位置", async () => {
+  render(<CommentTree initial={tree()} />);
+
+  await userEvent.click(screen.getByLabelText("reply to D"));
+  await userEvent.type(screen.getByTestId("reply-input-4"), "第四层");
+  await userEvent.click(screen.getByTestId("reply-submit-4"));
+
+  expect(screen.getByTestId("total")).toHaveTextContent("6");
+  // the new node has depth 3 and sits in the subtree of comment-4
+  const added = screen.getByText("第四层").closest("li")!;
+  expect(added.getAttribute("data-depth")).toBe("3");
+  expect(screen.getByTestId("comment-4").contains(added)).toBe(true);
+});
+
+test("折叠只藏自己的子树，不影响别人", async () => {
+  render(<CommentTree initial={tree()} />);
+  await userEvent.click(screen.getByLabelText("toggle A"));
+
+  expect(screen.queryByTestId("comment-2")).toBeNull();
+  expect(screen.queryByTestId("comment-4")).toBeNull();
+  expect(screen.getByTestId("comment-1")).toBeInTheDocument();
+  expect(screen.getByTestId("comment-5")).toBeInTheDocument();  // the other top-level one is still there
+});`;
+
 
 export const reactVariants: Module = {
   id: "react-variants",
@@ -1042,7 +1871,19 @@ setTodos((prev) =>
 setNotes((prev) =>
   prev.map((n) => (n.id === next.id ? next : n)),
 );`,
-              { filename: "两种 map 更新" },
+              {
+                filename: "两种 map 更新",
+                filenameEn: "Two kinds of map update",
+                codeEn: `// Toggle one item
+setTodos((prev) =>
+  prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
+);
+
+// Compare with the whole-item replace of Q1
+setNotes((prev) =>
+  prev.map((n) => (n.id === next.id ? next : n)),
+);`,
+              },
             ),
             demo(
               "tsx",
@@ -1053,7 +1894,17 @@ setTodos((prev) =>
     return t;
   }),
 );`,
-              { filename: "看起来像不可变，其实不是" },
+              {
+                filename: "看起来像不可变，其实不是",
+                filenameEn: "It looks immutable, and it is not",
+                codeEn: `// ✗ The array is new, but the object was changed in place
+setTodos((prev) =>
+  prev.map((t) => {
+    if (t.id === id) t.done = !t.done;   // this changes the original object
+    return t;
+  }),
+);`,
+              },
             ),
           ],
         },
@@ -1122,8 +1973,22 @@ const remove = (id: number) => {
 };`,
               {
                 filename: "派生数据",
+                filenameEn: "Derived values",
+                codeEn: `const visible =
+  filter === "all"
+    ? todos
+    : todos.filter((t) => (filter === "done" ? t.done : !t.done));
+const remaining = todos.filter((t) => !t.done).length;
+const allDone = todos.length > 0 && remaining === 0;
+
+// Every write acts on todos
+const remove = (id: number) => {
+  setTodos((prev) => prev.filter((t) => t.id !== id));
+};`,
                 explanation:
                   "allDone 里那个 todos.length > 0 不能省 —— 空列表时 remaining 也是 0，不判断的话按钮一上来就显示「Uncheck all」。",
+                explanationEn:
+                  "The todos.length > 0 inside allDone is not optional: with an empty list remaining is also 0, and without that check the button says Uncheck all from the very first render.",
               },
             ),
           ],
@@ -1171,12 +2036,27 @@ const remove = (id: number) => {
 const clearDone = () => {
   setTodos((prev) => prev.filter((t) => !t.done));
 };`,
-              { filename: "批量操作" },
+              {
+                filename: "批量操作",
+                filenameEn: "The bulk actions",
+                codeEn: `const toggleAll = () => {
+  const next = !allDone;                                  // decide one shared target value first
+  setTodos((prev) => prev.map((t) => ({ ...t, done: next })));
+};
+
+const clearDone = () => {
+  setTodos((prev) => prev.filter((t) => !t.done));
+};`,
+              },
             ),
             demo(
               "tsx",
               `// ✗ 每条各自翻转 —— 混合状态下变成「反选」，不是「全选」
 setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
+              {
+                codeEn: `// ✗ Toggling each item on its own — with a mixed list this inverts the selection instead of selecting all
+setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
+              },
             ),
           ],
         },
@@ -1206,7 +2086,9 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
           ),
           code: [
             tested("tsx", TODO_SOLUTION, {
+              codeEn: TODO_SOLUTION_EN,
               filename: "src/components/TodoList/index.tsx（实测 7/7 通过）",
+              filenameEn: "src/components/TodoList/index.tsx (7 of 7 pass here)",
               collapsible: true,
             }),
           ],
@@ -1266,7 +2148,9 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
               filename: "验证命令",
             }),
             tested("tsx", TODO_TEST, {
+              codeEn: TODO_TEST_EN,
               filename: "src/TodoList.test.tsx（DrillLab 自出，本机跑过）",
+              filenameEn: "src/TodoList.test.tsx (written for DrillLab, run here)",
               collapsible: true,
             }),
           ],
@@ -1277,12 +2161,19 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
           kind: "fill-blank",
           id: "r-var-todo-blank",
           title: "补全翻转与批量操作",
+          titleEn: "Fill in the toggle and the bulk action",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 2 个是「只改一个字段」的写法，第 4 个考的是
               「全选」和「反选」的区别。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The second is how you change one field only. The fourth
+              is about the difference between select-all and invert-selection.
             </p>
           ),
           language: "tsx",
@@ -1307,9 +2198,16 @@ const toggleAll = () => {
               n: 1,
               accept: ["map"],
               hint: "长度不变、顺序不变，只是其中一条换了内容。",
+              hintEn: "Same length, same order, with one item's content replaced.",
               why: (
                 <>
                   <code>map</code>。翻转不改变条数，所以是 map 而不是 filter。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>map</code>. A toggle does not change how many items there
+                  are, so this is map, not filter.
                 </>
               ),
               width: 6,
@@ -1318,6 +2216,7 @@ const toggleAll = () => {
               n: 2,
               accept: ["...t", "... t"],
               hint: "旧字段全部照抄，只覆盖 done。",
+              hintEn: "Copy every old field over, and overwrite done only.",
               why: (
                 <>
                   <code>...t</code>。对象展开把 <code>id</code>、
@@ -1326,12 +2225,25 @@ const toggleAll = () => {
                   <strong>顺序很重要，覆盖字段必须写在展开后面。</strong>
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>...t</code>. The object spread carries <code>id</code> and{" "}
+                  <code>text</code> across unchanged, and the{" "}
+                  <code>done: !t.done</code> after it overwrites the old value the
+                  spread brought in.{" "}
+                  <strong>
+                    The order matters: the field you overwrite has to come after
+                    the spread.
+                  </strong>
+                </>
+              ),
               width: 7,
             },
             {
               n: 3,
               accept: ["filter"],
               hint: "要「未完成的条数」，先筛出来再数。",
+              hintEn: "You want the count of unfinished items: select them first, then count.",
               why: (
                 <>
                   <code>filter</code> 再取 <code>.length</code>。
@@ -1340,12 +2252,21 @@ const toggleAll = () => {
                   重点是<strong>别把它做成 state</strong>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>filter</code>, then read <code>.length</code>.
+                  <br />
+                  <code>reduce</code> works too, but filter plus length is easier
+                  to read. The point is: <strong>do not make this a state</strong>.
+                </>
+              ),
               width: 8,
             },
             {
               n: 4,
               accept: ["!allDone"],
               hint: "「全选」要给所有条目一个统一的目标值，不是各自翻转。",
+              hintEn: "Select-all gives every item one shared target value; it does not toggle each item on its own.",
               why: (
                 <>
                   <code>!allDone</code>。先算出一个统一目标值再整体套上去。
@@ -1353,6 +2274,17 @@ const toggleAll = () => {
                   如果写成每条 <code>!t.done</code>，混合状态下就变成了
                   <strong>反选</strong>而不是全选 —— 勾了的取消、没勾的勾上，
                   用户会觉得按钮坏了。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>!allDone</code>. Work out one shared target value first,
+                  then apply it to everything.
+                  <br />
+                  If you write <code>!t.done</code> per item, then with a mixed
+                  list you get <strong>invert selection</strong> instead of select
+                  all: the checked ones get unchecked and the unchecked ones get
+                  checked. Users read that as a broken button.
                 </>
               ),
               width: 10,
@@ -1363,12 +2295,21 @@ const toggleAll = () => {
           kind: "code-completion",
           id: "r-var-todo-write",
           title: "自己写出筛选与「清除已完成」",
+          titleEn: "Write the filtering and the clear-completed action yourself",
           level: 3,
           generated: true,
           prompt: (
             <p>
               已有 <code>todos</code> 和 <code>filter</code> 两个 state。
               写出可见列表和「清除已完成」，注意筛选态下的写操作该作用于谁。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You already have the two states <code>todos</code> and{" "}
+              <code>filter</code>. Write the visible list and the clear-completed
+              action, and think about which list a write should act on while a
+              filter is on.
             </p>
           ),
           language: "tsx",
@@ -1384,6 +2325,17 @@ const visible =
 const clearDone = () => {
 
 };`,
+          starterEn: `// Already there:
+//   const [todos, setTodos] = useState<Todo[]>([]);
+//   const [filter, setFilter] = useState<Filter>("all");   // "all" | "active" | "done"
+
+// 1. the visible list (derived data, do not add a state)
+const visible =
+
+// 2. clear the completed items
+const clearDone = () => {
+
+};`,
           requirements: [
             "visible 是派生数据，不许用 useState 或 useEffect",
             'filter 为 "all" 时显示全部，"active" 显示未完成，"done" 显示已完成',
@@ -1391,16 +2343,47 @@ const clearDone = () => {
             "写操作必须作用于 todos，不能作用于 visible",
             "不许修改原数组",
           ],
+          requirementsEn: [
+            "visible is derived data: no useState and no useEffect",
+            'When filter is "all" show everything, "active" shows the unfinished ones, "done" shows the finished ones',
+            "clearDone removes every finished item and keeps the unfinished ones",
+            "A write has to act on todos, never on visible",
+            "Do not change the original array",
+          ],
           checks: [
-            { label: "visible 是普通 const，不是 state", mustNot: "useState[^\\n]*visible|setVisible" },
-            { label: "没有用 useEffect 同步筛选结果", mustNot: "useEffect" },
-            { label: "visible 用了 filter 或三元判断", must: "visible[\\s\\S]{0,160}(filter|\\?)" },
-            { label: "区分了 done 与未完成两种情况", must: "\\.done" },
-            { label: "clearDone 调用了 setTodos", must: "clearDone[\\s\\S]{0,160}setTodos" },
-            { label: "clearDone 用函数式更新", must: "setTodos\\s*\\(\\s*\\(?\\s*prev" },
-            { label: "clearDone 保留未完成项（条件带取反）", must: "filter\\s*\\(\\s*\\(?\\s*\\w+\\)?\\s*=>\\s*!" },
-            { label: "没有基于 visible 去 setTodos", mustNot: "setTodos\\s*\\(\\s*visible" },
-            { label: "没有 push / splice", mustNot: "\\.(push|splice)\\s*\\(" },
+            {
+              label: "visible 是普通 const，不是 state",
+              labelEn: "visible is a plain const, not a state",
+              mustNot: "useState[^\\n]*visible|setVisible",
+            },
+            {
+              label: "没有用 useEffect 同步筛选结果",
+              labelEn: "No useEffect is used to sync the filtered result",
+              mustNot: "useEffect",
+            },
+            {
+              label: "visible 用了 filter 或三元判断",
+              labelEn: "visible uses filter or a conditional",
+              must: "visible[\\s\\S]{0,160}(filter|\\?)",
+            },
+            { label: "区分了 done 与未完成两种情况", labelEn: "Finished and unfinished are told apart", must: "\\.done" },
+            { label: "clearDone 调用了 setTodos", labelEn: "clearDone calls setTodos", must: "clearDone[\\s\\S]{0,160}setTodos" },
+            {
+              label: "clearDone 用函数式更新",
+              labelEn: "clearDone uses a functional update",
+              must: "setTodos\\s*\\(\\s*\\(?\\s*prev",
+            },
+            {
+              label: "clearDone 保留未完成项（条件带取反）",
+              labelEn: "clearDone keeps the unfinished items (the condition is negated)",
+              must: "filter\\s*\\(\\s*\\(?\\s*\\w+\\)?\\s*=>\\s*!",
+            },
+            {
+              label: "没有基于 visible 去 setTodos",
+              labelEn: "setTodos is not called with visible",
+              mustNot: "setTodos\\s*\\(\\s*visible",
+            },
+            { label: "没有 push / splice", labelEn: "No push / splice", mustNot: "\\.(push|splice)\\s*\\(" },
           ],
           hints: [
             "先问两个问题：可见列表需要「记住」吗？还是每次渲染都能算出来？删除的时候，被筛掉的那些数据还在不在 todos 里？",
@@ -1409,6 +2392,23 @@ const clearDone = () => {
 
 const clearDone = () => {
   setTodos(最新值 => 最新值.filter(每一条 => 这条没完成))
+}`,
+            `const visible =
+  filter === "all"
+    ? todos
+    : todos.filter((t) => (filter === "done" ? t.done : !t.done));
+
+const clearDone = () => {
+  setTodos((prev) => prev.filter((t) => !t.done));
+};`,
+          ],
+          hintsEn: [
+            "Start with two questions. Does the visible list need to be remembered, or can it be computed on every render? And when you delete, are the filtered-out items still inside todos?",
+            "Compute visible on the spot with a conditional plus filter. clearDone is one filter whose condition keeps the unfinished ones — remember that filter means keep, so the condition is negated.",
+            `const visible = filter is all ? todos : todos.filter(each => filter is done ? this one is finished : this one is not finished)
+
+const clearDone = () => {
+  setTodos(latest => latest.filter(each => this one is not finished))
 }`,
             `const visible =
   filter === "all"
@@ -1429,7 +2429,7 @@ const clearDone = () => {
 const clearDone = () => {
   setTodos((prev) => prev.filter((t) => !t.done));
 };`,
-            { filename: "参考答案（实测通过）" },
+            { filename: "参考答案（实测通过）", filenameEn: "Reference answer (verified by running it)" },
           ),
         },
       ],
@@ -1442,6 +2442,13 @@ const [visible, setVisible] = useState<Todo[]>([]);
 useEffect(() => {
   setVisible(filter === "all" ? todos : todos.filter(...));
 }, [todos, filter]);`,
+            {
+              codeEn: `// ✗ A separate state for the filtered result, kept in sync by useEffect
+const [visible, setVisible] = useState<Todo[]>([]);
+useEffect(() => {
+  setVisible(filter === "all" ? todos : todos.filter(...));
+}, [todos, filter]);`,
+            },
           ),
           why: (
             <>
@@ -1464,6 +2471,12 @@ useEffect(() => {
 const remove = (id: number) => {
   setTodos(visible.filter((t) => t.id !== id));
 };`,
+            {
+              codeEn: `// ✗ Deleting from visible while a filter is on
+const remove = (id: number) => {
+  setTodos(visible.filter((t) => t.id !== id));
+};`,
+            },
           ),
           why: (
             <>
@@ -1628,7 +2641,19 @@ const remove = (id: number) => {
 
   return () => clearInterval(id);          // ← 这一行是整道题的答案
 }, [running]);`,
-              { filename: "计时器的核心九行" },
+              {
+                filename: "计时器的核心九行",
+                filenameEn: "The nine lines at the heart of the timer",
+                codeEn: `useEffect(() => {
+  if (!running) return;                    // not running, so build no interval
+
+  const id = setInterval(() => {
+    setSeconds((s) => s + 1);
+  }, 1000);
+
+  return () => clearInterval(id);          // ← this line is the answer to the whole task
+}, [running]);`,
+              },
             ),
           ],
         },
@@ -1703,6 +2728,20 @@ useEffect(() => {
 
 // ✓ 函数式更新：s 是 React 给的最新值
 setSeconds((s) => s + 1);`,
+              {
+                codeEn: `// ✗ Stale closure: seconds stays the value it had when the effect was created (0)
+useEffect(() => {
+  if (!running) return;
+  const id = setInterval(() => {
+    setSeconds(seconds + 1);   // 0 + 1 = 1, so every second computes 1
+  }, 1000);
+  return () => clearInterval(id);
+}, [running]);
+// Display: 00:01 and then nothing moves
+
+// ✓ Updater form: s is the latest value React gives you
+setSeconds((s) => s + 1);`,
+              },
             ),
           ],
         },
@@ -1780,7 +2819,31 @@ $ npx vitest run src/Timer.test.tsx
    + Received   1
 
  Tests  4 failed | 4 passed (8)`,
-              { filename: "本机实测：漏掉清理函数的后果" },
+              {
+                filename: "本机实测：漏掉清理函数的后果",
+                filenameEn: "Measured here: what a missing cleanup costs",
+                codeEn: `# The real output after deleting return () => clearInterval(id)
+$ npx vitest run src/Timer.test.tsx
+
+ ✕ pause stops the clock and keeps the value
+   Expected element to have text content: 00:02
+   Received:                              00:07
+
+ ✕ start/pause many times does not speed up（清理函数生效的证据）
+   Expected element to have text content: 00:04
+   Received:                              00:10        ← 1+2+3+4
+
+ ✕ reset stops and zeroes
+   Expected element to have text content: 00:00
+   Received:                              00:03
+
+ ✕ unmount clears the interval（不再有活着的定时器）
+   AssertionError: expected 1 to be +0 // Object.is equality
+   - Expected   0
+   + Received   1
+
+ Tests  4 failed | 4 passed (8)`,
+              },
             ),
           ],
         },
@@ -1818,7 +2881,9 @@ $ npx vitest run src/Timer.test.tsx
           ),
           code: [
             tested("tsx", TIMER_SOLUTION, {
+              codeEn: TIMER_SOLUTION_EN,
               filename: "src/components/Timer/index.tsx（实测 8/8 通过）",
+              filenameEn: "src/components/Timer/index.tsx (8 of 8 pass here)",
               collapsible: true,
             }),
           ],
@@ -1896,9 +2961,12 @@ $ npx vitest run src/Timer.test.tsx
           code: [
             tested("bash", "npx vitest run src/Timer.test.tsx   # 8 passed", {
               filename: "验证命令",
+              filenameEn: "The command that verifies it",
             }),
             tested("tsx", TIMER_TEST, {
+              codeEn: TIMER_TEST_EN,
               filename: "src/Timer.test.tsx（DrillLab 自出，本机跑过）",
+              filenameEn: "src/Timer.test.tsx (written for DrillLab, run here)",
               collapsible: true,
             }),
           ],
@@ -1909,12 +2977,20 @@ $ npx vitest run src/Timer.test.tsx
           kind: "fill-blank",
           id: "r-var-timer-blank",
           title: "补全计时器的 effect",
+          titleEn: "Fill in the effect of the timer",
           level: 2,
           generated: true,
           prompt: (
             <p>
               三个空，全在这九行里。第 2 个空漏了会「越跳越快」，
               第 3 个空写错会「卡在 1 不动」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Three blanks, all within these nine lines. Miss the second and the
+              clock speeds up with every start. Get the third wrong and the
+              display freezes at 1.
             </p>
           ),
           language: "tsx",
@@ -1933,6 +3009,7 @@ $ npx vitest run src/Timer.test.tsx
               n: 1,
               accept: ["running"],
               hint: "只有「跑还是不跑」变化时才需要重建定时器。",
+              hintEn: "The interval only needs rebuilding when running or not running changes.",
               why: (
                 <>
                   <code>running</code>。
@@ -1945,12 +3022,27 @@ $ npx vitest run src/Timer.test.tsx
                   不写依赖数组 → 每次渲染都重建，直接失控。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>running</code>.
+                  <br />
+                  With <code>[]</code>, clicking Start does nothing.
+                  <br />
+                  With <code>[running, seconds]</code>, the interval is destroyed
+                  and rebuilt every second. It runs, but the clock drifts, and
+                  there is no reason for it.
+                  <br />
+                  With no dependency array at all, it is rebuilt on every render
+                  and goes out of control.
+                </>
+              ),
               width: 9,
             },
             {
               n: 2,
               accept: ["clearInterval"],
               hint: "把这一次 effect 建立起来的东西拆掉。",
+              hintEn: "Take down whatever this run of the effect set up.",
               why: (
                 <>
                   <code>clearInterval</code>。
@@ -1963,12 +3055,27 @@ $ npx vitest run src/Timer.test.tsx
                   虽然多数浏览器里两者可以互换，但语义不对，review 会挑。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>clearInterval</code>.
+                  <br />
+                  <strong>This is what the whole task is testing.</strong> Without
+                  it, four rounds of start and pause give you 10 seconds instead of
+                  4 (measured), and the interval stays alive after the component
+                  unmounts.
+                  <br />
+                  Do not write <code>clearTimeout</code> instead. Most browsers
+                  treat the two interchangeably, but it says the wrong thing, and a
+                  reviewer will point it out.
+                </>
+              ),
               width: 15,
             },
             {
               n: 3,
               accept: ["(s) => s + 1", "s => s + 1", "(prev) => prev + 1", "prev => prev + 1"],
               hint: "回调是在某一次渲染里创建的，它闭包捕获的 seconds 不会更新。",
+              hintEn: "The callback was created inside one particular render, and the seconds its closure captured never updates.",
               why: (
                 <>
                   <code>(s) =&gt; s + 1</code> —— 函数式更新。
@@ -1979,6 +3086,18 @@ $ npx vitest run src/Timer.test.tsx
                   于是每秒都算出 1，显示卡在 <code>00:01</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>(s) =&gt; s + 1</code>, the updater form.
+                  <br />
+                  Writing <code>seconds + 1</code> gives you a{" "}
+                  <strong>stale closure</strong>: the dependency is{" "}
+                  <code>[running]</code>, so a change to <code>seconds</code> does
+                  not rebuild the effect. The <code>seconds</code> inside that
+                  callback stays 0 forever, every second computes 1, and the display
+                  freezes at <code>00:01</code>.
+                </>
+              ),
               width: 14,
             },
           ],
@@ -1987,12 +3106,20 @@ $ npx vitest run src/Timer.test.tsx
           kind: "code-completion",
           id: "r-var-timer-write",
           title: "自己写出整个计时器",
+          titleEn: "Write the whole timer yourself",
           level: 3,
           generated: true,
           prompt: (
             <p>
               两个 state、一个 effect、一个 reset、一个 mm:ss 格式化。
               检查器会专门查清理函数和函数式更新。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Two states, one effect, one reset, and one mm:ss formatter. The
+              checker looks specifically for the cleanup function and the updater
+              form.
             </p>
           ),
           language: "tsx",
@@ -2019,6 +3146,28 @@ const Timer: React.FC = () => {
 };
 
 export default Timer;`,
+          starterEn: `import React, { useEffect, useState } from "react";
+
+// 1. format the seconds as mm:ss (00:00 / 00:09 / 01:05 / 10:00)
+export const format = (totalSeconds: number) =>
+
+const Timer: React.FC = () => {
+  // 2. two states: the seconds gone by, and whether it is running
+
+  // 3. effect: add one every second while running is true; remember the cleanup
+
+  // 4. reset: stop and go back to zero
+
+  return (
+    <div data-testid="timer">
+      <output data-testid="display">{/* 格式化后的时间 */}</output>
+      <button data-testid="toggle">{/* Start / Pause */}</button>
+      <button data-testid="reset">Reset</button>
+    </div>
+  );
+};
+
+export default Timer;`,
           requirements: [
             "format(65) 要返回 \"01:05\"，个位数补零",
             "点 Start 开始每秒加一，点 Pause 停下并保留当前值",
@@ -2027,15 +3176,43 @@ export default Timer;`,
             "必须用函数式更新，避免过期闭包",
             "按钮文字：跑着显示 Pause，停着显示 Start",
           ],
+          requirementsEn: [
+            'format(65) has to return "01:05", padding single digits with a zero',
+            "Start begins adding one per second; Pause stops and keeps the current value",
+            "Reset stops and goes back to zero (the button text returns to Start)",
+            "The effect has to return a cleanup function that clears the interval",
+            "Use the updater form, so there is no stale closure",
+            "Button text: Pause while running, Start while stopped",
+          ],
           checks: [
-            { label: "用了 setInterval", must: "setInterval\\s*\\(" },
-            { label: "effect 返回了清理函数并 clearInterval", must: "return\\s*\\(\\s*\\)\\s*=>[\\s\\S]{0,60}clearInterval" },
-            { label: "依赖数组里有 running（或等价的开关 state）", must: "\\}\\s*,\\s*\\[[^\\]]*running[^\\]]*\\]" },
-            { label: "用函数式更新加一，不是 seconds + 1", must: "set\\w*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>\\s*\\w+\\s*\\+\\s*1" },
-            { label: "没有直接用闭包里的值加一", mustNot: "set(Seconds|Time|Elapsed)\\s*\\(\\s*(seconds|time|elapsed)\\s*\\+" },
-            { label: "format 里做了补零", must: "padStart|padEnd|slice\\s*\\(\\s*-2" },
-            { label: "reset 同时停表并清零", must: "(setRunning|setIsRunning)\\s*\\(\\s*false\\s*\\)" },
-            { label: "按钮文字随状态切换", must: "\\?\\s*[\"'`]Pause|Pause[\"'`]\\s*:" },
+            { label: "用了 setInterval", labelEn: "setInterval is used", must: "setInterval\\s*\\(" },
+            {
+              label: "effect 返回了清理函数并 clearInterval",
+              labelEn: "The effect returns a cleanup function that calls clearInterval",
+              must: "return\\s*\\(\\s*\\)\\s*=>[\\s\\S]{0,60}clearInterval",
+            },
+            {
+              label: "依赖数组里有 running（或等价的开关 state）",
+              labelEn: "The dependency array holds running (or an equivalent on/off state)",
+              must: "\\}\\s*,\\s*\\[[^\\]]*running[^\\]]*\\]",
+            },
+            {
+              label: "用函数式更新加一，不是 seconds + 1",
+              labelEn: "The increment uses the updater form, not seconds + 1",
+              must: "set\\w*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>\\s*\\w+\\s*\\+\\s*1",
+            },
+            {
+              label: "没有直接用闭包里的值加一",
+              labelEn: "The increment does not read the value out of the closure",
+              mustNot: "set(Seconds|Time|Elapsed)\\s*\\(\\s*(seconds|time|elapsed)\\s*\\+",
+            },
+            { label: "format 里做了补零", labelEn: "format pads with a zero", must: "padStart|padEnd|slice\\s*\\(\\s*-2" },
+            {
+              label: "reset 同时停表并清零",
+              labelEn: "reset both stops the clock and clears it",
+              must: "(setRunning|setIsRunning)\\s*\\(\\s*false\\s*\\)",
+            },
+            { label: "按钮文字随状态切换", labelEn: "The button text follows the state", must: "\\?\\s*[\"'`]Pause|Pause[\"'`]\\s*:" },
           ],
           hints: [
             "先想清楚：定时器该在什么时候建立、什么时候拆掉？「拆掉」这件事在 useEffect 里由谁负责？另外，interval 的回调是在哪一次渲染里创建的，它看到的 state 是哪一次的？",
@@ -2063,8 +3240,36 @@ useEffect(() => {
   return () => clearInterval(id);
 }, [running]);`,
           ],
+          hintsEn: [
+            "Settle two things first: when should the interval be built, and when torn down? Inside useEffect, what is responsible for the tearing down? And which render created the interval callback, so which render's state does it see?",
+            'Two states: seconds and running. The effect depends on [running]: when running is false, return early and build no interval; when it is true, call setInterval and return a cleanup function. The increment has to be setSeconds(s => s + 1). Format with Math.floor(n/60) and n%60, each through String().padStart(2, "0").',
+            `const pad = n => String(n).padStart(2, "0")
+format = n => \`\${pad(Math.floor(n / 60))}:\${pad(n % 60)}\`
+
+useEffect(() => {
+  if (!running) return
+  const id = setInterval(() => setSeconds(previous value => previous value + 1), 1000)
+  return () => clear that id
+}, [running])
+
+reset = () => { stop the clock; zero it }
+button text = running ? "Pause" : "Start"`,
+            `const pad = (n: number) => String(n).padStart(2, "0");
+export const format = (totalSeconds: number) =>
+  \`\${pad(Math.floor(totalSeconds / 60))}:\${pad(totalSeconds % 60)}\`;
+
+useEffect(() => {
+  if (!running) return;
+  const id = setInterval(() => {
+    setSeconds((s) => s + 1);
+  }, 1000);
+  return () => clearInterval(id);
+}, [running]);`,
+          ],
           solution: tested("tsx", TIMER_SOLUTION, {
+            codeEn: TIMER_SOLUTION_EN,
             filename: "参考答案（实测 8/8 通过）",
+            filenameEn: "Reference answer (8 of 8 tests pass here)",
             collapsible: true,
           }),
         },
@@ -2072,12 +3277,19 @@ useEffect(() => {
           kind: "debug",
           id: "r-var-timer-debug",
           title: "Debug Lab · 计时器越跑越快",
+          titleEn: "Debug Lab · the timer keeps getting faster",
           level: 2,
           generated: true,
           prompt: (
             <p>
               点了几次 Start / Pause 之后，秒数开始一次跳好几秒。
               下面是真实的测试输出。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              After a few clicks of Start and Pause, the seconds start jumping
+              several at a time. Below is the real test output.
             </p>
           ),
           errorOutput: `$ npx vitest run src/Timer.test.tsx
@@ -2102,6 +3314,28 @@ useEffect(() => {
 # 现象：start / pause 来回点四次，每次只走 1 秒，
 # 显示却是 00:10 —— 正好是 1+2+3+4。
 # 而且 Reset 之后秒数还在自己往上涨。`,
+          errorOutputEn: `$ npx vitest run src/Timer.test.tsx
+
+ ✕ pause stops the clock and keeps the value
+   Expected element to have text content: 00:02
+   Received:                              00:07
+
+ ✕ start/pause many times does not speed up
+   Expected element to have text content: 00:04
+   Received:                              00:10
+
+ ✕ reset stops and zeroes
+   Expected element to have text content: 00:00
+   Received:                              00:03
+
+ ✕ unmount clears the interval
+   AssertionError: expected 1 to be +0 // Object.is equality
+
+ Tests  4 failed | 4 passed (8)
+
+# Symptom: click start / pause four times, one second of running each time,
+# and the display reads 00:10 — exactly 1+2+3+4.
+# After Reset the seconds also keep climbing on their own.`,
           broken: demo(
             "tsx",
             `useEffect(() => {
@@ -2115,20 +3349,33 @@ useEffect(() => {
           ),
           classify: {
             options: [
-              { id: "a", label: "过期闭包 —— setSeconds 读到了旧的 seconds" },
-              { id: "b", label: "副作用未清理 —— effect 没有返回清理函数，旧定时器一直累积" },
-              { id: "c", label: "依赖数组错误 —— 应该把 seconds 也加进去" },
-              { id: "d", label: "状态更新错误 —— 改了原对象" },
+              { id: "a", label: "过期闭包 —— setSeconds 读到了旧的 seconds", labelEn: "A stale closure — setSeconds read an old seconds" },
+              {
+                id: "b",
+                label: "副作用未清理 —— effect 没有返回清理函数，旧定时器一直累积",
+                labelEn: "An uncleaned effect — it returns no cleanup function, so the old intervals pile up",
+              },
+              {
+                id: "c",
+                label: "依赖数组错误 —— 应该把 seconds 也加进去",
+                labelEn: "A dependency array error — seconds should be in there too",
+              },
+              { id: "d", label: "状态更新错误 —— 改了原对象", labelEn: "A state update error — the original object was changed" },
             ],
             answer: "b",
           },
           locate: {
             question: "该补什么？",
+            questionEn: "What has to be added?",
             options: [
-              { id: "a", label: "在 effect 末尾加 return () => clearInterval(id);" },
-              { id: "b", label: "把依赖数组改成 [running, seconds]" },
-              { id: "c", label: "把 setInterval 换成 setTimeout" },
-              { id: "d", label: "在 setSeconds 外面加一层 if (running)" },
+              {
+                id: "a",
+                label: "在 effect 末尾加 return () => clearInterval(id);",
+                labelEn: "Add return () => clearInterval(id); at the end of the effect",
+              },
+              { id: "b", label: "把依赖数组改成 [running, seconds]", labelEn: "Change the dependency array to [running, seconds]" },
+              { id: "c", label: "把 setInterval 换成 setTimeout", labelEn: "Replace setInterval with setTimeout" },
+              { id: "d", label: "在 setSeconds 外面加一层 if (running)", labelEn: "Wrap setSeconds in an if (running)" },
             ],
             answer: "a",
           },
@@ -2144,7 +3391,21 @@ useEffect(() => {
   // 清理函数：running 变化时先拆掉上一个定时器，卸载时也会拆
   return () => clearInterval(id);
 }, [running]);`,
-            { filename: "改对之后（8/8 通过）", highlight: [8, 9] },
+            {
+              filename: "改对之后（8/8 通过）",
+              filenameEn: "After the fix (8 of 8 pass)",
+              codeEn: `useEffect(() => {
+  if (!running) return;
+
+  const id = setInterval(() => {
+    setSeconds((s) => s + 1);
+  }, 1000);
+
+  // Cleanup: tear down the previous interval when running changes, and on unmount
+  return () => clearInterval(id);
+}, [running]);`,
+              highlight: [8, 9],
+            },
           ),
           rootCause: (
             <>
@@ -2178,7 +3439,46 @@ useEffect(() => {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                The dependency is <code>[running]</code>, so every time{" "}
+                <code>running</code> goes from false to true the effect runs again
+                and <code>setInterval</code> creates one more interval.{" "}
+                <strong>The old one is never cleared, and it keeps running.</strong>
+              </p>
+              <p>
+                After four rounds of start and pause, four intervals are adding one
+                to the same state. The first round adds 1 per second, the second 2,
+                the third 3, the fourth 4 — which totals{" "}
+                <strong>1+2+3+4 = 10</strong>. That matches the{" "}
+                <code>00:10</code> in the measured output exactly.
+              </p>
+              <p>
+                <strong>Why is option B not enough?</strong> Adding{" "}
+                <code>seconds</code> to the dependencies does remove the stale
+                closure, but it <strong>does not stop the leak</strong>. Each time
+                seconds changes and the interval is rebuilt, the old one is still
+                not cleared; only the rate of the pile-up changes.{" "}
+                <strong>The cleanup function is the only real fix.</strong>
+              </p>
+              <p>
+                <strong>Option C is wrong too:</strong> switching to{" "}
+                <code>setTimeout</code> makes it tick once and stop, so it is no
+                longer a timer at all.
+              </p>
+              <p>
+                Remember this rule of thumb:{" "}
+                <strong>
+                  whenever an effect sets up something that keeps existing — a
+                  timer, a listener, a subscription, a connection, a request in
+                  flight — it has to return a function that tears that thing down.
+                </strong>
+              </p>
+            </>
+          ),
           verify: "npx vitest run src/Timer.test.tsx   # 应该 8 passed，包含 unmount 那条",
+          verifyEn: "npx vitest run src/Timer.test.tsx   # should be 8 passed, including the unmount one",
         },
       ],
       mistakes: [
@@ -2189,6 +3489,12 @@ useEffect(() => {
 const id = setInterval(() => {
   setSeconds(seconds + 1);
 }, 1000);`,
+            {
+              codeEn: `// ✗ Stale closure: the display freezes at 00:01
+const id = setInterval(() => {
+  setSeconds(seconds + 1);
+}, 1000);`,
+            },
           ),
           why: (
             <>
@@ -2213,6 +3519,10 @@ const id = setInterval(() => {
             "tsx",
             `// ✗ reset 只清零，没停表
 const reset = () => setSeconds(0);`,
+            {
+              codeEn: `// ✗ reset only zeroes the count; it never stops the clock
+const reset = () => setSeconds(0);`,
+            },
           ),
           why: (
             <>
@@ -2237,6 +3547,12 @@ const reset = () => setSeconds(0);`,
 const [timerId, setTimerId] = useState<number | null>(null);
 const start = () => setTimerId(setInterval(...));
 const pause = () => { if (timerId) clearInterval(timerId); };`,
+            {
+              codeEn: `// ✗ Keeping the interval id in a state
+const [timerId, setTimerId] = useState<number | null>(null);
+const start = () => setTimerId(setInterval(...));
+const pause = () => { if (timerId) clearInterval(timerId); };`,
+            },
           ),
           why: (
             <>
@@ -2408,7 +3724,20 @@ if (loading) return <p data-testid="loading">Loading…</p>;
 if (error) return <p data-testid="error">出错了：{error}</p>;
 if (!user) return <p data-testid="empty">没有数据</p>;
 return <article data-testid="user">…</article>;`,
-              { filename: "三态与渲染优先级" },
+              {
+                filename: "三态与渲染优先级",
+                filenameEn: "The three states and the order they are checked in",
+                codeEn: `const [user, setUser] = useState<User | null>(null);
+const [loading, setLoading] = useState(true);   // true from the start
+const [error, setError] = useState<string | null>(null);
+
+// ...effect...
+
+if (loading) return <p data-testid="loading">Loading…</p>;
+if (error) return <p data-testid="error">出错了：{error}</p>;
+if (!user) return <p data-testid="empty">没有数据</p>;
+return <article data-testid="user">…</article>;`,
+              },
             ),
           ],
         },
@@ -2468,8 +3797,17 @@ if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
 const data: User = await res.json();`,
               {
                 filename: "必须自己检查 res.ok",
+                filenameEn: "You have to check res.ok yourself",
+                codeEn: `const res = await fetch(\`/api/users/\${userId}\`);
+
+// fetch only rejects when the network layer fails; a 404 or 500 is a failure response you received successfully
+if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+
+const data: User = await res.json();`,
                 explanation:
                   "测试里专门有一条 treats a 404 as an error：mock 一个 { ok: false, status: 404 }，断言界面显示 HTTP 404 而不是崩掉。",
+                explanationEn:
+                  "One test exists for exactly this, treats a 404 as an error: it mocks { ok: false, status: 404 } and asserts that the screen shows HTTP 404 instead of crashing.",
               },
             ),
           ],
@@ -2546,7 +3884,18 @@ t=200  用户 1 的响应回来 -> ignore#1 是 true  -> 直接丢掉 ✓
 
 # 没有 ignore 的话，t=200 那一刻会 setUser(用户1)，
 # 界面变回用户 1，而 URL 上还是 2。`,
-              { filename: "竞态的时间线" },
+              {
+                filename: "竞态的时间线",
+                filenameEn: "The timeline of the race",
+                codeEn: `t=0    user clicks 1 -> effect#1 sends a request (takes 200ms)
+t=20   user clicks 2 -> effect#1 cleanup function runs: ignore#1 = true
+                  -> effect#2 sends a request (takes 10ms)
+t=30   response for user 2 arrives -> ignore#2 is false -> setUser(user 2) ✓
+t=200  response for user 1 arrives -> ignore#1 is true  -> thrown away ✓
+
+# Without ignore, at t=200 it would call setUser(user 1),
+# the screen goes back to user 1 while the URL still says 2.`,
+              },
             ),
             tested(
               "tsx",
@@ -2562,7 +3911,22 @@ t=200  用户 1 的响应回来 -> ignore#1 是 true  -> 直接丢掉 ✓
 
   return () => { ignore = true; };       // 清理函数只做这一件事
 }, [userId]);`,
-              { filename: "竞态的解法" },
+              {
+                filename: "竞态的解法",
+                filenameEn: "How the race is settled",
+                codeEn: `useEffect(() => {
+  let ignore = false;                    // one of these per run of the effect
+
+  (async () => {
+    const res = await fetch(\`/api/users/\${userId}\`);
+    if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+    const data = await res.json();
+    if (!ignore) setUser(data);          // ← if this run no longer counts, do nothing
+  })();
+
+  return () => { ignore = true; };       // the cleanup does only this
+}, [userId]);`,
+              },
             ),
           ],
         },
@@ -2684,7 +4048,24 @@ return () => {
   ignore = true;
   controller.abort();
 };`,
-              { filename: "两者配合" },
+              {
+                filename: "两者配合",
+                filenameEn: "The two working together",
+                codeEn: `const controller = new AbortController();
+
+const res = await fetch(url, { signal: controller.signal });
+// ...
+} catch (e) {
+  const err = e as Error;
+  // Cancelling on purpose is not an error, so do not show it to the user
+  if (!ignore && err.name !== "AbortError") setError(err.message);
+}
+
+return () => {
+  ignore = true;
+  controller.abort();
+};`,
+              },
             ),
           ],
         },
@@ -2727,7 +4108,9 @@ return () => {
           ),
           code: [
             tested("tsx", FETCH_SOLUTION, {
+              codeEn: FETCH_SOLUTION_EN,
               filename: "src/components/UserCard/index.tsx（实测 6/6 通过）",
+              filenameEn: "src/components/UserCard/index.tsx (6 of 6 pass here)",
               collapsible: true,
             }),
           ],
@@ -2791,9 +4174,12 @@ return () => {
           code: [
             tested("bash", "npx vitest run src/UserCard.test.tsx   # 6 passed", {
               filename: "验证命令",
+              filenameEn: "The command that verifies it",
             }),
             tested("tsx", FETCH_TEST, {
+              codeEn: FETCH_TEST_EN,
               filename: "src/UserCard.test.tsx（DrillLab 自出，本机跑过）",
+              filenameEn: "src/UserCard.test.tsx (written for DrillLab, run here)",
               collapsible: true,
             }),
           ],
@@ -2804,11 +4190,18 @@ return () => {
           kind: "fill-blank",
           id: "r-var-fetch-blank",
           title: "补全取数 effect 的四个关键位置",
+          titleEn: "Fill in the four key spots of the fetching effect",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 1 和第 4 个合起来解决竞态，第 2 个是 fetch 的经典坑。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The first and the fourth together settle the race. The
+              second is the classic fetch trap.
             </p>
           ),
           language: "tsx",
@@ -2840,6 +4233,7 @@ return () => {
               n: 1,
               accept: ["ignore"],
               hint: "一个「这次请求还算不算数」的普通局部变量。",
+              hintEn: "A plain local variable that says whether this request still counts.",
               why: (
                 <>
                   <code>ignore</code>。它是<strong>普通局部变量</strong>，
@@ -2848,12 +4242,23 @@ return () => {
                   清理函数通过闭包改的正是它自己那一次的那一份。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>ignore</code>. It is a{" "}
+                  <strong>plain local variable</strong>, not a state and not a ref,
+                  because every run of the effect needs{" "}
+                  <strong>its own copy</strong>, and a state or a ref is shared.
+                  Through the closure, a cleanup changes exactly the copy that
+                  belongs to its own run.
+                </>
+              ),
               width: 8,
             },
             {
               n: 2,
               accept: ["ok"],
               hint: "fetch 遇到 404 不会 reject，得自己判断。",
+              hintEn: "A 404 does not make fetch reject, so you have to check it yourself.",
               why: (
                 <>
                   <code>ok</code>。<code>res.ok</code> 在状态码
@@ -2865,12 +4270,27 @@ return () => {
                   这一点和 axios 相反（axios 会自己抛），所以特别容易漏。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>ok</code>. <code>res.ok</code> is true for status codes 200
+                  to 299.
+                  <br />
+                  <strong>
+                    Not checking it is the most common mistake in fetch questions.
+                  </strong>{" "}
+                  On a 404, <code>res.json()</code> parses the error page, and then
+                  you render that as data: it shows undefined, or it crashes. This is
+                  the opposite of axios, which throws on its own, so people miss it
+                  especially often.
+                </>
+              ),
               width: 5,
             },
             {
               n: 3,
               accept: ["true"],
               hint: "清理函数要宣布「这次请求作废」。",
+              hintEn: "The cleanup has to declare that this request no longer counts.",
               why: (
                 <>
                   <code>true</code>。清理函数在
@@ -2880,12 +4300,22 @@ return () => {
                   一个 state 都不会被写。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>true</code>. The cleanup runs just before{" "}
+                  <code>userId</code> changes, and again on unmount. It sets the{" "}
+                  <code>ignore</code> of that run to true, so when its response
+                  arrives every <code>if (!ignore)</code> is false and not one state
+                  gets written.
+                </>
+              ),
               width: 6,
             },
             {
               n: 4,
               accept: ["userId"],
               hint: "换了哪个值就要重新取数？",
+              hintEn: "Which value, when it changes, means you have to fetch again?",
               why: (
                 <>
                   <code>userId</code>。
@@ -2896,6 +4326,19 @@ return () => {
                   又触发渲染 → <strong>无限请求</strong>，这是 fetch 题的经典事故。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>userId</code>.
+                  <br />
+                  With <code>[]</code>, switching users never refetches and the first
+                  user is shown forever.
+                  <br />
+                  With no dependency array, every render sends a request, and{" "}
+                  <code>setUser</code> triggers another render:{" "}
+                  <strong>requests without end</strong>, the classic accident in fetch
+                  questions.
+                </>
+              ),
               width: 8,
             },
           ],
@@ -2904,12 +4347,20 @@ return () => {
           kind: "code-completion",
           id: "r-var-fetch-write",
           title: "自己写出带竞态防护的取数 effect",
+          titleEn: "Write the fetching effect with race protection yourself",
           level: 3,
           generated: true,
           prompt: (
             <p>
               三个 state 已给好。写出 effect 和三个提前返回。
               检查器会查 <code>res.ok</code>、清理函数、竞态防护和 AbortError 过滤。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The three states are given. Write the effect and the three early
+              returns. The checker looks for <code>res.ok</code>, the cleanup
+              function, the race protection and the AbortError filter.
             </p>
           ),
           language: "tsx",
@@ -2931,6 +4382,23 @@ return () => {
     </article>
   );
 };`,
+          starterEn: `const UserCard: React.FC<{ userId: number }> = ({ userId }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 1. effect: fetch by userId, handle loading / error,
+  //    and make sure a fast switch does not let an old response overwrite new data
+
+  // 2. the three early returns (mind the order)
+
+  return (
+    <article data-testid="user">
+      <h2 data-testid="user-name">{user.name}</h2>
+      <p data-testid="user-email">{user.email}</p>
+    </article>
+  );
+};`,
           requirements: [
             "从 /api/users/{userId} 取数",
             "非 2xx 响应要当成错误处理，错误信息形如 HTTP 404",
@@ -2939,18 +4407,50 @@ return () => {
             "渲染顺序：loading → error → 空数据 → 正常数据",
             "effect 本身不能是 async 函数",
           ],
+          requirementsEn: [
+            "Fetch from /api/users/{userId}",
+            "Treat any non-2xx response as an error, with a message like HTTP 404",
+            "Refetch when userId changes, and void the previous result (race protection)",
+            "Use AbortController to cut off the request in flight, but never show AbortError to the user",
+            "Render order: loading, then error, then no data, then the data",
+            "The effect itself must not be an async function",
+          ],
           checks: [
-            { label: "调用了 fetch 并带上 userId", must: "fetch\\s*\\(\\s*[`\"'][^`\"']*\\$\\{userId\\}" },
-            { label: "检查了 res.ok", must: "!\\s*\\w+\\.ok" },
-            { label: "有 ignore（或同义）的作废标志", must: "let\\s+(ignore|cancelled|canceled|stale)\\s*=\\s*false" },
-            { label: "写 state 前判断了标志", must: "if\\s*\\(\\s*!\\s*(ignore|cancelled|canceled|stale)\\s*\\)" },
-            { label: "清理函数把标志置 true", must: "return\\s*\\(\\s*\\)\\s*=>[\\s\\S]{0,120}(ignore|cancelled|canceled|stale)\\s*=\\s*true" },
-            { label: "用了 AbortController", must: "new AbortController" },
-            { label: "把 signal 传给了 fetch", must: "signal" },
-            { label: "过滤掉了 AbortError", must: "AbortError" },
-            { label: "依赖数组里有 userId", must: "\\}\\s*,\\s*\\[[^\\]]*userId[^\\]]*\\]" },
-            { label: "effect 本身不是 async", mustNot: "useEffect\\s*\\(\\s*async" },
-            { label: "loading 判断在 error 之前", must: "if\\s*\\(\\s*loading\\s*\\)[\\s\\S]{0,200}if\\s*\\(\\s*error\\s*\\)" },
+            {
+              label: "调用了 fetch 并带上 userId",
+              labelEn: "fetch is called with userId in the URL",
+              must: "fetch\\s*\\(\\s*[`\"'][^`\"']*\\$\\{userId\\}",
+            },
+            { label: "检查了 res.ok", labelEn: "res.ok is checked", must: "!\\s*\\w+\\.ok" },
+            {
+              label: "有 ignore（或同义）的作废标志",
+              labelEn: "There is an ignore flag (or an equivalent name)",
+              must: "let\\s+(ignore|cancelled|canceled|stale)\\s*=\\s*false",
+            },
+            {
+              label: "写 state 前判断了标志",
+              labelEn: "The flag is checked before any state is written",
+              must: "if\\s*\\(\\s*!\\s*(ignore|cancelled|canceled|stale)\\s*\\)",
+            },
+            {
+              label: "清理函数把标志置 true",
+              labelEn: "The cleanup sets the flag to true",
+              must: "return\\s*\\(\\s*\\)\\s*=>[\\s\\S]{0,120}(ignore|cancelled|canceled|stale)\\s*=\\s*true",
+            },
+            { label: "用了 AbortController", labelEn: "AbortController is used", must: "new AbortController" },
+            { label: "把 signal 传给了 fetch", labelEn: "The signal is passed to fetch", must: "signal" },
+            { label: "过滤掉了 AbortError", labelEn: "AbortError is filtered out", must: "AbortError" },
+            {
+              label: "依赖数组里有 userId",
+              labelEn: "The dependency array holds userId",
+              must: "\\}\\s*,\\s*\\[[^\\]]*userId[^\\]]*\\]",
+            },
+            { label: "effect 本身不是 async", labelEn: "The effect itself is not async", mustNot: "useEffect\\s*\\(\\s*async" },
+            {
+              label: "loading 判断在 error 之前",
+              labelEn: "loading is checked before error",
+              must: "if\\s*\\(\\s*loading\\s*\\)[\\s\\S]{0,200}if\\s*\\(\\s*error\\s*\\)",
+            },
           ],
           hints: [
             "先想一个具体场景：用户点了 1，还没回来又点了 2，而 1 比 2 慢。最后屏幕上该显示谁？你怎么让「1 的响应」知道自己已经过期了？",
@@ -2994,8 +4494,52 @@ setLoading(true); setError(null); setUser(null);
 
 return () => { ignore = true; controller.abort(); };`,
           ],
+          hintsEn: [
+            "Picture one concrete case: the user clicks 1, and before it comes back clicks 2, and 1 is slower than 2. Who should be on screen at the end? How do you let the response for 1 know that it is out of date?",
+            "The answer lives in the cleanup. Every run of the effect declares its own let ignore = false, and the cleanup sets it to true; check that flag before every setState. Also, fetch does not reject on a 404, so check res.ok yourself. And the effect cannot be async, because its return value has to be the cleanup, so put the async logic in an immediately invoked async arrow function.",
+            `useEffect(() => {
+  let ignore = false
+  const controller = new AbortController()
+  reset loading / error / user
+  ;(async () => {
+    try {
+      const res = await fetch(url, { signal: controller.signal })
+      if (!res.ok) throw new Error(\`HTTP \${res.status}\`)
+      const data = await res.json()
+      if (!ignore) setUser(data)
+    } catch (e) {
+      if (!ignore && e.name !== "AbortError") setError(e.message)
+    } finally {
+      if (!ignore) setLoading(false)
+    }
+  })()
+  return () => { ignore = true; controller.abort() }
+}, [userId])`,
+            `let ignore = false;
+const controller = new AbortController();
+
+setLoading(true); setError(null); setUser(null);
+
+(async () => {
+  try {
+    const res = await fetch(\`/api/users/\${userId}\`, { signal: controller.signal });
+    if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+    const data: User = await res.json();
+    if (!ignore) setUser(data);
+  } catch (e) {
+    const err = e as Error;
+    if (!ignore && err.name !== "AbortError") setError(err.message);
+  } finally {
+    if (!ignore) setLoading(false);
+  }
+})();
+
+return () => { ignore = true; controller.abort(); };`,
+          ],
           solution: tested("tsx", FETCH_SOLUTION, {
+            codeEn: FETCH_SOLUTION_EN,
             filename: "参考答案（实测 6/6 通过，含竞态与 abort 两条）",
+            filenameEn: "Reference answer (6 of 6 pass here, including the race and the abort)",
             collapsible: true,
           }),
         },
@@ -3003,12 +4547,20 @@ return () => { ignore = true; controller.abort(); };`,
           kind: "debug",
           id: "r-var-fetch-debug",
           title: "Debug Lab · URL 上是用户 2，界面显示用户 1",
+          titleEn: "Debug Lab · the URL says user 2 and the screen shows user 1",
           level: 3,
           generated: true,
           prompt: (
             <p>
               快速点两个用户，界面最后显示的是<strong>先点的那个</strong>。
               慢一点点就没问题。控制台干净。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Click two users quickly and the screen ends up showing{" "}
+              <strong>the one you clicked first</strong>. Click a little slower and
+              it is fine. The console is clean.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -3026,6 +4578,21 @@ $ npx vitest run src/UserCard.test.tsx
 #   2. 立刻点用户 2（这个快，10ms）
 #   3. 先看到用户 2 —— 对的
 #   4. 200ms 后界面自己变成了用户 1  ← 错的，URL 上还是 2`,
+          errorOutputEn: `# No error at all.
+
+$ npx vitest run src/UserCard.test.tsx
+
+ ✕ a slow stale response must not overwrite the newer one（竞态）
+   Expected element to have text content: 用户2
+   Received:                              用户1
+
+ Tests  1 failed | 5 passed (6)
+
+# Manual repro:
+#   1. Click user 1 (that request is slow, 200ms)
+#   2. Click user 2 right away (that one is fast, 10ms)
+#   3. User 2 shows up first — correct
+#   4. 200ms later the view switches itself to user 1  ← wrong, the URL still says 2`,
           broken: demo(
             "tsx",
             `useEffect(() => {
@@ -3048,20 +4615,29 @@ $ npx vitest run src/UserCard.test.tsx
           ),
           classify: {
             options: [
-              { id: "a", label: "依赖数组错误 —— userId 没进依赖" },
-              { id: "b", label: "竞态 —— 旧请求晚回来，覆盖了新请求的结果；effect 没有清理函数作废旧请求" },
-              { id: "c", label: "fetch 没检查 res.ok" },
-              { id: "d", label: "过期闭包 —— setUser 读到了旧的 user" },
+              { id: "a", label: "依赖数组错误 —— userId 没进依赖", labelEn: "A dependency array error — userId is not in the list" },
+              {
+                id: "b",
+                label: "竞态 —— 旧请求晚回来，覆盖了新请求的结果；effect 没有清理函数作废旧请求",
+                labelEn: "A race — the old request comes back later and overwrites the newer result, because the effect has no cleanup to void it",
+              },
+              { id: "c", label: "fetch 没检查 res.ok", labelEn: "The fetch does not check res.ok" },
+              { id: "d", label: "过期闭包 —— setUser 读到了旧的 user", labelEn: "A stale closure — setUser read an old user" },
             ],
             answer: "b",
           },
           locate: {
             question: "该怎么改？",
+            questionEn: "How should it be changed?",
             options: [
-              { id: "a", label: "加 let ignore = false，写 state 前判断它，并 return () => { ignore = true }" },
-              { id: "b", label: "把 setUser 包进 setTimeout，延迟一点再写" },
-              { id: "c", label: "在 effect 开头加 setUser(null)" },
-              { id: "d", label: "把依赖数组改成 []" },
+              {
+                id: "a",
+                label: "加 let ignore = false，写 state 前判断它，并 return () => { ignore = true }",
+                labelEn: "Add let ignore = false, check it before writing state, and return () => { ignore = true }",
+              },
+              { id: "b", label: "把 setUser 包进 setTimeout，延迟一点再写", labelEn: "Wrap setUser in a setTimeout so it writes a little later" },
+              { id: "c", label: "在 effect 开头加 setUser(null)", labelEn: "Add setUser(null) at the top of the effect" },
+              { id: "d", label: "把依赖数组改成 []", labelEn: "Change the dependency array to []" },
             ],
             answer: "a",
           },
@@ -3094,7 +4670,38 @@ $ npx vitest run src/UserCard.test.tsx
     controller.abort();
   };
 }, [userId]);`,
-            { filename: "改对之后（6/6 通过）", highlight: [2, 15, 18, 23, 24, 25, 26] },
+            {
+              filename: "改对之后（6/6 通过）",
+              filenameEn: "After the fix (6 of 6 pass)",
+              codeEn: `useEffect(() => {
+  let ignore = false;                      // the does-this-run-still-count switch
+  const controller = new AbortController();
+
+  setLoading(true);
+  setError(null);
+  setUser(null);
+
+  (async () => {
+    try {
+      const res = await fetch(\`/api/users/\${userId}\`, { signal: controller.signal });
+      if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+      const data: User = await res.json();
+      if (!ignore) setUser(data);
+    } catch (e) {
+      const err = e as Error;
+      if (!ignore && err.name !== "AbortError") setError(err.message);
+    } finally {
+      if (!ignore) setLoading(false);
+    }
+  })();
+
+  return () => {
+    ignore = true;
+    controller.abort();
+  };
+}, [userId]);`,
+              highlight: [2, 15, 18, 23, 24, 25, 26],
+            },
           ),
           rootCause: (
             <>
@@ -3131,8 +4738,49 @@ $ npx vitest run src/UserCard.test.tsx
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                Two requests are in flight, and{" "}
+                <strong>whichever comes back last writes the state</strong>. But
+                &quot;last back&quot; and &quot;newest&quot; are not the same thing:
+                when the slow old request comes back last, what it writes is out of
+                date.
+              </p>
+              <p>
+                You almost never hit this in development, because a local endpoint
+                answers in a few milliseconds. It shows up in production, and{" "}
+                <strong>there is no error of any kind</strong>. Users just sometimes
+                see &quot;I clicked A and it shows B&quot;.
+              </p>
+              <p>
+                <code>ignore</code> works because it is a{" "}
+                <strong>local variable, separate for each run of the effect</strong>:
+                through the closure, a cleanup only changes the copy from its own run.
+                When the old request comes back, it sees that it has been voided.
+              </p>
+              <p>
+                <strong>Option C, setUser(null) at the top,</strong> is a useful
+                improvement, since it stops the old user showing during the load, but{" "}
+                <strong>it does not fix the race</strong>. The old response still
+                calls setUser when it arrives.
+              </p>
+              <p>
+                <strong>Option B, a setTimeout delay,</strong> is the classic
+                bet-on-timing fix, and it breaks again the moment the network is slow.
+              </p>
+              <p>
+                One more thing: this <code>ignore</code> pattern{" "}
+                <strong>also</strong> solves another common problem — a request that
+                returns after the component unmounts and calls setState on a component
+                that is gone. That is why it is the standard shape for code like this.
+              </p>
+            </>
+          ),
           verify:
             "npx vitest run src/UserCard.test.tsx   # 6 passed，竞态那条应该变绿",
+          verifyEn:
+            "npx vitest run src/UserCard.test.tsx   # 6 passed, and the race one should turn green",
         },
       ],
       mistakes: [
@@ -3144,6 +4792,13 @@ useEffect(async () => {
   const res = await fetch(url);
   setUser(await res.json());
 }, [userId]);`,
+            {
+              codeEn: `// ✗ Making the effect itself async
+useEffect(async () => {
+  const res = await fetch(url);
+  setUser(await res.json());
+}, [userId]);`,
+            },
           ),
           why: (
             <>
@@ -3174,6 +4829,12 @@ useEffect(async () => {
 useEffect(() => {
   fetch(url).then((r) => r.json()).then(setUser);
 });`,
+            {
+              codeEn: `// ✗ Forgetting the dependency array
+useEffect(() => {
+  fetch(url).then((r) => r.json()).then(setUser);
+});`,
+            },
           ),
           why: (
             <>
@@ -3203,6 +4864,16 @@ try {
 } catch (e) {
   setError((e as Error).message);
 }`,
+            {
+              codeEn: `// ✗ Turning loading off only on the success path
+try {
+  const data = await res.json();
+  setUser(data);
+  setLoading(false);
+} catch (e) {
+  setError((e as Error).message);
+}`,
+            },
           ),
           why: (
             <>
@@ -3360,7 +5031,15 @@ try {
   body: string;
   replies: Comment[];   // 自己引用自己 —— 这就是「树」
 };`,
-              { filename: "src/types/Comment.ts" },
+              {
+                filename: "src/types/Comment.ts",
+                codeEn: `export type Comment = {
+  id: number;
+  author: string;
+  body: string;
+  replies: Comment[];   // it refers to itself, and that is what makes it a tree
+};`,
+              },
             ),
           ],
         },
@@ -3449,7 +5128,24 @@ try {
     ))}
   </ul>
 )}`,
-              { filename: "递归那几行" },
+              {
+                filename: "递归那几行",
+                filenameEn: "The recursive lines",
+                codeEn: `{/* 递归：自己渲染自己。
+    终止条件不用写 if —— replies 为空时 map 什么都不产出，递归自然停。 */}
+{open && comment.replies.length > 0 && (
+  <ul>
+    {comment.replies.map((child) => (
+      <CommentNode
+        key={child.id}
+        comment={child}
+        depth={depth + 1}      // one level further down
+        onReply={onReply}
+      />
+    ))}
+  </ul>
+)}`,
+              },
             ),
           ],
         },
@@ -3506,7 +5202,17 @@ export function countComments(nodes: Comment[]): number {
 
 // countComments([]) === 0            <- 递归终止
 // 三层嵌套 + 两个旁支 === 5`,
-              { filename: "递归统计" },
+              {
+                filename: "递归统计",
+                filenameEn: "Counting with recursion",
+                codeEn: `/** Count everything recursively, replies at every level included */
+export function countComments(nodes: Comment[]): number {
+  return nodes.reduce((sum, n) => sum + 1 + countComments(n.replies), 0);
+}
+
+// countComments([]) === 0            <- where the recursion ends
+// three levels of nesting plus two side branches === 5`,
+              },
             ),
           ],
         },
@@ -3628,7 +5334,9 @@ export function countComments(nodes: Comment[]): number {
           ),
           code: [
             tested("ts", TREE_HELPERS, {
+              codeEn: TREE_HELPERS_EN,
               filename: "src/components/CommentTree/index.tsx（两个纯函数）",
+              filenameEn: "src/components/CommentTree/index.tsx (the two pure functions)",
             }),
             demo(
               "ts",
@@ -3643,7 +5351,21 @@ function addReplyBad(nodes: Comment[], parentId: number, reply: Comment) {
 // ✗ 深拷贝整棵树 —— 结果对，但所有节点引用都变了，
 //   React.memo 全部失效，大树上会明显卡
 const next = JSON.parse(JSON.stringify(comments));`,
-              { filename: "两种错法" },
+              {
+                filename: "两种错法",
+                filenameEn: "Two ways to get it wrong",
+                codeEn: `// ✗ push once you find it — this changes the original tree, and the screen does not update
+function addReplyBad(nodes: Comment[], parentId: number, reply: Comment) {
+  for (const n of nodes) {
+    if (n.id === parentId) { n.replies.push(reply); return; }
+    addReplyBad(n.replies, parentId, reply);
+  }
+}
+
+// ✗ Deep-copy the whole tree — the result is right, but every node reference changes,
+//   React.memo stops helping at all, and a large tree feels slow
+const next = JSON.parse(JSON.stringify(comments));`,
+              },
             ),
           ],
         },
@@ -3688,7 +5410,9 @@ const next = JSON.parse(JSON.stringify(comments));`,
           ),
           code: [
             tested("tsx", TREE_SOLUTION, {
+              codeEn: TREE_SOLUTION_EN,
               filename: "src/components/CommentTree/index.tsx（组件部分，实测 7/7 通过）",
+              filenameEn: "src/components/CommentTree/index.tsx (the component; 7 of 7 pass here)",
               collapsible: true,
             }),
           ],
@@ -3749,9 +5473,12 @@ const next = JSON.parse(JSON.stringify(comments));`,
           code: [
             tested("bash", "npx vitest run src/CommentTree.test.tsx   # 7 passed", {
               filename: "验证命令",
+              filenameEn: "The command that verifies it",
             }),
             tested("tsx", TREE_TEST, {
+              codeEn: TREE_TEST_EN,
               filename: "src/CommentTree.test.tsx（DrillLab 自出，本机跑过）",
+              filenameEn: "src/CommentTree.test.tsx (written for DrillLab, run here)",
               collapsible: true,
             }),
           ],
@@ -3762,11 +5489,18 @@ const next = JSON.parse(JSON.stringify(comments));`,
           kind: "fill-blank",
           id: "r-var-tree-blank",
           title: "补全递归统计与递归渲染",
+          titleEn: "Fill in the recursive count and the recursive render",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 2 个是递归调用本身，第 4 个是「往下一层」。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The second is the recursive call itself, and the fourth
+              is one level further down.
             </p>
           ),
           language: "tsx",
@@ -3794,6 +5528,7 @@ export function countComments(nodes: Comment[]): number {
               n: 1,
               accept: ["1"],
               hint: "每个节点先把自己算进去。",
+              hintEn: "Every node counts itself first.",
               why: (
                 <>
                   <code>1</code> —— 当前这个节点自己。
@@ -3802,12 +5537,23 @@ export function countComments(nodes: Comment[]): number {
                   漏了这个 1，最后会数出 0（因为叶子都只贡献子树的 0）。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>1</code>, meaning this node itself.
+                  <br />
+                  The general reading of a recursive count is{" "}
+                  <strong>myself plus my subtree</strong>. Leave out that 1 and the
+                  answer comes out 0, because every leaf only contributes the 0 of
+                  its subtree.
+                </>
+              ),
               width: 4,
             },
             {
               n: 2,
               accept: ["countComments"],
               hint: "函数在自己的函数体里调自己。",
+              hintEn: "The function calls itself from inside its own body.",
               why: (
                 <>
                   <code>countComments</code>。这就是递归。
@@ -3817,12 +5563,22 @@ export function countComments(nodes: Comment[]): number {
                   直接返回初始值 <code>0</code>。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>countComments</code>. That is the recursion.
+                  <br />
+                  There is no need for an <code>if</code> to stop it: when{" "}
+                  <code>replies</code> is empty, <code>reduce</code> simply returns
+                  the initial value <code>0</code>.
+                </>
+              ),
               width: 15,
             },
             {
               n: 3,
               accept: ["CommentNode"],
               hint: "组件在自己的 JSX 里渲染自己。",
+              hintEn: "The component renders itself inside its own JSX.",
               why: (
                 <>
                   <code>CommentNode</code> —— 组件递归渲染自身。
@@ -3831,12 +5587,21 @@ export function countComments(nodes: Comment[]): number {
                   你只写了一层，剩下的靠递归展开。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>CommentNode</code>: the component renders itself.
+                  <br />
+                  That is why a reply to a reply to a reply can nest without limit.
+                  You only wrote one level, and the recursion unfolds the rest.
+                </>
+              ),
               width: 13,
             },
             {
               n: 4,
               accept: ["depth + 1", "depth+1"],
               hint: "子节点比自己深一层。",
+              hintEn: "A child sits one level deeper than its parent.",
               why: (
                 <>
                   <code>depth + 1</code>。深度靠参数往下传，
@@ -3847,6 +5612,17 @@ export function countComments(nodes: Comment[]): number {
                   存进去就得在移动节点时维护，很容易和实际结构不一致。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>depth + 1</code>. The depth is passed down as a parameter and
+                  used for the indent and for <code>data-depth</code>.
+                  <br />
+                  <strong>Do not store depth in the data.</strong> It describes where
+                  a node sits in the tree and is worked out while rendering. Store it
+                  and you have to maintain it whenever a node moves, and it drifts
+                  out of step with the real structure very easily.
+                </>
+              ),
               width: 11,
             },
           ],
@@ -3855,12 +5631,20 @@ export function countComments(nodes: Comment[]): number {
           kind: "code-completion",
           id: "r-var-tree-write",
           title: "写出树形数据的不可变更新",
+          titleEn: "Write an immutable update for tree data",
           level: 3,
           generated: true,
           prompt: (
             <p>
               这是这道题真正的难点。目标节点可能在任意深度，
               要返回一棵新树，而且<strong>原树一个字节都不能改</strong>。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              This is the hard part of the question. The target node can be at any
+              depth, you have to return a new tree, and{" "}
+              <strong>not one byte of the original may change</strong>.
             </p>
           ),
           language: "ts",
@@ -3882,6 +5666,23 @@ export function addReply(
 ): Comment[] {
 
 }`,
+          starterEn: `import type { Comment } from "../../types/Comment";
+
+/**
+ * Add one reply to the replies of the node with parentId, and return a brand new tree.
+ *
+ * Requirements:
+ *   · parentId can be at any depth
+ *   · do not change the nodes you were given (the caller deep-freezes them to check)
+ *   · do not deep-copy the whole tree
+ */
+export function addReply(
+  nodes: Comment[],
+  parentId: number,
+  reply: Comment,
+): Comment[] {
+
+}`,
           requirements: [
             "找到 id === parentId 的节点，把 reply 追加到它的 replies 末尾",
             "返回新数组、新节点对象，不修改原数据",
@@ -3889,15 +5690,38 @@ export function addReply(
             "不许用 JSON.parse(JSON.stringify(...)) 深拷贝",
             "不许用 push / splice / 直接赋值",
           ],
+          requirementsEn: [
+            "Find the node whose id === parentId and append reply to the end of its replies",
+            "Return a new array and new node objects, without changing the original data",
+            "The target can be at any depth, so recurse downwards to find it",
+            "Do not deep-copy with JSON.parse(JSON.stringify(...))",
+            "Do not use push / splice / direct assignment",
+          ],
           checks: [
-            { label: "用 map 返回新数组", must: "nodes\\.map\\s*\\(" },
-            { label: "按 parentId 比较", must: "\\.id\\s*===?\\s*parentId" },
-            { label: "命中时用对象展开造新节点", must: "\\{\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*replies" },
-            { label: "命中时用数组展开追加 reply", must: "\\[\\s*\\.\\.\\.\\s*\\w+\\.replies\\s*,\\s*reply\\s*\\]" },
-            { label: "未命中时递归往下找", must: "addReply\\s*\\(\\s*\\w+\\.replies" },
-            { label: "没有深拷贝", mustNot: "JSON\\.parse|structuredClone" },
-            { label: "没有 push / splice", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
-            { label: "没有直接赋值改原对象", mustNot: "\\w+\\.replies\\s*=[^=]" },
+            { label: "用 map 返回新数组", labelEn: "map returns a new array", must: "nodes\\.map\\s*\\(" },
+            { label: "按 parentId 比较", labelEn: "The comparison is against parentId", must: "\\.id\\s*===?\\s*parentId" },
+            {
+              label: "命中时用对象展开造新节点",
+              labelEn: "On a match, an object spread builds a new node",
+              must: "\\{\\s*\\.\\.\\.\\s*\\w+\\s*,\\s*replies",
+            },
+            {
+              label: "命中时用数组展开追加 reply",
+              labelEn: "On a match, an array spread appends reply",
+              must: "\\[\\s*\\.\\.\\.\\s*\\w+\\.replies\\s*,\\s*reply\\s*\\]",
+            },
+            {
+              label: "未命中时递归往下找",
+              labelEn: "Without a match, it recurses further down",
+              must: "addReply\\s*\\(\\s*\\w+\\.replies",
+            },
+            { label: "没有深拷贝", labelEn: "No deep copy", mustNot: "JSON\\.parse|structuredClone" },
+            { label: "没有 push / splice", labelEn: "No push / splice", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
+            {
+              label: "没有直接赋值改原对象",
+              labelEn: "No direct assignment onto an original object",
+              mustNot: "\\w+\\.replies\\s*=[^=]",
+            },
           ],
           hints: [
             "先在纸上画一棵三层的树，标出目标节点，然后问自己：从根走到它，路径上有哪几个对象？这些对象里，哪些的内容真的变了？没在路径上的分支需要变吗？",
@@ -3907,6 +5731,22 @@ export function addReply(
       返回 { 展开这个节点, replies: [展开它的 replies, reply] }
   否则:
       返回 { 展开这个节点, replies: 递归调用(这个节点的 replies, parentId, reply) }
+})`,
+            `return nodes.map((node) => {
+  if (node.id === parentId) {
+    return { ...node, replies: [...node.replies, reply] };
+  }
+  return { ...node, replies: addReply(node.replies, parentId, reply) };
+});`,
+          ],
+          hintsEn: [
+            "Draw a three-level tree on paper and mark the target node, then ask yourself: walking from the root to it, which objects lie on that path? Of those objects, which ones really change content? And do the branches beside the path need to change at all?",
+            "Walk down with map. At each level there are two cases: this node is the target (build a new node with new replies), or the target is somewhere in its subtree (also build a new node, but hand replies to the recursion). Both cases return a new object, because before the recursion returns you do not know whether the target is below.",
+            `return nodes.map(each node => {
+  if the id of this node === parentId:
+      return { spread this node, replies: [spread its replies, reply] }
+  otherwise:
+      return { spread this node, replies: recursive call(the replies of this node, parentId, reply) }
 })`,
             `return nodes.map((node) => {
   if (node.id === parentId) {
@@ -3928,8 +5768,20 @@ export function addReply(
 }`,
             {
               filename: "参考答案（实测通过，含原树深冻结检查）",
+              filenameEn: "Reference answer (verified by running it, with the frozen-tree check)",
+              codeEn: `export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
+  return nodes.map((node) => {
+    if (node.id === parentId) {
+      return { ...node, replies: [...node.replies, reply] };
+    }
+    // the target may be deeper down, so keep looking
+    return { ...node, replies: addReply(node.replies, parentId, reply) };
+  });
+}`,
               explanation:
                 "测试用 Object.freeze 深冻结原树后调用它 —— 如果实现里有任何一处直接改原对象，严格模式下会立刻抛错。这是验证「真的不可变」最省事的办法。",
+              explanationEn:
+                "The test deep-freezes the original tree with Object.freeze before calling it. If the implementation changes an original object anywhere, strict mode throws right away. That is the cheapest way to check that it really is immutable.",
             },
           ),
         },
@@ -3937,12 +5789,20 @@ export function addReply(
           kind: "debug",
           id: "r-var-tree-debug",
           title: "Debug Lab · 回复加进去了，界面不动",
+          titleEn: "Debug Lab · the reply went in and the screen never moved",
           level: 3,
           generated: true,
           prompt: (
             <p>
               给深层评论加回复，<code>console.log</code> 打出来的树里
               新回复确实在，但界面没变化。控制台干净。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              You add a reply to a deep comment. The tree printed by{" "}
+              <code>console.log</code> really does contain the new reply, but the
+              screen does not change. The console is clean.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -3959,6 +5819,20 @@ $ npx vitest run src/CommentTree.test.tsx
 # 手动复现：点某条评论的 Reply、输入、发送
 #   console.log(comments) -> 新回复确实在树里
 #   屏幕 -> 一点变化都没有`,
+          errorOutputEn: `# No error at all.
+
+$ npx vitest run src/CommentTree.test.tsx
+
+ ✕ addReply 挂到深层节点，且不改原树
+   TypeError: Cannot add property 0, object is not extensible
+   (The test deep-froze the original tree; the implementation edits it in place.)
+
+ ✕ 给三层的评论再回复，落在正确的位置
+   Unable to find an element with the text: 第四层
+
+# Manual repro: click Reply on a comment, type something, send it
+#   console.log(comments) -> the new reply really is in the tree
+#   the screen -> nothing changes at all`,
           broken: demo(
             "tsx",
             `function addReply(nodes: Comment[], parentId: number, reply: Comment) {
@@ -3976,24 +5850,51 @@ const handleReply = (parentId: number, text: string) => {
   const reply = { id: Date.now(), author: "我", body: text, replies: [] };
   setComments(addReply(comments, parentId, reply));
 };`,
-            { filename: "src/components/CommentTree/index.tsx", highlight: [4, 15] },
+            {
+              filename: "src/components/CommentTree/index.tsx",
+              codeEn: `function addReply(nodes: Comment[], parentId: number, reply: Comment) {
+  for (const node of nodes) {
+    if (node.id === parentId) {
+      node.replies.push(reply);          // found it, so push it in
+      return nodes;
+    }
+    addReply(node.replies, parentId, reply);
+  }
+  return nodes;
+}
+
+const handleReply = (parentId: number, text: string) => {
+  const reply = { id: Date.now(), author: "我", body: text, replies: [] };
+  setComments(addReply(comments, parentId, reply));
+};`,
+              highlight: [4, 15],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "递归写错了 —— 没有终止条件" },
-              { id: "b", label: "状态更新错误 —— 直接改了原树，setComments 收到的还是同一个引用" },
-              { id: "c", label: "key 用了 index" },
-              { id: "d", label: "过期闭包 —— comments 是旧值" },
+              { id: "a", label: "递归写错了 —— 没有终止条件", labelEn: "The recursion is wrong — there is no stopping condition" },
+              {
+                id: "b",
+                label: "状态更新错误 —— 直接改了原树，setComments 收到的还是同一个引用",
+                labelEn: "A state update error — the original tree was changed, so setComments receives the very same reference",
+              },
+              { id: "c", label: "key 用了 index", labelEn: "The key uses the index" },
+              { id: "d", label: "过期闭包 —— comments 是旧值", labelEn: "A stale closure — comments is an old value" },
             ],
             answer: "b",
           },
           locate: {
             question: "根本问题是哪一句？",
+            questionEn: "Which line is the real problem?",
             options: [
-              { id: "a", label: "node.replies.push(reply) —— 应该用 map + 展开造新对象" },
-              { id: "b", label: "return nodes —— 应该 return [...nodes]" },
-              { id: "c", label: "for...of 应该换成 forEach" },
-              { id: "d", label: "reply 的 id 应该用 Math.random()" },
+              {
+                id: "a",
+                label: "node.replies.push(reply) —— 应该用 map + 展开造新对象",
+                labelEn: "node.replies.push(reply) — it should build new objects with map plus a spread",
+              },
+              { id: "b", label: "return nodes —— 应该 return [...nodes]", labelEn: "return nodes — it should be return [...nodes]" },
+              { id: "c", label: "for...of 应该换成 forEach", labelEn: "for...of should be forEach" },
+              { id: "d", label: "reply 的 id 应该用 Math.random()", labelEn: "The id of reply should use Math.random()" },
             ],
             answer: "a",
           },
@@ -4013,7 +5914,24 @@ const handleReply = (parentId: number, text: string) => {
   const reply: Comment = { id: Date.now(), author: "我", body: text, replies: [] };
   setComments((prev) => addReply(prev, parentId, reply));
 };`,
-            { filename: "改对之后（7/7 通过）" },
+            {
+              filename: "改对之后（7/7 通过）",
+              filenameEn: "After the fix (7 of 7 pass)",
+              codeEn: `export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
+  return nodes.map((node) => {
+    if (node.id === parentId) {
+      return { ...node, replies: [...node.replies, reply] };
+    }
+    return { ...node, replies: addReply(node.replies, parentId, reply) };
+  });
+}
+
+// The call site becomes a functional update too
+const handleReply = (parentId: number, text: string) => {
+  const reply: Comment = { id: Date.now(), author: "我", body: text, replies: [] };
+  setComments((prev) => addReply(prev, parentId, reply));
+};`,
+            },
           ),
           rootCause: (
             <>
@@ -4045,8 +5963,46 @@ const handleReply = (parentId: number, text: string) => {
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>push</code> changes{" "}
+                <strong>the original replies array</strong>, and then{" "}
+                <code>return nodes</code> hands back{" "}
+                <strong>the original root array</strong>. The reference{" "}
+                <code>setComments</code> receives is identical to the current state,
+                React reads that as no change, and skips the re-render.
+              </p>
+              <p>
+                This is <strong>the same illness</strong> as the{" "}
+                <code>notes.push()</code> bug in Q1, only on a tree, which makes it
+                harder to see: the illusion is stronger, because the new data really
+                is there in <code>console.log</code>.
+              </p>
+              <p>
+                <strong>
+                  Why is option B, <code>return [...nodes]</code>, not enough?
+                </strong>{" "}
+                It does change the reference of the root array, so the screen updates
+                once — <strong>but the original data is already spoiled</strong>. The
+                consequences: the earlier state of the tree is destroyed, so you cannot
+                undo; if the same data is referenced elsewhere it changes there too;
+                and the references of the deep nodes never changed, so any subtree
+                under <code>React.memo</code> still does not re-render.{" "}
+                <strong>That makes the symptom go away instead of fixing it.</strong>
+              </p>
+              <p>
+                <strong>The fixed signature of this whole family of bugs:</strong> no
+                error, plus correct data in <code>console.log</code>, plus a screen
+                that does not move, means an original object was changed. Arrays,
+                objects and trees all behave the same way here.
+              </p>
+            </>
+          ),
           verify:
             "npx vitest run src/CommentTree.test.tsx   # 7 passed，含深冻结那条",
+          verifyEn:
+            "npx vitest run src/CommentTree.test.tsx   # 7 passed, including the frozen-tree one",
         },
       ],
       mistakes: [
@@ -4055,6 +6011,10 @@ const handleReply = (parentId: number, text: string) => {
             "tsx",
             `// ✗ 把 depth 存进数据
 type Comment = { id: number; body: string; depth: number; replies: Comment[] };`,
+            {
+              codeEn: `// ✗ Storing depth in the data
+type Comment = { id: number; body: string; depth: number; replies: Comment[] };`,
+            },
           ),
           why: (
             <>
@@ -4078,6 +6038,10 @@ type Comment = { id: number; body: string; depth: number; replies: Comment[] };`
             "tsx",
             `// ✗ 折叠状态提到顶层
 const [collapsed, setCollapsed] = useState<Set<number>>(new Set());`,
+            {
+              codeEn: `// ✗ Lifting the collapsed state to the top
+const [collapsed, setCollapsed] = useState<Set<number>>(new Set());`,
+            },
           ),
           why: (
             <>
@@ -4107,6 +6071,12 @@ const [collapsed, setCollapsed] = useState<Set<number>>(new Set());`,
 const next = structuredClone(comments);
 findNode(next, parentId).replies.push(reply);
 setComments(next);`,
+            {
+              codeEn: `// ✗ Reaching for a deep copy to save effort
+const next = structuredClone(comments);
+findNode(next, parentId).replies.push(reply);
+setComments(next);`,
+            },
           ),
           why: (
             <>
@@ -4306,7 +6276,27 @@ setComments(next);`,
     </Sidebar>
   </Layout>
 </ThemeProvider>`,
-              { filename: "两种传法" },
+              {
+                filename: "两种传法",
+                filenameEn: "Two ways to pass it down",
+                codeEn: `// ✗ prop drilling: the three middle layers never use theme, they just hand it on
+<App theme={theme}>
+  <Layout theme={theme}>
+    <Sidebar theme={theme}>
+      <ThemedCard theme={theme} />   {/* 只有这里真的要用 */}
+    </Sidebar>
+  </Layout>
+</App>
+
+// ✓ Context: the middle layers have nothing to do
+<ThemeProvider>
+  <Layout>
+    <Sidebar>
+      <ThemedCard />                 {/* 自己去 context 里取 */}
+    </Sidebar>
+  </Layout>
+</ThemeProvider>`,
+              },
             ),
           ],
         },
@@ -4469,7 +6459,18 @@ export function useTheme(): ThemeContextValue {
   if (!ctx) throw new Error("useTheme 必须在 <ThemeProvider> 里面用");
   return ctx;
 }`,
-              { filename: "自定义 hook + 守卫" },
+              {
+                filename: "自定义 hook + 守卫",
+                filenameEn: "A custom hook plus a guard",
+                codeEn: `const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  // The guard does two things: gives a readable error, and narrows the type away from undefined
+  if (!ctx) throw new Error("useTheme has to be used inside <ThemeProvider>");
+  return ctx;
+}`,
+              },
             ),
           ],
         },
@@ -4540,7 +6541,12 @@ export function useTheme(): ThemeContextValue {
               `const toggleTheme = useCallback(() => {
   setTheme((prev) => (prev === "light" ? "dark" : "light"));
 }, []);   // 空依赖：内部不读任何外部变量，所以永远不用重建`,
-              { filename: "toggleTheme" },
+              {
+                filename: "toggleTheme",
+                codeEn: `const toggleTheme = useCallback(() => {
+  setTheme((prev) => (prev === "light" ? "dark" : "light"));
+}, []);   // empty deps: the body reads no outside variable, so it never needs rebuilding`,
+              },
             ),
             demo(
               "tsx",
@@ -4552,6 +6558,16 @@ const toggleTheme = () => {
 // 单次点击看不出问题，但：
 onClick={() => { toggleTheme(); toggleTheme(); }}
 // 期望回到 light，实际停在 dark —— 两次都读到同一个旧值`,
+              {
+                codeEn: `// ✗ Reading theme out of the closure
+const toggleTheme = () => {
+  setTheme(theme === "light" ? "dark" : "light");
+};
+
+// One click hides the problem, but:
+onClick={() => { toggleTheme(); toggleTheme(); }}
+// You expect light again; it stops on dark, because both calls read the same old value`,
+              },
             ),
           ],
         },
@@ -4630,6 +6646,14 @@ return (
     {children}
   </ThemeContext.Provider>
 );`,
+              {
+                codeEn: `// ✗ A new object on every render -> every consumer re-renders with it
+return (
+  <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    {children}
+  </ThemeContext.Provider>
+);`,
+              },
             ),
             tested(
               "tsx",
@@ -4637,7 +6661,14 @@ return (
 const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
 
 return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;`,
-              { filename: "记忆化之后" },
+              {
+                filename: "记忆化之后",
+                filenameEn: "After memoizing it",
+                codeEn: `// ✓ While theme does not change, value stays the very same object
+const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+
+return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;`,
+              },
             ),
             tested(
               "bash",
@@ -4651,7 +6682,20 @@ $ npx vitest run src/Theme.test.tsx
 
 # 注意：功能测试全都还是绿的 —— 主题该切也切，颜色该变也变。
 # 挂掉的只有这条性能相关的。这正是「测试通过 ≠ 做对了」。`,
-              { filename: "本机实测：漏掉 useMemo 的后果" },
+              {
+                filename: "本机实测：漏掉 useMemo 的后果",
+                filenameEn: "Measured here: what a missing useMemo costs",
+                codeEn: `# The real output after deleting useMemo and passing the object literal straight through
+$ npx vitest run src/Theme.test.tsx
+
+ ✕ theme 没变时 context value 不换新对象（useMemo 生效）
+   AssertionError: expected 2 to be 1 // Object.is equality
+
+ Tests  1 failed | 7 passed (8)
+
+# Note: every functional test is still green. The theme switches, the colours change.
+# The only failure is the one about performance. That is exactly why passing tests are not proof.`,
+              },
             ),
           ],
         },
@@ -4762,10 +6806,13 @@ $ npx vitest run src/Theme.test.tsx
           ),
           code: [
             tested("tsx", THEME_CONTEXT, {
+              codeEn: THEME_CONTEXT_EN,
               filename: "src/context/ThemeContext.tsx（实测 8/8 通过）",
+              filenameEn: "src/context/ThemeContext.tsx (8 of 8 pass here)",
               collapsible: true,
             }),
             tested("tsx", THEME_APP, {
+              codeEn: THEME_APP_EN,
               filename: "src/components/ThemeApp/index.tsx",
             }),
           ],
@@ -4843,7 +6890,9 @@ $ npx vitest run src/Theme.test.tsx
               filename: "验证命令",
             }),
             tested("tsx", THEME_TEST, {
+              codeEn: THEME_TEST_EN,
               filename: "src/Theme.test.tsx（DrillLab 自出，本机跑过）",
+              filenameEn: "src/Theme.test.tsx (written for DrillLab, run here)",
               collapsible: true,
             }),
           ],
@@ -4854,12 +6903,20 @@ $ npx vitest run src/Theme.test.tsx
           kind: "fill-blank",
           id: "r-var-theme-blank",
           title: "补全 ThemeContext 的四个关键位置",
+          titleEn: "Fill in the four key spots of ThemeContext",
           level: 2,
           generated: true,
           prompt: (
             <p>
               四个空。第 3 个是最容易漏的那一步，第 4 个决定「忘了套 Provider」
               时报错清不清楚。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              Four blanks. The third is the step people miss most. The fourth
+              decides how clear the error is when somebody forgets to wrap things in
+              the Provider.
             </p>
           ),
           language: "tsx",
@@ -4888,12 +6945,22 @@ export function useTheme(): ThemeContextValue {
               n: 1,
               accept: ["createContext"],
               hint: "造管道的那个函数。",
+              hintEn: "The function that builds the pipe.",
               why: (
                 <>
                   <code>createContext</code>。
                   <br />
                   它返回一个对象，上面挂着 <code>.Provider</code>；
                   这个对象本身还要传给 <code>useContext</code> 才能取值。
+                </>
+              ),
+              whyEn: (
+                <>
+                  <code>createContext</code>.
+                  <br />
+                  It returns an object that carries <code>.Provider</code>, and you
+                  also pass that same object to <code>useContext</code> to read the
+                  value back out.
                 </>
               ),
               width: 14,
@@ -4907,6 +6974,7 @@ export function useTheme(): ThemeContextValue {
                 '(prev) => prev === "light" ? "dark" : "light"',
               ],
               hint: "要读旧值算新值，别读闭包里的 theme。",
+              hintEn: "Compute the new value from the old one, and do not read the theme out of the closure.",
               why: (
                 <>
                   函数式更新：
@@ -4919,12 +6987,27 @@ export function useTheme(): ThemeContextValue {
                   <code>useCallback</code> 的依赖才能是空数组。
                 </>
               ),
+              whyEn: (
+                <>
+                  The updater form:{" "}
+                  <code>{'(prev) => (prev === "light" ? "dark" : "light")'}</code>.
+                  <br />
+                  Writing <code>theme === &quot;light&quot; ? …</code> reads the old
+                  value out of the closure. One click hides it, but{" "}
+                  <strong>
+                    call it twice inside one event and it only flips once
+                  </strong>
+                  . And it is exactly because it reads no outside variable that the{" "}
+                  <code>useCallback</code> above can have an empty dependency list.
+                </>
+              ),
               width: 44,
             },
             {
               n: 3,
               accept: ["useMemo"],
               hint: "让 theme 没变时 value 还是同一个对象。",
+              hintEn: "Keep value as the very same object while theme does not change.",
               why: (
                 <>
                   <code>useMemo</code>。<strong>这是这道题最容易漏的一步。</strong>
@@ -4937,12 +7020,28 @@ export function useTheme(): ThemeContextValue {
                   「value 不换新对象」会红。又一次「测试通过 ≠ 做对了」。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>useMemo</code>.{" "}
+                  <strong>This is the step people miss most in this question.</strong>
+                  <br />
+                  Without it, <code>{"{ theme, toggleTheme }"}</code> is a new object
+                  on every render. Context compares by reference, reads that as a
+                  change, and every consumer re-renders — even though the theme never
+                  moved.
+                  <br />
+                  And when it is missing, every functional test is{" "}
+                  <strong>still green</strong>; only the one about the value keeping
+                  its reference turns red. Once again, passing tests are not proof.
+                </>
+              ),
               width: 9,
             },
             {
               n: 4,
               accept: ["!ctx", "ctx === undefined", "!context", "ctx == null", "ctx === void 0"],
               hint: "没有 Provider 时 useContext 返回的就是默认值 undefined。",
+              hintEn: "With no Provider above it, useContext returns the default value, which is undefined.",
               why: (
                 <>
                   <code>!ctx</code>。
@@ -4953,6 +7052,19 @@ export function useTheme(): ThemeContextValue {
                   消费者就不用到处写 <code>?.</code> 了。
                 </>
               ),
+              whyEn: (
+                <>
+                  <code>!ctx</code>.
+                  <br />
+                  It does two things: it gives a message a person can read, instead of{" "}
+                  <code>Cannot destructure property &apos;theme&apos;…</code>, and it{" "}
+                  <strong>
+                    narrows the return type so that undefined is no longer part of it
+                  </strong>
+                  , which means consumers do not have to write <code>?.</code>{" "}
+                  everywhere.
+                </>
+              ),
               width: 10,
             },
           ],
@@ -4961,12 +7073,20 @@ export function useTheme(): ThemeContextValue {
           kind: "code-completion",
           id: "r-var-theme-write",
           title: "自己写出 ThemeProvider 和 useTheme",
+          titleEn: "Write ThemeProvider and useTheme yourself",
           level: 3,
           generated: true,
           prompt: (
             <p>
               类型已给好。写出 context、Provider、自定义 hook 三部分。
               检查器会查记忆化、函数式更新和守卫。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The types are given. Write all three parts: the context, the Provider,
+              and the custom hook. The checker looks for the memoization, the updater
+              form and the guard.
             </p>
           ),
           language: "tsx",
@@ -4993,6 +7113,28 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme(): ThemeContextValue {
 
 }`,
+          starterEn: `import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+
+export type Theme = "light" | "dark";
+
+export interface ThemeContextValue {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+// 1. build the context (what default value? decide what should happen when the Provider is missing)
+
+
+// 2. Provider: hold theme, hand out toggleTheme
+export function ThemeProvider({ children }: { children: ReactNode }) {
+
+}
+
+// 3. the custom hook
+export function useTheme(): ThemeContextValue {
+
+}`,
           requirements: [
             "theme 初始为 'light'",
             "toggleTheme 在 light / dark 之间翻转，必须用函数式更新",
@@ -5001,19 +7143,27 @@ export function useTheme(): ThemeContextValue {
             "没套 Provider 就用 useTheme() 时抛出一句能看懂的错误",
             "不许把 theme 存到组件外的全局变量里",
           ],
+          requirementsEn: [
+            "theme starts as 'light'",
+            "toggleTheme flips between light and dark, using the updater form",
+            "The context value has to be memoized, so no new object appears while theme is unchanged",
+            "The reference of toggleTheme has to be stable, unchanged even when theme changes",
+            "Calling useTheme() with no Provider above it throws a message a person can read",
+            "Do not keep theme in a global variable outside the component",
+          ],
           checks: [
-            { label: "用 createContext 造了 context", must: "createContext\\s*(<[^>]*>)?\\s*\\(" },
-            { label: "默认值给的是 undefined（配合守卫）", must: "createContext\\s*(<[^>]*>)?\\s*\\(\\s*undefined\\s*\\)" },
-            { label: "theme 初始为 light", must: "useState\\s*(<[^>]*>)?\\s*\\(\\s*[\"'`]light[\"'`]\\s*\\)" },
-            { label: "toggleTheme 用函数式更新", must: "setTheme\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>" },
-            { label: "没有读闭包里的 theme 去算新值", mustNot: "setTheme\\s*\\(\\s*theme\\s*===" },
-            { label: "toggleTheme 包了 useCallback", must: "useCallback" },
-            { label: "context value 用 useMemo 记忆化", must: "useMemo\\s*\\(" },
-            { label: "没有直接把字面量对象传给 Provider", mustNot: "value=\\{\\{" },
-            { label: "渲染了 Ctx.Provider 并把 children 放进去", must: "\\.Provider[\\s\\S]{0,80}children" },
-            { label: "useTheme 里用了 useContext", must: "useContext\\s*\\(" },
-            { label: "useTheme 里有守卫并抛错", must: "if\\s*\\([^)]*\\)\\s*throw new Error" },
-            { label: "没有把 theme 放到模块级全局变量", mustNot: "^let\\s+theme\\s*=" },
+            { label: "用 createContext 造了 context", labelEn: "createContext builds the context", must: "createContext\\s*(<[^>]*>)?\\s*\\(" },
+            { label: "默认值给的是 undefined（配合守卫）", labelEn: "The default value is undefined, to pair with the guard", must: "createContext\\s*(<[^>]*>)?\\s*\\(\\s*undefined\\s*\\)" },
+            { label: "theme 初始为 light", labelEn: "theme starts as light", must: "useState\\s*(<[^>]*>)?\\s*\\(\\s*[\"'`]light[\"'`]\\s*\\)" },
+            { label: "toggleTheme 用函数式更新", labelEn: "toggleTheme uses the updater form", must: "setTheme\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>" },
+            { label: "没有读闭包里的 theme 去算新值", labelEn: "The new value is not computed from the theme in the closure", mustNot: "setTheme\\s*\\(\\s*theme\\s*===" },
+            { label: "toggleTheme 包了 useCallback", labelEn: "toggleTheme is wrapped in useCallback", must: "useCallback" },
+            { label: "context value 用 useMemo 记忆化", labelEn: "The context value is memoized with useMemo", must: "useMemo\\s*\\(" },
+            { label: "没有直接把字面量对象传给 Provider", labelEn: "No object literal is passed straight to the Provider", mustNot: "value=\\{\\{" },
+            { label: "渲染了 Ctx.Provider 并把 children 放进去", labelEn: "Ctx.Provider is rendered with children inside it", must: "\\.Provider[\\s\\S]{0,80}children" },
+            { label: "useTheme 里用了 useContext", labelEn: "useTheme uses useContext", must: "useContext\\s*\\(" },
+            { label: "useTheme 里有守卫并抛错", labelEn: "useTheme has a guard that throws", must: "if\\s*\\([^)]*\\)\\s*throw new Error" },
+            { label: "没有把 theme 放到模块级全局变量", labelEn: "theme is not kept in a module-level global", mustNot: "^let\\s+theme\\s*=" },
           ],
           hints: [
             "先想清楚三个问题：这个值放在谁的 state 里？谁能读到它？「忘了套 Provider」的时候，你希望程序静默地用一个假默认值，还是当场炸给你看？",
@@ -5041,8 +7191,36 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }`,
           ],
+          hintsEn: [
+            "Settle three questions first: whose state holds this value? Who can read it? And when somebody forgets the Provider, do you want the program to quietly use a made-up default, or to fail loudly right there?",
+            "Give createContext a default of undefined, then in useTheme write if (!ctx) throw. That reports clearly and lets TS narrow the type. Write toggleTheme as setTheme(prev => ...) wrapped in useCallback(..., []), and the value as useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]).",
+            `const Ctx = createContext<type of the value | undefined>(undefined)
+
+ThemeProvider:
+  theme, setTheme = useState("light")
+  toggleTheme = useCallback(() => setTheme(old value => old value is light ? dark : light), [])
+  value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme])
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
+
+useTheme:
+  ctx = useContext(Ctx)
+  if nothing came back, throw a readable message
+  return ctx`,
+            `const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<Theme>("light");
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  }, []);
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}`,
+          ],
           solution: tested("tsx", THEME_CONTEXT, {
+            codeEn: THEME_CONTEXT_EN,
             filename: "参考答案（实测 8/8 通过）",
+            filenameEn: "Reference answer (8 of 8 pass here)",
             collapsible: true,
           }),
         },
@@ -5055,6 +7233,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           prompt: (
             <p>
               按钮好好的，卡片一渲染就整页白屏。这是真实报错。
+            </p>
+          ),
+          promptEn: (
+            <p>
+              The button is fine, and the moment the card renders the whole page goes
+              blank. This is the real error.
             </p>
           ),
           errorOutput: `$ npx vitest run src/Theme.test.tsx
@@ -5074,6 +7258,23 @@ TypeError: Cannot destructure property 'theme' of
 
 # 浏览器里的报错略有不同，意思一样：
 #   Cannot destructure property 'theme' of 'useTheme(...)' as it is undefined.`,
+          errorOutputEn: `$ npx vitest run src/Theme.test.tsx
+
+TypeError: Cannot destructure property 'theme' of
+  '(0 , __vite_ssr_import_1__.useTheme)(...)' as it is undefined.
+    at ThemedCard (src/components/ThemedCard/index.tsx:6:11)
+    at ThemeApp
+
+ ✕ 默认是 light，按钮说 Switch to Dark
+ ✕ 点一下变 dark：按钮文字和卡片底色一起变
+ ✕ 再点一下切回 light
+ ✕ 没套 Provider 就用 useTheme()，必须立刻报错
+ ✕ toggleTheme 是稳定引用：theme 变了它也不变
+
+ Tests  5 failed | 3 passed (8)
+
+# The browser wording is slightly different but means the same thing:
+#   Cannot destructure property 'theme' of 'useTheme(...)' as it is undefined.`,
           broken: demo(
             "tsx",
             `// ThemeContext.tsx
@@ -5092,24 +7293,60 @@ const ThemeApp: React.FC = () => (
     <ThemedCard />
   </>
 );`,
-            { filename: "src/components/ThemeApp/index.tsx", highlight: [12, 13, 14] },
+            {
+              filename: "src/components/ThemeApp/index.tsx",
+              codeEn: `// ThemeContext.tsx
+const ThemeContext = createContext<ThemeContextValue>(undefined as never);
+
+export function useTheme() {
+  return useContext(ThemeContext);      // no guard
+}
+
+// ThemeApp/index.tsx
+const ThemeApp: React.FC = () => (
+  <>
+    <ThemeProvider>
+      <ThemeToggleButton />
+    </ThemeProvider>
+    <ThemedCard />
+  </>
+);`,
+              highlight: [12, 13, 14],
+            },
           ),
           classify: {
             options: [
-              { id: "a", label: "Provider 位置错了 —— ThemedCard 在 Provider 的子树外面，useContext 拿到默认值 undefined" },
-              { id: "b", label: "忘了 export ThemeContext" },
-              { id: "c", label: "useMemo 的依赖数组写错了" },
-              { id: "d", label: "ThemedCard 应该改成 class 组件" },
+              {
+                id: "a",
+                label: "Provider 位置错了 —— ThemedCard 在 Provider 的子树外面，useContext 拿到默认值 undefined",
+                labelEn: "The Provider is in the wrong place — ThemedCard sits outside its subtree, so useContext gets the default value, undefined",
+              },
+              { id: "b", label: "忘了 export ThemeContext", labelEn: "ThemeContext was never exported" },
+              { id: "c", label: "useMemo 的依赖数组写错了", labelEn: "The dependency array of useMemo is wrong" },
+              { id: "d", label: "ThemedCard 应该改成 class 组件", labelEn: "ThemedCard should be a class component" },
             ],
             answer: "a",
           },
           locate: {
             question: "怎么改？",
+            questionEn: "How do you fix it?",
             options: [
-              { id: "a", label: "把 Provider 提到最外层，让按钮和卡片都在它的子树里；同时在 useTheme 里加守卫，让下次报错能看懂" },
-              { id: "b", label: "给 createContext 传一个 { theme: 'light', toggleTheme: () => {} } 当默认值" },
-              { id: "c", label: "在 ThemedCard 里写 const ctx = useTheme() ?? { theme: 'light' }" },
-              { id: "d", label: "把 ThemedCard 也包一个自己的 ThemeProvider" },
+              {
+                id: "a",
+                label: "把 Provider 提到最外层，让按钮和卡片都在它的子树里；同时在 useTheme 里加守卫，让下次报错能看懂",
+                labelEn: "Move the Provider to the outermost level so both the button and the card are inside its subtree, and add a guard in useTheme so the next failure reads clearly",
+              },
+              {
+                id: "b",
+                label: "给 createContext 传一个 { theme: 'light', toggleTheme: () => {} } 当默认值",
+                labelEn: "Give createContext a default of { theme: 'light', toggleTheme: () => {} }",
+              },
+              {
+                id: "c",
+                label: "在 ThemedCard 里写 const ctx = useTheme() ?? { theme: 'light' }",
+                labelEn: "Inside ThemedCard write const ctx = useTheme() ?? { theme: 'light' }",
+              },
+              { id: "d", label: "把 ThemedCard 也包一个自己的 ThemeProvider", labelEn: "Wrap ThemedCard in a ThemeProvider of its own" },
             ],
             answer: "a",
           },
@@ -5131,7 +7368,26 @@ const ThemeApp: React.FC = () => (
     <ThemedCard />
   </ThemeProvider>
 );`,
-            { filename: "改对之后（8/8 通过）" },
+            {
+              filename: "改对之后（8/8 通过）",
+              filenameEn: "After the fix (8 of 8 pass)",
+              codeEn: `// ThemeContext.tsx — default value undefined, plus a guard
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme has to be used inside <ThemeProvider>");
+  return ctx;
+}
+
+// ThemeApp/index.tsx — the Provider wraps every consumer
+const ThemeApp: React.FC = () => (
+  <ThemeProvider>
+    <ThemeToggleButton />
+    <ThemedCard />
+  </ThemeProvider>
+);`,
+            },
           ),
           rootCause: (
             <>
@@ -5173,8 +7429,59 @@ const ThemeApp: React.FC = () => (
               </p>
             </>
           ),
+          rootCauseEn: (
+            <>
+              <p>
+                <code>ThemedCard</code> sits <strong>beside</strong>{" "}
+                <code>ThemeProvider</code>, not inside its subtree.{" "}
+                <code>useContext</code> only looks upwards for the nearest Provider
+                among its <strong>ancestors</strong>. Finding none, it returns the
+                default value from <code>createContext</code>, which here is{" "}
+                <code>undefined</code>. Then{" "}
+                <code>{"const { theme } = undefined"}</code> throws.
+              </p>
+              <p>
+                <strong>Why is the button fine?</strong> Because it really is inside
+                the Provider.{" "}
+                <strong>
+                  Some components working while others report undefined is the
+                  fingerprint of this bug
+                </strong>
+                : the Provider exists, its reach is just too small.
+              </p>
+              <p>
+                <strong>Why is option B, a default value, worse?</strong> It makes the
+                error disappear and buys you a{" "}
+                <strong>silent wrong result</strong>: the card stays light forever,
+                the button does nothing, and nothing at all tells you that this
+                component is not connected to a Provider. A blank page at least says
+                something is wrong; this gives you no clue at all.{" "}
+                <strong>Fail early rather than late.</strong>
+              </p>
+              <p>
+                <strong>
+                  Option C, the <code>?? </code>fallback,
+                </strong>{" "}
+                is a smaller version of the same problem, and it also throws away{" "}
+                <code>toggleTheme</code>.
+              </p>
+              <p>
+                The <code>__vite_ssr_import_1__</code> in the message is just a
+                variable name Vite produced, so ignore it.{" "}
+                <strong>
+                  Reading an error means catching three things: the kind of error (
+                  <code>TypeError</code>), which property (
+                  <code>&apos;theme&apos;</code>), and which component (
+                  <code>at ThemedCard</code>).
+                </strong>{" "}
+                Those three together are enough to locate it.
+              </p>
+            </>
+          ),
           verify:
             "npx vitest run src/Theme.test.tsx   # 8 passed，包含「没套 Provider 必须报错」那条",
+          verifyEn:
+            "npx vitest run src/Theme.test.tsx   # 8 passed, including the one about using it without a Provider",
         },
       ],
       mistakes: [
@@ -5183,6 +7490,10 @@ const ThemeApp: React.FC = () => (
             "tsx",
             `// ✗ 直接传字面量对象
 <ThemeContext.Provider value={{ theme, toggleTheme }}>`,
+            {
+              codeEn: `// ✗ Passing the object literal straight through
+<ThemeContext.Provider value={{ theme, toggleTheme }}>`,
+            },
           ),
           why: (
             <>
@@ -5209,6 +7520,10 @@ const ThemeApp: React.FC = () => (
             "tsx",
             `// ✗ 给一个「看起来合理」的默认值
 const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });`,
+            {
+              codeEn: `// ✗ Giving it a default value that looks reasonable
+const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });`,
+            },
           ),
           why: (
             <>
@@ -5238,6 +7553,13 @@ export function ThemeProvider({ children }) {
   const { theme } = useTheme();   // 报错：这时 Provider 还没渲染
   ...
 }`,
+            {
+              codeEn: `// ✗ Calling useTheme() inside ThemeProvider itself
+export function ThemeProvider({ children }) {
+  const { theme } = useTheme();   // throws: the Provider has not rendered yet
+  ...
+}`,
+            },
           ),
           why: (
             <>
@@ -5264,6 +7586,10 @@ export function ThemeProvider({ children }) {
             "tsx",
             `// ✗ 按钮文字写成「现在是什么」
 {theme === "light" ? "Switch to Light" : "Switch to Dark"}`,
+            {
+              codeEn: `// ✗ Button text that says what the theme is now
+{theme === "light" ? "Switch to Light" : "Switch to Dark"}`,
+            },
           ),
           why: (
             <>

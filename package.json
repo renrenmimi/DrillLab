@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "audit:code": "node scripts/audit-code-lines.mjs",
     "gen:nav": "node scripts/gen-nav.mjs",
     "gen:src": "node scripts/gen-source-files.mjs"
   },
