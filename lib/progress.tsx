@@ -12,6 +12,16 @@
 //   arena     考场的尝试记录                   键 = 考场题 id，值是尝试数组
 //   coding    coding 题完成标记                键 = coding 题 id
 //   recent    最近去过的地方（按模式各存一条）  顶栏「继续」和四个侧栏的高亮靠它
+//   plan      当前跟着走的引导计划              只存 id 和两个时间戳
+//   planSeen  最近看过哪条计划的详情页          /plans 上标一下「上次看的是这条」
+//   planOptOut 用户明确说了「我自己逛」          首页就不再把选计划摆在第一位
+//
+// 【引导计划为什么只存一个 id】
+// 计划里每一格的完成状态**全部从上面那些记录推导**（见 lib/plan-progress.ts）——
+// 课文查 lessons、练习查 exercises / rebuilds、八股查 drills、考场查 arena。
+// 计划自己不记「计划内完成」，否则先自己刷了三十道八股、后来才选计划的人
+// 会看到 0 / 105，而跟着计划做完的一节课在 Learn 模式里又不打勾。
+// 一份完成度，两个视图。
 //
 // 【recent 为什么是按模式各存一条，而不是只存一条全局的】
 // 顶栏那个「继续」需要「最近一次有意义的落点」——  一条就够。
@@ -118,6 +128,18 @@ export interface ProgressData {
    * 顶栏的「继续」会先回落到 last（那条一直都在），一节课都不会丢。
    */
   recent: { mode?: ModeId; byMode: Partial<Record<ModeId, RecentItem>> };
+  /**
+   * 当前跟着走的引导计划。
+   *
+   * 只有 id 和两个时间戳 —— 完成度不在这里，见 lib/plan-progress.ts。
+   * 老数据里没有这个字段，load() 兜底成 undefined：那种情况下首页照旧
+   * 显示「接着上次那件事」，一条进度都不会丢。
+   */
+  plan?: { id: string; startedAt: number; at: number };
+  /** 最近看过哪条计划的详情页（不一定是当前跟着走的那条） */
+  planSeen?: string;
+  /** 用户明确选了「先自己逛」。首页因此不再把选计划摆在第一位 */
+  planOptOut?: boolean;
 }
 
 const EMPTY: ProgressData = {
@@ -159,6 +181,16 @@ interface Ctx {
   lastMode: () => ModeId | undefined;
   /** 跨模式最新的那一条 —— 顶栏「继续」的目标 */
   mostRecent: () => { mode: ModeId; item: RecentItem } | undefined;
+
+  /* ---- 引导计划 ---- */
+  /** 当前跟着走的那条。没选过就是 undefined */
+  activePlan: () => { id: string; startedAt: number; at: number } | undefined;
+  /** 选一条跟着走。换计划不动任何已有的完成记录 */
+  setActivePlan: (id: string) => void;
+  /** 不跟计划了。已有的完成记录一条不动，只是首页不再把它摆在第一位 */
+  clearActivePlan: () => void;
+  /** 看过某条计划的详情页。幂等 */
+  notePlanSeen: (id: string) => void;
 
   /* ---- 八股题库 ---- */
   drillMark: (id: string) => DrillMark | undefined;
@@ -204,6 +236,10 @@ const ProgressCtx = createContext<Ctx>({
   recentOf: () => undefined,
   lastMode: () => undefined,
   mostRecent: () => undefined,
+  activePlan: () => undefined,
+  setActivePlan: () => {},
+  clearActivePlan: () => {},
+  notePlanSeen: () => {},
   drillMark: () => undefined,
   setDrillMark: () => {},
   clearDrillMark: () => {},
@@ -236,6 +272,10 @@ function load(): ProgressData {
       arenaLive: p.arenaLive,
       coding: p.coding ?? {},
       recent: { mode: p.recent?.mode, byMode: p.recent?.byMode ?? {} },
+      // 引导计划是后加的，老数据里没有 —— 缺了就是「没跟计划」，不影响任何已有记录
+      plan: p.plan,
+      planSeen: p.planSeen,
+      planOptOut: p.planOptOut,
     };
   } catch {
     return EMPTY;
@@ -427,6 +467,43 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           };
         }
         return best;
+      },
+
+      /* ---- 引导计划 ---- */
+
+      activePlan: () => data.plan,
+
+      setActivePlan: (id) => {
+        if (!dataReady.current) return;
+        update((prev) => {
+          // 同一条重复点不改 startedAt —— 那个时间戳是「什么时候开始跟这条」，
+          // 每次进页面都刷一遍就没意义了
+          if (prev.plan?.id === id) {
+            return { ...prev, plan: { ...prev.plan, at: Date.now() }, planOptOut: false };
+          }
+          return {
+            ...prev,
+            plan: { id, startedAt: Date.now(), at: Date.now() },
+            planSeen: id,
+            // 换计划 = 又愿意被引导了
+            planOptOut: false,
+          };
+        });
+      },
+
+      clearActivePlan: () => {
+        if (!dataReady.current) return;
+        update((prev) => {
+          if (!prev.plan && prev.planOptOut) return prev;
+          const next = { ...prev, planOptOut: true };
+          delete next.plan;
+          return next;
+        });
+      },
+
+      notePlanSeen: (id) => {
+        if (!dataReady.current) return;
+        update((prev) => (prev.planSeen === id ? prev : { ...prev, planSeen: id }));
       },
 
       /* ---- 八股题库 ---- */
