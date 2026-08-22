@@ -601,8 +601,36 @@ input OrderItemInput {            # 只能当参数，不能有 resolver
 }`,
               {
                 filename: "SDL 速查",
+                filenameEn: "SDL reference",
                 sourceFile:
                   "graphql-federation-practice/node-subgraph/src/schema.graphql",
+                codeEn: `# Nullability — decides what the resolver has to fall back to
+field: String        # nullable
+field: String!       # non-null
+field: [T]           # list nullable, items nullable
+field: [T!]          # list nullable, items non-null
+field: [T]!          # list non-null, items nullable
+field: [T!]!         # both non-null -> resolver needs ?? [], an empty list is valid
+
+# Built-in scalars: ID String Int Float Boolean
+# ID serializes to a string. Do not treat it as a number.
+
+enum OrderStatus { PENDING PROCESSING SHIPPED DELIVERED CANCELLED }
+# Returning a value that is not in the list is an error. Case sensitive.
+
+type Query {                      # read entry point, fields run in parallel
+  order(id: ID!): Order
+  orders(userId: ID!): [Order!]!
+}
+
+type Mutation {                   # write entry point, fields run one at a time
+  createOrder(userId: ID!, items: [OrderItemInput!]!): Order!
+}
+
+input OrderItemInput {            # arguments only, cannot have resolvers
+  productId: ID!
+  quantity: Int!
+}`,
               },
             )}
           />
