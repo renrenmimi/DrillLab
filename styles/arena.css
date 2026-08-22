@@ -17,10 +17,10 @@
 .arena-live {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--sp-2);
   flex-wrap: wrap;
-  margin: 0 0 22px;
-  padding: 14px 16px;
+  margin: 0;
+  padding: var(--sp-2);
   border: 1px solid var(--danger-line);
   border-left: 3px solid var(--danger);
   border-radius: var(--r);
@@ -45,35 +45,13 @@
   margin-left: auto;
 }
 
-/* 三个数字的概览条 */
-.arena-sum {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 26px;
-  padding: 14px 0 16px;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  max-width: var(--measure-wide);
-}
-
-.arena-sum-cell {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
-  font-size: 13px;
-  color: var(--ink-3);
-}
-
-.arena-sum-cell b {
-  font-size: 21px;
-  font-weight: 600;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
-/* 没试过的题数 > 0 时，这个数字自己就是行动信号 */
-.arena-sum-cell[data-tone="call"] b {
+/* 概览那三个数字换成共用的 .ui-prog + 一行 .ui-meta（styles/layout.css）——
+   老版本 .arena-sum 自己写了三个 21px 的大数字和一条上下细线，
+   而同一个「N / M」在另外三个列表页上又是三种别的长相。
+   这里只剩「没试过的题数 > 0 时，那个数字自己就是行动信号」这一条。 */
+.arena-list .ui-meta > [data-tone="call"] {
   color: var(--accent-ink);
+  font-weight: 600;
 }
 
 /* 没试过的题：左边一条强调色的杠 + 略抬起来的底 */

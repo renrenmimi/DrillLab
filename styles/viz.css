@@ -87,13 +87,17 @@
   word-break: break-word;
 }
 
+/* 【为什么箭头用 --ink-3 而不是画线的颜色】
+   它是一个「→」字符，说的是数据往哪边流 —— 那是信息，不是装饰。
+   老值用 --rule-strong（画线的颜色），深浅两个主题下都只有 1.6–1.7:1，
+   扫描一直报它。--ink-3 在 --raised 上是 6.41:1。 */
 .viz-arrow {
   flex: 0 0 auto;
   width: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--rule-strong);
+  color: var(--ink-3);
   font-size: 14px;
 }
 

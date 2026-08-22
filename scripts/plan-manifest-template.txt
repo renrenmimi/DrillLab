@@ -51,6 +51,9 @@ export interface ManifestStage {
   phase: PlanPhase;
   zh: string;
   en: string;
+  /** 这一档为什么在这儿。计划唯一自己拥有的文字 */
+  whyZh: string;
+  whyEn: string;
   /** 指向 PLAN_ITEMS 的下标。跨计划共享同一张表，所以「从零完整学习」
    *  和「React 考试准备」里同一节课只存一份 */
   items: number[];

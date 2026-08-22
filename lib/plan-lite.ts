@@ -38,6 +38,9 @@ export interface LiteStage {
   phase: PlanPhase;
   zh: string;
   en: string;
+  /** 这一档为什么在这儿 —— 首页那张「下一件事」的卡用它回答「为什么是这一件」 */
+  whyZh: string;
+  whyEn: string;
   items: LiteItem[];
 }
 
@@ -90,6 +93,8 @@ function expand(m: (typeof PLAN_MANIFEST)[number]): LitePlan {
     phase: s.phase,
     zh: s.zh,
     en: s.en,
+    whyZh: s.whyZh,
+    whyEn: s.whyEn,
     items: s.items.map(itemAt),
   }));
   const out: LitePlan = {

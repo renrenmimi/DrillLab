@@ -1,110 +1,65 @@
 "use client";
 
-// 外壳：顶栏 + 随模式而变的侧栏 + 主内容（+ 可选右侧目录栏）。
+// 外壳（UI v2）：**左侧一套导航，顶栏只有工具。**
 //
 // 【这一版换掉了什么，以及为什么】
 //
-// 上一版是「一个常驻侧栏装下全部」：完整课程树 + 平行支线 + 四张全量表 +
-// 速查 + 清空进度，全部同时露出。它解决了上上一版「不知道该点左边还是点上边」
-// 的问题，但换来一个更根本的毛病 ——
+// 上一版是「顶栏 = 模式，侧栏 = 那个模式的结构」。那一步解决了更早那版
+// 「不知道该点左边还是点上边」，但它自己留下一个更难受的毛病：
 //
-//   **要先读懂这个站的内容模型，才能决定点哪儿。**
+//   **两套导航同屏竞争。**
 //
-// 一个刚来的人不知道该从哪开始；一个只想复习 React 的人也得先穿过课程结构。
-// 而这个产品明明有五种都成立的用法：跟着课程走 / 用抽认卡背知识点 /
-// 按题目找练习 / 进考场计时 / 只在卡住时查课文。
+// 顶栏上同时有：品牌、计划徽标（带 4/130）、四个模式、一颗「继续」、
+// 搜索、帮助、语言、主题 —— 九件东西，其中三件都在说「往这儿走」。
+// 侧栏上同时有：计划面板（含「下一步」卡）、「接着学」大按钮、
+// 全局课文进度、课程树、「下一节」卡 —— 又是五件，其中三件还在说
+// 「往这儿走」。
 //
-// 所以这一版把导航拆成两个问题，分给两个控件：
+// 结果是「下一步做哪一件事」被稀释成六七个都挺重要的东西。
 //
-//   顶栏：我现在想做哪一类事？   → 四个模式（lib/modes.ts）
-//   侧栏：在这件事里我在哪、下一步是什么？ → 四个侧栏（components/sidebars.tsx）
+// 现在的分工只有一句话：
 //
-// 顶栏因此从「首页 / 使用说明」两个弱链接，换成四个真正的产品模式，
-// 再加一颗「继续」—— 回头客打开站的第一个念头是「我上次到哪了」，
-// 那个答案以前只在首页，而且只认课文。
+//   侧栏回答「去哪儿」（导航），顶栏回答「我在哪」（位置）加四个工具。
 //
-// 「使用说明」没有删，它退到右边那个 ? 菜单里 —— 它是第一次来才需要的，
-// 不该占着四个一级位置里的一个。
+// 具体：
+// ① **顶栏不再有任何导航。** 四个模式整块搬进侧栏的「资料库 / 检验」两组，
+//    位置在每一页上都一样（见 lib/side-nav.ts）。
+// ② **「继续」全站只有一颗**，在侧栏计划块的正下方（components/continue.tsx
+//    的 SideContinue）。首页和计划详情页除外 —— 那两页的主内容本身
+//    就是这颗按钮的放大版，同屏两个入口等于没有入口。
+// ③ 侧栏**上半（导航位）在所有页面完全一致**，只有分隔线以下那一段随页面变
+//    （课程页给课程路线图、八股页给方向筛选……）。导航位一动，人就得重新找。
+// ④ 侧栏现在**每一页都有**（老版本首页 / /plans / /guide / /reference 没有）。
+//    没有侧栏的页面等于把导航藏起来，而这四页恰好是新访客最先看到的。
 //
-// 四档难度（说得出 / 认得出 / 写得对 / 空手做）也没有删，
-// 它仍然是 components/ladder.tsx 那套解释，只是不再自己充当一级导航：
-// 它现在分布在 Review / Practice / Assess 三个模式里。
-//
-// 首页、使用说明、速查、计划页不属于任何模式，所以它们**没有侧栏**
-// （data-nav="off"）—— 首页本身就是那张仪表盘，/plans 本身就是那张选择表。
-//
-// 【这一轮加的：引导计划】
-// 四个模式解决了「我想做哪一类事」，但四个里只有 Learn 是线性的 ——
-// Review / Practice / Assess 仍然是题库和筛选器。所以顶栏在四个模式**左边**
-// 多了一枚计划徽标（中间一条竖线隔开，因为它和那四项不是同一类东西：
-// 四项是活动，它是一条路），侧栏顶部多了一块计划面板。
-// 两个入口互补，不是替代：计划回答「下一步做什么」，四个模式回答「让我自己挑」。
+// 【为什么只渲染一份 DOM】
+// 窄屏靠 CSS 把 .sidebar 变成抽屉，不是另渲染一份。渲染两份会在无障碍树里
+// 留下两个同名的导航地标，读屏的人会听到两遍。
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocale } from "@/lib/locale";
-import { MODES, modeOf } from "@/lib/modes";
+import { modeOf } from "@/lib/modes";
+import { sectionOf } from "@/lib/side-nav";
 import { useTheme } from "@/lib/theme";
-import { ContinueButton } from "./continue";
-import { PlanSignalProvider } from "@/lib/plan-signal";
-import { PlanChipSlot, PlanPanelSlot } from "./plan-slots";
+import { cedesContinue, ContinueButton } from "./continue";
 import { Search } from "./search";
+import { Mark, SideNav } from "./side-nav";
 import { ContextSidebar } from "./sidebars";
 import { T } from "./t";
-
-function Mark() {
-  // 四根递减的柱子 —— 这个站的内核就是「越往后给你的脚手架越少」：
-  // 八股给题目、练习给挖好的空、coding 给文件依赖测试，考场只给一个空文件夹。
-  // 所以柱子从高到低，最后一根只剩底座。
-  //
-  // 三处刻意的处理，别当成手滑改掉：
-  // ① 前三根用 currentColor 压到 0.32，第四根用 var(--accent) 实色。
-  //    「给你的东西是背景，自己写出来的才是主角」，跟全站「只有强调色是彩色主角」一致。
-  //    两个颜色都跟着主题走，深浅两套不用各画一份。
-  // ② 第四根不画成 0 高，留 2 个单位当底座 —— 画成 0 会读作只有三根。
-  // ③ 底下那条基线比柱子两端各出挑一点（x 从 2 到 18.5）。四根柱子站在同一条线上，
-  //    这条线同时也是「空文件夹」的那个底；去掉它，四根柱子会散开读作柱状图。
-  //
-  // 柱子等宽等距，和 hamburger 那三条横线方向相反，不会认错。
-  //
-  // 【favicon 那份的两个坑】app/icon.svg 是同一个符号，但它要过 Next 的
-  // metadata 图片解析器，比这里严格两条：
-  // ① 前导注释不能长。它只嗅探文件开头有限的字节去找 <svg>，注释太长就直接
-  //    报「not a valid image file」。原来那份沙漏注释 301 字符能过，写到 652 就挂。
-  //    所以完整设计说明放在这里，那份只留两行指过来。
-  // ② SVG 内部和注释里都不能出现连续两个横线。XML 规范不允许 -- 出现在注释中，
-  //    所以那边写「accent，#547563」而不是把 CSS 变量名原样抄进去。
-  return (
-    <svg width="17" height="17" viewBox="0 0 20 20" aria-hidden>
-      <rect x="2" y="3" width="3" height="14" rx="1" fill="currentColor" opacity="0.32" />
-      <rect x="6.5" y="7" width="3" height="10" rx="1" fill="currentColor" opacity="0.32" />
-      <rect x="11" y="11" width="3" height="6" rx="1" fill="currentColor" opacity="0.32" />
-      <rect x="15.5" y="15" width="3" height="2" rx="1" fill="var(--accent)" />
-      <path
-        d="M2 18.4 H18.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        opacity="0.32"
-      />
-    </svg>
-  );
-}
 
 /**
  * 右边那个 ? 菜单 —— 「使用说明」和「速查表」的家。
  *
- * 【为什么这两项不进顶栏】
- * 它们不是「我现在想做哪一类事」的答案：使用说明是第一次来读一遍的，
- * 速查表是卡住了才翻的。放在一级位置会挤掉真正的四个模式，
- * 而顶栏一旦变成工具条，四个模式就不再显眼了。
+ * 速查表在侧栏里也有一项。这里留着它是因为「卡住了想查一下」发生在读课文的
+ * 中途，那时手在顶栏（搜索旁边），不在侧栏底部。
  *
  * 【键盘和焦点】
- * 点按钮开合；开着时 Esc 关闭并把焦点还给按钮；焦点离开这一块（Tab 出去、
- * 点别处）也关闭。三个行为都不依赖 hover —— 触屏上 hover 菜单等于没有。
+ * 点按钮开合；开着时 Esc 关闭并把焦点还给按钮；焦点离开这一块也关闭。
+ * 三个行为都不依赖 hover —— 触屏上 hover 菜单等于没有。
  */
-function HelpMenu() {
+function HelpMenu({ tools }: { tools?: ReactNode }) {
   const path = usePathname();
   const { locale } = useLocale();
   const en = locale === "en";
@@ -113,12 +68,10 @@ function HelpMenu() {
   const btnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
 
-  // 换页时收起
   useEffect(() => setOpen(false), [path]);
 
   useEffect(() => {
     if (!open) return;
-    // 打开时把焦点移进菜单，否则键盘用户按了回车之后还停在按钮上
     panelRef.current?.querySelector<HTMLElement>("a")?.focus();
 
     const onKey = (e: KeyboardEvent) => {
@@ -143,7 +96,6 @@ function HelpMenu() {
       className="helpmenu"
       ref={wrapRef}
       onBlur={(e) => {
-        // relatedTarget 是焦点即将去的地方。还在这一块里就不关。
         if (!wrapRef.current?.contains(e.relatedTarget as Node | null)) setOpen(false);
       }}
     >
@@ -153,8 +105,24 @@ function HelpMenu() {
         ref={btnRef}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={en ? "Help and reference" : "帮助与速查"}
-        title={en ? "Help and reference" : "帮助与速查"}
+        aria-label={
+          tools
+            ? en
+              ? "Settings, help and reference"
+              : "设置、帮助与速查"
+            : en
+              ? "Help and reference"
+              : "帮助与速查"
+        }
+        title={
+          tools
+            ? en
+              ? "Settings, help and reference"
+              : "设置、帮助与速查"
+            : en
+              ? "Help and reference"
+              : "帮助与速查"
+        }
         onClick={() => setOpen((v) => !v)}
       >
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
@@ -172,6 +140,9 @@ function HelpMenu() {
 
       {open && (
         <div className="helpmenu-panel" role="menu" ref={panelRef}>
+          {/* 窄屏时语言和主题住在这里 —— 390px 的顶栏放不下七个 44px 的控件
+              （实测溢出 38px）。桌面上它们在顶栏，这里就是空的。 */}
+          {tools && <div className="helpmenu-tools">{tools}</div>}
           <Link className="helpmenu-item" role="menuitem" href="/guide">
             <span className="helpmenu-item-name">
               <T zh="使用说明" en="How to use this" />
@@ -206,17 +177,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { locale, toggle: toggleLocale } = useLocale();
 
   const mode = modeOf(path);
-  // 首页 / 使用说明 / 速查不属于任何模式 —— 它们没有侧栏，也就没有抽屉按钮
-  const hasSidebar = mode !== undefined;
+  // 分隔线以下那一段（当前模式自己的结构）只在模式页面上有内容
+  const hasCtx = mode !== undefined;
+  const section = sectionOf(path);
 
   // 【答案 tab 跟着界面语言走】
   // AnswerTabs 是纯 CSS 的 radio tab（正文留在服务端，不进客户端 chunk），
-  // 所以 CSS 没法替它选中另一个 radio。结果是英文界面下答案 tab 仍停在「中文」——
-  // tab 就在眼前，但英文读者得自己点一下才看到英文答案。
-  //
-  // 这里只做一件事：语言变化时（含首次挂载）把页面上所有答案 tab 拨到对应那一档。
-  // 不传任何内容进来，所以正文照旧留在服务端。
-  // 之后用户手动点 tab 不会被打断 —— 这个 effect 只在 locale 变化时跑。
+  // 所以 CSS 没法替它选中另一个 radio。这里只在语言变化时把页面上所有
+  // 答案 tab 拨到对应那一档，不传任何内容进来。
   useEffect(() => {
     const cls = locale === "en" ? "ans-radio-en" : "ans-radio-zh";
     document.querySelectorAll<HTMLInputElement>(`.${cls}`).forEach((r) => {
@@ -229,16 +197,34 @@ export function AppShell({ children }: { children: ReactNode }) {
   const openerRef = useRef<HTMLButtonElement | null>(null);
   // 初始 false，与服务端渲染一致；挂载后才根据实际视口修正
   const [narrow, setNarrow] = useState(false);
+  /**
+   * 顶栏放不下全部工具的宽度。
+   *
+   * 390px 上七个 ≥44px 的控件（菜单 / 品牌 / 继续 / 搜索 / 帮助 / 语言 / 主题）
+   * 实测把页面顶出去 38px。所以这一档把**语言和主题收进帮助菜单** ——
+   * 顶栏留下品牌 · 继续 · 搜索 · 菜单，正是移动端该有的四件。
+   *
+   * 用 React 条件渲染而不是 CSS 显隐：同一时刻只挂载一份，
+   * 不会在无障碍树里留下两个同名的语言按钮。
+   */
+  const [compact, setCompact] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 900px)");
-    const sync = () => setNarrow(mq.matches);
+    const mq = window.matchMedia("(max-width: 960px)");
+    const mqc = window.matchMedia("(max-width: 620px)");
+    const sync = () => {
+      setNarrow(mq.matches);
+      setCompact(mqc.matches);
+    };
     sync();
     mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
+    mqc.addEventListener("change", sync);
+    return () => {
+      mq.removeEventListener("change", sync);
+      mqc.removeEventListener("change", sync);
+    };
   }, []);
 
-  // 换页时收起抽屉
   useEffect(() => {
     setDrawer(false);
   }, [path]);
@@ -248,7 +234,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (!drawer) return;
 
     const panel = panelRef.current;
-    // 打开时把焦点移进抽屉，否则键盘用户还停在按钮上
     panel?.querySelector<HTMLElement>("a, button")?.focus();
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -282,158 +267,154 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const en = locale === "en";
 
-  return (
-    <div className="shell" data-nav={hasSidebar ? undefined : "off"}>
-      <header className="topbar">
-        {/* 汉堡只在「这一页有侧栏」且窄屏时出现。桌面由 CSS 隐藏 ——
-            那里侧栏是常驻列，没有可开合的东西。 */}
-        {hasSidebar && (
-          <button
-            type="button"
-            className="icon-btn menu-btn"
-            ref={openerRef}
-            aria-label={
-              drawer
-                ? en
-                  ? "Close section navigation"
-                  : "收起本区导航"
-                : en
-                  ? "Open section navigation"
-                  : "打开本区导航"
-            }
-            aria-expanded={drawer}
-            aria-controls="context-nav"
-            onClick={() => setDrawer(!drawer)}
-          >
-            <svg width="17" height="17" viewBox="0 0 17 17" aria-hidden>
-              <rect x="1" y="3" width="15" height="1.7" rx="0.85" fill="currentColor" />
-              <rect x="1" y="7.6" width="15" height="1.7" rx="0.85" fill="currentColor" />
-              <rect x="1" y="12.2" width="15" height="1.7" rx="0.85" fill="currentColor" />
-            </svg>
-          </button>
-        )}
+  /* 语言和主题两颗按钮。它们要么在顶栏（宽屏），要么在帮助菜单里（窄屏）—— 
+     所以写成一份 JSX，由 compact 决定挂在哪。 */
+  const tools = (
+    <>
+      <button
+        type="button"
+        className="lang-btn"
+        onClick={toggleLocale}
+        aria-label={en ? "Switch to Chinese" : "切换到英文"}
+        title={en ? "Switch to Chinese" : "切换到英文"}
+      >
+        <span data-lang="zh">中</span>
+        <span data-lang="en">EN</span>
+      </button>
 
+      <button
+        type="button"
+        className="icon-btn"
+        onClick={toggle}
+        aria-label={
+          theme === "light"
+            ? en
+              ? "Switch to dark"
+              : "切换到深色"
+            : en
+              ? "Switch to light"
+              : "切换到浅色"
+        }
+        title={
+          theme === "light"
+            ? en
+              ? "Switch to dark"
+              : "切换到深色"
+            : en
+              ? "Switch to light"
+              : "切换到浅色"
+        }
+      >
+        {theme === "light" ? (
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
+            <path
+              d="M13.2 10.4A5.6 5.6 0 0 1 5.6 2.8a5.6 5.6 0 1 0 7.6 7.6Z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
+            <circle cx="8" cy="8" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.3" />
+            <g stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+              <path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M3.1 3.1l1.3 1.3M11.6 11.6l1.3 1.3M12.9 3.1l-1.3 1.3M4.4 11.6l-1.3 1.3" />
+            </g>
+          </svg>
+        )}
+      </button>
+    </>
+  );
+
+  return (
+    <div className="shell">
+      {/* ---------- 顶栏：位置 + 四个工具，一个导航链接都没有 ---------- */}
+      <header className="topbar">
+        {/* 汉堡只在窄屏出现。桌面上侧栏是常驻列，没有可开合的东西。 */}
+        <button
+          type="button"
+          className="icon-btn menu-btn"
+          ref={openerRef}
+          aria-label={
+            drawer
+              ? en
+                ? "Close navigation"
+                : "收起导航"
+              : en
+                ? "Open navigation"
+                : "打开导航"
+          }
+          aria-expanded={drawer}
+          aria-controls="main-nav"
+          onClick={() => setDrawer(!drawer)}
+        >
+          <svg width="17" height="17" viewBox="0 0 17 17" aria-hidden>
+            <rect x="1" y="3" width="15" height="1.7" rx="0.85" fill="currentColor" />
+            <rect x="1" y="7.6" width="15" height="1.7" rx="0.85" fill="currentColor" />
+            <rect x="1" y="12.2" width="15" height="1.7" rx="0.85" fill="currentColor" />
+          </svg>
+        </button>
+
+        {/* 品牌只在窄屏的顶栏出现 —— 桌面上它在侧栏顶部。
+            CSS 控制显隐，DOM 只有这一份。 */}
         <Link className="topbar-brand" href="/">
           <Mark />
-          DrillLab
+          <span className="topbar-brand-name display">DrillLab</span>
         </Link>
 
-        {/* 计划徽标 + 四个模式。**只有这一份 DOM** —— 窄屏靠 grid-area 把它
-            整块挪到第二行，不是另渲染一份。渲染两份会在无障碍树里留下两个
-            同名的导航地标。
-            计划徽标 flex 不参与均分（flex: 0 0 auto），所以四个模式在窄屏
-            仍然是等宽四格。 */}
-        <nav className="topbar-nav" aria-label={en ? "Where to go" : "去哪儿"}>
-          <PlanChipSlot />
-          <span className="topbar-navsep" aria-hidden />
-          {MODES.map((m) => {
-            const on = mode === m.id;
-            return (
-              <Link
-                key={m.id}
-                className="topbar-mode"
-                href={m.href}
-                data-active={on || undefined}
-                aria-current={on ? "page" : undefined}
-                title={en ? m.blurbEn : m.blurbZh}
-              >
-                <T zh={m.zh} en={m.en} />
-              </Link>
-            );
-          })}
-        </nav>
+        {/* 「我在哪」。只给区段名 —— 页面标题就在下面那行 h1 上。 */}
+        <div className="topbar-loc" aria-hidden={!section}>
+          {section && (
+            <span className="topbar-loc-name">
+              <T zh={section.zh} en={section.en} />
+            </span>
+          )}
+        </div>
 
-        <div className="topbar-right">
-          <ContinueButton />
+        <div className="topbar-tools">
+          {/* 窄屏顶栏里的〔继续〕—— 桌面上它在侧栏（CSS 收起）。
+              手机上第一屏必须能看到主动作，而侧栏在抽屉后面。
+              首页和计划详情页不给 —— 那两页的主内容本身就是这颗按钮。 */}
+          {!cedesContinue(path) && (
+            <div className="topbar-cont">
+              <ContinueButton />
+            </div>
+          )}
           <Search />
-          <HelpMenu />
-
-          <button
-            type="button"
-            className="lang-btn"
-            onClick={toggleLocale}
-            aria-label={en ? "Switch to Chinese" : "切换到英文"}
-            title={en ? "Switch to Chinese" : "切换到英文"}
-          >
-            <span data-lang="zh">中</span>
-            <span data-lang="en">EN</span>
-          </button>
-
-          <button
-            type="button"
-            className="icon-btn"
-            onClick={toggle}
-            aria-label={
-              theme === "light"
-                ? en
-                  ? "Switch to dark"
-                  : "切换到深色"
-                : en
-                  ? "Switch to light"
-                  : "切换到浅色"
-            }
-            title={
-              theme === "light"
-                ? en
-                  ? "Switch to dark"
-                  : "切换到深色"
-                : en
-                  ? "Switch to light"
-                  : "切换到浅色"
-            }
-          >
-            {theme === "light" ? (
-              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-                <path
-                  d="M13.2 10.4A5.6 5.6 0 0 1 5.6 2.8a5.6 5.6 0 1 0 7.6 7.6Z"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.3"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            ) : (
-              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-                <circle cx="8" cy="8" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.3" />
-                <g stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
-                  <path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M3.1 3.1l1.3 1.3M11.6 11.6l1.3 1.3M12.9 3.1l-1.3 1.3M4.4 11.6l-1.3 1.3" />
-                </g>
-              </svg>
-            )}
-          </button>
+          {/* 语言和主题：宽屏在顶栏，窄屏收进这个菜单（见 compact 那段注释）。
+              两处**同一时刻只挂载一份**，所以无障碍树里不会有两个语言按钮。 */}
+          <HelpMenu tools={compact ? tools : undefined} />
+          {!compact && tools}
         </div>
       </header>
 
-      {hasSidebar && (
-        <>
-          <div
-            className="drawer-scrim"
-            data-open={drawer || undefined}
-            onClick={() => setDrawer(false)}
-            aria-hidden
-          />
-          <aside
-            className="sidebar"
-            id="context-nav"
-            data-open={drawer}
-            aria-label={en ? "Where you are" : "本区导航"}
-            ref={panelRef}
-            {...(drawer ? { role: "dialog", "aria-modal": true } : {})}
-            // 在屏幕外时移出可聚焦序列，键盘不会 Tab 进看不见的链接
-            inert={narrow && !drawer}
-          >
-            {/* 计划面板在侧栏最上面，且**只给四样**：叫什么、走到哪、
-                这一档是什么、下一格是什么。侧栏剩下的部分照旧是当前模式
-                自己的结构 —— 不把整条计划搬进来。没跟计划时它什么都不渲染。 */}
-            {/* 计划面板把「下一步」登记进 PlanSignal，Learn 侧栏读它决定
-                还要不要画自己那颗「接着学」—— 两处指同一节课时只留一处。 */}
-            <PlanSignalProvider>
-              <PlanPanelSlot onNavigate={() => setDrawer(false)} />
-              <ContextSidebar mode={mode} onNavigate={() => setDrawer(false)} />
-            </PlanSignalProvider>
-          </aside>
-        </>
-      )}
+      {/* ---------- 侧栏：全站唯一一套导航 ---------- */}
+      <div
+        className="drawer-scrim"
+        data-open={drawer || undefined}
+        onClick={() => setDrawer(false)}
+        aria-hidden
+      />
+      <aside
+        className="sidebar"
+        id="main-nav"
+        data-open={drawer}
+        aria-label={en ? "Navigation" : "导航"}
+        ref={panelRef}
+        {...(drawer ? { role: "dialog", "aria-modal": true } : {})}
+        // 在屏幕外时移出可聚焦序列，键盘不会 Tab 进看不见的链接
+        inert={narrow && !drawer}
+      >
+        <SideNav onNavigate={() => setDrawer(false)} />
+
+        {/* 分隔线以下：当前这一类事情自己的结构。导航位以上的部分不动。 */}
+        {hasCtx && (
+          <div className="sidebar-ctx">
+            <ContextSidebar mode={mode} onNavigate={() => setDrawer(false)} />
+          </div>
+        )}
+      </aside>
 
       {children}
     </div>

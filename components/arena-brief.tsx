@@ -59,7 +59,7 @@ export function ArenaBrief({ id }: { id: string }) {
           <div className="eyebrow">
             <T zh="开考前" en="Before you start" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title">
             <T zh={a.title} en={a.titleEn} />
           </h1>
           <p className="page-lede">

@@ -46,27 +46,44 @@ into them, and **completion is derived from the progress you already have**. Que
 you rated before picking a plan count towards it; anything you finish inside a plan is
 still ticked in the courses.
 
-**The four modes** answer "let me browse and choose." They are unchanged.
+**The library** answers "let me browse and choose." Nothing is ever locked.
 
-## Four ways to explore
+## One navigation, one next action
 
-The header asks: **what kind of work do you want to do now?** Picking one changes the
-sidebar, which then answers: where am I inside this, and what is next?
+Everything you can go to lives in the left sidebar, and its positions are identical on
+every page. The top bar carries only where you are plus four tools: search, language,
+theme and help.
 
-| Mode | Routes | What you do there |
+```
+Today  ·  My plan
+   your plan's name, stage and progress
+   〔 Continue 〕                      ← the one primary action, site-wide
+Library     Learn · Review · Practice
+Assessment  Arena · Mock exams
+Reference
+```
+
+| Section | Routes | What you do there |
 | --- | --- | --- |
 | **Learn** | `/path`, `/exams/**` | Read the lessons in order, one at a time |
 | **Review** | `/drill` | Interview questions and flashcards — no need to start at chapter one |
 | **Practice** | `/practice`, `/code` | Lesson exercises, plus coding workspaces that really run the tests |
-| **Assess** | `/arena`, `/mock` | Timed, no hints, done in an empty folder |
+| **Arena** | `/arena` | Timed, no hints, done in an empty folder |
+| **Mock exams** | `/mock` | Score yourself against the rubric after a sitting |
 
-A **Continue** button in the header points at your plan's next item when you are
-following one, and otherwise at the last meaningful thing you were doing — a lesson, a
+**Continue** exists exactly once. Following a plan, it points at that plan's next
+incomplete item; otherwise at the last meaningful thing you were doing — a lesson, a
 filtered question set, a coding problem or an arena run. With no history at all it
-points at the first Foundations lesson. Nothing is locked:
-the home page has topic shortcuts (JavaScript, React, TypeScript, GraphQL, Spring
-Boot) that go straight to reviewing or practising that topic without walking the
-course.
+points at the first Foundations lesson. The two pages whose main content *is* that
+action — the home page and a plan's own page — hand it to the page and drop the
+sidebar copy, so you never see two large buttons pointing at the same place.
+
+A first-time visitor is asked one question with three answers — learn everything in
+order, prepare for a specific assessment, or prepare for interviews — rather than being
+shown six dense plan cards at once. Choosing "prepare for an assessment" is what reveals
+the four assessments. Once a plan is active the home page becomes a small dashboard:
+plan, stage, progress, time left, and one card describing the next task and why it is
+next.
 
 ## Four tracks
 

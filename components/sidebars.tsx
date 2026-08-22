@@ -47,7 +47,6 @@ import { KIND_LABEL, LEVEL_LABEL, type ExerciseKind } from "@/lib/exercise-label
 import { codingHref, practiceHref, queryOfHref } from "@/lib/list-query";
 import { useLocale } from "@/lib/locale";
 import { modeById, type ModeId } from "@/lib/modes";
-import { usePlanSignal } from "@/lib/plan-signal";
 import { useProgress } from "@/lib/progress";
 import { attemptMs, bestPass, fmtClock } from "./arena-bits";
 import { lessonPositionOf, useLearnTarget, useResume } from "./continue";
@@ -193,26 +192,16 @@ function LearnSide({ onNavigate }: { onNavigate: () => void }) {
   const { ready, countLessons, activePlan } = useProgress();
   const en = locale === "en";
 
-  /* ---- 「接着学」那颗大按钮：跟着计划走的时候要让位 ----
+  /* ---- 这一段不再有「接着学」那颗按钮 ----
 
-     侧栏上面就是计划面板，它自己有一张「下一步」的卡。跟着计划走的时候
-     两处十有八九指向同一节课 —— 同一屏上两张一模一样的实心大卡，
-     都写着「往这儿走」，等于没有入口。所以：
+     UI v2 把「继续」收成了全站唯一一颗，在侧栏导航位下面
+     （components/continue.tsx 的 SideContinue）。这一段是**当前这一类
+     事情的结构**，不是第二个主动作。
 
-       没在跟计划            照常画这颗按钮（唯一的出口）
-       跟着计划、指向同一节  什么都不画，计划那张卡就是出口
-       跟着计划、指向不同     降级成一行安静的文字链，说清它是计划之外的
-       计划已经走完          照常画（计划没有下一步了，这里重新是唯一出口）
-
-     计划面板是懒加载的，所以「下一步是什么」由它算完登记在 PlanSignal 里，
-     这边只读结果 —— 侧栏每个路由都渲染，不能把计划清单拖进首屏。
-     见 lib/plan-signal.tsx。 */
-  const following = ready && !!activePlan();
-  const planSignal = usePlanSignal();
-  // 面板还没到：先什么都不画，免得画一张再撤掉闪一下
-  const planPending = following && !planSignal.loaded;
-  const planNextHref = following && planSignal.loaded ? planSignal.nextHref : undefined;
-
+     上一版这里有一颗实心大按钮，而它正上方还有计划面板的「下一步」卡 ——
+     两张一模一样的实心块，都写着「往这儿走」，等于没有入口。
+     那一版靠一个信号 context 去比较两处的 href、把其中一处降级；
+     这一版结构上就只剩一处，那套比较连带 lib/plan-signal.tsx 一起删掉了。 */
   const groups = pathGroups();
   const main = groups.find((g) => g.kind === "main")?.exams ?? [];
   // 「接着学」的目标和 /path 页顶那条共用一份（components/continue.tsx）——
@@ -251,40 +240,15 @@ function LearnSide({ onNavigate }: { onNavigate: () => void }) {
         link={{ href: "/path", zh: "看总览 →", en: "Roadmap →" }}
       />
 
-      {!planPending &&
-        (planNextHref ? (
-          // 计划的下一步在别处（比如它让你先去背八股）—— 这一条降级成文字链，
-          // 并且说清它是计划之外的，免得看着像第二条主路。
-          planNextHref !== startTarget.href && (
-            <p className="ctx-alt">
-              <Link className="ctx-alt-link" href={startTarget.href} onClick={onNavigate}>
-                <T
-                  zh={<>计划之外，上次自己看到：{startTarget.title}</>}
-                  en={<>Outside the plan, you left off at: {startTarget.titleEn}</>}
-                />
-              </Link>
-            </p>
-          )
-        ) : (
-          <CtxCta
-            href={startTarget.href}
-            onNavigate={onNavigate}
-            label={
-              resumed ? <T zh="接着学" en="Resume" /> : <T zh="从这里开始" en="Start here" />
-            }
-            item={<T zh={startTarget.title} en={startTarget.titleEn} />}
-          />
-        ))}
-
       {ready && (
-        <div className="ctx-meter">
-          <span className="ctx-meter-num tabular">
-            {doneLessons} / {totalLessons}
+        <div className="ui-prog ctx-prog">
+          <span className="ui-prog-num">
+            <b>{doneLessons}</b> / {totalLessons}
           </span>
-          <span className="bar">
+          <span className="ui-bar">
             <i style={{ width: `${(doneLessons / Math.max(1, totalLessons)) * 100}%` }} />
           </span>
-          <span className="ctx-meter-label">
+          <span className="ui-prog-label">
             <T zh="节读完" en="lessons done" />
           </span>
         </div>

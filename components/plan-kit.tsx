@@ -22,7 +22,6 @@ import { useT } from "@/lib/locale";
 import type { ModeId } from "@/lib/modes";
 import { litePlanById, type LiteItem, type LiteStatus } from "@/lib/plan-lite";
 import { itemKey, pct, planStatus, type ItemState } from "@/lib/plan-progress";
-import { usePublishPlanNext } from "@/lib/plan-signal";
 import type { PlanPhase } from "@/lib/plan-types";
 import { useProgress } from "@/lib/progress";
 import { PlanMark } from "./plan-mark";
@@ -155,64 +154,6 @@ export function PlanMeter({
   );
 }
 
-/* ============================================================
-   顶栏那枚徽标
-   ------------------------------------------------------------
-   放在四个模式的**左边**，中间一条竖线隔开 —— 它和那四项不是同一类东西：
-   四项是「我想做哪一类事」，这一枚是「我在跟着哪条路走」。
-   没选计划时它退成一个「计划」入口。
-   ============================================================ */
-
-export function PlanChip({ onNavigate }: { onNavigate?: () => void }) {
-  const { status, ready } = useActivePlan();
-  const t = useT();
-
-  if (!ready || !status) {
-    return (
-      <Link
-        className="topbar-plan"
-        href="/plans"
-        data-empty
-        onClick={onNavigate}
-        title={t("按目标走的引导计划", "Goal-based guided plans")}
-        aria-label={t("引导计划", "Guided plans")}
-      >
-        <PlanMark />
-        <span className="topbar-plan-name">
-          <T zh="计划" en="Plans" />
-        </span>
-      </Link>
-    );
-  }
-
-  return (
-    <Link
-      className="topbar-plan"
-      href={`/plans/${status.plan.id}`}
-      onClick={onNavigate}
-      title={t(
-        `${status.plan.zh} · ${status.done} / ${status.total}`,
-        `${status.plan.en} · ${status.done} / ${status.total}`,
-      )}
-      /* 窄屏下计划名那一段是 display: none（顶栏只剩「0/130」），
-         而链接的无障碍名字是由内容算出来的 —— 那就只剩两个数字，
-         读屏的人听不出这是哪条计划。所以名字显式写出来。 */
-      aria-label={t(
-        `计划：${status.plan.zh}，共 ${status.total} 项，已完成 ${status.done} 项`,
-        `${status.plan.en} plan, ${status.done} of ${status.total} completed`,
-      )}
-    >
-      <PlanMark />
-      <span className="topbar-plan-name">
-        <T zh={status.plan.zh} en={status.plan.en} />
-      </span>
-      <span className="topbar-plan-n tabular">
-        {status.done}/{status.total}
-      </span>
-    </Link>
-  );
-}
-
 /**
  * 顶栏那颗按钮的**计划版本** —— 指向计划的下一格。
  *
@@ -251,82 +192,84 @@ export function PlanContinueButton() {
   );
 }
 
-/* ============================================================
-   侧栏顶部那块面板
-   ------------------------------------------------------------
-   **不是把整条计划搬进侧栏** —— 只给四样：叫什么、走到哪、这一档是什么、
-   下一格是什么。侧栏剩下的部分照旧显示当前模式自己的结构。
-   ============================================================ */
-
-export function PlanPanel({ onNavigate }: { onNavigate: () => void }) {
+/**
+ * 侧栏那颗「继续」的计划版本 —— 指向计划的下一格。
+ *
+ * 和 PlanContinueButton 是同一条数据（`status.next`），只是壳不一样：
+ * 那一颗曾经在顶栏，这一版顶栏不再有导航，所以只剩这一颗。
+ */
+export function PlanSideContinue({ onNavigate }: { onNavigate: () => void }) {
   const { status, ready } = useActivePlan();
-  const next = status?.next;
+  const t = useT();
+  if (!ready || !status) return null;
 
-  // 把「下一步」登记给侧栏 —— Learn 那一档侧栏据此决定还要不要画自己那颗
-  // 「接着学」。两处指同一节课时只留这一处，见 lib/plan-signal.tsx。
-  // hook 不能写在 return 后面，所以这一行在早退之前。
-  usePublishPlanNext(ready && status ? next?.item.href : undefined);
+  const next = status.next;
+  const href = next ? next.item.href : `/plans/${status.plan.id}`;
+  const name = next
+    ? t(next.item.zh, next.item.en ?? next.item.zh)
+    : t("看整条计划", "Review the plan");
 
+  return (
+    <Link className="side-cta" data-plan="true" href={href} onClick={onNavigate}>
+      <span className="side-cta-label">
+        {next ? <T zh="继续计划" en="Continue plan" /> : <T zh="走完了" en="Plan complete" />}
+      </span>
+      <span className="side-cta-item">{name}</span>
+    </Link>
+  );
+}
+
+/**
+ * 侧栏里那块紧凑的计划状态 —— **只有三样**：叫什么、走到哪一档、进度。
+ *
+ * 【为什么不再带「下一步」那张卡】
+ * 它正下方就是那颗〔继续〕，两者永远指同一格。老版本两处都画成卡片，
+ * 于是侧栏上出现两个都在说「往这儿走」的方块。
+ * 现在分工是：这一块回答「我在准备什么、走到哪」，按钮回答「下一步」。
+ */
+export function PlanSideBlock({ onNavigate }: { onNavigate: () => void }) {
+  const { status, ready } = useActivePlan();
+  const t = useT();
   if (!ready || !status) return null;
 
   const stage = status.plan.stages[status.currentStageIndex];
+  const total = status.plan.stages.length;
 
   return (
-    <section className="pl-panel" aria-label="Guided plan">
-      <div className="pl-panel-top">
-        <span className="pl-panel-eyebrow">
-          <PlanMark size={12} />
-          <T zh="计划" en="Plan" />
-        </span>
-        <Link
-          className="pl-panel-link"
-          href={`/plans/${status.plan.id}`}
-          onClick={onNavigate}
-        >
-          <T zh="看全程 →" en="Full plan →" />
-        </Link>
-      </div>
-
+    <section
+      className="side-plan"
+      aria-label={t(
+        `当前计划：${status.plan.zh}，共 ${status.total} 项，已完成 ${status.done} 项`,
+        `${status.plan.en} plan, ${status.done} of ${status.total} completed`,
+      )}
+    >
       <Link
-        className="pl-panel-name"
+        className="side-plan-name"
         href={`/plans/${status.plan.id}`}
         onClick={onNavigate}
       >
         <T zh={status.plan.zh} en={status.plan.en} />
       </Link>
 
-      <PlanMeter done={status.done} total={status.total} />
+      <div className="side-plan-where">
+        {status.complete ? (
+          <T zh="全部走完" en="All stages done" />
+        ) : (
+          <T
+            zh={`第 ${status.currentStageIndex + 1} / ${total} 档${stage ? " · " + stage.zh : ""}`}
+            en={`Stage ${status.currentStageIndex + 1} of ${total}${stage ? " · " + stage.en : ""}`}
+          />
+        )}
+      </div>
 
-      {status.complete ? (
-        <p className="pl-panel-done">
-          <T zh="这条计划走完了。" en="This plan is complete." />
-        </p>
-      ) : (
-        stage && (
-          <>
-            <p className="pl-panel-stage">
-              <span className="pl-panel-stage-n tabular">
-                {status.currentStageIndex + 1} / {status.plan.stages.length}
-              </span>
-              <T zh={stage.zh} en={stage.en} />
-            </p>
-            {next && (
-              <Link
-                className="pl-panel-next"
-                href={next.item.href}
-                onClick={onNavigate}
-              >
-                <span className="pl-panel-next-label">
-                  <T zh="下一步" en="Next" />
-                </span>
-                <span className="pl-panel-next-title">
-                  <T zh={next.item.zh} en={next.item.en} />
-                </span>
-              </Link>
-            )}
-          </>
-        )
-      )}
+      <div className="ui-prog">
+        <span className="ui-prog-num">
+          <b>{status.done}</b> / {status.total}
+        </span>
+        <span className="ui-bar">
+          <i style={{ width: `${pct(status.done, status.total)}%` }} />
+        </span>
+      </div>
     </section>
   );
 }
@@ -365,18 +308,21 @@ export function PlanItemBanner({
   const stage = status.plan.stages[stageIndex];
   const stageStat = status.stages[stageIndex];
   const st = status.itemStatus.get(itemKey);
-  const next = status.next;
-  // 「下一步」指向别的格才值得给按钮 —— 指向你正在看的这一格就是噪音
-  const showNext = !compact && next && next.item.key !== itemKey;
 
+  /* 【UI v2：这里从一张卡收成了一行】
+     老版本这条带着「计划的下一步 → ⟨标题⟩」那颗按钮，而侧栏里同时还有
+     一颗〔继续〕，两处指同一格。而且它有强调色底 + 3px 左边框，
+     在课文标题正下方比标题本身还显眼。
+
+     现在它只回答一个问题 —— **我在这条路的哪儿** ——
+     一行：计划名 · Stage n of m · item i of k（做过了再加一个状态）·「回到计划」。
+     「下一步做什么」由侧栏那颗唯一的〔继续〕和课尾那一步负责。 */
   return (
-    <aside className="pl-here" aria-label="Your position in the guided plan">
-      <span className="pl-here-lead">
+    <nav className="pl-here" aria-label="Your position in the guided plan">
+      <Link className="pl-here-lead" href={`/plans/${status.plan.id}`}>
         <PlanMark size={12} />
-        <Link href={`/plans/${status.plan.id}`}>
-          <T zh={status.plan.zh} en={status.plan.en} />
-        </Link>
-      </span>
+        <T zh={status.plan.zh} en={status.plan.en} />
+      </Link>
 
       <span className="pl-here-pos">
         <span className="tabular">
@@ -388,16 +334,9 @@ export function PlanItemBanner({
         <span className="pl-here-sep" aria-hidden>
           ·
         </span>
-        <PhaseBadge phase={stage.phase} />
-        <span className="pl-here-stage">
-          <T zh={stage.zh} en={stage.en} />
-        </span>
-        <span className="pl-here-sep" aria-hidden>
-          ·
-        </span>
         <span className="tabular">
           <T
-            zh={`这一格是 ${itemIndex + 1} / ${stageStat.total}`}
+            zh={`第 ${itemIndex + 1} / ${stageStat.total} 条`}
             en={`item ${itemIndex + 1} of ${stageStat.total}`}
           />
         </span>
@@ -413,15 +352,12 @@ export function PlanItemBanner({
         )}
       </span>
 
-      {showNext && next && (
-        <Link className="pl-here-next" href={next.item.href}>
-          <T zh="计划的下一步" en="Next in plan" />
-          <span className="pl-here-next-title">
-            <T zh={next.item.zh} en={next.item.en} />
-          </span>
+      {!compact && (
+        <Link className="pl-here-back" href={`/plans/${status.plan.id}#stage-${stage.id}`}>
+          <T zh="回到计划" en="Back to plan" />
         </Link>
       )}
-    </aside>
+    </nav>
   );
 }
 

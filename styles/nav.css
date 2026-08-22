@@ -1,119 +1,227 @@
 /* ============================================================
-   意图优先的导航
+   导航（UI v2）
    ------------------------------------------------------------
-   顶栏 = 四个模式（我现在想做哪一类事）
-   侧栏 = 那个模式自己的结构（我在哪、下一步是什么）
-   加上首页那张仪表盘，和课程页的方位信息。
+   侧栏 = 全站唯一一套导航（主导航位 + 当前这一类事情的结构）
+   顶栏 = 位置 + 四个工具，一个导航链接都没有
 
    这个文件排在 shell.css 之后（见 app/globals.css 的 @import 顺序），
-   所以这里对 .topbar、.sidebar 的重写会盖掉那边的旧值。
+   所以这里对 .sidebar 内部的定义会盖掉那边的旧值。
+
+   【上一版删掉了什么】
+   .topbar-nav / .topbar-mode / .topbar-navsep / .topbar-plan* 整组没了 ——
+   顶栏不再是第二套导航。四个模式搬进了下面的 .snav-list。
    ============================================================ */
 
-/* ---------- 没有侧栏的页面（首页 / 使用说明 / 速查） ---------- */
+/* ---------- 侧栏：主导航 ---------- */
 
-.shell[data-nav="off"] {
-  grid-template-columns: minmax(0, 1fr);
+.snav {
+  padding: var(--sp-2) var(--sp-2) 0;
 }
 
-/* ---------- 顶栏 ----------
-   从 flex 换成 grid，只为一件事：**四个模式只渲染一份 DOM**。
-   窄屏靠 grid-template-areas 把那一份整块挪到第二行，不是另渲染一份 ——
-   渲染两份会在无障碍树里留下两个同名的导航地标，屏幕阅读器会念两遍。 */
-
-.topbar {
-  grid-column: 1 / -1;
-  display: grid;
-  align-items: center;
-  gap: 0 12px;
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
-  grid-template-areas: "menu brand modes right";
-}
-
-.menu-btn {
-  grid-area: menu;
-}
-
-.topbar-brand {
-  grid-area: brand;
-}
-
-.topbar-nav {
-  grid-area: modes;
+.snav-brand {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--sp-1);
+  height: calc(var(--topbar-h) - var(--sp-2));
+  padding: 0 var(--sp-1);
+  color: var(--ink);
+}
+
+.snav-brand:hover {
+  text-decoration: none;
+}
+
+.snav-brand-name {
+  font-size: 17px;
+  letter-spacing: -0.022em;
+}
+
+.snav-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding-top: var(--sp-2);
+}
+
+/* 一组。组与组之间的间距由 .snav-main 的 gap 给，组内是紧挨着的清单。 */
+.snav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.snav-group-title {
+  padding: 0 var(--sp-1) var(--sp-1);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.snav-list {
+  list-style: none;
   margin: 0;
-  min-width: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.topbar-right {
-  grid-area: right;
-  margin-left: 0;
+/* 一项。当前那一项靠三样同时表达 —— 底色 + 字重 + 左边一条 2px 的强调色竖线。
+   只靠颜色区分对色觉障碍不成立。 */
+.snav-item {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-/* 一个模式。当前那个必须一眼认出来 —— 底色 + 字重 + 一条压在顶栏下边线上的
-   强调色横杠，三样一起用。只靠颜色区分对色觉障碍不成立。 */
-.topbar-mode {
-  display: inline-flex;
-  align-items: center;
-  height: 32px;
-  padding: 0 11px;
-  border-radius: var(--r);
-  font-size: 14px;
+  min-height: var(--h-ctl);
+  padding: 0 var(--sp-1) 0 calc(var(--sp-1) + 6px);
+  border-radius: var(--r-sm);
+  font-size: 14.5px;
   font-weight: 500;
   color: var(--ink-2);
-  white-space: nowrap;
+  transition:
+    background var(--t-hover) ease,
+    color var(--t-hover) ease;
 }
 
-.topbar-mode:hover {
-  background: var(--sunken);
+.snav-item:hover {
+  background: var(--hover);
   color: var(--ink);
   text-decoration: none;
 }
 
-.topbar-mode[data-active] {
+.snav-item[data-active] {
   background: var(--accent-wash);
   color: var(--ink);
   font-weight: 650;
-  box-shadow: inset 0 -2px 0 var(--accent);
 }
 
-/* ---------- 「继续」 ----------
-   顶栏里唯一的实心按钮。刻意只有 32px 高，和搜索、语言、主题一排 ——
-   它要显眼，但顶栏不能变成工具条。
-   两行文字都用纯白：白字对 --accent 是 5.12:1，一压透明度就掉到 4.5 以下。 */
+.snav-item[data-active]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* 侧栏下半段（当前这一类事情的结构）里那条进度。
+   用的是 layout.css 的 .ui-prog，这里只补外边距。 */
+.ctx-prog {
+  margin: 0 var(--sp-2) var(--sp-2);
+}
+
+/* ---------- 侧栏：计划状态 + 那颗唯一的「继续」 ---------- */
+
+.snav-plan {
+  margin-top: var(--sp-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.side-plan {
+  padding: var(--sp-2);
+  background: var(--raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.side-plan-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 660;
+  letter-spacing: -0.014em;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.side-plan-name:hover {
+  text-decoration: none;
+  color: var(--accent-ink);
+}
+
+.side-plan-where {
+  font-size: var(--fs-meta);
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+/* 这颗按钮是整个产品的主动作 —— 全站只有一颗（首页和计划详情页让给页面内容）。
+   所以它是侧栏里唯一的实心块。 */
+.side-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-height: var(--h-ctl);
+  padding: 7px var(--sp-2);
+  border-radius: var(--r);
+  background: var(--accent);
+  color: var(--on-accent);
+  transition: background var(--t-hover) ease;
+}
+
+.side-cta:hover {
+  background: var(--accent-h);
+  text-decoration: none;
+}
+
+.side-cta-label {
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.side-cta-label::after {
+  content: " →";
+}
+
+.side-cta-item {
+  font-size: 13px;
+  font-weight: 550;
+  line-height: 1.35;
+  /* 两行以内，超出打点。任务名是「学习信息」，但侧栏里它只是提示 ——
+     完整的名字在目标页面的 h1 上。 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------- 「继续」：窄屏顶栏里那一颗 ----------
+   桌面上侧栏一直可见，所以顶栏不需要它；窄屏侧栏在抽屉后面，
+   而手机第一屏必须能看到主动作。 */
 
 .cont-btn {
   display: inline-flex;
   align-items: baseline;
   gap: 7px;
   max-width: 300px;
-  height: 32px;
-  padding: 0 12px;
+  height: var(--h-ctl-sm);
+  padding: 0 var(--sp-2);
   border: 1px solid var(--accent);
-  border-radius: var(--r);
+  border-radius: var(--r-sm);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 13px;
   white-space: nowrap;
 }
 
 .cont-btn:hover {
-  background: var(--accent-ink);
-  border-color: var(--accent-ink);
+  background: var(--accent-h);
+  border-color: var(--accent-h);
   text-decoration: none;
 }
 
-[data-theme="dark"] .cont-btn,
-[data-theme="dark"] .cont-btn:hover {
-  color: #0f1512;
-}
-
 .cont-btn-label {
-  font-weight: 650;
+  font-weight: 700;
   flex: 0 0 auto;
 }
 
@@ -123,10 +231,17 @@
 
 .cont-btn-item {
   min-width: 0;
-  max-width: 17ch;
+  max-width: 14ch;
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  /* 最窄的屏上只留「继续 →」两个字，任务名让给标题 */
+  .cont-btn-item {
+    display: none;
+  }
 }
 
 /* ---------- ? 菜单 ---------- */
@@ -207,38 +322,47 @@
 }
 
 /* 一个模式只给一颗主行动 —— 「下一步做什么」不该有两个同样显眼的答案 */
+/* 【UI v2：从实心降成描边】
+   侧栏里那颗〔继续〕（.side-cta）是全站唯一的实心动作。这一条是
+   「当前这一类事情里的一个入口」（开始一轮抽认卡、进正在计时的那场考试
+   之类），它重要，但不该和主动作长得一样 —— 一屏两个实心块，人就得
+   自己判断该按哪个。 */
 .ctx-cta {
   display: block;
-  margin: 0 16px 16px;
-  padding: 9px 12px;
-  border: 1px solid var(--accent);
+  margin: 0 var(--sp-2) var(--sp-2);
+  padding: 9px var(--sp-2);
+  border: 1px solid var(--rule-strong);
   border-radius: var(--r);
-  background: var(--accent);
-  color: #fff;
+  background: var(--surface);
+  color: var(--ink);
+  transition:
+    border-color var(--t-hover) ease,
+    background var(--t-hover) ease;
 }
 
 .ctx-cta:hover {
-  background: var(--accent-ink);
-  border-color: var(--accent-ink);
+  background: var(--hover);
+  border-color: var(--accent);
   text-decoration: none;
 }
 
-[data-theme="dark"] .ctx-cta,
-[data-theme="dark"] .ctx-cta:hover {
-  color: #0f1512;
+.ctx-cta .ctx-cta-label {
+  color: var(--accent-ink);
 }
 
-/* 考场那一场还在计时 —— 用 danger 而不是 accent。
-   #9c4a45 对白字 5.95:1，深色主题下 --danger 是浅色，文字走上面那条深色规则。 */
+/* 考场那一场还在计时 —— 这一种要显眼，因为时钟在走。
+   用 danger 的描边和文字，仍然不填充。 */
 .ctx-cta[data-tone="live"] {
-  background: var(--danger);
   border-color: var(--danger);
+}
+
+.ctx-cta[data-tone="live"] .ctx-cta-label {
+  color: var(--danger);
 }
 
 .ctx-cta[data-tone="live"]:hover {
-  background: var(--danger);
   border-color: var(--danger);
-  filter: brightness(0.94);
+  background: var(--danger-wash);
 }
 
 .ctx-cta-label {
@@ -268,32 +392,9 @@
   line-height: 1.5;
 }
 
-/* 全局进度条（Learn 用） */
-.ctx-meter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 20px 18px;
-  font-size: 11.5px;
-  color: var(--ink-3);
-}
 
-.ctx-meter-num {
-  flex: 0 0 auto;
-  font-weight: 650;
-  color: var(--ink-2);
-  white-space: nowrap;
-}
 
-.ctx-meter .bar {
-  flex: 1 1 auto;
-  min-width: 0;
-}
 
-.ctx-meter-label {
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
 
 /* 三格小统计（Review / Assess 用） */
 .ctx-stat {
@@ -517,14 +618,11 @@
   padding: 1px 7px;
   border-radius: 100px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 10.5px;
   font-weight: 650;
 }
 
-[data-theme="dark"] .ctx-course-flag {
-  color: #0f1512;
-}
 
 .ctx-course-next {
   display: block;
@@ -805,7 +903,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r-lg);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 16px;
   font-weight: 650;
 }
@@ -820,27 +918,20 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .dash-cont-cta,
-[data-theme="dark"] .dash-cont-cta:hover {
-  color: #0f1512;
-}
 
 /* ---------- 通用的分节 ---------- */
 
+/* 【UI v2】首页第一屏以下的分区。标题走 .ui-sec-title 的 quiet 一档
+   （见 styles/layout.css）—— 它们回答「让我自己挑」，不该和上面那颗
+   〔继续〕争视觉重量。 */
 .dash-sec {
-  padding-top: 30px;
-  margin-top: 30px;
+  padding-top: var(--sp-4);
+  margin-top: var(--sp-6);
   border-top: 1px solid var(--rule);
 }
 
-.dash-sec:first-of-type {
-  border-top: 0;
-}
-
-.dash-sec-title {
-  font-size: 15px;
-  font-weight: 650;
-  margin-bottom: 14px;
+.dash-sec .ui-sec-title {
+  margin-bottom: var(--sp-1);
 }
 
 /* ---------- ② 四个模式 ----------
@@ -848,32 +939,37 @@
 
 .dash-modes {
   list-style: none;
-  margin: 0;
+  margin: var(--sp-2) 0 0;
   padding: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: var(--sp-1);
 }
 
 .dash-modes li {
   margin: 0;
 }
 
+/* 三层固定：名字 / 一句话 / 数字。数字用 margin-top: auto 顶到底 ——
+   一句话换行与否都不会让四张卡的底线错开。 */
 .dash-mode {
   display: flex;
   flex-direction: column;
   gap: 4px;
   height: 100%;
-  padding: 13px 15px;
+  padding: var(--sp-2);
   border: 1px solid var(--rule);
-  border-radius: var(--r-lg);
+  border-radius: var(--r);
   background: var(--surface);
   color: var(--ink);
+  transition:
+    border-color var(--t-hover) ease,
+    background var(--t-hover) ease;
 }
 
 .dash-mode:hover {
-  border-color: var(--accent-line);
-  background: var(--raised);
+  border-color: var(--rule-strong);
+  background: var(--hover);
   text-decoration: none;
 }
 
@@ -1088,47 +1184,10 @@
    /path 顶部的「接着学」条
    ============================================================ */
 
-.resume-bar {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 30px;
-  padding: 13px 16px;
-  border: 1px solid var(--accent-line);
-  border-radius: var(--r-lg);
-  background: var(--accent-wash);
-}
 
-.resume-bar-text {
-  flex: 1 1 240px;
-  min-width: 0;
-}
 
-.resume-bar-label {
-  display: block;
-  font-size: 10.5px;
-  font-weight: 650;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--accent-ink);
-}
 
-.resume-bar-title {
-  display: block;
-  margin-top: 2px;
-  font-size: 15.5px;
-  font-weight: 650;
-  line-height: 1.4;
-  color: var(--ink);
-}
 
-.resume-bar-pos {
-  display: block;
-  margin-top: 2px;
-  font-size: 12.5px;
-  color: var(--ink-2);
-}
 
 /* ============================================================
    课程页的方位信息
@@ -1286,12 +1345,9 @@
 .lnext-step[data-primary] .lnext-step-title::before {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
-[data-theme="dark"] .lnext-step[data-primary] .lnext-step-title::before {
-  color: #0f1512;
-}
 
 .lnext-step-sub {
   padding-left: 27px;
@@ -1320,7 +1376,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--r);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-size: 14.5px;
   font-weight: 650;
 }
@@ -1335,10 +1391,6 @@
   text-decoration: none;
 }
 
-[data-theme="dark"] .lnext-cta,
-[data-theme="dark"] .lnext-cta:hover {
-  color: #0f1512;
-}
 
 /* 竖着排两行：先是状态（打勾），再是回头路。
    横着挤一行的话，打勾条自己会先折行，按钮就掉到半空中（实测）。 */
@@ -1383,69 +1435,34 @@
    窄屏
    ============================================================ */
 
-@media (max-width: 1240px) {
-  /* 顶栏挤了：「继续」只留两个字，目标名字收起来 */
-  .cont-btn-item {
+@media (max-width: 960px) {
+  /* 侧栏进抽屉之后，主导航整块跟着进去 —— 顶栏留给品牌、〔继续〕、
+     搜索和菜单。「换一类事情做」不再是一个高频动作了：
+     跟着计划走的人根本不用换，自己挑的人一天换一两次。 */
+  .snav {
+    padding-top: 0;
+  }
+
+  /* 【窄屏的〔继续〕只在顶栏】抽屉是覆盖层，开着的时候顶栏那颗还在 ——
+     两颗实心按钮同屏指同一格，就是「两个入口等于没有入口」。
+     所以窄屏把抽屉里那颗收起来，计划状态那一块留着（它只说位置）。 */
+  .snav-plan .side-cta {
     display: none;
   }
-}
 
-@media (max-width: 1040px) {
-  .topbar-mode {
-    padding: 0 8px;
-    font-size: 13.5px;
-  }
-}
-
-@media (max-width: 900px) {
-  /* 顶栏变成两行：第一行是品牌和右侧控件，第二行是四个模式。
-     --topbar-h 一改，侧栏 sticky 偏移、抽屉起点、遮罩 inset、
-     锚点 scroll-padding 全部跟着走 —— 它们本来就都读这个变量。 */
-  :root {
-    --topbar-h: 92px;
+  .snav-brand {
+    /* 品牌在窄屏顶栏里已经有一份，抽屉里不再重复 */
+    display: none;
   }
 
-  .topbar {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-      "menu brand right"
-      "modes modes modes";
-    grid-template-rows: 51px 41px;
-    align-content: center;
-    padding: 0 12px;
-  }
-
-  /* 四个模式在窄屏是等宽四格，永远可见 —— 不塞进抽屉。
-     换模式是最常做的动作，不该先开一层抽屉。 */
-  .topbar-nav {
-    align-self: stretch;
-    gap: 4px;
-    padding-top: 5px;
-    border-top: 1px solid var(--rule);
-  }
-
-  .topbar-mode {
-    flex: 1 1 0;
-    min-width: 0;
-    justify-content: center;
-    height: 30px;
-    padding: 0 4px;
-    font-size: 12.5px;
-    text-align: center;
-  }
-
-  .dash-modes {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .dash-topic-name {
-    flex: 0 0 100%;
+  .snav-main {
+    padding-top: var(--sp-2);
   }
 }
 
 @media (max-width: 620px) {
   .lnext {
-    padding: 16px 15px 14px;
+    padding: var(--sp-2) 15px 14px;
   }
 
   .lnext-cta {
@@ -1465,8 +1482,6 @@
 }
 
 @media (max-width: 420px) {
-  /* 390px 上「继续」和搜索、语言、主题挤在一行会溢出。
-     「继续」是这一排里最重要的，所以缩掉的是它的内边距，不是它本身。 */
   .cont-btn {
     padding: 0 9px;
     font-size: 12.5px;
@@ -1474,32 +1489,20 @@
 
   .topbar {
     padding: 0 10px;
-    gap: 0 8px;
+    gap: var(--sp-1);
   }
 
-  .topbar-right {
+  .topbar-tools {
     gap: 5px;
   }
 }
 
-/* 计划之外的「上次自己看到」—— 安静的文字链，不是第二颗按钮。
-   跟着计划走、而计划的下一步指向别处时才出现（见 lib/plan-signal.tsx）。
-   刻意不给底色和边框：同一屏上只能有一个实心的「往这儿走」。 */
-.ctx-alt {
-  margin: -4px 16px 16px;
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--ink-2);
-}
-
-.ctx-alt-link {
-  color: var(--ink-2);
-  text-decoration: underline;
-  text-decoration-color: var(--rule-strong);
-  text-underline-offset: 2px;
-}
-
-.ctx-alt-link:hover {
-  color: var(--ink);
-  text-decoration-color: currentColor;
+/* 窄屏时语言和主题住在帮助菜单里（见 components/app-shell.tsx 的 compact）。
+   一行两个 44px 的控件，和下面的菜单项用一条细线分开。 */
+.helpmenu-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-2);
+  border-bottom: 1px solid var(--rule);
 }

@@ -21,7 +21,7 @@ export function MockList() {
           <div className="eyebrow">
             <T en="Mock exams" zh="模拟考" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title">
             <T en="Do it once with no answer in front of you" zh="在没有答案的情况下做一遍" />
           </h1>
           <p className="page-lede">

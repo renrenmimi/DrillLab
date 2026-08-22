@@ -59,31 +59,38 @@ export function CodingDoneToggle({
   );
 }
 
-/** 列表页右栏的计数 */
+/**
+ * 列表页页头下面那条进度。
+ *
+ * 【为什么不再是右栏里的一个大数字】
+ * 四个模式列表页现在共用同一条进度原语（.ui-prog，见 styles/layout.css）。
+ * 老版本这里是右栏的 .rail-stat：22px 的大数字 + 一条 5px 的轨道，
+ * 而同一个「N / M」在别的列表页上又是另一套字号 —— 一份东西四种长相。
+ */
 export function CodingCount({ total }: { total: number }) {
   const { ready, data } = useProgress();
   const done = ready ? Object.keys(data.coding).length : 0;
 
   return (
-    <div className="rail-block">
-      <div className="rail-head">
-        <T zh="我的进度" en="Progress" />
+    <div className="mode-prog">
+      <div className="ui-prog">
+        <span className="ui-prog-num">
+          <b>{done}</b> / {total}
+        </span>
+        <span className="ui-bar">
+          <i style={{ width: `${(done / Math.max(1, total)) * 100}%` }} />
+        </span>
+        <span className="ui-prog-label">
+          <T zh="道打过勾" en="ticked done" />
+        </span>
       </div>
-      {/* 【别用 .progress-row】那是「标题 + 进度条 + 数字」的三列栅格
-          （minmax(0,1fr) 96px 62px）。这里只有一个数字，塞进去会被挤成
-          26px 宽，"0 / 25" 直接折成两行。右栏统计一律用 .rail-stat。 */}
-      <div className="rail-stat">
-        <b>{done}</b> / {total}
-      </div>
-      <div className="bar" style={{ marginTop: 8 }}>
-        <i style={{ width: `${(done / Math.max(1, total)) * 100}%` }} />
-      </div>
-      <p className="dimmer" style={{ fontSize: 12.5, lineHeight: 1.6, margin: "10px 0 0" }}>
+
+      <span className="ui-sec-note">
         <T
           zh="只有你自己打勾才会加。不做自动判定 —— 测试绿了不等于你不看答案也能写出来。"
           en="Only your own tick counts. Green tests do not prove you could write it again from scratch."
         />
-      </p>
+      </span>
     </div>
   );
 }

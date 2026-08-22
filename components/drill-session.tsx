@@ -197,7 +197,7 @@ function SessionSetup({ emptyScope }: { emptyScope?: string }) {
           <div className="eyebrow">
             <T zh="抽认卡" en="Flashcards" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title">
             <T zh="先选范围" en="Pick a range" />
           </h1>
           <p className="page-lede">
@@ -359,7 +359,7 @@ function RoundResult({
           <div className="eyebrow">
             <T zh="这一轮结束" en="Round done" />
           </div>
-          <h1 className="page-title serif">
+          <h1 className="page-title">
             <T zh={`过了 ${order.length} 张，自评了 ${rated.length} 张`} en={`${order.length} cards, ${rated.length} rated`} />
           </h1>
           <p className="page-lede">
@@ -675,7 +675,7 @@ function Round({ cards, search }: { cards: DrillCardData[]; search: string }) {
             </span>
           </div>
 
-          {qLang !== "en" && <h2 className="dsess-q serif">{meta.zh}</h2>}
+          {qLang !== "en" && <h2 className="dsess-q display">{meta.zh}</h2>}
           {qLang !== "zh" && (
             <p className="dsess-q-en" lang="en">
               {meta.en}

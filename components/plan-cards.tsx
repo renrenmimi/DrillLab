@@ -138,7 +138,7 @@ export function ActivePlanCard() {
         )}
       </div>
 
-      <h1 className="apc-title serif" id="apc-h">
+      <h1 className="apc-title display" id="apc-h">
         <T zh={status.plan.zh} en={status.plan.en} />
       </h1>
 
