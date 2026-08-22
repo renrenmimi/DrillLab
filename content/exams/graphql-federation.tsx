@@ -961,7 +961,29 @@ Book: {
 __resolveReference(book) {
   return { isbn: book.isbn };
 }`,
-          { filename: "复合 key 的正确处理" },
+          {
+            filename: "复合 key 的正确处理",
+            filenameEn: "Handling a composite key correctly",
+            codeEn: `// ✓ Both key fields have to be kept
+Book: {
+  __resolveReference(book) {
+    return { isbn: book.isbn, edition: book.edition };
+  },
+
+  async reviews(book, _, { dataSources, correlationId }) {
+    const reviews = await dataSources.reviewDataSource.fetchByBook(
+      book.isbn,
+      book.edition          // ← pass both, or other editions mix in
+    );
+    return reviews ?? [];
+  }
+}
+
+// ✗ Only one kept — edition is undefined downstream
+__resolveReference(book) {
+  return { isbn: book.isbn };
+}`,
+          },
         ),
       ],
     },
@@ -1041,7 +1063,19 @@ return avg ?? 0;
 
 // ✗ || null —— 真实平均分是 0 时会被谎报成「没有数据」
 return avg || null;`,
-          { filename: "?? 和 || 的区别在这里是致命的" },
+          {
+            filename: "?? 和 || 的区别在这里是致命的",
+            filenameEn: "Here ?? and || are not interchangeable",
+            codeEn: `// ✓ Let null carry the meaning of no data
+const avg = await dataSources.ratingDataSource.computeAverage(author.id);
+return avg ?? null;
+
+// ✗ ?? 0 — reports no reviews as an average score of 0
+return avg ?? 0;
+
+// ✗ || null — a real average of 0 gets reported as no data
+return avg || null;`,
+          },
         ),
       ],
     },
@@ -1151,7 +1185,22 @@ function createReviewerLoader(reviewerDataSource) {
     return reviewers;      // 不 filter，不排序
   });
 }`,
-          { filename: "修好之后" },
+          {
+            filename: "修好之后",
+            filenameEn: "After the fix",
+            codeEn: `// ✓ Same length and order as keys; null stands for a missing one
+function createReviewerLoader(reviewerDataSource) {
+  return new DataLoader(async authorIds => {
+    console.log(\`[DataLoader] Batching \${authorIds.length} reviewer lookups\`);
+
+    const reviewers = await Promise.all(
+      authorIds.map(id => reviewerDataSource.lookupReviewer(id))   // real method name
+    );
+
+    return reviewers;      // no filter, no sorting
+  });
+}`,
+          },
         ),
       ],
     },
