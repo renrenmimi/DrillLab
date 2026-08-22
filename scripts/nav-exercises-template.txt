@@ -1,0 +1,26 @@
+// 全站 148 个课内练习的清单 —— 生成物，不要手改。改完内容跑 `npm run gen:nav`。
+//
+// 【为什么和 content/nav.ts 分开】
+// nav.ts 被每一个客户端页面下载。这一份只有引导计划用得上，而计划那一套
+// 是懒加载的（components/plan-slots.tsx：没跟计划的人一个字节都不下）。
+// 合成一份的实测代价：nav 133 → 160 KB，webpack 分块随之改变，
+// 课程页从 470 kB 原始字节涨到 615 kB —— 而课程页本来一点 nav 都不需要。
+//
+// 只有 id / 所属课与节 / 题型 / 难度 / 标题，**没有题面和答案**。
+
+export interface NavExerciseRef {
+  examId: string;
+  lessonId: string;
+  id: string;
+  title: string;
+  /** 英文标题。148 个里大部分只有中文，<T> 会回落 */
+  titleEn?: string;
+  kind: string;
+  level: number;
+}
+
+export const EXERCISES: NavExerciseRef[] = __EXERCISE_DATA__;
+
+/** 某一门课的练习，按课文顺序 */
+export const exercisesOfExam = (examId: string) =>
+  EXERCISES.filter((x) => x.examId === examId);
