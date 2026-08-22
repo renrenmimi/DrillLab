@@ -1064,7 +1064,19 @@ MDC.get("correlationId")`,
             </h2>
           </div>
           <p className="sec-lede">
-            都是审计和课程里真实出现过的。<strong>先看这张表再改代码。</strong>
+            <T
+              zh={
+                <>
+                  都是审计和课程里真实出现过的。<strong>先看这张表再改代码。</strong>
+                </>
+              }
+              en={
+                <>
+                  Every one of these really came up during the audit or in a
+                  lesson. <strong>Read this table before you edit code.</strong>
+                </>
+              }
+            />
           </p>
           <div className="table-wrap">
             <table className="table">
@@ -1081,63 +1093,228 @@ MDC.get("correlationId")`,
               <tbody>
                 <tr>
                   <td><code>npm error Missing script: &quot;test&quot;</code></td>
-                  <td>项目没有 test script → 用 <code>npx vitest run</code></td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          项目没有 test script → 用 <code>npx vitest run</code>
+                        </>
+                      }
+                      en={
+                        <>
+                          This project has no test script. Use{" "}
+                          <code>npx vitest run</code>
+                        </>
+                      }
+                    />
+                  </td>
                 </tr>
                 <tr>
                   <td><code>TS2582: Cannot find name &apos;test&apos;</code></td>
                   <td>
-                    tsconfig 没配测试框架全局类型。
-                    <strong>react-notes-app 原生就有这个问题，不是你的错</strong>
+                    <T
+                      zh={
+                        <>
+                          tsconfig 没配测试框架全局类型。
+                          <strong>react-notes-app 原生就有这个问题，不是你的错</strong>
+                        </>
+                      }
+                      en={
+                        <>
+                          tsconfig does not declare the test framework globals.{" "}
+                          <strong>
+                            react-notes-app ships with this problem; it is not
+                            your fault
+                          </strong>
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td><code>ERR_MODULE_NOT_FOUND</code></td>
-                  <td>原生 ESM 里相对路径漏了 <code>.js</code> 扩展名</td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          原生 ESM 里相对路径漏了 <code>.js</code> 扩展名
+                        </>
+                      }
+                      en={
+                        <>
+                          A relative import in native ESM is missing the{" "}
+                          <code>.js</code> extension
+                        </>
+                      }
+                    />
+                  </td>
                 </tr>
                 <tr>
                   <td><code>Cannot use import statement outside a module</code></td>
                   <td>
-                    缺 <code>&quot;type&quot;: &quot;module&quot;</code>，
-                    或 jest 缺 <code>--experimental-vm-modules</code>
+                    <T
+                      zh={
+                        <>
+                          缺 <code>&quot;type&quot;: &quot;module&quot;</code>，
+                          或 jest 缺 <code>--experimental-vm-modules</code>
+                        </>
+                      }
+                      en={
+                        <>
+                          <code>&quot;type&quot;: &quot;module&quot;</code> is
+                          missing, or jest is missing{" "}
+                          <code>--experimental-vm-modules</code>
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td><code>Maximum update depth exceeded</code></td>
                   <td>
-                    useEffect 依赖里含自己修改的 state；
-                    或 <code>onClick={"{fn()}"}</code> 在渲染时就执行了
+                    <T
+                      zh={
+                        <>
+                          useEffect 依赖里含自己修改的 state；
+                          或 <code>onClick={"{fn()}"}</code> 在渲染时就执行了
+                        </>
+                      }
+                      en={
+                        <>
+                          A useEffect dependency holds state that the same
+                          effect writes; or <code>onClick={"{fn()}"}</code>{" "}
+                          already ran during render
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <strong>没报错</strong>，数据对但界面不动
+                    <T
+                      zh={
+                        <>
+                          <strong>没报错</strong>，数据对但界面不动
+                        </>
+                      }
+                      en={
+                        <>
+                          <strong>No error</strong>, the data is right but the
+                          interface does not change
+                        </>
+                      }
+                    />
                   </td>
                   <td>
-                    改了原对象（<code>push</code> / <code>splice</code> /{" "}
-                    <code>arr[i]=</code> / <code>obj.x=</code>）
+                    <T
+                      zh={
+                        <>
+                          改了原对象（<code>push</code> / <code>splice</code> /{" "}
+                          <code>arr[i]=</code> / <code>obj.x=</code>）
+                        </>
+                      }
+                      en={
+                        <>
+                          You changed the original object (<code>push</code> /{" "}
+                          <code>splice</code> / <code>arr[i]=</code> /{" "}
+                          <code>obj.x=</code>)
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
-                  <td><strong>没报错</strong>，组件完全不显示</td>
-                  <td>组件名小写开头，被当成 HTML 标签</td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          <strong>没报错</strong>，组件完全不显示
+                        </>
+                      }
+                      en={
+                        <>
+                          <strong>No error</strong>, the component does not show
+                          at all
+                        </>
+                      }
+                    />
+                  </td>
+                  <td>
+                    <T
+                      zh="组件名小写开头，被当成 HTML 标签"
+                      en="The component name starts with a lower-case letter, so it is read as an HTML tag"
+                    />
+                  </td>
                 </tr>
                 <tr>
-                  <td><strong>没报错</strong>，列表空白但数据有值</td>
-                  <td>map 回调用了花括号却忘了 return</td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          <strong>没报错</strong>，列表空白但数据有值
+                        </>
+                      }
+                      en={
+                        <>
+                          <strong>No error</strong>, the list is blank but the
+                          data is there
+                        </>
+                      }
+                    />
+                  </td>
+                  <td>
+                    <T
+                      zh="map 回调用了花括号却忘了 return"
+                      en="The map callback uses braces but never returns"
+                    />
+                  </td>
                 </tr>
                 <tr>
                   <td>
                     <code>Unable to find an element by: [data-testid=...]</code>
                   </td>
                   <td>
-                    testid 被改了，或那个元素被条件性移除了。
-                    <strong>报错里会打印整个 DOM，在里面搜相似 testid</strong>
+                    <T
+                      zh={
+                        <>
+                          testid 被改了，或那个元素被条件性移除了。
+                          <strong>报错里会打印整个 DOM，在里面搜相似 testid</strong>
+                        </>
+                      }
+                      en={
+                        <>
+                          The testid changed, or a condition removed that
+                          element.{" "}
+                          <strong>
+                            The error prints the whole DOM — search it for a
+                            similar testid
+                          </strong>
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
-                  <td>测试说找不到文字，但代码看着没错</td>
                   <td>
-                    <code>userEvent</code> 前面漏了 <code>await</code>
+                    <T
+                      zh="测试说找不到文字，但代码看着没错"
+                      en="The test cannot find the text, but the code looks right"
+                    />
+                  </td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          <code>userEvent</code> 前面漏了 <code>await</code>
+                        </>
+                      }
+                      en={
+                        <>
+                          A missing <code>await</code> before{" "}
+                          <code>userEvent</code>
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
