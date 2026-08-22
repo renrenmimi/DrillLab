@@ -1561,7 +1561,30 @@ $ npx vitest run
 └── q2/                           ← Q2：并发任务调度器（与 React 无关）
     ├── taskRunner.ts             ★ 要实现的 runTasks
     └── demo.ts                   测试台，打印实时并发数`,
-                  { filename: "目录结构（实测）", filenameEn: "Directory layout (as measured)" },
+                  {
+                    filename: "目录结构（实测）",
+                    filenameEn: "Directory layout (as measured)",
+                    codeEn: `react-notes-app/
+├── index.html                    Vite entry point; holds one <div id="root">
+├── package.json                  dependencies + three scripts: dev/build/q2
+├── tsconfig.json                 strict: true,include: ["src","q2"]
+├── vite.config.ts                React plugin + inline vitest config (jsdom)
+├── vitest.setup.ts               one line: import "@testing-library/jest-dom"
+├── src/                          ← Q1:Notes Manager
+│   ├── main.tsx                  createRoot(...).render(<App />)
+│   ├── App.tsx                   renders only <NoteManager />
+│   ├── index.css                 global styles plus .card / .layout-row helpers
+│   ├── types/Note.ts             type Note = { id, title, content }
+│   ├── NoteManager.test.tsx      ★ the 4 tests used for grading
+│   └── components/
+│       ├── NoteManager/index.tsx ★ owns the state: notes[] + noteToEdit
+│       ├── NoteForm/index.tsx    ★ controlled form + edit refill + Add/Update
+│       ├── NoteTable/index.tsx   table shell + map + the testid on tbody
+│       └── NoteItem/index.tsx    one row + the Edit / Delete buttons
+└── q2/                           ← Q2: task scheduler, no React involved
+    ├── taskRunner.ts             ★ runTasks, the function to implement
+    └── demo.ts                   test harness; prints live concurrency`,
+                  },
                 ),
               ],
             },
@@ -1712,7 +1735,34 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         │   ├── model/ dto/ exception/ config/   PROVIDED
         │   └── resources/application.properties PROVIDED（书面题 2 会用到）
         └── test/java/.../OrderControllerTest.java  PROVIDED:5 个测试`,
-                  { filename: "目录结构（实测）", filenameEn: "Directory layout (as measured)" },
+                  {
+                    filename: "目录结构（实测）",
+                    filenameEn: "Directory layout (as measured)",
+                    codeEn: `graphql-federation-practice/
+├── README.md                     task description, marks EDIT THIS / PROVIDED
+├── QUESTIONS.md                  ★ two written questions, answers required
+│
+├── node-subgraph/                Node.js + Apollo Server 4 (port 4000)
+│   ├── package.json
+│   ├── src/
+│   │   ├── index.js              PROVIDED: starts server, context per request
+│   │   ├── schema.graphql        PROVIDED:GraphQL schema
+│   │   ├── dataSources/orderDataSource.js   PROVIDED:3 mock data sources
+│   │   └── resolvers/orderResolvers.js      ★ EDIT THIS:4 TODOs + 3 defects
+│   └── __tests__/resolvers.test.js          PROVIDED:10 tests
+│
+└── java-service/                 Java 17 + Spring Boot 3.3 (port 8080)
+    ├── pom.xml                   Maven deps (web / validation / actuator / test)
+    ├── orders.db                 ⚠ a distractor: no code refers to it
+    └── src/
+        ├── main/java/com/techflow/orders/
+        │   ├── controller/OrderController.java   ★ EDIT THIS:6 TODOs
+        │   ├── service/OrderService.java         PROVIDED: all logic written
+        │   ├── repository/                      PROVIDED: in-memory repository
+        │   ├── model/ dto/ exception/ config/   PROVIDED
+        │   └── resources/application.properties PROVIDED (question 2 uses it)
+        └── test/java/.../OrderControllerTest.java  PROVIDED:5 tests`,
+                  },
                 ),
               ],
             },
@@ -3138,6 +3188,18 @@ task 6 DONE    (running now: 0)`,
                       "读这段输出的方法：盯住 running now，它从来没到 3。而且任务 3 失败之后，4、5、6 照样跑完了 —— 这就是 allSettled 的语义。",
                     explanationEn:
                       "How to read this output: watch running now, which never reaches 3. And after task 3 fails, tasks 4, 5 and 6 still finish — that is what allSettled means.",
+                    codeEn: `task 1 START   (running now: 1)
+task 2 START   (running now: 2)     ← at the limit, task 3 must wait
+task 2 DONE    (running now: 1)
+task 3 START   (running now: 2)     ← a slot opened, filled at once
+task 1 DONE    (running now: 1)
+task 4 START   (running now: 2)
+task 3 FAIL    (running now: 1)     ← a failure only frees a slot, others run on
+task 5 START   (running now: 2)
+task 4 DONE    (running now: 1)
+task 6 START   (running now: 2)
+task 5 DONE    (running now: 1)
+task 6 DONE    (running now: 0)`,
                   },
                 ),
               ],
