@@ -247,13 +247,19 @@ export function CodingDetail({ id }: { id: string }) {
               {hints.length > 0 ? (
                 <>
                   <p className="sec-lede">
-                    提示是一级一级放的。四级看完还写不出来，再开答案门。
+                    <T
+                      zh="提示是一级一级放的。四级看完还写不出来，再开答案门。"
+                      en="The hints come one level at a time. If all four leave you stuck, open the answer."
+                    />
                   </p>
                   <HintPanel hints={hints} />
                 </>
               ) : (
                 <p className="sec-lede">
-                  这道题没有配套的分级提示 —— 卡住了先看上面的讲解那一节。
+                  <T
+                    zh="这道题没有配套的分级提示 —— 卡住了先看上面的讲解那一节。"
+                    en="This problem has no graded hints. If you are stuck, read the walkthrough above first."
+                  />
                 </p>
               )}
 
@@ -342,10 +348,13 @@ export function CodingDetail({ id }: { id: string }) {
               <T zh="出处" en="Comes from" />
             </div>
             <Link href={lessonPath(explain.examId, explain.lesson.id)}>
-              {explain.lesson.title}
+              <T zh={explain.lesson.title} en={explain.lesson.titleEn} />
             </Link>
             <p className="dimmer" style={{ fontSize: 12.5, marginTop: 8, lineHeight: 1.6 }}>
-              题面、需求、答案全部引用那一节，没有第二份。
+              <T
+                zh="题面、需求、答案全部引用那一节，没有第二份。"
+                en="The problem, the requirements and the answer all reference that lesson. There is no second copy."
+              />
             </p>
           </div>
         )}
