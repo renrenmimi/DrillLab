@@ -1368,15 +1368,7 @@ export function codingProblemById(id: string): CodingProblem | undefined {
   return PROBLEMS.find((p) => p.id === id);
 }
 
-export const CODING_TRACK_LABEL: Record<CodingProblem["track"], string> = {
-  react: "React",
-  js: "JavaScript",
-  graphql: "GraphQL",
-  java: "Java / Spring",
-};
-
-export const DIFFICULTY_LABEL: Record<1 | 2 | 3, { zh: string; en: string }> = {
-  1: { zh: "简单", en: "Easy" },
-  2: { zh: "中等", en: "Medium" },
-  3: { zh: "困难", en: "Hard" },
-};
+// 方向名和难度名住在 lib/coding-labels.ts —— 那是个纯数据模块，客户端组件
+// （Practice 模式的侧栏）也要用同一份标签，而它不能 import 这个文件。
+// 这里 re-export，老的 import 路径继续有效。
+export { CODING_TRACK_LABEL, DIFFICULTY_LABEL } from "@/lib/coding-labels";

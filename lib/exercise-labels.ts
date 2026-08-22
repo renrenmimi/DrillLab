@@ -15,6 +15,16 @@
 
 import type { Exercise } from "@/content/types";
 
+/**
+ * 六种练习题型。
+ *
+ * 【为什么要 re-export 这个类型】content/types.ts 里带 ReactNode 的类型不少，
+ * 而客户端组件（Practice 模式的侧栏）只需要这一个联合类型。
+ * `import type` 会被 TS 完全擦掉，所以从这里取它不会把内容拖进客户端包，
+ * 但从这里取比让每个消费方各自 import content/types 更不容易走错。
+ */
+export type ExerciseKind = Exercise["kind"];
+
 /** 难度只说刻度，不说题型 */
 export const LEVEL_LABEL: Record<number, string> = {
   1: "L1",
