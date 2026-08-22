@@ -1577,58 +1577,197 @@ MDC.get("correlationId")`,
             </h2>
           </div>
           <p className="sec-lede">
-            卡住的时候按顺序走一遍。大部分问题在第 3 步之前就解决了。
+            <T
+              zh="卡住的时候按顺序走一遍。大部分问题在第 3 步之前就解决了。"
+              en="When you are stuck, walk through this in order. Most problems are solved before step 3."
+            />
           </p>
           <div className="prose">
             <ol>
               <li>
-                <strong>分层。</strong>这个报错来自 npm（命令/目录不对）、
-                工具（依赖没装）、还是我的代码？
-                <strong>别一看红字就改业务代码。</strong>
+                <T
+                  zh={
+                    <>
+                      <strong>分层。</strong>这个报错来自 npm（命令/目录不对）、
+                      工具（依赖没装）、还是我的代码？
+                      <strong>别一看红字就改业务代码。</strong>
+                    </>
+                  }
+                  en={
+                    <>
+                      <strong>Find the layer.</strong> Did this error come from
+                      npm (wrong command or wrong directory), from a tool
+                      (dependencies not installed), or from my own code?{" "}
+                      <strong>
+                        Red text is not a reason to start editing business code.
+                      </strong>
+                    </>
+                  }
+                />
               </li>
               <li>
-                <strong>只看第一条报错。</strong>
-                类型错误和 GraphQL 错误都会连锁，修掉第一条后面可能自己消失。
+                <T
+                  zh={
+                    <>
+                      <strong>只看第一条报错。</strong>
+                      类型错误和 GraphQL 错误都会连锁，修掉第一条后面可能自己消失。
+                    </>
+                  }
+                  en={
+                    <>
+                      <strong>Read only the first error.</strong> Type errors
+                      and GraphQL errors come in chains. Fix the first one and
+                      the rest may go away by themselves.
+                    </>
+                  }
+                />
               </li>
               <li>
-                <strong>如果没有报错，按症状查表</strong>（见上一节）：
-                数据对但界面不动 / 组件不显示 / 列表空白 / 字段一直 null /
-                数据串了 —— 这五种各有固定病因。
+                <T
+                  zh={
+                    <>
+                      <strong>如果没有报错，按症状查表</strong>（见上一节）：
+                      数据对但界面不动 / 组件不显示 / 列表空白 / 字段一直 null /
+                      数据串了 —— 这五种各有固定病因。
+                    </>
+                  }
+                  en={
+                    <>
+                      <strong>
+                        If there is no error, look the symptom up in the table
+                      </strong>{" "}
+                      (previous section): data right but interface still /
+                      component not showing / blank list / field always null /
+                      rows mixed up. Each of these five has one fixed cause.
+                    </>
+                  }
+                />
               </li>
               <li>
-                <strong>确认代码有没有被执行。</strong>
-                在最可疑的函数第一行放一个 log。
-                <strong>「日志没打印」和「日志打印了但结果不对」
-                指向完全不同的方向。</strong>
+                <T
+                  zh={
+                    <>
+                      <strong>确认代码有没有被执行。</strong>
+                      在最可疑的函数第一行放一个 log。
+                      <strong>「日志没打印」和「日志打印了但结果不对」
+                      指向完全不同的方向。</strong>
+                    </>
+                  }
+                  en={
+                    <>
+                      <strong>Check whether the code runs at all.</strong> Put a
+                      log on the first line of the most suspicious function.{" "}
+                      <strong>
+                        &quot;No log printed&quot; and &quot;log printed but the
+                        result is wrong&quot; point in completely different
+                        directions.
+                      </strong>
+                    </>
+                  }
+                />
               </li>
               <li>
-                <strong>核对跨模块的名字和签名。</strong>
-                方法名、context 键名、props 名、参数个数、位置参数 vs 对象参数。
-                这一步能抓住绝大多数「集成问题」。
+                <T
+                  zh={
+                    <>
+                      <strong>核对跨模块的名字和签名。</strong>
+                      方法名、context 键名、props 名、参数个数、位置参数 vs 对象参数。
+                      这一步能抓住绝大多数「集成问题」。
+                    </>
+                  }
+                  en={
+                    <>
+                      <strong>Check names and signatures across modules.</strong>{" "}
+                      Method names, context keys, prop names, how many
+                      arguments, positional arguments versus one object
+                      argument. This step catches most integration problems.
+                    </>
+                  }
+                />
               </li>
               <li>
-                <strong>回去读契约。</strong>
-                schema 的可空性、类型定义、README 里的约束、
-                测试断言的确切字符串。
+                <T
+                  zh={
+                    <>
+                      <strong>回去读契约。</strong>
+                      schema 的可空性、类型定义、README 里的约束、
+                      测试断言的确切字符串。
+                    </>
+                  }
+                  en={
+                    <>
+                      <strong>Go back and read the contract.</strong> Schema
+                      nullability, type definitions, the constraints in the
+                      README, the exact strings the test assertions use.
+                    </>
+                  }
+                />
               </li>
               <li>
-                <strong>改完必须验证，而且要验到题面那一层。</strong>
-                测试过 ≠ 做对了 —— 手动造一个测试覆盖不到的场景
-                （同名数据、多条数据、非法输入、不存在的 id）。
+                <T
+                  zh={
+                    <>
+                      <strong>改完必须验证，而且要验到题面那一层。</strong>
+                      测试过 ≠ 做对了 —— 手动造一个测试覆盖不到的场景
+                      （同名数据、多条数据、非法输入、不存在的 id）。
+                    </>
+                  }
+                  en={
+                    <>
+                      <strong>
+                        After a fix, verify — and verify at the level the task
+                        asks about.
+                      </strong>{" "}
+                      Passing tests is not the same as being correct. Build a
+                      case by hand that the tests do not cover: records with the
+                      same name, several records, invalid input, an id that does
+                      not exist.
+                    </>
+                  }
+                />
               </li>
             </ol>
           </div>
           <div className="callout" data-tone="trap">
-            <strong className="callout-title">这个项目里三处「测试骗人」的地方</strong>
+            <strong className="callout-title">
+              <T
+                zh="这个项目里三处「测试骗人」的地方"
+                en="Three places where the tests lie in this project"
+              />
+            </strong>
             <p>
-              ① Java 六个端点全 <code>return null</code>，5 个测试过 3 个。
-              <br />② subgraph 四个 TODO 全空，10 个测试过 4 个
-              （其中 3 个是「返回空」的假通过）。
-              <br />③ React 的删除/编辑测试只有一条数据，
-              按 title 删、先删再加都能过。
+              <T
+                zh={
+                  <>
+                    ① Java 六个端点全 <code>return null</code>，5 个测试过 3 个。
+                    <br />② subgraph 四个 TODO 全空，10 个测试过 4 个
+                    （其中 3 个是「返回空」的假通过）。
+                    <br />③ React 的删除/编辑测试只有一条数据，
+                    按 title 删、先删再加都能过。
+                  </>
+                }
+                en={
+                  <>
+                    ① All six Java endpoints <code>return null</code>, and 3 of
+                    5 tests still pass.
+                    <br />② All four subgraph TODOs are empty, and 4 of 10 tests
+                    pass (3 of those pass only because returning nothing counts
+                    as a pass).
+                    <br />③ The React delete and edit tests use a single record,
+                    so deleting by title, or deleting then adding, both pass.
+                  </>
+                }
+              />
             </p>
             <p style={{ marginBottom: 0 }}>
-              <strong>所以：绿色是及格线，不是正确性证明。</strong>
+              <T
+                zh={<strong>所以：绿色是及格线，不是正确性证明。</strong>}
+                en={
+                  <strong>
+                    So: green is the pass mark, not proof of correctness.
+                  </strong>
+                }
+              />
             </p>
           </div>
         </section>
