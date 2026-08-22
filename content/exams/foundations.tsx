@@ -4613,6 +4613,14 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
                   {
                     filename: "本机实测输出",
                     filenameEn: "Output measured on this machine",
+                    codeEn: `$ npx tsc --noEmit
+
+src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'. Do you need to
+  install type definitions for a test runner? Try \`npm i --save-dev @types/jest\` or
+  \`npm i --save-dev @types/mocha\`.
+src/NoteManager.test.tsx(11,3): error TS2304: Cannot find name 'expect'.
+src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
+...10 in total, all in this one file`,
                   },
                 ),
               ],

@@ -3428,6 +3428,19 @@ Orders subgraph 即使自己只要 10ms，也要等到 500ms 之后才被调用
               {
                 filename: "影响的传导路径",
                 filenameEn: "How the effect propagates",
+                codeEn: `User subgraph is slow (500ms+)
+   ↓
+In the Router query plan, fetching User's @key fields is a prerequisite
+   ↓
+The Router needs { __typename: "User", id } before it can ask Orders
+   ↓ so the two steps are serial, they cannot run in parallel
+Orders subgraph needs only 10ms itself, but waits until the 500ms is up
+   ↓
+Total latency the client sees ≈ 500 + 10 + Router overhead
+   ↓
+Worse knock-on effect: Router connection pool / threads held a long time
+   ↓ one slow subgraph holds back the throughput of the whole Router
+Every query slows down, even the ones that never touch User`,
               },
             ),
           ],
@@ -3517,6 +3530,56 @@ User.orders）的前置步骤，这两步必须串行。因此任何涉及 User 
                 filename: "第 1 题参考答案（DrillLab 自出）",
                 filenameEn: "Reference answer to question 1 (written by DrillLab)",
                 collapsible: true,
+                codeEn: `**Conclusion**
+
+High latency in the User subgraph does not stay inside the User fields. In
+the Router query plan, fetching User's @key fields must finish before User
+extension fields on other subgraphs (Orders' User.orders) can be resolved,
+so the two steps run in sequence. Any query touching User then has a tail
+latency above 500ms, and busy Router connections slow unrelated queries too.
+
+**Mechanism**
+
+1. The query plan runs in stages. The Router first asks the Accounts subgraph
+   for User and its @key field (id). Only with that entity representation can
+   it call Orders with _entities(representations: [{ __typename: "User", id }]).
+   The second call needs the first call's output, so they cannot overlap.
+2. The times add up. Total ≈ Accounts(500ms) + Orders(10ms) + Router overhead.
+   Making Orders faster on its own changes nothing.
+3. Resource amplification. Each Router-to-Accounts connection is held for the
+   full 500ms. As QPS rises, Little's Law (concurrency ≈ arrival rate × time
+   in system) puts the needed concurrency dozens of times higher. Once the
+   pool is empty requests queue, and every other subgraph slows down too.
+4. Timeouts and partial failure. If the Router sets a subgraph timeout, 500ms
+   trips it: User fields return null with errors and the client sees partial data.
+
+**Mitigation: entity caching at the Router layer**
+
+For an entity like User, which changes rarely and is referenced everywhere,
+put a cache keyed by entity key between the Router and Accounts (Apollo
+Router entity caching, with Redis behind it):
+
+- Cache key: subgraph name + __typename + @key value + the requested fields.
+  Example: accounts:User:id=123:{name,email}.
+- A hit skips the call to Accounts; the first serial step drops to about 1ms.
+- Set the TTL by how stale the data may be; 60–300s suits user profiles.
+- Active invalidation: Accounts tells the cache to delete when a profile
+  changes (write-through or event-driven), instead of waiting for the TTL.
+- Add stale-while-revalidate: return the old value, then refresh in the
+  background. That removes the latency spike at the moment of expiry.
+
+**Costs and limits**
+
+- Consistency gets weaker. Inside the TTL you read old data, so this only
+  fits fields that tolerate seconds of staleness, not balance or permissions.
+- The cache key must include the field set, or different queries pollute it.
+- Shard by caller identity, or data leaks across users. That is security,
+  not only correctness.
+- A cache treats the symptom. The hit rate is never 100%; cold starts and
+  long-tail keys still cost 500ms. The real fix is finding why Accounts is
+  slow (N+1, missing index, slow dependency). The cache only buys time.
+- Also worth doing: timeouts and a circuit breaker on subgraph requests, APQ
+  (automatic persisted queries) to shrink bodies, a response cache in front.`,
               },
             ),
           ],
