@@ -1320,15 +1320,42 @@ MDC.get("correlationId")`,
                 <tr>
                   <td><code>Cannot return null for non-nullable field</code></td>
                   <td>
-                    resolver 忘了 <code>?? []</code>。会向上冒泡，
-                    可能让整个 <code>data</code> 变 null
+                    <T
+                      zh={
+                        <>
+                          resolver 忘了 <code>?? []</code>。会向上冒泡，
+                          可能让整个 <code>data</code> 变 null
+                        </>
+                      }
+                      en={
+                        <>
+                          The resolver forgot <code>?? []</code>. It travels
+                          upward and can turn the whole <code>data</code> into
+                          null
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td><code>xxx is not a function</code></td>
                   <td>
-                    调了对象上不存在的方法。
-                    <strong>去定义处核对方法名</strong>
+                    <T
+                      zh={
+                        <>
+                          调了对象上不存在的方法。
+                          <strong>去定义处核对方法名</strong>
+                        </>
+                      }
+                      en={
+                        <>
+                          You called a method the object does not have.{" "}
+                          <strong>
+                            Check the name where the object is defined
+                          </strong>
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
@@ -1336,57 +1363,204 @@ MDC.get("correlationId")`,
                     <code>Cannot read properties of undefined (reading &apos;y&apos;)</code>
                   </td>
                   <td>
-                    上一级路径写错了（如 <code>dataSources.orderAPI</code> 不存在）
+                    <T
+                      zh={
+                        <>
+                          上一级路径写错了（如 <code>dataSources.orderAPI</code> 不存在）
+                        </>
+                      }
+                      en={
+                        <>
+                          The path one level up is wrong (for example{" "}
+                          <code>dataSources.orderAPI</code> does not exist)
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <strong>没报错</strong>，某个 GraphQL 字段一直是 null
+                    <T
+                      zh={
+                        <>
+                          <strong>没报错</strong>，某个 GraphQL 字段一直是 null
+                        </>
+                      }
+                      en={
+                        <>
+                          <strong>No error</strong>, one GraphQL field is always
+                          null
+                        </>
+                      }
+                    />
                   </td>
                   <td>
-                    resolver 键名和 schema 字段名不一致，或挂在了错误的类型下。
-                    <strong>在 resolver 第一行 log 确认它有没有被调用</strong>
+                    <T
+                      zh={
+                        <>
+                          resolver 键名和 schema 字段名不一致，或挂在了错误的类型下。
+                          <strong>在 resolver 第一行 log 确认它有没有被调用</strong>
+                        </>
+                      }
+                      en={
+                        <>
+                          The resolver key does not match the schema field name,
+                          or it sits under the wrong type.{" "}
+                          <strong>
+                            Log on the resolver&apos;s first line to see whether
+                            it runs at all
+                          </strong>
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <strong>没报错</strong>，DataLoader 的数据串了
+                    <T
+                      zh={
+                        <>
+                          <strong>没报错</strong>，DataLoader 的数据串了
+                        </>
+                      }
+                      en={
+                        <>
+                          <strong>No error</strong>, DataLoader hands back the
+                          wrong row for a key
+                        </>
+                      }
+                    />
                   </td>
-                  <td>batch 函数里用了 filter，破坏了长度/顺序契约</td>
-                </tr>
-                <tr>
-                  <td>错误码不对（收到 SERVICE_ERROR 而不是 INVALID_INPUT）</td>
                   <td>
-                    catch 把自己抛的结构化错误重新包装了。
-                    补 <code>if (error instanceof GraphQLError) throw error</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Spring：<code>Status expected:&lt;201&gt; but was:&lt;200&gt;</code></td>
-                  <td>
-                    POST 用了 <code>ok()</code>；或者端点还是{" "}
-                    <code>return null</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Spring：客户端输入错误返回了 500</td>
-                  <td>
-                    <code>Enum.valueOf</code> 抛的{" "}
-                    <code>IllegalArgumentException</code> 没被转成 400
+                    <T
+                      zh="batch 函数里用了 filter，破坏了长度/顺序契约"
+                      en="The batch function used filter, which breaks the length and order contract"
+                    />
                   </td>
                 </tr>
                 <tr>
-                  <td>Spring：查不存在的 id 返回 200 空 body</td>
                   <td>
-                    自己 catch 了 <code>EntityNotFoundException</code>，
-                    全局处理器收不到
+                    <T
+                      zh="错误码不对（收到 SERVICE_ERROR 而不是 INVALID_INPUT）"
+                      en="Wrong error code (SERVICE_ERROR arrives instead of INVALID_INPUT)"
+                    />
+                  </td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          catch 把自己抛的结构化错误重新包装了。
+                          补 <code>if (error instanceof GraphQLError) throw error</code>
+                        </>
+                      }
+                      en={
+                        <>
+                          The catch re-wrapped a structured error you threw
+                          yourself. Add{" "}
+                          <code>if (error instanceof GraphQLError) throw error</code>
+                        </>
+                      }
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          Spring：<code>Status expected:&lt;201&gt; but was:&lt;200&gt;</code>
+                        </>
+                      }
+                      en={
+                        <>
+                          Spring:{" "}
+                          <code>Status expected:&lt;201&gt; but was:&lt;200&gt;</code>
+                        </>
+                      }
+                    />
+                  </td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          POST 用了 <code>ok()</code>；或者端点还是{" "}
+                          <code>return null</code>
+                        </>
+                      }
+                      en={
+                        <>
+                          The POST used <code>ok()</code>; or the endpoint still
+                          says <code>return null</code>
+                        </>
+                      }
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <T
+                      zh="Spring：客户端输入错误返回了 500"
+                      en="Spring: a bad client input comes back as 500"
+                    />
+                  </td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          <code>Enum.valueOf</code> 抛的{" "}
+                          <code>IllegalArgumentException</code> 没被转成 400
+                        </>
+                      }
+                      en={
+                        <>
+                          The <code>IllegalArgumentException</code> thrown by{" "}
+                          <code>Enum.valueOf</code> was never turned into a 400
+                        </>
+                      }
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <T
+                      zh="Spring：查不存在的 id 返回 200 空 body"
+                      en="Spring: asking for an id that does not exist returns 200 with an empty body"
+                    />
+                  </td>
+                  <td>
+                    <T
+                      zh={
+                        <>
+                          自己 catch 了 <code>EntityNotFoundException</code>，
+                          全局处理器收不到
+                        </>
+                      }
+                      en={
+                        <>
+                          The code caught <code>EntityNotFoundException</code>{" "}
+                          itself, so the global handler never sees it
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td><code>Unknown directive &quot;@xxx&quot;</code></td>
                   <td>
-                    <code>@link</code> 的 import 列表里漏了它，
-                    或没用 <code>buildSubgraphSchema</code>
+                    <T
+                      zh={
+                        <>
+                          <code>@link</code> 的 import 列表里漏了它，
+                          或没用 <code>buildSubgraphSchema</code>
+                        </>
+                      }
+                      en={
+                        <>
+                          It is missing from the <code>@link</code> import list,
+                          or you did not use <code>buildSubgraphSchema</code>
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
               </tbody>
