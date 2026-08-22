@@ -17,20 +17,41 @@ problem was inspired by a format I had seen, I wrote a new scenario for it rathe
 reproducing anything. It is a study project, and it is public in case it is useful to
 someone learning the same things.
 
-![The home — continue where you left off, then four things you might want to do](docs/ia-nav/home-after.jpg)
+![The home — pick an outcome, and the order comes with it](docs/plans/home-fresh-after.jpg)
 
-*The home — continue where you left off, then four things you might want to do*
+*The home — pick an outcome, and the order comes with it*
 
-![A lesson — where you are, how long it takes, what is next](docs/ia-nav/lesson-after.jpg)
+![A guided plan — numbered stages, one clear next item](docs/plans/plan-react-after.jpg)
 
-*A lesson — the course, the module, `LESSON 04 / 21`, the estimate, whether it is
-marked done, and the previous and next lesson, all without scrolling*
+*A guided plan — numbered stages, an obvious current position, and exactly one next item*
 
-## Four ways to use it
+## Two ways in
 
-Navigation asks one question first: **what kind of work do you want to do now?**
-The four answers are the four items in the header. Picking one changes the sidebar,
-which then answers the second question: where am I inside this, and what is next?
+**Guided plans** answer "tell me what to do next." Pick an outcome and you get an
+ordered, resumable route that crosses the four modes: which lessons to read, which
+topics to revise, which exercises and problems to do, and finally the same thing in
+an empty folder.
+
+| Plan | Stages | Items | Ends with |
+| --- | --- | --- | --- |
+| Complete DrillLab | 20 | 350 | every rebuild, every mock, all 105 questions |
+| React Assessment | 7 | 130 | Support Ticket Board, from an empty folder |
+| GraphQL Federation Assessment | 7 | 90 | Book Reviews subgraph, 14 / 14 |
+| Spring Boot Controller | 4 | 12 | the controller rewritten in 75 minutes |
+| Frontend Interview Review | 8 | 234 | 105 questions answered aloud, 15 problems written |
+| Cab Booking | 6 | 38 | the whole app from four tests and one data file |
+
+Plans reference existing material only — no lesson, question or problem is duplicated
+into them, and **completion is derived from the progress you already have**. Questions
+you rated before picking a plan count towards it; anything you finish inside a plan is
+still ticked in the courses.
+
+**The four modes** answer "let me browse and choose." They are unchanged.
+
+## Four ways to explore
+
+The header asks: **what kind of work do you want to do now?** Picking one changes the
+sidebar, which then answers: where am I inside this, and what is next?
 
 | Mode | Routes | What you do there |
 | --- | --- | --- |
@@ -39,9 +60,10 @@ which then answers the second question: where am I inside this, and what is next
 | **Practice** | `/practice`, `/code` | Lesson exercises, plus coding workspaces that really run the tests |
 | **Assess** | `/arena`, `/mock` | Timed, no hints, done in an empty folder |
 
-A **Continue** button in the header always points at the last meaningful thing you
-were doing — a lesson, a filtered question set, a coding problem or an arena run —
-and at the first Foundations lesson if there is no history yet. Nothing is locked:
+A **Continue** button in the header points at your plan's next item when you are
+following one, and otherwise at the last meaningful thing you were doing — a lesson, a
+filtered question set, a coding problem or an arena run. With no history at all it
+points at the first Foundations lesson. Nothing is locked:
 the home page has topic shortcuts (JavaScript, React, TypeScript, GraphQL, Spring
 Boot) that go straight to reviewing or practising that topic without walking the
 course.
@@ -121,7 +143,8 @@ npm run gen:src    # re-snapshot reference projects after editing sourceFiles
 | Short-answer questions | 105 |
 | Coding problems | 25 (21 runnable in the browser) |
 | Arena problems | 7 (5 rebuilds + 2 mocks) |
-| Prerendered pages | 252 |
+| Guided plans | 6 |
+| Prerendered pages | 259 |
 
 ## Content integrity rules
 
