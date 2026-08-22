@@ -8,11 +8,19 @@ import { real } from "@/content/helpers";
 import { useActiveHeading } from "@/lib/use-active-heading";
 import { L, T } from "./t";
 
-// 【这一页的双语边界】
-// 界面壳（页头、小节标题、表头、侧栏）双语；**速查条目本身只有中文**。
-// 原因：那些条目是内容不是界面 —— 报错原文、命令、字段说明加起来 300 多段，
-// 属于「课程正文英文版」那件事，不在界面 i18n 的范围里。
-// 所以下面给英文读者加了一句明说，别让人默默撞墙。
+// 【这一页的双语范围】
+// 界面壳和速查条目**都是双语的** —— 表格单元格、说明文字、代码窗注释、
+// Debug 清单的每一条都有英文。
+// （原来这里写着「条目只有中文，属于课程正文英文版那件事」。那件事已经做完，
+//   所以这条边界取消了，别再按它办。）
+//
+// 仍然照抄不译的只有三类：
+//   · 命令本身（npm install、npx vitest run、mvn test）
+//   · 字段名 / API 名 / 状态码（dependencies、useMemo、@key、201）
+//   · 报错原文 —— 报错对照表**左列**是真实报错文本，照抄；右列的根因要译
+// 代码片段的英文版走 codeEn，**行数必须和中文一致**（highlight 是行号）。
+// Resolver 那段里的 `批量查询` 是中文标识符，改了会破坏代码结构比对，
+// 所以原样保留，只在英文侧那行加了一句注释说明。
 const SECTIONS: { id: string; zh: string; en: string }[] = [
   { id: "commands", zh: "命令", en: "Commands" },
   { id: "pkg", zh: "package.json", en: "package.json" },
@@ -1794,7 +1802,7 @@ MDC.get("correlationId")`,
           </div>
           <p className="dimmer" style={{ fontSize: 12.5, lineHeight: 1.6 }}>
             <T
-              en="Only what the two real projects actually use. Every error here really came up during the audit or in a lesson — none of it is copied from a manual. Note: the entries below are Chinese-only for now. The interface is bilingual; translating the reference content itself is a separate job."
+              en="Only what the two real projects actually use. Every error here really came up during the audit or in a lesson — none of it is copied from a manual. Commands, field names and the raw error text are left exactly as they appear in a terminal."
               zh="这一页只收两个真实项目里实际用到的东西。报错都是审计或课程里真实出现过的，不是从手册里抄的。"
             />
           </p>
