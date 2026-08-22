@@ -689,7 +689,52 @@ new DataLoader(async keys => {
 });
 // 永远不要 filter / sort / slice；「没有」用 null 占位
 // 必须每请求新建，否则缓存跨请求泄漏`,
-              { filename: "Resolver 速查" },
+              {
+                filename: "Resolver 速查",
+                filenameEn: "Resolver reference",
+                codeEn: `// The four arguments
+async fieldName(parent, args, context, info) { }
+//              ↑value   ↑query  ↑per-request ↑metadata (unused here)
+//               above    args    bag
+
+// On top-level Query/Mutation the parent means nothing -> write _
+async orders(_, { userId }, { dataSources, correlationId }) { }
+
+// On a field resolver the parent is what matters
+async shippingInfo(parent, _, { loaders }) {
+  return loaders.shippingInfoLoader.load(parent.id);
+}
+
+// The exact shape of context in this project
+{
+  dataSources: { orderDataSource, inventoryDataSource, shippingDataSource },
+  loaders:     { shippingInfoLoader, orderLoader },
+  correlationId
+}
+
+// Structured errors + re-throw the already-wrapped ones (pattern used project-wide)
+try {
+  if (!userId) {
+    throw new GraphQLError('userId is required', {
+      extensions: { code: 'INVALID_INPUT', correlationId }
+    });
+  }
+  ...
+} catch (error) {
+  if (error instanceof GraphQLError) throw error;   // ← this line is required
+  throw new GraphQLError('Failed to ...', {
+    extensions: { code: 'SERVICE_ERROR', correlationId, originalError: error.message }
+  });
+}
+
+// DataLoader — two hard contracts
+new DataLoader(async keys => {
+  const rows = await 批量查询(keys);              // your own batch query
+  return keys.map(k => byKey.get(k) ?? null);   // length === keys.length, same order
+});
+// Never filter / sort / slice. Use null as the placeholder for "not found"
+// Build a new one per request, or the cache leaks across requests`,
+              },
             )}
           />
         </section>
