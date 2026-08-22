@@ -4,7 +4,14 @@
 
 ## 这是什么
 
-一个**刷题 App**。材料分成四条主线，**导航按「你想做哪一类事」分成四个模式**
+一个**刷题 App**。进这个站有两条路，互补，不是替代：
+
+```
+引导计划   「告诉我下一步做什么」   /plans   六条按目标走的有序路径
+四个模式   「让我自己挑」          顶栏     学课程 / 背知识点 / 做练习 / 模拟考试
+```
+
+材料分成四条主线，**导航按「你想做哪一类事」分成四个模式**
 （见 [lib/modes.ts](lib/modes.ts)）：
 
 ```
@@ -15,8 +22,15 @@
 模拟考试 Assess    /arena  /mock            7 道计时题（含 2 套模拟考）；**故意不给运行环境**
 ```
 
-不属于任何模式的三页：`/`（仪表盘）、`/guide`（使用说明）、`/reference`（速查）。
-它们**没有侧栏** —— 首页本身就是那张仪表盘。
+不属于任何模式的四页：`/`（仪表盘）、`/plans`（选目标）、`/guide`（使用说明）、
+`/reference`（速查）。它们**没有侧栏** —— 首页本身就是那张仪表盘，
+`/plans` 本身就是那张选择表。
+
+六条引导计划见 [content/plans.ts](content/plans.ts) 和
+[docs/guided-plans.md](docs/guided-plans.md)：从零完整学习 / React 考试 /
+GraphQL Federation 考试 / Spring Boot 控制器 / 前端面试复习 / Cab Booking。
+它们**只写引用**，一个字的内容都不存 —— 标题、时长、题面全部从
+`content/nav.ts` 现取；完成度全部从已有进度推导，不新开一套。
 
 四档难度（说得出 / 认得出 / 写得对 / 空手做）没有删，它仍然是
 [components/ladder.tsx](components/ladder.tsx) 那一套解释，只是不再自己充当
@@ -96,6 +110,11 @@
 | 代码块横滚条（修之前） | `.codewin-body` 写着 `overflow-x: auto` 但**从来没生效**：390px 下 `scrollWidth 330 === clientWidth 330`，长行被静默切掉。加 `.cl-wrap` 后 `651 > 330`，能滚到底 |
 | 390px 横向溢出回归扫描 | 20 个页面，页面级溢出 **0 处**（修前 `.opt-label` 超 116px、`<strong>` 超 58px、目录树深层路径超 256px） |
 | WCAG AA 对比度扫描 | 20 页 × {1440, 390} × {浅, 深} = 80 个组合，**0 处不达标**。修之前浅色 33 类、深色 9 类，绝大多数是 `--ink-3` 用在 10–13px 的计数和编号上（3.35:1） |
+| 引导计划的首屏 JS 代价 | 逐路由和 main 比原始字节：`/drill/[id]` `/code` `/practice` `/arena` `/mock/*` 全部 **+3 ~ +6 kB**；`/code/[id]` **+3**（Sandpack 仍没进首屏）；`/` **+78**（首页就是那张选择表，压不掉）；课程页 **+165** —— 这一处是 webpack 分块决定，把 lesson-body 里计划代码全删掉重新构建仍然是 631 kB |
+| 计划零件必须懒加载 | 第一版直接 import 进外壳，实测 `/drill/[id]` 373 → 525、`/code/[id]` 387 → 539、课程页 470 → 625 kB。而那些零件**没跟计划时一个字都不渲染** —— 白下 160 KB。现在先用 `useProgress()` 看一眼有没有在跟计划，真跟才 `next/dynamic` 拉 plan-kit |
+| 148 个练习的 id 不许进 nav.ts | 合进去 nav 从 133 KB 长到 160 KB，webpack 分块随之改变，课程页多下 145 kB。现在在 `content/nav-exercises.ts`（生成物），只有懒加载的 plan chunk 读它 |
+| 高亮代码行里的注释 | `--tk-com` 对普通代码底 5.24:1，但高亮行的底叠了 `rgba(255,255,255,0.055)` 之后掉到 **4.45:1**。行号早就单独提过一档（`.cl.hl .cl-n`），注释漏了 —— 现在 `.cl.hl .tk-com` 是 5.00:1 |
+| 引导计划的流程断言 | **113 条全过**，含「老数据没有 plan 字段时完成度直接算上已有进度」「换计划 / 不跟计划都不动任何记录」「六条计划里 765 条可见链接没有空链接」 |
 | 六种练习「做错能不能重来」 | 逐个真点一遍（故意选错 → 提交 → 找重来入口 → 确认状态真的复位）。改之前 **Debug 是唯一没有出口的**，只能刷新整页；现在 6/6 都有 |
 | 内容层面「问在给之前」扫描 | 50 个 recognition 题干提到「下面/这段/这行」却没有代码块的 **0 个**；26 个 debug 都有 `errorOutput` + `broken`；31 个 fill-blank 的 `hint` / `why` 全齐 |
 | 全站交互可逆性 | 语言 / 主题 / 抽认卡回上一张 / 八股标记 / 提示面板收起 / coding 打勾 / 模拟考改分 / 考场三段（开考 → 交卷 → 勾验收 → 记下 → 再考一次）**全部可逆，无死路** |
@@ -251,6 +270,68 @@ Sandpack 在浏览器 iframe 里没有 Node，那套确实跑不了）。
    `/code` 右栏的「按方向」、`/practice` 右栏的「练习类型」都删了，
    因为侧栏里已经有同一份东西。
 
+### 【重要】引导计划：只写引用，完成度一律推导
+
+`content/plans.ts` 里六条计划，每一档不是内容拷贝，是一个**查询**：
+`{ from: "lessons", examId: "react" }`、`{ from: "drills", tracks: ["react"] }`、
+`{ from: "coding", ids: [...] }`。标题、估时、题面全部从 `content/nav.ts` 现取。
+
+计划**唯一自己拥有的文字**是每一档的「为什么在这儿」（`whyZh` / `whyEn`）——
+那句话在 content/exams 里不存在，因为它说的是「在这条路径上这一步的作用」，
+而课文只说自己讲什么。
+
+**完成度全部推导**（`lib/plan-progress.ts`），不新开一套：
+
+| 计划里的一格 | 读的是 |
+| --- | --- |
+| 课文 | `lessons[examId/lessonId]` |
+| 练习 | `exercises[...]`；从零重写那一类读 `rebuilds[...]` |
+| 八股 | `drills[id]` 有记录 = 过过一遍；`mark === "known"` = 会了 |
+| coding | `coding[id]` |
+| 考场 | `arena[id]` 里有 `outcome === "passed"` 的那一次 |
+| 模拟考 | `mocks[examId/mockId]` |
+
+一个人可能先自己刷了三十道八股，几天后才选计划。计划自己记一套完成度的话
+那三十道就白刷了。反过来，跟着计划做完一节课，Learn 模式那一节也必须打过勾。
+**一份数据，两个视图。**
+
+几条硬规矩：
+
+1. **「下一格」只有一个算法**（`PlanStatus.next`）：第一个没完成的档 → 那一档里
+   第一个没完成的格（八股按 没见过 → 不会 → 模糊 → 会 排）。顶栏 Continue、
+   侧栏面板、计划页头、路线图高亮、课尾那一步，五处读同一条。
+2. **八股自评一次就算过了那一档** —— 不逼人把每道都标「会」。「会了」的条数单独显示。
+3. **考场通过才算那一档完成**，但从来不锁 —— 未来的档全都点得开。
+4. **断言在 `content/plans-assert.ts`**，由两个计划页面 import，所以 `next build`
+   会跑到它。引用写错、某一档解析出 0 条、同一条计划里条目重复 —— 构建失败。
+   **别把它搬回 plans.ts 的模块作用域**：顶栏那枚计划徽标每一页都有，
+   那样每个页面都会在客户端展开一千多个条目。
+5. **摊开方式按内容类型选，不只看条数**（`autoLayout()`）：只有练习和八股
+   超过 14 条才用格子。课文 21 节也是一行一个 —— 那是一条课程路线。
+
+### 【重要】计划零件一律懒加载，而且**外壳里的东西不许碰计划**
+
+算完成度要展开计划，展开计划要读 `content/nav.ts`（120 KB 原始字节）。
+第一版把 `PlanChip` / `PlanPanel` 直接 import 进 `app-shell`（在根 layout 里），
+于是**每一个路由**都开始下载 nav：`/drill/[id]` 373 → 525、课程页 470 → 625 kB。
+
+而这些零件有一个共同点：**没跟计划的人身上它们一个字都不渲染**
+（每个都以 `if (!ready || !status) return null` 开头），`ready` 又只有
+hydration 之后才为真 —— 那 160 KB 是白下的。
+
+所以：
+
+- `components/plan-slots.tsx` 不 import 任何内容模块，先用 `useProgress()` 看一眼
+  「有没有在跟计划」，真跟才 `next/dynamic` 拉 `plan-kit`；
+- 顶栏那个「计划」入口是**静态**的 —— 它得在首屏 HTML 里，否则四个模式会在
+  hydration 之后横向跳一下；
+- `components/continue.tsx` **不许 import plan-kit**（它在外壳里，每个路由都下载）。
+  跟着计划时顶栏那颗按钮换成懒加载的 `PlanContinueButton`；
+- 课尾那一步拆成轻壳（`lesson-plan.tsx`，默认那句是首屏内容，必须服务端渲染）
+  加懒加载真身（`LessonPlanStepLive`，**住在 plan-kit 里**）。
+  放在单独文件会让 webpack 把 plan-kit 提成课程页的初始 chunk（实测过）。
+- 练习 id 在 `content/nav-exercises.ts`（生成物），不在 nav.ts。
+
 ### 【重要】进度里新增的 `recent`：按模式各存一条
 
 `ProgressData.recent = { mode?, byMode }`，键是 `ModeId`，值是
@@ -264,6 +345,9 @@ Sandpack 在浏览器 iframe 里没有 Node，那套确实跑不了）。
   五类进度一条不丢，写盘之后也还在。
 - `noteRecent()` 是**幂等**的（同 mode 同 href 直接返回 `prev` 本身，
   React 因此跳过重渲染），所以放进 effect 依赖数组也不会循环。
+- 引导计划另外加了三个字段：`plan { id, startedAt, at }`、`planSeen`、`planOptOut`。
+  **只有一个 id 和两个时间戳** —— 完成度不在这里。老数据缺这三个就是「没跟计划」，
+  首页照旧显示「接着上次那件事」。
 - 和 `visit()` 一样受 `dataReady` 守卫 —— 没从 localStorage 读回来之前
   一个字都不许写盘。
 
@@ -602,7 +686,11 @@ recap[]                要点回顾
 ```bash
 npm run typecheck
 npm run lint
-npm run build          # 应预渲染 252 个页面
+npm run build          # 应预渲染 259 个页面（252 + /plans + 6 条计划）
+                       # 【引导计划的完整性断言在这一步跑】
+                       # content/plans-assert.ts 由两个计划页面 import：
+                       # 引用了不存在的课文 / coding / 考场 / 模拟考，
+                       # 或者某一档解析出 0 条 —— 构建直接失败
                        # 首屏 JS 的基准（2026-08 实测）：
                        #   /              147 kB     课程页        142 kB
                        #   /code/[id]     121 kB     /drill/[id]   115 kB
