@@ -43,6 +43,12 @@
   padding-top: var(--sp-2);
 }
 
+/* 一组。组与组之间的间距由 .snav-main 的 gap 给，组内是紧挨着的清单。 */
+.snav-group {
+  display: flex;
+  flex-direction: column;
+}
+
 .snav-group-title {
   padding: 0 var(--sp-1) var(--sp-1);
   font-family: var(--font-mono);
@@ -100,6 +106,12 @@
   width: 2px;
   border-radius: 2px;
   background: var(--accent);
+}
+
+/* 侧栏下半段（当前这一类事情的结构）里那条进度。
+   用的是 layout.css 的 .ui-prog，这里只补外边距。 */
+.ctx-prog {
+  margin: 0 var(--sp-2) var(--sp-2);
 }
 
 /* ---------- 侧栏：计划状态 + 那颗唯一的「继续」 ---------- */
@@ -310,34 +322,47 @@
 }
 
 /* 一个模式只给一颗主行动 —— 「下一步做什么」不该有两个同样显眼的答案 */
+/* 【UI v2：从实心降成描边】
+   侧栏里那颗〔继续〕（.side-cta）是全站唯一的实心动作。这一条是
+   「当前这一类事情里的一个入口」（开始一轮抽认卡、进正在计时的那场考试
+   之类），它重要，但不该和主动作长得一样 —— 一屏两个实心块，人就得
+   自己判断该按哪个。 */
 .ctx-cta {
   display: block;
-  margin: 0 16px 16px;
-  padding: 9px 12px;
-  border: 1px solid var(--accent);
+  margin: 0 var(--sp-2) var(--sp-2);
+  padding: 9px var(--sp-2);
+  border: 1px solid var(--rule-strong);
   border-radius: var(--r);
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--surface);
+  color: var(--ink);
+  transition:
+    border-color var(--t-hover) ease,
+    background var(--t-hover) ease;
 }
 
 .ctx-cta:hover {
-  background: var(--accent-ink);
-  border-color: var(--accent-ink);
+  background: var(--hover);
+  border-color: var(--accent);
   text-decoration: none;
 }
 
+.ctx-cta .ctx-cta-label {
+  color: var(--accent-ink);
+}
 
-/* 考场那一场还在计时 —— 用 danger 而不是 accent。
-   #9c4a45 对白字 5.95:1，深色主题下 --danger 是浅色，文字走上面那条深色规则。 */
+/* 考场那一场还在计时 —— 这一种要显眼，因为时钟在走。
+   用 danger 的描边和文字，仍然不填充。 */
 .ctx-cta[data-tone="live"] {
-  background: var(--danger);
   border-color: var(--danger);
 }
 
+.ctx-cta[data-tone="live"] .ctx-cta-label {
+  color: var(--danger);
+}
+
 .ctx-cta[data-tone="live"]:hover {
-  background: var(--danger);
   border-color: var(--danger);
-  filter: brightness(0.94);
+  background: var(--danger-wash);
 }
 
 .ctx-cta-label {
@@ -367,32 +392,9 @@
   line-height: 1.5;
 }
 
-/* 全局进度条（Learn 用） */
-.ctx-meter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 20px 18px;
-  font-size: 11.5px;
-  color: var(--ink-3);
-}
 
-.ctx-meter-num {
-  flex: 0 0 auto;
-  font-weight: 650;
-  color: var(--ink-2);
-  white-space: nowrap;
-}
 
-.ctx-meter .bar {
-  flex: 1 1 auto;
-  min-width: 0;
-}
 
-.ctx-meter-label {
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
 
 /* 三格小统计（Review / Assess 用） */
 .ctx-stat {
@@ -919,20 +921,17 @@
 
 /* ---------- 通用的分节 ---------- */
 
+/* 【UI v2】首页第一屏以下的分区。标题走 .ui-sec-title 的 quiet 一档
+   （见 styles/layout.css）—— 它们回答「让我自己挑」，不该和上面那颗
+   〔继续〕争视觉重量。 */
 .dash-sec {
-  padding-top: 30px;
-  margin-top: 30px;
+  padding-top: var(--sp-4);
+  margin-top: var(--sp-6);
   border-top: 1px solid var(--rule);
 }
 
-.dash-sec:first-of-type {
-  border-top: 0;
-}
-
-.dash-sec-title {
-  font-size: 15px;
-  font-weight: 650;
-  margin-bottom: 14px;
+.dash-sec .ui-sec-title {
+  margin-bottom: var(--sp-1);
 }
 
 /* ---------- ② 四个模式 ----------
@@ -940,32 +939,37 @@
 
 .dash-modes {
   list-style: none;
-  margin: 0;
+  margin: var(--sp-2) 0 0;
   padding: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: var(--sp-1);
 }
 
 .dash-modes li {
   margin: 0;
 }
 
+/* 三层固定：名字 / 一句话 / 数字。数字用 margin-top: auto 顶到底 ——
+   一句话换行与否都不会让四张卡的底线错开。 */
 .dash-mode {
   display: flex;
   flex-direction: column;
   gap: 4px;
   height: 100%;
-  padding: 13px 15px;
+  padding: var(--sp-2);
   border: 1px solid var(--rule);
-  border-radius: var(--r-lg);
+  border-radius: var(--r);
   background: var(--surface);
   color: var(--ink);
+  transition:
+    border-color var(--t-hover) ease,
+    background var(--t-hover) ease;
 }
 
 .dash-mode:hover {
-  border-color: var(--accent-line);
-  background: var(--raised);
+  border-color: var(--rule-strong);
+  background: var(--hover);
   text-decoration: none;
 }
 
@@ -1180,47 +1184,10 @@
    /path 顶部的「接着学」条
    ============================================================ */
 
-.resume-bar {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 30px;
-  padding: 13px 16px;
-  border: 1px solid var(--accent-line);
-  border-radius: var(--r-lg);
-  background: var(--accent-wash);
-}
 
-.resume-bar-text {
-  flex: 1 1 240px;
-  min-width: 0;
-}
 
-.resume-bar-label {
-  display: block;
-  font-size: 10.5px;
-  font-weight: 650;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--accent-ink);
-}
 
-.resume-bar-title {
-  display: block;
-  margin-top: 2px;
-  font-size: 15.5px;
-  font-weight: 650;
-  line-height: 1.4;
-  color: var(--ink);
-}
 
-.resume-bar-pos {
-  display: block;
-  margin-top: 2px;
-  font-size: 12.5px;
-  color: var(--ink-2);
-}
 
 /* ============================================================
    课程页的方位信息
@@ -1476,6 +1443,13 @@
     padding-top: 0;
   }
 
+  /* 【窄屏的〔继续〕只在顶栏】抽屉是覆盖层，开着的时候顶栏那颗还在 ——
+     两颗实心按钮同屏指同一格，就是「两个入口等于没有入口」。
+     所以窄屏把抽屉里那颗收起来，计划状态那一块留着（它只说位置）。 */
+  .snav-plan .side-cta {
+    display: none;
+  }
+
   .snav-brand {
     /* 品牌在窄屏顶栏里已经有一份，抽屉里不再重复 */
     display: none;
@@ -1521,4 +1495,14 @@
   .topbar-tools {
     gap: 5px;
   }
+}
+
+/* 窄屏时语言和主题住在帮助菜单里（见 components/app-shell.tsx 的 compact）。
+   一行两个 44px 的控件，和下面的菜单项用一条细线分开。 */
+.helpmenu-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-2);
+  border-bottom: 1px solid var(--rule);
 }

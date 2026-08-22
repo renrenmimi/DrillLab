@@ -133,14 +133,6 @@ hr {
 }
 
 /* —— 眉题：小字、字距拉开、不用全大写中文 —— */
-.eyebrow {
-  font-size: 11.5px;
-  font-weight: 650;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
 .dim {
   color: var(--ink-2);
 }

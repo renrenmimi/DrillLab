@@ -156,8 +156,10 @@
   border-right: 1px solid var(--rule);
   position: sticky;
   top: 0;
-  align-self: start;
-  max-height: 100vh;
+  /* 【不能用 align-self: start】那样侧栏只有内容高度，底下露出页面底色，
+     看起来像导航列没画完。stretch（默认值）+ height: 100vh 让它铺满一屏，
+     内容超出时自己滚。 */
+  height: 100vh;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -239,23 +241,7 @@
   margin-bottom: 8px;
 }
 
-/* 右栏统计：一个大数字 + 分母。三个列表页共用，别再各写各的行内样式。 */
-.rail-stat {
-  display: flex;
-  align-items: baseline;
-  gap: 5px;
-  color: var(--ink-2);
-  font-size: 13px;
-  white-space: nowrap;
-}
 
-.rail-stat b {
-  font-size: 22px;
-  font-weight: 650;
-  line-height: 1.15;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
 
 .rail-toc {
   list-style: none;

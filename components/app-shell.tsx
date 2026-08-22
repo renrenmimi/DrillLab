@@ -43,7 +43,7 @@ import { useLocale } from "@/lib/locale";
 import { modeOf } from "@/lib/modes";
 import { sectionOf } from "@/lib/side-nav";
 import { useTheme } from "@/lib/theme";
-import { ContinueButton } from "./continue";
+import { cedesContinue, ContinueButton } from "./continue";
 import { Search } from "./search";
 import { Mark, SideNav } from "./side-nav";
 import { ContextSidebar } from "./sidebars";
@@ -59,7 +59,7 @@ import { T } from "./t";
  * 点按钮开合；开着时 Esc 关闭并把焦点还给按钮；焦点离开这一块也关闭。
  * 三个行为都不依赖 hover —— 触屏上 hover 菜单等于没有。
  */
-function HelpMenu() {
+function HelpMenu({ tools }: { tools?: ReactNode }) {
   const path = usePathname();
   const { locale } = useLocale();
   const en = locale === "en";
@@ -105,8 +105,24 @@ function HelpMenu() {
         ref={btnRef}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={en ? "Help and reference" : "帮助与速查"}
-        title={en ? "Help and reference" : "帮助与速查"}
+        aria-label={
+          tools
+            ? en
+              ? "Settings, help and reference"
+              : "设置、帮助与速查"
+            : en
+              ? "Help and reference"
+              : "帮助与速查"
+        }
+        title={
+          tools
+            ? en
+              ? "Settings, help and reference"
+              : "设置、帮助与速查"
+            : en
+              ? "Help and reference"
+              : "帮助与速查"
+        }
         onClick={() => setOpen((v) => !v)}
       >
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
@@ -124,6 +140,9 @@ function HelpMenu() {
 
       {open && (
         <div className="helpmenu-panel" role="menu" ref={panelRef}>
+          {/* 窄屏时语言和主题住在这里 —— 390px 的顶栏放不下七个 44px 的控件
+              （实测溢出 38px）。桌面上它们在顶栏，这里就是空的。 */}
+          {tools && <div className="helpmenu-tools">{tools}</div>}
           <Link className="helpmenu-item" role="menuitem" href="/guide">
             <span className="helpmenu-item-name">
               <T zh="使用说明" en="How to use this" />
@@ -178,13 +197,32 @@ export function AppShell({ children }: { children: ReactNode }) {
   const openerRef = useRef<HTMLButtonElement | null>(null);
   // 初始 false，与服务端渲染一致；挂载后才根据实际视口修正
   const [narrow, setNarrow] = useState(false);
+  /**
+   * 顶栏放不下全部工具的宽度。
+   *
+   * 390px 上七个 ≥44px 的控件（菜单 / 品牌 / 继续 / 搜索 / 帮助 / 语言 / 主题）
+   * 实测把页面顶出去 38px。所以这一档把**语言和主题收进帮助菜单** ——
+   * 顶栏留下品牌 · 继续 · 搜索 · 菜单，正是移动端该有的四件。
+   *
+   * 用 React 条件渲染而不是 CSS 显隐：同一时刻只挂载一份，
+   * 不会在无障碍树里留下两个同名的语言按钮。
+   */
+  const [compact, setCompact] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 960px)");
-    const sync = () => setNarrow(mq.matches);
+    const mqc = window.matchMedia("(max-width: 620px)");
+    const sync = () => {
+      setNarrow(mq.matches);
+      setCompact(mqc.matches);
+    };
     sync();
     mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
+    mqc.addEventListener("change", sync);
+    return () => {
+      mq.removeEventListener("change", sync);
+      mqc.removeEventListener("change", sync);
+    };
   }, []);
 
   useEffect(() => {
@@ -228,6 +266,66 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [drawer]);
 
   const en = locale === "en";
+
+  /* 语言和主题两颗按钮。它们要么在顶栏（宽屏），要么在帮助菜单里（窄屏）—— 
+     所以写成一份 JSX，由 compact 决定挂在哪。 */
+  const tools = (
+    <>
+      <button
+        type="button"
+        className="lang-btn"
+        onClick={toggleLocale}
+        aria-label={en ? "Switch to Chinese" : "切换到英文"}
+        title={en ? "Switch to Chinese" : "切换到英文"}
+      >
+        <span data-lang="zh">中</span>
+        <span data-lang="en">EN</span>
+      </button>
+
+      <button
+        type="button"
+        className="icon-btn"
+        onClick={toggle}
+        aria-label={
+          theme === "light"
+            ? en
+              ? "Switch to dark"
+              : "切换到深色"
+            : en
+              ? "Switch to light"
+              : "切换到浅色"
+        }
+        title={
+          theme === "light"
+            ? en
+              ? "Switch to dark"
+              : "切换到深色"
+            : en
+              ? "Switch to light"
+              : "切换到浅色"
+        }
+      >
+        {theme === "light" ? (
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
+            <path
+              d="M13.2 10.4A5.6 5.6 0 0 1 5.6 2.8a5.6 5.6 0 1 0 7.6 7.6Z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
+            <circle cx="8" cy="8" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.3" />
+            <g stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+              <path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M3.1 3.1l1.3 1.3M11.6 11.6l1.3 1.3M12.9 3.1l-1.3 1.3M4.4 11.6l-1.3 1.3" />
+            </g>
+          </svg>
+        )}
+      </button>
+    </>
+  );
 
   return (
     <div className="shell">
@@ -275,67 +373,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         <div className="topbar-tools">
-          {/* 窄屏顶栏里的〔继续〕—— 桌面上它在侧栏。
-              手机上第一屏必须能看到主动作，而侧栏在抽屉后面。 */}
-          <div className="topbar-cont">
-            <ContinueButton />
-          </div>
+          {/* 窄屏顶栏里的〔继续〕—— 桌面上它在侧栏（CSS 收起）。
+              手机上第一屏必须能看到主动作，而侧栏在抽屉后面。
+              首页和计划详情页不给 —— 那两页的主内容本身就是这颗按钮。 */}
+          {!cedesContinue(path) && (
+            <div className="topbar-cont">
+              <ContinueButton />
+            </div>
+          )}
           <Search />
-          <HelpMenu />
-
-          <button
-            type="button"
-            className="lang-btn"
-            onClick={toggleLocale}
-            aria-label={en ? "Switch to Chinese" : "切换到英文"}
-            title={en ? "Switch to Chinese" : "切换到英文"}
-          >
-            <span data-lang="zh">中</span>
-            <span data-lang="en">EN</span>
-          </button>
-
-          <button
-            type="button"
-            className="icon-btn"
-            onClick={toggle}
-            aria-label={
-              theme === "light"
-                ? en
-                  ? "Switch to dark"
-                  : "切换到深色"
-                : en
-                  ? "Switch to light"
-                  : "切换到浅色"
-            }
-            title={
-              theme === "light"
-                ? en
-                  ? "Switch to dark"
-                  : "切换到深色"
-                : en
-                  ? "Switch to light"
-                  : "切换到浅色"
-            }
-          >
-            {theme === "light" ? (
-              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-                <path
-                  d="M13.2 10.4A5.6 5.6 0 0 1 5.6 2.8a5.6 5.6 0 1 0 7.6 7.6Z"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.3"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            ) : (
-              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-                <circle cx="8" cy="8" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.3" />
-                <g stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
-                  <path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M3.1 3.1l1.3 1.3M11.6 11.6l1.3 1.3M12.9 3.1l-1.3 1.3M4.4 11.6l-1.3 1.3" />
-                </g>
-              </svg>
-            )}
-          </button>
+          {/* 语言和主题：宽屏在顶栏，窄屏收进这个菜单（见 compact 那段注释）。
+              两处**同一时刻只挂载一份**，所以无障碍树里不会有两个语言按钮。 */}
+          <HelpMenu tools={compact ? tools : undefined} />
+          {!compact && tools}
         </div>
       </header>
 

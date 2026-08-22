@@ -192,8 +192,10 @@
   --rule: #dbe1d8;
   --rule-strong: #bcc5ba;
 
-  --accent: #6f9a12; /* 填充。压 --on-accent 白字时 4.62:1 */
-  --accent-h: #5d8210;
+  /* 填充。上面压白字（--on-accent），所以它必须压到 4.5:1 以下的亮度 ——
+     #6f9a12 实测只有 3.33:1（扫描抓到的，别再调回去）。#54760e 是 5.28:1。 */
+  --accent: #54760e;
+  --accent-h: #446009;
   --accent-ink: #41600f; /* 当文字用：对 --paper 6.24:1 */
   --on-accent: #ffffff;
   --accent-wash: #eef8dc;

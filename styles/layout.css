@@ -18,7 +18,6 @@
      .ui-prog          进度行（数字 + 轨道 + 标签），全站唯一一份
      .ui-bar     进度轨道本身
      .ui-toolbar       筛选 / 动作行
-     .ui-acts          主 / 次动作行
      .ui-empty         空状态
 
    几条硬规矩：
@@ -51,7 +50,14 @@
 
 /* ---------- 页面头 ---------- */
 
-.ui-head {
+/* 【为什么带着 .page-head / .eyebrow / .page-title / .page-lede 一起定义】
+   这四个类名在十几个页面上早就用着了（老版本它们散在 base.css 和
+   lesson.css 里，各自一套值）。这一版把它们和 ui-* 合成**同一条规则** ——
+   于是「等价页面的标题在同一条轴上、同一个字号」是结构上的必然，
+   而不是十几处手写的巧合。新代码用 ui-*，老代码不用一次全改完，
+   两者渲染完全一致。 */
+.ui-head,
+.page-head {
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
@@ -61,7 +67,8 @@
 }
 
 /* 眉题：小、等宽、大写。它说的是「你在哪一类东西里」 */
-.ui-eyebrow {
+.ui-eyebrow,
+.eyebrow {
   display: flex;
   align-items: center;
   gap: var(--sp-1);
@@ -73,7 +80,8 @@
   color: var(--ink-3);
 }
 
-.ui-h1 {
+.ui-h1,
+.page-title {
   font-family: var(--font-display);
   font-size: var(--fs-h1);
   font-weight: 680;
@@ -83,7 +91,8 @@
   margin: 0;
 }
 
-.ui-lede {
+.ui-lede,
+.page-lede {
   max-width: 62ch;
   margin: 0;
   font-size: 17px;
@@ -240,14 +249,8 @@
   min-height: var(--h-ctl-sm);
 }
 
-/* ---------- 主 / 次动作 ---------- */
+/* ---------- 次要动作 ---------- */
 
-.ui-acts {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-2);
-}
 
 /* 次要动作一律是安静的文字链，不是第二颗按钮 */
 .ui-quiet {
@@ -303,7 +306,8 @@
     margin-bottom: var(--sp-3);
   }
 
-  .ui-lede {
+  .ui-lede,
+  .page-lede {
     font-size: 15.5px;
   }
 }
@@ -318,5 +322,45 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- 页面入场 ----------
+   只有一次、只有 200ms、只有透明度和 6px 的位移。
+   它解释的是「这是新的一页」，不是装饰 —— 所以不做缩放、不做位移到很远、
+   也不给列表里的每一项做错开延迟（那种在 148 个练习的页面上会持续两秒）。 */
+
+.content {
+  animation: ui-enter var(--t-enter) var(--ease);
+}
+
+@keyframes ui-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* ---------- 触摸目标 ----------
+   ≥44px。两个条件都算：
+   ① 窄屏（≤960px）—— 那就是手机布局，不管是什么指针；
+   ② 指针不精确 —— 平板横屏也有 1024px 以上的宽度。
+   桌面 + 精确指针时不放大：那里 32–40px 是对的，放大了会把工具条撑散。 */
+
+@media (max-width: 960px), (pointer: coarse) {
+  .snav-item,
+  .ui-quiet,
+  .toc-fold-head,
+  .rm-all > summary,
+  .icon-btn,
+  .lang-btn,
+  .search-trigger,
+  .ui-toolbar > * {
+    min-height: 44px;
+  }
+
+  .icon-btn,
+  .lang-btn {
+    min-width: 44px;
   }
 }

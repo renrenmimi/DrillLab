@@ -11,6 +11,10 @@
 /* plans.css 排在 nav.css 之后 —— 它重写了 .topbar-nav 里的一部分间距，
    而计划徽标是那一行的第一个元素。 */
 @import "../styles/plans.css";
+/* dash.css 排在 plans.css 之后 —— 首页那两个第一屏
+   （新访客的三个决定 / 回访者的仪表盘）在这里，它们会覆盖
+   plans.css 里几个 .dash-* 的旧值。 */
+@import "../styles/dash.css";
 @import "../styles/lesson.css";
 @import "../styles/code.css";
 @import "../styles/exercise.css";
