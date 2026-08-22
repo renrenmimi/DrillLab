@@ -48,14 +48,21 @@ if (!json) {
   process.exit(1);
 }
 
-// 搜索专用的重字段单独出一份 —— 见 nav-template 里 NavLesson 的注释。
-// 它有 130 KB 出头，进 nav.ts 会让每个页面都白下 80 kB（gzip 后）。
-const { searchIndex, ...navJson } = json;
+// 两份重数据单独出文件 —— 见各自模板顶部的注释。
+//   searchIndex 130 KB 出头，只有 ⌘K 搜索用，进 nav.ts 每页白下 80 kB（gzip 后）
+//   exercises   148 条，只有引导计划用，而计划那一套是懒加载的
+const { searchIndex, exercises, ...navJson } = json;
 
 const tpl = readFileSync("scripts/nav-template.txt", "utf8");
 writeFileSync(
   "content/nav.ts",
   tpl.replace("__NAV_DATA__", JSON.stringify(navJson, null, 2)),
+);
+
+const exTpl = readFileSync("scripts/nav-exercises-template.txt", "utf8");
+writeFileSync(
+  "content/nav-exercises.ts",
+  exTpl.replace("__EXERCISE_DATA__", JSON.stringify(exercises, null, 2)),
 );
 
 const searchTpl = readFileSync("scripts/search-index-template.txt", "utf8");
@@ -67,7 +74,7 @@ writeFileSync(
 console.log(
   `content/nav.ts + content/search-index.ts 已更新：${json.exams.length} 门考试 / ` +
     `${json.exams.reduce((n, e) => n + e.lessonCount, 0)} 节课 / ` +
-    `${json.exams.reduce((n, e) => n + e.exerciseCount, 0)} 个练习 / ` +
+    `${exercises.length} 个练习 / ` +
     `${json.drills.length} 道八股 / ` +
     `${json.coding.length} 道 coding / ` +
     `${json.arena.length} 道考场题 / ` +

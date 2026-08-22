@@ -120,6 +120,34 @@ export function GET() {
     })),
 
     /**
+     * 练习清单 —— 单独一份，生成到 content/nav-exercises.ts。
+     *
+     * 【为什么不放进 nav.ts】
+     * 引导计划里「做练习」那一档的每一格都是一个真实练习，完成状态读
+     * progress.exercises[`${examId}/${id}`]，所以计划要拿到这 148 个 id。
+     * 但 nav.ts 被**每一个客户端页面**下载，而计划那一套是懒加载的
+     * （只有真的在跟计划的人才下载，见 components/plan-slots.tsx）。
+     *
+     * 把练习塞进 nav.ts 实测的代价：nav 从 133 KB 长到 160 KB，
+     * webpack 的分块随之改变，课程页从 470 kB 原始字节涨到 615 kB ——
+     * 而课程页原本一个字节的 nav 都不下载。
+     * 分成两份之后 nav.ts 和 main 逐字节一致，这一份只进那个异步 chunk。
+     */
+    exercises: EXAMS.flatMap((e) =>
+      lessonsOf(e).flatMap((r) =>
+        (r.lesson.exercises ?? []).map((x) => ({
+          examId: e.id,
+          lessonId: r.lesson.id,
+          id: x.id,
+          title: x.title,
+          titleEn: x.titleEn,
+          kind: x.kind,
+          level: x.level,
+        })),
+      ),
+    ),
+
+    /**
      * 搜索专用的重字段 —— 单独一份，生成到 content/search-index.ts。
      *
      * 这些字段加起来 130 KB 出头，而它们只有一个消费者：搜索的 haystack。
