@@ -3883,6 +3883,112 @@ spring.lifecycle.timeout-per-shutdown-phase=20s
                 filename: "第 2 题参考答案（DrillLab 自出）",
                 filenameEn: "Reference answer to question 2 (written by DrillLab)",
                 collapsible: true,
+                codeEn: `### Problem 1 (the most serious): every actuator endpoint is exposed
+
+management.endpoints.web.exposure.include=*
+
+**Risk**: this line opens every actuator endpoint on the business port:
+- /actuator/env — prints all environment variables, so DB_PASSWORD leaks
+- /actuator/heapdump — a downloadable heap dump holding credentials and data
+- /actuator/configprops, /actuator/beans — expose the internal structure
+- /actuator/loggers — writable, so an attacker can hide traces or fill the disk
+In EKS, if this Service sits behind an Ingress, all of that faces the internet.
+
+**Fix**
+management.endpoints.web.exposure.include=health,info,prometheus
+management.endpoint.health.show-details=never
+management.endpoint.health.probes.enabled=true
+management.server.port=8081
+management.endpoints.web.base-path=/internal
+
+**Why**: an allowlist replaces the wildcard (deny by default). Management moves
+to its own port 8081, so Ingress exposes only 8080 and ops traffic stays inside
+the cluster. health hides details; probes.enabled gives k8s its two probes.
+
+
+### Problem 2: how the database password is managed
+
+spring.datasource.password=\${DB_PASSWORD}
+
+**Risk**: the placeholder itself is fine, but it moves the question to who sets
+that environment variable. In EKS that is usually a ConfigMap or the env block
+of a Deployment, and both show the value in plain text under kubectl describe,
+land in etcd (not encrypted by default), reach CI logs, and enter version
+control with the yaml. Env vars are also visible via /proc/PID/environ.
+
+**Fix**
+- Use AWS Secrets Manager with External Secrets Operator, or the
+  Secrets Store CSI Driver, to mount the password into the container as a file,
+  and read it with spring.config.import=optional:file:/mnt/secrets/
+- Turn on RDS IAM auth and use short-lived tokens instead of a static password
+- Enable automatic rotation; HikariCP max-lifetime then renews connections
+- Give the Pod an IRSA role with least privilege
+
+**Why**: a long-lived static password is the hardest risk to handle: once it
+leaks you cannot trace it, and rotation is expensive. A mounted file beats an
+env var (not in /proc/environ, not inherited). IAM auth removes the secret.
+
+
+### Problem 3: no TLS, and the database connection is not encrypted either
+
+**Risk**: server.port=8080 is plain HTTP, and the JDBC URL has no sslmode.
+Even inside a VPC, plaintext traffic breaks most compliance rules (PCI-DSS,
+HIPAA) and does not stop sniffing from elsewhere in the same VPC.
+
+**Fix**
+spring.datasource.url=jdbc:postgresql://\${DB_HOST}:5432/orders?sslmode=verify-full&sslrootcert=/etc/ssl/certs/rds-ca.pem
+server.forward-headers-strategy=framework
+
+**Why**: application TLS usually terminates at the Ingress or in a service mesh
+(mTLS), so leaving 8080 on HTTP is an acceptable choice — but you must say that
+a TLS termination layer sits in front, and set forward-headers-strategy so the
+app reads the original protocol (otherwise redirects fall back to http). On the
+database side sslmode=verify-full forces encryption and checks the certificate.
+
+
+### Problem 4: no connection pool settings, no timeouts, no retries
+
+**Risk**: defaults in production mean no capacity planning. A slow dependency
+empties the pool, blocks threads, times out health checks, and k8s restarts.
+
+**Fix**
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=2
+spring.datasource.hikari.connection-timeout=3000
+spring.datasource.hikari.max-lifetime=1800000
+spring.datasource.hikari.validation-timeout=1000
+spring.mvc.async.request-timeout=5000
+
+**Why**: derive the pool size from DB max connections ÷ replica count; bigger
+is not better. A short connection-timeout makes a request fail quickly instead
+of queueing forever. Keep max-lifetime below the database idle timeout so you
+never hand out a connection the server has already closed.
+
+
+### Problem 5: no graceful shutdown
+
+**Risk**: during an EKS rolling update the Pod drops connections the moment it
+gets SIGTERM; in-flight requests are cut off and clients see 502.
+
+**Fix**
+server.shutdown=graceful
+spring.lifecycle.timeout-per-shutdown-phase=20s
+
+**Why**: graceful stops accepting new requests but finishes the in-flight ones.
+The timeout must be shorter than the k8s terminationGracePeriodSeconds (30s by
+default), or SIGKILL interrupts the shutdown.
+
+
+### Problem 6: one config file, no separation between environments
+
+**Risk**: the same properties file serves dev/staging/prod, so one edit hits
+every environment, and loose local debug settings travel into production.
+
+**Fix**: split it into application.yml (shared) plus application-prod.yml, and
+activate with SPRING_PROFILES_ACTIVE=prod. Every secret comes from an external
+Secret and never enters the image. Add a prod-profile config check step in CI.
+
+**Why**: config ships with the artifact, so review it and split it per environment, like code.`,
               },
             ),
           ],
