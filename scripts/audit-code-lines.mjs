@@ -14,7 +14,11 @@
 import { readdirSync, readFileSync, statSync } from "fs";
 import { join } from "path";
 
-const ROOTS = ["content"];
+// 【为什么要扫 components】双语代码片段不只在 content/ 里 ——
+// 速查页（components/reference.tsx）自己就带了 5 个。原来只扫 content/，
+// 那 5 对从来没被检查过，而脚本照样报「全部通过」。同一类假保证已经犯过一次
+// （漏掉 79 对），所以宁可多扫。
+const ROOTS = ["content", "components", "lib", "app"];
 const CJK = /[一-鿿]/;
 
 function walk(dir, out = []) {
