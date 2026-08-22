@@ -308,18 +308,21 @@ export function PlanItemBanner({
   const stage = status.plan.stages[stageIndex];
   const stageStat = status.stages[stageIndex];
   const st = status.itemStatus.get(itemKey);
-  const next = status.next;
-  // 「下一步」指向别的格才值得给按钮 —— 指向你正在看的这一格就是噪音
-  const showNext = !compact && next && next.item.key !== itemKey;
 
+  /* 【UI v2：这里从一张卡收成了一行】
+     老版本这条带着「计划的下一步 → ⟨标题⟩」那颗按钮，而侧栏里同时还有
+     一颗〔继续〕，两处指同一格。而且它有强调色底 + 3px 左边框，
+     在课文标题正下方比标题本身还显眼。
+
+     现在它只回答一个问题 —— **我在这条路的哪儿** ——
+     一行：计划名 · Stage n of m · item i of k（做过了再加一个状态）·「回到计划」。
+     「下一步做什么」由侧栏那颗唯一的〔继续〕和课尾那一步负责。 */
   return (
-    <aside className="pl-here" aria-label="Your position in the guided plan">
-      <span className="pl-here-lead">
+    <nav className="pl-here" aria-label="Your position in the guided plan">
+      <Link className="pl-here-lead" href={`/plans/${status.plan.id}`}>
         <PlanMark size={12} />
-        <Link href={`/plans/${status.plan.id}`}>
-          <T zh={status.plan.zh} en={status.plan.en} />
-        </Link>
-      </span>
+        <T zh={status.plan.zh} en={status.plan.en} />
+      </Link>
 
       <span className="pl-here-pos">
         <span className="tabular">
@@ -331,16 +334,9 @@ export function PlanItemBanner({
         <span className="pl-here-sep" aria-hidden>
           ·
         </span>
-        <PhaseBadge phase={stage.phase} />
-        <span className="pl-here-stage">
-          <T zh={stage.zh} en={stage.en} />
-        </span>
-        <span className="pl-here-sep" aria-hidden>
-          ·
-        </span>
         <span className="tabular">
           <T
-            zh={`这一格是 ${itemIndex + 1} / ${stageStat.total}`}
+            zh={`第 ${itemIndex + 1} / ${stageStat.total} 条`}
             en={`item ${itemIndex + 1} of ${stageStat.total}`}
           />
         </span>
@@ -356,15 +352,12 @@ export function PlanItemBanner({
         )}
       </span>
 
-      {showNext && next && (
-        <Link className="pl-here-next" href={next.item.href}>
-          <T zh="计划的下一步" en="Next in plan" />
-          <span className="pl-here-next-title">
-            <T zh={next.item.zh} en={next.item.en} />
-          </span>
+      {!compact && (
+        <Link className="pl-here-back" href={`/plans/${status.plan.id}#stage-${stage.id}`}>
+          <T zh="回到计划" en="Back to plan" />
         </Link>
       )}
-    </aside>
+    </nav>
   );
 }
 
