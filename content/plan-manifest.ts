@@ -51,6 +51,9 @@ export interface ManifestStage {
   phase: PlanPhase;
   zh: string;
   en: string;
+  /** 这一档为什么在这儿。计划唯一自己拥有的文字 */
+  whyZh: string;
+  whyEn: string;
   /** 指向 PLAN_ITEMS 的下标。跨计划共享同一张表，所以「从零完整学习」
    *  和「React 考试准备」里同一节课只存一份 */
   items: number[];
@@ -438,6 +441,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "learn",
         "zh": "地基：一个项目是怎么跑起来的",
         "en": "Foundations: how a project actually runs",
+        "whyZh": "后面每一门课都假设你会 npm、会读 package.json、会不改原数组地更新数据。这一门就是补这些。",
+        "whyEn": "Every later course assumes you know npm, can read a package.json, and can update data without mutating it. This course is where that comes from.",
         "items": [
           0,
           1,
@@ -455,6 +460,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "地基的课内练习",
         "en": "The Foundations exercises",
+        "whyZh": "读懂和写得出之间差一步，这一步就是这些练习。别攒着最后一起做。",
+        "whyEn": "There is a gap between following an explanation and producing the code. These exercises are that gap. Do not save them up.",
         "items": [
           9,
           10,
@@ -479,6 +486,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "learn",
         "zh": "React 考试：课文",
         "en": "React exam: the lessons",
+        "whyZh": "21 节，从「组件是一个函数」讲到 Q1 的三个任务和 Q2 的并发上限。",
+        "whyEn": "21 lessons, from a component being a function to Q1's three tasks and Q2's concurrency limit.",
         "items": [
           25,
           26,
@@ -508,6 +517,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "React 的课内练习",
         "en": "The React exercises",
+        "whyZh": "填空、写整块、Debug Lab —— 挖好了空等你填，是从「认得出」到「写得对」的过渡。",
+        "whyEn": "Blanks, whole blocks and debug labs: the step between recognising the code and writing it correctly.",
         "items": [
           46,
           47,
@@ -570,6 +581,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "React 的 Coding 题",
         "en": "The React coding problems",
+        "whyZh": "文件、依赖、测试都给好了，红变绿才算过。其中大部分能直接在浏览器里跑。",
+        "whyEn": "Files, dependencies and tests are handed to you; red to green is the bar. Most of them run right in the browser.",
         "items": [
           100,
           101,
@@ -585,6 +598,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "rebuild",
         "zh": "React：空文件夹里重写",
         "en": "React: rebuild in an empty folder",
+        "whyZh": "沙箱跑绿不等于能空手做出来。这一档没有脚手架、没有提示，只有一个计时器。",
+        "whyEn": "A green sandbox does not mean you can build it from nothing. No scaffold, no hints, just a clock.",
         "items": [
           107,
           108
@@ -595,6 +610,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "assess",
         "zh": "React 模拟考",
         "en": "The React mock exam",
+        "whyZh": "换了业务场景、考点不变。这是检验「你是理解了还是背下来了」最直接的办法。",
+        "whyEn": "Same skills, a different business scenario — the most direct way to find out whether you understood it or memorised it.",
         "items": [
           109
         ]
@@ -604,6 +621,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "learn",
         "zh": "Federation 考试：课文",
         "en": "Federation exam: the lessons",
+        "whyZh": "17 节，从「GraphQL 是一份 schema 加一组 resolver」讲到 entity 缝合、DataLoader 和六个 Spring 端点。",
+        "whyEn": "17 lessons, from GraphQL being one schema plus a set of resolvers, through entities, DataLoader and the six Spring endpoints.",
         "items": [
           110,
           111,
@@ -629,6 +648,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "Federation 的课内练习",
         "en": "The Federation exercises",
+        "whyZh": "这门课的练习里有 8 个 Debug Lab —— 那三处人为埋雷都在里面。",
+        "whyEn": "Eight of these are debug labs, and the three planted defects all live in them.",
         "items": [
           127,
           128,
@@ -684,6 +705,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "Federation 与 Spring 的 Coding 题",
         "en": "The Federation and Spring coding problems",
+        "whyZh": "这两道要在本机跑：一道要真起一个 subgraph 服务，一道要 JVM 和 Maven。页面把命令和期望输出写全了。",
+        "whyEn": "These two run locally: one needs a real subgraph process, the other a JVM and Maven. The pages spell out every command and the expected output.",
         "items": [
           174,
           175
@@ -694,6 +717,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "rebuild",
         "zh": "Federation：空文件夹里重写",
         "en": "Federation: rebuild in an empty folder",
+        "whyZh": "自己搭 subgraph、自己配 Spring 骨架。环境本身就是考点。",
+        "whyEn": "Build the subgraph yourself, wire the Spring skeleton yourself. Setting up the environment is part of what is being tested.",
         "items": [
           176,
           177
@@ -704,6 +729,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "assess",
         "zh": "Federation 模拟考",
         "en": "The Federation mock exam",
+        "whyZh": "subgraph 加 entity 缝合，考点和 Task 1 一致，题面是新的。",
+        "whyEn": "A subgraph stitched together with an entity: the same skills as Task 1, on a new problem.",
         "items": [
           178
         ]
@@ -713,6 +740,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "learn",
         "zh": "Cab Booking：课文",
         "en": "Cab Booking: the lessons",
+        "whyZh": "8 节，讲的是用 Context 管全局状态：放在哪一层、存什么、怎么改。",
+        "whyEn": "Eight lessons on holding global state in Context: which level it goes on, what it stores, how it changes.",
         "items": [
           179,
           180,
@@ -729,6 +758,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "Cab Booking 的课内练习",
         "en": "The Cab Booking exercises",
+        "whyZh": "包含那个「完整答案跑不起来，原因是一个文件扩展名」的 Debug Lab。",
+        "whyEn": "Includes the debug lab where the finished answer does not run, and the cause is one file extension.",
         "items": [
           187,
           188,
@@ -752,6 +783,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "Cab Booking 的 Coding 题",
         "en": "The Cab Booking coding problem",
+        "whyZh": "整个应用在浏览器里写一遍，四个测试全绿。",
+        "whyEn": "Write the whole app in the browser and take all four tests green.",
         "items": [
           202
         ]
@@ -761,6 +794,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "rebuild",
         "zh": "Cab Booking：空文件夹里重写",
         "en": "Cab Booking: rebuild in an empty folder",
+        "whyZh": "只给四个测试和一份数据文件，其余全部自己建。",
+        "whyEn": "You get four tests and one data file. Everything else you create yourself.",
         "items": [
           203
         ]
@@ -770,6 +805,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "review",
         "zh": "面试八股：105 道问答",
         "en": "Interview questions: all 105",
+        "whyZh": "这条支线不依赖前面任何一门课，任何时候都能开始 —— 放在最后只是因为它最长。",
+        "whyEn": "This track has no prerequisites and can start at any time. It sits last only because it is the longest.",
         "items": [
           204,
           205,
@@ -883,6 +920,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "learn",
         "zh": "手写题与组件题的讲解",
         "en": "The walkthroughs for the hand-written and component problems",
+        "whyZh": "这 10 节课不是问答题，它们是下面那 15 道 coding 题的讲解。",
+        "whyEn": "These ten lessons are not questions; they are the walkthroughs for the fifteen coding problems below.",
         "items": [
           309,
           310,
@@ -901,6 +940,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "面试那门课的练习",
         "en": "The exercises in the interview course",
+        "whyZh": "16 个，大部分是「写整块」—— 手写 debounce、curry、EventEmitter 那一类。",
+        "whyEn": "Sixteen of them, mostly write-a-block: debounce, curry, EventEmitter and the like.",
         "items": [
           319,
           320,
@@ -925,6 +966,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "手写题与组件题",
         "en": "The hand-written and component problems",
+        "whyZh": "面试现场最常出的两类：手写工具函数，和从零搭一个受控组件。",
+        "whyEn": "The two kinds interviews ask for most: implement a utility by hand, and build a controlled component from nothing.",
         "items": [
           335,
           336,
@@ -960,6 +1003,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "prereq",
         "zh": "前置：地基",
         "en": "Prerequisites: Foundations",
+        "whyZh": "React 考试假设你会 npm、会读 package.json、会不改原数组地更新数据、会读 tsc 的报错。这一档就是这些。已经会了就直接勾掉。",
+        "whyEn": "The React exam assumes you know npm, can read a package.json, can update an array without mutating it, and can read a tsc error. Tick these off if you already can.",
         "items": [
           0,
           1,
@@ -977,6 +1022,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "learn",
         "zh": "学：React 课文",
         "en": "Learn: the React lessons",
+        "whyZh": "按原顺序走。第 3 部分是 Q1 逐题拆解，第 4 部分是 Q2，第 5 部分是五道高频变式。",
+        "whyEn": "In their existing order. Part 3 takes Q1 apart task by task, Part 4 is Q2, and Part 5 is five variations that come up often.",
         "items": [
           25,
           26,
@@ -1006,6 +1053,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "review",
         "zh": "背：React 方向的八股",
         "en": "Review: the React questions",
+        "whyZh": "面试和考试的口头追问都从这 36 道里来。答不上来就标「不会」，抽认卡下一轮会先抽它。",
+        "whyEn": "The spoken follow-up questions come from these 36. Mark the ones you miss; the next flashcard round puts them first.",
         "items": [
           255,
           256,
@@ -1050,6 +1099,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "练：React 的课内练习",
         "en": "Practice: the React exercises",
+        "whyZh": "54 个，含 14 个 Debug Lab。检查是正则匹配，不跑代码 —— 它判得出你用没用 filter，判不出你写的跑不跑得通。",
+        "whyEn": "54 of them, including 14 debug labs. The check is a regex match, not a run: it can tell whether you used filter, not whether your code works.",
         "items": [
           46,
           47,
@@ -1112,6 +1163,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "写：React 的 Coding 题",
         "en": "Code: the React coding problems",
+        "whyZh": "整块写完并跑绿。第二遍点「空白重来」—— 实现文件全清空、只留测试，那一遍才算验收。",
+        "whyEn": "Write the whole thing and take the tests green. On the second pass hit start blank: every implementation file is emptied and only the tests remain. That pass is the one that counts.",
         "items": [
           100,
           101,
@@ -1127,6 +1180,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "rebuild",
         "zh": "空手做：从零重写",
         "en": "Rebuild: from an empty folder",
+        "whyZh": "Q1 和 Q2 各一道，计时、无提示、答案锁到交卷之后。这一档才是真实考试的样子。",
+        "whyEn": "One for Q1 and one for Q2: timed, no hints, answers locked until you hand in. This tier is what the real thing looks like.",
         "items": [
           107,
           108
@@ -1137,6 +1192,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "assess",
         "zh": "模拟考：Support Ticket Board",
         "en": "Assess: Support Ticket Board",
+        "whyZh": "考点和 Q1 一一对应，题面是新的。不许回头看 Q1 的答案。",
+        "whyEn": "It tests the same things as Q1 on a new problem. Do not look back at your Q1 answer.",
         "items": [
           109
         ]
@@ -1158,6 +1215,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "prereq",
         "zh": "前置：地基",
         "en": "Prerequisites: Foundations",
+        "whyZh": "subgraph 是一个 Node 项目：要装依赖、要跑 script、要读 ESM 的报错。这一档就是这些。",
+        "whyEn": "A subgraph is a Node project: dependencies to install, scripts to run, ESM errors to read. That is what this course covers.",
         "items": [
           0,
           1,
@@ -1175,6 +1234,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "learn",
         "zh": "学：Federation 课文",
         "en": "Learn: the Federation lessons",
+        "whyZh": "17 节。第 3 部分把 Task 1 的四个 TODO 和三处埋雷逐项拆开，第 4 部分是 Spring 的六个端点。",
+        "whyEn": "17 lessons. Part 3 takes Task 1's four TODOs and three planted defects apart one by one; Part 4 is the six Spring endpoints.",
         "items": [
           110,
           111,
@@ -1200,6 +1261,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "review",
         "zh": "背：Node、数据库、网络与安全",
         "en": "Review: Node, databases, networking and security",
+        "whyZh": "题库里没有 GraphQL 这个方向，但这 12 道正好是 subgraph 和 Spring 服务真正会被追问的东西 —— 事件循环、连接、状态码。",
+        "whyEn": "The bank has no GraphQL track, but these 12 are exactly what a subgraph and a Spring service get asked about: the event loop, connections, status codes.",
         "items": [
           291,
           292,
@@ -1220,6 +1283,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "练：Federation 的课内练习",
         "en": "Practice: the Federation exercises",
+        "whyZh": "47 个。其中 8 个 Debug Lab 给的是真实报错文本，包括那三处人为埋雷。",
+        "whyEn": "47 of them. Eight are debug labs with real error text, including the three planted defects.",
         "items": [
           127,
           128,
@@ -1275,6 +1340,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "写：subgraph 与 Spring 控制器",
         "en": "Code: the subgraph and the Spring controller",
+        "whyZh": "这两道浏览器里跑不了 —— 一道要真起一个服务进程，一道要 JVM 和 Maven。页面给的是本机命令和期望输出，不给假编辑器。",
+        "whyEn": "Neither runs in a browser: one needs a real server process, the other a JVM and Maven. The pages hand you local commands and the expected output, not a fake editor.",
         "items": [
           174,
           175
@@ -1285,6 +1352,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "rebuild",
         "zh": "空手做：从零重写两道",
         "en": "Rebuild: both tasks from an empty folder",
+        "whyZh": "自己写 schema、自己接 DataLoader、自己配 Spring 骨架。基线是 6 failed / 4 passed，而那 4 个通过里有 3 个是「空实现恰好满足断言」。",
+        "whyEn": "Write the schema yourself, wire DataLoader yourself, set up the Spring skeleton yourself. The baseline is 6 failed / 4 passed, and three of those four passes are empty implementations that happen to satisfy the assertion.",
         "items": [
           176,
           177
@@ -1295,6 +1364,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "assess",
         "zh": "模拟考：Book Reviews Subgraph",
         "en": "Assess: Book Reviews Subgraph",
+        "whyZh": "换了业务场景的 subgraph 加 entity 缝合，考点和 Task 1 一致。参考解法实测 14 / 14。",
+        "whyEn": "A subgraph stitched with an entity in a different business setting, testing the same things as Task 1. The reference solution measures 14 / 14.",
         "items": [
           178
         ]
@@ -1316,6 +1387,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "learn",
         "zh": "学：这道题要读懂的两节",
         "en": "Learn: the two lessons this task needs",
+        "whyZh": "一节讲给你的骨架里那几个 Spring 注解和一个请求走过的路，一节讲六个端点 —— 状态码就是这道题的全部。",
+        "whyEn": "One covers the Spring annotations in the skeleton you are given and the path a request takes; the other covers the six endpoints, where the status codes are the whole task.",
         "items": [
           122,
           123
@@ -1326,6 +1399,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "练：这两节的练习，加一个 Java Debug Lab",
         "en": "Practice: those lessons' exercises, plus one Java debug lab",
+        "whyZh": "「六个端点全 return null 也过了 3 个」这件事就在这几个练习里 —— 测试通过不等于做对了。",
+        "whyEn": "These exercises are where you meet the fact that returning null from all six endpoints still passes three tests. Green does not mean correct.",
         "items": [
           158,
           159,
@@ -1342,6 +1417,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "写：六个端点",
         "en": "Code: the six endpoints",
+        "whyZh": "本机跑：方法、路径、状态码、参数来源、校验、异常处理。基线是 5 run / 2 failures。",
+        "whyEn": "Run it locally: method, path, status code, where each parameter comes from, validation, exception handling. The baseline is 5 run / 2 failures.",
         "items": [
           175
         ]
@@ -1351,6 +1428,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "rebuild",
         "zh": "空手做：从零重写控制器",
         "en": "Rebuild: the controller from nothing",
+        "whyZh": "空文件夹或一个空的 Spring Initializr 骨架，75 分钟，没有提示。这一档才是真实考试的样子。",
+        "whyEn": "An empty folder or an empty Spring Initializr skeleton, 75 minutes, no hints. This tier is what the real thing looks like.",
         "items": [
           177
         ]
@@ -1372,6 +1451,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "review",
         "zh": "背：HTML 与 CSS",
         "en": "Review: HTML and CSS",
+        "whyZh": "13 道。开场最常问的一批，答错的代价是面试官对后面的问题降低期待。",
+        "whyEn": "13 questions. The batch most often asked first, and getting them wrong lowers what the interviewer expects from the rest.",
         "items": [
           204,
           205,
@@ -1393,6 +1474,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "review",
         "zh": "背：JavaScript 与 TypeScript",
         "en": "Review: JavaScript and TypeScript",
+        "whyZh": "44 道，是题库里最大的一块：引擎、类型、函数与作用域、this、事件循环，加 6 道 TypeScript 深度。",
+        "whyEn": "44 questions, the largest block: the engine, types, functions and scope, this, the event loop, plus six on TypeScript in depth.",
         "items": [
           217,
           218,
@@ -1445,6 +1528,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "review",
         "zh": "背：React 与生态",
         "en": "Review: React and its ecosystem",
+        "whyZh": "36 道：React 是什么、组件怎么通信、Hooks、性能、Redux。",
+        "whyEn": "36 questions: what React is, how components communicate, Hooks, performance, Redux.",
         "items": [
           255,
           256,
@@ -1489,6 +1574,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "review",
         "zh": "背：Node、数据库、网络与安全",
         "en": "Review: Node, databases, networking and security",
+        "whyZh": "12 道。前端面试也会问 —— 尤其是事件循环、状态码和 XSS。",
+        "whyEn": "12 questions. Front-end interviews ask these too, especially the event loop, status codes and XSS.",
         "items": [
           291,
           292,
@@ -1509,6 +1596,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "learn",
         "zh": "学：手写题与组件题的讲解",
         "en": "Learn: the walkthroughs",
+        "whyZh": "8 节。先读讲解再写，比对着答案抄一遍有用得多。",
+        "whyEn": "Eight lessons. Reading the walkthrough before writing beats copying an answer.",
         "items": [
           309,
           310,
@@ -1525,6 +1614,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "练：这门课的练习",
         "en": "Practice: this course's exercises",
+        "whyZh": "16 个，其中 11 个是「写整块」—— 和面试白板题的形状最接近。",
+        "whyEn": "16 of them, 11 write-a-block, which is the closest thing here to a whiteboard question.",
         "items": [
           319,
           320,
@@ -1549,6 +1640,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "写：手写题",
         "en": "Code: implement it yourself",
+        "whyZh": "debounce、throttle、deepClone、flatten、curry、Promise.all、EventEmitter、LRU。八道都能在浏览器里跑测试。",
+        "whyEn": "debounce, throttle, deepClone, flatten, curry, Promise.all, EventEmitter, LRU. All eight run their tests in the browser.",
         "items": [
           335,
           336,
@@ -1565,6 +1658,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "写：组件与状态管理题",
         "en": "Code: components and state management",
+        "whyZh": "Tabs、星级、Dropdown、自定义 hook、媒体播放器、看板、Redux Toolkit。现场最常出的组件题。",
+        "whyEn": "Tabs, star rating, dropdown, a custom hook, a media player, a Kanban board, Redux Toolkit. The component questions asked most often.",
         "items": [
           343,
           344,
@@ -1592,6 +1687,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "prereq",
         "zh": "前置：地基",
         "en": "Prerequisites: Foundations",
+        "whyZh": "要自己起一个 Vite + React 项目、要读 ESM 的报错。这一档就是这些。",
+        "whyEn": "You will start a Vite plus React project yourself and read ESM errors. That is what this course covers.",
         "items": [
           0,
           1,
@@ -1609,6 +1706,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "prereq",
         "zh": "前置：这道题用到的 React 那几节",
         "en": "Prerequisites: the React lessons this task leans on",
+        "whyZh": "这道题只用到 React 里的五样东西：组件、props、useState、useEffect、Context。不用把整门 React 课走完。",
+        "whyEn": "This task uses only five things from React: components, props, useState, useEffect and Context. You do not need the whole React course.",
         "items": [
           25,
           26,
@@ -1622,6 +1721,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "learn",
         "zh": "学：Cab Booking 课文",
         "en": "Learn: the Cab Booking lessons",
+        "whyZh": "8 节。Context 放在哪一层是这道题最常见的失败方式，第 1 部分专门讲它。",
+        "whyEn": "Eight lessons. Which level the Context goes on is the most common way to fail this task, and Part 1 is about exactly that.",
         "items": [
           179,
           180,
@@ -1638,6 +1739,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "练：Cab Booking 的课内练习",
         "en": "Practice: the Cab Booking exercises",
+        "whyZh": "15 个。包含那个「脚手架自己跑不起来，原因是一个文件扩展名」的 Debug Lab。",
+        "whyEn": "15 of them, including the debug lab where the provided project does not run and the cause is one file extension.",
         "items": [
           187,
           188,
@@ -1661,6 +1764,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "写：Context 版 Cab Booking",
         "en": "Code: the Context version",
+        "whyZh": "带脚手架写一遍，四个测试跑绿。第二遍点「空白重来」才算验收。",
+        "whyEn": "Write it once with the scaffold and take the four tests green. The pass that counts is the second one, with start blank.",
         "items": [
           202
         ]
@@ -1670,6 +1775,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "rebuild",
         "zh": "空手做：整个应用从零重写",
         "en": "Rebuild: the whole app from nothing",
+        "whyZh": "只给四个测试和一份数据文件，60 分钟。历史只留最新三条、最新在最上 —— 这两个细节决定过不过。",
+        "whyEn": "Four tests, one data file, 60 minutes. The history keeps only the three most recent with the newest first, and those two details decide pass or fail.",
         "items": [
           203
         ]
