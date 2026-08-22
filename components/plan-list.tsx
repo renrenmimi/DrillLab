@@ -6,7 +6,7 @@
 // 所以它不解释产品架构，也不重复四个模式那一套 —— 那些在首页下半和 /guide 里。
 
 import Link from "next/link";
-import { PLANS } from "@/content/plans";
+import { litePlans } from "@/lib/plan-lite";
 import { useProgress } from "@/lib/progress";
 import { ActivePlanCard, PlanCard } from "./plan-cards";
 import { PlanMark } from "./plan-mark";
@@ -15,7 +15,8 @@ import { T } from "./t";
 export function PlanList() {
   const { activePlan, ready } = useProgress();
   const active = ready ? activePlan() : undefined;
-  const others = PLANS.filter((p) => p.id !== active?.id);
+  const plans = litePlans();
+  const others = plans.filter((p) => p.id !== active?.id);
 
   return (
     <main className="main" data-rail="off">
@@ -46,12 +47,12 @@ export function PlanList() {
           {active ? (
             <T zh="换一条" en="Switch to another" />
           ) : (
-            <T zh={`${PLANS.length} 条计划`} en={`${PLANS.length} plans`} />
+            <T zh={`${plans.length} 条计划`} en={`${plans.length} plans`} />
           )}
         </div>
 
         <ul className="plc-grid">
-          {(active ? others : PLANS).map((p) => (
+          {(active ? others : plans).map((p) => (
             <PlanCard key={p.id} plan={p} />
           ))}
         </ul>

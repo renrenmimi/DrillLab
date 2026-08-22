@@ -16,9 +16,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ARENA, CODING, DRILLS, NAV, arenaPath, codingPath, drillPath, examPath, lessonPath, mockPath, navLessonsOf } from "@/content/nav";
-import { PLANS, resolvePlan } from "@/content/plans";
 import { stageEn } from "@/content/path";
 import { useT } from "@/lib/locale";
+import type { PlanHit } from "@/lib/plan-search";
 import { allText, L, Loc, T, type LocalizedString } from "./t";
 
 interface Hit {
@@ -53,8 +53,8 @@ const PAGES: Hit[] = [
     kind: L("引导计划", "Guided plans"),
     title: L("引导计划", "Guided plans"),
     sub: L(
-      `${PLANS.length} 条按目标走的路径`,
-      `${PLANS.length} ordered routes, one per outcome`,
+      "六条按目标走的路径",
+      "Six ordered routes, one per outcome",
     ),
     haystack: "计划 引导 目标 路径 plan plans guided goal roadmap 准备 prepare",
   },
@@ -117,6 +117,9 @@ const PAGES: Hit[] = [
   },
 ];
 
+/** 还没拉到计划条目时用它 —— 常量，免得每次渲染都造新数组触发 useMemo */
+const EMPTY_PLAN_HITS: PlanHit[] = [];
+
 /**
  * 建索引。
  *
@@ -125,41 +128,23 @@ const PAGES: Hit[] = [
  * 还没加载完的时候 deepText 返回空串，索引照样能用，只是暂时只匹配
  * 标题和一句话简介 —— 用户敲第一个字就已经有结果，不会看到空白。
  */
-function buildIndex(deepText: (examId: string, lessonId: string) => string): Hit[] {
+function buildIndex(
+  deepText: (examId: string, lessonId: string) => string,
+  planHits: PlanHit[],
+): Hit[] {
   // 英文补上了就给双语，没补就退回中文字符串 —— 和 <T> 的回落行为一致。
   const loc = (zh: string, en?: string) => (en ? { zh, en } : zh);
 
   const out: Hit[] = [...PAGES];
 
-  // 引导计划：整条，加上每一档。
-  // 一个人搜的是「React 考试」或者「Spring」，那应该先命中计划 ——
-  // 计划是「按什么顺序做」的答案，比单独一节课有用。
-  for (const plan of PLANS) {
-    const r = resolvePlan(plan);
+  // 引导计划：整条，加上每一档。也是懒加载的（见下面 usePlanHits）。
+  for (const p of planHits) {
     out.push({
-      href: `/plans/${plan.id}`,
-      kind: L("引导计划", "Guided plan"),
-      title: { zh: plan.zh, en: plan.en },
-      sub: { zh: plan.outcomeZh, en: plan.outcomeEn },
-      haystack: [
-        plan.zh,
-        plan.en,
-        plan.outcomeZh,
-        plan.outcomeEn,
-        plan.forZh,
-        plan.forEn,
-        ...r.stages.flatMap((st) => [st.zh, st.en]),
-      ].join(" "),
-    });
-
-    r.stages.forEach((st, i) => {
-      out.push({
-        href: `/plans/${plan.id}#stage-${st.id}`,
-        kind: { zh: `${plan.zh} · 第 ${i + 1} 档`, en: `${plan.en} · stage ${i + 1}` },
-        title: { zh: st.zh, en: st.en },
-        sub: { zh: st.whyZh, en: st.whyEn },
-        haystack: [st.zh, st.en, st.whyZh, st.whyEn, plan.zh, plan.en].join(" "),
-      });
+      href: p.href,
+      kind: { zh: p.kindZh, en: p.kindEn },
+      title: { zh: p.titleZh, en: p.titleEn },
+      sub: { zh: p.subZh, en: p.subEn },
+      haystack: p.haystack,
     });
   }
 
@@ -295,7 +280,25 @@ export function Search() {
     };
   }, [open, deep]);
 
-  const index = useMemo(() => buildIndex(deep ?? (() => "")), [deep]);
+  /* ---- 引导计划的条目：同样懒加载 ----
+
+     计划清单（content/plan-manifest.ts）80 KB 出头。搜索框挂在根 layout 上，
+     每个路由都会下载它 —— 清单不该跟着白下。所以和深层索引一样，
+     第一次打开搜索时才拉；没拉到之前搜索照常工作，只是暂时搜不到计划。 */
+  const [plans, setPlans] = useState<PlanHit[]>(EMPTY_PLAN_HITS);
+
+  useEffect(() => {
+    if (!open || plans.length > 0) return;
+    let alive = true;
+    import("@/lib/plan-search").then((mod) => {
+      if (alive) setPlans(mod.planHits());
+    });
+    return () => {
+      alive = false;
+    };
+  }, [open, plans]);
+
+  const index = useMemo(() => buildIndex(deep ?? (() => ""), plans), [deep, plans]);
 
   const hits = useMemo(() => {
     const terms = q.trim().toLowerCase().split(/\s+/).filter(Boolean);

@@ -20,7 +20,11 @@ import { drillListHref } from "./drill-query";
 import { ExerciseView } from "./exercise";
 import { LessonDoneBar, LessonStatusChip, LessonToc, LessonVisit } from "./lesson-islands";
 import { LessonPlanStep } from "./lesson-plan";
-import { PlanItemBanner } from "./plan-kit";
+// 【只许用 Slot，不许直接 import plan-kit】
+// 直接 import 会把计划清单（85 KB）打进课程页的初始 chunk ——
+// 实测 First Load JS 因此从 142 涨到 168 kB。Slot 里那层 next/dynamic
+// 才是「只有真的在跟计划的人才下载」。
+import { PlanItemBannerSlot } from "./plan-slots";
 import {
   AnswerTabs,
   Callout,
@@ -152,7 +156,7 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
 
         {/* 「你在计划的第几步」。不在当前计划里（或者没跟计划）就什么都不渲染 ——
             自由浏览的人不该被计划的横幅打扰。 */}
-        <PlanItemBanner itemKey={itemKey("lesson", lessonId, examId)} />
+        <PlanItemBannerSlot itemKey={itemKey("lesson", lessonId, examId)} />
 
         <LearningObjective
           objectives={lesson.objectives}
