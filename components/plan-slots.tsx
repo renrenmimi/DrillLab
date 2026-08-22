@@ -31,6 +31,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useT } from "@/lib/locale";
 import { useProgress } from "@/lib/progress";
 import { PlanMark } from "./plan-mark";
 import { T } from "./t";
@@ -63,12 +64,20 @@ function useFollowing(): boolean {
 
 export function PlanChipSlot({ onNavigate }: { onNavigate?: () => void }) {
   const following = useFollowing();
+  const t = useT();
 
   if (following) return <LiveChip onNavigate={onNavigate} />;
 
   // 没跟计划：一个静态入口，首屏 HTML 里就有
   return (
-    <Link className="topbar-plan" href="/plans" data-empty onClick={onNavigate}>
+    // 窄屏下「计划」那两个字是 display: none，名字要显式给
+    <Link
+      className="topbar-plan"
+      href="/plans"
+      data-empty
+      onClick={onNavigate}
+      aria-label={t("引导计划", "Guided plans")}
+    >
       <PlanMark />
       <span className="topbar-plan-name">
         <T zh="计划" en="Plans" />
