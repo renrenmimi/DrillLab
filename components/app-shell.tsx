@@ -47,6 +47,7 @@ import { useLocale } from "@/lib/locale";
 import { MODES, modeOf } from "@/lib/modes";
 import { useTheme } from "@/lib/theme";
 import { ContinueButton } from "./continue";
+import { PlanSignalProvider } from "@/lib/plan-signal";
 import { PlanChipSlot, PlanPanelSlot } from "./plan-slots";
 import { Search } from "./search";
 import { ContextSidebar } from "./sidebars";
@@ -424,8 +425,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             {/* 计划面板在侧栏最上面，且**只给四样**：叫什么、走到哪、
                 这一档是什么、下一格是什么。侧栏剩下的部分照旧是当前模式
                 自己的结构 —— 不把整条计划搬进来。没跟计划时它什么都不渲染。 */}
-            <PlanPanelSlot onNavigate={() => setDrawer(false)} />
-            <ContextSidebar mode={mode} onNavigate={() => setDrawer(false)} />
+            {/* 计划面板把「下一步」登记进 PlanSignal，Learn 侧栏读它决定
+                还要不要画自己那颗「接着学」—— 两处指同一节课时只留一处。 */}
+            <PlanSignalProvider>
+              <PlanPanelSlot onNavigate={() => setDrawer(false)} />
+              <ContextSidebar mode={mode} onNavigate={() => setDrawer(false)} />
+            </PlanSignalProvider>
           </aside>
         </>
       )}

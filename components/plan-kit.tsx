@@ -22,6 +22,7 @@ import { useT } from "@/lib/locale";
 import type { ModeId } from "@/lib/modes";
 import { litePlanById, type LiteItem, type LiteStatus } from "@/lib/plan-lite";
 import { itemKey, pct, planStatus, type ItemState } from "@/lib/plan-progress";
+import { usePublishPlanNext } from "@/lib/plan-signal";
 import type { PlanPhase } from "@/lib/plan-types";
 import { useProgress } from "@/lib/progress";
 import { PlanMark } from "./plan-mark";
@@ -251,10 +252,16 @@ export function PlanContinueButton() {
 
 export function PlanPanel({ onNavigate }: { onNavigate: () => void }) {
   const { status, ready } = useActivePlan();
+  const next = status?.next;
+
+  // 把「下一步」登记给侧栏 —— Learn 那一档侧栏据此决定还要不要画自己那颗
+  // 「接着学」。两处指同一节课时只留这一处，见 lib/plan-signal.tsx。
+  // hook 不能写在 return 后面，所以这一行在早退之前。
+  usePublishPlanNext(ready && status ? next?.item.href : undefined);
+
   if (!ready || !status) return null;
 
   const stage = status.plan.stages[status.currentStageIndex];
-  const next = status.next;
 
   return (
     <section className="pl-panel" aria-label="Guided plan">

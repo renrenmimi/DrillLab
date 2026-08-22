@@ -47,6 +47,7 @@ import { KIND_LABEL, LEVEL_LABEL, type ExerciseKind } from "@/lib/exercise-label
 import { codingHref, practiceHref, queryOfHref } from "@/lib/list-query";
 import { useLocale } from "@/lib/locale";
 import { modeById, type ModeId } from "@/lib/modes";
+import { usePlanSignal } from "@/lib/plan-signal";
 import { useProgress } from "@/lib/progress";
 import { attemptMs, bestPass, fmtClock } from "./arena-bits";
 import { lessonPositionOf, useLearnTarget, useResume } from "./continue";
@@ -189,8 +190,28 @@ function examOfPath(path: string) {
 function LearnSide({ onNavigate }: { onNavigate: () => void }) {
   const path = usePathname();
   const { locale } = useLocale();
-  const { ready, countLessons } = useProgress();
+  const { ready, countLessons, activePlan } = useProgress();
   const en = locale === "en";
+
+  /* ---- 「接着学」那颗大按钮：跟着计划走的时候要让位 ----
+
+     侧栏上面就是计划面板，它自己有一张「下一步」的卡。跟着计划走的时候
+     两处十有八九指向同一节课 —— 同一屏上两张一模一样的实心大卡，
+     都写着「往这儿走」，等于没有入口。所以：
+
+       没在跟计划            照常画这颗按钮（唯一的出口）
+       跟着计划、指向同一节  什么都不画，计划那张卡就是出口
+       跟着计划、指向不同     降级成一行安静的文字链，说清它是计划之外的
+       计划已经走完          照常画（计划没有下一步了，这里重新是唯一出口）
+
+     计划面板是懒加载的，所以「下一步是什么」由它算完登记在 PlanSignal 里，
+     这边只读结果 —— 侧栏每个路由都渲染，不能把计划清单拖进首屏。
+     见 lib/plan-signal.tsx。 */
+  const following = ready && !!activePlan();
+  const planSignal = usePlanSignal();
+  // 面板还没到：先什么都不画，免得画一张再撤掉闪一下
+  const planPending = following && !planSignal.loaded;
+  const planNextHref = following && planSignal.loaded ? planSignal.nextHref : undefined;
 
   const groups = pathGroups();
   const main = groups.find((g) => g.kind === "main")?.exams ?? [];
@@ -230,14 +251,30 @@ function LearnSide({ onNavigate }: { onNavigate: () => void }) {
         link={{ href: "/path", zh: "看总览 →", en: "Roadmap →" }}
       />
 
-      <CtxCta
-        href={startTarget.href}
-        onNavigate={onNavigate}
-        label={
-          resumed ? <T zh="接着学" en="Resume" /> : <T zh="从这里开始" en="Start here" />
-        }
-        item={<T zh={startTarget.title} en={startTarget.titleEn} />}
-      />
+      {!planPending &&
+        (planNextHref ? (
+          // 计划的下一步在别处（比如它让你先去背八股）—— 这一条降级成文字链，
+          // 并且说清它是计划之外的，免得看着像第二条主路。
+          planNextHref !== startTarget.href && (
+            <p className="ctx-alt">
+              <Link className="ctx-alt-link" href={startTarget.href} onClick={onNavigate}>
+                <T
+                  zh={<>计划之外，上次自己看到：{startTarget.title}</>}
+                  en={<>Outside the plan, you left off at: {startTarget.titleEn}</>}
+                />
+              </Link>
+            </p>
+          )
+        ) : (
+          <CtxCta
+            href={startTarget.href}
+            onNavigate={onNavigate}
+            label={
+              resumed ? <T zh="接着学" en="Resume" /> : <T zh="从这里开始" en="Start here" />
+            }
+            item={<T zh={startTarget.title} en={startTarget.titleEn} />}
+          />
+        ))}
 
       {ready && (
         <div className="ctx-meter">
