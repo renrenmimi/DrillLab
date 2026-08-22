@@ -6,7 +6,7 @@
 import { CodeBlock, TerminalCommand } from "./code";
 import { real } from "@/content/helpers";
 import { useActiveHeading } from "@/lib/use-active-heading";
-import { T } from "./t";
+import { L, T } from "./t";
 
 // 【这一页的双语边界】
 // 界面壳（页头、小节标题、表头、侧栏）双语；**速查条目本身只有中文**。
@@ -57,29 +57,69 @@ export function Reference() {
             </h2>
           </div>
           <p className="sec-lede">
-            注意两个项目的差别：react-notes-app <strong>没有</strong> test script，
-            node-subgraph <strong>有</strong>。
+            <T
+              zh={
+                <>
+                  注意两个项目的差别：react-notes-app <strong>没有</strong> test
+                  script，node-subgraph <strong>有</strong>。
+                </>
+              }
+              en={
+                <>
+                  Note the difference between the two projects: react-notes-app
+                  has <strong>no</strong> test script; node-subgraph{" "}
+                  <strong>has</strong> one.
+                </>
+              }
+            />
           </p>
 
           <div className="minihead">react-notes-app</div>
           <TerminalCommand
             cwd="react-notes-app"
             steps={[
-              { cmd: "npm install", out: "装依赖" },
-              { cmd: "npm run dev", out: "起 Vite 开发服务器，浏览器打开提示的地址" },
+              { cmd: "npm install", out: L("装依赖", "Install dependencies") },
+              {
+                cmd: "npm run dev",
+                out: L(
+                  "起 Vite 开发服务器，浏览器打开提示的地址",
+                  "Starts the Vite dev server. Open the address it prints.",
+                ),
+              },
               {
                 cmd: "npx vitest run",
-                out: "跑 4 个测试。注意：这个项目没有 test script，npm test 会报 Missing script",
+                out: L(
+                  "跑 4 个测试。注意：这个项目没有 test script，npm test 会报 Missing script",
+                  "Runs 4 tests. This project has no test script, so npm test reports Missing script.",
+                ),
               },
-              { cmd: "npx vitest", out: "watch 模式，改代码自动重跑" },
-              { cmd: "npm run q2", out: "跑 Q2 的验证台（tsx q2/demo.ts）" },
+              {
+                cmd: "npx vitest",
+                out: L(
+                  "watch 模式，改代码自动重跑",
+                  "Watch mode. Re-runs on every code change.",
+                ),
+              },
+              {
+                cmd: "npm run q2",
+                out: L(
+                  "跑 Q2 的验证台（tsx q2/demo.ts）",
+                  "Runs the Q2 check harness (tsx q2/demo.ts).",
+                ),
+              },
               {
                 cmd: "npx tsc --noEmit",
-                out: "只做类型检查。这个项目会报 10 个测试文件的 TS2582/TS2304 —— 是脚手架缺陷，不是你的问题",
+                out: L(
+                  "只做类型检查。这个项目会报 10 个测试文件的 TS2582/TS2304 —— 是脚手架缺陷，不是你的问题",
+                  "Type check only. This project reports TS2582/TS2304 in 10 test files. That is a defect in the starter code, not your bug.",
+                ),
               },
               {
                 cmd: "npm run build",
-                out: "tsc && vite build。因为上面那个原因，在原项目里是失败的",
+                out: L(
+                  "tsc && vite build。因为上面那个原因，在原项目里是失败的",
+                  "Runs tsc && vite build. It fails in the original project, for the reason above.",
+                ),
               },
             ]}
           />
@@ -88,15 +128,42 @@ export function Reference() {
           <TerminalCommand
             cwd="graphql-federation-practice/node-subgraph"
             steps={[
-              { cmd: "npm install", out: "装依赖（原本没有 node_modules，必须先装）" },
-              { cmd: "npm start", out: "起服务器，Subgraph ready at http://0.0.0.0:4000/" },
-              { cmd: "npm test", out: "跑 10 个测试（有 test script）" },
-              { cmd: "npm run test:watch", out: "watch 模式" },
+              {
+                cmd: "npm install",
+                out: L(
+                  "装依赖（原本没有 node_modules，必须先装）",
+                  "Install dependencies. There is no node_modules at first, so run this before anything else.",
+                ),
+              },
+              {
+                cmd: "npm start",
+                out: L(
+                  "起服务器，Subgraph ready at http://0.0.0.0:4000/",
+                  "Starts the server. It prints: Subgraph ready at http://0.0.0.0:4000/",
+                ),
+              },
+              {
+                cmd: "npm test",
+                out: L(
+                  "跑 10 个测试（有 test script）",
+                  "Runs 10 tests. This project does have a test script.",
+                ),
+              },
+              { cmd: "npm run test:watch", out: L("watch 模式", "Watch mode.") },
               {
                 cmd: `curl -X POST localhost:4000/ -H 'Content-Type: application/json' -d '{"query":"{ _service { sdl } }"}'`,
-                out: "拿 federation SDL —— Router 启动时问的就是这个",
+                out: L(
+                  "拿 federation SDL —— Router 启动时问的就是这个",
+                  "Fetches the federation SDL. This is exactly what the Router asks for at startup.",
+                ),
               },
-              { cmd: "node verify-schema.mjs", out: "进程内验证（自己写的脚本，不占端口）" },
+              {
+                cmd: "node verify-schema.mjs",
+                out: L(
+                  "进程内验证（自己写的脚本，不占端口）",
+                  "In-process check. A hand-written script; it does not bind a port.",
+                ),
+              },
             ]}
           />
 
@@ -104,29 +171,83 @@ export function Reference() {
           <TerminalCommand
             cwd="graphql-federation-practice/java-service"
             steps={[
-              { cmd: "mvn test", out: "跑 5 个测试" },
-              { cmd: "mvn spring-boot:run", out: "起服务在 8080" },
-              { cmd: "mvn -o test", out: "离线跑（依赖已在 ~/.m2 里之后可用）" },
-              { cmd: "mvn clean package -DskipTests", out: "打包但跳过测试" },
+              { cmd: "mvn test", out: L("跑 5 个测试", "Runs 5 tests.") },
+              {
+                cmd: "mvn spring-boot:run",
+                out: L("起服务在 8080", "Starts the service on port 8080."),
+              },
+              {
+                cmd: "mvn -o test",
+                out: L(
+                  "离线跑（依赖已在 ~/.m2 里之后可用）",
+                  "Runs offline. Works once the dependencies are in ~/.m2.",
+                ),
+              },
+              {
+                cmd: "mvn clean package -DskipTests",
+                out: L("打包但跳过测试", "Packages the app, skipping tests."),
+              },
             ]}
           />
 
-          <div className="minihead">通用小抄</div>
+          <div className="minihead">
+            <T zh="通用小抄" en="General cheatsheet" />
+          </div>
           <TerminalCommand
             steps={[
-              { cmd: "npm run", out: "不带名字 → 列出这个项目所有可用 script" },
-              { cmd: "npm ls <包名>", out: "看某个包实际装了哪个版本" },
-              { cmd: "node -v && npm -v", out: "确认版本（本机 Node 22.21.1）" },
-              { cmd: "npx <工具>", out: "执行 node_modules/.bin 里的工具，不需要有 script" },
+              {
+                cmd: "npm run",
+                out: L(
+                  "不带名字 → 列出这个项目所有可用 script",
+                  "With no script name, lists every script this project defines.",
+                ),
+              },
+              {
+                cmd: L("npm ls <包名>", "npm ls <package>"),
+                out: L(
+                  "看某个包实际装了哪个版本",
+                  "Shows which version of a package is actually installed.",
+                ),
+              },
+              {
+                cmd: "node -v && npm -v",
+                out: L(
+                  "确认版本（本机 Node 22.21.1）",
+                  "Check versions. This machine runs Node 22.21.1.",
+                ),
+              },
+              {
+                cmd: L("npx <工具>", "npx <tool>"),
+                out: L(
+                  "执行 node_modules/.bin 里的工具，不需要有 script",
+                  "Runs a tool from node_modules/.bin. No script entry needed.",
+                ),
+              },
             ]}
           />
 
           <div className="callout" data-tone="warn">
-            <strong className="callout-title">只有四个名字能省掉 run</strong>
+            <strong className="callout-title">
+              <T zh="只有四个名字能省掉 run" en="Only four names can skip run" />
+            </strong>
             <p>
-              <code>test</code>、<code>start</code>、<code>stop</code>、
-              <code>restart</code>。其余都必须写 <code>npm run xxx</code> ——
-              <code>npm build</code> 不会跑你的 build script。
+              <T
+                zh={
+                  <>
+                    <code>test</code>、<code>start</code>、<code>stop</code>、
+                    <code>restart</code>。其余都必须写 <code>npm run xxx</code>{" "}
+                    ——<code>npm build</code> 不会跑你的 build script。
+                  </>
+                }
+                en={
+                  <>
+                    <code>test</code>, <code>start</code>, <code>stop</code>,{" "}
+                    <code>restart</code>. Everything else needs{" "}
+                    <code>npm run xxx</code>. <code>npm build</code> does not
+                    run your build script.
+                  </>
+                }
+              />
             </p>
           </div>
         </section>
