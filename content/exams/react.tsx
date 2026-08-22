@@ -620,7 +620,21 @@ const visibleTickets =
 const handleClose = (id: number) => {
   setTickets((prev) => prev.filter((t) => t.id !== id));
 };`,
-          { filename: "筛选的正确实现" },
+          {
+            filename: "筛选的正确实现",
+            filenameEn: "The correct way to filter",
+            codeEn: `const [tickets, setTickets] = useState<Ticket[]>([]);
+const [filter, setFilter] = useState<"all" | Priority>("all");
+
+// Derived data: recomputed on every render, always matches tickets + filter
+const visibleTickets =
+  filter === "all" ? tickets : tickets.filter((t) => t.priority === filter);
+
+// Note: every write acts on tickets, never on visibleTickets
+const handleClose = (id: number) => {
+  setTickets((prev) => prev.filter((t) => t.id !== id));
+};`,
+          },
         ),
         demo(
           "tsx",
@@ -636,7 +650,22 @@ const handleClose = (id: number) => {
   setTickets(visibleTickets.filter((t) => t.id !== id));
   //         ↑ 被筛掉的工单全没了
 };`,
-          { filename: "两种错法" },
+          {
+            filename: "两种错法",
+            filenameEn: "Two wrong versions",
+            codeEn: `// ✗ Common mistake: two copies of the data, kept in sync by useEffect
+const [tickets, setTickets] = useState<Ticket[]>([]);
+const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
+useEffect(() => {
+  setFilteredTickets(filter === "all" ? tickets : tickets.filter(...));
+}, [tickets, filter]);
+
+// ✗ Worse: the write acts on the filtered array
+const handleClose = (id: number) => {
+  setTickets(visibleTickets.filter((t) => t.id !== id));
+  //         ↑ every ticket the filter hid is now gone
+};`,
+          },
         ),
       ],
     },
@@ -763,7 +792,69 @@ const TicketBoard: React.FC = () => {
 };
 
 export default TicketBoard;`,
-      { filename: "src/components/TicketBoard/index.tsx（参考答案）", collapsible: true },
+      {
+        filename: "src/components/TicketBoard/index.tsx（参考答案）",
+        filenameEn: "src/components/TicketBoard/index.tsx (reference answer)",
+        collapsible: true,
+        codeEn: `import { useState } from "react";
+import type { Priority, Ticket } from "../../types/Ticket";
+import TicketForm from "../TicketForm";
+import TicketList from "../TicketList";
+
+const TicketBoard: React.FC = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [ticketToEdit, setTicketToEdit] = useState<Ticket | null>(null);
+  const [filter, setFilter] = useState<"all" | Priority>("all");
+
+  // Derived data — never store it in state
+  const visibleTickets =
+    filter === "all" ? tickets : tickets.filter((t) => t.priority === filter);
+
+  const handleSubmitTicket = (submitted: Ticket) => {
+    if (ticketToEdit) {
+      setTickets((prev) =>
+        prev.map((t) => (t.id === submitted.id ? submitted : t)),
+      );
+      setTicketToEdit(null);
+    } else {
+      setTickets((prev) => [...prev, submitted]);
+    }
+  };
+
+  // Acts on tickets, not on visibleTickets
+  const handleClose = (id: number) => {
+    setTickets((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const handleReassign = (ticket: Ticket) => {
+    setTicketToEdit(ticket);
+  };
+
+  return (
+    <div data-testid="ticket-board">
+      <select
+        value={filter}
+        onChange={(e) => setFilter(e.target.value as "all" | Priority)}
+        data-testid="filter-priority"
+      >
+        <option value="all">all</option>
+        <option value="low">low</option>
+        <option value="medium">medium</option>
+        <option value="high">high</option>
+      </select>
+
+      <TicketForm onSubmit={handleSubmitTicket} ticketToEdit={ticketToEdit} />
+      <TicketList
+        tickets={visibleTickets}
+        onClose={handleClose}
+        onReassign={handleReassign}
+      />
+    </div>
+  );
+};
+
+export default TicketBoard;`,
+      },
     ),
     tested(
       "tsx",
@@ -828,7 +919,72 @@ const TicketForm: React.FC<TicketFormProps> = ({ onSubmit, ticketToEdit }) => {
 };
 
 export default TicketForm;`,
-      { filename: "src/components/TicketForm/index.tsx（参考答案）", collapsible: true },
+      {
+        filename: "src/components/TicketForm/index.tsx（参考答案）",
+        filenameEn: "src/components/TicketForm/index.tsx (reference answer)",
+        collapsible: true,
+        codeEn: `import React, { useState, useEffect } from "react";
+import type { Priority, Ticket } from "../../types/Ticket";
+
+interface TicketFormProps {
+  onSubmit: (ticket: Ticket) => void;
+  ticketToEdit: Ticket | null;
+}
+
+const TicketForm: React.FC<TicketFormProps> = ({ onSubmit, ticketToEdit }) => {
+  const [subject, setSubject] = useState("");
+  const [priority, setPriority] = useState<Priority>("medium");
+
+  useEffect(() => {
+    if (ticketToEdit) {
+      setSubject(ticketToEdit.subject);
+      setPriority(ticketToEdit.priority);
+    } else {
+      setSubject("");
+      setPriority("medium");
+    }
+  }, [ticketToEdit]);
+
+  const isInvalid = subject.trim() === "";
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isInvalid) return;
+    onSubmit({
+      id: ticketToEdit ? ticketToEdit.id : Date.now(),   // reuse the old id
+      subject: subject.trim(),
+      priority,
+    });
+    setSubject("");
+    setPriority("medium");
+  };
+
+  return (
+    <form onSubmit={handleSubmit} data-testid="ticket-form">
+      <input
+        type="text"
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
+        data-testid="ticket-subject"
+      />
+      <select
+        value={priority}
+        onChange={(e) => setPriority(e.target.value as Priority)}
+        data-testid="ticket-priority"
+      >
+        <option value="low">low</option>
+        <option value="medium">medium</option>
+        <option value="high">high</option>
+      </select>
+      <button type="submit" disabled={isInvalid} data-testid="ticket-submit">
+        {ticketToEdit ? "Save" : "Create"}
+      </button>
+    </form>
+  );
+};
+
+export default TicketForm;`,
+      },
     ),
     tested(
       "tsx",
