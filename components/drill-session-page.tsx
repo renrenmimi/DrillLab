@@ -11,6 +11,7 @@
 import { drillById } from "@/content/drills";
 import type { DrillQuestion } from "@/content/types";
 import { DrillAnswer } from "./drill-answer";
+import { NoteRecent } from "./recent";
 import { DrillSession, type DrillCardData } from "./drill-session";
 
 export function DrillSessionPage({
@@ -46,5 +47,19 @@ export function DrillSessionPage({
   if (picked.length > 0) p.set("ids", picked.map((q) => q.id).join(","));
   const qs = p.toString();
 
-  return <DrillSession cards={cards} scope={scope} search={qs ? `?${qs}` : ""} />;
+  return (
+    <>
+      {/* 抽认卡也算 Review 模式里的一个落点 —— 一轮做到一半离开，
+          顶栏的「继续」该带你回来（这一轮做到第几张存在 sessionStorage 里）。 */}
+      <NoteRecent
+        mode="review"
+        href={`/drill/session${qs ? `?${qs}` : ""}`}
+        title="抽认卡"
+        titleEn="Flashcards"
+        sub={`${picked.length} 张`}
+        subEn={`${picked.length} cards`}
+      />
+      <DrillSession cards={cards} scope={scope} search={qs ? `?${qs}` : ""} />
+    </>
+  );
 }

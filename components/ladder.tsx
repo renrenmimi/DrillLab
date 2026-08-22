@@ -80,9 +80,12 @@ export function Ladder({ current }: { current: LadderStep }) {
           省下的说明高度正好被新增的那行吃掉，净收益为零（实测 212 → 217）。
           放同一行才真的减掉一整块。 */}
       <div className="ladder-head">
+        {/* 四档不再自己充当一级导航（那是顶栏四个模式的活），所以这一行
+            必须把两套说法对上 —— 否则同一个地方又会有两个名字，
+            正是 docs/ia-audit-round3.md 记的那个毛病。 */}
         <T
-          zh="同一批本事的四个难度档 —— 区别是「给你多少东西」"
-          en="Four fidelity levels of the same skill — the difference is how much you are given"
+          zh="同一批本事的四个难度档，区别是「给你多少东西」—— 它们分布在「背知识点 / 做练习 / 模拟考」三个模式里"
+          en="Four fidelity levels of the same skill — the difference is how much you are given. They live across the Review, Practice and Assess modes."
         />
       </div>
       <ol className="ladder-steps">

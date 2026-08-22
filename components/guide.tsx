@@ -11,6 +11,7 @@
 
 import Link from "next/link";
 import { ARENA, CODING, DRILLS, NAV } from "@/content/nav";
+import { MODES } from "@/lib/modes";
 import { Ladder } from "./ladder";
 import { T } from "./t";
 
@@ -35,6 +36,25 @@ export function Guide() {
             en="One page: what is here, in what order to go through it, how to use it day to day, and how to sprint the week before an assessment."
           />
         </p>
+        <p className="guide-note">
+          <T
+            zh={
+              <>
+                <strong>不想读整页也行。</strong>顶栏那四项就是这个站的四种用法 ——
+                学课程 / 背知识点 / 做练习 / 模拟考试。挑一个点进去，左边那栏
+                会告诉你在这件事里你在哪、下一步是什么。
+              </>
+            }
+            en={
+              <>
+                <strong>You do not have to read all of this.</strong> The four items in
+                the header are the four ways to use this site — Learn, Review, Practice
+                and Assess. Pick one; the sidebar then tells you where you are inside it
+                and what comes next.
+              </>
+            }
+          />
+        </p>
 
         {/* ---------------- 一、这里有什么 ---------------- */}
         <section className="guide-sec">
@@ -45,18 +65,66 @@ export function Guide() {
             <T
               zh={
                 <>
-                  <strong>课程</strong>是主干：{NAV.length} 门、{totalLessons} 节、
-                  约 {Math.round(totalMinutes / 60)} 小时的讲解，每节课末尾就带练习。
-                  其余四条主线都是「练」，区别不是题的类型，是
-                  <strong>给你多少东西</strong>：
+                  材料一共这么多：{NAV.length} 门课、{totalLessons} 节课文
+                  （约 {Math.round(totalMinutes / 60)} 小时）、{totalExercises} 个课内练习、
+                  {DRILLS.length} 道面试问答、{CODING.length} 道 coding 题、
+                  {ARENA.length} 道计时考场题。它们按「你想做哪一类事」分成四项，
+                  就是顶栏那四个：
                 </>
               }
               en={
                 <>
-                  <strong>The courses</strong> are the trunk: {NAV.length} of them,{" "}
-                  {totalLessons} lessons, roughly {Math.round(totalMinutes / 60)} hours,
-                  each ending with its own exercises. The other four lines are all
-                  practice, and what separates them is not the kind of problem but{" "}
+                  Here is everything: {NAV.length} courses, {totalLessons} written lessons
+                  (about {Math.round(totalMinutes / 60)} hours), {totalExercises} in-lesson
+                  exercises, {DRILLS.length} interview questions, {CODING.length} coding
+                  problems and {ARENA.length} timed papers. They are grouped by what you
+                  want to do, which is what the four header items are:
+                </>
+              }
+            />
+          </p>
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>
+                    <T zh="顶栏那一项" en="Header item" />
+                  </th>
+                  <th>
+                    <T zh="点进去做什么" en="What you do there" />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {MODES.map((m) => (
+                  <tr key={m.id}>
+                    <td>
+                      <Link href={m.href}>
+                        <T zh={m.zh} en={m.en} />
+                      </Link>
+                    </td>
+                    <td>
+                      <T zh={m.blurbZh} en={m.blurbEn} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <T
+              zh={
+                <>
+                  「做练习」里还有两档（课内练习 / 整套 Coding 题），
+                  「模拟考试」里还有两种（从零重写 / 模拟考）。
+                  区分它们的不是题型，还是<strong>给你多少东西</strong>：
+                </>
+              }
+              en={
+                <>
+                  Practice holds two tiers (lesson exercises and whole coding problems),
+                  and Assess holds two kinds (rebuilds and full mocks). What separates
+                  them is still not the kind of problem but{" "}
                   <strong>how much you are handed</strong>:
                 </>
               }

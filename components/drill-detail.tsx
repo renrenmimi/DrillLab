@@ -10,6 +10,7 @@ import { drillById, drillNeighbours, TRACK_LABEL } from "@/content/drills";
 import { lessonPath } from "@/content/nav";
 import { DrillAnswer } from "./drill-answer";
 import { DrillMarks } from "./drill-marks";
+import { NoteRecent } from "./recent";
 import { T } from "./t";
 
 export function DrillDetail({ id }: { id: string }) {
@@ -35,6 +36,14 @@ export function DrillDetail({ id }: { id: string }) {
 
   return (
     <main className="main" data-rail="off">
+      <NoteRecent
+        mode="review"
+        href={`/drill/${q.id}`}
+        title={q.zh}
+        titleEn={q.en}
+        sub={`八股题 · ${track.zh}`}
+        subEn={`Drill · ${track.en}`}
+      />
       <div className="content drill-detail">
         <nav className="crumb" aria-label="面包屑 / Breadcrumb">
           <Link href="/drill">

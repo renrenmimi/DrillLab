@@ -13,6 +13,7 @@ import Link from "next/link";
 import { NAV, lessonPath, navStages } from "@/content/nav";
 import { pathGroups, stageEn } from "@/content/path";
 import { useProgress } from "@/lib/progress";
+import { ResumeBar } from "./continue";
 import { T } from "./t";
 
 
@@ -82,7 +83,7 @@ export function LearningPath() {
       <div className="content">
         <div className="page-head">
           <div className="eyebrow">
-            <T zh="路线图" en="Roadmap" />
+            <T zh="学课程 · 路线图" en="Learn · roadmap" />
           </div>
           <h1 className="page-title serif">
             <T zh="你在这儿，下一步往这走" en="You are here. This is what comes next." />
@@ -94,6 +95,10 @@ export function LearningPath() {
             />
           </p>
         </div>
+
+        {/* 一条「接着学」。这一页是 Learn 模式的落地页，站在这儿的人
+            要么想找位置，要么就是想接着上次那一节 —— 后者给一个按钮解决。 */}
+        <ResumeBar />
 
         {ready && (
           <div className="road-progress">
