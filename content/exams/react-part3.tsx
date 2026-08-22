@@ -219,6 +219,14 @@ export const reactQ1: Module = {
                 filename: "README.md（Q1 原文）",
                 filenameEn: "README.md (the original text of Q1)",
                 sourceFile: "react-notes-app/README.md",
+                codeEn: `## Q1: Notes Manager (CRUD)
+Files: src/components/**
+Follow the TODOs in the code and finish three tasks:
+- Task 1  Add:    submit the form -> the new note appears in the table
+- Task 2  Delete: click Delete -> that row is removed by id
+- Task 3  Edit:   click Edit -> fields refill, the button becomes Update ->
+                  submit -> the note updates in place, edit mode ends
+Rule:  do not change any data-testid.`,
               },
             ),
           ],
@@ -2812,7 +2820,23 @@ const handleDelete = (id: number) => {
 ✗ 先删再插到头部
   [B2, ...prev.filter(...)]
   结果：[B2, A, C]        ← 也不是原位置`,
-              { filename: "三种写法的实际结果", filenameEn: "What the three versions actually produce" },
+              {
+                filename: "三种写法的实际结果",
+                filenameEn: "What the three versions actually produce",
+                codeEn: `start: [A, B, C], edit B → B2
+
+✓ replace with map
+  prev.map(n => n.id === B.id ? B2 : n)
+  result: [A, B2, C]      ← B2 is still second, so it is in place
+
+✗ delete first, then append
+  [...prev.filter(n => n.id !== B.id), B2]
+  result: [A, C, B2]      ← B2 jumped to the end, the order changed
+
+✗ delete first, then insert at the front
+  [B2, ...prev.filter(...)]
+  result: [B2, A, C]      ← also not the original position`,
+              },
             ),
             real(
               "tsx",

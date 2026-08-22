@@ -3884,7 +3884,18 @@ t=200  用户 1 的响应回来 -> ignore#1 是 true  -> 直接丢掉 ✓
 
 # 没有 ignore 的话，t=200 那一刻会 setUser(用户1)，
 # 界面变回用户 1，而 URL 上还是 2。`,
-              { filename: "竞态的时间线", filenameEn: "The timeline of the race" },
+              {
+                filename: "竞态的时间线",
+                filenameEn: "The timeline of the race",
+                codeEn: `t=0    user clicks 1 -> effect#1 sends a request (takes 200ms)
+t=20   user clicks 2 -> effect#1 cleanup function runs: ignore#1 = true
+                  -> effect#2 sends a request (takes 10ms)
+t=30   response for user 2 arrives -> ignore#2 is false -> setUser(user 2) ✓
+t=200  response for user 1 arrives -> ignore#1 is true  -> thrown away ✓
+
+# Without ignore, at t=200 it would call setUser(user 1),
+# the screen goes back to user 1 while the URL still says 2.`,
+              },
             ),
             tested(
               "tsx",

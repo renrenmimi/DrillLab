@@ -2128,7 +2128,17 @@ noteToEdit   NoteItem 产生 + NoteForm 消费    NoteManager（共同祖先）
 title        只有 NoteForm 用                 NoteForm（自己留着）
 content      只有 NoteForm 用                 NoteForm（自己留着）
 isFormInvalid 由 title/content 算出           不是 state，当场算`,
-              { filename: "四个值的归属", filenameEn: "Where the four values belong" },
+              {
+                filename: "四个值的归属",
+                filenameEn: "Where the four values belong",
+                codeEn: `who needs it                    →  where it should live
+─────────────────────────────────────────────────
+notes        NoteTable reads + NoteForm changes  NoteManager (shared ancestor)
+noteToEdit   NoteItem creates + NoteForm uses    NoteManager (shared ancestor)
+title        only NoteForm uses it               NoteForm (keeps it local)
+content      only NoteForm uses it               NoteForm (keeps it local)
+isFormInvalid computed from title/content        not state, computed inline`,
+              },
             ),
           ],
         },
