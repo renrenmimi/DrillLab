@@ -60,8 +60,8 @@ export function Reference() {
             <T
               zh={
                 <>
-                  注意两个项目的差别：react-notes-app <strong>没有</strong> test
-                  script，node-subgraph <strong>有</strong>。
+                  注意两个项目的差别：react-notes-app <strong>没有</strong> test script，
+                  node-subgraph <strong>有</strong>。
                 </>
               }
               en={
@@ -763,46 +763,99 @@ new DataLoader(async keys => {
                 <tr>
                   <td><code>@key(fields: &quot;id&quot;)</code></td>
                   <td>
-                    「别的 subgraph 给出 id 就能定位同一个我」。
-                    可以复合（<code>&quot;isbn edition&quot;</code>），可以有多个
+                    <T
+                      zh={
+                        <>
+                          「别的 subgraph 给出 id 就能定位同一个我」。
+                          可以复合（<code>&quot;isbn edition&quot;</code>），可以有多个
+                        </>
+                      }
+                      en={
+                        <>
+                          Given an id from another subgraph, this one can find
+                          the same object. A key can be composite (
+                          <code>&quot;isbn edition&quot;</code>), and a type can
+                          have several
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td><code>@external</code></td>
-                  <td>这个字段由别的 subgraph 定义，我只借来做身份识别</td>
+                  <td>
+                    <T
+                      zh="这个字段由别的 subgraph 定义，我只借来做身份识别"
+                      en="Another subgraph defines this field; this one only borrows it to identify the object"
+                    />
+                  </td>
                 </tr>
                 <tr>
                   <td><code>@shareable</code></td>
                   <td>
-                    允许多个 subgraph 定义同一个字段。
-                    本项目 import 了但没用到
+                    <T
+                      zh="允许多个 subgraph 定义同一个字段。 本项目 import 了但没用到"
+                      en="Lets several subgraphs define the same field. This project imports it but never uses it"
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td><code>__resolveReference</code></td>
                   <td>
-                    把 representation 变成本地对象。
-                    <strong>它的返回值就是下游字段 resolver 的 parent</strong>
+                    <T
+                      zh={
+                        <>
+                          把 representation 变成本地对象。
+                          <strong>它的返回值就是下游字段 resolver 的 parent</strong>
+                        </>
+                      }
+                      en={
+                        <>
+                          Turns a representation into a local object.{" "}
+                          <strong>
+                            What it returns becomes the parent for the field
+                            resolvers under it
+                          </strong>
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td><code>_service</code></td>
                   <td>
-                    自动生成的字段，返回 federation SDL。
-                    Router 启动时查它
+                    <T
+                      zh="自动生成的字段，返回 federation SDL。 Router 启动时查它"
+                      en="A generated field that returns the federation SDL. The Router queries it at startup"
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td><code>_entities</code></td>
                   <td>
-                    自动生成的字段，Router 运行时靠它做实体解析
+                    <T
+                      zh="自动生成的字段，Router 运行时靠它做实体解析"
+                      en="A generated field. At runtime the Router uses it to resolve entities"
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td><code>buildSubgraphSchema</code></td>
                   <td>
-                    来自 <code>@apollo/subgraph</code>。
-                    认识 federation directive，并自动加上面两个字段
+                    <T
+                      zh={
+                        <>
+                          来自 <code>@apollo/subgraph</code>。
+                          认识 federation directive，并自动加上面两个字段
+                        </>
+                      }
+                      en={
+                        <>
+                          From <code>@apollo/subgraph</code>. It understands the
+                          federation directives and adds the two fields above
+                        </>
+                      }
+                    />
                   </td>
                 </tr>
               </tbody>
@@ -826,7 +879,25 @@ query($r: [_Any!]!) {
 
 # 复合 key 的 representation 要带全部 key 字段：
 # { "__typename": "Book", "isbn": "978-1", "edition": 2 }`,
-              { filename: "本地验证 Federation" },
+              {
+                filename: "本地验证 Federation",
+                filenameEn: "Verifying federation locally",
+                codeEn: `# The Router sends your subgraph these two requests — use them to verify locally
+
+# ① At startup: fetch the SDL
+{ _service { sdl } }
+
+# ② At runtime: resolve entities (this is the path your User.orders is really called on)
+query($r: [_Any!]!) {
+  _entities(representations: $r) {
+    ... on User { id orders { id status } }
+  }
+}
+# variables: { "r": [{ "__typename": "User", "id": "123" }] }
+
+# A representation for a composite key must carry every key field:
+# { "__typename": "Book", "isbn": "978-1", "edition": 2 }`,
+              },
             )}
           />
         </section>
