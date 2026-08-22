@@ -9,15 +9,26 @@ import { useProgress } from "@/lib/progress";
 import { useActiveHeading } from "@/lib/use-active-heading";
 import { T } from "./t";
 
-/** 记录「最近学到哪」，首页的「继续上次」靠它 */
+/**
+ * 记录「最近学到哪」。顶栏那颗「继续」、首页那张卡、Learn 侧栏的 Resume 都靠它。
+ *
+ * titleEn / course 是给那三处渲染句子用的 —— 「继续 → 某某」在英文界面下
+ * 不能嵌一个中文标题。没传就回落中文（<T> 的既有行为）。
+ */
 export function LessonVisit({
   examId,
   lessonId,
   title,
+  titleEn,
+  course,
+  courseEn,
 }: {
   examId: string;
   lessonId: string;
   title: string;
+  titleEn?: string;
+  course?: string;
+  courseEn?: string;
 }) {
   const { visit, ready } = useProgress();
 
@@ -27,12 +38,39 @@ export function LessonVisit({
   // 所以 ready 必须进依赖数组：它翻成 true 时这里要再跑一次，把访问补记上。
   useEffect(() => {
     if (!ready) return;
-    visit(examId, lessonId, title);
+    visit(examId, lessonId, title, { titleEn, sub: course, subEn: courseEn });
     // visit 内部幂等（last 相同就不写），依赖只跟着 ready 和路由变
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, examId, lessonId]);
 
   return null;
+}
+
+/**
+ * 课头那枚「学完没有」的徽章。
+ *
+ * ready 之前什么都不渲染 —— 服务端不知道 localStorage 里有什么，
+ * 提前渲染任何一种状态都会 hydration 不一致。
+ */
+export function LessonStatusChip({
+  examId,
+  lessonId,
+}: {
+  examId: string;
+  lessonId: string;
+}) {
+  const { lessonDone, ready } = useProgress();
+  if (!ready) return null;
+
+  return lessonDone(examId, lessonId) ? (
+    <span className="tag" data-tone="ok">
+      <T en="Finished" zh="已学完" />
+    </span>
+  ) : (
+    <span className="tag">
+      <T en="Not marked yet" zh="还没标记学完" />
+    </span>
+  );
 }
 
 /** 「学完这节」打勾 */
