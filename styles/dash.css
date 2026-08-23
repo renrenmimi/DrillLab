@@ -423,6 +423,16 @@
   text-decoration: none;
 }
 
+/* 主按钮下面那一行次要动作。安静的文字链，不是第二颗按钮 ——
+   但必须在同一屏上看得见：上一版选完计划之后，整个首页一个换计划的入口都没有。 */
+.dash2-alts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-3);
+  margin: var(--sp-2) 0 0;
+}
+
 /* ---------- 当前档的紧凑预览 ---------- */
 
 .dash2-peek {

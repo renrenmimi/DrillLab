@@ -157,6 +157,18 @@ export function PlanDash() {
           <Link className="dash2-cta" href={next.item.href}>
             <T zh="继续" en="Continue" />
           </Link>
+
+          {/* 【次要动作必须在同一屏上看得见】选了一条计划之后，
+              「看全程 / 换一条 / 先不跟」三条路都得有出口。
+              上一版这一屏一个都没有，只能自己想到去点侧栏的「我的计划」。 */}
+          <p className="dash2-alts">
+            <Link className="ui-quiet" href={`/plans/${plan.id}`}>
+              <T zh="看全程" en="View the full plan" />
+            </Link>
+            <Link className="ui-quiet" href="/plans">
+              <T zh="换一条计划" en="Change plan" />
+            </Link>
+          </p>
         </div>
       ) : (
         <div className="dash2-next" data-done>
