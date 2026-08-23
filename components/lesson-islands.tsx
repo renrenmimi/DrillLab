@@ -96,9 +96,13 @@ export function LessonDoneBar({
           />
         )}
       </span>
+      {/* 【为什么不是实心按钮】一屏只有一个实心强调动作，课程页那一个是
+          课尾面板里的「下一节」。打勾是记账，不是这一页的下一步 ——
+          它和「下一节」同为实心时，读完一节课眼前会有两个都说得通的动作。
+          做没做过的区别由 .done-bar[data-done] 那一圈边框和底色表达。 */}
       <button
         type="button"
-        className={done ? "btn btn-sm" : "btn btn-sm btn-primary"}
+        className="btn btn-sm"
         style={{ marginLeft: "auto" }}
         onClick={() => toggleLesson(examId, lessonId)}
       >

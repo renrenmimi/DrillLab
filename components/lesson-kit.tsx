@@ -57,7 +57,7 @@ export function LessonHeader({
     <header className="lesson-head">
       <nav aria-label="面包屑 / Breadcrumb" className="crumb">
         {crumbs.map((c, i) => (
-          <span key={i} style={{ display: "inline-flex", gap: 7 }}>
+          <span key={i} className="crumb-item">
             {i > 0 && (
               <span className="crumb-sep" aria-hidden>
                 /
@@ -369,10 +369,7 @@ export function FileExplorer({
     <div className="filetree">
       <div className="filetree-bar">
         <span>{title}</span>
-        <span
-          className="dimmer"
-          style={{ marginLeft: "auto", fontWeight: 500 }}
-        >
+        <span className="filetree-note">
           {files.some((f) => f.edit) ? (
             <T
               en="Highlighted rows are the files you edit"
@@ -685,7 +682,13 @@ export function LessonNextPanel({
                 )}
               </span>
             </div>
-            <Link className="lnext-cta" href={next ? next.href : (arenaHref ?? "/arena")}>
+            {/* 【课程页唯一的实心强调动作】所以它直接挂 .btn.btn-primary —— 高度
+                --h-ctl、圆角 --r、字号 --fs-sm 全部来自全站那一套按钮契约，
+                不再自己长一套。.lnext-cta 只剩「在这一格里怎么摆」和那个箭头。 */}
+            <Link
+              className="btn btn-primary lnext-cta"
+              href={next ? next.href : (arenaHref ?? "/arena")}
+            >
               {next ? <T zh="下一节" en="Next lesson" /> : <T zh="去考场" en="To the arena" />}
             </Link>
           </li>

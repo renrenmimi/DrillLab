@@ -8,8 +8,8 @@
 /* ---------- 课头 ---------- */
 
 .lesson-head {
-  padding-bottom: 22px;
-  margin-bottom: 30px;
+  padding-bottom: var(--sp-3);
+  margin-bottom: var(--sp-4);
   border-bottom: 1px solid var(--rule);
   max-width: var(--measure);
 }
@@ -18,14 +18,21 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 7px;
-  font-size: 12.5px;
+  gap: var(--sp-1);
+  font-size: var(--fs-meta);
   color: var(--ink-3);
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-1);
 }
 
 .crumb a {
   color: var(--ink-2);
+}
+
+/* 一节面包屑 = 分隔符 + 链接。这个盒子原来是 lesson-kit.tsx 里的一句
+   内联 style（gap: 7）—— 内联写死的数字既不在 --sp-* 里，也扫不出来。 */
+.crumb-item {
+  display: inline-flex;
+  gap: var(--sp-1);
 }
 
 .crumb-sep {
@@ -39,42 +46,39 @@
 }
 
 .lesson-n {
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.09em;
   color: var(--accent-ink);
   font-variant-numeric: tabular-nums;
 }
 
-/* 【UI v2】课名从 31px 提到 40px 并换成几何无衬线。
+/* 【UI v2】课名换成几何无衬线，字号直接取「页面标题」那一档（--fs-h1）。
    它是这一页的主角 —— 老版本它和右边目录里的条目、左边侧栏的课程树
-   字号差得不够多，一屏上有三处都像标题。 */
+   字号差得不够多，一屏上有三处都像标题。
+   窄屏不用在这里另写一条：layout.css 已经在 ≤720px 把 --fs-h1 压到 32px，
+   所以课名和别的页面标题永远是同一个尺度。 */
 .lesson-title {
   font-family: var(--font-display);
-  font-size: 40px;
+  font-size: var(--fs-h1);
   font-weight: 680;
   letter-spacing: -0.025em;
   line-height: 1.1;
   margin: var(--sp-1) 0 var(--sp-2);
 }
 
-@media (max-width: 640px) {
-  .lesson-title {
-    font-size: 32px;
-  }
-}
-
+/* 课名下面那句话和页面级的 .ui-lede 是同一种东西，所以同一档字号 */
 .lesson-blurb {
-  font-size: 17.5px;
+  font-size: var(--fs-body);
   color: var(--ink-2);
-  margin: 0 0 16px;
+  margin: 0 0 var(--sp-2);
 }
 
 .lesson-meta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--sp-1);
 }
 
 /* ---------- 学习目标 / 考点 ---------- */
@@ -95,7 +99,7 @@
 @media (max-width: 780px) {
   .objectives {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: var(--sp-2);
   }
 }
 
@@ -110,7 +114,7 @@
 }
 
 .obj-head {
-  font-size: 11.5px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -121,7 +125,7 @@
 .obj-list {
   margin: 0;
   padding-left: 1.15em;
-  font-size: 15px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
   line-height: 1.62;
 }
@@ -131,7 +135,7 @@
 }
 
 .obj-block p {
-  font-size: 15px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
   line-height: 1.62;
   margin: 0;
@@ -147,12 +151,12 @@
 .sec-head {
   display: flex;
   align-items: baseline;
-  gap: 11px;
+  gap: var(--sp-1);
   margin-bottom: 4px;
 }
 
 .sec-n {
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
@@ -162,22 +166,22 @@
 
 .sec-title {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: var(--fs-h2);
   font-weight: 660;
   letter-spacing: -0.016em;
   line-height: 1.28;
 }
 
 .sec-lede {
-  font-size: 15.5px;
+  font-size: var(--fs-body);
   color: var(--ink-2);
-  margin: 0 0 16px;
+  margin: 0 0 var(--sp-2);
   max-width: var(--measure);
 }
 
 .prose {
   max-width: var(--measure);
-  font-size: 17px;
+  font-size: var(--fs-body);
   /* 正文里有不带空格的长标识符（`InventoryDataSource.getInventoryStatus()`
      这种），窄屏下会把整页顶出去。break-word 只在「这个词自己都放不下」时
      才拆，不影响正常断词，也不改变元素的 min-content 宽度。 */
@@ -189,7 +193,7 @@
 }
 
 .prose h4 {
-  font-size: 16px;
+  font-size: var(--fs-h3);
   margin-top: 1.6em;
   color: var(--ink);
 }
@@ -198,13 +202,13 @@
 .minihead {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  font-size: 12px;
+  gap: var(--sp-1);
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--ink-3);
-  margin: 28px 0 10px;
+  margin: var(--sp-4) 0 var(--sp-1);
   padding-bottom: 5px;
   border-bottom: 1px solid var(--rule);
   max-width: var(--measure-wide);
@@ -217,11 +221,11 @@
    四种颜色的底块同屏出现时，页面读起来像四个互不相干的插件。 */
 .callout {
   margin: var(--sp-3) 0;
-  padding: var(--sp-2) var(--sp-2) var(--sp-2) 15px;
+  padding: var(--sp-2);
   border-left: 2px solid var(--rule-strong);
   background: var(--surface);
-  border-radius: 0 var(--r) var(--r) 0;
-  font-size: 15.5px;
+  border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  font-size: var(--fs-body);
   color: var(--ink-2);
   max-width: var(--measure);
 }
@@ -232,7 +236,7 @@
 
 .callout-title {
   display: block;
-  font-size: 13px;
+  font-size: var(--fs-sm);
   font-weight: 650;
   letter-spacing: 0.02em;
   color: var(--ink);
@@ -278,16 +282,16 @@
 /* ---------- 「先想再写」问题清单 ---------- */
 
 .think {
-  margin: 20px 0;
+  margin: var(--sp-3) 0;
   max-width: var(--measure);
 }
 
 .think-q {
   display: flex;
-  gap: 10px;
-  padding: 8px 0;
+  gap: var(--sp-1);
+  padding: var(--sp-1) 0;
   border-bottom: 1px dashed var(--rule);
-  font-size: 15.5px;
+  font-size: var(--fs-body);
   color: var(--ink-2);
 }
 
@@ -303,10 +307,13 @@
 
 /* ---------- 文件树 ---------- */
 
+/* 文件树的表头和代码窗的窗框（styles/code.css 的 .codewin-bar）
+   是同一种东西：一条 --h-ctl-sm 高的说明条。两处同高，
+   一节课里上下相邻的两个块才不会看着像两套零件。 */
 .filetree {
-  margin: 18px 0;
+  margin: var(--sp-2) 0;
   border: 1px solid var(--rule);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
   overflow: hidden;
   max-width: var(--measure-wide);
 }
@@ -314,13 +321,23 @@
 .filetree-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
+  gap: var(--sp-1);
+  min-height: var(--h-ctl-sm);
+  padding: 0 var(--sp-2);
   background: var(--sunken);
   border-bottom: 1px solid var(--rule);
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 600;
   color: var(--ink-2);
+}
+
+/* 表头右边那句「N 项 · M 个可以展开看原文」。
+   原来是 .dimmer 加一句内联 style，现在收成一个类。 */
+.filetree-note {
+  margin-left: auto;
+  text-align: right;
+  font-weight: 500;
+  color: var(--ink-3);
 }
 
 .filetree-body {
@@ -331,10 +348,10 @@
   display: grid;
   /* 第一列是展开箭头的槽位。不能展开的行留空但占位，两种行才左对齐。 */
   grid-template-columns: 13px minmax(0, 1fr) minmax(0, 1.25fr);
-  gap: 0 14px;
-  padding: 5px 12px;
+  gap: 0 var(--sp-2);
+  padding: 5px var(--sp-2);
   border-bottom: 1px solid var(--rule);
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   align-items: baseline;
 }
 
@@ -351,10 +368,10 @@
 /* ----- 能展开看原文的行 ----- */
 
 .ft-mark {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   line-height: 1.75;
   color: var(--ink-2);
-  transition: transform 0.12s ease;
+  transition: transform var(--t-fold) var(--ease);
   transform-origin: 45% 55%;
 }
 
@@ -386,7 +403,7 @@
 }
 
 .ft-content {
-  padding: 0 12px 10px;
+  padding: 0 var(--sp-2) var(--sp-1);
   border-bottom: 1px solid var(--rule);
   background: var(--sunken);
 }
@@ -401,22 +418,21 @@
 }
 
 .ft-warn {
-  margin: 0 0 10px;
-  font-size: 12.5px;
+  margin: 0 0 var(--sp-1);
+  font-size: var(--fs-meta);
   line-height: 1.65;
   color: var(--ink-2);
 }
 
 .ft-truncated {
-  margin: 8px 0 0;
-  font-size: 12px;
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-meta);
   color: var(--ink-2);
 }
 
 .ft-path {
-  font-family:
-    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
-  font-size: 12.5px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
   line-height: 1.5;
   color: var(--ink);
   /* 【别改回 white-space: pre + overflow-x: auto】
@@ -430,14 +446,29 @@
 
 .ft-role {
   color: var(--ink-2);
-  font-size: 13px;
+  font-size: var(--fs-sm);
+}
+
+/* 能展开的那一行是真正的点击目标，粗指针下按 ≥44px 算。
+   右栏那个折叠头同理 —— 它在 ≥1280px 才出现，所以只有粗指针会碰到。 */
+@media (max-width: 960px), (pointer: coarse) {
+  .ft-item > .ft-row-open,
+  .rail-fold-head {
+    min-height: 44px;
+  }
+
+  /* .ft-row 是栅格，align-items: baseline 只管一行**之内**怎么对齐；
+     行本身在长高之后会贴着顶边。align-content 才是把那一行放到中间的开关。 */
+  .ft-item > .ft-row-open {
+    align-content: center;
+  }
 }
 
 @media (max-width: 700px) {
   .ft-row {
     /* 窄屏下路径和说明上下排。箭头那一列留着，说明缩进到跟路径同一条竖线上。 */
     grid-template-columns: 13px minmax(0, 1fr);
-    gap: 2px 14px;
+    gap: 2px var(--sp-2);
   }
 
   .ft-role {
@@ -448,15 +479,15 @@
 /* ---------- 常见错误 ---------- */
 
 .mistake {
-  margin: 22px 0;
+  margin: var(--sp-3) 0;
   max-width: var(--measure-wide);
 }
 
 .mistake-why {
-  margin-top: 10px;
-  padding-left: 13px;
+  margin-top: var(--sp-1);
+  padding-left: var(--sp-2);
   border-left: 2px solid var(--danger-line);
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--ink-2);
 }
 
@@ -464,10 +495,10 @@
 
 .transfer-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) var(--sp-3) minmax(0, 1fr);
+  gap: var(--sp-2);
   align-items: center;
-  padding: 11px 0;
+  padding: var(--sp-1) 0;
   border-bottom: 1px solid var(--rule);
   max-width: var(--measure-wide);
 }
@@ -477,7 +508,7 @@
 }
 
 .transfer-sig {
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--ink);
 }
 
@@ -486,11 +517,11 @@
   /* --accent 是画块面用的绿，当小字用只有 4.05:1；--accent-ink 才是
      「强调色但要当文字读」的那一支 */
   color: var(--accent-ink);
-  font-size: 15px;
+  font-size: var(--fs-body);
 }
 
 .transfer-do {
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--accent-ink);
   font-weight: 550;
 }
@@ -508,48 +539,60 @@
 
 /* ---------- 要点回顾 ---------- */
 
+/* 【为什么不再整块铺 --accent-wash】强调色只给四种东西：当前位置、进度、
+   这一屏唯一的主 CTA、极小的高亮。要点回顾一整张卡铺强调底，等于在课尾
+   和那颗「下一节」抢同一种语义 —— 而那一颗才是这一页的下一步。
+   现在它就是一张普通的卡（--raised + --rule + --r-lg），
+   「这是要点」由眉题那一行的强调色说，一行就够。 */
 .recap {
-  margin: 40px 0 0;
-  padding: 18px 20px;
-  background: var(--accent-wash);
-  border: 1px solid var(--accent-line);
-  border-radius: var(--r);
+  margin: var(--sp-6) 0 0;
+  padding: var(--sp-3);
+  background: var(--raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
   max-width: var(--measure);
 }
 
 .recap-head {
-  font-size: 11.5px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--accent-ink);
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-1);
 }
 
 .recap ol {
   margin: 0;
   padding-left: 1.25em;
-  font-size: 15.5px;
+  font-size: var(--fs-body);
   color: var(--ink);
 }
 
 /* ---------- 课程页脚 ---------- */
 
+/* 【这里原来有两条同名规则】文件上半段一条 grid 版、下半段一条 flex 版。
+   同优先级下靠源码顺序决定胜负，所以 grid 那一版的 display / gap /
+   margin-top 全是死代码 —— grid-template-columns 落在一个
+   display: flex 的盒子上根本不生效，改它不会有任何反应。
+   现在合成这一条，窄屏那两个断点仍在文件下半段。 */
 .lesson-foot {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 48px;
-  padding-top: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-3);
   border-top: 1px solid var(--rule);
   max-width: var(--measure-wide);
 }
 
 .foot-link {
   display: block;
-  padding: 13px 15px;
+  padding: var(--sp-2);
   border: 1px solid var(--rule);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
   background: var(--raised);
 }
 
@@ -568,7 +611,7 @@
 }
 
 .foot-dir {
-  font-size: 11.5px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -577,7 +620,7 @@
 
 .foot-title {
   display: block;
-  font-size: 15.5px;
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--ink);
   margin-top: 2px;
@@ -586,14 +629,10 @@
 
 .foot-spacer {
   border: 1px dashed var(--rule);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
 }
 
 @media (max-width: 640px) {
-  .lesson-foot {
-    grid-template-columns: 1fr;
-  }
-
   .foot-spacer {
     display: none;
   }
@@ -604,12 +643,12 @@
 .done-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-2);
   flex-wrap: wrap;
-  margin-top: 40px;
-  padding: 14px 16px;
+  margin-top: var(--sp-4);
+  padding: var(--sp-2);
   border: 1px solid var(--rule);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
   background: var(--raised);
   max-width: var(--measure-wide);
 }
@@ -620,16 +659,13 @@
 }
 
 .done-bar-text {
-  font-size: 14.5px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
 }
 
 /* ============================================================
    首页与列表页
    ============================================================ */
-
-@media (max-width: 640px) {
-}
 
 /* ============================================================
    四个模式列表页共用的外壳（/drill /practice /code /arena）
@@ -694,9 +730,9 @@
 .exam-row {
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr) auto;
-  gap: 16px;
+  gap: var(--sp-2);
   align-items: start;
-  padding: 20px 0;
+  padding: var(--sp-3) 0;
   border-top: 1px solid var(--rule);
 }
 
@@ -705,7 +741,7 @@
 }
 
 .exam-idx {
-  font-size: 13px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
@@ -713,7 +749,7 @@
 }
 
 .exam-name {
-  font-size: 19px;
+  font-size: var(--fs-h3);
   font-weight: 600;
   color: var(--ink);
   line-height: 1.35;
@@ -724,9 +760,9 @@ a.exam-name:hover {
 }
 
 .exam-desc {
-  font-size: 15.5px;
+  font-size: var(--fs-body);
   color: var(--ink-2);
-  margin: 5px 0 9px;
+  margin: 4px 0 var(--sp-1);
   max-width: 62ch;
 }
 
@@ -738,7 +774,7 @@ a.exam-name:hover {
 
 .exam-side {
   text-align: right;
-  font-size: 13px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
   white-space: nowrap;
 }
@@ -756,7 +792,7 @@ a.exam-name:hover {
   .exam-side {
     grid-column: 2;
     text-align: left;
-    margin-top: 8px;
+    margin-top: var(--sp-1);
   }
 }
 
@@ -765,8 +801,8 @@ a.exam-name:hover {
 .stage {
   display: grid;
   grid-template-columns: 128px minmax(0, 1fr);
-  gap: 20px;
-  padding: 22px 0;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
   border-top: 1px solid var(--rule);
   max-width: var(--measure-wide);
 }
@@ -776,7 +812,7 @@ a.exam-name:hover {
 }
 
 .stage-label {
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -785,7 +821,7 @@ a.exam-name:hover {
 }
 
 .stage-exam {
-  font-size: 12px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
   text-transform: none;
   letter-spacing: 0;
@@ -794,31 +830,38 @@ a.exam-name:hover {
 }
 
 .stage-title {
-  font-size: 18px;
+  font-size: var(--fs-h3);
   font-weight: 600;
   line-height: 1.4;
 }
 
 .stage-summary {
-  font-size: 15.5px;
+  font-size: var(--fs-body);
   color: var(--ink-2);
-  margin: 5px 0 10px;
+  margin: 4px 0 var(--sp-1);
   max-width: 60ch;
 }
 
 .stage-lessons {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--sp-1);
 }
 
+/* 【药丸也是控件】它原来自己长了一套：2px 9px 的内边距、100px 的圆角、
+   12.5px 的字。现在按「紧凑控件」那一档摆 —— 高度 --h-ctl-sm、
+   圆角 --r-pill、字号 --fs-meta，和筛选条里的控件一样高。
+   药丸的圆角只有 --r-pill 一个写法，不要再出现 100px。 */
 .chip {
-  display: inline-block;
-  padding: 2px 9px;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--h-ctl-sm);
+  padding: 0 var(--sp-2);
   border: 1px solid var(--rule);
-  border-radius: 100px;
+  border-radius: var(--r-pill);
   background: var(--raised);
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
+  line-height: 1.35;
   color: var(--ink-2);
 }
 
@@ -838,7 +881,7 @@ a.chip[data-done="true"] {
 @media (max-width: 700px) {
   .stage {
     grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
+    gap: var(--sp-1);
   }
 }
 
@@ -847,11 +890,11 @@ a.chip[data-done="true"] {
 .progress-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 96px 62px;
-  gap: 14px;
+  gap: var(--sp-2);
   align-items: center;
-  padding: 10px 0;
+  padding: var(--sp-1) 0;
   border-bottom: 1px solid var(--rule);
-  font-size: 14.5px;
+  font-size: var(--fs-sm);
 }
 
 .progress-row:last-child {
@@ -860,7 +903,7 @@ a.chip[data-done="true"] {
 
 .bar {
   height: 5px;
-  border-radius: 100px;
+  border-radius: var(--r-pill);
   background: var(--sunken);
   overflow: hidden;
 }
@@ -868,13 +911,13 @@ a.chip[data-done="true"] {
 .bar > i {
   display: block;
   height: 100%;
-  border-radius: 100px;
+  border-radius: var(--r-pill);
   background: var(--accent);
-  transition: width 0.3s ease;
+  transition: width var(--t-prog) var(--ease);
 }
 
 .progress-num {
-  font-size: 13px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -883,9 +926,9 @@ a.chip[data-done="true"] {
 /* —— 空状态 —— */
 
 .empty {
-  padding: 26px 0;
+  padding: var(--sp-3) 0;
   color: var(--ink-3);
-  font-size: 15px;
+  font-size: var(--fs-body);
 }
 
 /* ---------- 答案的「中文 / English」tab ----------
@@ -910,22 +953,31 @@ a.chip[data-done="true"] {
   display: inline-flex;
   gap: 2px;
   padding: 2px;
-  margin-bottom: 14px;
+  margin-bottom: var(--sp-2);
   border: 1px solid var(--rule);
   border-radius: var(--r);
   background: var(--sunken);
 }
 
+/* 【为什么默认就写一圈透明边框】选中的那一个会加 1px 实线边框。
+   不预留这 1px，每切一次语言整条 tablist 就横跳 2px。
+   几何按紧凑控件那一档：--h-ctl-sm 高、--r-sm 圆角、--fs-meta 字号。 */
 .ans-tab {
-  padding: 3px 12px;
-  border-radius: calc(var(--r) - 2px);
-  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--h-ctl-sm);
+  padding: 0 var(--sp-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-meta);
   font-weight: 600;
-  line-height: 1.7;
+  line-height: 1.35;
   color: var(--ink-3);
   cursor: pointer;
   user-select: none;
-  transition: background 0.14s ease, color 0.14s ease;
+  transition:
+    background var(--t-hover) ease,
+    color var(--t-hover) ease;
 }
 
 .ans-tab:hover {
@@ -963,20 +1015,10 @@ a.chip[data-done="true"] {
    ------------------------------------------------------------
    【课程页已经不用它了】课尾现在是一整块「接下来」面板
    （.lnext，见 styles/nav.css）：一份有序清单，只有「下一节」是实心按钮。
-   这里剩下的这套还给八股单题页用（上一题 / 下一题），
+   这里剩下的这套还给八股单题页和 Coding 详情页用（上一题 / 下一题），
    所以 .foot-link / .foot-dir / .foot-title / .foot-spacer 都留着。
+   规则本身在上面「课程页脚」那一段，这里只补窄屏的排法。
    ============================================================ */
-
-.lesson-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-top: 56px;
-  padding-top: 26px;
-  border-top: 1px solid var(--rule);
-}
 
 @media (max-width: 560px) {
   .lesson-foot {
@@ -991,11 +1033,11 @@ a.chip[data-done="true"] {
    练习区用极浅的背景差与正文拉开，这样「读」和「做」一眼能分辨。 */
 
 .sec + .sec {
-  margin-top: 46px;
+  margin-top: var(--sp-6);
 }
 
 .sec-head {
-  margin-bottom: 14px;
+  margin-bottom: var(--sp-2);
 }
 
 .prose > p,
@@ -1005,14 +1047,14 @@ a.chip[data-done="true"] {
 
 /* 练习区：换底色，不加边框 */
 #exercises {
-  margin-top: 54px;
-  padding: 30px 26px 34px;
+  margin-top: var(--sp-6);
+  padding: var(--sp-4) var(--sp-3);
   border-radius: var(--r-lg);
   background: var(--sunken);
 }
 
 #exercises .sec-head {
-  margin-bottom: 18px;
+  margin-bottom: var(--sp-2);
 }
 
 /* 练习区里面的单个练习就不要再套一层深底了 —— 避免卡片套卡片 */
@@ -1022,9 +1064,9 @@ a.chip[data-done="true"] {
 
 @media (max-width: 640px) {
   #exercises {
-    padding: 22px 16px 26px;
-    margin-left: -16px;
-    margin-right: -16px;
+    padding: var(--sp-3) var(--sp-2);
+    margin-left: calc(var(--sp-2) * -1);
+    margin-right: calc(var(--sp-2) * -1);
     border-radius: 0;
   }
 }
@@ -1037,7 +1079,7 @@ a.chip[data-done="true"] {
    「一份交给你的开工单」，不是一段可以跳过的散文。 */
 
 .setup {
-  margin: 30px 0 8px;
+  margin: var(--sp-4) 0 var(--sp-1);
   max-width: var(--measure);
 }
 
@@ -1045,21 +1087,21 @@ a.chip[data-done="true"] {
   border: 1px solid var(--rule);
   border-left: 3px solid var(--accent);
   border-radius: var(--r-lg);
-  padding: 16px 18px;
+  padding: var(--sp-2);
   background: var(--sunken);
-  margin-bottom: 26px;
+  margin-bottom: var(--sp-3);
 }
 
 .setup-why-title {
-  font-size: 15px;
+  font-size: var(--fs-h3);
   font-weight: 650;
-  margin: 0 0 8px;
+  margin: 0 0 var(--sp-1);
   letter-spacing: -0.01em;
 }
 
 .setup-why p {
-  margin: 0 0 9px;
-  font-size: 14.5px;
+  margin: 0 0 var(--sp-1);
+  font-size: var(--fs-sm);
   line-height: 1.72;
   color: var(--ink-2);
 }
@@ -1070,14 +1112,14 @@ a.chip[data-done="true"] {
 
 .setup-where-inline {
   border-top: 1px solid var(--rule);
-  padding-top: 10px;
-  margin-top: 12px !important;
+  padding-top: var(--sp-1);
+  margin-top: var(--sp-2) !important;
 }
 
 .setup-deps {
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
-  margin: 10px 0 0;
+  margin: var(--sp-1) 0 0;
 }
 
 /* 起始态 / 做对之后 —— 两个实测端点并排。
@@ -1085,14 +1127,14 @@ a.chip[data-done="true"] {
 .setup-ends {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin: 10px 0 4px;
+  gap: var(--sp-2);
+  margin: var(--sp-1) 0 4px;
 }
 
 .setup-end {
   border: 1px solid var(--rule);
   border-radius: var(--r-lg);
-  padding: 13px 14px;
+  padding: var(--sp-2);
   background: var(--raised);
   display: flex;
   flex-direction: column;
@@ -1100,11 +1142,12 @@ a.chip[data-done="true"] {
 }
 
 .setup-end[data-kind="after"] {
-  border-color: color-mix(in oklab, var(--ok) 45%, var(--rule));
+  /* --ok-line 就是「语义色的描边」那一档，不用再用 color-mix 现算一支 */
+  border-color: var(--ok-line);
 }
 
 .setup-end-when {
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1116,18 +1159,18 @@ a.chip[data-done="true"] {
 }
 
 .setup-end-out {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
-  font-size: 12.5px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
   line-height: 1.6;
   color: var(--ink);
   background: var(--sunken);
-  border-radius: var(--r);
-  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  padding: var(--sp-1);
   overflow-wrap: break-word;
 }
 
 .setup-end-note {
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   line-height: 1.6;
   color: var(--ink-3);
 }
@@ -1141,12 +1184,18 @@ a.chip[data-done="true"] {
 /* 课程页右栏里折叠起来的那一块（「当前位置 · 真实来源」）。
    第三轮改动：第一课的首屏信息太多，把这两块收起来，默认只留「本节目录」。
    见 docs/ia-audit-round3.md。 */
+/* 这是一个能点的 <summary>，所以按控件的高度来：--h-ctl-sm。
+   定高之后文字要竖直居中，右边那个箭头也得跟着居中（见下面的 ::after），
+   不能再靠 top: 3px 贴着第一行文字。 */
 .rail-fold-head {
+  display: flex;
+  align-items: center;
+  min-height: var(--h-ctl-sm);
   cursor: pointer;
   position: relative;
-  padding-right: 16px;
+  padding-right: var(--sp-2);
   list-style: none;
-  border-radius: var(--r);
+  border-radius: var(--r-sm);
 }
 
 .rail-fold-head::-webkit-details-marker {
@@ -1166,17 +1215,35 @@ a.chip[data-done="true"] {
   content: "";
   position: absolute;
   right: 2px;
-  top: 3px;
+  top: 50%;
   width: 4px;
   height: 4px;
   border-right: 1.5px solid var(--ink-3);
   border-bottom: 1.5px solid var(--ink-3);
-  transform: rotate(-45deg);
-  transition: transform 0.14s ease;
+  transform: translateY(-50%) rotate(-45deg);
+  transition: transform var(--t-fold) var(--ease);
 }
 
 .rail-fold[open] > .rail-fold-head::after {
-  transform: rotate(45deg);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+/* 折叠开之后的两小块。原来是 lesson-body.tsx 里三处内联 style ——
+   内联写死的 11.5px / 12px / 4px 既不在那八档里，也不在 --sp-* 里。 */
+.rail-fold-where {
+  margin-top: var(--sp-1);
+  color: var(--ink-2);
+}
+
+.rail-fold-src {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.rail-fold-src > div + div {
+  margin-top: 4px;
 }
 
 /* ============================================================
@@ -1192,7 +1259,7 @@ a.chip[data-done="true"] {
 .toc-fold {
   margin: 0 0 var(--sp-3);
   border: 1px solid var(--rule);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
   background: var(--surface);
   max-width: var(--measure-wide);
 }
@@ -1251,10 +1318,10 @@ a.chip[data-done="true"] {
 .toc-fold-list a {
   display: flex;
   align-items: center;
-  min-height: 34px;
+  min-height: var(--h-ctl-sm);
   padding: 0 var(--sp-1);
   border-radius: var(--r-sm);
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
 }
 
