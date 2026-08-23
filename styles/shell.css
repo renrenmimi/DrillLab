@@ -454,9 +454,12 @@
   overflow: hidden;
 }
 
+/* 贴着面板顶边，所以自己不留圆角 —— 面板的 overflow: hidden 会裁出正确的形状。
+   写死 0 是为了挡住任何来自别处的 border-radius（曾经被全局 :focus-visible 加过一个）。 */
 .search-input {
   display: block;
   width: 100%;
+  border-radius: 0;
   padding: 15px 18px;
   font: inherit;
   font-size: var(--fs-body);
@@ -553,8 +556,15 @@
   .search-kbd {
     display: none;
   }
+  /* 窄屏没有物理键盘，「⏎ 打开 · Esc 关闭」那一行是噪音。
+     但它同时是面板的底边 —— 收起来之后结果列表会直接顶到圆角上，
+     最后一行看着像被切了。所以由列表自己补出这段底边。 */
   .search-foot {
     display: none;
+  }
+
+  .search-results {
+    padding-bottom: var(--sp-1);
   }
 }
 
@@ -641,27 +651,50 @@
 }
 
 /* 节点：左边一条竖线把它们串起来 */
+/* 【这条路线的对齐规矩：一条轴，一根线】
+   老版本量出来是这样的：当前那一段用 `margin-left: -14px` + `padding-left: 14px`
+   把自己的卡片往左顶了 14px（内容仍然对齐，但**盒子**不对齐），
+   而竖线是画在每个节点自己的 `::before` 上、`left: 8px` 相对各自的盒子算 ——
+   于是当前那一段的线落在 x=278，其余落在 x=292，**整条路线在当前这一段
+   横跳 14px**。这就是那条「一直很丑」的竖条。
+
+   现在两条都改掉：
+   ① 每个节点的盒子左边界一致（统一 padding-left，不再用负 margin 顶出去）；
+   ② 竖线不再由每个节点各画一段，而是整条路线**一根**（画在 .road-nodes 上），
+      所以它不可能在中间断开或错位。 */
+.road-nodes {
+  position: relative;
+}
+
+/* 一根线，从第一个圆点的中心画到最后一个圆点的中心。
+   圆点直径 18，节点上内边距 16 + 圆点自己的 margin-top 4 → 中心在 16+4+9=29。 */
+.road-nodes::before {
+  content: "";
+  position: absolute;
+  /* z-index 抬到当前那一段的底色之上 —— 否则线从卡片里穿过时会被盖掉一段，
+     看起来又变成「断的」。圆点再高一档，压在线上面。 */
+  z-index: 1;
+  left: calc(var(--sp-2) + 8px);
+  top: 29px;
+  bottom: 29px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--rule);
+}
+
 .road-node {
   position: relative;
   display: grid;
   grid-template-columns: 26px minmax(0, 1fr);
-  gap: 16px;
+  gap: var(--sp-2);
   margin: 0;
-  padding: 16px 0 18px;
-}
-
-/* 竖线 —— 最后一个节点不画，免得线悬空 */
-.road-node:not(:last-child)::before {
-  content: "";
-  position: absolute;
-  left: 8px;
-  top: 30px;
-  bottom: -6px;
-  width: 2px;
-  background: var(--rule);
+  /* 左右内边距对**每一段**都一样 —— 当前那一段只是换底色，不改盒子 */
+  padding: var(--sp-2) var(--sp-2) 18px;
 }
 
 .road-dot {
+  position: relative;
+  z-index: 2;
   width: 18px;
   height: 18px;
   margin-top: 4px;
@@ -691,13 +724,11 @@
   box-shadow: 0 0 0 4px var(--accent-wash);
 }
 
+/* 当前那一段：换底色 + 左边一条 2px 的强调色竖线。
+   **不许再用负 margin 把盒子顶出去** —— 那正是竖条错位的来源。 */
 .road-node[data-state="current"] {
   background: var(--accent-wash);
-  border-radius: var(--r-lg);
-  padding-left: 14px;
-  padding-right: 14px;
-  margin-left: -14px;
-  margin-right: -14px;
+  border-radius: var(--r);
 }
 
 /* 【为什么不用 opacity 压暗】
@@ -1031,6 +1062,19 @@ a.ladder-link:hover {
 
   .ladder-link {
     padding: 8px 10px;
+  }
+
+  /* 【为什么要给名字留两行】2×2 里四个名字长短不一：「Lesson exercises 148」
+     在 162px 的格子里要换行（实测 47px 高），其余三个一行（24px）。
+     结果是四格的说明文字落在两条不同的基线上 —— 看起来就是「没对齐」。
+     统一预留两行，四格的说明因此从同一条线开始。 */
+  .ladder-name {
+    display: flex;
+    align-items: flex-start;
+    /* 行高必须写死：不写就继承 body 的 1.68，两行 47px，而 min-height
+       算的是 2.7em = 38px —— 换行的那一格还是比别人高 9px。 */
+    line-height: 1.35;
+    min-height: 2.7em;
   }
 
   .ladder-gives {
