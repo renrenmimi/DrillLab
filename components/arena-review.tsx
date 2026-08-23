@@ -28,7 +28,7 @@ export function ArenaReview({ id }: { id: string }) {
 
   return (
     <main className="main" data-rail="off">
-      <div className="content">
+      <div className="content ui-page">
         <nav className="crumb" aria-label="面包屑 / Breadcrumb">
           <Link href="/arena">
             <T zh="考场" en="Arena" />
@@ -81,7 +81,7 @@ export function ArenaReview({ id }: { id: string }) {
           </p>
           <HintPanel hints={a.hints} />
 
-          <div style={{ marginTop: 22 }}>
+          <div style={{ marginTop: "var(--sp-3)" }}>
             <SolutionGate
               note={L(
                 "最后一道门。你已经在本机自己写过一遍了 —— 现在对照参考答案，重点看你漏了什么，而不是它比你好看在哪。",

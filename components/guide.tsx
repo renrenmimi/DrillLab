@@ -23,19 +23,25 @@ const sandboxCount = CODING.filter((c) => c.hasSandbox).length;
 export function Guide() {
   return (
     <main className="main" data-rail="off">
-      <div className="content">
-        <div className="eyebrow">
-          <T zh="使用说明" en="How to use this" />
+      <div className="content ui-page">
+        {/* 页头用共享的那一份（styles/layout.css）——
+            眉题 / 标题 / 一句话的间距和分隔线由它给，
+            这一页不再自己排一套，于是它和别的页面落在同一条轴、同一档字号上。 */}
+        <div className="ui-head">
+          <div className="ui-eyebrow">
+            <T zh="使用说明" en="How to use this" />
+          </div>
+          <h1 className="ui-h1">
+            <T zh="怎么用这个 App" en="How to use DrillLab" />
+          </h1>
+          <p className="ui-lede">
+            <T
+              zh="一页说清：有哪些东西、按什么顺序走、每天怎么用、考前一周怎么冲。读完这一页就不用再摸索了。"
+              en="One page: what is here, in what order to go through it, how to use it day to day, and how to sprint the week before an assessment."
+            />
+          </p>
         </div>
-        <h1 className="page-title">
-          <T zh="怎么用这个 App" en="How to use DrillLab" />
-        </h1>
-        <p className="page-lede">
-          <T
-            zh="一页说清：有哪些东西、按什么顺序走、每天怎么用、考前一周怎么冲。读完这一页就不用再摸索了。"
-            en="One page: what is here, in what order to go through it, how to use it day to day, and how to sprint the week before an assessment."
-          />
-        </p>
+
         <p className="guide-note">
           <T
             zh={

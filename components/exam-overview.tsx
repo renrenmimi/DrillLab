@@ -18,7 +18,7 @@ export function ExamOverview({ examId }: { examId: string }) {
   if (!exam) {
     return (
       <main className="main" data-rail="off">
-        <div className="content">
+        <div className="content ui-page">
           <p className="empty">
             <T en="No such course." zh="没有这门考试。" />
           </p>
@@ -40,7 +40,7 @@ export function ExamOverview({ examId }: { examId: string }) {
 
   return (
     <main className="main">
-      <div className="content">
+      <div className="content ui-page">
         <div className="page-head">
           <div className="eyebrow">
             {exam.category} · <T en="Course" zh="考试" />
@@ -51,7 +51,7 @@ export function ExamOverview({ examId }: { examId: string }) {
           <p className="page-lede">
             <T zh={exam.description} en={exam.descriptionEn} />
           </p>
-          <div className="lesson-meta" style={{ marginTop: 16 }}>
+          <div className="lesson-meta">
             {exam.stack.map((s) => (
               <span key={s} className="tag">
                 {s}
@@ -60,10 +60,10 @@ export function ExamOverview({ examId }: { examId: string }) {
           </div>
         </div>
 
-        <div className="obj-block" style={{ marginBottom: 30, maxWidth: "var(--measure)" }}>
+        <div className="obj-block" style={{ marginBottom: "var(--sp-4)", maxWidth: "var(--measure)" }}>
           <div className="obj-head">
-              <T en="What this exam actually tests" zh="这门考试到底考什么" />
-            </div>
+            <T en="What this exam actually tests" zh="这门考试到底考什么" />
+          </div>
           <p>
             <T zh={exam.tests} en={exam.testsEn} />
           </p>
@@ -72,11 +72,11 @@ export function ExamOverview({ examId }: { examId: string }) {
         {exam.sourceProjects.length > 0 && (
           <>
             <div className="minihead">
-                <T
-                  en="Where the content comes from · the real project on your machine"
-                  zh="内容来源 · 你本机上的真实项目"
-                />
-              </div>
+              <T
+                en="Where the content comes from · the real project on your machine"
+                zh="内容来源 · 你本机上的真实项目"
+              />
+            </div>
             {/* showContent：项目根路径在快照里是一棵目录树（只有文件名，
                 没有内容），所以这里展开看到的是「这个项目长什么样」，
                 不是任何一道题的答案。 */}
@@ -95,8 +95,8 @@ export function ExamOverview({ examId }: { examId: string }) {
         {exam.prerequisites.length > 0 && (
           <div className="callout" data-tone="note">
             <strong className="callout-title">
-                <T en="Prerequisite" zh="先修" />
-              </strong>
+              <T en="Prerequisite" zh="先修" />
+            </strong>
             <p>
               <T en="Work through" zh="建议先过一遍" />{" "}
               {exam.prerequisites.map((id, i) => {
@@ -119,8 +119,8 @@ export function ExamOverview({ examId }: { examId: string }) {
         {exam.checklist && exam.checklist.length > 0 && (
           <>
             <div className="minihead">
-                <T en="Coverage of the real tasks" zh="真实任务覆盖清单" />
-              </div>
+              <T en="Coverage of the real tasks" zh="真实任务覆盖清单" />
+            </div>
             <div className="table-wrap">
               <table className="table">
                 <thead>
@@ -203,46 +203,48 @@ export function ExamOverview({ examId }: { examId: string }) {
 
         {exam.mockExams.length > 0 && (
           <>
-            <div className="minihead" style={{ marginTop: 34 }}>
+            <div className="minihead">
               <T
                 en="Mock exams · different scenario, same skills"
                 zh="模拟考 · 换了场景，考点一致"
               />
             </div>
-            {exam.mockExams.map((m) => {
-              const rec = ready ? mockRecord(exam.id, m.id) : undefined;
-              return (
-                <div className="exam-row" key={m.id}>
-                  <span className="exam-idx">M</span>
-                  <div>
-                    <Link className="exam-name" href={mockPath(exam.id, m.id)}>
-                      {m.title}
-                    </Link>
-                    <p className="exam-desc">{m.scenario}</p>
-                    <div className="exam-tags">
-                      <span className="tag" data-tone="warn">
-                        <T en="Written by DrillLab" zh="DrillLab 自出" />
-                      </span>
-                      <span className="tag">
-                        <T en={`~${m.minutes} min`} zh={`建议 ${m.minutes} 分钟`} />
-                      </span>
-                      <span className="tag">
-                        <T en={`${m.taskCount} tasks`} zh={`${m.taskCount} 个任务`} />
-                      </span>
+            <div className="exam-list">
+              {exam.mockExams.map((m) => {
+                const rec = ready ? mockRecord(exam.id, m.id) : undefined;
+                return (
+                  <div className="exam-row" key={m.id}>
+                    <span className="exam-idx">M</span>
+                    <div>
+                      <Link className="exam-name" href={mockPath(exam.id, m.id)}>
+                        {m.title}
+                      </Link>
+                      <p className="exam-desc">{m.scenario}</p>
+                      <div className="exam-tags">
+                        <span className="tag" data-tone="warn">
+                          <T en="Written by DrillLab" zh="DrillLab 自出" />
+                        </span>
+                        <span className="tag">
+                          <T en={`~${m.minutes} min`} zh={`建议 ${m.minutes} 分钟`} />
+                        </span>
+                        <span className="tag">
+                          <T en={`${m.taskCount} tasks`} zh={`${m.taskCount} 个任务`} />
+                        </span>
+                      </div>
+                    </div>
+                    <div className="exam-side">
+                      {rec ? (
+                        <span className="tag" data-tone="ok">
+                          <T en="Attempted" zh="做过" />
+                        </span>
+                      ) : (
+                        <T en="Not started" zh="未开始" />
+                      )}
                     </div>
                   </div>
-                  <div className="exam-side">
-                    {rec ? (
-                      <span className="tag" data-tone="ok">
-                        <T en="Attempted" zh="做过" />
-                      </span>
-                    ) : (
-                      <T en="Not started" zh="未开始" />
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </>
         )}
       </div>
@@ -314,7 +316,7 @@ export function ExamOverview({ examId }: { examId: string }) {
           <div className="rail-head">
             <T en="What is in this course" zh="这门考试有什么" />
           </div>
-          <div style={{ color: "var(--ink-2)", lineHeight: 1.8 }}>
+          <div className="dim">
             <T
               en={`${exam.modules.length} modules · ${exam.lessonCount} lessons`}
               zh={`${exam.modules.length} 个模块 · ${exam.lessonCount} 节课`}

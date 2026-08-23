@@ -40,15 +40,15 @@ export function Reference() {
 
   return (
     <main className="main">
-      <div className="content">
-        <div className="page-head">
-          <div className="eyebrow">
+      <div className="content ui-page">
+        <div className="ui-head">
+          <div className="ui-eyebrow">
             <T en="Reference" zh="速查" />
           </div>
-          <h1 className="page-title">
+          <h1 className="ui-h1">
             <T en="The pages you actually flip to" zh="考场上会翻的那几页" />
           </h1>
-          <p className="page-lede">
+          <p className="ui-lede">
             <T
               en="Only what the two real projects actually use. Every command runs in one of them; every error message really came up during the audit."
               zh="只收两个真实项目里实际用到的东西。命令都是这两个项目能跑的，报错都是审计时真实出现过的。"
@@ -1806,7 +1806,7 @@ MDC.get("correlationId")`,
           <div className="rail-head">
             <T en="About this page" zh="说明" />
           </div>
-          <p className="dimmer" style={{ fontSize: 12.5, lineHeight: 1.6 }}>
+          <p className="dimmer">
             <T
               en="Only what the two real projects actually use. Every error here really came up during the audit or in a lesson — none of it is copied from a manual. Commands, field names and the raw error text are left exactly as they appear in a terminal."
               zh="这一页只收两个真实项目里实际用到的东西。报错都是审计或课程里真实出现过的，不是从手册里抄的。"

@@ -124,9 +124,12 @@ export function ArenaClock({ id, minutes }: { id: string; minutes: number }) {
       </span>
 
       <span className="arena-clock-actions">
+        {/* 【为什么这颗按钮的实心会让出去】
+            一屏只能有一个实心动作。确认框一打开，真正要按的就是框里那颗
+            「确定，交卷」—— 这颗降成描边，读起来也正好是「已经按过了」。 */}
         <button
           type="button"
-          className="btn btn-sm btn-primary"
+          className={ask === "submit" ? "btn btn-sm" : "btn btn-sm btn-primary"}
           onClick={() => setAsk(ask === "submit" ? "none" : "submit")}
         >
           <T zh="交卷" en="Hand in" />

@@ -38,7 +38,7 @@ export function ArenaBrief({ id }: { id: string }) {
         sub={`考场 · 限时 ${a.minutes} 分钟`}
         subEn={`Arena · ${a.minutes} min limit`}
       />
-      <div className="content">
+      <div className="content ui-page">
         <nav className="crumb" aria-label="面包屑 / Breadcrumb">
           <Link href="/arena">
             <T zh="考场" en="Arena" />
@@ -65,7 +65,7 @@ export function ArenaBrief({ id }: { id: string }) {
           <p className="page-lede">
             <T zh={a.scenario} en={a.scenarioEn} />
           </p>
-          <div className="lesson-meta" style={{ marginTop: 14 }}>
+          <div className="lesson-meta">
             <span className="tag" data-tone="danger">
               <T zh={`限时 ${a.minutes} 分钟`} en={`${a.minutes} min limit`} />
             </span>

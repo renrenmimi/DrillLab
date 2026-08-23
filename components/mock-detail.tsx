@@ -40,7 +40,7 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
         sub="模拟考 · 自评"
         subEn="Mock exam · self-scoring"
       />
-      <div className="content">
+      <div className="content ui-page">
         <nav className="crumb">
           <Link href="/mock">
             <T en="Mock exams" zh="模拟考" />
@@ -58,7 +58,7 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
           <p className="page-lede">
             <T zh={mock.scenario} en={mock.scenarioEn} />
           </p>
-          <div className="lesson-meta" style={{ marginTop: 14 }}>
+          <div className="lesson-meta">
             <span className="tag" data-tone="warn">
               <T en="Written by DrillLab" zh="DrillLab 自出" />
             </span>
@@ -82,7 +82,9 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
             <div className="ws-brief-head">
               <T en="What this paper tests" zh="这套题在考什么" />
             </div>
-            <p style={{ fontSize: 15.5, color: "var(--ink-2)", margin: 0 }}><T zh={mock.mirrors} en={mock.mirrorsEn} /></p>
+            <p className="mk-mirrors">
+              <T zh={mock.mirrors} en={mock.mirrorsEn} />
+            </p>
           </div>
 
           <div className="minihead">
@@ -97,7 +99,7 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
                   <span className="ws-task-title">
                     <T zh={task.title} en={task.titleEn} />
                   </span>
-                  <span className="tag" style={{ marginLeft: "auto" }}>
+                  <span className="tag mk-task-pts">
                     <T en={`${pts} pts`} zh={`${pts} 分`} />
                   </span>
                 </div>
@@ -154,7 +156,7 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
           <MockScore examId={exam.id} mockId={mock.id} outOf={outOf} />
 
           {/* 讲解与答案：必须显式打开 */}
-          <div style={{ marginTop: 34 }}>
+          <div style={{ marginTop: "var(--sp-4)" }}>
             <SolutionGate
               note={L(
                 "讲解里会直接说出每一处陷阱在哪。请确认你已经在本机把这套题做完、跑过测试、按 rubric 自评过，再打开。",
@@ -184,7 +186,7 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
                 </Section>
               ))}
 
-              <div style={{ marginTop: 24 }}>
+              <div style={{ marginTop: "var(--sp-3)" }}>
                 <SolutionGate
                   note={L(
                     "最后一道门：参考答案。看之前请确认你自己的实现已经跑过测试 —— 哪怕没全过，自己的版本也比直接读答案有价值。",
@@ -213,9 +215,7 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
           <ul className="rail-toc">
             {mock.tasks.map((t, i) => (
               <li key={t.id}>
-                <span
-                  style={{ display: "block", padding: "3px 0 3px 11px", color: "var(--ink-2)" }}
-                >
+                <span className="mk-rail-task">
                   {i + 1}. <T zh={t.title} en={t.titleEn} />
                 </span>
               </li>
@@ -230,7 +230,7 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
           <Link href={examPath(exam.id)}>
             <T zh={exam.title} en={exam.titleEn} />
           </Link>
-          <p className="dimmer" style={{ fontSize: 12.5, marginTop: 8, lineHeight: 1.6 }}>
+          <p className="dimmer" style={{ marginTop: "var(--sp-1)" }}>
             <T
               en="Stuck? Go back to the matching lesson — every point this paper tests is covered in that course."
               zh="卡住了就回去看对应那一节 —— 这套题的每个考点都在那门课里讲过。"

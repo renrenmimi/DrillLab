@@ -1,10 +1,21 @@
 /* ============================================================
-   考场 —— 阶段 C
+   考场与模拟考（Assess 模式）
    ------------------------------------------------------------
-   只有这一份是考场自己的样式。列表长条、标签、提示框、答案门、
-   文件树、终端全部复用现成的类（.exam-row / .tag / .callout /
-   .minihead / .btn / .filetree / .term）。
-   颜色一律走 tokens.css 的变量，深色模式跟着一起翻。
+   列表长条、标签、提示框、答案门、文件树、终端全部复用现成的类
+   （.exam-row / .tag / .callout / .minihead / .btn / .filetree / .term）。
+   这一份只写「计时」和「自评」这两件事自己的形状。
+
+   【UI v2：这一份不再自己长一套】
+   字号只从八档里取（--fs-hero…--fs-xs），间距只用 --sp-1…--sp-8，
+   圆角只用 --r-sm / --r / --r-lg / --r-pill，控件高度只有
+   --h-ctl / --h-ctl-sm 两档 —— 见 styles/tokens.css 和 CLAUDE.md
+   的「零件契约」。这里一个写死的 px 字号都不该出现；
+   小于 8px 的视觉微调（3–6px 的行内间隙）是唯一的例外。
+
+   这里没有任何按钮规则：考场上每一颗按钮都是 base.css 的
+   .btn / .btn-primary / .btn-ghost / .btn-sm。
+   **一屏只有一个实心按钮** —— 说明屏是「开始计时」，进行中那一页是
+   「交卷」，交卷后那一页是「记下这次」。别的一律描边或无边框。
    ============================================================ */
 
 /* ---------- 列表页 ---------- */
@@ -13,7 +24,8 @@
   margin: 0;
 }
 
-/* 「有一场还在计时中」的横条 —— 未收尾的考试必须一眼看到 */
+/* 「有一场还在计时中」的横条 —— 未收尾的考试必须一眼看到。
+   它是一块面板，所以圆角走 --r-lg；左边那条 3px 的红杠是状态，不是装饰。 */
 .arena-live {
   display: flex;
   align-items: center;
@@ -23,20 +35,22 @@
   padding: var(--sp-2);
   border: 1px solid var(--danger-line);
   border-left: 3px solid var(--danger);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
   background: var(--danger-wash);
   max-width: var(--measure-wide);
 }
 
+/* 面板里的两档：标题一档，说明一档。差别靠字号 + 字重 + 颜色三样一起给，
+   不靠透明度 —— 压暗会绕过所有按颜色变量算的对比度检查。 */
 .arena-live strong {
   display: block;
-  font-size: 14.5px;
+  font-size: var(--fs-body);
   color: var(--ink);
 }
 
 .arena-live p {
-  margin: 3px 0 0;
-  font-size: 13.5px;
+  margin: 4px 0 0;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
   max-width: 60ch;
 }
@@ -54,10 +68,13 @@
   font-weight: 600;
 }
 
-/* 没试过的题：左边一条强调色的杠 + 略抬起来的底 */
+/* 没试过的题：左边一条强调色的杠 + 略抬起来的底。
+   【为什么是负外边距】.exam-row 自己没有左内边距，所以整行要往左让出
+   杠的宽度，再用同样的内边距把文字推回原来那条轴上 ——
+   负外边距和内边距必须配对：-16 + (16-3) + 3 = 0。 */
 .arena-list .exam-row[data-fresh="true"] {
-  margin-left: -14px;
-  padding-left: 11px;
+  margin-left: calc(var(--sp-2) * -1);
+  padding-left: calc(var(--sp-2) - 3px);
   border-left: 3px solid var(--accent);
   background: linear-gradient(to right, var(--accent-wash), transparent 62%);
 }
@@ -92,25 +109,26 @@
     justify-content: flex-start;
   }
 
+  /* 窄屏不做左侧出血：整行本来就贴着容器边 */
   .arena-list .exam-row[data-fresh="true"] {
     margin-left: 0;
-    padding-left: 10px;
+    padding-left: var(--sp-1);
   }
 }
 
 /* ---------- 规则 ---------- */
 
 .arena-rules {
-  margin: 0 0 26px;
-  padding: 0 0 0 22px;
+  margin: 0 0 var(--sp-3);
+  padding: 0 0 0 var(--sp-3);
   max-width: var(--measure);
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--ink-2);
   line-height: 1.72;
 }
 
 .arena-rules li {
-  margin: 7px 0;
+  margin: var(--sp-1) 0;
 }
 
 .arena-rules li::marker {
@@ -121,33 +139,34 @@
 /* ---------- 说明屏的开考块 ---------- */
 
 .arena-startbox {
-  margin-top: 34px;
+  margin-top: var(--sp-4);
   max-width: var(--measure-wide);
 }
 
 .arena-none {
-  margin: 0 0 14px;
-  font-size: 14.5px;
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-sm);
   color: var(--ink-2);
 }
 
 .arena-note {
-  margin: 12px 0 0;
-  font-size: 13.5px;
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
   line-height: 1.65;
   max-width: 66ch;
 }
 
+/* 开考条。这一块里那颗实心按钮是整个说明屏唯一的主动作。 */
 .arena-startbar {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--sp-2);
   flex-wrap: wrap;
-  margin-top: 20px;
-  padding: 18px;
+  margin-top: var(--sp-3);
+  padding: var(--sp-2);
   border: 1px solid var(--rule-strong);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
   background: var(--raised);
 }
 
@@ -168,32 +187,34 @@
 .arena-startbar-text {
   flex: 1 1 260px;
   min-width: 0;
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
   line-height: 1.6;
 }
 
 .arena-startbar-text strong {
   display: block;
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--ink);
   margin-bottom: 2px;
 }
 
 /* ---------- 二次确认 ---------- */
 
+/* 它是嵌在面板里的一小块，所以圆角比外面那层小一档（--r），
+   看得出「这是里面的东西」。 */
 .arena-confirm {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-1);
   flex-wrap: wrap;
   width: 100%;
-  margin-top: 14px;
-  padding: 13px 15px;
+  margin-top: var(--sp-2);
+  padding: var(--sp-2);
   border: 1px solid var(--warn-line);
   border-radius: var(--r);
   background: var(--warn-wash);
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
   line-height: 1.6;
 }
@@ -215,13 +236,13 @@
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--sp-2);
   flex-wrap: wrap;
-  margin: -8px 0 26px;
-  padding: 12px 16px;
+  margin: calc(var(--sp-1) * -1) 0 var(--sp-3);
+  padding: var(--sp-2);
   border: 1px solid var(--rule-strong);
-  border-radius: var(--r);
-  background: var(--surface);
+  border-radius: var(--r-lg);
+  background: var(--raised);
   box-shadow: var(--lift);
 }
 
@@ -235,8 +256,11 @@
   background: var(--danger-wash);
 }
 
+/* 计时器是这一页唯一允许「大」的东西，但它也得落在八档里：
+   --fs-h2 是分区标题那一档，窄屏跟着 token 自己降到 22px，
+   所以下面的 media query 不用再写一个字号。 */
 .arena-clock {
-  font-size: 30px;
+  font-size: var(--fs-h2);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--ink);
@@ -252,7 +276,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
   line-height: 1.5;
 }
@@ -268,17 +292,13 @@
 .arena-clock-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-1);
   margin-left: auto;
 }
 
 @media (max-width: 640px) {
   .arena-clockbar {
-    gap: 10px;
-  }
-
-  .arena-clock {
-    font-size: 26px;
+    gap: var(--sp-1);
   }
 
   .arena-clock-actions {
@@ -294,38 +314,40 @@
 /* ---------- 需求分组 ---------- */
 
 .arena-reqs + .arena-reqs {
-  margin-top: 18px;
+  margin-top: var(--sp-3);
 }
 
 .arena-req-group {
-  font-size: 13px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.02em;
   color: var(--accent-ink);
-  padding-bottom: 5px;
+  padding-bottom: 6px;
   border-bottom: 1px solid var(--rule);
-  margin-bottom: 9px;
+  margin-bottom: var(--sp-1);
 }
 
 /* ---------- 自评页 ---------- */
 
 .arena-box {
-  margin-top: 30px;
+  margin-top: var(--sp-4);
   max-width: var(--measure-wide);
 }
 
 .arena-verdict {
   display: flex;
   align-items: baseline;
-  gap: 14px;
+  gap: var(--sp-2);
   flex-wrap: wrap;
-  padding: 16px 0 18px;
+  padding: var(--sp-2) 0;
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
 }
 
+/* 用时是这一页的结论，所以它是页面标题那一档（--fs-h1）。
+   窄屏由 token 自己降到 32px，不用再写一条。 */
 .arena-verdict-time {
-  font-size: 38px;
+  font-size: var(--fs-h1);
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -342,26 +364,29 @@
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
-  font-size: 13px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
 }
 
+/* 勾选清单是一块面板：底是 --raised，行本身透明 ——
+   行自己再画一层底会让「勾上了」和「悬停」两种状态叠出第三种颜色。 */
 .arena-checks {
   display: flex;
   flex-direction: column;
+  background: var(--raised);
   border: 1px solid var(--rule);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
   overflow: hidden;
 }
 
 .arena-check {
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr);
-  gap: 4px 10px;
+  gap: 4px var(--sp-1);
   align-items: start;
-  padding: 12px 14px;
+  padding: var(--sp-1) var(--sp-2);
   cursor: pointer;
-  background: var(--surface);
+  background: transparent;
 }
 
 .arena-check + .arena-check {
@@ -369,7 +394,7 @@
 }
 
 .arena-check:hover {
-  background: var(--raised);
+  background: var(--hover);
 }
 
 .arena-check[data-on="true"] {
@@ -388,14 +413,14 @@
 }
 
 .arena-check-cmd {
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   color: var(--ink);
   word-break: break-all;
 }
 
 .arena-check-exp {
   grid-column: 2;
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
   line-height: 1.55;
 }
@@ -403,9 +428,9 @@
 .arena-submit {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-2);
   flex-wrap: wrap;
-  margin-top: 20px;
+  margin-top: var(--sp-3);
 }
 
 .arena-submit-text {
@@ -415,7 +440,7 @@
   align-items: center;
   gap: 5px;
   flex-wrap: wrap;
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
 }
 
@@ -431,11 +456,11 @@
 .arena-hist-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-1);
   flex-wrap: wrap;
-  padding: 10px 2px;
+  padding: var(--sp-1) 2px;
   border-bottom: 1px solid var(--rule);
-  font-size: 13px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
 }
 
@@ -451,7 +476,7 @@
 
 .arena-hist-time {
   min-width: 62px;
-  font-size: 15px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
@@ -476,8 +501,57 @@
   .arena-hist-when {
     margin-left: 0;
   }
+}
 
-  .arena-verdict-time {
-    font-size: 32px;
-  }
+/* ============================================================
+   模拟考（/mock）
+   ------------------------------------------------------------
+   【为什么这几条写在这个文件里】模拟考没有自己的样式表，而
+   app/globals.css 的 @import 顺序是全站共享的（改它会影响别人正在
+   改的文件）。模拟考和考场同属「检验」这一类事，共用这一份最省事。
+   页面主体复用 .workspace / .ws-* / .rubric（styles/exercise.css），
+   这里只补三处原本写在组件 style={{}} 里的东西 —— 内联样式压过
+   一切，扫描脚本也看不见它们，所以必须搬进来。
+   ============================================================ */
+
+/* 「这套题在考什么」那一句。它在 .ws-brief 那块高亮框里，是要读的正文。 */
+.mk-mirrors {
+  margin: 0;
+  font-size: var(--fs-body);
+  color: var(--ink-2);
+}
+
+/* 任务头右端的分值标签 —— 靠右对齐，不占一行 */
+.mk-task-pts {
+  margin-left: auto;
+}
+
+/* 自评分输入框。旁边就是一颗 .btn-sm，所以高度取同一档（--h-ctl-sm），
+   圆角取小那一档，字号取 --fs-sm。写死数字会让它比按钮矮一截。
+   【这里不能写 font: inherit】它和 .mono 同优先级、而这个文件在后面 ——
+   会把等宽字族一起重置掉，分数就不是等宽数字了。只改字号。 */
+.mk-score {
+  width: 5em;
+  min-height: var(--h-ctl-sm);
+  margin-left: auto;
+  padding: 0 var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--ink);
+  background: var(--sunken);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+}
+
+.mk-score:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* 右栏里的任务清单。它不是链接（这一页没有锚点），所以不能用 .rail-toc a ——
+   那条规则带悬停和当前态。内边距照抄 .rail-toc a（styles/shell.css）：
+   11px 是「1px 的左边线 + --rail-inset 减去它」，两份清单因此左边界对齐。 */
+.mk-rail-task {
+  display: block;
+  padding: 3px 0 3px 11px;
+  color: var(--ink-2);
 }

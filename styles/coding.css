@@ -10,6 +10,16 @@
    现在列表页的骨架来自 styles/layout.css 的共享原语
    （.ui-cards + .ui-card[data-rows]），这个文件只剩「卡里怎么排」
    和详情页自己的那几块。
+
+   【UI v2：值全部来自 tokens】
+   字号只从八档里取，间距只用 --sp-1…--sp-8，圆角只用
+   --r-sm / --r / --r-lg / --r-pill，控件高度只有 --h-ctl / --h-ctl-sm。
+   小于 8px 的视觉微调是唯一的例外。
+
+   【这一页只有一颗实心按钮：「打开工作区」】
+   它是这一页真正的下一步。工作区打开之后那颗实心按钮换成「跑测试」
+   （门已经消失，同屏仍然只有一颗）。「标记为完成」是记账不是下一步，
+   所以在这一页降成描边 —— 见文件末尾 .cd-done 那条。
    ============================================================ */
 
 /* 卡片栅格本身是共享的 .ui-cards + .ui-card[data-rows]（styles/layout.css）。
@@ -46,8 +56,11 @@
   text-decoration: none;
 }
 
+/* 卡片标题那一档。和 /drill 列表里的 .drill-q 同一档（--fs-h3）——
+   两个页面是同一种东西（一屏几十张卡，每张卡一个题名），
+   字号不一样就会让人觉得「每个列表页都自己长一套」。 */
 .cd-name {
-  font-size: 16.5px;
+  font-size: var(--fs-h3);
   font-weight: 600;
   color: var(--ink);
   line-height: 1.35;
@@ -80,10 +93,10 @@
    保持占位但不显示文字，避免读回来时整张卡跳一下。 */
 .cd-badge {
   min-width: 4.6em;
-  padding: 2px 9px;
+  padding: 2px var(--sp-1);
   border: 1px solid var(--rule);
-  border-radius: 100px;
-  font-size: 11.5px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
   font-weight: 600;
   text-align: center;
   white-space: nowrap;
@@ -103,7 +116,7 @@
 /* ---------- 详情页 ---------- */
 
 .cd-brief {
-  font-size: 17px;
+  font-size: var(--fs-body);
   line-height: 1.72;
   color: var(--ink);
   max-width: var(--measure);
@@ -113,21 +126,35 @@
   margin-top: 1.05em;
 }
 
+/* 题面下面那句「预计多少分钟」和讲解折叠里那句「完整那一节在哪」。
+   它们是补充说明，压一档字号和一档颜色 —— 不用 opacity。 */
+.cd-note {
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--ink-3);
+  max-width: var(--measure);
+}
+
 /* 「展开那一节课的原文」—— 详情页里引用课文的折叠块。
    默认收起，因为这一页的顺序是「先自己卡一会儿，再看讲解」。 */
 .cd-fold {
-  margin: 14px 0 0;
+  margin: var(--sp-2) 0 0;
   border: 1px solid var(--rule);
-  border-radius: var(--r);
-  background: var(--surface);
+  border-radius: var(--r-lg);
+  background: var(--raised);
   max-width: var(--measure-wide);
 }
 
+/* summary 是一整行可点的东西，所以它按控件的高度算（--h-ctl），
+   不靠内边距凑 —— 凑出来的高度在窄屏和粗指针下会不够 44px。 */
 .cd-fold > summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--h-ctl);
+  padding: var(--sp-1) var(--sp-2);
   cursor: pointer;
   list-style: none;
-  padding: 10px 14px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--ink-2);
 }
@@ -139,10 +166,10 @@
 .cd-fold > summary::before {
   content: "▸";
   display: inline-block;
-  margin-right: 8px;
-  font-size: 10px;
+  margin-right: var(--sp-1);
+  font-size: var(--fs-xs);
   color: var(--ink-3);
-  transition: transform 0.12s ease;
+  transition: transform var(--t-fold) var(--ease);
 }
 
 .cd-fold[open] > summary::before {
@@ -152,32 +179,45 @@
 .cd-fold > summary:hover {
   color: var(--ink);
   background: var(--sunken);
-  border-radius: var(--r) var(--r) 0 0;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
 }
 
 .cd-fold > summary:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
 }
 
 .cd-fold-body {
-  padding: 4px 14px 14px;
+  padding: var(--sp-1) var(--sp-2) var(--sp-2);
   border-top: 1px solid var(--rule);
 }
 
 /* 「空白重来」档下代替讲解和答案的那句话。
    它是一条说明，不是正文 —— 压下去，别让人以为讲解没加载出来。 */
 .cd-hidden {
-  margin: 20px 0;
-  padding: 13px 16px;
+  margin: var(--sp-3) 0;
+  padding: var(--sp-2);
   border: 1px dashed var(--rule-strong);
   border-radius: var(--r);
   background: var(--sunken);
-  font-size: 14.5px;
+  font-size: var(--fs-sm);
   line-height: 1.65;
   color: var(--ink-2);
   max-width: var(--measure);
+}
+
+/* 右栏里的本机验收命令。等宽 + 最小那一档字号 ——
+   --fs-xs 的用途就是「等宽和大写」，命令正好是等宽。 */
+.cd-rail-cmds {
+  font-size: var(--fs-xs);
+  line-height: 1.7;
+  color: var(--ink-3);
+}
+
+.cd-rail-cmd {
+  margin-bottom: 4px;
+  word-break: break-all;
 }
 
 /* ============================================================
@@ -193,27 +233,27 @@
    沙箱要联网、要拉远程打包器，所以不自动加载：先说清楚它是什么、
    要什么条件，用户点了才 import()。这也是首屏 JS 不含 Sandpack 的原因。 */
 .sbx-gate {
-  margin: 18px 0;
-  padding: 16px 18px;
+  margin: var(--sp-3) 0;
+  padding: var(--sp-2);
   border: 1px solid var(--rule);
   border-radius: var(--r-lg);
-  background: var(--surface);
+  background: var(--raised);
   max-width: var(--measure-wide);
-  font-size: 15px;
+  font-size: var(--fs-body);
   line-height: 1.7;
   color: var(--ink-2);
 }
 
 .sbx-gate > p {
-  margin: 0 0 10px;
+  margin: 0 0 var(--sp-1);
 }
 
 .sbx-gate-warn {
-  padding: 10px 13px;
+  padding: var(--sp-1) var(--sp-2);
   border-left: 3px solid var(--warn-line);
   border-radius: 0 var(--r) var(--r) 0;
   background: var(--warn-wash);
-  font-size: 14px;
+  font-size: var(--fs-sm);
 }
 
 .sbx-gate-warn strong {
@@ -224,24 +264,29 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  margin-top: 14px;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+/* 按钮旁边那句「N 个起始文件 · 目标 7 passed」是元信息，不是正文 */
+.sbx-gate-actions > span {
+  font-size: var(--fs-meta);
 }
 
 .sbx-loading {
-  margin: 18px 0;
-  padding: 40px 18px;
+  margin: var(--sp-3) 0;
+  padding: var(--sp-6) var(--sp-2);
   border: 1px dashed var(--rule-strong);
   border-radius: var(--r-lg);
   text-align: center;
   color: var(--ink-3);
-  font-size: 14px;
+  font-size: var(--fs-sm);
   max-width: var(--measure-wide);
 }
 
 /* —— 打开之后 —— */
 .sbx-wrap {
-  margin: 18px 0;
+  margin: var(--sp-3) 0;
   max-width: var(--measure-wide);
 }
 
@@ -250,21 +295,54 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 7px;
-  margin-bottom: 10px;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-1);
+}
+
+/* 两档之间的切换是一个分段选择器，不是两颗按钮 ——
+   所以它是药丸形的 chip，高度取紧凑那一档（--h-ctl-sm），
+   选中那一档用强调色的淡底（「当前位置」是强调色的四种正当用法之一）。 */
+.sbx-mode {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--h-ctl-sm);
+  padding: 0 var(--sp-2);
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition:
+    background var(--t-hover) ease,
+    border-color var(--t-hover) ease,
+    color var(--t-hover) ease;
+}
+
+.sbx-mode:hover {
+  border-color: var(--accent-line);
+  color: var(--ink);
+}
+
+.sbx-mode[data-on="true"] {
+  background: var(--accent-wash);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
 }
 
 .sbx-modes-note {
   flex: 1 1 260px;
   min-width: 0;
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   line-height: 1.55;
   color: var(--ink-3);
 }
 
 .sbx {
   border: 1px solid var(--rule-strong);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
   overflow: hidden;
 }
 
@@ -277,13 +355,13 @@
   border-radius: 0;
 }
 
-/* 「跑测试」那一条 */
+/* 「跑测试」那一条。工作区打开之后，那颗按钮就是这一页唯一的实心动作。 */
 .sbx-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px 12px;
-  padding: 9px 12px;
+  gap: var(--sp-1) var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
   border-top: 1px solid var(--rule);
   background: var(--sunken);
 }
@@ -291,14 +369,14 @@
 .sbx-bar-note {
   flex: 1 1 240px;
   min-width: 0;
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   line-height: 1.55;
   color: var(--ink-2);
 }
 
 /* —— 跑不了沙箱的那两道：只给本机命令，不给假编辑器 —— */
 .sbx-local {
-  margin: 18px 0;
+  margin: var(--sp-3) 0;
   max-width: var(--measure-wide);
 }
 
@@ -307,9 +385,43 @@
 }
 
 .sbx-local-why {
-  margin: 0 0 12px;
-  font-size: 15px;
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-body);
   line-height: 1.7;
   color: var(--ink-2);
   max-width: var(--measure);
+}
+
+/* 本机验收那一段末尾的说明。和 .cd-note 同一档，
+   但它在 .sbx-local 里，下边距要收掉。 */
+.sbx-local-note {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+}
+
+/* ---------- 「标记为完成」在这一页降成描边 ----------
+   这一页唯一的实心动作是「打开工作区」（打开之后是「跑测试」）。
+   打勾是记账：它记录你已经做完了，不是下一步该做的事。
+
+   【为什么用一条覆盖规则而不是改那颗按钮的 className】
+   那颗按钮在 components/coding-progress.tsx 里，同一个组件族
+   （课尾打勾、练习打勾）在别的页面上仍然是那一页的主动作。
+   在这里按位置降级，改动只落在这一页。 */
+.cd-done .btn-primary {
+  background: transparent;
+  border-color: var(--rule-strong);
+  font-weight: 600;
+}
+
+/* 颜色分开写：禁用态（进度还没从 localStorage 读回来的那一帧）要让
+   base.css 的 .btn:disabled 说了算，不然那一帧的字会太亮。 */
+.cd-done .btn-primary:not(:disabled) {
+  color: var(--ink);
+}
+
+.cd-done .btn-primary:hover:not(:disabled) {
+  background: var(--hover);
+  border-color: var(--accent-line);
+  color: var(--ink);
 }

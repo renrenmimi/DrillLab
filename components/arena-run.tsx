@@ -76,7 +76,7 @@ export function ArenaRun({ id }: { id: string }) {
         sub="考场 · 正在计时"
         subEn="Arena · on the clock"
       />
-      <div className="content">
+      <div className="content ui-page">
         <ArenaClock id={a.id} minutes={a.minutes} />
 
         {/* compact：计时已经在跑，只说「你在计划的哪一步」，不给别处的按钮 ——
@@ -91,7 +91,7 @@ export function ArenaRun({ id }: { id: string }) {
             <T zh={a.title} en={a.titleEn} />
           </h1>
           <p className="page-lede">{a.scenario}</p>
-          <div className="lesson-meta" style={{ marginTop: 12 }}>
+          <div className="lesson-meta">
             <span className="tag" data-tone="danger">
               <T zh={`限时 ${a.minutes} 分钟`} en={`${a.minutes} min limit`} />
             </span>

@@ -118,7 +118,7 @@ export function SandboxPanel({
       <div className="sbx-modes" role="group" aria-label="沙箱档位 / Sandbox mode">
         <button
           type="button"
-          className="filter-btn"
+          className="sbx-mode"
           data-on={!blank}
           onClick={() => onBlank(false)}
         >
@@ -126,7 +126,7 @@ export function SandboxPanel({
         </button>
         <button
           type="button"
-          className="filter-btn"
+          className="sbx-mode"
           data-on={blank}
           onClick={() => onBlank(true)}
         >
@@ -185,7 +185,7 @@ export function LocalRunCard({
         <Loc v={why} />
       </p>
       <TerminalCommand steps={commands.map((c) => ({ cmd: c.cmd, out: c.expect }))} />
-      <p className="dimmer" style={{ fontSize: 13, marginBottom: 0 }}>
+      <p className="sbx-local-note">
         <T
           zh="跑完自己对一遍期望输出，然后在下面打勾。这里不给假编辑器 —— 装个能跑的样子只会让你以为练过了。"
           en="Compare the output yourself, then tick it off below. No fake editor here."
