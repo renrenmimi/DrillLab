@@ -33,7 +33,8 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  padding: 0 var(--sp-3);
+  /* 左内边距用 --gutter：顶栏那行「我在哪」因此和页面 h1 落在同一条竖线上 */
+  padding: 0 var(--gutter);
   background: color-mix(in srgb, var(--paper) 88%, transparent);
   border-bottom: 1px solid var(--rule);
 }
@@ -167,11 +168,13 @@
 
 /* 分隔线以下：当前这一类事情自己的结构。
    导航位（上面那一段）在所有页面完全一致，这一段才随页面变。 */
+/* 分隔线以下：当前这一类事情自己的结构。
+   块边界和上半段一样是 --rail-pad，里面每一行文字再缩 --rail-inset ——
+   整个侧栏因此只有一条文字轴。 */
 .sidebar-ctx {
   margin-top: var(--sp-2);
-  padding-top: var(--sp-2);
+  padding: var(--sp-2) var(--rail-pad) var(--sp-6);
   border-top: 1px solid var(--rule);
-  padding-bottom: var(--sp-6);
 }
 
 
@@ -184,9 +187,10 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--rail-w);
   gap: var(--sp-6);
-  /* 页面内边距由 .main 统一给，所以 .page（styles/layout.css）只管宽度和
-     垂直节奏 —— 两处都给会变成双倍留白，而且改一处不会跟着另一处。 */
-  padding: var(--sp-4) var(--sp-4) var(--sp-8);
+  /* 页面内边距由 .main 统一给，所以 .ui-page（styles/layout.css）只管宽度和
+     垂直节奏 —— 两处都给会变成双倍留白，而且改一处不会跟着另一处。
+     左边用 --gutter，和顶栏同一个值。 */
+  padding: var(--sp-4) var(--gutter) var(--sp-8);
   align-items: start;
 }
 
@@ -198,22 +202,22 @@
   min-width: 0;
 }
 
-/* 【为什么两条都要写 width: 100%】grid item 上单独写 margin-inline: auto 会让它
-   从「拉伸填满栅格列」变成「按内容宽度」—— 窄屏下 max-width 比视口还宽，
-   于是整页横向溢出（实测 375px 视口上溢出 395px）。
-   先 width: 100% 占满列，再由 max-width 收口，最后 auto 边距居中。 */
+/* 【内容一律左对齐，不居中】
+   上一版这里是 margin-inline: auto。后果是正文的左边界随视口宽度和
+   每一页各自的 max-width 漂移 —— 实测 1440px 上四个页面的 h1 分别落在
+   284 / 326 / 433 / 453，而侧栏和顶栏都不动。人看到的就是「每页都错开一点」。
+
+   左对齐之后，所有页面的 h1 永远在 侧栏宽 + --gutter 上，和顶栏那行
+   「我在哪」同一条竖线。阅读宽度由每个块自己的 max-width 收口，
+   不靠居中来控制。 */
 .main[data-rail="off"] > .content {
   width: 100%;
-  margin-inline: auto;
 }
 
-/* 「内容 + 目录」的页面：两栏作为一个整体居中，
-   而不是内容居中、目录被推到屏幕最右边。 */
+/* 「内容 + 目录」的页面：正文列同样左对齐，目录跟在它右边。 */
 .main:not([data-rail="off"]) {
-  justify-content: center;
   grid-template-columns: minmax(0, 1fr) var(--rail-w);
   max-width: 1400px;
-  margin-inline: auto;
   width: 100%;
 }
 
@@ -288,7 +292,6 @@
   .main > .content,
   .main[data-rail="off"] > .content {
     width: 100%;
-    margin-inline: auto;
   }
 
   .rail {
@@ -354,6 +357,10 @@
   .main {
     grid-column: 1;
     padding: var(--sp-3) var(--sp-2) var(--sp-8);
+  }
+
+  .topbar {
+    padding: 0 var(--sp-2);
   }
 }
 
