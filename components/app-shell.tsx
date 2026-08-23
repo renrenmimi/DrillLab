@@ -49,127 +49,6 @@ import { Mark, SideNav } from "./side-nav";
 import { ContextSidebar } from "./sidebars";
 import { T } from "./t";
 
-/**
- * 右边那个 ? 菜单 —— 「使用说明」和「速查表」的家。
- *
- * 速查表在侧栏里也有一项。这里留着它是因为「卡住了想查一下」发生在读课文的
- * 中途，那时手在顶栏（搜索旁边），不在侧栏底部。
- *
- * 【键盘和焦点】
- * 点按钮开合；开着时 Esc 关闭并把焦点还给按钮；焦点离开这一块也关闭。
- * 三个行为都不依赖 hover —— 触屏上 hover 菜单等于没有。
- */
-function HelpMenu({ tools }: { tools?: ReactNode }) {
-  const path = usePathname();
-  const { locale } = useLocale();
-  const en = locale === "en";
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef<HTMLDivElement | null>(null);
-  const btnRef = useRef<HTMLButtonElement | null>(null);
-  const panelRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => setOpen(false), [path]);
-
-  useEffect(() => {
-    if (!open) return;
-    panelRef.current?.querySelector<HTMLElement>("a")?.focus();
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
-      e.preventDefault();
-      setOpen(false);
-      btnRef.current?.focus();
-    };
-    const onDown = (e: MouseEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onDown);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("mousedown", onDown);
-    };
-  }, [open]);
-
-  return (
-    <div
-      className="helpmenu"
-      ref={wrapRef}
-      onBlur={(e) => {
-        if (!wrapRef.current?.contains(e.relatedTarget as Node | null)) setOpen(false);
-      }}
-    >
-      <button
-        type="button"
-        className="icon-btn"
-        ref={btnRef}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label={
-          tools
-            ? en
-              ? "Settings, help and reference"
-              : "设置、帮助与速查"
-            : en
-              ? "Help and reference"
-              : "帮助与速查"
-        }
-        title={
-          tools
-            ? en
-              ? "Settings, help and reference"
-              : "设置、帮助与速查"
-            : en
-              ? "Help and reference"
-              : "帮助与速查"
-        }
-        onClick={() => setOpen((v) => !v)}
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-          <circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" strokeWidth="1.3" />
-          <path
-            d="M6.1 6.1a1.95 1.95 0 1 1 2.9 1.7c-.6.35-1 .8-1 1.5v.2"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.3"
-            strokeLinecap="round"
-          />
-          <circle cx="8" cy="11.9" r="0.85" fill="currentColor" />
-        </svg>
-      </button>
-
-      {open && (
-        <div className="helpmenu-panel" role="menu" ref={panelRef}>
-          {/* 窄屏时语言和主题住在这里 —— 390px 的顶栏放不下七个 44px 的控件
-              （实测溢出 38px）。桌面上它们在顶栏，这里就是空的。 */}
-          {tools && <div className="helpmenu-tools">{tools}</div>}
-          <Link className="helpmenu-item" role="menuitem" href="/guide">
-            <span className="helpmenu-item-name">
-              <T zh="使用说明" en="How to use this" />
-            </span>
-            <span className="helpmenu-item-sub">
-              <T
-                zh="按什么顺序走、每天怎么用、考前一周怎么冲"
-                en="What order to go in, how to use it day to day"
-              />
-            </span>
-          </Link>
-          <Link className="helpmenu-item" role="menuitem" href="/reference">
-            <span className="helpmenu-item-name">
-              <T zh="速查表" en="Reference" />
-            </span>
-            <span className="helpmenu-item-sub">
-              <T
-                zh="命令、API、状态码、报错对照 —— 查完就走"
-                en="Commands, APIs, status codes, error tables"
-              />
-            </span>
-          </Link>
-        </div>
-      )}
-    </div>
-  );
-}
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = usePathname();
@@ -197,32 +76,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const openerRef = useRef<HTMLButtonElement | null>(null);
   // 初始 false，与服务端渲染一致；挂载后才根据实际视口修正
   const [narrow, setNarrow] = useState(false);
-  /**
-   * 顶栏放不下全部工具的宽度。
-   *
-   * 390px 上七个 ≥44px 的控件（菜单 / 品牌 / 继续 / 搜索 / 帮助 / 语言 / 主题）
-   * 实测把页面顶出去 38px。所以这一档把**语言和主题收进帮助菜单** ——
-   * 顶栏留下品牌 · 继续 · 搜索 · 菜单，正是移动端该有的四件。
-   *
-   * 用 React 条件渲染而不是 CSS 显隐：同一时刻只挂载一份，
-   * 不会在无障碍树里留下两个同名的语言按钮。
-   */
-  const [compact, setCompact] = useState(false);
-
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 960px)");
-    const mqc = window.matchMedia("(max-width: 620px)");
-    const sync = () => {
-      setNarrow(mq.matches);
-      setCompact(mqc.matches);
-    };
+    const sync = () => setNarrow(mq.matches);
     sync();
     mq.addEventListener("change", sync);
-    mqc.addEventListener("change", sync);
-    return () => {
-      mq.removeEventListener("change", sync);
-      mqc.removeEventListener("change", sync);
-    };
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
   useEffect(() => {
@@ -267,8 +126,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const en = locale === "en";
 
-  /* 语言和主题两颗按钮。它们要么在顶栏（宽屏），要么在帮助菜单里（窄屏）—— 
-     所以写成一份 JSX，由 compact 决定挂在哪。 */
+  /* 语言和主题。**在所有宽度上都直接留在顶栏** ——
+     它们是随时会按的偏好开关，尤其语言：这个站每一段文字都有中英两版。
+     上一版为了在 390px 上腾地方，把这两颗收进了那个 ? 菜单，
+     结果是手机上根本找不到怎么换语言（用户报的）。
+     腾地方改成别的办法：窄屏收起品牌字样（只留标记），
+     并且把「使用说明」搬进侧栏 —— 它和速查一样是「要用时才查」的东西，
+     不该占着顶栏一个 44px 的位置。 */
   const tools = (
     <>
       <button
@@ -382,10 +246,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           )}
           <Search />
-          {/* 语言和主题：宽屏在顶栏，窄屏收进这个菜单（见 compact 那段注释）。
-              两处**同一时刻只挂载一份**，所以无障碍树里不会有两个语言按钮。 */}
-          <HelpMenu tools={compact ? tools : undefined} />
-          {!compact && tools}
+          {tools}
         </div>
       </header>
 
