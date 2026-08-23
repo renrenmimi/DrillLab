@@ -317,49 +317,11 @@
 
 /* ---------- ? 菜单 ---------- */
 
-.helpmenu {
-  position: relative;
-  display: inline-flex;
-}
 
-.helpmenu-panel {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 70;
-  width: 272px;
-  padding: 6px;
-  background: var(--surface);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--r-lg);
-  box-shadow: var(--lift-2);
-}
 
-.helpmenu-item {
-  display: block;
-  padding: 8px 10px;
-  border-radius: var(--r);
-  color: var(--ink);
-}
 
-.helpmenu-item:hover {
-  background: var(--sunken);
-  text-decoration: none;
-}
 
-.helpmenu-item-name {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-}
 
-.helpmenu-item-sub {
-  display: block;
-  margin-top: 2px;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--ink-2);
-}
 
 /* ============================================================
    随模式而变的侧栏
@@ -1618,12 +1580,3 @@
   }
 }
 
-/* 窄屏时语言和主题住在帮助菜单里（见 components/app-shell.tsx 的 compact）。
-   一行两个 44px 的控件，和下面的菜单项用一条细线分开。 */
-.helpmenu-tools {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-  padding: var(--sp-1) var(--sp-2);
-  border-bottom: 1px solid var(--rule);
-}

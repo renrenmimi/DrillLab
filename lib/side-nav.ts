@@ -66,7 +66,10 @@ export const SIDE_NAV: SideGroup[] = [
     ],
   },
   {
-    items: [{ href: "/reference", zh: "速查", en: "Reference", owns: ["/reference"] }],
+    items: [
+      { href: "/guide", zh: "使用说明", en: "How to use", owns: ["/guide"] },
+      { href: "/reference", zh: "速查", en: "Reference", owns: ["/reference"] },
+    ],
   },
 ];
 
@@ -103,10 +106,6 @@ export function activeSideHref(path: string): string | undefined {
  * 顶栏再写一遍是重复。区段名是页面自己不说的那一半。
  */
 export function sectionOf(path: string): { zh: string; en: string } | undefined {
-  // /guide 不在侧栏里（它在顶栏那个 ? 菜单后面），但顶栏那一行不该因此空着 ——
-  // 空着的话页面之间会少一条「我在哪」，看起来像漏渲染。
-  if (path === "/guide") return { zh: "使用说明", en: "How to use this" };
-
   const href = activeSideHref(path);
   if (!href) return undefined;
   for (const g of SIDE_NAV) {
