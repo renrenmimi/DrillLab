@@ -145,11 +145,14 @@ hr {
   font-variant-numeric: tabular-nums;
 }
 
-/* —— 焦点可见 —— */
+/* —— 焦点可见 ——
+   【不许在这里写 border-radius】它会改**被聚焦元素自己的几何**，不只是那个环。
+   实测踩到：搜索输入框一聚焦就凭空长出 6px 圆角，而它嵌在一个 14px 圆角、
+   overflow: hidden 的面板顶部，两个圆角叠在一起，顶部看起来是双层的。
+   现代浏览器的 outline 本来就会跟着元素自己的圆角走，不需要在这儿指定。 */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: var(--r-sm);
 }
 
 ::selection {
