@@ -121,6 +121,42 @@ export function GET() {
     })),
 
     /**
+     * 首页仪表盘用的轨道清单 —— 生成到 content/track-manifest.ts。
+     * 只有课程名、一句话、和按顺序排好的课文（id / 标题 / 链接）。
+     * 理由见那个文件顶部。
+     */
+    trackManifest: {
+      tracks: EXAMS.map((e) => ({
+        id: e.id,
+        zh: e.shortTitle,
+        en: e.shortTitleEn,
+        blurbZh: e.description,
+        blurbEn: e.descriptionEn,
+        // 平行支线的判据和 content/path.ts 完全一致：自己没有前置，
+        // 而且没有别的课把它列成前置。抄第二套判据会让首页和 /path 分歧。
+        parallel:
+          e.prerequisites.length === 0 &&
+          !EXAMS.some((o) => o.prerequisites.includes(e.id))
+            ? true
+            : undefined,
+        lessons: lessonsOf(e).map((r) => ({
+          id: r.lesson.id,
+          href: `/exams/${e.id}/${r.lesson.id}`,
+          zh: r.lesson.title,
+          en: r.lesson.titleEn,
+        })),
+      })),
+      surfaces: {
+        drills: allDrills().length,
+        exercises: EXAMS.reduce(
+          (n, e) => n + lessonsOf(e).reduce((k, r) => k + (r.lesson.exercises?.length ?? 0), 0), 0),
+        coding: allCodingProblems().length,
+        arena: allArena().length,
+        mocks: EXAMS.reduce((n, e) => n + e.mockExams.length, 0),
+      },
+    },
+
+    /**
      * 引导计划的轻量清单 —— 生成到 content/plan-manifest.ts。
      *
      * 【为什么要在构建期把它压出来】

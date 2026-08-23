@@ -1,0 +1,48 @@
+// 首页仪表盘用的**轨道清单** —— 生成物，不要手改。改完内容跑 `npm run gen:nav`。
+//
+// 【为什么不直接读 content/nav.ts】
+// 首页要显示每门课的进度和「接着上次那一节」，需要的只有：课程名、一句话、
+// 按顺序排好的课文 id / 标题 / 链接。而 nav.ts 是 134 KB —— 它还带着
+// 模块结构、练习计数、八股清单、coding 清单、考场清单、模拟考题目名。
+// 首页首屏用不上那些。
+//
+// 实测：把 nav 拉进首页首屏，First Load JS 从 178 kB 涨到两百多；
+// 这一份只有几 KB。
+//
+// 【为什么不复用 content/plan-manifest.ts】
+// 那一份只包含「出现在某条计划里」的课文，实测覆盖 65 / 80 节 ——
+// 面试八股那门课有 15 节不在任何计划的课文档里（计划是通过八股题覆盖它的）。
+// 首页仪表盘要的是**全部** 80 节。
+
+export interface TrackLesson {
+  id: string;
+  href: string;
+  zh: string;
+  en?: string;
+}
+
+export interface Track {
+  id: string;
+  zh: string;
+  en?: string;
+  /** 一句话：这门课是干什么的 */
+  blurbZh: string;
+  blurbEn?: string;
+  /** 主线还是平行支线。平行支线任何时候都能开始 */
+  parallel?: boolean;
+  /** 全部课文，按学习顺序 */
+  lessons: TrackLesson[];
+}
+
+/** 除课文之外的几个练习面，只有计数 —— 它们没有「读到第几节」这回事 */
+export interface SurfaceCounts {
+  drills: number;
+  exercises: number;
+  coding: number;
+  arena: number;
+  mocks: number;
+}
+
+export const TRACKS: Track[] = __TRACK_DATA__;
+
+export const SURFACES: SurfaceCounts = __SURFACE_DATA__;
