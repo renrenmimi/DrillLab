@@ -382,10 +382,10 @@ export function Search() {
           ref={inputRef}
           className="search-input"
           value={q}
-          placeholder={t(
-            "搜课程、练习、模拟考…（试试「filter」「DataLoader」「状态码」）",
-            "Search lessons, problems, mocks… (try “filter”, “DataLoader”, “status code”)",
-          )}
+          /* 【占位符要短】原来那一句带三个例子，在 360px 的输入框里被切在词
+             中间（"...(try "filte"），看着像坏了。例子本来就由下面的结果列表
+             自己演示 —— 一打开就有六条默认结果。 */
+          placeholder={t("搜课程、练习、八股、考场…", "Search lessons, problems, questions…")}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Escape") {
