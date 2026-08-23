@@ -110,7 +110,9 @@ export function ArenaStartPanel({
                 en=" — one at a time. Hand that one in or give it up before starting this one."
               />
             </div>
-            <Link className="btn btn-primary" href={`${arenaPath(other.id)}/run`}>
+            {/* 这一档是描边，不是实心 —— 这一页的主动作（开始计时）现在是
+                做不了的，一屏里就不该有一颗实心按钮把别的事情说成「下一步」。 */}
+            <Link className="btn" href={`${arenaPath(other.id)}/run`}>
               <T zh="去那一场" en="Go to that run" />
             </Link>
             <button type="button" className="btn btn-ghost" onClick={() => setAskQuit(other.id)}>

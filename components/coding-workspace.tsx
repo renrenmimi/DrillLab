@@ -52,7 +52,16 @@ export function CodingWorkspace({
           <LocalRunCard commands={commands ?? []} why={localWhy} />
         )}
 
-        <CodingDoneToggle id={id} title={title} titleEn={titleEn} />
+        {/* 【为什么有沙箱时要套一层 .cd-done】
+            一屏只能有一个实心动作。有沙箱的题，那颗实心的是「打开工作区」
+            （打开之后换成「跑测试」），打勾只是记账 —— styles/coding.css
+            里那条 .cd-done 把它降成描边。
+            没有沙箱的四道题这一页一颗按钮都没有，打勾就是这一页的动作，
+            所以不套那一层，让它保持实心。
+            CodingDoneToggle 自己不改：同一个组件在课尾和练习里仍然是主动作。 */}
+        <div className={spec ? "cd-done" : undefined}>
+          <CodingDoneToggle id={id} title={title} titleEn={titleEn} />
+        </div>
       </section>
 
       {blank ? (

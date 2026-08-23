@@ -24,7 +24,7 @@ export function MockScore({
   const rec = ready ? mockRecord(examId, mockId) : undefined;
 
   return (
-    <div className="done-bar" data-done={!!rec} style={{ marginTop: 30 }}>
+    <div className="done-bar" data-done={!!rec} style={{ marginTop: "var(--sp-4)" }}>
       <span className="done-bar-text">
         {rec ? (
           rec.score !== undefined ? (
@@ -43,17 +43,7 @@ export function MockScore({
         )}
       </span>
       <input
-        className="mono"
-        style={{
-          width: 64,
-          padding: "4px 8px",
-          border: "1px solid var(--rule-strong)",
-          borderRadius: "var(--r-sm)",
-          background: "var(--surface)",
-          color: "var(--ink)",
-          fontSize: 13,
-          marginLeft: "auto",
-        }}
+        className="mono mk-score"
         placeholder={`/${outOf}`}
         value={score}
         onChange={(e) => setScore(e.target.value)}

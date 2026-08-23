@@ -110,7 +110,7 @@ export function CodingDetail({ id }: { id: string }) {
         sub={`Coding 题 · ${CODING_TRACK_LABEL[problem.track]}`}
         subEn={`Coding · ${CODING_TRACK_LABEL[problem.track]}`}
       />
-      <div className="content">
+      <div className="content ui-page">
         <nav aria-label="面包屑 / Breadcrumb" className="crumb">
           <Link href="/code">
             <T zh="Coding 题" en="Coding" />
@@ -127,7 +127,7 @@ export function CodingDetail({ id }: { id: string }) {
           <h1 className="page-title">
             <T zh={problem.title} en={problem.titleEn} />
           </h1>
-          <div className="lesson-meta" style={{ marginTop: 14 }}>
+          <div className="lesson-meta">
             <span className="tag">{CODING_TRACK_LABEL[problem.track]}</span>
             <span className="tag" data-tone={problem.difficulty === 3 ? "warn" : undefined}>
               {DIFFICULTY_LABEL[problem.difficulty].zh} · {DIFFICULTY_LABEL[problem.difficulty].en}
@@ -171,7 +171,7 @@ export function CodingDetail({ id }: { id: string }) {
             />
           </ul>
 
-          <p className="dimmer" style={{ fontSize: 13.5 }}>
+          <p className="cd-note">
             <T
               zh={`预计 ${problem.minutes} 分钟。这个数字是照「读完题就开始写、不查资料」估的 —— 第一次超时很正常，第二次要压进去。`}
               en={`Budget ${problem.minutes} minutes. Overrunning on the first pass is normal; the second pass should fit.`}
@@ -207,7 +207,7 @@ export function CodingDetail({ id }: { id: string }) {
                   </summary>
 
                   <div className="cd-fold-body">
-                    <p className="dimmer" style={{ fontSize: 13.5 }}>
+                    <p className="cd-note">
                       <T
                         en="The full lesson (with exercises, common mistakes and transfer patterns) is at"
                         zh="完整那一节（含练习、常见错误、迁移模式）在"
@@ -277,7 +277,7 @@ export function CodingDetail({ id }: { id: string }) {
                 </p>
               )}
 
-              <div style={{ marginTop: 26 }}>
+              <div style={{ marginTop: "var(--sp-3)" }}>
                 <SolutionGate
                   label={L("我写过了，给我看参考答案", "I wrote it — show me the reference answer")}
                   note={L(
@@ -368,7 +368,7 @@ export function CodingDetail({ id }: { id: string }) {
             <Link href={lessonPath(explain.examId, explain.lesson.id)}>
               <T zh={explain.lesson.title} en={explain.lesson.titleEn} />
             </Link>
-            <p className="dimmer" style={{ fontSize: 12.5, marginTop: 8, lineHeight: 1.6 }}>
+            <p className="dimmer" style={{ marginTop: "var(--sp-1)" }}>
               <T
                 zh="题面、需求、答案全部引用那一节，没有第二份。"
                 en="The problem, the requirements and the answer all reference that lesson. There is no second copy."
@@ -382,9 +382,9 @@ export function CodingDetail({ id }: { id: string }) {
             <div className="rail-head">
               <T zh="本机验收命令" en="Local commands" />
             </div>
-            <div className="mono dimmer" style={{ fontSize: 11.5, lineHeight: 1.7 }}>
+            <div className="mono cd-rail-cmds">
               {problem.commands.map((c) => (
-                <div key={c.cmd} style={{ marginBottom: 4, wordBreak: "break-all" }}>
+                <div className="cd-rail-cmd" key={c.cmd}>
                   {c.cmd}
                 </div>
               ))}
