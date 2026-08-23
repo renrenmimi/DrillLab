@@ -48,7 +48,7 @@
 }
 
 .topbar-brand-name {
-  font-size: 16px;
+  font-size: var(--fs-body);
   letter-spacing: -0.02em;
 }
 
@@ -226,7 +226,7 @@
 .rail {
   position: sticky;
   top: calc(var(--topbar-h) + 34px);
-  font-size: 13px;
+  font-size: var(--fs-meta);
   line-height: 1.55;
 }
 
@@ -237,7 +237,7 @@
 }
 
 .rail-head {
-  font-size: 10.5px;
+  font-size: var(--fs-xs);
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -384,29 +384,44 @@
 
 /* ---------- 搜索（⌘K） ---------- */
 
+/* 几何跟 .btn-sm 走 —— 它和语言、主题在同一排，三个控件必须同高。 */
 .search-trigger {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 5px 9px 5px 10px;
+  min-height: var(--h-ctl-sm);
+  padding: 0 var(--sp-1);
   font: inherit;
-  font-size: 13px;
-  color: var(--ink-3);
-  background: var(--sunken);
+  font-size: var(--fs-meta);
+  color: var(--ink-2);
+  background: transparent;
   border: 1px solid var(--rule);
-  border-radius: var(--r);
+  border-radius: var(--r-sm);
   cursor: pointer;
+  transition:
+    background var(--t-hover) ease,
+    border-color var(--t-hover) ease;
+}
+
+/* 【这一条不能只写在 layout.css 里】shell.css 在它之后 import，
+   同优先级下后面的赢，所以那边的 44px 会被上面的 --h-ctl-sm 盖掉。
+   实测：430 / 620 / 768px 的顶栏里搜索按钮只有 32px。 */
+@media (max-width: 960px), (pointer: coarse) {
+  .search-trigger {
+    min-height: 44px;
+  }
 }
 
 .search-trigger:hover {
-  border-color: var(--accent-line);
-  color: var(--ink-2);
+  background: var(--hover);
+  border-color: var(--rule-strong);
+  color: var(--ink);
 }
 
 .search-kbd {
   font-family:
     ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
-  font-size: 10.5px;
+  font-size: var(--fs-xs);
   padding: 1px 5px;
   border: 1px solid var(--rule-strong);
   border-radius: var(--r-sm);
@@ -444,7 +459,7 @@
   width: 100%;
   padding: 15px 18px;
   font: inherit;
-  font-size: 16px;
+  font-size: var(--fs-body);
   color: var(--ink);
   background: transparent;
   border: 0;
@@ -482,7 +497,7 @@
 
 .search-hit-kind {
   display: block;
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-weight: 650;
   letter-spacing: 0.04em;
   color: var(--ink-3);
@@ -490,7 +505,7 @@
 
 .search-hit-title {
   display: block;
-  font-size: 15px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--ink);
   line-height: 1.4;
@@ -498,7 +513,7 @@
 
 .search-hit-sub {
   display: block;
-  font-size: 13px;
+  font-size: var(--fs-meta);
   color: var(--ink-2);
   line-height: 1.45;
   overflow: hidden;
@@ -509,7 +524,7 @@
 .search-empty {
   padding: 22px 18px;
   margin: 0;
-  font-size: 14.5px;
+  font-size: var(--fs-sm);
   color: var(--ink-3);
 }
 
@@ -520,7 +535,7 @@
   padding: 8px 14px;
   background: var(--sunken);
   border-top: 1px solid var(--rule);
-  font-size: 11.5px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
 }
 
@@ -540,7 +555,7 @@
    （首页那一整套 .home-* 已经换成 .dash-*，见 styles/nav.css；
    只有这一条还被 components/learning-path.tsx 用着。） */
 .home-sec-title {
-  font-size: 15px;
+  font-size: var(--fs-sm);
   font-weight: 650;
   margin-bottom: 6px;
 }
@@ -560,7 +575,7 @@
 }
 
 .road-progress-num {
-  font-size: 15px;
+  font-size: var(--fs-sm);
   font-weight: 650;
   white-space: nowrap;
 }
@@ -577,7 +592,7 @@
 }
 
 .road-course-title {
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -603,7 +618,7 @@
 
 .road-band-title {
   display: block;
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -613,7 +628,7 @@
 .road-band-note {
   display: block;
   margin-top: 4px;
-  font-size: 13px;
+  font-size: var(--fs-meta);
   line-height: 1.55;
   color: var(--ink-2);
 }
@@ -649,7 +664,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   line-height: 1;
   color: var(--ink-3);
@@ -699,7 +714,7 @@
 }
 
 .road-part {
-  font-size: 11.5px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.06em;
   color: var(--ink-3);
@@ -707,22 +722,22 @@
 
 .road-count {
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
 }
 
 .road-node-title {
-  font-size: 17px;
+  font-size: var(--fs-body);
   font-weight: 650;
   margin-bottom: 5px;
 }
 
 .road-node[data-state="current"] .road-node-title {
-  font-size: 19px;
+  font-size: var(--fs-h3);
 }
 
 .road-summary {
-  font-size: 14.5px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
   max-width: var(--measure);
   margin-bottom: 10px;
@@ -739,7 +754,7 @@
   padding-top: 24px;
   border-top: 1px solid var(--rule);
   max-width: var(--measure);
-  font-size: 15px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
 }
 
@@ -765,7 +780,7 @@
 }
 
 .ladder-head {
-  font-size: 11.5px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.07em;
   color: var(--ink-3);
@@ -823,34 +838,34 @@ a.ladder-link:hover {
 }
 
 .ladder-goal {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-weight: 650;
   letter-spacing: 0.06em;
   color: var(--accent-ink);
 }
 
 .ladder-name {
-  font-size: 14.5px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--ink);
 }
 
 .ladder-n {
   margin-left: 6px;
-  font-size: 11.5px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   color: var(--ink-3);
 }
 
 .ladder-gives {
-  font-size: 12px;
+  font-size: var(--fs-meta);
   line-height: 1.5;
   color: var(--ink-3);
 }
 
 .ladder-arrow {
   color: var(--ink-3);
-  font-size: 13px;
+  font-size: var(--fs-meta);
   flex-shrink: 0;
   /* 9px 内边距 + 11px 的 goal 行 + 2px gap，正好落到 .ladder-name 上 */
   margin-top: 30px;
@@ -867,7 +882,7 @@ a.ladder-link:hover {
   align-items: center;
   gap: 7px;
   padding: 5px 0;
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
   cursor: pointer;
   list-style: none;
@@ -907,10 +922,10 @@ a.ladder-link:hover {
   display: inline-flex;
   gap: 6px;
   padding: 1px 7px;
-  border-radius: 100px;
+  border-radius: var(--r-pill);
   background: var(--accent-wash);
   color: var(--accent-ink);
-  font-size: 11.5px;
+  font-size: var(--fs-meta);
   font-weight: 600;
 }
 
@@ -933,7 +948,7 @@ a.ladder-link:hover {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
   cursor: pointer;
   list-style: none;
@@ -971,7 +986,7 @@ a.ladder-link:hover {
   margin: 11px 0 0;
   padding-top: 10px;
   border-top: 1px solid var(--rule);
-  font-size: 13px;
+  font-size: var(--fs-meta);
   line-height: 1.6;
   color: var(--ink-2);
 }
@@ -1012,7 +1027,7 @@ a.ladder-link:hover {
   }
 
   .ladder-gives {
-    font-size: 11.5px;
+    font-size: var(--fs-meta);
     line-height: 1.45;
   }
 
@@ -1030,7 +1045,7 @@ a.ladder-link:hover {
 }
 
 .guide-h {
-  font-size: 19px;
+  font-size: var(--fs-h3);
   font-weight: 650;
   margin: 0 0 12px;
   padding-bottom: 9px;
@@ -1070,7 +1085,7 @@ a.ladder-link:hover {
   border-left: 2px solid var(--accent-line);
   background: var(--sunken);
   border-radius: 0 var(--r) var(--r) 0;
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   line-height: 1.65;
   color: var(--ink-2);
 }

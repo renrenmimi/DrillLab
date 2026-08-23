@@ -461,7 +461,7 @@ export function LessonPlanStepLive({
             <T zh={status.plan.zh} en={status.plan.en} />
           </span>
         </div>
-        <Link className="lnext-cta" href={`/plans/${status.plan.id}`}>
+        <Link className="btn btn-primary lnext-cta" href={`/plans/${status.plan.id}`}>
           <T zh="回看整条计划" en="Review the plan" />
         </Link>
       </li>
@@ -496,7 +496,7 @@ export function LessonPlanStepLive({
           </span>
         )}
       </div>
-      <Link className="lnext-cta" href={pn.item.href}>
+      <Link className="btn btn-primary lnext-cta" href={pn.item.href}>
         <T zh="下一格" en="Next item" />
       </Link>
     </li>

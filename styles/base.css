@@ -259,7 +259,7 @@ hr {
   border-radius: var(--r-sm);
   border: 1px solid var(--rule);
   background: var(--sunken);
-  font-size: 11.5px;
+  font-size: var(--fs-meta);
   font-weight: 600;
   line-height: 1.6;
   color: var(--ink-2);
@@ -300,13 +300,13 @@ hr {
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 15px;
+  font-size: var(--fs-sm);
   margin-bottom: 1.05em;
 }
 
 .table th {
   text-align: left;
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.05em;
   text-transform: uppercase;

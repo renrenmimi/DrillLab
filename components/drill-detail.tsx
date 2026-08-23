@@ -94,7 +94,7 @@ export function DrillDetail({ id }: { id: string }) {
         <PlanNextStepSlot itemKey={itemKey("drill", q.id)} />
 
         <div className="drill-detail-foot">
-          <span className="dim" style={{ fontSize: 14 }}>
+          <span className="dim" style={{ fontSize: "var(--fs-sm)" }}>
             <T zh="这道题的出处：" en="Comes from:" />{" "}
             <Link href={`${lessonPath(q.examId, q.lessonId)}#${q.id}`}>
               <T zh="课程里的这一节 →" en="this lesson →" />

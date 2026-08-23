@@ -20,7 +20,7 @@
    .minihead 是整段的分隔条，塞进 flex 行会画出半截横线。
    （现在只有抽认卡和单题页在用，列表页那条已经是 .ui-prog。） */
 .strip-label {
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -83,11 +83,11 @@
   max-width: 46vw;
   padding: 4px 10px;
   font: inherit;
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   color: var(--ink);
   background: var(--sunken);
   border: 1px solid var(--rule);
-  border-radius: 100px;
+  border-radius: var(--r-pill);
 }
 
 .drill-search-input::placeholder {
@@ -150,13 +150,13 @@
 }
 
 .drill-bank {
-  font-size: 12px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
 }
 
 .drill-q {
-  font-size: 19px;
+  font-size: var(--fs-h3);
   line-height: 1.4;
   margin: 0 0 4px;
 }
@@ -171,7 +171,7 @@
 }
 
 .drill-q-en {
-  font-size: 14px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
   margin: 0;
 }
@@ -186,11 +186,11 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 11px 3px 8px;
+  padding: 3px 11px 3px var(--sp-1);
   border: 1px solid var(--rule-strong);
-  border-radius: 100px;
+  border-radius: var(--r-pill);
   background: var(--raised);
-  font-size: 13px;
+  font-size: var(--fs-meta);
   font-weight: 550;
   color: var(--ink-2);
   cursor: pointer;
@@ -222,7 +222,7 @@
   margin-top: 14px;
   padding: 2px 0 2px 14px;
   border-left: 1px solid var(--rule);
-  font-size: 16px;
+  font-size: var(--fs-body);
 }
 
 .drill-ans-body .codewin {
@@ -243,7 +243,7 @@
   display: inline-flex;
   flex-wrap: wrap;
   gap: 14px;
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
 }
 
 .drill-card-links a {
@@ -263,26 +263,35 @@
   gap: 6px;
 }
 
+/* 三个自评档（会了 / 模糊 / 不会）。它是一个三选一，不是三颗按钮 ——
+   所以几何跟 .btn-sm 一致（同高、同圆角、同字号），选中的那一档整块上色。
+   药丸形是刻意的：它表示「一组里选一个」，和方角的动作按钮区分开。 */
 .drill-mark {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
-  padding: 4px 12px;
+  min-height: var(--h-ctl-sm);
+  padding: 0 var(--sp-2);
   font: inherit;
-  font-size: 13.5px;
-  font-weight: 550;
-  line-height: 1.5;
+  font-size: var(--fs-meta);
+  font-weight: 600;
+  line-height: 1.35;
   color: var(--ink-2);
-  background: var(--raised);
-  border: 1px solid var(--rule);
-  border-radius: 100px;
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-pill);
   cursor: pointer;
-  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+  transition:
+    background var(--t-hover) ease,
+    border-color var(--t-hover) ease,
+    color var(--t-hover) ease;
 }
 
 .drill-mark:hover {
   color: var(--ink);
-  border-color: var(--rule-strong);
+  background: var(--hover);
+  border-color: var(--accent-line);
 }
 
 /* 选中态：整块上色，不只是加个边框 —— 要一眼看出来。
@@ -317,7 +326,7 @@
   border-radius: var(--r-sm);
   background: var(--sunken);
   border: 1px solid var(--rule);
-  font-size: 10.5px;
+  font-size: var(--fs-xs);
   font-weight: 650;
   color: var(--ink-3);
 }
@@ -337,13 +346,13 @@
 }
 
 .drill-detail-title {
-  font-size: 30px;
+  font-size: var(--fs-h2);
   line-height: 1.28;
-  margin: 6px 0 8px;
+  margin: 6px 0 var(--sp-1);
 }
 
 .drill-detail-en {
-  font-size: 17px;
+  font-size: var(--fs-body);
   color: var(--ink-2);
   margin: 0 0 22px;
 }
@@ -352,7 +361,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px 16px;
+  gap: 10px var(--sp-2);
   padding: 12px 0;
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
@@ -364,14 +373,14 @@
 
 .drill-detail-body {
   margin: 26px 0 30px;
-  font-size: 17px;
+  font-size: var(--fs-body);
 }
 
 .drill-detail-foot {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px 16px;
+  gap: 12px var(--sp-2);
   padding-top: 16px;
   border-top: 1px solid var(--rule);
 }
@@ -400,7 +409,7 @@
 }
 
 .dsess-n {
-  font-size: 13px;
+  font-size: var(--fs-meta);
   font-weight: 600;
   color: var(--ink-2);
   white-space: nowrap;
@@ -414,7 +423,7 @@
 .dsess-top-right {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-1);
   flex-wrap: wrap;
   margin-left: auto;
 }
@@ -431,7 +440,7 @@
 .dsess-lang {
   padding: 2px 9px;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 600;
   color: var(--ink-3);
   background: transparent;
@@ -453,7 +462,7 @@
 /* —— 卡片本体 —— */
 
 .dsess-card {
-  padding: 26px 26px 24px;
+  padding: 26px 26px var(--sp-3);
   background: var(--surface);
   border: 1px solid var(--rule-strong);
   border-radius: var(--r-lg);
@@ -463,7 +472,7 @@
 .dsess-card-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-1);
   margin-bottom: 14px;
 }
 
@@ -472,54 +481,63 @@
 }
 
 .dsess-q {
-  font-size: 26px;
+  font-size: var(--fs-h2);
   line-height: 1.34;
   margin: 0 0 6px;
 }
 
 .dsess-q-en {
-  font-size: 16.5px;
+  font-size: var(--fs-body);
   color: var(--ink-2);
   margin: 0;
 }
 
+/* 翻到答案。抽认卡这一屏的主动作就是它，所以它是这一页唯一的实心块 ——
+   老版本是一个虚线框，读起来像「这里还没做完」。 */
 .dsess-flip {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
   width: 100%;
-  margin-top: 22px;
-  padding: 18px 16px;
+  min-height: var(--h-ctl);
+  margin-top: var(--sp-3);
+  padding: var(--sp-2);
   font: inherit;
   text-align: center;
-  color: var(--ink-2);
-  background: var(--sunken);
-  border: 1px dashed var(--rule-strong);
+  color: var(--on-accent);
+  background: var(--accent);
+  border: 1px solid var(--accent);
   border-radius: var(--r);
   cursor: pointer;
+  transition: background var(--t-hover) ease;
 }
 
 .dsess-flip:hover {
-  border-color: var(--accent-line);
-  color: var(--ink);
+  background: var(--accent-h);
+  border-color: var(--accent-h);
 }
 
+/* 这两行压在 --accent 上，所以字色是 --on-accent 那一档，不是 --ink */
 .dsess-flip-main {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--on-accent);
 }
 
+/* 【不许用 opacity 压暗】透明度绕过所有按颜色变量算对比度的检查。
+   这两行的层次靠字号和字重区分，不靠淡。 */
 .dsess-flip-sub {
-  font-size: 13px;
-  color: var(--ink-3);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  color: var(--on-accent);
 }
 
 .dsess-answer {
   margin-top: 20px;
   padding-top: 18px;
   border-top: 1px solid var(--rule);
-  font-size: 16.5px;
+  font-size: var(--fs-body);
 }
 
 .dsess-hide {
@@ -532,9 +550,9 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px 16px;
+  gap: 10px var(--sp-2);
   margin-top: 20px;
-  padding: 14px 16px;
+  padding: 14px var(--sp-2);
   background: var(--raised);
   border: 1px solid var(--rule);
   border-radius: var(--r);
@@ -561,11 +579,11 @@
 .dsess-keys {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 20px;
+  gap: var(--sp-1) 20px;
   margin-top: 22px;
   padding-top: 14px;
   border-top: 1px solid var(--rule);
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   color: var(--ink-3);
 }
 
@@ -585,7 +603,7 @@
   border-bottom-width: 2px;
   border-radius: var(--r-sm);
   background: var(--raised);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--ink-2);
 }
 
@@ -623,13 +641,13 @@
 }
 
 .dsess-scope-name {
-  font-size: 15px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--ink);
 }
 
 .dsess-scope-n {
-  font-size: 15px;
+  font-size: var(--fs-sm);
   font-weight: 650;
   color: var(--accent-ink);
   text-align: right;
@@ -637,7 +655,7 @@
 
 .dsess-scope-note {
   grid-column: 1 / -1;
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   line-height: 1.55;
   color: var(--ink-2);
 }
@@ -645,8 +663,8 @@
 .dsess-check {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14.5px;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
   color: var(--ink-2);
   cursor: pointer;
 }
@@ -677,7 +695,7 @@
 }
 
 .dsess-tally-cell {
-  padding: 14px 16px;
+  padding: 14px var(--sp-2);
   background: var(--surface);
   border: 1px solid var(--rule);
   border-top: 3px solid var(--rule-strong);
@@ -698,27 +716,27 @@
 
 .dsess-tally-cell b {
   display: block;
-  font-size: 26px;
+  font-size: var(--fs-h2);
   font-weight: 650;
   line-height: 1.2;
   color: var(--ink);
 }
 
 .dsess-tally-cell span {
-  font-size: 13px;
+  font-size: var(--fs-meta);
   color: var(--ink-2);
 }
 
 .dsess-missed {
   list-style: none;
-  margin: 0 0 8px;
+  margin: 0 0 var(--sp-1);
   padding: 0;
 }
 
 .dsess-missed li {
   padding: 10px 0;
   border-bottom: 1px solid var(--rule);
-  font-size: 15.5px;
+  font-size: var(--fs-body);
 }
 
 .dsess-missed li:last-child {
@@ -726,7 +744,7 @@
 }
 
 .dsess-missed-en {
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   color: var(--ink-3);
 }
 
@@ -740,14 +758,14 @@
   flex-wrap: wrap;
   gap: var(--sp-1) var(--sp-2);
   padding: var(--sp-1) var(--sp-2);
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   background: var(--accent-wash);
   border: 1px solid var(--accent-line);
   border-radius: var(--r);
 }
 
 .lesson-scope-label {
-  font-size: 11.5px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -782,7 +800,7 @@
   }
 
   .drill-q {
-    font-size: 17.5px;
+    font-size: var(--fs-body);
   }
 
   .drill-card-links {
@@ -802,7 +820,7 @@
   }
 
   .drill-detail-title {
-    font-size: 24px;
+    font-size: var(--fs-h2);
   }
 
   .drill-detail-marks .drill-marks,
@@ -812,11 +830,11 @@
   }
 
   .dsess-card {
-    padding: 18px 16px 16px;
+    padding: 18px var(--sp-2) var(--sp-2);
   }
 
   .dsess-q {
-    font-size: 21px;
+    font-size: var(--fs-h3);
   }
 
   .dsess-top-right {
@@ -833,7 +851,7 @@
   .drill-mark {
     flex: 1 1 0;
     justify-content: center;
-    padding: 8px 6px;
+    padding: var(--sp-1) 6px;
   }
 
   .dsess-foot > :last-child {
