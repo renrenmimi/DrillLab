@@ -243,6 +243,18 @@ export function PlanSideBlock({ onNavigate }: { onNavigate: () => void }) {
         `${status.plan.en} plan, ${status.done} of ${status.total} completed`,
       )}
     >
+      {/* 【「换一条」必须一直在这儿】上一版选完计划之后，首页和侧栏加起来
+          一个换计划的入口都没有 —— 只有点进 /plans 才找得到，
+          而那一项写的是「我的计划」，读起来像「看看我的计划」而不是「换一条」。 */}
+      <div className="side-plan-eyebrow">
+        <span>
+          <T zh="当前计划" en="Your plan" />
+        </span>
+        <Link className="side-plan-change" href="/plans" onClick={onNavigate}>
+          <T zh="换一条" en="Change" />
+        </Link>
+      </div>
+
       <Link
         className="side-plan-name"
         href={`/plans/${status.plan.id}`}
