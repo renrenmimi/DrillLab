@@ -466,8 +466,15 @@
   border-bottom: 1px solid var(--rule);
 }
 
+/* 【不能只写 outline: 0】原来这一条把焦点环删了却没给替代物 ——
+   搜索面板里能 Tab 到的东西不止这一个输入框，键盘用户会跟丢。
+   这里不用外描边（输入框贴着面板边缘，外环会被裁掉），
+   改成底边加粗成强调色。 */
 .search-input:focus {
   outline: 0;
+  border-bottom: 2px solid var(--accent);
+  /* 底边从 1px 变成 2px，内边距少 1px 补回来，聚焦时输入框不会跳 */
+  padding-bottom: 14px;
 }
 
 .search-input::placeholder {

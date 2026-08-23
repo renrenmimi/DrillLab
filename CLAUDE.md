@@ -883,10 +883,11 @@ npm run build          # 应预渲染 259 个页面（252 + /plans + 6 条计划
                        # content/plans-assert.ts 由两个计划页面 import：
                        # 引用了不存在的课文 / coding / 考场 / 模拟考，
                        # 或者某一档解析出 0 条 —— 构建直接失败
-                       # 首屏 JS 的基准（2026-08 实测）：
-                       #   /              147 kB     课程页        142 kB
-                       #   /code/[id]     121 kB     /drill/[id]   115 kB
-                       #   /drill         148 kB     /practice     173 kB
+                       # 首屏 JS 的基准（UI v2 之后实测）：
+                       #   /              178 kB     课程页        144 kB
+                       #   /plans         141 kB     /plans/[id]   175 kB
+                       #   /code/[id]     122 kB     /drill/[id]   117 kB
+                       #   /drill         150 kB     /practice     175 kB
                        # —— 若 /code/[id] 涨到 300 kB+，说明 Sandpack 泄漏进首屏了
 ```
 
@@ -904,13 +905,38 @@ npm run build          # 应预渲染 259 个页面（252 + /plans + 6 条计划
 各看一遍，
 切一次深色，缩到 390px 宽确认没有横向溢出，控制台无报错与 hydration 警告。
 
-**改过样式还要跑这三个扫描**（scratchpad 里有 playwright-core 驱动的脚本，
-用本机已下载的 `chrome-headless-shell`，不往项目里装依赖）：
+**改过样式要跑这一组扫描**（scratchpad 里有 playwright-core 驱动的脚本，
+用本机已下载的 `chrome-headless-shell`，不往项目里装依赖。
+`all.sh` 一次跑完全部）：
 
 1. **类名覆盖** —— `styles/*.css` 定义的类 vs 组件里用的 `className`，差集应为 0。
-2. **WCAG AA 对比度** —— 20 页 × {1440, 390} × {浅, 深}，不达标元素应为 0。
-   `bgOf()` 必须沿祖先链做 alpha 合成，否则半透明底会造出假阳性。
-3. **390px 横向溢出** —— `documentElement.scrollWidth > clientWidth` 的页面应为 0。
+   反方向（定义了没人用）也要扫，那是删死代码的依据。
+2. **WCAG AA 对比度**（`scan.mjs`）—— 21 页 × {1440, 390} × {浅, 深} = 84 组，
+   不达标元素应为 0。`bgOf()` 必须沿祖先链做 alpha 合成**并把 opacity 算进去**，
+   否则半透明底会造出假阳性，而用 opacity 压暗的文字会漏检。
+3. **横向溢出**（同一个脚本）—— 21 页 × {390, 768, 1024, 1280, 1440} = 105 组，
+   溢出页面应为 0。
+4. **对齐轴**（`axes2.mjs`）—— 13 页 × 3 个宽度 = 39 组，
+   顶栏 / 正文 / 侧栏文字必须是 284 / 284 / 28，不一致应为 0。
+5. **按钮几何 + 强调色预算**（`geom.mjs`）—— 19 个页面：
+   四个按钮变体各自只能有一个高度和一个圆角；每页「宽度 ≥ 60px 且背景是
+   柠檬绿」的 a / button 应 ≤ 2（外壳一个 + 页面一个），首页和计划详情页 ≤ 1。
+   顺带打印全站实际渲染出的字号种类 —— 应当只有那八档（外加内联 `code`
+   由 `0.875em` 派生出的两个值）。
+6. **垂直节奏**（`rhythm.mjs`）—— 12 个页面「第一块距 .main 顶部」应当只有一个值。
+7. **流程**（`flow2.mjs` 68 条 / `change-plan.mjs` 12 条 / `lang2.mjs` 49 条）——
+   引导计划全流程、干净档案下换计划、七个宽度下切语言。
+
+8. **焦点可见**（`focus2.mjs`）—— 12 个页面，用**真的 Tab** 走一遍
+   （565 个可聚焦控件），每一个都必须有 outline、box-shadow 或 ≥2px 的底边。
+   **不能用 `el.focus()` 去测**：Chromium 里 `:focus-visible` 只在
+   「焦点来自键盘」时匹配，用 JS 聚焦会把全站只靠全局规则的控件全判成不合格。
+
+**焦点环**：`:focus-visible` 的全局规则在 `styles/base.css`。
+个别控件可以用别的方式表达焦点（输入框贴着面板边缘，外描边会被裁掉），
+但**写 `outline: 0` 就必须当场给替代物，而且要用 `--accent` 那一档亮色** ——
+踩过两次：搜索输入框删了焦点环什么都没补，沙箱编辑器补的是 `--accent-line`
+（很暗的橄榄），压在代码窗的深底上等于没有。
 
 注意 Browser pane 的两个坑：**它不派发 scroll 事件**（`scrollY` 会变但监听器收不到），
 所以验证 scroll-spy 要手动 `window.dispatchEvent(new Event("scroll"))`；
