@@ -158,51 +158,70 @@ hr {
 }
 
 /* —— 按钮 —— */
+/* ============================================================
+   按钮 —— **全站只有这一套**
+   ------------------------------------------------------------
+   审计过一次：32 条「有内边距 + 有圆角 + 能点」的规则散在九个文件里，
+   其中只有一条是 .btn。于是同一屏上会出现三种高度、四种圆角、
+   两种描边色的按钮，而它们表达的是同一件事。
+
+   四个变体，语义是「这一屏上它有多重」：
+
+     .btn                描边。默认档，绝大多数动作都是它
+     .btn.btn-primary    实心强调色。**一屏只能有一个**
+     .btn.btn-ghost      无边框。放在一行里的次级动作
+     .btn.btn-sm         上面三种的紧凑版（--h-ctl-sm）
+
+   高度只有两档（--h-ctl / --h-ctl-sm），圆角只有 --r / --r-sm，
+   字号只从八档里取。不要在别处再写 `padding: 6px 13px` 这种数。
+   ============================================================ */
+
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 6px 13px;
+  min-height: var(--h-ctl);
+  padding: 0 var(--sp-2);
   font: inherit;
-  font-size: 14px;
-  font-weight: 550;
-  line-height: 1.4;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.35;
   color: var(--ink);
-  background: var(--raised);
+  background: transparent;
   border: 1px solid var(--rule-strong);
   border-radius: var(--r);
   cursor: pointer;
-  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+  transition:
+    background var(--t-hover) ease,
+    border-color var(--t-hover) ease,
+    color var(--t-hover) ease;
 }
 
 .btn:hover:not(:disabled) {
-  background: var(--sunken);
+  background: var(--hover);
   border-color: var(--accent-line);
 }
 
 .btn:disabled {
   color: var(--ink-3);
+  border-color: var(--rule);
   cursor: not-allowed;
-  opacity: 0.65;
+  /* WCAG 1.4.3 明确豁免禁用控件，所以这里可以压透明度 */
+  opacity: 0.6;
 }
 
 .btn-primary {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--on-accent);
+  font-weight: 700;
 }
-
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--accent-ink);
-  border-color: var(--accent-ink);
+  background: var(--accent-h);
+  border-color: var(--accent-h);
   color: var(--on-accent);
-}
-
-
-.btn-sm {
-  padding: 3px 9px;
-  font-size: 12.5px;
 }
 
 .btn-ghost {
@@ -212,9 +231,23 @@ hr {
 }
 
 .btn-ghost:hover:not(:disabled) {
-  background: var(--sunken);
-  border-color: var(--rule);
+  background: var(--hover);
+  border-color: transparent;
   color: var(--ink);
+}
+
+.btn-sm {
+  min-height: var(--h-ctl-sm);
+  padding: 0 var(--sp-1);
+  font-size: var(--fs-meta);
+}
+
+/* 触摸目标。窄屏或不精确的指针下一律 ≥44px。 */
+@media (max-width: 960px), (pointer: coarse) {
+  .btn,
+  .btn-sm {
+    min-height: 44px;
+  }
 }
 
 /* —— 徽章 —— */
