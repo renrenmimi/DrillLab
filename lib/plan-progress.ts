@@ -103,6 +103,8 @@ export interface PlanStatus<P extends StatusPlan> {
   currentStageIndex: number;
   /** 下一步就是这一格。计划走完了就是 undefined */
   next?: { item: ItemOf<P>; stageIndex: number; itemIndex: number };
+  /** 这一轮从什么时候开始算。没重走过就是 undefined */
+  roundStart?: number;
   /**
    * 计划里最不熟的那道八股（不会 → 模糊 → 会）。
    *
@@ -119,10 +121,31 @@ export interface PlanStatus<P extends StatusPlan> {
 
 const DRILL_RANK: Record<DrillMark, number> = { unknown: 1, fuzzy: 2, known: 3 };
 
-export function itemStatus(item: StatusItem, p: ProgressData): ItemStatus {
+/**
+ * 这条记录**存在**，而且算「这一轮」的。
+ *
+ * 【两个条件缺一不可】第一版只写了后半句，于是 `stamp === undefined`
+ * （压根没做过）碰上 `roundStart === undefined`（没重走过）时返回了 true ——
+ * 整条计划直接变成全做完。回归脚本第一次跑就抓到了：4 / 130 显示成 92 / 130。
+ *
+ * roundStart 是 undefined（从来没重走过这条计划）时不做时间过滤 ——
+ * 老数据和绝大多数情况都走这一支，行为和以前完全一样。
+ *
+ * 有 roundStart 时比时间戳。**老数据里那四个 bag 的值是字面量 `1`**，
+ * 而 1 小于任何真实时间戳，所以它自动落在「这一轮之前」—— 正是想要的：
+ * 你按下「重走一遍」之前做完的东西，这一轮不算。
+ */
+const inRound = (stamp: number | undefined, roundStart?: number) =>
+  stamp !== undefined && (roundStart === undefined || stamp >= roundStart);
+
+export function itemStatus(
+  item: StatusItem,
+  p: ProgressData,
+  roundStart?: number,
+): ItemStatus {
   switch (item.kind) {
     case "lesson": {
-      const hit = !!p.lessons[`${item.examId}/${item.id}`];
+      const hit = inRound(p.lessons[`${item.examId}/${item.id}`], roundStart);
       return { state: hit ? "done" : "todo", done: hit };
     }
 
@@ -130,14 +153,14 @@ export function itemStatus(item: StatusItem, p: ProgressData): ItemStatus {
       // 从零重写那一类走的是 rebuilds（markRebuild），别的走 exercises（markExercise）。
       // 两个 bag 都是 `${examId}/${exerciseId}` 这个键，只是语义不同。
       const key = `${item.examId}/${item.id}`;
-      const hit =
-        item.exerciseKind === "from-scratch" ? !!p.rebuilds[key] : !!p.exercises[key];
+      const stamp = item.exerciseKind === "from-scratch" ? p.rebuilds[key] : p.exercises[key];
+      const hit = inRound(stamp, roundStart);
       return { state: hit ? "done" : "todo", done: hit };
     }
 
     case "drill": {
       const rec = p.drills[item.id];
-      if (!rec) return { state: "todo", done: false };
+      if (!rec || !inRound(rec.at, roundStart)) return { state: "todo", done: false };
       // 自评过一次就算「过过一遍」—— 不逼人把每道都标成「会」才让走下一档
       return {
         state: rec.mark === "known" ? "confident" : "reviewed",
@@ -147,13 +170,14 @@ export function itemStatus(item: StatusItem, p: ProgressData): ItemStatus {
     }
 
     case "coding": {
-      const hit = !!p.coding[item.id];
+      const hit = inRound(p.coding[item.id], roundStart);
       return { state: hit ? "done" : "todo", done: hit };
     }
 
     case "arena": {
       if (p.arenaLive?.id === item.id) return { state: "live", done: false };
-      const attempts = p.arena[item.id] ?? [];
+      // 考场用「开考时间」判轮次 —— 一次尝试属于它开始的那一轮
+      const attempts = (p.arena[item.id] ?? []).filter((a) => inRound(a.startedAt, roundStart));
       if (attempts.some((a) => a.outcome === "passed")) {
         return { state: "passed", done: true };
       }
@@ -162,7 +186,8 @@ export function itemStatus(item: StatusItem, p: ProgressData): ItemStatus {
     }
 
     case "mock": {
-      const hit = !!p.mocks[`${item.examId}/${item.id}`];
+      const hit = inRound(p.mocks[`${item.examId}/${item.id}`]?.at, roundStart);
+      // mocks 的记录一定带 at，所以 ?. 取不到就是「没做过」，正好落在 undefined 那一支
       return { state: hit ? "done" : "todo", done: hit };
     }
   }
@@ -204,10 +229,12 @@ function nextInStage<I extends StatusItem>(
 export function planStatus<P extends StatusPlan>(
   plan: P,
   p: ProgressData,
+  /** 这条计划「这一轮」的起点。undefined = 没重走过，算全部记录 */
+  roundStart?: number,
 ): PlanStatus<P> {
   type I = ItemOf<P>;
   const itemStatusMap = new Map<string, ItemStatus>();
-  for (const item of plan.items) itemStatusMap.set(item.key, itemStatus(item, p));
+  for (const item of plan.items) itemStatusMap.set(item.key, itemStatus(item, p, roundStart));
 
   const stages: StageStatus[] = plan.stages.map((stage) => {
     let done = 0;
@@ -265,6 +292,7 @@ export function planStatus<P extends StatusPlan>(
     currentStageIndex: currentStageIndex < 0 ? stages.length : currentStageIndex,
     next,
     weakestDrill: weakest?.item,
+    roundStart,
   };
 }
 

@@ -67,9 +67,13 @@ export function usePlanStatus(planId?: string): {
   status: LiteStatus | undefined;
   ready: boolean;
 } {
-  const { data, ready } = useProgress();
+  const { data, ready, planRound } = useProgress();
   const plan = litePlanById(planId);
-  const status = useMemo(() => (plan ? planStatus(plan, data) : undefined), [plan, data]);
+  const round = plan ? planRound(plan.id) : undefined;
+  const status = useMemo(
+    () => (plan ? planStatus(plan, data, round) : undefined),
+    [plan, data, round],
+  );
   return { status, ready };
 }
 
@@ -79,10 +83,14 @@ export function useActivePlan(): {
   ready: boolean;
   optedOut: boolean;
 } {
-  const { data, ready } = useProgress();
+  const { data, ready, planRound } = useProgress();
   // ready 之前不认 data.plan —— 那时 data 是 EMPTY，认了会在 hydration 后跳一次
   const plan = litePlanById(ready ? data.plan?.id : undefined);
-  const status = useMemo(() => (plan ? planStatus(plan, data) : undefined), [plan, data]);
+  const round = plan ? planRound(plan.id) : undefined;
+  const status = useMemo(
+    () => (plan ? planStatus(plan, data, round) : undefined),
+    [plan, data, round],
+  );
   return { status, ready, optedOut: ready ? !!data.planOptOut : false };
 }
 
@@ -292,6 +300,54 @@ export function PlanSideBlock({ onNavigate }: { onNavigate: () => void }) {
    课文页、八股页、练习页、Coding 页、考场页共用这一条。
    不在当前计划里就什么都不渲染 —— 自由浏览的人不该被计划的横幅打扰。
    ============================================================ */
+
+/**
+ * 「重走一遍」的确认。首页仪表盘和计划详情页共用这一份。
+ *
+ * 这一步不删任何记录，所以它不是破坏性操作 —— 但它会把一个 130 / 130
+ * 变成 0 / 130，不解释清楚就像把进度弄丢了。三句话必须都在：
+ * 从零重新算、课文上的勾不取消、别的计划不受影响。
+ */
+export function RestartRound({
+  planId,
+  total,
+  onClose,
+}: {
+  planId: string;
+  total: number;
+  onClose: () => void;
+}) {
+  const { restartPlanRound } = useProgress();
+  return (
+    <div className="pl-confirm" role="alertdialog" aria-label="Start this plan over">
+      <span>
+        <T
+          zh={`这条计划的进度从 0 / ${total} 重新算，下一步回到第一档。课文和练习上已经打的勾不会取消 —— 你确实读过、做过，那些记录一条都不删，别的计划也照旧看得到它们。`}
+          en={`This plan starts counting again from 0 / ${total} and its next step goes back to the first stage. The ticks on lessons and exercises stay — you did read them, none of those records are deleted, and other plans still count them.`}
+        />
+      </span>
+      <button
+        type="button"
+        className="btn btn-sm"
+        onClick={() => {
+          restartPlanRound(planId);
+          onClose();
+        }}
+      >
+        <T zh="从头开始" en="Start over" />
+      </button>
+      <button type="button" className="btn btn-sm btn-ghost" onClick={onClose}>
+        <T zh="再想想" en="Never mind" />
+      </button>
+    </div>
+  );
+}
+
+/** 「这一轮从哪天起算」。只到天 —— 精确到分钟对这件事没有意义 */
+export function fmtRoundDay(ms: number) {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 
 export function PlanItemBanner({
   itemKey,

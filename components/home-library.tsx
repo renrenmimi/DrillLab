@@ -275,9 +275,12 @@ export function HomeLibrary() {
             但也不该藏到找不着，所以给它一个固定的家。 */}
         <details className="dash-more">
           <summary>
+            {/* 【标题里必须写出「清空进度」】上一版这个 summary 写的是
+                「……内容来源、进度怎么存的」—— 清空进度就在里面，
+                但标题一个字都没提，等于藏着。实测过：用户想从头开始，找不到。 */}
             <T
-              zh="其他：速查表、模拟考自评、内容来源、进度怎么存的"
-              en="More: reference, mock scoring, sources, how progress is stored"
+              zh="其他：速查表、模拟考自评、内容来源、清空进度"
+              en="More: reference, mock scoring, sources, clear progress"
             />
           </summary>
           <div className="dash-more-body">

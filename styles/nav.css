@@ -165,20 +165,24 @@
 
 /* 「换一条」永远在这儿 —— 选了计划之后必须一眼看得到怎么改。
    实测过：上一版选完之后，首页和侧栏加起来**一个**换计划的入口都没有。 */
+/* 【为什么比上一版重】上一版它是最轻的一档（--ink-3 + 细下划线），
+   功能在，但用户实测没找到 —— 于是他以为「选了计划就换不了」。
+   **可见 ≠ 找得到**，而我的回归脚本只断言了前者。
+   现在颜色提到强调色的文字档，字重提到 600。 */
 .side-plan-change {
   font-family: var(--font-text);
   font-size: var(--fs-meta);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
-  color: var(--ink-3);
+  color: var(--accent-ink);
   text-decoration: underline;
-  text-decoration-color: var(--rule-strong);
+  text-decoration-color: var(--accent-line);
   text-underline-offset: 2px;
 }
 
 .side-plan-change:hover {
-  color: var(--ink);
+  color: var(--accent-h);
   text-decoration-color: currentColor;
 }
 

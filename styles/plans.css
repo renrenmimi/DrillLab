@@ -604,6 +604,32 @@
   color: var(--ink-3);
 }
 
+/* 「这是重走的一轮」。一个 0 / 130 不解释清楚就像进度丢了，
+   所以这一行必须说出从哪天起算，并且给一条退回去的路。 */
+.pl-round {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1);
+  max-width: 62ch;
+  margin: var(--sp-2) 0 0;
+  padding: var(--sp-1) var(--sp-2);
+  background: var(--surface);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 var(--r) var(--r) 0;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.pl-round-undo {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
 .pl-head-actions {
   display: flex;
   align-items: center;
