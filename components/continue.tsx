@@ -205,12 +205,15 @@ export function ContinueButton() {
 /**
  * 这一页的主内容本身就是那颗〔继续〕吗。
  *
- * 首页（新访客的三选一 / 回访者那张「下一件事」的卡）和计划详情页（页头那颗
- * CTA）都是。这两页不许再在外壳里放一颗 —— 同一个目标两个入口等于没有入口。
+ * 三页：首页（进度盘，每张卡都是一个「接着读」）、`/plans`（三选一，
+ * 自带开始 / 继续）、计划详情页（页头那颗 CTA）。
+ * 这三页不许再在外壳里放一颗 —— 同一个目标两个入口等于没有入口。
  * 侧栏和窄屏顶栏共用这一条判断。
  */
 export function cedesContinue(path: string) {
-  return path === "/" || path.startsWith("/plans/");
+  // `/plans` 也算：那一页是「挑一条」，它自己就带着开始 / 继续两个动作，
+  // 侧栏再放一颗就是同屏第三个实心块（实测过）。
+  return path === "/" || path === "/plans" || path.startsWith("/plans/");
 }
 
 export function SideContinue({ onNavigate }: { onNavigate: () => void }) {
@@ -261,6 +264,57 @@ function RecentContinueButton() {
         {target.fresh ? <T zh="开始" en="Start" /> : <T zh="继续" en="Continue" />}
       </span>
       <span className="cont-btn-item">{name}</span>
+    </Link>
+  );
+}
+
+/* ============================================================
+   首页那一行「接着上次」
+   ------------------------------------------------------------
+   **一行，不是一张卡。** 首页第一屏现在是五门课的进度盘，
+   这一行只回答「不想挑的话，从哪儿接着」。
+
+   跟着计划的人：这一行换成计划的下一格（懒加载，见 plan-slots 的理由）。
+   计划的完整仪表盘搬到了 /plans/[id] 页头 —— 那才是它该在的地方。
+   ============================================================ */
+
+export function ContinueStripLine() {
+  const { activePlan, ready } = useProgress();
+  if (ready && activePlan()) return <PlanStripLine />;
+  return <RecentStripLine />;
+}
+
+const PlanStripLine = dynamic(() => import("./plan-kit").then((m) => m.PlanStripLine), {
+  ssr: false,
+  loading: () => <RecentStripLine />,
+});
+
+function RecentStripLine() {
+  const { target } = useContinue();
+  const mode = modeById(target.mode);
+  const pos = lessonPositionOf(target.href);
+
+  return (
+    <Link className="cline" href={target.href}>
+      <span className="cline-label">
+        {target.fresh ? <T zh="从地基开始" en="Start at the foundations" /> : <T zh="接着上次" en="Continue" />}
+      </span>
+      <span className="cline-title">
+        <T zh={target.title} en={target.titleEn} />
+      </span>
+      <span className="cline-meta">
+        <span>
+          <T zh={mode.zh} en={mode.en} />
+        </span>
+        {pos && (
+          <span className="tabular">
+            <T
+              zh={`${pos.courseZh} · 第 ${pos.index} / ${pos.total} 节`}
+              en={`${pos.courseEn ?? pos.courseZh} · lesson ${pos.index} of ${pos.total}`}
+            />
+          </span>
+        )}
+      </span>
     </Link>
   );
 }

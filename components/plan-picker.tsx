@@ -220,9 +220,10 @@ export function PlanPicker() {
       </ul>
 
       <p className="pick-all">
-        <Link className="ui-quiet" href="/plans">
-          <T zh="看全部六条计划" en="View all plans" />
-        </Link>
+        {/* 这一段现在就住在 /plans 上，所以链接改成锚点 —— 指向自己会白刷一次页面 */}
+        <a className="ui-quiet" href="#all-plans">
+          <T zh="看全部六条的细节" en="See all six in detail" />
+        </a>
         <span className="pick-all-note">
           <T
             zh="换计划、先不跟计划都随时可以，进度一条都不会丢。"

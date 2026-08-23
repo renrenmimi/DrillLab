@@ -9,6 +9,7 @@ import Link from "next/link";
 import { litePlans } from "@/lib/plan-lite";
 import { useProgress } from "@/lib/progress";
 import { ActivePlanCard, PlanCard } from "./plan-cards";
+import { PlanPicker } from "./plan-picker";
 import { PlanMark } from "./plan-mark";
 import { T } from "./t";
 
@@ -21,13 +22,20 @@ export function PlanList() {
   return (
     <main className="main" data-rail="off">
       <div className="content ui-page pl-list">
-        <div className="ui-head">
+        {/* 【那个三选一现在住在这儿】
+            它以前是首页第一屏，而首页选中之后 `plan` 永远有值，
+            那一屏就再也回不来了 —— 点 logo、点「今天」、手输 `/` 都回不去。
+            一个**单向门**。搬到 `/plans` 之后它随时点得到，
+            而首页让位给「你在每条轨道上走到哪」。 */}
+        <PlanPicker />
+
+        <div className="ui-head pl-list-head" id="all-plans">
           <div className="ui-eyebrow">
             <PlanMark />
-            <T zh="引导计划" en="Guided plans" />
+            <T zh="全部六条" en="All six" />
           </div>
           <h1 className="ui-h1">
-            <T zh="你想为什么做好准备？" en="What do you want to be ready for?" />
+            <T zh="六条计划的全貌" en="The six plans in full" />
           </h1>
           <p className="ui-lede">
             <T

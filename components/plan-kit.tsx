@@ -206,6 +206,39 @@ export function PlanContinueButton() {
  * 和 PlanContinueButton 是同一条数据（`status.next`），只是壳不一样：
  * 那一颗曾经在顶栏，这一版顶栏不再有导航，所以只剩这一颗。
  */
+/**
+ * 首页那一行「接着上次」的计划版本 —— 指向计划的下一格。
+ *
+ * 首页第一屏现在是进度盘，所以这里只有一行；计划的完整仪表盘
+ * （档位、剩余估时、为什么是这一步）搬到了 /plans/[id] 页头。
+ */
+export function PlanStripLine() {
+  const { status, ready } = useActivePlan();
+  if (!ready || !status) return null;
+
+  const next = status.next;
+  const href = next ? next.item.href : `/plans/${status.plan.id}`;
+
+  return (
+    <Link className="cline" data-plan="true" href={href}>
+      <span className="cline-label">
+        {next ? <T zh="计划的下一格" en="Next in your plan" /> : <T zh="这条计划走完了" en="Plan complete" />}
+      </span>
+      <span className="cline-title">
+        {next ? <T zh={next.item.zh} en={next.item.en} /> : <T zh={status.plan.zh} en={status.plan.en} />}
+      </span>
+      <span className="cline-meta">
+        <span>
+          <T zh={status.plan.zh} en={status.plan.en} />
+        </span>
+        <span className="tabular">
+          {status.done} / {status.total}
+        </span>
+      </span>
+    </Link>
+  );
+}
+
 export function PlanSideContinue({ onNavigate }: { onNavigate: () => void }) {
   const { status, ready } = useActivePlan();
   const t = useT();

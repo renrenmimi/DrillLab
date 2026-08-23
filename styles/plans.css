@@ -1755,3 +1755,12 @@
     flex-wrap: wrap;
   }
 }
+
+/* /plans 上「全部六条」那一段的页头。它排在三选一之后，
+   所以要一条分界线，并且锚点跳过来别被 sticky 顶栏压住。 */
+.pl-list-head {
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--rule);
+  scroll-margin-top: calc(var(--topbar-h) + var(--sp-3));
+}

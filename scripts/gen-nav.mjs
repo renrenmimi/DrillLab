@@ -51,7 +51,7 @@ if (!json) {
 // 两份重数据单独出文件 —— 见各自模板顶部的注释。
 //   searchIndex 130 KB 出头，只有 ⌘K 搜索用，进 nav.ts 每页白下 80 kB（gzip 后）
 //   exercises   148 条，只有引导计划用，而计划那一套是懒加载的
-const { searchIndex, exercises, planManifest, ...navJson } = json;
+const { searchIndex, exercises, planManifest, trackManifest, ...navJson } = json;
 
 const tpl = readFileSync("scripts/nav-template.txt", "utf8");
 writeFileSync(
@@ -63,6 +63,14 @@ const exTpl = readFileSync("scripts/nav-exercises-template.txt", "utf8");
 writeFileSync(
   "content/nav-exercises.ts",
   exTpl.replace("__EXERCISE_DATA__", JSON.stringify(exercises, null, 2)),
+);
+
+const trackTpl = readFileSync("scripts/track-manifest-template.txt", "utf8");
+writeFileSync(
+  "content/track-manifest.ts",
+  trackTpl
+    .replace("__TRACK_DATA__", JSON.stringify(trackManifest.tracks, null, 2))
+    .replace("__SURFACE_DATA__", JSON.stringify(trackManifest.surfaces, null, 2)),
 );
 
 const planTpl = readFileSync("scripts/plan-manifest-template.txt", "utf8");
