@@ -22,12 +22,13 @@
 // 课文里不存在，因为课文只说自己讲什么。
 
 import Link from "next/link";
+import { useState } from "react";
 import { useT } from "@/lib/locale";
 import { modeById } from "@/lib/modes";
 import { pct } from "@/lib/plan-progress";
 import { T } from "./t";
 import { PlanMark } from "./plan-mark";
-import { StateDot, useActivePlan } from "./plan-kit";
+import { RestartRound, StateDot, useActivePlan } from "./plan-kit";
 
 /**
  * 剩下大概要多久。
@@ -51,6 +52,9 @@ function remainingHours(
 export function PlanDash() {
   const { status, ready } = useActivePlan();
   const t = useT();
+  // 「重走一遍」也放在这一屏。用户实测过一次：他要的就是「从头开始」，
+  // 而这一屏是他唯一会看的地方 —— 只放在计划详情页等于没放。
+  const [restarting, setRestarting] = useState(false);
   if (!ready || !status) return null;
 
   const { plan, next, itemStatus } = status;
@@ -168,7 +172,22 @@ export function PlanDash() {
             <Link className="ui-quiet" href="/plans">
               <T zh="换一条计划" en="Change plan" />
             </Link>
+            <button
+              type="button"
+              className="ui-quiet dash2-alt-btn"
+              onClick={() => setRestarting(true)}
+            >
+              <T zh="重走一遍" en="Start over" />
+            </button>
           </p>
+
+          {restarting && (
+            <RestartRound
+              planId={plan.id}
+              total={status.total}
+              onClose={() => setRestarting(false)}
+            />
+          )}
         </div>
       ) : (
         <div className="dash2-next" data-done>
@@ -177,13 +196,22 @@ export function PlanDash() {
           </h2>
           <p className="dash2-why">
             <T
-              zh="下一步可以换一条计划，或者回头把标了「不会」的八股再过一遍。"
-              en="Pick another plan next, or go back over the questions you marked as not known."
+              zh="下一步可以再走一遍这条，换一条别的，或者回头把标了「不会」的八股过一遍。"
+              en="You can run this one again, pick a different plan, or go back over the questions you marked as not known."
             />
           </p>
-          <Link className="dash2-cta" href="/plans">
-            <T zh="挑下一条计划" en="Pick another plan" />
-          </Link>
+          <button
+            type="button"
+            className="dash2-cta"
+            onClick={() => setRestarting(true)}
+          >
+            <T zh="再走一遍" en="Run it again" />
+          </button>
+          <p className="dash2-alts">
+            <Link className="ui-quiet" href="/plans">
+              <T zh="挑下一条计划" en="Pick another plan" />
+            </Link>
+          </p>
         </div>
       )}
 

@@ -29,7 +29,7 @@ import { useT } from "@/lib/locale";
 import { modeById } from "@/lib/modes";
 import { pct, planStatus, type ItemState, type PlanStatus } from "@/lib/plan-progress";
 import { useProgress } from "@/lib/progress";
-import { PHASE, PhaseBadge, STATE_LABEL, StateDot } from "./plan-kit";
+import { fmtRoundDay, PHASE, PhaseBadge, RestartRound, STATE_LABEL, StateDot } from "./plan-kit";
 import { PlanMark } from "./plan-mark";
 import { T } from "./t";
 
@@ -351,10 +351,20 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
   // 「为什么在这儿」、也没有覆盖方向 —— 路线图三样都要。这一页是单独一个
   // 路由，服务端已经把完整的 ResolvedPlan 当 prop 传进来了，直接算就是。
   // 全站挂载的那几个零件不能这么干，见 components/plan-kit.tsx 顶部。
-  const { data, activePlan, setActivePlan, notePlanSeen, ready } = useProgress();
+  const {
+    data,
+    activePlan,
+    setActivePlan,
+    notePlanSeen,
+    planRound,
+    restartPlanRound,
+    clearPlanRound,
+    ready,
+  } = useProgress();
   const t = useT();
-  const status = planStatus(plan, data);
+  const status = planStatus(plan, data, planRound(plan.id));
   const [changing, setChanging] = useState(false);
+  const [restarting, setRestarting] = useState(false);
   const pReady = ready;
 
   // 「最近看过哪条计划」。幂等，所以依赖数组里只放 id 和 ready
@@ -511,6 +521,16 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
                 <Link className="ui-quiet pl-head-alt" href="/plans">
                   <T zh="换一条计划" en="Change plan" />
                 </Link>
+                {/* 「重走一遍」和「换一条」是两件不同的事，实测过一次混淆：
+                    有人想「把 React 再过一遍」，只找到「换一条」，
+                    于是以为这个功能不存在。 */}
+                <button
+                  type="button"
+                  className="ui-quiet pl-head-alt"
+                  onClick={() => setRestarting(true)}
+                >
+                  <T zh="重走一遍" en="Start this plan over" />
+                </button>
                 <button
                   type="button"
                   className="ui-quiet pl-head-alt"
@@ -523,6 +543,32 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
           </div>
 
           {changing && <StopGuiding onClose={() => setChanging(false)} />}
+
+          {restarting && (
+            <RestartRound
+              planId={plan.id}
+              total={status.total}
+              onClose={() => setRestarting(false)}
+            />
+          )}
+
+          {/* 正在重走：说清「从哪天起算」，并留一条退回去的路。
+              不说的话，一个 0 / 130 会让人以为进度丢了。 */}
+          {status.roundStart !== undefined && !restarting && (
+            <p className="pl-round">
+              <T
+                zh={`这是重走的一轮，只统计 ${fmtRoundDay(status.roundStart)} 之后做的。以前做过的记录都还在。`}
+                en={`This is a fresh round; only what you do after ${fmtRoundDay(status.roundStart)} counts here. Nothing you did before was deleted.`}
+              />{" "}
+              <button
+                type="button"
+                className="ui-quiet pl-round-undo"
+                onClick={() => clearPlanRound(plan.id)}
+              >
+                <T zh="算上以前做过的" en="Count my earlier work again" />
+              </button>
+            </p>
+          )}
 
           <p className="pl-head-for">
             <T zh={plan.forZh} en={plan.forEn} />

@@ -433,6 +433,15 @@
   margin: var(--sp-2) 0 0;
 }
 
+/* .dash2-alts 里那个 button —— 和旁边两条链接长一样，清掉浏览器默认外观 */
+.dash2-alt-btn {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
 /* ---------- 当前档的紧凑预览 ---------- */
 
 .dash2-peek {

@@ -100,9 +100,18 @@ export interface RecentItem {
 }
 
 export interface ProgressData {
-  lessons: Record<string, 1>;
-  exercises: Record<string, 1>;
-  rebuilds: Record<string, 1>;
+  /* 【为什么这四个 bag 的值是时间戳而不是 1】
+     「重走一遍某条计划」要能回答「这一条是不是**这一轮**做的」。
+     计划的完成度是从这些记录推导的（见 lib/plan-progress.ts），
+     所以判据只能落在记录本身上。
+
+     老数据里这些值是字面量 `1`。不用迁移：`1` 小于任何真实时间戳，
+     于是「重走之后」它自动落在「这一轮之前」那一侧 —— 正是想要的。
+     读的地方一直都只取真值（`!!data.lessons[k]`），`1` 和 `Date.now()`
+     都为真，所以旧数据的「做过没做过」一个都不会变。 */
+  lessons: Record<string, number>;
+  exercises: Record<string, number>;
+  rebuilds: Record<string, number>;
   mocks: Record<string, MockRecord>;
   last?: { examId: string; lessonId: string; title: string; at: number };
   /** 八股题掌握状态，键是题目 id */
@@ -119,8 +128,8 @@ export interface ProgressData {
    * 存进 localStorage 而不是内存，是为了让刷新 review 页也不丢。
    */
   arenaLive?: { id: string; startedAt: number; submittedAt?: number };
-  /** coding 题完成标记 */
-  coding: Record<string, 1>;
+  /** coding 题完成标记。值是打勾那一刻的时间戳，理由同 lessons */
+  coding: Record<string, number>;
   /**
    * 最近去过的地方。mode 是「最近用的是哪个模式」，byMode 是「每个模式里最近的落点」。
    *
@@ -140,6 +149,20 @@ export interface ProgressData {
   planSeen?: string;
   /** 用户明确选了「先自己逛」。首页因此不再把选计划摆在第一位 */
   planOptOut?: boolean;
+  /**
+   * 每条计划「这一轮」从什么时候开始算。键是计划 id，值是毫秒时间戳。
+   *
+   * 【为什么要有这一层，而不是「重置」时去删记录】
+   * 计划的完成度是从课文 / 练习 / 八股这些**共享**记录推导的
+   * （见 lib/plan-progress.ts 顶部）。React 计划和完整路线共用地基那九节，
+   * 所以「把 React 计划清零」如果去删记录，完整路线的进度会跟着掉。
+   *
+   * 改成记一个起点之后：**记录一条都不动**，只是那条计划在算自己的完成度时
+   * 只认这个时间点之后的记录。别的计划照旧看全部。
+   *
+   * 没有这一项 = 从来没重走过 = 不做任何过滤。老数据天然如此。
+   */
+  planRounds?: Record<string, number>;
 }
 
 const EMPTY: ProgressData = {
@@ -189,6 +212,15 @@ interface Ctx {
   setActivePlan: (id: string) => void;
   /** 不跟计划了。已有的完成记录一条不动，只是首页不再把它摆在第一位 */
   clearActivePlan: () => void;
+  /**
+   * 这条计划「这一轮」的起点。没重走过就是 undefined，
+   * 那时计划算完成度看的是全部记录。
+   */
+  planRound: (planId: string) => number | undefined;
+  /** 重走一遍：把起点设成现在。**不删任何记录**，别的计划不受影响 */
+  restartPlanRound: (planId: string) => void;
+  /** 撤销重走：把起点去掉，重新算上以前做过的 */
+  clearPlanRound: (planId: string) => void;
   /** 看过某条计划的详情页。幂等 */
   notePlanSeen: (id: string) => void;
 
@@ -239,6 +271,9 @@ const ProgressCtx = createContext<Ctx>({
   activePlan: () => undefined,
   setActivePlan: () => {},
   clearActivePlan: () => {},
+  planRound: () => undefined,
+  restartPlanRound: () => {},
+  clearPlanRound: () => {},
   notePlanSeen: () => {},
   drillMark: () => undefined,
   setDrillMark: () => {},
@@ -276,6 +311,7 @@ function load(): ProgressData {
       plan: p.plan,
       planSeen: p.planSeen,
       planOptOut: p.planOptOut,
+      planRounds: p.planRounds,
     };
   } catch {
     return EMPTY;
@@ -350,7 +386,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         update((prev) => {
           const lessons = { ...prev.lessons };
           if (lessons[key]) delete lessons[key];
-          else lessons[key] = 1;
+          else lessons[key] = Date.now();
           return { ...prev, lessons };
         });
       },
@@ -362,7 +398,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         update((prev) =>
           prev.exercises[key]
             ? prev
-            : { ...prev, exercises: { ...prev.exercises, [key]: 1 } },
+            : { ...prev, exercises: { ...prev.exercises, [key]: Date.now() } },
         );
       },
 
@@ -373,7 +409,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         update((prev) => {
           const rebuilds = { ...prev.rebuilds };
           if (rebuilds[key]) delete rebuilds[key];
-          else rebuilds[key] = 1;
+          else rebuilds[key] = Date.now();
           return { ...prev, rebuilds };
         });
       },
@@ -506,6 +542,26 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         update((prev) => (prev.planSeen === id ? prev : { ...prev, planSeen: id }));
       },
 
+      planRound: (planId) => data.planRounds?.[planId],
+
+      restartPlanRound: (planId) => {
+        if (!dataReady.current) return;
+        update((prev) => ({
+          ...prev,
+          planRounds: { ...(prev.planRounds ?? {}), [planId]: Date.now() },
+        }));
+      },
+
+      clearPlanRound: (planId) => {
+        if (!dataReady.current) return;
+        update((prev) => {
+          if (prev.planRounds?.[planId] === undefined) return prev;
+          const planRounds = { ...prev.planRounds };
+          delete planRounds[planId];
+          return { ...prev, planRounds };
+        });
+      },
+
       /* ---- 八股题库 ---- */
 
       drillMark: (id) => data.drills[id]?.mark,
@@ -599,7 +655,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         update((prev) => {
           const coding = { ...prev.coding };
           if (coding[id]) delete coding[id];
-          else coding[id] = 1;
+          else coding[id] = Date.now();
           return { ...prev, coding };
         });
       },
