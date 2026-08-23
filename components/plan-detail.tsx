@@ -561,7 +561,7 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
         </ol>
 
         {!ready && (
-          <p className="dimmer" style={{ fontSize: 13 }}>
+          <p className="dimmer" style={{ fontSize: "var(--fs-meta)" }}>
             <T
               zh="正在读这台浏览器里的进度…"
               en="Reading your progress from this browser…"

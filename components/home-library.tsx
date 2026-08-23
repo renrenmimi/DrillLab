@@ -324,13 +324,13 @@ export function HomeLibrary() {
                 </span>
               </li>
             </ul>
-            <p className="dimmer" style={{ fontSize: 13.5 }}>
+            <p className="dimmer" style={{ fontSize: "var(--fs-sm)" }}>
               <T
                 zh="三门真题课读的是本机上的 react-notes-app、graphql-federation-practice 与 cab-booking-context，只读不改。标了「源项目」或「已跑通」的代码都在本机真实跑过。"
                 en="The three assessment courses read three real projects on this machine, read-only. Every block marked “source” or “verified” was actually run here."
               />
             </p>
-            <p className="dimmer" style={{ fontSize: 13.5 }}>
+            <p className="dimmer" style={{ fontSize: "var(--fs-sm)" }}>
               <T
                 zh="进度只存在这台浏览器里（localStorage），不上传、不需要登录、也不会同步到别的设备。"
                 en="Progress lives only in this browser (localStorage). Nothing is uploaded, no sign-in, and it does not sync across devices."

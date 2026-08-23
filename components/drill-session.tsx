@@ -287,7 +287,7 @@ function SessionSetup({ emptyScope }: { emptyScope?: string }) {
           <input type="checkbox" checked={random} onChange={(e) => setRandom(e.target.checked)} />
           <span>
             <T zh="随机顺序" en="Shuffle" />
-            <span className="dimmer" style={{ fontSize: 12.5 }}>
+            <span className="dimmer" style={{ fontSize: "var(--fs-meta)" }}>
               {" "}
               <T
                 zh="（不勾就按复习优先级排）"
@@ -323,7 +323,7 @@ function SessionSetup({ emptyScope }: { emptyScope?: string }) {
           </Link>
         </div>
 
-        <p className="dimmer" style={{ fontSize: 13, marginTop: 20 }}>
+        <p className="dimmer" style={{ fontSize: "var(--fs-meta)", marginTop: 20 }}>
           <T
             zh="键盘全程可用：空格翻面，1 / 2 / 3 自评，← → 前后翻，Esc 退出。"
             en="Keyboard throughout: space flips, 1 / 2 / 3 rate, ← → move, Esc exits."
@@ -399,7 +399,7 @@ function RoundResult({
                 return (
                   <li key={id}>
                     <Link href={drillPath(id)}>{meta.zh}</Link>
-                    <span className="dimmer mono" style={{ fontSize: 12.5 }}>
+                    <span className="dimmer mono" style={{ fontSize: "var(--fs-meta)" }}>
                       {" "}
                       {meta.bank.map((n) => `#${n}`).join(" / ")}
                     </span>

@@ -93,7 +93,7 @@
 .page-lede {
   max-width: 62ch;
   margin: 0;
-  font-size: 17px;
+  font-size: var(--fs-body);
   line-height: 1.62;
   color: var(--ink-2);
 }
@@ -213,7 +213,7 @@
   flex: 1 1 auto;
   min-width: 60px;
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: var(--sunken);
   border: 1px solid var(--rule);
   overflow: hidden;
@@ -223,7 +223,7 @@
   display: block;
   height: 100%;
   background: var(--accent);
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   transition: width var(--t-prog) var(--ease);
 }
 
@@ -306,7 +306,7 @@
 
   .ui-lede,
   .page-lede {
-    font-size: 15.5px;
+    font-size: var(--fs-body);
   }
 }
 

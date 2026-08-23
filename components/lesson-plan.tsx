@@ -96,7 +96,7 @@ function DefaultStep({
           )}
         </span>
       </div>
-      <Link className="lnext-cta" href={next ? next.href : (arenaHref ?? "/arena")}>
+      <Link className="btn btn-primary lnext-cta" href={next ? next.href : (arenaHref ?? "/arena")}>
         {next ? <T zh="下一节" en="Next lesson" /> : <T zh="去考场" en="To the arena" />}
       </Link>
     </li>
