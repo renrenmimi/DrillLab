@@ -361,7 +361,10 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
             <T en="Where you are · real source" zh="当前位置 · 真实来源" />
           </summary>
 
-          <div style={{ color: "var(--ink-2)", marginTop: 8 }}>
+          {/* 这两块原来是三处内联样式（字号 11.5、上边距 12、下边距 4）。
+              内联写死的数字不在任何一档里，也扫不到 —— 搬进 styles/lesson.css，
+              字号走 --fs-* 那八档，间距走 --sp-*。 */}
+          <div className="rail-fold-where">
             <T zh={exam.shortTitle} en={exam.shortTitleEn} />
             <br />
             <span className="dimmer">
@@ -370,14 +373,9 @@ export function LessonBody({ examId, lessonId }: { examId: string; lessonId: str
           </div>
 
           {lesson.sourceFiles && lesson.sourceFiles.length > 0 && (
-            <div
-              className="mono dimmer"
-              style={{ fontSize: 11.5, lineHeight: 1.6, marginTop: 12 }}
-            >
+            <div className="mono dimmer rail-fold-src">
               {lesson.sourceFiles.slice(0, 4).map((f) => (
-                <div key={f.path} style={{ marginBottom: 4, wordBreak: "break-all" }}>
-                  {f.path}
-                </div>
+                <div key={f.path}>{f.path}</div>
               ))}
             </div>
           )}
