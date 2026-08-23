@@ -1,13 +1,18 @@
 /* ============================================================
    数据流图 / 请求流图
    ------------------------------------------------------------
-   节点 + SVG 连线 + 逐帧高亮。不用插画，不用漂浮圆球。
+   节点 + 逐帧高亮。不用插画，不用漂浮圆球。
+
+   这一轮和练习零件一起接回了全站契约：字号只取八档、间距只取 --sp-*、
+   圆角只取四种、卡片一律 --raised + --rule + --r-lg。
+   强调色只留给「这一帧正在发生的那个节点」和「当前是第几步」——
+   那是当前位置，不是装饰。
    ============================================================ */
 
 .viz {
-  margin: 20px 0;
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--r);
+  margin: var(--sp-3) 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
   background: var(--raised);
   overflow: hidden;
   max-width: var(--measure-wide);
@@ -16,17 +21,23 @@
 .viz-bar {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 7px 12px;
+  gap: var(--sp-1);
+  padding: 6px var(--sp-2);
   background: var(--sunken);
   border-bottom: 1px solid var(--rule);
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   font-weight: 600;
   color: var(--ink-2);
 }
 
+/* 「第 3 / 7 步」贴到标题栏右端 */
+.viz-count {
+  margin-left: auto;
+  font-weight: 500;
+}
+
 .viz-stage {
-  padding: 20px 16px;
+  padding: var(--sp-3) var(--sp-2);
   overflow-x: auto;
 }
 
@@ -37,16 +48,25 @@
   min-width: min-content;
 }
 
+/* 「箭头 + 节点」成对出现，但栅格上它们是两个平级的格子 ——
+   display: contents 让这层包装从盒模型里消失。 */
+.viz-pair {
+  display: contents;
+}
+
 .viz-node {
   flex: 1 1 0;
   min-width: 118px;
-  padding: 11px 12px;
+  padding: var(--sp-1) var(--sp-2);
   border: 1px solid var(--rule);
   border-radius: var(--r);
-  background: var(--surface);
-  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  background: var(--sunken);
+  transition:
+    border-color var(--t-fold) ease,
+    background var(--t-fold) ease;
 }
 
+/* 正在发生的这一个 = 当前位置 */
 .viz-node[data-on="true"] {
   border-color: var(--accent);
   background: var(--accent-wash);
@@ -58,7 +78,8 @@
 }
 
 .viz-node-kind {
-  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
   font-weight: 650;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -71,17 +92,16 @@
 }
 
 .viz-node-title {
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--ink);
   line-height: 1.4;
 }
 
 .viz-node-detail {
-  margin-top: 5px;
-  font-family:
-    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
-  font-size: 11.5px;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
   line-height: 1.55;
   color: var(--ink-2);
   word-break: break-word;
@@ -93,12 +113,12 @@
    扫描一直报它。--ink-3 在 --raised 上是 6.41:1。 */
 .viz-arrow {
   flex: 0 0 auto;
-  width: 34px;
+  width: var(--sp-4);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--ink-3);
-  font-size: 14px;
+  font-size: var(--fs-sm);
 }
 
 .viz-arrow[data-on="true"] {
@@ -112,7 +132,7 @@
 
 .viz-flow[data-dir="column"] .viz-arrow {
   width: 100%;
-  height: 24px;
+  height: var(--sp-3);
   transform: rotate(90deg);
 }
 
@@ -123,16 +143,16 @@
 
   .viz-arrow {
     width: 100%;
-    height: 22px;
+    height: var(--sp-3);
     transform: rotate(90deg);
   }
 }
 
 .viz-msg {
-  padding: 11px 14px;
+  padding: var(--sp-1) var(--sp-2);
   border-top: 1px solid var(--rule);
   background: var(--surface);
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--ink-2);
   line-height: 1.6;
   min-height: 3.2em;
@@ -149,46 +169,54 @@
 .viz-ctl {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--sp-1);
   flex-wrap: wrap;
-  padding: 9px 12px;
+  padding: var(--sp-1) var(--sp-2);
   border-top: 1px solid var(--rule);
   background: var(--raised);
 }
 
 .viz-steps {
   display: flex;
-  gap: 4px;
+  gap: 0;
   margin-left: auto;
 }
 
+/* 每个点都是一颗按钮（点它就跳到那一帧），可视尺寸只有 6px ——
+   所以用内边距把可点区域撑到 14×18，再用 background-clip: content-box
+   让底色只画在内容盒上。box-sizing 必须临时改回 content-box，
+   否则全站的 border-box 会把 width 算成「含内边距」，内容盒剩 0。 */
 .viz-dot {
+  box-sizing: content-box;
   width: 6px;
   height: 6px;
-  border-radius: 100px;
-  background: var(--rule-strong);
-  padding: 0;
+  padding: 6px 4px;
   border: 0;
+  border-radius: var(--r-pill);
+  background: var(--rule-strong);
+  background-clip: content-box;
   cursor: pointer;
+  transition: width var(--t-hover) ease;
 }
 
 .viz-dot[data-on="true"] {
   background: var(--accent);
+  background-clip: content-box;
   width: 16px;
 }
 
 /* ---------- 静态分层图（不需要播放的架构图） ---------- */
 
 .layers {
-  margin: 20px 0;
+  margin: var(--sp-3) 0;
   max-width: var(--measure-wide);
 }
 
 .layer {
   display: grid;
   grid-template-columns: 112px minmax(0, 1fr);
-  gap: 16px;
-  padding: 13px 0;
+  gap: var(--sp-2);
+  padding: var(--sp-2) 0;
   border-top: 1px solid var(--rule);
   align-items: start;
 }
@@ -197,28 +225,30 @@
   border-bottom: 1px solid var(--rule);
 }
 
+/* 层名是这一行的眉题，和练习卡里那一档小标题同一种画法：
+   小、灰、不抢色。老值是 --accent-ink —— 一张图里五六行全是柠檬绿，
+   强调色就不再强调任何东西了。 */
 .layer-name {
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   font-weight: 650;
   letter-spacing: 0.04em;
-  color: var(--accent-ink);
+  color: var(--ink-3);
   padding-top: 2px;
 }
 
 .layer-items {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: var(--sp-1);
 }
 
 .layer-item {
-  padding: 5px 10px;
+  padding: 4px var(--sp-1);
   border: 1px solid var(--rule);
-  border-radius: var(--r);
-  background: var(--surface);
-  font-family:
-    ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
-  font-size: 12px;
+  border-radius: var(--r-sm);
+  background: var(--sunken);
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
   color: var(--ink);
 }
 
@@ -234,7 +264,7 @@
 
 .layer-note {
   width: 100%;
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   color: var(--ink-2);
   margin-top: 2px;
 }

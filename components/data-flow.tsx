@@ -71,7 +71,7 @@ export function DataFlowDiagram({
     <div className="viz">
       <div className="viz-bar">
         <span>{title}</span>
-        <span className="dimmer" style={{ marginLeft: "auto", fontWeight: 500 }}>
+        <span className="dimmer viz-count">
           <T en={`Step ${step + 1} of ${frames.length}`} zh={`第 ${step + 1} / ${frames.length} 步`} />
         </span>
       </div>
@@ -79,7 +79,7 @@ export function DataFlowDiagram({
       <div className="viz-stage">
         <div className="viz-flow" data-dir={direction}>
           {nodes.map((n, i) => (
-            <div key={i} style={{ display: "contents" }}>
+            <div key={i} className="viz-pair">
               {i > 0 && (
                 <div className="viz-arrow" data-on={i === f.active ? "true" : undefined}>
                   →
@@ -99,10 +99,15 @@ export function DataFlowDiagram({
         {f.msg}
       </div>
 
+      {/* 【这三颗按钮里没有实心的】
+          这张图是课文里的一个演示件，不是这一页要你做的事 ——
+          一节课上还摆着好几道练习，每个零件都给自己配一颗实心强调色按钮，
+          整页就被柠檬绿铺满了。所以：上一步 / 下一步是无边框的 .btn-ghost，
+          播放是描边的 .btn，实心那一档全站只留给侧栏那颗〔继续〕。 */}
       <div className="viz-ctl">
         <button
           type="button"
-          className="btn btn-sm"
+          className="btn btn-sm btn-ghost"
           disabled={step === 0}
           onClick={() => {
             setPlaying(false);
@@ -113,7 +118,7 @@ export function DataFlowDiagram({
         </button>
         <button
           type="button"
-          className="btn btn-sm btn-primary"
+          className="btn btn-sm"
           onClick={() => {
             if (step >= last) setStep(0);
             setPlaying(!playing);
@@ -129,7 +134,7 @@ export function DataFlowDiagram({
         </button>
         <button
           type="button"
-          className="btn btn-sm"
+          className="btn btn-sm btn-ghost"
           disabled={step >= last}
           onClick={() => {
             setPlaying(false);

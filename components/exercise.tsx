@@ -125,7 +125,7 @@ function Recognition({ ex, examId }: { ex: RecognitionExercise; examId: string }
       {ex.code && <CodeBlock ex={ex.code} />}
 
       {multi && (
-        <p className="dim" style={{ fontSize: 14 }}>
+        <p className="ex-note">
           <T en="More than one answer is correct." zh="这题是多选。" />
         </p>
       )}
@@ -143,7 +143,7 @@ function Recognition({ ex, examId }: { ex: RecognitionExercise; examId: string }
             <span className="opt-key" aria-hidden>
               {KEYS[i]}
             </span>
-            <span className="opt-label mono" style={{ fontSize: 14 }}>
+            <span className="opt-label mono">
               <T zh={o.label} en={o.labelEn} />
             </span>
           </button>
@@ -155,7 +155,7 @@ function Recognition({ ex, examId }: { ex: RecognitionExercise; examId: string }
           <>
             <button
               type="button"
-              className="btn btn-primary btn-sm"
+              className="btn btn-sm"
               disabled={picked.length === 0}
               aria-describedby={picked.length === 0 ? `${ex.id}-why-disabled` : undefined}
               onClick={() => {
@@ -200,8 +200,8 @@ function Recognition({ ex, examId }: { ex: RecognitionExercise; examId: string }
         <div className="blank-why">
           <div className="blank-why-row">
             <span className="blank-why-n">
-                  <T en="Why" zh="为什么" />
-                </span>
+              <T en="Why" zh="为什么" />
+            </span>
             <span>
               <T zh={ex.explain} en={ex.explainEn} />
             </span>
@@ -248,12 +248,16 @@ function Ordering({ ex, examId }: { ex: OrderingExercise; examId: string }) {
             data-state={checked ? (ex.answer[i] === id ? "right" : "wrong") : undefined}
           >
             <span className="order-n">{i + 1}</span>
-            <span className="order-label mono" style={{ fontSize: 13.5 }}>
+            <span className="order-label mono">
               {label(id)}
             </span>
+            {/* 上移 / 下移走全站唯一那套按钮（.btn.btn-sm），
+                .order-move-btn 只负责把它压成正方形 —— 老代码在这里
+                自己画了一个 24×24 的小方块，既不是 .btn，也够不到触摸目标。 */}
             <span className="order-move">
               <button
                 type="button"
+                className="btn btn-sm order-move-btn"
                 onClick={() => move(i, i - 1)}
                 disabled={i === 0 || checked}
                 aria-label={t("上移", "Move up")}
@@ -262,6 +266,7 @@ function Ordering({ ex, examId }: { ex: OrderingExercise; examId: string }) {
               </button>
               <button
                 type="button"
+                className="btn btn-sm order-move-btn"
                 onClick={() => move(i, i + 1)}
                 disabled={i === order.length - 1 || checked}
                 aria-label={t("下移", "Move down")}
@@ -277,7 +282,7 @@ function Ordering({ ex, examId }: { ex: OrderingExercise; examId: string }) {
         {!checked ? (
           <button
             type="button"
-            className="btn btn-primary btn-sm"
+            className="btn btn-sm"
             onClick={() => {
               setChecked(true);
               if (order.every((id, i) => id === ex.answer[i])) markExercise(examId, ex.id);
@@ -301,8 +306,8 @@ function Ordering({ ex, examId }: { ex: OrderingExercise; examId: string }) {
         <div className="blank-why">
           <div className="blank-why-row">
             <span className="blank-why-n">
-                  <T en="Why" zh="为什么" />
-                </span>
+              <T en="Why" zh="为什么" />
+            </span>
             <span>
               <T zh={ex.explain} en={ex.explainEn} />
             </span>
@@ -427,7 +432,7 @@ function FillBlank({ ex, examId }: { ex: FillBlankExercise; examId: string }) {
             这里直接把「还差几个空」写在按钮旁边。 */}
         <button
           type="button"
-          className="btn btn-primary btn-sm"
+          className="btn btn-sm"
           disabled={!filled}
           aria-describedby={!filled ? `${ex.id}-why-disabled` : undefined}
           onClick={() => {
@@ -481,8 +486,8 @@ function FillBlank({ ex, examId }: { ex: FillBlankExercise; examId: string }) {
           {ex.blanks.map((b) => (
             <div key={b.n} className="blank-why-row">
               <span className="blank-why-n">
-                    <T en={`Blank ${b.n}`} zh={`空 ${b.n}`} />
-                  </span>
+                <T en={`Blank ${b.n}`} zh={`空 ${b.n}`} />
+              </span>
               <span>
                 <T zh={b.hint} en={b.hintEn} />
               </span>
@@ -495,13 +500,13 @@ function FillBlank({ ex, examId }: { ex: FillBlankExercise; examId: string }) {
         <div className="blank-why">
           {ex.blanks.map((b) => (
             <div key={b.n} className="blank-why-row">
-              <span className="blank-why-n">
+              <span className="blank-why-n" data-ok={isRight(b.n)}>
                 {isRight(b.n) ? "✓" : "✕"} {b.n}
               </span>
               <span>
                 <b>{b.accept[0]}</b>
                 {b.accept.length > 1 && (
-                  <span className="dimmer" style={{ fontSize: 13 }}>
+                  <span className="dimmer blank-alt">
                     <T
                       en={` (also accepts ${b.accept.slice(1).join(" / ")})`}
                       zh={`（也接受 ${b.accept.slice(1).join(" / ")}）`}
@@ -554,7 +559,7 @@ function CodeCompletion({ ex, examId }: { ex: CodeCompletionExercise; examId: st
       <div className="minihead">
         <T en="Requirements" zh="要求" />
       </div>
-      <ul style={{ fontSize: 15, color: "var(--ink-2)" }}>
+      <ul className="ws-req">
         <BilingualList zh={ex.requirements} en={ex.requirementsEn} />
       </ul>
 
@@ -574,7 +579,7 @@ function CodeCompletion({ ex, examId }: { ex: CodeCompletionExercise; examId: st
         actions={
           <button
             type="button"
-            className="btn btn-sm btn-primary"
+            className="btn btn-sm"
             onClick={() => {
               setChecked(true);
               if (allOk) markExercise(examId, ex.id);
@@ -585,7 +590,7 @@ function CodeCompletion({ ex, examId }: { ex: CodeCompletionExercise; examId: st
         }
         message={
           checked ? (
-            <span style={{ color: allOk ? "var(--ok)" : "var(--danger)", fontWeight: 600 }}>
+            <span className="ex-verdict" data-ok={allOk}>
               {allOk
                 ? t("检查项全过", "All checks pass")
                 : t(
@@ -619,7 +624,7 @@ function CodeCompletion({ ex, examId }: { ex: CodeCompletionExercise; examId: st
 
       <HintPanel hints={ex.hints} hintsEn={ex.hintsEn} />
 
-      <div style={{ marginTop: 16 }}>
+      <div className="ex-solution">
         <SolutionGate>
           <div className="minihead">
             <T en="Reference answer" zh="参考答案" />
@@ -628,7 +633,7 @@ function CodeCompletion({ ex, examId }: { ex: CodeCompletionExercise; examId: st
           <div className="minihead">
             <T en="Your code vs the reference" zh="你的代码 vs 参考答案" />
           </div>
-          <div className="codewin" style={{ padding: 0 }}>
+          <div className="codewin ex-diff">
             <DiffView mine={value} theirs={ex.solution.code} />
           </div>
         </SolutionGate>
@@ -718,7 +723,7 @@ function Debug({ ex, examId }: { ex: DebugExercise; examId: string }) {
         {step === 1 && (
           <button
             type="button"
-            className="btn btn-sm btn-primary"
+            className="btn btn-sm"
             disabled={!cls}
             onClick={() => setStep(2)}
           >
@@ -750,7 +755,7 @@ function Debug({ ex, examId }: { ex: DebugExercise; examId: string }) {
           <div className="debug-step-head">
             <T en="Step 3 · where the fault is" zh="第 3 步 · 病灶在哪" />
           </div>
-          <p style={{ fontSize: 15, color: "var(--ink-2)" }}>
+          <p className="debug-q">
             <T zh={ex.locate.question} en={ex.locate.questionEn} />
           </p>
           {/* 代码在第 1 步已经给全了。只有**长到会滚出屏幕**的才在这里再放一份
@@ -781,7 +786,7 @@ function Debug({ ex, examId }: { ex: DebugExercise; examId: string }) {
                 <span className="opt-key" aria-hidden>
                   {KEYS[i]}
                 </span>
-                <span className="opt-label mono" style={{ fontSize: 14 }}>
+                <span className="opt-label mono">
                   {o.label}
                 </span>
               </button>
@@ -790,7 +795,7 @@ function Debug({ ex, examId }: { ex: DebugExercise; examId: string }) {
           {step === 2 && (
             <button
               type="button"
-              className="btn btn-sm btn-primary"
+              className="btn btn-sm"
               disabled={!loc}
               onClick={() => {
                 setStep(3);
@@ -929,7 +934,7 @@ function FromScratch({ ex, examId }: { ex: FromScratchExercise; examId: string }
 
       <HintPanel hints={ex.hints} hintsEn={ex.hintsEn} />
 
-      <div style={{ marginTop: 18 }}>
+      <div className="ex-solution">
         <SolutionGate
           note={L(
             "这一关的意义就在于「没有答案也能写出来」。请确认你已经在本机建好文件、跑过验证命令，再打开参考答案对照。",
@@ -944,7 +949,7 @@ function FromScratch({ ex, examId }: { ex: FromScratchExercise; examId: string }
         </SolutionGate>
       </div>
 
-      <div className="done-bar" data-done={done} style={{ marginTop: 22 }}>
+      <div className="done-bar ex-done" data-done={done}>
         <span className="done-bar-text">
           {done
             ? t(
@@ -958,8 +963,7 @@ function FromScratch({ ex, examId }: { ex: FromScratchExercise; examId: string }
         </span>
         <button
           type="button"
-          className={done ? "btn btn-sm" : "btn btn-sm btn-primary"}
-          style={{ marginLeft: "auto" }}
+          className="btn btn-sm"
           onClick={() => markRebuild(examId, ex.id)}
         >
           {done ? (
