@@ -29,15 +29,13 @@
 
 /* ---------- 页面容器 ---------- */
 
+/* 【左对齐，不居中】容器只收口宽度，不移动左边界 ——
+   居中会让每一页的正文轴随视口和各自的 max-width 漂移，
+   而侧栏和顶栏都不动。理由见 styles/shell.css 里 .main 那段。
+   外边距由 .main 给，这里只管宽度和垂直节奏。 */
 .ui-page {
-  /* 【必须配 width: 100%】.ui-page 常常是 grid item。单写 margin-inline: auto
-     会让它从「拉伸填满栅格列」变成「按内容宽度」，窄屏下 max-width 比视口
-     还宽，整页横向溢出。踩过一次，见 CLAUDE.md。 */
   width: 100%;
   max-width: 1040px;
-  margin-inline: auto;
-  /* 外边距由 .main 给（styles/shell.css）。这里只管宽度和垂直节奏 ——
-     两处都给内边距会变成双倍留白。 */
 }
 
 .ui-page[data-w="wide"] {
