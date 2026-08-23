@@ -51,8 +51,8 @@ still ticked in the courses.
 ## One navigation, one next action
 
 Everything you can go to lives in the left sidebar, and its positions are identical on
-every page. The top bar carries only where you are plus four tools: search, language,
-theme and help.
+every page. The top bar carries only where you are plus three tools: search, language
+and theme.
 
 ```
 Today  ·  My plan
@@ -60,7 +60,7 @@ Today  ·  My plan
    〔 Continue 〕                      ← the one primary action, site-wide
 Library     Learn · Review · Practice
 Assessment  Arena · Mock exams
-Reference
+How to use  ·  Reference
 ```
 
 | Section | Routes | What you do there |
