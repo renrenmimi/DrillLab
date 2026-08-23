@@ -439,9 +439,13 @@
   overflow-x: auto;
 }
 
+/* 用内阴影而不是 outline：这块 textarea 是窗体的最后一格，
+   外描边会被 .editor 的圆角裁掉一半。
+   颜色必须是 --accent 而不是 --accent-line —— 后者是很暗的橄榄色，
+   压在代码窗的深底上等于没有焦点提示。 */
 .editor-area:focus {
   outline: 0;
-  box-shadow: inset 0 0 0 2px var(--accent-line);
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 
 .editor-foot {
