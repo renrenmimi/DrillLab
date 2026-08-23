@@ -12,18 +12,29 @@
    顶栏不再是第二套导航。四个模式搬进了下面的 .snav-list。
    ============================================================ */
 
-/* ---------- 侧栏：主导航 ---------- */
+/* ---------- 侧栏：一套东西，一条轴 ----------
+
+   【上一版的毛病】同一个 252px 的列里有八种视觉语言：品牌（图标 + 字，轴 55）、
+   导航项（无边框，轴 30）、组标题（等宽大写，轴 24）、计划卡（有边框的盒子，
+   轴 32）、〔继续〕（实心块）、模式眉题、全局进度（轴 16）、课程行 + 一个
+   柠檬绿的「Start here」药丸。八种语言、四条左边界 —— 看起来就是「换了层皮」。
+
+   现在只有两条规矩：
+   ① **块**的左右边界是 --rail-pad（16px）；
+   ② **每一行文字**的左边界是 --rail-pad + --rail-inset（28px），一条轴到底。
+   品牌那一行的图标也从 28 开始，所以它的视觉左边界和别的行一样。
+   ---------------------------------------------------------------- */
 
 .snav {
-  padding: var(--sp-2) var(--sp-2) 0;
+  padding: 0 var(--rail-pad);
 }
 
 .snav-brand {
   display: flex;
   align-items: center;
   gap: var(--sp-1);
-  height: calc(var(--topbar-h) - var(--sp-2));
-  padding: 0 var(--sp-1);
+  height: var(--topbar-h);
+  padding-left: var(--rail-inset);
   color: var(--ink);
 }
 
@@ -32,7 +43,7 @@
 }
 
 .snav-brand-name {
-  font-size: 17px;
+  font-size: 16.5px;
   letter-spacing: -0.022em;
 }
 
@@ -40,7 +51,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
-  padding-top: var(--sp-2);
+  padding-bottom: var(--sp-3);
 }
 
 /* 一组。组与组之间的间距由 .snav-main 的 gap 给，组内是紧挨着的清单。 */
@@ -49,8 +60,19 @@
   flex-direction: column;
 }
 
-.snav-group-title {
-  padding: 0 var(--sp-1) var(--sp-1);
+/* 组标题、模式眉题、计划眉题**共用这一档** —— 侧栏里所有的小标题长一个样。
+   缩进只给自己没有父级内边距的那两个；.ctx-head-mode 和 .ctx-sec-title
+   由它们的父容器（.ctx-head / .ctx-sec-head）负责缩进，
+   两处都给会叠成 36px，实测踩到过。 */
+.snav-group-title,
+.side-plan-eyebrow {
+  padding-left: var(--rail-inset);
+}
+
+.snav-group-title,
+.side-plan-eyebrow,
+.ctx-head-mode,
+.ctx-sec-title {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
@@ -59,25 +81,31 @@
   color: var(--ink-3);
 }
 
+.snav-group-title {
+  padding-bottom: 6px;
+}
+
 .snav-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
-/* 一项。当前那一项靠三样同时表达 —— 底色 + 字重 + 左边一条 2px 的强调色竖线。
-   只靠颜色区分对色觉障碍不成立。 */
+/* 一行。**侧栏里所有可点的行都长这样** —— 导航项、课程行、方向筛选、
+   考场条目，全部 36px 高、文字在 28、选中时左边一条 2px 的强调色竖线。
+   只靠颜色区分对色觉障碍不成立，所以选中同时改字重和底色。 */
 .snav-item {
   position: relative;
   display: flex;
   align-items: center;
-  min-height: var(--h-ctl);
-  padding: 0 var(--sp-1) 0 calc(var(--sp-1) + 6px);
+  gap: var(--sp-1);
+  min-height: 36px;
+  padding: 0 var(--sp-1) 0 var(--rail-inset);
   border-radius: var(--r-sm);
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--ink-2);
   transition:
@@ -101,44 +129,66 @@
   content: "";
   position: absolute;
   left: 0;
-  top: 20%;
-  bottom: 20%;
+  top: 6px;
+  bottom: 6px;
   width: 2px;
   border-radius: 2px;
   background: var(--accent);
 }
 
-/* 侧栏下半段（当前这一类事情的结构）里那条进度。
-   用的是 layout.css 的 .ui-prog，这里只补外边距。 */
-.ctx-prog {
-  margin: 0 var(--sp-2) var(--sp-2);
-}
-
 /* ---------- 侧栏：计划状态 + 那颗唯一的「继续」 ---------- */
 
 .snav-plan {
-  margin-top: var(--sp-2);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-}
-
-.side-plan {
-  padding: var(--sp-2);
-  background: var(--raised);
-  border: 1px solid var(--rule);
-  border-radius: var(--r);
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding-bottom: var(--sp-2);
+}
+
+/* 【不再是一张有边框的卡】上一版它是侧栏里唯一带边框和圆角的盒子，
+   夹在一列无边框的导航行中间，看着像贴上去的。现在它和别的行同一条轴，
+   靠一个眉题和一条进度条自己成段。 */
+.side-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+.side-plan-eyebrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-1);
+  padding-right: var(--sp-1);
+}
+
+/* 「换一条」永远在这儿 —— 选了计划之后必须一眼看得到怎么改。
+   实测过：上一版选完之后，首页和侧栏加起来**一个**换计划的入口都没有。 */
+.side-plan-change {
+  font-family: var(--font-text);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-3);
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 2px;
+}
+
+.side-plan-change:hover {
+  color: var(--ink);
+  text-decoration-color: currentColor;
 }
 
 .side-plan-name {
+  padding-left: var(--rail-inset);
   font-family: var(--font-display);
   font-size: 15px;
   font-weight: 660;
   letter-spacing: -0.014em;
-  line-height: 1.25;
+  line-height: 1.3;
   color: var(--ink);
 }
 
@@ -148,18 +198,27 @@
 }
 
 .side-plan-where {
-  font-size: var(--fs-meta);
+  padding-left: var(--rail-inset);
+  font-size: 12px;
   line-height: 1.45;
   color: var(--ink-3);
 }
 
-/* 这颗按钮是整个产品的主动作 —— 全站只有一颗（首页和计划详情页让给页面内容）。
-   所以它是侧栏里唯一的实心块。 */
+.side-plan .ui-prog {
+  padding-left: var(--rail-inset);
+  padding-right: var(--sp-1);
+  margin-top: 2px;
+}
+
+/* 这颗按钮是整个产品的主动作 —— 全站只有一颗。
+   所以它是侧栏里唯一的实心块，也是唯一一个不在 28 那条轴上的东西：
+   它是按钮，不是一行文字。 */
 .side-cta {
   display: flex;
   flex-direction: column;
   gap: 1px;
   min-height: var(--h-ctl);
+  margin-top: 2px;
   padding: 7px var(--sp-2);
   border-radius: var(--r);
   background: var(--accent);
@@ -173,9 +232,9 @@
 }
 
 .side-cta-label {
-  font-size: 11.5px;
+  font-size: 10.5px;
   font-weight: 750;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -187,12 +246,24 @@
   font-size: 13px;
   font-weight: 550;
   line-height: 1.35;
-  /* 两行以内，超出打点。任务名是「学习信息」，但侧栏里它只是提示 ——
-     完整的名字在目标页面的 h1 上。 */
+  /* 两行以内，超出打点。完整的名字在目标页面的 h1 上。 */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* 侧栏下半段（当前这一类事情的结构）里那条进度 */
+.ctx-prog {
+  padding-left: var(--rail-inset);
+  padding-right: var(--sp-1);
+  margin: 0 0 var(--sp-2);
+}
+
+/* 252px 的列里放不下「3 / 80 ▓▓░░ lessons done」三段 —— 实测尾巴被切掉。
+   分节标题已经说了这是课程，数字自己够清楚。 */
+.ctx-prog .ui-prog-label {
+  display: none;
 }
 
 /* ---------- 「继续」：窄屏顶栏里那一颗 ----------
@@ -297,52 +368,26 @@
    这里只写里面的内容。
    ============================================================ */
 
-.ctx-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0 20px 12px;
-  margin-bottom: 14px;
-  border-bottom: 1px solid var(--rule);
-}
 
-.ctx-head-mode {
-  font-size: 11px;
-  font-weight: 650;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
 
-.ctx-head-link {
-  font-size: 12px;
-  color: var(--ink-2);
-  white-space: nowrap;
-}
 
-/* 一个模式只给一颗主行动 —— 「下一步做什么」不该有两个同样显眼的答案 */
-/* 【UI v2：从实心降成描边】
-   侧栏里那颗〔继续〕（.side-cta）是全站唯一的实心动作。这一条是
-   「当前这一类事情里的一个入口」（开始一轮抽认卡、进正在计时的那场考试
-   之类），它重要，但不该和主动作长得一样 —— 一屏两个实心块，人就得
-   自己判断该按哪个。 */
+/* 【从描边的盒子再降成一行】
+   侧栏里只该有两种东西：**能去的行**，和**那一颗主动作**。
+   「开始一轮抽认卡」「回到正在计时的那场考试」都是「能去的地方」，
+   所以它们和别的行一样是一行 —— 只是文字用强调色，读作「这一档的入口」。
+   上一版它是一个描边盒子，和三个描边的统计格、一个描边的「下一节」卡
+   叠在一列平的行里，于是同一个 252px 的列里有四种盒子。 */
 .ctx-cta {
   display: block;
-  margin: 0 var(--sp-2) var(--sp-2);
-  padding: 9px var(--sp-2);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--r);
-  background: var(--surface);
-  color: var(--ink);
-  transition:
-    border-color var(--t-hover) ease,
-    background var(--t-hover) ease;
+  margin: 0 0 var(--sp-1);
+  padding: 8px var(--sp-1) 8px var(--rail-inset);
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  transition: background var(--t-hover) ease;
 }
 
 .ctx-cta:hover {
   background: var(--hover);
-  border-color: var(--accent);
   text-decoration: none;
 }
 
@@ -397,32 +442,33 @@
 
 
 /* 三格小统计（Review / Assess 用） */
+/* 【三个描边的格子 → 一行】
+   它们是三个数字，不是三个可点的东西。做成带边框的等宽格子之后，
+   它们在一列平的导航行里看着像三个按钮 —— 而且和「下一节」卡、
+   「开始一轮抽认卡」的盒子加起来，252px 的列里有四种边框。
+   现在是一行等宽数字，和 .ui-meta 一个语言。 */
 .ctx-stat {
-  display: flex;
-  gap: 6px;
-  margin: 0 16px 16px;
+  /* 一行一个。252px 的列里三段挤一行必然折行，而折行之后
+     行首会挂着一个「·」分隔符 —— 那看着像没写完。 */
+  display: grid;
+  gap: 2px;
+  margin: 0 var(--sp-1) var(--sp-2) var(--rail-inset);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
 }
 
 .ctx-stat-cell {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  padding: 7px 6px;
-  border: 1px solid var(--rule);
-  border-radius: var(--r);
-  background: var(--sunken);
-  font-size: 10.5px;
-  line-height: 1.35;
-  color: var(--ink-3);
-  text-align: center;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
 }
 
 .ctx-stat-cell b {
-  font-size: 16px;
-  font-weight: 650;
-  line-height: 1.15;
+  font-size: 12.5px;
+  font-weight: 700;
   color: var(--ink);
 }
 
@@ -435,7 +481,7 @@
 }
 
 .ctx-now {
-  margin: -6px 20px 16px;
+  margin: -6px var(--sp-1) 16px var(--rail-inset);
   font-size: 12px;
   line-height: 1.5;
   color: var(--ink-3);
@@ -452,7 +498,30 @@
 }
 
 .ctx-sec-head {
-  padding: 0 20px 6px;
+  padding: 0 var(--sp-1) 6px var(--rail-inset);
+}
+
+.ctx-sec-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-1);
+}
+
+/* 「看总览 →」这一类。上一版它在一个单独的 .ctx-head 里，
+   于是侧栏比主导航多出一层标题 —— 而模式名在主导航里已经高亮着了。 */
+.ctx-sec-link {
+  font-family: var(--font-text);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.ctx-sec-link:hover {
+  color: var(--ink);
 }
 
 .ctx-sec-title {
@@ -482,47 +551,67 @@
   margin: 0;
 }
 
+/* 【和 .snav-item 是同一套】选中的竖线是绝对定位的，不是 border-left ——
+   border 会把文字往右推 2px，于是选中的那一行比别的行错开一点。
+   侧栏里一共有五种这样的行（导航、课程、方向、考场、抽认卡），
+   它们必须共用一条轴。 */
+/* 【为什么是 grid 而不是 flex-wrap】
+   一行是「名字 + 右边的计数（+ 可选的第二行小字）」。用 flex-wrap 的话，
+   名字一换行，计数就被挤到下一行去 —— 实测「Foundations · project and
+   language」那一条的 16 掉到了名字底下。
+   grid 把计数钉在第一行右边，名字在左边自己换行。 */
 .ctx-item {
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: baseline;
-  flex-wrap: wrap;
   gap: 2px 8px;
-  padding: 5px 20px;
-  border-left: 2px solid transparent;
+  min-height: 34px;
+  padding: 6px var(--sp-1) 6px var(--rail-inset);
+  border-radius: var(--r-sm);
   font-size: 13.5px;
   line-height: 1.5;
   color: var(--ink-2);
 }
 
 .ctx-item:hover {
-  background: var(--sunken);
+  background: var(--hover);
   color: var(--ink);
   text-decoration: none;
 }
 
 .ctx-item[data-active] {
-  border-left-color: var(--accent);
   background: var(--accent-wash);
   color: var(--ink);
   font-weight: 600;
 }
 
-/* flex item 的 min-width 默认是 auto —— 不压成 0，长标题会把侧栏顶出去 */
+.ctx-item[data-active]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 5px;
+  bottom: 5px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* min-width: 0 不能省 —— 长标题会把侧栏顶出去 */
 .ctx-item-label {
-  flex: 1 1 auto;
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
 .ctx-item-n {
-  flex: 0 0 auto;
   font-size: 11.5px;
   font-weight: 600;
   color: var(--ink-3);
+  white-space: nowrap;
 }
 
 .ctx-item-sub {
-  flex: 1 1 100%;
+  grid-column: 1 / -1;
   font-size: 11px;
   line-height: 1.45;
   color: var(--ink-3);
@@ -548,7 +637,7 @@
 
 .ctx-item-aside {
   display: block;
-  padding: 0 20px 7px 22px;
+  padding: 0 var(--sp-1) 7px var(--rail-inset);
   font-size: 11.5px;
   color: var(--ink-2);
 }
@@ -560,27 +649,40 @@
 }
 
 .ctx-course-top {
+  position: relative;
   display: flex;
   align-items: baseline;
   gap: 8px;
-  padding: 7px 20px;
-  border-left: 2px solid transparent;
+  min-height: 34px;
+  padding: 7px var(--sp-1) 7px var(--rail-inset);
+  border-radius: var(--r-sm);
   color: var(--ink);
   font-size: 14px;
 }
 
 .ctx-course-top:hover {
-  background: var(--sunken);
+  background: var(--hover);
   text-decoration: none;
 }
 
 .ctx-course-top[data-active] {
-  border-left-color: var(--accent);
   background: var(--accent-wash);
 }
 
-.ctx-course-top[data-next]:not([data-active]) {
-  border-left-color: var(--accent-line);
+.ctx-course-top[data-active]::before,
+.ctx-course-top[data-next]:not([data-active])::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 5px;
+  bottom: 5px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.ctx-course-top[data-next]:not([data-active])::before {
+  background: var(--accent-line);
 }
 
 .ctx-course-idx {
@@ -611,32 +713,32 @@
   color: var(--ink-3);
 }
 
-/* 「从这里开始 / 接着学」。缩进对齐到课程名，不是对齐到序号 */
+/* 【不再是实心药丸】侧栏里唯一该实心的东西是那颗〔继续〕。
+   现在是一行安静的说明，缩进对齐到课程名而不是序号。 */
 .ctx-course-flag {
-  display: inline-block;
-  margin: 1px 20px 4px calc(22px + 1.9em);
-  padding: 1px 7px;
-  border-radius: 100px;
-  background: var(--accent);
-  color: var(--on-accent);
-  font-size: 10.5px;
-  font-weight: 650;
+  display: block;
+  margin: 0 var(--sp-1) 6px calc(var(--rail-inset) + 1.9em);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent-ink);
 }
 
 
+/* 【不再是一个盒子】侧栏里已经有过两个「浮在无边框行列中间的方框」——
+   计划卡和这一条。方框在一列平的行里读作「别的东西」，
+   而它其实只是「下一节是哪一节」。现在是一行，和别的行同一条轴。 */
 .ctx-course-next {
   display: block;
-  margin: 4px 16px 10px;
-  padding: 7px 10px;
-  border: 1px solid var(--accent-line);
-  border-radius: var(--r);
-  background: var(--accent-wash);
-  color: var(--ink);
+  margin: 2px 0 8px;
+  padding: 6px var(--sp-1) 8px calc(var(--rail-inset) + 1.9em);
+  color: var(--ink-2);
+  border-radius: var(--r-sm);
 }
 
 .ctx-course-next:hover {
   text-decoration: none;
-  border-color: var(--accent);
+  background: var(--hover);
+  color: var(--ink);
 }
 
 .ctx-course-next-label {
@@ -658,7 +760,7 @@
 /* ---------- Learn：一个模块 ---------- */
 
 .ctx-mod {
-  padding: 0 20px;
+  padding: 0 var(--sp-1);
   margin-bottom: 8px;
 }
 
@@ -786,51 +888,70 @@
 
 /* ---------- Practice：两个子模式 ---------- */
 
+/* 【「课内练习 / Coding」也是两行，不是两个方块】
+   它是一个二选一，而二选一在这个侧栏里的表达方式已经定好了：
+   两行，选中的那一行左边一条 2px 的竖线。
+   做成两个并排的描边方块的话，同一列里就又多一种语言。 */
 .ctx-sub {
   display: flex;
-  gap: 6px;
-  margin: 0 16px 10px;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0 0 var(--sp-2);
 }
 
 .ctx-sub-btn {
-  flex: 1 1 0;
-  min-width: 0;
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 10px;
-  border: 1px solid var(--rule);
-  border-radius: var(--r);
-  background: var(--sunken);
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-1);
+  min-height: 34px;
+  padding: 6px var(--sp-1) 6px var(--rail-inset);
+  border-radius: var(--r-sm);
   color: var(--ink-2);
+  transition: background var(--t-hover) ease;
 }
 
 .ctx-sub-btn:hover {
-  border-color: var(--accent-line);
+  background: var(--hover);
   color: var(--ink);
   text-decoration: none;
 }
 
 .ctx-sub-btn[data-on] {
   background: var(--accent-wash);
-  border-color: var(--accent-line);
-  box-shadow: inset 2px 0 0 var(--accent);
   color: var(--ink);
 }
 
+.ctx-sub-btn[data-on]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 5px;
+  bottom: 5px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
 .ctx-sub-name {
-  font-size: 12.5px;
-  font-weight: 650;
+  font-size: 13.5px;
+  font-weight: 600;
   line-height: 1.35;
 }
 
+.ctx-sub-btn[data-on] .ctx-sub-name {
+  font-weight: 650;
+}
+
 .ctx-sub-n {
-  font-size: 11px;
+  flex: 0 0 auto;
+  font-size: 11.5px;
   color: var(--ink-3);
 }
 
 .ctx-sub-note {
-  margin: 0 20px 18px;
+  margin: 0 var(--sp-1) 18px var(--rail-inset);
   font-size: 11.5px;
   line-height: 1.6;
   color: var(--ink-3);
