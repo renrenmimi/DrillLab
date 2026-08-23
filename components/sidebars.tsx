@@ -57,28 +57,6 @@ import { T } from "./t";
    公用零件
    ============================================================ */
 
-function CtxHead({
-  mode,
-  link,
-}: {
-  mode: ModeId;
-  link?: { href: string; zh: string; en: string };
-}) {
-  const m = modeById(mode);
-  return (
-    <div className="ctx-head">
-      <span className="ctx-head-mode">
-        <T zh={m.zh} en={m.en} />
-      </span>
-      {link && (
-        <Link className="ctx-head-link" href={link.href}>
-          <T zh={link.zh} en={link.en} />
-        </Link>
-      )}
-    </div>
-  );
-}
-
 /**
  * 每个模式最上面那一个主行动。
  *
@@ -111,10 +89,15 @@ function CtxCta({
 function CtxSec({
   title,
   note,
+  link,
   children,
   label,
 }: {
   title: ReactNode;
+  /** 分节标题右边那条安静的链接（「看总览 →」这一类）。
+      上一版它在一个单独的 .ctx-head 里，于是侧栏多出一层标题 ——
+      而模式名在主导航里已经高亮着了，那一层是重复的。 */
+  link?: { href: string; zh: string; en: string };
   note?: ReactNode;
   children: ReactNode;
   /** <nav> 的无障碍名字。只能是字符串，所以调用方用 useT() 取 */
@@ -123,7 +106,14 @@ function CtxSec({
   return (
     <nav className="ctx-sec" aria-label={label}>
       <div className="ctx-sec-head">
-        <span className="ctx-sec-title">{title}</span>
+        <span className="ctx-sec-row">
+          <span className="ctx-sec-title">{title}</span>
+          {link && (
+            <Link className="ctx-sec-link" href={link.href}>
+              <T zh={link.zh} en={link.en} />
+            </Link>
+          )}
+        </span>
         {note && <span className="ctx-sec-note">{note}</span>}
       </div>
       {children}
@@ -230,29 +220,12 @@ function LearnSide({ onNavigate }: { onNavigate: () => void }) {
     main[0]?.id ??
     NAV[0]?.id;
 
-  const totalLessons = NAV.reduce((n, e) => n + e.lessonCount, 0);
-  const doneLessons = ready ? NAV.reduce((n, e) => n + countLessons(e.id), 0) : 0;
-
   return (
     <>
-      <CtxHead
-        mode="learn"
-        link={{ href: "/path", zh: "看总览 →", en: "Roadmap →" }}
-      />
-
-      {ready && (
-        <div className="ui-prog ctx-prog">
-          <span className="ui-prog-num">
-            <b>{doneLessons}</b> / {totalLessons}
-          </span>
-          <span className="ui-bar">
-            <i style={{ width: `${(doneLessons / Math.max(1, totalLessons)) * 100}%` }} />
-          </span>
-          <span className="ui-prog-label">
-            <T zh="节读完" en="lessons done" />
-          </span>
-        </div>
-      )}
+      {/* 【这里原本有一条「3 / 80 节读完」的全局进度条，删掉了】
+          两个理由：① 它正上方就是计划那条 4 / 130，两个总量条叠在一起，
+          人得先分辨哪个是哪个；② 下面每一门课自己都写着 3 / 9、0 / 21，
+          那是能直接动手的数字，而 80 分之几不是。 */}
 
       {groups.map((group) => (
         <CtxSec
@@ -265,6 +238,11 @@ function LearnSide({ onNavigate }: { onNavigate: () => void }) {
               : en
                 ? "Parallel track"
                 : "平行支线"
+          }
+          link={
+            group.kind === "main"
+              ? { href: "/path", zh: "看总览 →", en: "Roadmap →" }
+              : undefined
           }
           title={
             group.kind === "main" ? (
@@ -334,8 +312,11 @@ function CourseNode({
         aria-current={path === overview ? "page" : undefined}
         onClick={onNavigate}
       >
-        <span className="ctx-course-idx tabular">
-          {num === undefined ? "✦" : String(num).padStart(2, "0")}
+        {/* 平行支线没有编号。上一版这里放了一个 ✦ —— 那个字符在
+            这一版的显示字族里没有字形，实际渲染成一个空方块。
+            现在留空：编号本来就是「主线第几门」的意思，支线不该有。 */}
+        <span className="ctx-course-idx tabular" aria-hidden>
+          {num === undefined ? "" : String(num).padStart(2, "0")}
         </span>
         <span className="ctx-course-name">
           <T zh={exam.shortTitle} en={exam.shortTitleEn} />
@@ -345,11 +326,15 @@ function CourseNode({
         </span>
       </Link>
 
-      {/* 「从这里开始 / 接着学」。只在 ready 之后渲染 —— 进度在 localStorage 里，
-          服务端不知道，提前渲染会 hydration 不一致。 */}
+      {/* 【为什么这里不再有那个柠檬绿药丸】
+          它曾经是一个实心的「Start here」小胶囊，孤零零挂在课程行下面 ——
+          而侧栏里唯一该是实心强调色的东西是那颗〔继续〕。
+          现在改成一行安静的说明，和别的行同一条轴。
+          只在 ready 之后渲染 —— 进度在 localStorage 里，服务端不知道，
+          提前渲染会 hydration 不一致。 */}
       {isNext && ready && (
         <span className="ctx-course-flag">
-          {done === 0 ? <T zh="从这里开始" en="Start here" /> : <T zh="接着学" en="Continue" />}
+          {done === 0 ? <T zh="从这门开始" en="Start with this one" /> : <T zh="接着学这门" en="Pick this up" />}
         </span>
       )}
 
@@ -485,8 +470,6 @@ function ReviewSide({ onNavigate }: { onNavigate: () => void }) {
 
   return (
     <>
-      <CtxHead mode="review" link={{ href: "/drill", zh: "全部 →", en: "All →" }} />
-
       <CtxCta
         href="/drill/session"
         onNavigate={onNavigate}
@@ -529,6 +512,7 @@ function ReviewSide({ onNavigate }: { onNavigate: () => void }) {
       <CtxSec
         label={en ? "Question topics" : "题目方向"}
         title={<T zh="方向" en="Topics" />}
+        link={{ href: "/drill", zh: "全部 →", en: "All →" }}
       >
         <ul className="ctx-list">
           <CtxItem
@@ -624,8 +608,6 @@ function PracticeSide({ onNavigate }: { onNavigate: () => void }) {
 
   return (
     <>
-      <CtxHead mode="practice" />
-
       <nav
         className="ctx-sub"
         aria-label={en ? "Practice kind" : "练习类别"}
@@ -890,8 +872,6 @@ function AssessSide({ onNavigate }: { onNavigate: () => void }) {
 
   return (
     <>
-      <CtxHead mode="assess" link={{ href: "/arena", zh: "全部 →", en: "All →" }} />
-
       {live && liveNav ? (
         <CtxCta
           href={`${arenaPath(live.id)}/run`}
@@ -928,11 +908,12 @@ function AssessSide({ onNavigate }: { onNavigate: () => void }) {
         </span>
       </div>
 
-      {byExam.map((g) => (
+      {byExam.map((g, gi) => (
         <CtxSec
           key={g.exam.id}
           label={g.exam.shortTitleEn ?? g.exam.shortTitle}
           title={<T zh={g.exam.shortTitle} en={g.exam.shortTitleEn} />}
+          link={gi === 0 ? { href: "/arena", zh: "全部 →", en: "All →" } : undefined}
         >
           <ul className="ctx-list">
             {g.items.map((a) => {
