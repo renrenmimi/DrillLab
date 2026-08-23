@@ -47,11 +47,14 @@ export function HintPanel({
             zh={`共 ${hints.length} 级，已看 ${shown} 级`}
           />
         </span>
+        {/* 【两颗按钮怎么贴到右端】交给 CSS 的
+            `.hints-head > .btn:first-of-type { margin-left: auto }`。
+            老代码是在这里按「有没有第二颗按钮」写两种 marginLeft，
+            分支一多就会漏掉一种组合。 */}
         {left > 0 && (
           <button
             className="btn btn-sm"
             onClick={() => setShown(shown + 1)}
-            style={{ marginLeft: "auto" }}
             type="button"
           >
             {shown === 0 ? (
@@ -68,7 +71,6 @@ export function HintPanel({
           <button
             className="btn btn-sm btn-ghost"
             onClick={() => setShown(0)}
-            style={left > 0 ? undefined : { marginLeft: "auto" }}
             type="button"
           >
             <T en="Collapse" zh="收起" />
@@ -77,7 +79,7 @@ export function HintPanel({
       </div>
 
       {shown === 0 ? (
-        <div className="hint-more dim" style={{ fontSize: 14.5 }}>
+        <div className="hint-more">
           <T
             en="Think for two minutes first. Then use the button above — hints come one level at a time, never all at once."
             zh="先自己想两分钟。想不出来再点右上角 —— 提示是一级一级放的，不会一次给完。"
