@@ -149,6 +149,10 @@ export function PlanChooser() {
           </p>
         </div>
 
+        <h2 className="ui-sec-title chz-list-title">
+          <T zh={`六条计划`} en={`All ${plans.length} plans`} />
+        </h2>
+
         <ul className="chz-list">
           {plans.map((p) => (
             <Choice key={p.id} id={p.id} current={p.id === current} onPick={pick} />

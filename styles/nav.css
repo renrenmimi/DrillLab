@@ -180,6 +180,14 @@
   text-underline-offset: 2px;
 }
 
+/* 站在选择页上时它不是链接（见 plan-kit.tsx）。看着还是同一档字，
+   只是不再有下划线，也不响应指针 —— 它现在说的是「你就在这儿」。 */
+.side-plan-change[data-here] {
+  color: var(--ink-3);
+  text-decoration: none;
+  cursor: default;
+}
+
 .side-plan-change:hover {
   color: var(--accent-h);
   text-decoration-color: currentColor;

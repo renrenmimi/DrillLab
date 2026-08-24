@@ -17,6 +17,7 @@
 // 那一页是单独一个路由，自己去读 content/plans。
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useMemo, type ReactNode } from "react";
 import { useT } from "@/lib/locale";
 import type { ModeId } from "@/lib/modes";
@@ -271,6 +272,7 @@ export function PlanSideContinue({ onNavigate }: { onNavigate: () => void }) {
 export function PlanSideBlock({ onNavigate }: { onNavigate: () => void }) {
   const { status, ready } = useActivePlan();
   const t = useT();
+  const onChooser = usePathname() === "/plans/choose";
   if (!ready || !status) return null;
 
   const stage = status.plan.stages[status.currentStageIndex];
@@ -292,10 +294,18 @@ export function PlanSideBlock({ onNavigate }: { onNavigate: () => void }) {
           <T zh="当前计划" en="Your plan" />
         </span>
         {/* 【指向 /plans/choose，不是 /plans】你可能已经站在 /plans 上，
-            那时候链接指回自己等于点了没反应。 */}
-        <Link className="side-plan-change" href="/plans/choose" onClick={onNavigate}>
-          <T zh="换一条" en="Change" />
-        </Link>
+            那时候链接指回自己等于点了没反应。
+            同理，**站在选择页上时它就不是链接了** —— 那一页就是「换一条」，
+            再给一个指向自己的链接是同一个毛病换了个地址。 */}
+        {onChooser ? (
+          <span className="side-plan-change" data-here aria-current="page">
+            <T zh="换一条" en="Change" />
+          </span>
+        ) : (
+          <Link className="side-plan-change" href="/plans/choose" onClick={onNavigate}>
+            <T zh="换一条" en="Change" />
+          </Link>
+        )}
       </div>
 
       <Link

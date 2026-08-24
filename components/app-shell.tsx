@@ -197,8 +197,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     </>
   );
 
+  // 【为什么要这个标记】窄屏顶栏排成两行（见 styles/shell.css 那段算式）：
+  // 六个 44px 的目标加上「DrillLab」字样，在 360px 上量出来 377px，
+  // 一行放不下。第二行只在这一页真有那颗〔继续〕时才占位置，
+  // 所以那一行的高度不能写死在 :root 上 —— 挂在这里，CSS 按它改 --topbar-h。
+  const hasCont = !cedesContinue(path);
+
   return (
-    <div className="shell">
+    <div className="shell" data-cont={hasCont || undefined}>
       {/* ---------- 顶栏：位置 + 四个工具，一个导航链接都没有 ---------- */}
       <header className="topbar">
         {/* 汉堡只在窄屏出现。桌面上侧栏是常驻列，没有可开合的东西。 */}
@@ -265,15 +271,18 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="topbar-loc" />
         )}
 
+        {/* 窄屏顶栏里的〔继续〕—— 桌面上它在侧栏（CSS 收起）。
+            手机上第一屏必须能看到主动作，而侧栏在抽屉后面。
+            首页和计划详情页不给 —— 那两页的主内容本身就是这颗按钮。
+            【它是 .topbar 的直接子元素，不在工具组里】窄屏要把它整个换到
+            第二行去，而工具组是同一行右边那一簇。 */}
+        {hasCont && (
+          <div className="topbar-cont">
+            <ContinueButton />
+          </div>
+        )}
+
         <div className="topbar-tools">
-          {/* 窄屏顶栏里的〔继续〕—— 桌面上它在侧栏（CSS 收起）。
-              手机上第一屏必须能看到主动作，而侧栏在抽屉后面。
-              首页和计划详情页不给 —— 那两页的主内容本身就是这颗按钮。 */}
-          {!cedesContinue(path) && (
-            <div className="topbar-cont">
-              <ContinueButton />
-            </div>
-          )}
           <Search />
           {tools}
         </div>
