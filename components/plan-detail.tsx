@@ -518,8 +518,8 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
 
             {isActive && (
               <>
-                <Link className="ui-quiet pl-head-alt" href="/plans">
-                  <T zh="换一条计划" en="Change plan" />
+                <Link className="ui-quiet pl-head-alt" href="/plans/choose">
+                  <T zh="换一条引导计划" en="Change guided plan" />
                 </Link>
                 {/* 「重走一遍」和「换一条」是两件不同的事，实测过一次混淆：
                     有人想「把 React 再过一遍」，只找到「换一条」，
@@ -587,7 +587,11 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
           )}
         </header>
 
-        {/* ---------- 路线图 ---------- */}
+        {/* ---------- 路线图 ----------
+            这个 h2 不能删：档标题是 h3，没有它就从 h1 直接跳到 h3。 */}
+        <h2 className="ui-sec-title pl-rm-title">
+          <T zh="这条计划的全程" en="The whole route" />
+        </h2>
         <ol className="rm" aria-label="Plan roadmap">
           {status.plan.stages.map((s, i) => (
             <Stage

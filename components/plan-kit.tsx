@@ -291,7 +291,9 @@ export function PlanSideBlock({ onNavigate }: { onNavigate: () => void }) {
         <span>
           <T zh="当前计划" en="Your plan" />
         </span>
-        <Link className="side-plan-change" href="/plans" onClick={onNavigate}>
+        {/* 【指向 /plans/choose，不是 /plans】你可能已经站在 /plans 上，
+            那时候链接指回自己等于点了没反应。 */}
+        <Link className="side-plan-change" href="/plans/choose" onClick={onNavigate}>
           <T zh="换一条" en="Change" />
         </Link>
       </div>
