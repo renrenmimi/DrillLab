@@ -21,6 +21,7 @@
 
 import Link from "next/link";
 import { SURFACES, TRACKS, type Track } from "@/content/track-manifest";
+import { useT } from "@/lib/locale";
 import { useProgress } from "@/lib/progress";
 import { trackCopy } from "@/lib/track-copy";
 import { T } from "./t";
@@ -112,9 +113,11 @@ const CATEGORY_EN: Record<string, string> = {"基础": "Foundations", "前端": 
 
 function TrackCard({ track }: { track: Track }) {
   const { done, next, fresh } = useTrackState(track);
+  const t = useT();
   const total = track.lessons.length;
   const complete = done === total;
   const copy = trackCopy(track.id);
+  const name = t(track.zh, track.en ?? track.zh);
 
   // 走完了就指向课程总览（回头查用），否则指向下一节没读的
   const href = complete ? `/exams/${track.id}` : (next?.href ?? `/exams/${track.id}`);
@@ -130,10 +133,12 @@ function TrackCard({ track }: { track: Track }) {
         <Dial
           done={done}
           total={total}
+          // 【这句必须跟着界面语言走】它是圆环唯一的可访问名。
+          // 上一版写死中文，英文界面下读屏念出来的是另一种语言。
           label={
             complete
-              ? `${track.zh}：${total} 节全部读完`
-              : `${track.zh}：${total} 节读了 ${done} 节`
+              ? t(`${name}：${total} 节全部读完`, `${name}: all ${total} lessons read`)
+              : t(`${name}：${total} 节读了 ${done} 节`, `${name}: ${done} of ${total} lessons read`)
           }
         />
 
