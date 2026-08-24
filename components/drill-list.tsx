@@ -212,7 +212,7 @@ export function DrillList({ query }: { query: DrillQuery }) {
 
               <div className="filters">
                 <span className="filter-label">
-                  <T zh="方向" en="Track" />
+                  <T zh="方向" en="Topic" />
                 </span>
                 <Link
                   className="filter-btn"

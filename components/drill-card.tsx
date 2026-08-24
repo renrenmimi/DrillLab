@@ -197,7 +197,7 @@ export function DrillEmptyIfNone({
       </span>
       <T
         zh="换个方向，或者把掌握状态改成「全部」。"
-        en="Try another track, or set the mark filter back to all."
+        en="Try another topic, or set the mark filter back to all."
       />
     </div>
   );

@@ -613,6 +613,13 @@
   margin-top: var(--sp-6);
 }
 
+/* 「分类」和「引导计划」的分工，一行。它在小标题下面、卡片上面 ——
+   人扫到五张卡之前就读到这句。 */
+.trk-sec-note {
+  max-width: 68ch;
+  margin: calc(var(--sp-1) * -1) 0 var(--sp-2);
+}
+
 .trk-grid {
   list-style: none;
   margin: 0;
@@ -922,7 +929,14 @@
     margin-top: 2px;
   }
 
-  .trk-grid {
+  /* 「分类」和「引导计划」的分工，一行。它在小标题下面、卡片上面 ——
+   人扫到五张卡之前就读到这句。 */
+.trk-sec-note {
+  max-width: 68ch;
+  margin: calc(var(--sp-1) * -1) 0 var(--sp-2);
+}
+
+.trk-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 

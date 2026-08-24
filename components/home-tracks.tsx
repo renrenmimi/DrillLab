@@ -147,7 +147,7 @@ function TrackCard({ track }: { track: Track }) {
             <T zh={track.category} en={CATEGORY_EN[track.category] ?? track.category} />
             {track.parallel && (
               <span className="trk-flag">
-                <T zh="平行支线" en="Parallel" />
+                <T zh="平行支线" en="Parallel track" />
               </span>
             )}
           </span>
@@ -279,6 +279,18 @@ export function HomeTracks() {
             <T zh="看整条路线 →" en="See the whole route →" />
           </Link>
         </div>
+
+        {/* 【这一行是「分类」和「引导计划」唯一碰面的地方】两个词全站不混用：
+            分类是科目，五个；引导计划是一条横跨学 / 背 / 练 / 写 / 考的顺序，
+            六条。第一次进来的人在这一屏同时看到五张卡和侧栏里的「我的计划」，
+            所以这句话必须在这儿，而不是等到 /plans 才解释。 */}
+        <p className="ui-sec-note trk-sec-note">
+          <T
+            zh="分类整理的是科目，引导计划把几个分类里的东西排成一条推荐顺序。"
+            en="Tracks organise subjects. A guided plan puts work from several tracks into one recommended order."
+          />
+        </p>
+
         <ul className="trk-grid">
           {main.map((t) => (
             <TrackCard key={t.id} track={t} />

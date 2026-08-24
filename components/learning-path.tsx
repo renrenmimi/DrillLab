@@ -125,7 +125,7 @@ export function LearningPath() {
                 <span className="road-band-note">
                   <T
                     zh="不依赖主线，任何时候都能开始 —— 下面的「你在这」是这条线自己的进度"
-                    en="No prerequisites, start any time — the marker below tracks this line on its own"
+                    en="No prerequisites, start any time — the marker below follows this line on its own"
                   />
                 </span>
               </div>

@@ -262,7 +262,7 @@ function SessionSetup({ emptyScope }: { emptyScope?: string }) {
         </div>
 
         <div className="minihead">
-          <T zh="或者只抽一个方向" en="Or a single track" />
+          <T zh="或者只抽一个方向" en="Or a single topic" />
         </div>
         <div className="filters" style={{ borderBottom: 0, marginBottom: 14 }}>
           {DRILL_TRACK_ORDER.map((t) => {
