@@ -37,46 +37,87 @@ function useTrackState(track: Track) {
   return { done, next, fresh: done === 0 };
 }
 
+/**
+ * 圆形仪表盘。
+ *
+ * 【为什么是环而不是条】五张卡并排时，横条读的是「长度」——五条长度不同的
+ * 线要互相比较才看得出差别。环读的是「转了多少」，一眼就能对比，
+ * 而且它把「几 / 几」放在了自己中间，不用再单独占一行。
+ *
+ * 实现要点：
+ * ① 起点转到 12 点方向（-90deg），不然从 3 点开始转，读起来别扭；
+ * ② 进度靠 stroke-dashoffset，所以变化时能走 --t-prog 的过渡；
+ * ③ 走完了换成 --ok —— 那是「完成」的语义色，不是强调色；
+ * ④ 数字本身也在 DOM 里，所以读屏的人不依赖这个图形；aria-label 再说一遍。
+ */
+function Dial({ done, total, label }: { done: number; total: number; label: string }) {
+  const R = 30;
+  const C = 2 * Math.PI * R;
+  const p = total > 0 ? done / total : 0;
+  const complete = total > 0 && done === total;
+
+  return (
+    <span className="dial" role="img" aria-label={label}>
+      <svg viewBox="0 0 72 72" aria-hidden>
+        <circle className="dial-track" cx="36" cy="36" r={R} />
+        <circle
+          className="dial-arc"
+          data-complete={complete || undefined}
+          cx="36"
+          cy="36"
+          r={R}
+          style={{ strokeDasharray: C, strokeDashoffset: C * (1 - p) }}
+        />
+      </svg>
+      <span className="dial-mid" aria-hidden>
+        <span className="dial-done">{done}</span>
+        <span className="dial-total">/{total}</span>
+      </span>
+    </span>
+  );
+}
+
+/** 分类标签的英文对照。中文来自 content/types.ts 的四个值 */
+const CATEGORY_EN: Record<string, string> = {"基础": "Foundations", "前端": "Frontend", "后端": "Backend", "全栈": "Full stack"};
+
 function TrackCard({ track }: { track: Track }) {
   const { done, next, fresh } = useTrackState(track);
   const total = track.lessons.length;
-  const pct = total ? Math.round((done / total) * 100) : 0;
   const complete = done === total;
 
   // 走完了就指向课程总览（回头查用），否则指向下一节没读的
   const href = complete ? `/exams/${track.id}` : (next?.href ?? `/exams/${track.id}`);
 
   return (
-    <li className="trk">
-      <Link className="trk-hit" href={href}>
-        <span className="trk-top">
+    <li className="trk" data-wide={track.parallel || undefined}>
+      <Link className="trk-hit" href={href} data-complete={complete || undefined}>
+        <Dial
+          done={done}
+          total={total}
+          label={`${track.zh}：${done} / ${total}`}
+        />
+
+        <span className="trk-head">
+          <span className="trk-cat">
+            <T zh={track.category} en={CATEGORY_EN[track.category] ?? track.category} />
+            {track.parallel && (
+              <span className="trk-flag">
+                <T zh="平行支线" en="Parallel" />
+              </span>
+            )}
+          </span>
           <span className="trk-name display">
             <T zh={track.zh} en={track.en} />
           </span>
-          {track.parallel && (
-            <span className="trk-flag">
-              <T zh="平行支线" en="Parallel" />
-            </span>
-          )}
-        </span>
-
-        <span className="trk-blurb">
-          <T zh={track.blurbZh} en={track.blurbEn} />
-        </span>
-
-        <span className="ui-prog trk-prog">
-          <span className="ui-prog-num">
-            <b>{done}</b> / {total}
-          </span>
-          <span className="ui-bar">
-            <i style={{ width: `${pct}%` }} />
+          <span className="trk-blurb">
+            <T zh={track.blurbZh} en={track.blurbEn} />
           </span>
         </span>
 
         {/* 这一行就是「点了会去哪」。走完了说走完了，没开始说从哪一节开始。 */}
         <span className="trk-next">
           {complete ? (
-            <T zh="这门读完了 · 回头查" en="Finished — open it to look things up" />
+            <T zh="这一类读完了 · 回头查" en="Finished — open it to look things up" />
           ) : (
             <>
               <span className="trk-next-label">
@@ -181,7 +222,7 @@ export function HomeTracks() {
       <section className="ui-sec trk-sec">
         <div className="ui-sec-head">
           <h2 className="ui-sec-title">
-            <T zh="五门课" en="The five courses" />
+            <T zh="五个分类" en="Five categories" />
           </h2>
           <Link className="ui-quiet" href="/path">
             <T zh="看整条路线 →" en="See the whole route →" />

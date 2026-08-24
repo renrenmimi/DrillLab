@@ -25,6 +25,8 @@ export interface Track {
   id: string;
   zh: string;
   en?: string;
+  /** 分类：基础 / 前端 / 后端 / 全栈 */
+  category: string;
   /** 一句话：这门课是干什么的 */
   blurbZh: string;
   blurbEn?: string;
@@ -48,6 +50,7 @@ export const TRACKS: Track[] = [
     "id": "foundations",
     "zh": "地基 · 项目与语言",
     "en": "Foundations · project and language",
+    "category": "基础",
     "blurbZh": "在动 React 和 GraphQL 之前，先把「一个 JavaScript 项目是怎么运行的」搞清楚：Node、npm、package.json、scripts、目录结构、怎么跑测试、报错该从哪看起。然后只补两门考试真正会用到的 JavaScript 与 TypeScript。",
     "blurbEn": "Before starting React or GraphQL, get clear on how a JavaScript project runs: Node, npm, package.json, scripts, the directory layout, how to run the tests, and where to look first when something fails. After that, only the JavaScript and TypeScript that the two exam projects actually use.",
     "lessons": [
@@ -111,6 +114,7 @@ export const TRACKS: Track[] = [
     "id": "react",
     "zh": "React 考试",
     "en": "React exam",
+    "category": "前端",
     "blurbZh": "对应 react-notes-app 这个真实项目：Q1 是一个 Notes Manager 的增删改（CRUD），Q2 是一个带并发上限的异步任务调度器。从「组件是什么」讲到能在空文件夹里重建整个项目。",
     "blurbEn": "Built on the real react-notes-app project: Q1 is a Notes Manager that adds, deletes and edits notes (CRUD), and Q2 is an async task runner that limits how many tasks run at the same time. It starts at what a component is and ends with rebuilding the whole project in an empty folder.",
     "lessons": [
@@ -246,6 +250,7 @@ export const TRACKS: Track[] = [
     "id": "graphql-federation",
     "zh": "Federation 考试",
     "en": "Federation exam",
+    "category": "后端",
     "blurbZh": "对应 graphql-federation-practice 这个真实项目：一个 Apollo Federation subgraph（Node.js）加一个 Spring Boot REST 微服务，再加两道书面题。从「GraphQL 是什么」讲到能在空目录里重建整个 subgraph。",
     "blurbEn": "Built on the real project graphql-federation-practice: one Apollo Federation subgraph (Node.js), one Spring Boot REST microservice, and two written questions. It starts at what GraphQL is and ends with rebuilding the whole subgraph in an empty directory.",
     "lessons": [
@@ -357,6 +362,7 @@ export const TRACKS: Track[] = [
     "id": "interview",
     "zh": "面试八股",
     "en": "Interview questions",
+    "category": "全栈",
     "blurbZh": "一份作者做过的前端面试题整理，按 HTML / CSS / JavaScript / React / Node / 数据库 / 网络分好组，每道题给「一句话答案 + 展开 + 会被追问什么」。最后一节把 16 道 coding 题逐题对照本站已有的练习，指出哪些已经写过、哪些是缺口。",
     "blurbEn": "A set of frontend interview questions the author went through, grouped by HTML / CSS / JavaScript / React / Node / databases / networking. Every question gets a one-sentence answer, a longer explanation, and the follow-up questions to expect. The last part compares the 16 coding problems one by one against the exercises already on this site, and points out which ones are already written up and which ones are gaps.",
     "parallel": true,
@@ -517,6 +523,7 @@ export const TRACKS: Track[] = [
     "id": "cab-booking",
     "zh": "Cab Booking",
     "en": "Cab Booking",
+    "category": "前端",
     "blurbZh": "一个用 Context 管全局状态的打车小应用。四个页面、一个 Context、四个测试。练的是「Context 在一个真实多页应用里怎么用」—— Provider 放在哪一层、一个 action 同时改两个 state、消费者散在三个组件里。",
     "blurbEn": "A small cab booking app that keeps its global state in a Context. Four pages, one Context, four tests. The practice here is how to use Context in a real app with several pages: which level the Provider goes on, one action updating two pieces of state at once, and readers of the Context spread across three components.",
     "lessons": [

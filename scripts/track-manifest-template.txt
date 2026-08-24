@@ -25,6 +25,8 @@ export interface Track {
   id: string;
   zh: string;
   en?: string;
+  /** 分类：基础 / 前端 / 后端 / 全栈 */
+  category: string;
   /** 一句话：这门课是干什么的 */
   blurbZh: string;
   blurbEn?: string;
