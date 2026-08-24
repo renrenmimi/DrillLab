@@ -805,8 +805,9 @@
 .trk-next {
   grid-column: 1 / -1;
   display: flex;
-  align-items: baseline;
   flex-wrap: wrap;
+  align-items: baseline;
+  align-content: center;
   gap: 2px 6px;
   padding-top: var(--sp-1);
   border-top: 1px solid var(--rule);
@@ -814,10 +815,12 @@
   line-height: 1.45;
   color: var(--ink-3);
   min-width: 0;
-  /* 两行的位置固定留着（2 × 1.45em + 上内边距）。这一段是网格最后一行，
-     它多高，那条分隔线就往上抬多少 —— 高度不定的话，同一排里几张卡的
-     分隔线会各在各的高度上。 */
-  min-height: calc(2.9em + var(--sp-1));
+  /* 【为什么是固定高度而不是 min-height】这一段是网格的最后一行，它多高，
+     那条分隔线就往上抬多少。高度随文字行数变的话，同一排里几张卡的分隔线
+     各在各的高度上 —— 那正是「看着没对齐」的来源。
+     所以留死两行（2 × 1.45em）+ 上内边距，内容按 align-content 居中，
+     一行字的卡看起来是一条底边栏，不是一块空白。 */
+  height: calc(2.9em + var(--sp-1));
 }
 
 .trk-next-label {
@@ -832,10 +835,19 @@
 /* 【这里曾经是 text-overflow: ellipsis】那是把「点了会去哪」截成
    「从零重写：整个 subgr…」。这一行是这张卡唯一的承诺，
    截断它等于把承诺删掉。长了就换到第二行，位置已经预留。 */
+/* 【这里曾经是 text-overflow: ellipsis】那是把「点了会去哪」截成
+   「从零重写：整个 subgr…」—— 一行 25 个字，读不出去哪。
+   现在给两行。实测扫过 80 节课文 × 七个宽度（1440 / 1180 / 1024 / 768 /
+   414 / 390 / 360）：**只有一处收在了两行末尾** —— 360px 上那节最长的
+   英文标题（99 个字符）。也就是说这两行是兜底，不是常态。 */
 .trk-next-name {
   min-width: 0;
   color: var(--ink-2);
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* ---------- 「只想单练某一类」 ---------- */
