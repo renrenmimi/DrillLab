@@ -61,8 +61,8 @@
 }
 
 /* 组标题、模式眉题、计划眉题**共用这一档** —— 侧栏里所有的小标题长一个样。
-   缩进只给自己没有父级内边距的那两个；.ctx-head-mode 和 .ctx-sec-title
-   由它们的父容器（.ctx-head / .ctx-sec-head）负责缩进，
+   缩进只给自己没有父级内边距的那两个；.ctx-sec-title 由它的父容器
+   （.ctx-sec-head）负责缩进，
    两处都给会叠成 36px，实测踩到过。 */
 .snav-group-title,
 .side-plan-eyebrow {
@@ -71,7 +71,6 @@
 
 .snav-group-title,
 .side-plan-eyebrow,
-.ctx-head-mode,
 .ctx-sec-title {
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
@@ -257,18 +256,7 @@
   overflow: hidden;
 }
 
-/* 侧栏下半段（当前这一类事情的结构）里那条进度 */
-.ctx-prog {
-  padding-left: var(--rail-inset);
-  padding-right: var(--sp-1);
-  margin: 0 0 var(--sp-2);
-}
 
-/* 252px 的列里放不下「3 / 80 ▓▓░░ lessons done」三段 —— 实测尾巴被切掉。
-   分节标题已经说了这是课程，数字自己够清楚。 */
-.ctx-prog .ui-prog-label {
-  display: none;
-}
 
 /* ---------- 「继续」：窄屏顶栏里那一颗 ----------
    桌面上侧栏一直可见，所以顶栏不需要它；窄屏侧栏在抽屉后面，
@@ -1024,66 +1012,13 @@
 /* ---------- ② 四个模式 ----------
    2×2。四个横排的话每格只有 165px，装不下一句话；竖排四条又要滑一屏。 */
 
-.dash-modes {
-  list-style: none;
-  margin: var(--sp-2) 0 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-1);
-}
 
-.dash-modes li {
-  margin: 0;
-}
 
-/* 三层固定：名字 / 一句话 / 数字。数字用 margin-top: auto 顶到底 ——
-   一句话换行与否都不会让四张卡的底线错开。 */
-.dash-mode {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  height: 100%;
-  padding: var(--sp-2);
-  border: 1px solid var(--rule);
-  border-radius: var(--r);
-  background: var(--surface);
-  color: var(--ink);
-  transition:
-    border-color var(--t-hover) ease,
-    background var(--t-hover) ease;
-}
 
-.dash-mode:hover {
-  border-color: var(--rule-strong);
-  background: var(--hover);
-  text-decoration: none;
-}
 
-.dash-mode-name {
-  font-size: var(--fs-body);
-  font-weight: 650;
-}
 
-.dash-mode-name::after {
-  content: " →";
-  color: var(--ink-3);
-  font-weight: 400;
-}
 
-.dash-mode-blurb {
-  font-size: var(--fs-sm);
-  line-height: 1.55;
-  color: var(--ink-2);
-}
 
-.dash-mode-n {
-  margin-top: auto;
-  padding-top: 4px;
-  font-size: var(--fs-meta);
-  line-height: 1.5;
-  color: var(--ink-3);
-}
 
 /* ---------- ③ 按技术点直接进去 ---------- */
 
@@ -1209,16 +1144,7 @@
 
 /* ---------- 进度 ---------- */
 
-.dash-prog {
-  max-width: var(--measure);
-}
 
-.dash-prog-line {
-  margin: 12px 0 0;
-  font-size: var(--fs-meta);
-  line-height: 1.7;
-  color: var(--ink-3);
-}
 
 /* ---------- 折叠的「其他」 ---------- */
 
