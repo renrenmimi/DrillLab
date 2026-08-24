@@ -41,7 +41,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocale } from "@/lib/locale";
 import { modeOf } from "@/lib/modes";
-import { sectionOf } from "@/lib/side-nav";
+import { locationOf } from "@/lib/side-nav";
 import { useTheme } from "@/lib/theme";
 import { cedesContinue, ContinueButton } from "./continue";
 import { Search } from "./search";
@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const mode = modeOf(path);
   // 分隔线以下那一段（当前模式自己的结构）只在模式页面上有内容
   const hasCtx = mode !== undefined;
-  const section = sectionOf(path);
+  const loc = locationOf(path);
 
   // 【答案 tab 跟着界面语言走】
   // AnswerTabs 是纯 CSS 的 radio tab（正文留在服务端，不进客户端 chunk），
@@ -222,19 +222,42 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {/* 品牌只在窄屏的顶栏出现 —— 桌面上它在侧栏顶部。
             CSS 控制显隐，DOM 只有这一份。 */}
-        <Link className="topbar-brand" href="/">
+        {/* 360px 以下字样会被 CSS 收起来，所以这里给一个固定的可访问名 ——
+            不然那时候这个链接只剩一个 aria-hidden 的图形，读屏念不出东西。 */}
+        <Link className="topbar-brand" href="/" aria-label="DrillLab">
           <Mark />
           <span className="topbar-brand-name display">DrillLab</span>
         </Link>
 
-        {/* 「我在哪」。只给区段名 —— 页面标题就在下面那行 h1 上。 */}
-        <div className="topbar-loc" aria-hidden={!section}>
-          {section && (
-            <span className="topbar-loc-name">
-              <T zh={section.zh} en={section.en} />
-            </span>
-          )}
-        </div>
+        {/* 「我在哪」。一级页面一段（今天 / 学课程……），深页面两段
+            （学课程 / React 考试）。**永远不写页面标题** —— 那就在下面
+            一行的 h1 上，写两遍是重复。顶栏是 sticky 的，所以正文那条
+            面包屑滚走之后，这一条还在。 */}
+        {loc ? (
+          <nav className="topbar-loc" aria-label={en ? "Location" : "当前位置"}>
+            {loc.sub ? (
+              <Link className="topbar-loc-up" href={loc.sectionHref}>
+                <T zh={loc.section.zh} en={loc.section.en} />
+              </Link>
+            ) : (
+              <span className="topbar-loc-name">
+                <T zh={loc.section.zh} en={loc.section.en} />
+              </span>
+            )}
+            {loc.sub && (
+              <>
+                <span className="topbar-loc-sep" aria-hidden>
+                  /
+                </span>
+                <span className="topbar-loc-name" aria-current="page">
+                  <T zh={loc.sub.zh} en={loc.sub.en} />
+                </span>
+              </>
+            )}
+          </nav>
+        ) : (
+          <div className="topbar-loc" />
+        )}
 
         <div className="topbar-tools">
           {/* 窄屏顶栏里的〔继续〕—— 桌面上它在侧栏（CSS 收起）。
