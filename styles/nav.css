@@ -1462,6 +1462,28 @@
     display: none;
   }
 
+  /* 【窄屏一律 ≥44】桌面上侧栏的行是 36px，那是对的 —— 鼠标点得准。
+     抽屉是用拇指点的，所以每一个可点的东西都撑到 44。
+     计划块里那两条（计划名 18px、「换一条」21px）原来是纯文字链接，
+     在手机上是全站最小的两个目标。 */
+  .snav-item,
+  .ctx-item,
+  .ctx-course-top,
+  .ctx-sub-btn {
+    min-height: 44px;
+  }
+
+  .side-plan-name,
+  .side-plan-change {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .side-plan-eyebrow {
+    align-items: center;
+  }
+
   .snav-main {
     padding-top: var(--sp-2);
   }

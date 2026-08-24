@@ -93,7 +93,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (!drawer) return;
 
     const panel = panelRef.current;
-    panel?.querySelector<HTMLElement>("a, button")?.focus();
+    // 【必须挑「看得见的」那一个】抽屉里第一个 a 是品牌，而品牌在窄屏是
+    // display: none（顶栏已经有一份）。对它调 focus() 什么都不会发生，
+    // 于是焦点留在 body 上 —— 打开抽屉之后按 Tab 要从整页开头走一遍。
+    const firstVisible = [
+      ...(panel?.querySelectorAll<HTMLElement>("a[href], button:not(:disabled)") ?? []),
+    ].find((el) => el.getClientRects().length > 0);
+    firstVisible?.focus();
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {

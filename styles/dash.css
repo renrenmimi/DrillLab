@@ -908,11 +908,17 @@
       "meta";
   }
 
+  /* 窄屏这一行从「右对齐的一列」变成「靠左的一行」。
+     **nowrap 必须同时解掉** —— 「Learn · Foundations · project and language ·
+     lesson 1 of 9」在 390px 上量出来 376px 宽，不许换行就把整页顶出去
+     （实测 scrollWidth 456 > 390）。 */
   .cline-meta {
     align-items: flex-start;
     text-align: left;
     flex-direction: row;
-    gap: var(--sp-1);
+    flex-wrap: wrap;
+    white-space: normal;
+    gap: 2px var(--sp-1);
     margin-top: 2px;
   }
 
