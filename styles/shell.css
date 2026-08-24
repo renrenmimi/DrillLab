@@ -444,7 +444,9 @@
      任务名说的是去哪，少一个这颗按钮就只讲了一半。 */
   .topbar-cont .cont-btn-item {
     display: block;
-    max-width: 22ch;
+    /* 整条都是它的 —— 22ch 的老上限是单行顶栏留下的，在整行宽的按钮上
+       会把「Arrays and objects: three w…」截在半个词上。 */
+    max-width: none;
   }
 }
 
