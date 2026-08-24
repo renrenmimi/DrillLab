@@ -107,10 +107,15 @@ export function AppShell({ children }: { children: ReactNode }) {
      不是 overflow: hidden。后者在 iOS Safari 上对 body 不生效，
      那正是这个站最可能被打开的地方。
 
-     两件配套的事：
+     三件配套的事：
      ① 记下锁之前的滚动量，解锁后 scrollTo 回去（body 固定期间文档滚动量是 0，
         不还原的话一关抽屉就弹到页首）；
-     ② 桌面浏览器把窗口拉窄到 960 以下时是有滚动条的，body 一固定滚动条消失，
+     ② **还原那一下必须是瞬间的。** `html` 上有 `scroll-behavior: smooth`
+        （styles/base.css），于是 `scrollTo` 变成一段动画：实测在 2055 关掉抽屉，
+        scrollY 先掉到 0，再花大约 1.5 秒滑回 2054.5 —— 看着就是「页面自己跑了一趟」。
+        所以还原前把 `scrollBehavior` 临时改成 auto，还原完把**原来的内联值**放回去
+        （原来多半是空串，直接写 "auto" 会永久盖掉那条全局规则）。
+     ③ 桌面浏览器把窗口拉窄到 960 以下时是有滚动条的，body 一固定滚动条消失，
         内容会整体右移十几像素。用等宽的 padding-right 补上。 */
   useEffect(() => {
     if (!drawer || !narrow) return;
@@ -137,7 +142,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
     return () => {
       Object.assign(body.style, before);
-      if (restoreScroll.current) window.scrollTo(0, y);
+      if (!restoreScroll.current) return;
+
+      // 瞬间跳回去，不走 smooth 那段动画。改的是内联值，所以只影响这一次调用。
+      const root = document.documentElement;
+      const prevBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      window.scrollTo(0, y);
+      root.style.scrollBehavior = prevBehavior;
     };
   }, [drawer, narrow]);
 
@@ -158,7 +170,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       if (e.key === "Escape") {
         e.preventDefault();
         setDrawer(false);
-        openerRef.current?.focus();
+        // 【preventScroll】不加的话浏览器会为了「把汉堡露出来」再滚一次，
+        // 而 html 上是 scroll-behavior: smooth —— 刚瞬间跳回去的位置又被滑走。
+        openerRef.current?.focus({ preventScroll: true });
         return;
       }
       if (e.key !== "Tab" || !panel) return;
