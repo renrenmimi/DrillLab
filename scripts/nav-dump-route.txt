@@ -130,6 +130,8 @@ export function GET() {
         id: e.id,
         zh: e.shortTitle,
         en: e.shortTitleEn,
+        // 分类（基础 / 前端 / 后端 / 全栈）—— 仪表盘上每张卡的眉题
+        category: e.category,
         blurbZh: e.description,
         blurbEn: e.descriptionEn,
         // 平行支线的判据和 content/path.ts 完全一致：自己没有前置，

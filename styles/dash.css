@@ -607,7 +607,7 @@
   white-space: nowrap;
 }
 
-/* ---------- 五门课的进度盘 ---------- */
+/* ---------- 五个分类的圆形仪表盘 ---------- */
 
 .trk-sec {
   margin-top: var(--sp-6);
@@ -619,67 +619,154 @@
   padding: 0;
   display: grid;
   gap: var(--sp-2);
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
 .trk {
   margin: 0;
 }
 
-/* 整张卡是一个链接 —— 点哪儿都进那门课的下一节。
-   三层固定：头 / 一句话 / 进度 + 下一节，所以一句话换行不会让底线错开。 */
+/* 平行支线（面试八股）横跨整行。两个理由，缺一不可：
+   ① 五张卡在两列里排成 2 + 2 + 1，最后一张孤零零半行，看着像没排完；
+   ② 它确实是另一类 —— 不依赖主线，任何时候都能开始。
+   所以「占满一行」既是排版也是语义。 */
+.trk[data-wide] {
+  grid-column: 1 / -1;
+}
+
+/* 整张卡是一个链接 —— 点哪儿都进这一类的下一节。
+   两列：左边是仪表盘，右边是标题块；「点了会去哪」横跨两列贴在底部，
+   所以简介长短不影响四张卡的底线。 */
 .trk-hit {
   display: grid;
-  grid-template-rows: auto 1fr auto auto;
-  gap: 6px;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  gap: var(--sp-2);
   height: 100%;
-  padding: var(--sp-2);
+  padding: var(--sp-3);
   background: var(--raised);
   border: 1px solid var(--rule);
   border-radius: var(--r-lg);
   color: var(--ink);
   transition:
     background var(--t-hover) ease,
-    border-color var(--t-hover) ease;
+    border-color var(--t-hover) ease,
+    transform var(--t-hover) ease;
 }
 
 .trk-hit:hover {
   background: var(--hover);
   border-color: var(--accent-line);
   text-decoration: none;
+  /* 1px 的抬起。再多就变成弹跳，那和学习无关。 */
+  transform: translateY(-1px);
 }
 
-.trk-top {
+.trk-hit[data-complete] {
+  border-color: var(--ok-line);
+}
+
+/* ---------- 圆环 ---------- */
+
+.dial {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  flex: 0 0 auto;
+}
+
+.dial svg {
+  width: 80px;
+  height: 80px;
+  /* 起点转到 12 点方向。不转的话从 3 点开始走，读起来别扭。 */
+  transform: rotate(-90deg);
+}
+
+/* 环底走 --dial-track（见 tokens.css 里那段：3.05:1 / 2.98:1）。
+   **不许在这儿加 opacity** —— 那会把算好的对比度直接打回去。 */
+.dial-track {
+  fill: none;
+  stroke: var(--dial-track);
+  stroke-width: 6;
+}
+
+.dial-arc {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--t-prog) var(--ease);
+}
+
+/* 走完了用「完成」那支语义色，不是强调色 —— 强调色说的是「现在该看这儿」 */
+.dial-arc[data-complete] {
+  stroke: var(--ok);
+}
+
+.dial-mid {
+  position: absolute;
   display: flex;
   align-items: baseline;
+  gap: 1px;
+  font-family: var(--font-mono);
+  line-height: 1;
+}
+
+.dial-done {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.dial-total {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+/* ---------- 标题块 ---------- */
+
+.trk-head {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.trk-cat {
+  display: flex;
+  align-items: center;
   gap: var(--sp-1);
-  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
 
 .trk-name {
   font-size: var(--fs-h3);
   font-weight: 660;
   letter-spacing: -0.016em;
+  line-height: 1.25;
 }
 
 .trk-flag {
-  padding: 1px 7px;
+  padding: 1px 6px;
   border: 1px solid var(--rule-strong);
   border-radius: var(--r-pill);
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  font-weight: 600;
   letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--ink-3);
   white-space: nowrap;
 }
 
-/* 【为什么要截到两行】课程简介原文有三到五行（它是给课程总览页写的）。
-   仪表盘的用处是**扫一眼**：五张卡各五行，一屏就装不下两张。
-   完整那段在课程总览页上，这里只要够认出是哪门课。 */
+/* 【为什么截到两行】课程简介原文有三到五行（它是给课程总览页写的）。
+   仪表盘的用处是**扫一眼**：五张卡各五行，一屏就装不下两张。 */
 .trk-blurb {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-meta);
   line-height: 1.5;
   color: var(--ink-2);
   display: -webkit-box;
@@ -688,16 +775,13 @@
   overflow: hidden;
 }
 
-.trk-prog {
-  margin-top: 2px;
-}
-
-/* 「点了会去哪」。这一行是这张卡的全部意义，所以它比一句话重。 */
+/* 「点了会去哪」。横跨两列贴在卡片底部 —— 这一行是这张卡的全部意义。 */
 .trk-next {
+  grid-column: 1 / -1;
   display: flex;
   align-items: baseline;
   gap: 6px;
-  padding-top: 6px;
+  padding-top: var(--sp-1);
   border-top: 1px solid var(--rule);
   font-size: var(--fs-meta);
   color: var(--ink-3);
