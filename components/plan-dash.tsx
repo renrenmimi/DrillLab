@@ -89,9 +89,11 @@ export function PlanDash() {
           <T zh="你的计划" en="Your plan" />
         </div>
 
-        <h1 className="dash2-plan display" id="dash2-h">
+        {/* 【h2 不是 h1】这一块现在只出现在 /plans 上，而那一页的 h1 是
+            「我的引导计划」。一页只能有一个 h1。 */}
+        <h2 className="dash2-plan display" id="dash2-h">
           <T zh={plan.zh} en={plan.en} />
-        </h1>
+        </h2>
 
         <p className="dash2-stage">
           {status.complete ? (
@@ -145,9 +147,9 @@ export function PlanDash() {
             )}
           </div>
 
-          <h2 className="dash2-next-name display">
+          <h3 className="dash2-next-name display">
             <T zh={next.item.zh} en={next.item.en} />
-          </h2>
+          </h3>
 
           {stage && (
             <p className="dash2-why">
@@ -169,8 +171,8 @@ export function PlanDash() {
             <Link className="ui-quiet" href={`/plans/${plan.id}`}>
               <T zh="看全程" en="View the full plan" />
             </Link>
-            <Link className="ui-quiet" href="/plans">
-              <T zh="换一条计划" en="Change plan" />
+            <Link className="ui-quiet" href="/plans/choose">
+              <T zh="换一条引导计划" en="Change guided plan" />
             </Link>
             <button
               type="button"
@@ -191,9 +193,9 @@ export function PlanDash() {
         </div>
       ) : (
         <div className="dash2-next" data-done>
-          <h2 className="dash2-next-name display">
-            <T zh="这条计划走完了" en="This plan is complete" />
-          </h2>
+          <h3 className="dash2-next-name display">
+            <T zh="这条计划走完了" en="This guided plan is complete" />
+          </h3>
           <p className="dash2-why">
             <T
               zh="下一步可以再走一遍这条，换一条别的，或者回头把标了「不会」的八股过一遍。"
@@ -208,8 +210,8 @@ export function PlanDash() {
             <T zh="再走一遍" en="Run it again" />
           </button>
           <p className="dash2-alts">
-            <Link className="ui-quiet" href="/plans">
-              <T zh="挑下一条计划" en="Pick another plan" />
+            <Link className="ui-quiet" href="/plans/choose">
+              <T zh="挑下一条引导计划" en="Pick another guided plan" />
             </Link>
           </p>
         </div>

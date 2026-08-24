@@ -41,7 +41,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocale } from "@/lib/locale";
 import { modeOf } from "@/lib/modes";
-import { sectionOf } from "@/lib/side-nav";
+import { locationOf } from "@/lib/side-nav";
 import { useTheme } from "@/lib/theme";
 import { cedesContinue, ContinueButton } from "./continue";
 import { Search } from "./search";
@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const mode = modeOf(path);
   // 分隔线以下那一段（当前模式自己的结构）只在模式页面上有内容
   const hasCtx = mode !== undefined;
-  const section = sectionOf(path);
+  const loc = locationOf(path);
 
   // 【答案 tab 跟着界面语言走】
   // AnswerTabs 是纯 CSS 的 radio tab（正文留在服务端，不进客户端 chunk），
@@ -93,7 +93,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (!drawer) return;
 
     const panel = panelRef.current;
-    panel?.querySelector<HTMLElement>("a, button")?.focus();
+    // 【必须挑「看得见的」那一个】抽屉里第一个 a 是品牌，而品牌在窄屏是
+    // display: none（顶栏已经有一份）。对它调 focus() 什么都不会发生，
+    // 于是焦点留在 body 上 —— 打开抽屉之后按 Tab 要从整页开头走一遍。
+    const firstVisible = [
+      ...(panel?.querySelectorAll<HTMLElement>("a[href], button:not(:disabled)") ?? []),
+    ].find((el) => el.getClientRects().length > 0);
+    firstVisible?.focus();
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -191,8 +197,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     </>
   );
 
+  // 【为什么要这个标记】窄屏顶栏排成两行（见 styles/shell.css 那段算式）：
+  // 六个 44px 的目标加上「DrillLab」字样，在 360px 上量出来 377px，
+  // 一行放不下。第二行只在这一页真有那颗〔继续〕时才占位置，
+  // 所以那一行的高度不能写死在 :root 上 —— 挂在这里，CSS 按它改 --topbar-h。
+  const hasCont = !cedesContinue(path);
+
   return (
-    <div className="shell">
+    <div className="shell" data-cont={hasCont || undefined}>
       {/* ---------- 顶栏：位置 + 四个工具，一个导航链接都没有 ---------- */}
       <header className="topbar">
         {/* 汉堡只在窄屏出现。桌面上侧栏是常驻列，没有可开合的东西。 */}
@@ -222,29 +234,55 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {/* 品牌只在窄屏的顶栏出现 —— 桌面上它在侧栏顶部。
             CSS 控制显隐，DOM 只有这一份。 */}
-        <Link className="topbar-brand" href="/">
+        {/* 360px 以下字样会被 CSS 收起来，所以这里给一个固定的可访问名 ——
+            不然那时候这个链接只剩一个 aria-hidden 的图形，读屏念不出东西。 */}
+        <Link className="topbar-brand" href="/" aria-label="DrillLab">
           <Mark />
           <span className="topbar-brand-name display">DrillLab</span>
         </Link>
 
-        {/* 「我在哪」。只给区段名 —— 页面标题就在下面那行 h1 上。 */}
-        <div className="topbar-loc" aria-hidden={!section}>
-          {section && (
-            <span className="topbar-loc-name">
-              <T zh={section.zh} en={section.en} />
-            </span>
-          )}
-        </div>
+        {/* 「我在哪」。一级页面一段（今天 / 学课程……），深页面两段
+            （学课程 / React 考试）。**永远不写页面标题** —— 那就在下面
+            一行的 h1 上，写两遍是重复。顶栏是 sticky 的，所以正文那条
+            面包屑滚走之后，这一条还在。 */}
+        {loc ? (
+          <nav className="topbar-loc" aria-label={en ? "Location" : "当前位置"}>
+            {loc.sub ? (
+              <Link className="topbar-loc-up" href={loc.sectionHref}>
+                <T zh={loc.section.zh} en={loc.section.en} />
+              </Link>
+            ) : (
+              <span className="topbar-loc-name">
+                <T zh={loc.section.zh} en={loc.section.en} />
+              </span>
+            )}
+            {loc.sub && (
+              <>
+                <span className="topbar-loc-sep" aria-hidden>
+                  /
+                </span>
+                <span className="topbar-loc-name" aria-current="page">
+                  <T zh={loc.sub.zh} en={loc.sub.en} />
+                </span>
+              </>
+            )}
+          </nav>
+        ) : (
+          <div className="topbar-loc" />
+        )}
+
+        {/* 窄屏顶栏里的〔继续〕—— 桌面上它在侧栏（CSS 收起）。
+            手机上第一屏必须能看到主动作，而侧栏在抽屉后面。
+            首页和计划详情页不给 —— 那两页的主内容本身就是这颗按钮。
+            【它是 .topbar 的直接子元素，不在工具组里】窄屏要把它整个换到
+            第二行去，而工具组是同一行右边那一簇。 */}
+        {hasCont && (
+          <div className="topbar-cont">
+            <ContinueButton />
+          </div>
+        )}
 
         <div className="topbar-tools">
-          {/* 窄屏顶栏里的〔继续〕—— 桌面上它在侧栏（CSS 收起）。
-              手机上第一屏必须能看到主动作，而侧栏在抽屉后面。
-              首页和计划详情页不给 —— 那两页的主内容本身就是这颗按钮。 */}
-          {!cedesContinue(path) && (
-            <div className="topbar-cont">
-              <ContinueButton />
-            </div>
-          )}
           <Search />
           {tools}
         </div>

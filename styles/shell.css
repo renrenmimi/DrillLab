@@ -56,13 +56,35 @@
   text-decoration: none;
 }
 
-/* 「我在哪」。只给区段名，页面标题在下面那行 h1 上。 */
+/* 「我在哪」。一级页面一段，深页面两段。页面标题不在这里 —— 它在 h1 上。
+   整条和顶栏的其余控件共用 .topbar 的 align-items: center，
+   所以品牌标记、这条路径、右边那排工具落在同一条水平中线上。 */
 .topbar-loc {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: var(--sp-1);
+  gap: 7px;
   overflow: hidden;
+}
+
+/* 上一级：可以点回去。它比当前那一段淡一档，两段因此分得开。 */
+.topbar-loc-up {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* 分隔的斜杠。**不许用 opacity 压淡** —— 那会把 --ink-3 从 5.06:1 打到 3.1:1
+   （面包屑里那个 / 踩过一次）。要更淡就换颜色变量。 */
+.topbar-loc-sep {
+  flex: 0 0 auto;
+  font-size: var(--fs-meta);
+  color: var(--ink-3);
 }
 
 .topbar-loc-name {
@@ -84,7 +106,8 @@
   gap: var(--sp-1);
 }
 
-/* 顶栏那颗〔继续〕只在窄屏出现 —— 桌面上它在侧栏，而侧栏在桌面上一直可见。 */
+/* 顶栏那颗〔继续〕只在窄屏出现 —— 桌面上它在侧栏，而侧栏在桌面上一直可见。
+   它是 .topbar 的直接子元素（不在工具组里），因为窄屏要把它整个换行。 */
 .topbar-cont {
   display: none;
 }
@@ -329,13 +352,21 @@
     min-width: 0;
   }
 
-  /* 【390px 的宽度预算】菜单 44 + 标记 44 + 〔继续〕~90 + 搜索 44 +
-     语言 44 + 主题 44 = 310，加五个 8px 的间隙 = 350，视口去掉左右各 16
-     还剩 358 —— 刚好放得下。所以品牌只留标记，字样收起来。
-     语言和主题不许再往菜单里收：这个站每一段文字都有中英两版，
+  /* 搜索和语言、主题在同一排，触摸目标一起补到 44 宽。 */
+  .search-trigger {
+    min-width: 44px;
+    justify-content: center;
+  }
+
+  /* 【为什么字样留着】上一版在 960px 以下就把「DrillLab」收起来，只剩一个
+     没有说明的标记 —— 手机上打开这个站，左上角是个认不出来的图形。
+     实测 390px 排得下（见下面 420px 那段把内边距和间隙都收紧了）：
+     10 + 菜单 44 + 品牌 ~88 + 〔继续〕~62 + 搜索 44 + 语言 44 + 主题 44
+     加间隙一共 377 < 390。真的放不下的是 360 以下，那时才只留标记。
+     语言和主题不许往菜单里收：这个站每一段文字都有中英两版，
      换语言是随时会按的东西。 */
   .topbar-brand-name {
-    display: none;
+    font-size: var(--fs-sm);
   }
 
   .sidebar {
@@ -370,6 +401,52 @@
 
   .topbar {
     padding: 0 var(--sp-2);
+  }
+}
+
+/* 【≤520px：顶栏排两行 —— 这是一道算术题，不是审美选择】
+   一行要放：菜单 44 + 「DrillLab」76 + 〔继续〕89 + 搜索 44 + 语言 44 +
+   主题 44 = 341，加五个间隙和左右内边距，在 360px 上实测 377px。
+   一行放不下，所以必须去掉一样。三个候选各有硬约束：
+     · 语言 / 主题不许收进菜单（手机上就找不到怎么换语言了）；
+     · 品牌只留标记 = 左上角一个没有说明的图形；
+     · 〔继续〕是这一屏的主动作。
+   于是换个方向：**让它换行**。第一行是「品牌 + 三个工具」，第二行整条
+   给〔继续〕—— 顺带它终于能把任务名写出来了（单行时那个名字从 480px
+   起就被藏掉，按钮上只剩一个光秃秃的「继续」，不说去哪）。
+   第二行只在这一页真有〔继续〕时才占地方，所以高度挂在 .shell[data-cont]
+   上，而不是写死在 :root 的 --topbar-h 里。
+   520px 以上一行放得下（341 + 间隙 ≈ 377），就不折了。 */
+@media (max-width: 520px) {
+  .topbar {
+    flex-wrap: wrap;
+    align-content: center;
+    row-gap: 6px;
+  }
+
+  .topbar-cont {
+    order: 9;
+    flex: 1 0 100%;
+  }
+
+  .shell[data-cont] {
+    --topbar-h: 106px;
+  }
+
+  .topbar-cont .cont-btn {
+    width: 100%;
+    height: 44px;
+    justify-content: center;
+    max-width: none;
+  }
+
+  /* 换到第二行之后有的是地方，任务名放回来 —— 「继续」说的是动作，
+     任务名说的是去哪，少一个这颗按钮就只讲了一半。 */
+  .topbar-cont .cont-btn-item {
+    display: block;
+    /* 整条都是它的 —— 22ch 的老上限是单行顶栏留下的，在整行宽的按钮上
+       会把「Arrays and objects: three w…」截在半个词上。 */
+    max-width: none;
   }
 }
 

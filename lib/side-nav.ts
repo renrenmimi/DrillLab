@@ -102,15 +102,71 @@ export function activeSideHref(path: string): string | undefined {
 /**
  * 顶栏那条「我在哪」。
  *
- * 只给**区段名**，不给页面标题 —— 页面标题就在下面一行的 h1 上，
- * 顶栏再写一遍是重复。区段名是页面自己不说的那一半。
+ * 一级页面只给一个区段名（今天 / 我的计划 / 学课程……）；**深一层的页面给
+ * 一条两段的面包屑**（学课程 / React 考试）。理由是顶栏是 sticky 的：
+ * 正文里那条面包屑滚两屏就没了，而「我现在在哪门课里」是随时要知道的。
+ *
+ * 【它为什么不写页面标题】页面标题就在下面一行的 h1 上，顶栏再写一遍是重复。
+ * 第二段说的是**这一页自己不说的那一半** —— 课文的 h1 是那一节的名字，
+ * 不是课程名。
+ *
+ * 【为什么这里能有课程名，而不算 import 内容】下面那张表是五个静态字符串，
+ * 不是内容模块（侧栏在每一页都渲染，拉 content/nav 会让每个路由多下 134 KB，
+ * 见文件顶部）。表里没有的 id 直接退回一段面包屑 —— 加一门新考试仍然只要
+ * CLAUDE.md 里那三步，漏了这里最多少一段路径，不会出错。
  */
-export function sectionOf(path: string): { zh: string; en: string } | undefined {
+const EXAM_CRUMB: Record<string, Crumb> = {
+  foundations: { zh: "地基", en: "Foundations" },
+  react: { zh: "React 考试", en: "React exam" },
+  "graphql-federation": { zh: "Federation 考试", en: "Federation exam" },
+  interview: { zh: "面试八股", en: "Interview questions" },
+  "cab-booking": { zh: "Cab Booking", en: "Cab Booking" },
+};
+
+export interface Crumb {
+  zh: string;
+  en: string;
+}
+
+/** 深一层的页面在区段名后面再加的那一段。纯粹按路由形状判断，不读内容。 */
+function subCrumb(path: string): Crumb | undefined {
+  const seg = path.split("/").filter(Boolean);
+
+  if (seg[0] === "exams" && seg[1]) return EXAM_CRUMB[seg[1]];
+  if (seg[0] === "drill" && seg[1]) {
+    return seg[1] === "session"
+      ? { zh: "抽认卡", en: "Flashcards" }
+      : { zh: "题库", en: "Question bank" };
+  }
+  if (seg[0] === "code" && seg[1]) return { zh: "Coding 题", en: "Coding problem" };
+  if (seg[0] === "arena" && seg[1]) {
+    if (seg[2] === "run") return { zh: "计时中", en: "Timed run" };
+    if (seg[2] === "review") return { zh: "对答案", en: "Review" };
+    return { zh: "一场考试", en: "One paper" };
+  }
+  if (seg[0] === "mock" && seg[1]) return { zh: "一套模拟考", en: "One mock exam" };
+  if (seg[0] === "plans" && seg[1]) {
+    return seg[1] === "choose"
+      ? { zh: "换一条", en: "Change" }
+      : { zh: "全程", en: "The whole route" };
+  }
+  return undefined;
+}
+
+/**
+ * 顶栏那条「我在哪」。第一段永远是侧栏里亮着的那一项，
+ * 深页面再补一段。返回 undefined 表示这一页不在导航结构里。
+ */
+export function locationOf(
+  path: string,
+): { section: Crumb; sectionHref: string; sub?: Crumb } | undefined {
   const href = activeSideHref(path);
   if (!href) return undefined;
   for (const g of SIDE_NAV) {
     for (const it of g.items) {
-      if (it.href === href) return { zh: it.zh, en: it.en };
+      if (it.href === href) {
+        return { section: { zh: it.zh, en: it.en }, sectionHref: href, sub: subCrumb(path) };
+      }
     }
   }
   return undefined;

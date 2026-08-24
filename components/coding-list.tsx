@@ -188,7 +188,7 @@ export function CodingList({ query }: { query: CodingQuery }) {
 
               <div className="filters">
                 <span className="filter-label">
-                  <T en="Track" zh="方向" />
+                  <T en="Topic" zh="方向" />
                 </span>
                 {TRACKS.map((t) => (
                   <Link

@@ -71,10 +71,21 @@ function foundationsStart(): ContinueTarget {
  */
 export function useContinue(): { ready: boolean; target: ContinueTarget } {
   const { ready, mostRecent } = useProgress();
+  // 【没有访问记录时不能直接跳回「地基第一节」】打过勾但没有 recent 的档案
+  // （老数据、或者别处导入的进度）会让这一行说「从地基开始 · 第 1 / 9 节」，
+  // 而正下方那张卡同时写着「地基 4 / 9 · 接着读第 5 节」——
+  // 同一屏上两个答案。所以退一步是「第一节没读过的」，和卡片同一份算法。
+  const learn = useLearnTarget();
   if (!ready) return { ready, target: foundationsStart() };
 
   const best = mostRecent();
-  if (!best) return { ready, target: foundationsStart() };
+  if (!best) {
+    // fresh 决定的是文案（「从地基开始」还是「接着上次」）。第一节没读过的
+    // 恰好就是地基第一节 = 一个字都没读过，那才是「从地基开始」。
+    const start = foundationsStart();
+    const fresh = learn.target.href === start.href;
+    return { ready, target: { ...learn.target, fresh } };
+  }
   return {
     ready,
     target: { mode: best.mode, ...best.item, fresh: false },

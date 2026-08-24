@@ -21,7 +21,9 @@
 
 import Link from "next/link";
 import { SURFACES, TRACKS, type Track } from "@/content/track-manifest";
+import { useT } from "@/lib/locale";
 import { useProgress } from "@/lib/progress";
+import { trackCopy } from "@/lib/track-copy";
 import { T } from "./t";
 
 /** 这条轨道走到哪了，下一节是哪一节 */
@@ -47,10 +49,20 @@ function useTrackState(track: Track) {
  * 实现要点：
  * ① 起点转到 12 点方向（-90deg），不然从 3 点开始转，读起来别扭；
  * ② 进度靠 stroke-dashoffset，所以变化时能走 --t-prog 的过渡；
- * ③ 走完了换成 --ok —— 那是「完成」的语义色，不是强调色；
- * ④ 数字本身也在 DOM 里，所以读屏的人不依赖这个图形；aria-label 再说一遍。
+ * ③ 走完了换成 --ok，并且中间那个数字换成一个对勾 —— 「9 / 9」要读一下才
+ *    知道是满的，对勾一眼就是。计数仍然在 aria-label 里，不丢信息；
+ * ④ 一格没走时不画弧，环底也细一档 —— 那时候这张卡该安静，
+ *    有进度之后柠檬绿那道弧才是主角。
  */
-function Dial({ done, total, label }: { done: number; total: number; label: string }) {
+function Dial({
+  done,
+  total,
+  label,
+}: {
+  done: number;
+  total: number;
+  label: string;
+}) {
   const R = 30;
   const C = 2 * Math.PI * R;
   const p = total > 0 ? done / total : 0;
@@ -60,18 +72,37 @@ function Dial({ done, total, label }: { done: number; total: number; label: stri
     <span className="dial" role="img" aria-label={label}>
       <svg viewBox="0 0 72 72" aria-hidden>
         <circle className="dial-track" cx="36" cy="36" r={R} />
-        <circle
-          className="dial-arc"
-          data-complete={complete || undefined}
-          cx="36"
-          cy="36"
-          r={R}
-          style={{ strokeDasharray: C, strokeDashoffset: C * (1 - p) }}
-        />
+        {/* 一格都没走时**不画弧**。零长度的 dash 配 round 端帽在某些引擎里
+            会渲染成一个小圆点，看着像「走了一点点」。 */}
+        {done > 0 && (
+          <circle
+            className="dial-arc"
+            data-complete={complete || undefined}
+            cx="36"
+            cy="36"
+            r={R}
+            style={{ strokeDasharray: C, strokeDashoffset: C * (1 - p) }}
+          />
+        )}
       </svg>
+
       <span className="dial-mid" aria-hidden>
-        <span className="dial-done">{done}</span>
-        <span className="dial-total">/{total}</span>
+        {complete ? (
+          <svg className="dial-check" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M4 12.6 9.2 18 20 6.6"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : (
+          <>
+            <span className="dial-done">{done}</span>
+            <span className="dial-total">/{total}</span>
+          </>
+        )}
       </span>
     </span>
   );
@@ -82,19 +113,33 @@ const CATEGORY_EN: Record<string, string> = {"基础": "Foundations", "前端": 
 
 function TrackCard({ track }: { track: Track }) {
   const { done, next, fresh } = useTrackState(track);
+  const t = useT();
   const total = track.lessons.length;
   const complete = done === total;
+  const copy = trackCopy(track.id);
+  const name = t(track.zh, track.en ?? track.zh);
 
   // 走完了就指向课程总览（回头查用），否则指向下一节没读的
   const href = complete ? `/exams/${track.id}` : (next?.href ?? `/exams/${track.id}`);
 
   return (
     <li className="trk" data-wide={track.parallel || undefined}>
-      <Link className="trk-hit" href={href} data-complete={complete || undefined}>
+      <Link
+        className="trk-hit"
+        href={href}
+        data-complete={complete || undefined}
+        data-fresh={fresh || undefined}
+      >
         <Dial
           done={done}
           total={total}
-          label={`${track.zh}：${done} / ${total}`}
+          // 【这句必须跟着界面语言走】它是圆环唯一的可访问名。
+          // 上一版写死中文，英文界面下读屏念出来的是另一种语言。
+          label={
+            complete
+              ? t(`${name}：${total} 节全部读完`, `${name}: all ${total} lessons read`)
+              : t(`${name}：${total} 节读了 ${done} 节`, `${name}: ${done} of ${total} lessons read`)
+          }
         />
 
         <span className="trk-head">
@@ -102,22 +147,28 @@ function TrackCard({ track }: { track: Track }) {
             <T zh={track.category} en={CATEGORY_EN[track.category] ?? track.category} />
             {track.parallel && (
               <span className="trk-flag">
-                <T zh="平行支线" en="Parallel" />
+                <T zh="平行支线" en="Parallel track" />
               </span>
             )}
           </span>
           <span className="trk-name display">
             <T zh={track.zh} en={track.en} />
           </span>
+          {/* 手写的一句话（lib/track-copy.ts）。没写的分类退回课程简介 ——
+              **不用 CSS 截断**，截断只会造出半截句子。 */}
           <span className="trk-blurb">
-            <T zh={track.blurbZh} en={track.blurbEn} />
+            <T zh={copy?.zh ?? track.blurbZh} en={copy?.en ?? track.blurbEn ?? track.blurbZh} />
           </span>
         </span>
 
-        {/* 这一行就是「点了会去哪」。走完了说走完了，没开始说从哪一节开始。 */}
+        {/* 这一行就是「点了会去哪」。它是这张卡唯一的承诺，所以
+            **不许省略号** —— 长标题换行到第二行，两行的高度四张卡都预留了，
+            于是那条分隔线在同一排里落在同一条水平线上。 */}
         <span className="trk-next">
           {complete ? (
-            <T zh="这一类读完了 · 回头查" en="Finished — open it to look things up" />
+            <span className="trk-next-name">
+              <T zh="这一类读完了 · 回头查" en="Finished — open it to look things up" />
+            </span>
           ) : (
             <>
               <span className="trk-next-label">
@@ -228,6 +279,18 @@ export function HomeTracks() {
             <T zh="看整条路线 →" en="See the whole route →" />
           </Link>
         </div>
+
+        {/* 【这一行是「分类」和「引导计划」唯一碰面的地方】两个词全站不混用：
+            分类是科目，五个；引导计划是一条横跨学 / 背 / 练 / 写 / 考的顺序，
+            六条。第一次进来的人在这一屏同时看到五张卡和侧栏里的「我的计划」，
+            所以这句话必须在这儿，而不是等到 /plans 才解释。 */}
+        <p className="ui-sec-note trk-sec-note">
+          <T
+            zh="分类整理的是科目，引导计划把几个分类里的东西排成一条推荐顺序。"
+            en="Tracks organise subjects. A guided plan puts work from several tracks into one recommended order."
+          />
+        </p>
+
         <ul className="trk-grid">
           {main.map((t) => (
             <TrackCard key={t.id} track={t} />

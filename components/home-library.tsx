@@ -145,66 +145,6 @@ export function HomeLibrary() {
 
   return (
     <>
-        {/* ================================================================
-            浏览全部材料。四个模式一个都没删，只是退到最后 ——
-            它们回答的是「让我自己挑」，和上面那颗「继续」不是同一个问题，
-            所以不该有同等的视觉重量。标题用 ui-sec-title 的 quiet 一档。
-            ================================================================ */}
-        <section className="ui-sec dash-sec" data-quiet>
-          <h2 className="ui-sec-title">
-            <T zh="浏览全部材料" en="Browse all material" />
-          </h2>
-          <p className="dash-sec-lede">
-            <T
-              zh="已经知道自己要什么就直接进：四个模式任何时候都能点，进度和计划是同一份。"
-              en="If you already know what you want, go straight in. All four modes are open at any time, and the progress behind them is the same as the plans."
-            />
-          </p>
-          <ul className="dash-modes">
-            {MODES.map((m) => (
-              <li key={m.id}>
-                <Link className="dash-mode" href={m.href}>
-                  <span className="dash-mode-name">
-                    <T zh={m.zh} en={m.en} />
-                  </span>
-                  <span className="dash-mode-blurb">
-                    <T zh={m.blurbZh} en={m.blurbEn} />
-                  </span>
-                  <span className="dash-mode-n tabular">
-                    <T zh={MODE_COUNT[m.id].zh} en={MODE_COUNT[m.id].en} />
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* 有基础的人的旁路。不必选计划，也不必先选模式。
-            视觉上比上面两节更轻 —— 它是一条捷径，不是主路。 */}
-        <section className="ui-sec dash-sec dash-sec-quiet" data-quiet>
-          <h2 className="ui-sec-title">
-            <T zh="已经有基础？直接按技术点进去" en="Already know the basics? Go straight to a topic" />
-          </h2>
-          <ul className="dash-topics">
-            {TOPICS.map((t) => (
-              <li key={t.name} className="dash-topic">
-                <span className="dash-topic-name">{t.name}</span>
-                <span className="dash-topic-acts">
-                  {t.actions.map((a, i) => (
-                    <Link key={i} className="dash-topic-act" href={a.href}>
-                      <T
-                        zh={a.labelZh ?? ACTION_LABEL[a.mode].zh}
-                        en={a.labelEn ?? ACTION_LABEL[a.mode].en}
-                      />
-                      {a.n !== undefined && <span className="tabular"> {a.n}</span>}
-                    </Link>
-                  ))}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
         {/* 英文用户的边界说明。这条要写准，别含糊 ——
             **有英文**：界面、全部讲解段正文、105 道八股答案、模拟考讲解与环境说明。
             **只有中文**：讲解段的标题和副标、学完你会 / 考点 / 要点回顾、
@@ -228,62 +168,49 @@ export function HomeLibrary() {
           zh=""
         />
 
-        {/* 进度：有进度才显示，没有就不占地方。
-            一个大大的 0 / 80 对新用户是压力不是信息。 */}
-        {started && (
-          <section className="ui-sec dash-sec" data-quiet>
-            <h2 className="ui-sec-title">
-              <T zh="你的进度" en="Your progress" />
-            </h2>
-            <div className="dash-prog">
-              {/* 顺序和侧栏、路线图取同一个来源 —— NAV 是登记顺序，
-                  会把平行支线排在 Cab Booking 前面，三处就又不一致了。 */}
-              {pathGroups()
-                .flatMap((g) => g.exams)
-                .map((exam) => {
-                  const done = countLessons(exam.id);
-                  return (
-                    <div className="progress-row" key={exam.id}>
-                      <span>
-                        <T zh={exam.shortTitle} en={exam.shortTitleEn} />
-                      </span>
-                      <span className="bar">
-                        <i
-                          style={{
-                            width: `${(done / Math.max(1, exam.lessonCount)) * 100}%`,
-                          }}
-                        />
-                      </span>
-                      <span className="progress-num">
-                        {done}/{exam.lessonCount}
-                      </span>
-                    </div>
-                  );
-                })}
-            </div>
-            <p className="dash-prog-line">
-              <T
-                zh={`八股自评 ${markedDrills} / ${DRILLS.length} · 练习做对 ${doneExercises} / ${TOTAL_EXERCISES} · coding 完成 ${doneCoding} / ${CODING.length} · 考场尝试 ${arenaRuns} 次`}
-                en={`${markedDrills} / ${DRILLS.length} questions rated · ${doneExercises} / ${TOTAL_EXERCISES} exercises right · ${doneCoding} / ${CODING.length} coding problems done · ${arenaRuns} arena attempts`}
-              />
-            </p>
-          </section>
-        )}
-
-        {/* 折叠区：查完就走的东西，加上进度本身怎么存的。
-            「清空进度」放在这儿 —— 它是破坏性操作，不该常驻在侧栏里，
-            但也不该藏到找不着，所以给它一个固定的家。 */}
+        {/* ================================================================
+            【Today 只保留一个折叠】
+            上一版这下面有四块：「浏览全部材料」（四个模式）、「按技术点进去」、
+            「你的进度」、以及这个折叠。前两块和侧栏重复 —— 侧栏每一页都挂着
+            学课程 / 背知识点 / 做练习 / 考场 / 速查；第三块和上面五个圆盘
+            说的是同一件事，而圆盘说得更清楚。
+            所以现在只剩这一个折叠：按技术点的捷径、查完就走的几页、
+            内容来源、以及清空进度。
+            **标题里必须写出「清空进度」** —— 上一版写的是「……进度怎么存的」，
+            清空进度就在里面但标题一个字没提，实测有人想从头开始却找不到。
+            ================================================================ */}
         <details className="dash-more">
           <summary>
-            {/* 【标题里必须写出「清空进度」】上一版这个 summary 写的是
-                「……内容来源、进度怎么存的」—— 清空进度就在里面，
-                但标题一个字都没提，等于藏着。实测过：用户想从头开始，找不到。 */}
             <T
-              zh="其他：速查表、模拟考自评、内容来源、清空进度"
-              en="More: reference, mock scoring, sources, clear progress"
+              zh="还能怎么找：按技术点、速查表、内容来源、清空进度"
+              en="More ways to browse: by topic, reference, sources, clear progress"
             />
           </summary>
           <div className="dash-more-body">
+            <div className="dash-more-topics">
+              <div className="minihead">
+                <T zh="按技术点直接进去" en="Straight to a topic" />
+              </div>
+          <ul className="dash-topics">
+            {TOPICS.map((t) => (
+              <li key={t.name} className="dash-topic">
+                <span className="dash-topic-name">{t.name}</span>
+                <span className="dash-topic-acts">
+                  {t.actions.map((a, i) => (
+                    <Link key={i} className="dash-topic-act" href={a.href}>
+                      <T
+                        zh={a.labelZh ?? ACTION_LABEL[a.mode].zh}
+                        en={a.labelEn ?? ACTION_LABEL[a.mode].en}
+                      />
+                      {a.n !== undefined && <span className="tabular"> {a.n}</span>}
+                    </Link>
+                  ))}
+                </span>
+              </li>
+            ))}
+          </ul>
+            </div>
+
             <ul>
               <li>
                 <Link href="/reference">

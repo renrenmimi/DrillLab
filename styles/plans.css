@@ -1525,15 +1525,6 @@
   max-width: 28ch;
 }
 
-/* 「自由选择练习方式」那一节的引子。和 .dash-goal-lede 同一档，
-   但它在 h2 下面，所以字号小一号。 */
-.dash-sec-lede {
-  font-size: var(--fs-sm);
-  line-height: 1.7;
-  color: var(--ink-2);
-  max-width: 60ch;
-  margin: -6px 0 16px;
-}
 
 .dash-goal-lede {
   font-size: var(--fs-body);
@@ -1763,4 +1754,157 @@
   padding-top: var(--sp-4);
   border-top: 1px solid var(--rule);
   scroll-margin-top: calc(var(--topbar-h) + var(--sp-3));
+}
+
+/* 路线图那一段的分区标题。它同时是 h1 → h3 之间的那一级 —— 删了就跳级。 */
+.pl-rm-title {
+  margin-bottom: var(--sp-3);
+}
+
+/* 「我的引导计划」页脚那颗「换一条」。描边不实心 ——
+   这一页的实心主动作是仪表盘里那颗〔继续〕。 */
+.pl-list-change {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--rule);
+}
+
+.pl-list-change-note {
+  font-size: var(--fs-meta);
+  color: var(--ink-3);
+}
+
+.pl-list-note {
+  max-width: 62ch;
+  margin: 0 0 var(--sp-2);
+}
+
+/* ---------- /plans/choose ---------- */
+
+.chz-page {
+  max-width: 900px;
+}
+
+
+.chz-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.chz {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: 0;
+  padding: var(--sp-3);
+  background: var(--raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+}
+
+/* 当前这条：一条 2px 的强调色左边线。不铺满 —— 它是「你在这」，不是动作。 */
+.chz[data-current] {
+  border-color: var(--accent-line);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.chz-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chz-top {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+
+.chz-name {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 660;
+  letter-spacing: -0.016em;
+  color: var(--ink);
+}
+
+.chz-now {
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.chz-out {
+  max-width: 64ch;
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.chz-phases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chz-meta {
+  margin-top: 2px;
+}
+
+.chz-done {
+  color: var(--accent-ink);
+}
+
+.chz-act {
+  flex: 0 0 auto;
+}
+
+.chz-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--rule);
+}
+
+.chz-foot-note {
+  font-size: var(--fs-meta);
+  color: var(--ink-3);
+}
+
+@media (max-width: 720px) {
+  .chz {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-2);
+  }
+
+  .chz-act .btn {
+    width: 100%;
+  }
+}
+
+/* 选择页上那条「六条计划」的小标题。它存在的理由是标题层级：
+   下面每一条是 h3，中间不能少一级。 */
+.chz-list-title {
+  margin: var(--sp-4) 0 var(--sp-2);
 }

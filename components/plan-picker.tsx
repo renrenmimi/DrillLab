@@ -59,7 +59,15 @@ function scale(p: LitePlan | undefined) {
   };
 }
 
-export function PlanPicker() {
+/**
+ * 三个决定。
+ *
+ * `level` 决定这一段的标题是 h1 还是 h2 —— **一页只能有一个 h1**：
+ *   /plans（没跟计划时）  这一段就是整页的主内容 → h1
+ *   /plans/choose        页面自己的 h1 是「换一条引导计划」 → 这里降成 h2
+ */
+export function PlanPicker({ level = "h1" }: { level?: "h1" | "h2" }) {
+  const Heading = level;
   const { setActivePlan } = useProgress();
   // 展开哪一组。同时最多一组 —— 三个决定里只会选一个。
   const [open, setOpen] = useState<"exam" | null>(null);
@@ -85,9 +93,9 @@ export function PlanPicker() {
         <T zh="开始之前" en="Before you start" />
       </div>
 
-      <h1 className="pick-h1 display" id="pick-h">
+      <Heading className="pick-h1 display" id="pick-h">
         <T zh="你想为什么做好准备？" en="What do you want to be ready for?" />
-      </h1>
+      </Heading>
 
       <p className="pick-lede">
         <T
