@@ -84,9 +84,74 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
+  /* 关抽屉时要不要把页面滚回原来的位置。
+     用户自己关（Esc / 蒙层 / 汉堡）→ 要，他还在这一页；
+     点导航走掉 → 不要，新页面本来就该从顶上开始。 */
+  const restoreScroll = useRef(true);
+  const leaveForNav = () => {
+    restoreScroll.current = false;
+    setDrawer(false);
+  };
+
   useEffect(() => {
+    // 换页了（包括浏览器返回键）——新页面从顶上开始
+    restoreScroll.current = false;
     setDrawer(false);
   }, [path]);
+
+  /* 【抽屉打开时锁住背后的页面】
+     蒙层只拦得住点击，拦不住滚动：手指落在蒙层上一划，后面那一页照样跟着走
+     （实测背景移了 88px）。回来的时候位置对不上，看着像跳了一下。
+
+     锁法是把 body 变成 position: fixed 并把 top 设成负的滚动量 ——
+     不是 overflow: hidden。后者在 iOS Safari 上对 body 不生效，
+     那正是这个站最可能被打开的地方。
+
+     三件配套的事：
+     ① 记下锁之前的滚动量，解锁后 scrollTo 回去（body 固定期间文档滚动量是 0，
+        不还原的话一关抽屉就弹到页首）；
+     ② **还原那一下必须是瞬间的。** `html` 上有 `scroll-behavior: smooth`
+        （styles/base.css），于是 `scrollTo` 变成一段动画：实测在 2055 关掉抽屉，
+        scrollY 先掉到 0，再花大约 1.5 秒滑回 2054.5 —— 看着就是「页面自己跑了一趟」。
+        所以还原前把 `scrollBehavior` 临时改成 auto，还原完把**原来的内联值**放回去
+        （原来多半是空串，直接写 "auto" 会永久盖掉那条全局规则）。
+     ③ 桌面浏览器把窗口拉窄到 960 以下时是有滚动条的，body 一固定滚动条消失，
+        内容会整体右移十几像素。用等宽的 padding-right 补上。 */
+  useEffect(() => {
+    if (!drawer || !narrow) return;
+
+    restoreScroll.current = true;
+    const y = window.scrollY;
+    const body = document.body;
+    const gutter = window.innerWidth - document.documentElement.clientWidth;
+    const before = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      paddingRight: body.style.paddingRight,
+    };
+
+    body.style.position = "fixed";
+    body.style.top = `-${y}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    if (gutter > 0) body.style.paddingRight = `${gutter}px`;
+
+    return () => {
+      Object.assign(body.style, before);
+      if (!restoreScroll.current) return;
+
+      // 瞬间跳回去，不走 smooth 那段动画。改的是内联值，所以只影响这一次调用。
+      const root = document.documentElement;
+      const prevBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      window.scrollTo(0, y);
+      root.style.scrollBehavior = prevBehavior;
+    };
+  }, [drawer, narrow]);
 
   // 抽屉打开时：Esc 关闭 + 焦点锁在抽屉内 + 关闭后焦点还给汉堡按钮
   useEffect(() => {
@@ -105,7 +170,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       if (e.key === "Escape") {
         e.preventDefault();
         setDrawer(false);
-        openerRef.current?.focus();
+        // 【preventScroll】不加的话浏览器会为了「把汉堡露出来」再滚一次，
+        // 而 html 上是 scroll-behavior: smooth —— 刚瞬间跳回去的位置又被滑走。
+        openerRef.current?.focus({ preventScroll: true });
         return;
       }
       if (e.key !== "Tab" || !panel) return;
@@ -305,12 +372,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         // 在屏幕外时移出可聚焦序列，键盘不会 Tab 进看不见的链接
         inert={narrow && !drawer}
       >
-        <SideNav onNavigate={() => setDrawer(false)} />
+        <SideNav onNavigate={leaveForNav} />
 
         {/* 分隔线以下：当前这一类事情自己的结构。导航位以上的部分不动。 */}
         {hasCtx && (
           <div className="sidebar-ctx">
-            <ContextSidebar mode={mode} onNavigate={() => setDrawer(false)} />
+            <ContextSidebar mode={mode} onNavigate={leaveForNav} />
           </div>
         )}
       </aside>
