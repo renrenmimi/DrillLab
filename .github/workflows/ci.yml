@@ -1,0 +1,50 @@
+# 这个仓库有一百来个源码文件,而它最容易坏的地方不是内容,是「怎么走到内容」——
+# 首页、计划的选与换、窄屏抽屉。CI 就守这几条路,外加仓库原有的那几项检查。
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # 双语代码片段的行数与结构一致性 —— 仓库自带的检查。
+      - name: Bilingual code audit
+        run: npm run audit:code
+
+      # Playwright 跑的是 `next start`,所以构建必须在它之前。
+      - name: Build
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: npm run e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

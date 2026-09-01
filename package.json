@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "audit:code": "node scripts/audit-code-lines.mjs",
     "gen:nav": "node scripts/gen-nav.mjs",
-    "gen:src": "node scripts/gen-source-files.mjs"
+    "gen:src": "node scripts/gen-source-files.mjs",
+    "e2e": "playwright test",
+    "e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.20.0",
@@ -19,6 +21,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
