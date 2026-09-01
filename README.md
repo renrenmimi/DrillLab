@@ -17,11 +17,11 @@ problem was inspired by a format I had seen, I wrote a new scenario for it rathe
 reproducing anything. It is a study project, and it is public in case it is useful to
 someone learning the same things.
 
-![The home — pick an outcome, and the order comes with it](docs/plans/home-fresh-after.jpg)
+![The home — one line to resume, then how far along each track you are](docs/home.jpg)
 
-*The home — pick an outcome, and the order comes with it*
+*The home — one line to resume, five tracks with their progress, and the single-drill counts. It asks nothing before letting you in.*
 
-![A guided plan — numbered stages, one clear next item](docs/plans/plan-react-after.jpg)
+![A guided plan — numbered stages, one clear next item](docs/plan.jpg)
 
 *A guided plan — numbered stages, an obvious current position, and exactly one next item*
 
