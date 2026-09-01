@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.20.0",
-    "next": "^15.3.0",
+    "next": "^15.5.25",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -25,5 +25,9 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "^15.3.0",
     "typescript": "^5.5.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.26",
+    "sharp": "^0.35.4"
   }
 }
