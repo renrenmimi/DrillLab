@@ -130,7 +130,10 @@ export function CodingDetail({ id }: { id: string }) {
           <div className="lesson-meta">
             <span className="tag">{CODING_TRACK_LABEL[problem.track]}</span>
             <span className="tag" data-tone={problem.difficulty === 3 ? "warn" : undefined}>
-              {DIFFICULTY_LABEL[problem.difficulty].zh} · {DIFFICULTY_LABEL[problem.difficulty].en}
+              <T
+                zh={DIFFICULTY_LABEL[problem.difficulty].zh}
+                en={DIFFICULTY_LABEL[problem.difficulty].en}
+              />
             </span>
             <span className="tag">
               <T en={`~${problem.minutes} min`} zh={`约 ${problem.minutes} 分钟`} />
@@ -193,7 +196,7 @@ export function CodingDetail({ id }: { id: string }) {
                 </div>
                 <p className="sec-lede">
                   <T
-                    en={`Below is the actual text of the lesson “${explain.lesson.title}” — the same content as in the course, not a rewritten summary. Expand it when you stall.`}
+                    en={`Below is the actual text of the lesson “${explain.lesson.titleEn ?? explain.lesson.title}” — the same content as in the course, not a rewritten summary. Expand it when you stall.`}
                     zh={`下面是《${explain.lesson.title}》那一节的原文 —— 和课程里是同一份内容，不是另写的摘要。卡住了再展开。`}
                   />
                 </p>
@@ -201,7 +204,7 @@ export function CodingDetail({ id }: { id: string }) {
                 <details className="cd-fold">
                   <summary>
                     <T
-                      en={`Expand “${explain.lesson.title}” (${explain.lesson.concepts.length} sections · ~${explain.lesson.minutes} min)`}
+                      en={`Expand “${explain.lesson.titleEn ?? explain.lesson.title}” (${explain.lesson.concepts.length} sections · ~${explain.lesson.minutes} min)`}
                       zh={`展开《${explain.lesson.title}》（${explain.lesson.concepts.length} 段 · 约 ${explain.lesson.minutes} 分钟）`}
                     />
                   </summary>
@@ -213,9 +216,9 @@ export function CodingDetail({ id }: { id: string }) {
                         zh="完整那一节（含练习、常见错误、迁移模式）在"
                       />{" "}
                       <Link href={lessonPath(explain.examId, explain.lesson.id)}>
-                        {explain.lesson.title}
+                        <T zh={explain.lesson.title} en={explain.lesson.titleEn} />
                       </Link>
-                      。
+                      <T zh="。" en="." />
                     </p>
 
                     {explain.lesson.concepts.map((c, i) => (

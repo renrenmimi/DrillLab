@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { navExam, lessonPath, mockPath } from "@/content/nav";
 import { stageEn } from "@/content/path";
+import { categoryEn } from "@/lib/categories";
 import { useProgress } from "@/lib/progress";
 import { T } from "./t";
 import { FileExplorer } from "./lesson-kit";
@@ -43,7 +44,7 @@ export function ExamOverview({ examId }: { examId: string }) {
       <div className="content ui-page">
         <div className="page-head">
           <div className="eyebrow">
-            {exam.category} · <T en="Course" zh="考试" />
+            <T zh={exam.category} en={categoryEn(exam.category)} /> · <T en="Course" zh="考试" />
           </div>
           <h1 className="page-title">
             <T zh={exam.title} en={exam.titleEn} />
@@ -103,8 +104,10 @@ export function ExamOverview({ examId }: { examId: string }) {
                 const pre = navExam(id);
                 return pre ? (
                   <span key={id}>
-                    {i > 0 && "、"}
-                    <Link href={`/exams/${pre.id}`}>{pre.shortTitle}</Link>
+                    {i > 0 && <T zh="、" en=", " />}
+                    <Link href={`/exams/${pre.id}`}>
+                      <T zh={pre.shortTitle} en={pre.shortTitleEn} />
+                    </Link>
                   </span>
                 ) : null;
               })}
@@ -139,8 +142,13 @@ export function ExamOverview({ examId }: { examId: string }) {
                 <tbody>
                   {exam.checklist.map((c) => (
                     <tr key={c.task}>
-                      <td>{c.task}</td>
-                      <td>{c.covered}</td>
+                      {/* 英文那一版还没写的条目回落中文（taskEn / coveredEn 是可选字段） */}
+                      <td>
+                        <T zh={c.task} en={c.taskEn} />
+                      </td>
+                      <td>
+                        <T zh={c.covered} en={c.coveredEn} />
+                      </td>
                       <td>
                         {c.tested ? (
                           <span className="tag" data-tone="ok">
@@ -217,9 +225,11 @@ export function ExamOverview({ examId }: { examId: string }) {
                     <span className="exam-idx">M</span>
                     <div>
                       <Link className="exam-name" href={mockPath(exam.id, m.id)}>
-                        {m.title}
+                        <T zh={m.title} en={m.titleEn} />
                       </Link>
-                      <p className="exam-desc">{m.scenario}</p>
+                      <p className="exam-desc">
+                        <T zh={m.scenario} en={m.scenarioEn} />
+                      </p>
                       <div className="exam-tags">
                         <span className="tag" data-tone="warn">
                           <T en="Written by DrillLab" zh="DrillLab 自出" />

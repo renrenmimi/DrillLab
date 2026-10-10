@@ -46,7 +46,9 @@ export function MockDetail({ examId, mockId }: { examId: string; mockId: string 
             <T en="Mock exams" zh="模拟考" />
           </Link>
           <span className="crumb-sep">/</span>
-          <Link href={examPath(exam.id)}>{exam.shortTitle}</Link>
+          <Link href={examPath(exam.id)}>
+            <T zh={exam.shortTitle} en={exam.shortTitleEn} />
+          </Link>
         </nav>
 
         <PlanItemBannerSlot itemKey={itemKey("mock", mock.id, exam.id)} />

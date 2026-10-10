@@ -129,13 +129,15 @@ export function MockList() {
                 <span className="exam-idx">M</span>
                 <div>
                   <Link className="exam-name" href={`/mock/${exam.id}/${mock.id}`}>
-                    {mock.title}
+                    <T zh={mock.title} en={mock.titleEn} />
                   </Link>
-                  <p className="exam-desc">{mock.scenario}</p>
+                  <p className="exam-desc">
+                    <T zh={mock.scenario} en={mock.scenarioEn} />
+                  </p>
                   <div className="exam-tags">
                     <span className="tag" data-tone="accent">
                       <T
-                        en={`Mirrors ${exam.shortTitle}`}
+                        en={`Mirrors ${exam.shortTitleEn ?? exam.shortTitle}`}
                         zh={`对应 ${exam.shortTitle}`}
                       />
                     </span>

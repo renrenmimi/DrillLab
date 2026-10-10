@@ -90,12 +90,18 @@ export function ArenaRun({ id }: { id: string }) {
           <h1 className="page-title">
             <T zh={a.title} en={a.titleEn} />
           </h1>
-          <p className="page-lede">{a.scenario}</p>
+          <p className="page-lede">
+            <T zh={a.scenario} en={a.scenarioEn} />
+          </p>
           <div className="lesson-meta">
             <span className="tag" data-tone="danger">
               <T zh={`限时 ${a.minutes} 分钟`} en={`${a.minutes} min limit`} />
             </span>
-            {exam && <span className="tag">{exam.shortTitle}</span>}
+            {exam && (
+              <span className="tag">
+                <T zh={exam.shortTitle} en={exam.shortTitleEn} />
+              </span>
+            )}
             <span className="tag">
               <T zh="没有提示，没有答案" en="No hints, no answers" />
             </span>

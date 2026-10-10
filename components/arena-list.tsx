@@ -190,7 +190,11 @@ export function ArenaList() {
                         <span className="tag" data-tone="danger">
                           <T zh={`限时 ${r.nav.minutes} 分钟`} en={`${r.nav.minutes} min limit`} />
                         </span>
-                        {exam && <span className="tag">{exam.shortTitle}</span>}
+                        {exam && (
+                          <span className="tag">
+                            <T zh={exam.shortTitle} en={exam.shortTitleEn} />
+                          </span>
+                        )}
                         <span className="tag">
                           <T
                             zh={`${r.nav.requirementCount} 条需求`}

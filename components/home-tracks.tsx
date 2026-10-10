@@ -21,6 +21,7 @@
 
 import Link from "next/link";
 import { SURFACES, TRACKS, type Track } from "@/content/track-manifest";
+import { categoryEn } from "@/lib/categories";
 import { useT } from "@/lib/locale";
 import { useProgress } from "@/lib/progress";
 import { trackCopy } from "@/lib/track-copy";
@@ -108,8 +109,6 @@ function Dial({
   );
 }
 
-/** 分类标签的英文对照。中文来自 content/types.ts 的四个值 */
-const CATEGORY_EN: Record<string, string> = {"基础": "Foundations", "前端": "Frontend", "后端": "Backend", "全栈": "Full stack"};
 
 function TrackCard({ track }: { track: Track }) {
   const { done, next, fresh } = useTrackState(track);
@@ -144,7 +143,7 @@ function TrackCard({ track }: { track: Track }) {
 
         <span className="trk-head">
           <span className="trk-cat">
-            <T zh={track.category} en={CATEGORY_EN[track.category] ?? track.category} />
+            <T zh={track.category} en={categoryEn(track.category)} />
             {track.parallel && (
               <span className="trk-flag">
                 <T zh="平行支线" en="Parallel track" />
