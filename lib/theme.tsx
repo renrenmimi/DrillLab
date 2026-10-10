@@ -59,5 +59,5 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 export const useTheme = () => useContext(Ctx);
 
-/** 注入到 <head>，在 React 接管前就把 data-theme 定下来 */
+/** 放在 <body> 最前面（见 app/layout.tsx），在 React 接管前就把 data-theme 定下来 */
 export const THEME_BOOTSTRAP = `(function(){var t;try{t=localStorage.getItem("${KEY}");}catch(e){}if(t!=="dark"&&t!=="light"){t="dark";}document.documentElement.setAttribute("data-theme",t);document.documentElement.style.colorScheme=t;})();`;

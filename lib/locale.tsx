@@ -90,5 +90,5 @@ export function useT() {
   return (zh: string, en: string) => (locale === "en" ? en : zh);
 }
 
-/** 注入到 <head>，在 React 接管前就把 <html lang> 定下来 */
+/** 放在 <body> 最前面（见 app/layout.tsx），在 React 接管前就把 <html lang> 定下来 */
 export const LOCALE_BOOTSTRAP = `(function(){try{var l=localStorage.getItem("${KEY}");document.documentElement.setAttribute("lang",l==="zh"?"zh-CN":"en");}catch(e){document.documentElement.setAttribute("lang","en");}})();`;

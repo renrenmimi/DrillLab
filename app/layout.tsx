@@ -27,12 +27,15 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
-      <head>
-        {/* 在 React 接管前定好主题和语言，避免首屏闪一下 */}
+      <body>
+        {/* 在 React 接管前定好主题和语言，避免首屏闪一下。
+            【为什么放在 body 最前面，而不是 <head> 里】这两段是 React 要逐个对齐的普通节点。
+            放在 <head> 里时，hydration 得一路走过 head 的子节点 —— 而 webpack 在 chunk 加载完时
+            会把它接管的那个 <script> 从 head 里删掉。线上（网络慢一点，chunk 晚到）hydration
+            走到一半 head 被改，游标落在 head 的 <meta> 上去对 div.shell，于是 #418、整页重渲染，
+            冷加载约 11% 出一次（审查 A16）。放在 body 开头照样在任何内容画出来之前执行。 */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
         <script dangerouslySetInnerHTML={{ __html: LOCALE_BOOTSTRAP }} />
-      </head>
-      <body>
         <ThemeProvider>
           <LocaleProvider>
             <ProgressProvider>
