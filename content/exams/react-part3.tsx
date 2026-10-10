@@ -2,6 +2,7 @@
 // 这是整门课的核心，严格对应 react-notes-app README 里的 Task 1 / 2 / 3。
 
 import { DataFlowDiagram } from "@/components/data-flow";
+import { L, T } from "@/components/t";
 import { ThinkFirst } from "@/components/lesson-kit";
 import type { Module } from "../types";
 import { demo, real } from "../helpers";
@@ -51,83 +52,155 @@ export default NoteManager;`;
 
 const EDIT_FLOW = (
   <DataFlowDiagram
-    title="Task 3 的完整数据流：点 Edit → 回填 → 提交 → 就地更新"
+    title={L("Task 3 的完整数据流：点 Edit → 回填 → 提交 → 就地更新", "The full data flow of Task 3: click Edit → refill → submit → update in place")}
     direction="column"
     nodes={[
-      { kind: "① 点击", title: "NoteItem 的 Edit 按钮" },
-      { kind: "② 父组件", title: "NoteManager.handleEdit" },
-      { kind: "③ prop 下传", title: "NoteForm 收到 noteToEdit" },
-      { kind: "④ 副作用", title: "useEffect 回填两个 state" },
-      { kind: "⑤ 提交", title: "handleSubmit 复用旧 id" },
-      { kind: "⑥ 就地替换", title: "handleSubmitNote 的 map 分支" },
+      { kind: L("① 点击", "① Click"), title: L("NoteItem 的 Edit 按钮", "NoteItem's Edit button") },
+      { kind: L("② 父组件", "② Parent"), title: "NoteManager.handleEdit" },
+      { kind: L("③ prop 下传", "③ Prop passed down"), title: L("NoteForm 收到 noteToEdit", "NoteForm receives noteToEdit") },
+      { kind: L("④ 副作用", "④ Effect"), title: L("useEffect 回填两个 state", "useEffect refills two pieces of state") },
+      { kind: L("⑤ 提交", "⑤ Submit"), title: L("handleSubmit 复用旧 id", "handleSubmit reuses the old id") },
+      { kind: L("⑥ 就地替换", "⑥ Replace in place"), title: L("handleSubmitNote 的 map 分支", "The map branch of handleSubmitNote") },
     ]}
     frames={[
       {
         active: 0,
-        detail: ["onEdit(note) —— 传整条", undefined, "noteToEdit = null", 'title = ""', undefined, "notes = [A, B, C]"],
+        detail: [L("onEdit(note) —— 传整条", "onEdit(note) — the whole note"), undefined, "noteToEdit = null", 'title = ""', undefined, "notes = [A, B, C]"],
         msg: (
-          <>
-            用户点了 B 那一行的 Edit。<code>NoteItem</code> 调用{" "}
-            <code>onEdit(note)</code>，<strong>传的是整条 note</strong>，
-            不是 id —— 因为下游要用它的 title 和 content 回填。
-          </>
+          <T
+            zh={
+              <>
+                用户点了 B 那一行的 Edit。<code>NoteItem</code> 调用{" "}
+                <code>onEdit(note)</code>，<strong>传的是整条 note</strong>，
+                不是 id —— 因为下游要用它的 title 和 content 回填。
+              </>
+            }
+            en={
+              <>
+                The user clicks Edit on row B. <code>NoteItem</code> calls{" "}
+                <code>onEdit(note)</code>, and <strong>it passes the whole note</strong>,
+                not the id — the steps below need its title and content to refill the form.
+              </>
+            }
+          />
         ),
       },
       {
         active: 1,
         detail: [undefined, "setNoteToEdit(B)", "noteToEdit = null", undefined, undefined, "notes = [A, B, C]"],
         msg: (
-          <>
-            <code>handleEdit</code> 只做一件事：<code>setNoteToEdit(note)</code>。
-            <strong>它不碰 notes</strong> —— 编辑还没提交，列表不该变。
-          </>
+          <T
+            zh={
+              <>
+                <code>handleEdit</code> 只做一件事：<code>setNoteToEdit(note)</code>。
+                <strong>它不碰 notes</strong> —— 编辑还没提交，列表不该变。
+              </>
+            }
+            en={
+              <>
+                <code>handleEdit</code> does one thing: <code>setNoteToEdit(note)</code>.{" "}
+                <strong>It does not touch notes</strong> — the edit has not been
+                submitted, so the list must not change.
+              </>
+            }
+          />
         ),
       },
       {
         active: 2,
-        detail: [undefined, undefined, "noteToEdit = B", 'title = ""（还没变）', "按钮文字已变成 Update", "notes = [A, B, C]"],
+        detail: [undefined, undefined, "noteToEdit = B", L('title = ""（还没变）', 'title = "" (not yet)'), L("按钮文字已变成 Update", "The button already says Update"), "notes = [A, B, C]"],
         msg: (
-          <>
-            重新渲染，<code>NoteForm</code> 收到新的 <code>noteToEdit</code>。
-            <strong>注意：按钮文字这一瞬间就变成 Update 了</strong>，
-            因为它是渲染时直接读 prop 算的。但输入框<strong>还是空的</strong> ——
-            回填是下一步的事。
-          </>
+          <T
+            zh={
+              <>
+                重新渲染，<code>NoteForm</code> 收到新的 <code>noteToEdit</code>。
+                <strong>注意：按钮文字这一瞬间就变成 Update 了</strong>，
+                因为它是渲染时直接读 prop 算的。但输入框<strong>还是空的</strong> ——
+                回填是下一步的事。
+              </>
+            }
+            en={
+              <>
+                A re-render follows, and <code>NoteForm</code> receives the new{" "}
+                <code>noteToEdit</code>.{" "}
+                <strong>Note that the button text switches to Update at this very moment</strong>,
+                because it is computed from the prop during render. The inputs, however,{" "}
+                <strong>are still empty</strong> — refilling them is the next step.
+              </>
+            }
+          />
         ),
       },
       {
         active: 3,
         detail: [undefined, undefined, "noteToEdit = B", 'title = "B"\ncontent = "..."', "Update", "notes = [A, B, C]"],
         msg: (
-          <>
-            渲染完成后 <code>useEffect(fn, [noteToEdit])</code> 触发，
-            把 B 的 title 和 content 写进 <code>NoteForm</code> 自己的两个 state。
-            输入框这才显示出内容。
-          </>
+          <T
+            zh={
+              <>
+                渲染完成后 <code>useEffect(fn, [noteToEdit])</code> 触发，
+                把 B 的 title 和 content 写进 <code>NoteForm</code> 自己的两个 state。
+                输入框这才显示出内容。
+              </>
+            }
+            en={
+              <>
+                After the render, <code>useEffect(fn, [noteToEdit])</code> fires and writes
+                B&rsquo;s title and content into <code>NoteForm</code>&rsquo;s own two pieces
+                of state. Only now do the inputs show the text.
+              </>
+            }
+          />
         ),
       },
       {
         active: 4,
-        detail: [undefined, undefined, "noteToEdit = B", 'title = "B2"（用户改了）', "id: noteToEdit.id ← 复用！", "notes = [A, B, C]"],
+        detail: [undefined, undefined, "noteToEdit = B", L('title = "B2"（用户改了）', 'title = "B2" (edited by the user)'), L("id: noteToEdit.id ← 复用！", "id: noteToEdit.id ← reused!"), "notes = [A, B, C]"],
         msg: (
-          <>
-            用户改完点 Update。<code>handleSubmit</code> 构造新 note 时用了{" "}
-            <code>id: noteToEdit ? noteToEdit.id : Date.now()</code> ——
-            <strong>复用旧 id 是整道题的关键</strong>。新建 id 的话，
-            下一步就会变成「插入一条新的」而不是「更新」。
-          </>
+          <T
+            zh={
+              <>
+                用户改完点 Update。<code>handleSubmit</code> 构造新 note 时用了{" "}
+                <code>id: noteToEdit ? noteToEdit.id : Date.now()</code> ——
+                <strong>复用旧 id 是整道题的关键</strong>。新建 id 的话，
+                下一步就会变成「插入一条新的」而不是「更新」。
+              </>
+            }
+            en={
+              <>
+                The user finishes editing and clicks Update. When <code>handleSubmit</code>{" "}
+                builds the new note it uses{" "}
+                <code>id: noteToEdit ? noteToEdit.id : Date.now()</code> —{" "}
+                <strong>reusing the old id is the key to the whole task</strong>. With a new
+                id, the next step would insert a new note instead of updating this one.
+              </>
+            }
+          />
         ),
       },
       {
         active: 5,
-        detail: [undefined, "setNoteToEdit(null)", "noteToEdit = null → 表单清空", undefined, "按钮回到 Add", "notes = [A, B2, C] ✓ 位置没变"],
+        detail: [undefined, "setNoteToEdit(null)", L("noteToEdit = null → 表单清空", "noteToEdit = null → the form clears"), undefined, L("按钮回到 Add", "The button is back to Add"), L("notes = [A, B2, C] ✓ 位置没变", "notes = [A, B2, C] ✓ same position")],
         msg: (
-          <>
-            <code>handleSubmitNote</code> 走 <code>noteToEdit</code> 为真的分支，
-            用 <code>map</code> 就地替换 —— <strong>B2 还在第二位</strong>。
-            然后 <code>setNoteToEdit(null)</code> 退出编辑模式，
-            effect 的 else 分支清空表单，按钮变回 Add。一圈闭合。
-          </>
+          <T
+            zh={
+              <>
+                <code>handleSubmitNote</code> 走 <code>noteToEdit</code> 为真的分支，
+                用 <code>map</code> 就地替换 —— <strong>B2 还在第二位</strong>。
+                然后 <code>setNoteToEdit(null)</code> 退出编辑模式，
+                effect 的 else 分支清空表单，按钮变回 Add。一圈闭合。
+              </>
+            }
+            en={
+              <>
+                <code>handleSubmitNote</code> takes the branch where{" "}
+                <code>noteToEdit</code> is truthy and replaces the note in place with{" "}
+                <code>map</code> — <strong>B2 is still second</strong>. Then{" "}
+                <code>setNoteToEdit(null)</code> leaves edit mode, the effect&rsquo;s else
+                branch clears the form, and the button goes back to Add. The loop is closed.
+              </>
+            }
+          />
         ),
       },
     ]}

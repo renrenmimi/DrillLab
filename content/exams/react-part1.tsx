@@ -5,68 +5,122 @@
 // 它们最后在 react.tsx 里被组装成同一个 Exam。
 
 import { DataFlowDiagram } from "@/components/data-flow";
+import { L, T } from "@/components/t";
 import type { Module } from "../types";
 import { demo, real } from "../helpers";
 
 /** React 的数据流：一次点击如何变成新界面 */
 const RENDER_FLOW = (
   <DataFlowDiagram
-    title="点一下 Delete，屏幕上少一行 —— 中间这五步"
+    title={L("点一下 Delete，屏幕上少一行 —— 中间这五步", "Click Delete and one row disappears — the five steps in between")}
     nodes={[
-      { kind: "用户", title: "点击 Delete" },
-      { kind: "子组件", title: "NoteItem" },
-      { kind: "父组件", title: "NoteManager" },
-      { kind: "React", title: "重新渲染" },
-      { kind: "浏览器", title: "真实 DOM" },
+      { kind: L("用户", "User"), title: L("点击 Delete", "Clicks Delete") },
+      { kind: L("子组件", "Child component"), title: "NoteItem" },
+      { kind: L("父组件", "Parent component"), title: "NoteManager" },
+      { kind: "React", title: L("重新渲染", "Re-render") },
+      { kind: L("浏览器", "Browser"), title: L("真实 DOM", "Real DOM") },
     ]}
     frames={[
       {
         active: 0,
-        detail: ["鼠标点在 id=2 那一行", undefined, "notes = [1, 2, 3]", undefined, "3 个 <tr>"],
-        msg: "起点：用户点了第二行的 Delete。此刻 notes 里还是三条。",
+        detail: [L("鼠标点在 id=2 那一行", "The pointer is on the row with id=2"), undefined, "notes = [1, 2, 3]", undefined, L("3 个 <tr>", "3 <tr> elements")],
+        msg: (
+          <T
+            zh="起点：用户点了第二行的 Delete。此刻 notes 里还是三条。"
+            en="Start: the user clicks Delete on the second row. notes still holds three items."
+          />
+        ),
       },
       {
         active: 1,
-        detail: [undefined, "onClick={() => onDelete(note.id)}", "notes = [1, 2, 3]", undefined, "3 个 <tr>"],
+        detail: [undefined, "onClick={() => onDelete(note.id)}", "notes = [1, 2, 3]", undefined, L("3 个 <tr>", "3 <tr> elements")],
         msg: (
-          <>
-            <code>NoteItem</code> 的 onClick 触发，调用从 props 拿到的{" "}
-            <code>onDelete(2)</code>。注意 NoteItem 自己<strong>不改任何数据</strong>，
-            它只是打了个电话上去。
-          </>
+          <T
+            zh={
+              <>
+                <code>NoteItem</code> 的 onClick 触发，调用从 props 拿到的{" "}
+                <code>onDelete(2)</code>。注意 NoteItem 自己<strong>不改任何数据</strong>，
+                它只负责把这次点击报告给父组件。
+              </>
+            }
+            en={
+              <>
+                <code>NoteItem</code>&rsquo;s onClick fires and calls{" "}
+                <code>onDelete(2)</code>, which it received through props. Note that
+                NoteItem itself <strong>changes no data</strong>; it only reports the
+                click to its parent.
+              </>
+            }
+          />
         ),
       },
       {
         active: 2,
-        detail: [undefined, undefined, "handleDelete(2)\nsetNotes(prev => prev.filter(...))", undefined, "3 个 <tr>"],
+        detail: [undefined, undefined, "handleDelete(2)\nsetNotes(prev => prev.filter(...))", undefined, L("3 个 <tr>", "3 <tr> elements")],
         msg: (
-          <>
-            <code>NoteManager</code> 的 <code>handleDelete</code> 执行，
-            用 filter 算出新数组 <code>[1, 3]</code>，交给 <code>setNotes</code>。
-            <strong>此刻屏幕还没变</strong>，notes 变量也还是旧值。
-          </>
+          <T
+            zh={
+              <>
+                <code>NoteManager</code> 的 <code>handleDelete</code> 执行，
+                用 filter 算出新数组 <code>[1, 3]</code>，交给 <code>setNotes</code>。
+                <strong>此刻屏幕还没变</strong>，notes 变量也还是旧值。
+              </>
+            }
+            en={
+              <>
+                <code>NoteManager</code>&rsquo;s <code>handleDelete</code> runs, uses
+                filter to compute the new array <code>[1, 3]</code>, and passes it to{" "}
+                <code>setNotes</code>. <strong>The screen has not changed yet</strong>, and
+                the notes variable still holds the old value.
+              </>
+            }
+          />
         ),
       },
       {
         active: 3,
-        detail: [undefined, undefined, "notes = [1, 3]", "重新执行 NoteManager()\n拿到新 JSX", "3 个 <tr>"],
+        detail: [undefined, undefined, "notes = [1, 3]", L("重新执行 NoteManager()\n拿到新 JSX", "Runs NoteManager() again\ngets new JSX"), L("3 个 <tr>", "3 <tr> elements")],
         msg: (
-          <>
-            React 记下新值，然后<strong>把 NoteManager 整个函数重新执行一遍</strong>。
-            这一次 <code>notes</code> 是 <code>[1, 3]</code>，
-            于是 <code>notes.map(...)</code> 只产出两个 NoteItem。
-          </>
+          <T
+            zh={
+              <>
+                React 记下新值，然后<strong>把 NoteManager 整个函数重新执行一遍</strong>。
+                这一次 <code>notes</code> 是 <code>[1, 3]</code>，
+                于是 <code>notes.map(...)</code> 只产出两个 NoteItem。
+              </>
+            }
+            en={
+              <>
+                React stores the new value and then{" "}
+                <strong>runs the whole NoteManager function again</strong>. This time{" "}
+                <code>notes</code> is <code>[1, 3]</code>, so{" "}
+                <code>notes.map(...)</code> produces only two NoteItems.
+              </>
+            }
+          />
         ),
       },
       {
         active: 4,
-        detail: [undefined, undefined, "notes = [1, 3]", "新旧 JSX 对比", "2 个 <tr> ✓"],
+        detail: [undefined, undefined, "notes = [1, 3]", L("对比前后两次的渲染结果", "Compares the two renders"), L("2 个 <tr> ✓", "2 <tr> elements ✓")],
         msg: (
-          <>
-            React 对比新旧 JSX，发现少了一行，于是<strong>只删掉那一个
-            <code>&lt;tr&gt;</code></strong>，别的节点原样保留。
-            全程你没写一行 DOM 操作 —— 这就是 React 的价值。
-          </>
+          <T
+            zh={
+              <>
+                React 对比前后两次渲染产出的元素树，发现少了一行，于是<strong>只删掉那一个
+                <code>&lt;tr&gt;</code></strong>，别的节点原样保留。
+                全程你没写一行 DOM 操作 —— 这就是 React 的价值。
+              </>
+            }
+            en={
+              <>
+                React compares this render&rsquo;s output with the previous one, finds one
+                row missing, and <strong>removes only that{" "}
+                <code>&lt;tr&gt;</code></strong>; every other node stays as it is. You never
+                wrote a DOM operation yourself — that is the work React does for you.
+              </>
+            }
+          />
         ),
       },
     ]}
