@@ -443,13 +443,19 @@ export function countComments(nodes: Comment[]): number {
  * 但**不要**深拷贝整棵树 —— 没被碰到的分支应该复用原来的对象。
  */
 export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
-  return nodes.map((node) => {
+  let changed = false;
+  const next = nodes.map((node) => {
     if (node.id === parentId) {
+      changed = true;
       return { ...node, replies: [...node.replies, reply] };
     }
     // 目标可能在更深处，继续往下找
-    return { ...node, replies: addReply(node.replies, parentId, reply) };
+    const replies = addReply(node.replies, parentId, reply);
+    if (replies === node.replies) return node; // 目标不在这棵子树里：原样复用
+    changed = true;
+    return { ...node, replies };
   });
+  return changed ? next : nodes; // 这一层没变就把原数组还回去
 }`;
 const TREE_HELPERS_EN = `import type { Comment } from "../../types/Comment";
 
@@ -465,13 +471,19 @@ export function countComments(nodes: Comment[]): number {
  * new object, but **do not** deep-copy the tree. Untouched branches are reused.
  */
 export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
-  return nodes.map((node) => {
+  let changed = false;
+  const next = nodes.map((node) => {
     if (node.id === parentId) {
+      changed = true;
       return { ...node, replies: [...node.replies, reply] };
     }
     // the target may be deeper down, so keep looking
-    return { ...node, replies: addReply(node.replies, parentId, reply) };
+    const replies = addReply(node.replies, parentId, reply);
+    if (replies === node.replies) return node; // the target is not in this subtree: reuse it as is
+    changed = true;
+    return { ...node, replies };
   });
+  return changed ? next : nodes; // nothing changed at this level: hand back the original array
 }`;
 
 
@@ -666,7 +678,7 @@ export interface ThemeContextValue {
 }
 
 // 默认值给 undefined，配合下面 useTheme 里的守卫：
-// 「忘了套 Provider」会立刻炸，而不是静默用一个假的默认主题。
+// 「忘了套 Provider」会立刻报错，而不是静默用一个假的默认主题。
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -921,14 +933,14 @@ import ThemedCard from "./components/ThemedCard";
 import ThemeToggleButton from "./components/ThemeToggleButton";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 
-test("默认是 light，按钮说 Switch to Dark", () => {
+test("default is light, and the button says Switch to Dark", () => {
   render(<ThemeApp />);
   expect(screen.getByTestId("theme-name")).toHaveTextContent("light");
   expect(screen.getByTestId("theme-toggle")).toHaveTextContent("Switch to Dark");
   expect(screen.getByTestId("themed-card")).toHaveStyle({ backgroundColor: "#fff" });
 });
 
-test("点一下变 dark：按钮文字和卡片底色一起变", async () => {
+test("one click turns it dark: the button text and the card colour change together", async () => {
   render(<ThemeApp />);
   await userEvent.click(screen.getByTestId("theme-toggle"));
 
@@ -937,7 +949,7 @@ test("点一下变 dark：按钮文字和卡片底色一起变", async () => {
   expect(screen.getByTestId("themed-card")).toHaveStyle({ backgroundColor: "#222" });
 });
 
-test("再点一下切回 light", async () => {
+test("a second click switches back to light", async () => {
   render(<ThemeApp />);
   await userEvent.click(screen.getByTestId("theme-toggle"));
   await userEvent.click(screen.getByTestId("theme-toggle"));
@@ -946,7 +958,7 @@ test("再点一下切回 light", async () => {
   expect(screen.getByTestId("themed-card")).toHaveStyle({ backgroundColor: "#fff" });
 });
 
-test("同一个 Provider 下的多个消费者一起变（这才是 Context 的意义）", async () => {
+test("every consumer under one Provider changes together (that is the point of Context)", async () => {
   render(
     <ThemeProvider>
       <ThemeToggleButton />
@@ -962,14 +974,14 @@ test("同一个 Provider 下的多个消费者一起变（这才是 Context 的�
   expect(names()).toEqual(["dark", "dark"]);
 });
 
-test("没套 Provider 就用 useTheme()，必须立刻报错", () => {
+test("using useTheme() without a Provider must throw at once", () => {
   // React prints the expected error to console.error, so silence it here
   const spy = vi.spyOn(console, "error").mockImplementation(() => {});
   expect(() => render(<ThemedCard />)).toThrow("useTheme has to be used inside <ThemeProvider>");
   spy.mockRestore();
 });
 
-test("toggleTheme 是稳定引用：theme 变了它也不变", async () => {
+test("toggleTheme is a stable reference: it stays the same when theme changes", async () => {
   const seen: (() => void)[] = [];
   const Probe = () => {
     const { toggleTheme } = useTheme();
@@ -984,7 +996,7 @@ test("toggleTheme 是稳定引用：theme 变了它也不变", async () => {
   expect(new Set(seen).size).toBe(1);              // but toggleTheme stayed one function
 });
 
-test("theme 没变时 context value 不换新对象（useMemo 生效）", () => {
+test("the context value stays the same object while theme does not change (useMemo at work)", () => {
   const values: unknown[] = [];
   const Probe = () => {
     values.push(useTheme());
@@ -998,7 +1010,7 @@ test("theme 没变时 context value 不换新对象（useMemo 生效）", () => 
   expect(new Set(values).size).toBe(1);
 });
 
-test("一次事件里连调两次 toggleTheme，应该原样回来（函数式更新的证据）", async () => {
+test("two toggleTheme calls in one event bring it back (proof of the functional update)", async () => {
   const Twice = () => {
     const { toggleTheme } = useTheme();
     return (
@@ -1310,7 +1322,7 @@ test("pause stops the clock and keeps the value", () => {
   expect(screen.getByTestId("display")).toHaveTextContent("00:02");
 });
 
-test("start/pause many times does not speed up（清理函数生效的证据）", () => {
+test("start/pause many times does not speed up (proof that the cleanup works)", () => {
   render(<Timer />);
   for (let i = 0; i < 4; i++) {
     fireEvent.click(screen.getByTestId("toggle")); // start
@@ -1339,7 +1351,7 @@ test("crosses the minute boundary", () => {
   expect(screen.getByTestId("display")).toHaveTextContent("01:01");
 });
 
-test("unmount clears the interval（不再有活着的定时器）", () => {
+test("unmount clears the interval (no live timer left)", () => {
   const { unmount } = render(<Timer />);
   fireEvent.click(screen.getByTestId("toggle"));
   advance(1000);
@@ -1466,7 +1478,7 @@ test("shows loading first, then the data", async () => {
   expect(screen.queryByTestId("loading")).toBeNull();
 });
 
-test("treats a 404 as an error（fetch 不会因为 404 而 reject）", async () => {
+test("treats a 404 as an error (fetch does not reject on a 404)", async () => {
   vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 404, json: async () => ({}) })));
 
   render(<UserCard userId={9} />);
@@ -1494,7 +1506,7 @@ test("refetches when userId changes", async () => {
   expect(spy).toHaveBeenCalledTimes(2);
 });
 
-test("a slow stale response must not overwrite the newer one（竞态）", async () => {
+test("a slow stale response must not overwrite the newer one (race condition)", async () => {
   const slow = deferred<unknown>();   // userId 1, slow
   const fast = deferred<unknown>();   // userId 2, fast
   vi.stubGlobal(
@@ -1581,8 +1593,9 @@ test("addReply 只重建路径上的节点，旁边的分支保持同一个引�
   expect(next).not.toBe(original);
   expect(next[0]).not.toBe(original[0]);
   expect(next[0].replies[0]).not.toBe(original[0].replies[0]);
-  // 没被碰到的叶子内容一致
-  expect(next[1].body).toBe(original[1].body);
+  // 没被碰到的分支必须是原来那个对象
+  expect(next[1]).toBe(original[1]);
+  expect(next[0].replies[1]).toBe(original[0].replies[1]);
 });
 
 test("渲染出三层，并按深度缩进", () => {
@@ -1651,12 +1664,12 @@ function deepFreeze<T>(o: T): T {
   return o;
 }
 
-test("countComments 递归数到所有层级", () => {
+test("countComments counts every level recursively", () => {
   expect(countComments(tree())).toBe(5);
   expect(countComments([])).toBe(0);
 });
 
-test("addReply 挂到深层节点，且不改原树", () => {
+test("addReply attaches to a deep node and leaves the original tree untouched", () => {
   const original = deepFreeze(tree());
   const next = addReply(original, 4, { id: 99, author: "F", body: "四层", replies: [] });
 
@@ -1668,7 +1681,7 @@ test("addReply 挂到深层节点，且不改原树", () => {
   expect(original[0].replies[0].replies[0].replies).toHaveLength(0);
 });
 
-test("addReply 只重建路径上的节点，旁边的分支保持同一个引用", () => {
+test("addReply rebuilds only the nodes on the path; sibling branches keep the same reference", () => {
   const original = tree();
   const next = addReply(original, 2, { id: 88, author: "F", body: "x", replies: [] });
 
@@ -1676,11 +1689,12 @@ test("addReply 只重建路径上的节点，旁边的分支保持同一个引�
   expect(next).not.toBe(original);
   expect(next[0]).not.toBe(original[0]);
   expect(next[0].replies[0]).not.toBe(original[0].replies[0]);
-  // the untouched leaf still holds the same content
-  expect(next[1].body).toBe(original[1].body);
+  // the untouched branches must be the very same objects
+  expect(next[1]).toBe(original[1]);
+  expect(next[0].replies[1]).toBe(original[0].replies[1]);
 });
 
-test("渲染出三层，并按深度缩进", () => {
+test("renders three levels, indented by depth", () => {
   render(<CommentTree initial={tree()} />);
   expect(screen.getByTestId("comment-1").getAttribute("data-depth")).toBe("0");
   expect(screen.getByTestId("comment-2").getAttribute("data-depth")).toBe("1");
@@ -1688,14 +1702,14 @@ test("渲染出三层，并按深度缩进", () => {
   expect(screen.getByTestId("total")).toHaveTextContent("5");
 });
 
-test("空 replies 就是递归的终止条件（叶子不再往下渲染）", () => {
+test("an empty replies array ends the recursion (a leaf renders nothing below it)", () => {
   render(<CommentTree initial={[{ id: 7, author: "Z", body: "孤零零", replies: [] }]} />);
   expect(screen.getByTestId("comment-7")).toBeInTheDocument();
   // a leaf has no collapse button, because it has no children
   expect(screen.queryByLabelText("toggle Z")).toBeNull();
 });
 
-test("给三层的评论再回复，落在正确的位置", async () => {
+test("a reply to a third-level comment lands in the right place", async () => {
   render(<CommentTree initial={tree()} />);
 
   await userEvent.click(screen.getByLabelText("reply to D"));
@@ -1709,7 +1723,7 @@ test("给三层的评论再回复，落在正确的位置", async () => {
   expect(screen.getByTestId("comment-4").contains(added)).toBe(true);
 });
 
-test("折叠只藏自己的子树，不影响别人", async () => {
+test("collapsing hides only its own subtree, nobody else's", async () => {
   render(<CommentTree initial={tree()} />);
   await userEvent.click(screen.getByLabelText("toggle A"));
 
@@ -1930,7 +1944,7 @@ setTodos((prev) =>
                 筛选到「已完成」时点删除，如果你写
                 <code>setTodos(visible.filter(...))</code>，
                 那些被筛掉的未完成项会全部消失。这一条在模拟考 A 里也考过，
-                是同一个坑。
+                是同一个陷阱。
               </p>
             </>
           ),
@@ -2146,6 +2160,7 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
           code: [
             tested("bash", "npx vitest run src/TodoList.test.tsx   # 7 passed", {
               filename: "验证命令",
+              filenameEn: "The command that verifies it",
             }),
             tested("tsx", TODO_TEST, {
               codeEn: TODO_TEST_EN,
@@ -2189,6 +2204,21 @@ const toggle = (id: number) => {
 const remaining = todos.___3___((t) => !t.done).length;
 
 // 全选 / 取消全选
+const toggleAll = () => {
+  const next = ___4___;
+  setTodos((prev) => prev.map((t) => ({ ...t, done: next })));
+};`,
+          templateEn: `// toggle one: change only done, copy every other field
+const toggle = (id: number) => {
+  setTodos((prev) =>
+    prev.___1___((t) => (t.id === id ? { ___2___, done: !t.done } : t)),
+  );
+};
+
+// how many are left — derived data
+const remaining = todos.___3___((t) => !t.done).length;
+
+// check all / uncheck all
 const toggleAll = () => {
   const next = ___4___;
   setTodos((prev) => prev.map((t) => ({ ...t, done: next })));
@@ -2371,7 +2401,7 @@ const clearDone = () => {
             {
               label: "clearDone 用函数式更新",
               labelEn: "clearDone uses a functional update",
-              must: "setTodos\\s*\\(\\s*\\(?\\s*prev",
+              must: "setTodos\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>",
             },
             {
               label: "clearDone 保留未完成项（条件带取反）",
@@ -2661,7 +2691,7 @@ const remove = (id: number) => {
           id: "stale-closure",
           heading: "为什么必须用 setSeconds(s => s + 1)",
           headingEn: "Why setSeconds(s => s + 1) is required",
-          lede: "写成 setSeconds(seconds + 1) 会卡在 1 不动。这个坑叫「过期闭包」。",
+          lede: "写成 setSeconds(seconds + 1) 会卡在 1 不动。这个陷阱叫「过期闭包」。",
           ledeEn: "Write setSeconds(seconds + 1) and the display freezes at 1. The name for this is a stale closure: the callback still holds an old value.",
           body: (
             <>
@@ -2749,8 +2779,8 @@ setSeconds((s) => s + 1);`,
           id: "what-breaks",
           heading: "忘了清理会怎样：两种后果，都实测过",
           headingEn: "What a missing cleanup does: two results, both measured",
-          lede: "我把 clearInterval 那行删掉真跑了一遍，8 个测试挂了 4 个。",
-          ledeEn: "I deleted the clearInterval line and ran the suite for real: 4 of the 8 tests failed.",
+          lede: "编写本课时把 clearInterval 那行删掉真跑了一遍，8 个测试失败了 4 个。",
+          ledeEn: "When this lesson was written, the clearInterval line was deleted and the suite run for real: 4 of the 8 tests failed.",
           body: (
             <>
               <p>
@@ -2829,7 +2859,7 @@ $ npx vitest run src/Timer.test.tsx
    Expected element to have text content: 00:02
    Received:                              00:07
 
- ✕ start/pause many times does not speed up（清理函数生效的证据）
+ ✕ start/pause many times does not speed up (proof that the cleanup works)
    Expected element to have text content: 00:04
    Received:                              00:10        ← 1+2+3+4
 
@@ -2837,7 +2867,7 @@ $ npx vitest run src/Timer.test.tsx
    Expected element to have text content: 00:00
    Received:                              00:03
 
- ✕ unmount clears the interval（不再有活着的定时器）
+ ✕ unmount clears the interval (no live timer left)
    AssertionError: expected 1 to be +0 // Object.is equality
    - Expected   0
    + Received   1
@@ -2916,7 +2946,7 @@ $ npx vitest run src/Timer.test.tsx
                 </li>
                 <li>
                   <code>afterEach(() =&gt; vi.useRealTimers())</code>
-                  必须有，否则假时钟会漏到别的测试文件里。
+                  要写上：否则假时钟会漏到同一个文件里后面的测试（Vitest 默认每个测试文件隔离运行，漏不到别的文件）。
                 </li>
               </ul>
               <p>
@@ -2948,8 +2978,10 @@ $ npx vitest run src/Timer.test.tsx
                   evidence than reading the seconds.
                 </li>
                 <li>
-                  <code>afterEach(() =&gt; vi.useRealTimers())</code> is mandatory,
-                  otherwise the fake clock leaks into other test files.
+                  <code>afterEach(() =&gt; vi.useRealTimers())</code> should be there:
+                  otherwise the fake clock leaks into the later tests in the same file
+                  (Vitest runs each test file in isolation by default, so it cannot leak
+                  into other files).
                 </li>
               </ul>
               <p>
@@ -3019,7 +3051,8 @@ $ npx vitest run src/Timer.test.tsx
                   写 <code>[running, seconds]</code> → 每秒销毁重建一次定时器，
                   能跑但会漂移，而且没必要。
                   <br />
-                  不写依赖数组 → 每次渲染都重建，直接失控。
+                  不写依赖数组 → 每次渲染都拆掉重建一次定时器：还能跑，但和{" "}
+                  <code>[running, seconds]</code> 一样多余、会漂移。
                 </>
               ),
               whyEn: (
@@ -3032,8 +3065,9 @@ $ npx vitest run src/Timer.test.tsx
                   and rebuilt every second. It runs, but the clock drifts, and
                   there is no reason for it.
                   <br />
-                  With no dependency array at all, it is rebuilt on every render
-                  and goes out of control.
+                  With no dependency array at all, the interval is torn down and
+                  rebuilt on every render: it still runs, but like{" "}
+                  <code>[running, seconds]</code> it is wasteful and drifts.
                 </>
               ),
               width: 9,
@@ -3160,7 +3194,7 @@ const Timer: React.FC = () => {
 
   return (
     <div data-testid="timer">
-      <output data-testid="display">{/* 格式化后的时间 */}</output>
+      <output data-testid="display">{/* the formatted time */}</output>
       <button data-testid="toggle">{/* Start / Pause */}</button>
       <button data-testid="reset">Reset</button>
     </div>
@@ -3743,7 +3777,7 @@ return <article data-testid="user">…</article>;`,
         },
         {
           id: "res-ok",
-          heading: "fetch 的第一个坑：404 不会 reject",
+          heading: "fetch 的第一个陷阱：404 不会 reject",
           headingEn: "The first trap in fetch: a 404 does not reject",
           lede: "这是所有 fetch 题的必考点。",
           ledeEn: "Every fetch question checks this one.",
@@ -3751,7 +3785,7 @@ return <article data-testid="user">…</article>;`,
             <>
               <p>
                 <code>fetch</code> 的 promise <strong>只在网络层失败时 reject</strong>
-                （断网、DNS 挂了、CORS 被拒）。
+                （断网、DNS 解析失败、CORS 被拒）。
                 服务器返回 404 或 500 时，它是<strong>成功的</strong>——
                 你成功地拿到了一个「失败响应」。
               </p>
@@ -3759,7 +3793,7 @@ return <article data-testid="user">…</article>;`,
                 所以不检查 <code>res.ok</code> 的话，
                 <code>res.json()</code> 会去解析错误页的内容，
                 然后你把它当用户数据渲染出来 ——
-                轻则显示 <code>undefined</code>，重则整页崩。
+                轻则显示 <code>undefined</code>，重则整页报错。
               </p>
               <p>
                 这一点和 <code>axios</code> 相反（axios 会对非 2xx 抛错），
@@ -4140,7 +4174,7 @@ return () => {
               <p>
                 最后那条 <code>aborts the in-flight request on unmount</code>
                 用了个小技巧：假 fetch 返回一个<strong>永不 settle 的
-                promise</strong>（<code>new Promise(() =&gt; {})</code>），
+                promise</strong>（<code>{"new Promise(() => {})"}</code>），
                 把收到的 <code>signal</code> 存下来，卸载后断言
                 <code>signal.aborted === true</code>。
               </p>
@@ -4165,7 +4199,7 @@ return () => {
                 The last test, <code>aborts the in-flight request on unmount</code>, uses a
                 small trick: the fake fetch returns a{" "}
                 <strong>promise that never settles</strong>{" "}
-                (<code>new Promise(() =&gt; {})</code>), stores the <code>signal</code> it
+                (<code>{"new Promise(() => {})"}</code>), stores the <code>signal</code> it
                 received, and after unmount asserts{" "}
                 <code>signal.aborted === true</code>.
               </p>
@@ -4195,7 +4229,7 @@ return () => {
           generated: true,
           prompt: (
             <p>
-              四个空。第 1 和第 4 个合起来解决竞态，第 2 个是 fetch 的经典坑。
+              四个空。第 1 和第 4 个合起来解决竞态，第 2 个是 fetch 的经典陷阱。
             </p>
           ),
           promptEn: (
@@ -4568,10 +4602,11 @@ return () => { ignore = true; controller.abort(); };`,
 $ npx vitest run src/UserCard.test.tsx
 
  ✕ a slow stale response must not overwrite the newer one（竞态）
-   Expected element to have text content: 用户2
-   Received:                              用户1
+   Expected element not to have text content: 用户1
+ ✕ aborts the in-flight request on unmount
+   TypeError: Cannot read properties of undefined (reading 'aborted')
 
- Tests  1 failed | 5 passed (6)
+ Tests  2 failed | 4 passed (6)
 
 # 手动复现：
 #   1. 点用户 1（这个接口慢，200ms）
@@ -4582,11 +4617,12 @@ $ npx vitest run src/UserCard.test.tsx
 
 $ npx vitest run src/UserCard.test.tsx
 
- ✕ a slow stale response must not overwrite the newer one（竞态）
-   Expected element to have text content: 用户2
-   Received:                              用户1
+ ✕ a slow stale response must not overwrite the newer one (race condition)
+   Expected element not to have text content: 用户1
+ ✕ aborts the in-flight request on unmount
+   TypeError: Cannot read properties of undefined (reading 'aborted')
 
- Tests  1 failed | 5 passed (6)
+ Tests  2 failed | 4 passed (6)
 
 # Manual repro:
 #   1. Click user 1 (that request is slow, 200ms)
@@ -4736,6 +4772,12 @@ $ npx vitest run src/UserCard.test.tsx
                 另一个常见问题 —— 组件卸载后请求才回来、
                 对已卸载组件 setState。所以它是这类代码的标准骨架。
               </p>
+              <p>
+                另外，测试里的 <code>aborts the in-flight request on unmount</code>{" "}
+                也会失败：broken 代码没把 <code>signal</code> 传给 fetch，测试取不到{" "}
+                <code>signal.aborted</code>。修复版加上的 <code>AbortController</code>{" "}
+                一并解决这一条。
+              </p>
             </>
           ),
           rootCauseEn: (
@@ -4774,6 +4816,12 @@ $ npx vitest run src/UserCard.test.tsx
                 <strong>also</strong> solves another common problem — a request that
                 returns after the component unmounts and calls setState on a component
                 that is gone. That is why it is the standard shape for code like this.
+              </p>
+              <p>
+                The test <code>aborts the in-flight request on unmount</code> fails as
+                well: the broken code never passes a <code>signal</code> to fetch, so the
+                test cannot read <code>signal.aborted</code>. The{" "}
+                <code>AbortController</code> in the fix takes care of that one too.
               </p>
             </>
           ),
@@ -5131,8 +5179,8 @@ try {
               {
                 filename: "递归那几行",
                 filenameEn: "The recursive lines",
-                codeEn: `{/* 递归：自己渲染自己。
-    终止条件不用写 if —— replies 为空时 map 什么都不产出，递归自然停。 */}
+                codeEn: `{/* Recursion: the component renders itself.
+    No if is needed to stop it — when replies is empty, map produces nothing and the recursion stops. */}
 {open && comment.replies.length > 0 && (
   <ul>
     {comment.replies.map((child) => (
@@ -5250,27 +5298,32 @@ export function countComments(nodes: Comment[]): number {
                   —— 新节点对象 + 新 replies 数组。
                 </li>
                 <li>
-                  不是目标：<strong>也要造新对象</strong>，
-                  因为目标可能藏在它的子树里，
-                  而 <code>addReply(node.replies, ...)</code> 可能返回新数组。
+                  不是目标：<strong>先递归，再比一比</strong>。
+                  <code>addReply(node.replies, ...)</code> 返回的还是原来那个数组，
+                  说明目标不在这棵子树里，<strong>原样返回这个节点</strong>；
+                  返回了新数组，才造一个新节点把它接上。
+                </li>
+                <li>
+                  这一层一个都没变，就把原数组 <code>nodes</code> 本身还回去 ——
+                  上一层才能用 <code>===</code> 判断出「没变」。
                 </li>
                 <li>
                   递归到叶子（<code>replies</code> 为空）时，
-                  <code>map</code> 返回空数组，递归终止。
+                  <code>map</code> 什么都不做，原来的空数组被原样还回去，递归终止。
                 </li>
               </ul>
               <p>
                 <strong>一个容易误解的点：这不是深拷贝。</strong>
                 只有<strong>从根到目标那条路径</strong>上的节点是新对象；
-                旁边的分支虽然被 <code>{"{ ...node }"}</code> 包了一层新壳，
-                但里面的 <code>body</code>、<code>author</code> 等值是共享的，
-                更深的子树对象也是复用的。这正是 React 想要的：
+                路径以外的分支连外壳都不换，<strong>还是原来那个对象</strong>。
+                这正是 React 想要的：
                 <strong>变了的路径引用变了，没变的部分引用不变</strong>，
                 <code>React.memo</code> 才能正确跳过。
               </p>
               <p>
-                测试里专门验证了这两件事：原树完全没动（用 <code>Object.freeze</code>
-                深冻结，改了就抛错），以及路径上的对象确实是新引用。
+                测试里专门验证了三件事：原树完全没动（用 <code>Object.freeze</code>
+                深冻结，改了就抛错）、路径上的对象确实是新引用、
+                旁边的分支还是原来那个对象（用 <code>toBe</code> 比引用）。
               </p>
             </>
           ),
@@ -5305,30 +5358,39 @@ export function countComments(nodes: Comment[]): number {
                   object plus a new replies array.
                 </li>
                 <li>
-                  Not the target: <strong>build a new object anyway</strong>, because the
-                  target may be hiding in its subtree and{" "}
-                  <code>addReply(node.replies, ...)</code> may return a new array.
+                  Not the target: <strong>recurse first, then compare</strong>. If{" "}
+                  <code>addReply(node.replies, ...)</code> hands back the very same array,
+                  the target is not in this subtree, so <strong>return the node as it
+                  is</strong>; only when it returns a new array do you build a new node
+                  around it.
+                </li>
+                <li>
+                  If nothing at this level changed, hand back the original{" "}
+                  <code>nodes</code> array itself — that is how the level above can tell
+                  &ldquo;no change&rdquo; with <code>===</code>.
                 </li>
                 <li>
                   When the recursion reaches a leaf (<code>replies</code> empty),{" "}
-                  <code>map</code> returns an empty array and the recursion ends.
+                  <code>map</code> has nothing to do, the original empty array is handed
+                  back, and the recursion ends.
                 </li>
               </ul>
               <p>
                 <strong>One thing people misread: this is not a deep copy.</strong> Only the
                 nodes <strong>on the path from the root to the target</strong> are new
-                objects; the branches beside it do get a new shell from{" "}
-                <code>{"{ ...node }"}</code>, but the values inside — <code>body</code>,{" "}
-                <code>author</code> and the rest — are shared, and the deeper subtree objects
-                are reused. That is exactly what React wants:{" "}
+                objects; the branches off that path do not even get a new shell —{" "}
+                <strong>they are the very same objects</strong>. That is exactly what React
+                wants:{" "}
                 <strong>references change along the path that changed and stay the same
                 everywhere else</strong>, which is the only way <code>React.memo</code> can
                 skip correctly.
               </p>
               <p>
-                The tests check both of these: the original tree was not touched at all
-                (deep-frozen with <code>Object.freeze</code>, so any write throws), and the
-                objects on the path really are new references.
+                The tests check three things: the original tree was not touched at all
+                (deep-frozen with <code>Object.freeze</code>, so any write throws), the
+                objects on the path really are new references, and the branches beside it
+                are still the original objects (compared by reference with{" "}
+                <code>toBe</code>).
               </p>
             </>
           ),
@@ -5441,8 +5503,8 @@ const next = JSON.parse(JSON.stringify(comments));`,
               <p>
                 第 3 条测的是「<strong>只重建路径</strong>」：
                 路径上的节点必须 <code>not.toBe</code> 原来那个（新引用），
-                而旁边的分支内容保持一致。
-                这一条能把「深拷贝糊过去」的解法区分出来。
+                而旁边的分支必须 <code>toBe</code> 原来那个（同一个对象）。
+                这一条能把用深拷贝应付过去的解法区分出来 —— 深拷贝会让旁边的分支也变成新对象。
               </p>
             </>
           ),
@@ -5465,8 +5527,9 @@ const next = JSON.parse(JSON.stringify(comments));`,
               <p>
                 Test 3 checks that <strong>only the path is rebuilt</strong>: nodes on the path
                 must be <code>not.toBe</code> the originals (new references), while the
-                branches beside it keep the same content. That test separates the real answer
-                from &ldquo;deep copy and hope&rdquo;.
+                branches beside it must be <code>toBe</code> the originals (the very same
+                objects). That test separates the real answer from a deep copy, which would
+                make the side branches new objects too.
               </p>
             </>
           ),
@@ -5511,6 +5574,24 @@ export function countComments(nodes: Comment[]): number {
 }
 
 // 递归渲染
+{comment.replies.length > 0 && (
+  <ul>
+    {comment.replies.map((child) => (
+      <___3___
+        key={child.id}
+        comment={child}
+        depth={___4___}
+        onReply={onReply}
+      />
+    ))}
+  </ul>
+)}`,
+          templateEn: `// count every comment recursively
+export function countComments(nodes: Comment[]): number {
+  return nodes.reduce((sum, n) => sum + ___1___ + ___2___(n.replies), 0);
+}
+
+// render recursively
 {comment.replies.length > 0 && (
   <ul>
     {comment.replies.map((child) => (
@@ -5689,6 +5770,7 @@ export function addReply(
             "目标可能在任意深度，需要递归往下找",
             "不许用 JSON.parse(JSON.stringify(...)) 深拷贝",
             "不许用 push / splice / 直接赋值",
+            "没被碰到的分支原样复用，不造新对象",
           ],
           requirementsEn: [
             "Find the node whose id === parentId and append reply to the end of its replies",
@@ -5696,6 +5778,7 @@ export function addReply(
             "The target can be at any depth, so recurse downwards to find it",
             "Do not deep-copy with JSON.parse(JSON.stringify(...))",
             "Do not use push / splice / direct assignment",
+            "Branches that are not touched are reused as they are; do not build new objects for them",
           ],
           checks: [
             { label: "用 map 返回新数组", labelEn: "map returns a new array", must: "nodes\\.map\\s*\\(" },
@@ -5715,6 +5798,11 @@ export function addReply(
               labelEn: "Without a match, it recurses further down",
               must: "addReply\\s*\\(\\s*\\w+\\.replies",
             },
+            {
+              label: "子树没变时原样返回这个节点",
+              labelEn: "When the subtree did not change, the node is returned as it is",
+              must: "(===\\s*\\w+\\.replies|\\w+\\.replies\\s*===)",
+            },
             { label: "没有深拷贝", labelEn: "No deep copy", mustNot: "JSON\\.parse|structuredClone" },
             { label: "没有 push / splice", labelEn: "No push / splice", mustNot: "\\.(push|splice|unshift)\\s*\\(" },
             {
@@ -5725,58 +5813,88 @@ export function addReply(
           ],
           hints: [
             "先在纸上画一棵三层的树，标出目标节点，然后问自己：从根走到它，路径上有哪几个对象？这些对象里，哪些的内容真的变了？没在路径上的分支需要变吗？",
-            "用 map 逐层往下。每一层有两种情况：这个节点就是目标（造新节点 + 新 replies），或者目标在它的子树里（也要造新节点，但 replies 交给递归）。注意两种情况都要返回新对象 —— 因为你在递归返回之前并不知道目标在不在下面。",
-            `return nodes.map(每个节点 => {
+            "用 map 逐层往下。每一层有两种情况：这个节点就是目标（造新节点 + 新 replies），或者不是目标 —— 先递归，再比一比：子树没变就原样返回这个节点，变了才造新节点接上新的 replies。最后，这一层一个都没变，就把原数组还回去。",
+            `let changed = false
+const next = nodes.map(每个节点 => {
   如果 这个节点的 id === parentId:
-      返回 { 展开这个节点, replies: [展开它的 replies, reply] }
-  否则:
-      返回 { 展开这个节点, replies: 递归调用(这个节点的 replies, parentId, reply) }
-})`,
-            `return nodes.map((node) => {
+      changed = true；返回 { 展开这个节点, replies: [展开它的 replies, reply] }
+  replies = 递归调用(这个节点的 replies, parentId, reply)
+  如果 replies 就是原来那个数组: 返回这个节点本身
+  changed = true；返回 { 展开这个节点, replies }
+})
+返回 changed ? next : 原来的 nodes`,
+            `let changed = false;
+const next = nodes.map((node) => {
   if (node.id === parentId) {
+    changed = true;
     return { ...node, replies: [...node.replies, reply] };
   }
-  return { ...node, replies: addReply(node.replies, parentId, reply) };
-});`,
+  const replies = addReply(node.replies, parentId, reply);
+  if (replies === node.replies) return node;
+  changed = true;
+  return { ...node, replies };
+});
+return changed ? next : nodes;`,
           ],
           hintsEn: [
             "Draw a three-level tree on paper and mark the target node, then ask yourself: walking from the root to it, which objects lie on that path? Of those objects, which ones really change content? And do the branches beside the path need to change at all?",
-            "Walk down with map. At each level there are two cases: this node is the target (build a new node with new replies), or the target is somewhere in its subtree (also build a new node, but hand replies to the recursion). Both cases return a new object, because before the recursion returns you do not know whether the target is below.",
-            `return nodes.map(each node => {
+            "Walk down with map. At each level there are two cases: this node is the target (build a new node with new replies), or it is not — recurse first, then compare: if the subtree did not change, return the node as it is; only when it did, build a new node around the new replies. Finally, if nothing at this level changed, hand back the original array.",
+            `let changed = false
+const next = nodes.map(each node => {
   if the id of this node === parentId:
-      return { spread this node, replies: [spread its replies, reply] }
-  otherwise:
-      return { spread this node, replies: recursive call(the replies of this node, parentId, reply) }
-})`,
-            `return nodes.map((node) => {
+      changed = true; return { spread this node, replies: [spread its replies, reply] }
+  replies = recursive call(the replies of this node, parentId, reply)
+  if replies is the very same array as before: return this node itself
+  changed = true; return { spread this node, replies }
+})
+return changed ? next : the original nodes`,
+            `let changed = false;
+const next = nodes.map((node) => {
   if (node.id === parentId) {
+    changed = true;
     return { ...node, replies: [...node.replies, reply] };
   }
-  return { ...node, replies: addReply(node.replies, parentId, reply) };
-});`,
+  const replies = addReply(node.replies, parentId, reply);
+  if (replies === node.replies) return node;
+  changed = true;
+  return { ...node, replies };
+});
+return changed ? next : nodes;`,
           ],
           solution: tested(
             "ts",
             `export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
-  return nodes.map((node) => {
+  let changed = false;
+  const next = nodes.map((node) => {
     if (node.id === parentId) {
+      changed = true;
       return { ...node, replies: [...node.replies, reply] };
     }
     // 目标可能在更深处，继续往下找
-    return { ...node, replies: addReply(node.replies, parentId, reply) };
+    const replies = addReply(node.replies, parentId, reply);
+    if (replies === node.replies) return node; // 目标不在这棵子树里：原样复用
+    changed = true;
+    return { ...node, replies };
   });
+  return changed ? next : nodes; // 这一层没变就把原数组还回去
 }`,
             {
               filename: "参考答案（实测通过，含原树深冻结检查）",
               filenameEn: "Reference answer (verified by running it, with the frozen-tree check)",
               codeEn: `export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
-  return nodes.map((node) => {
+  let changed = false;
+  const next = nodes.map((node) => {
     if (node.id === parentId) {
+      changed = true;
       return { ...node, replies: [...node.replies, reply] };
     }
     // the target may be deeper down, so keep looking
-    return { ...node, replies: addReply(node.replies, parentId, reply) };
+    const replies = addReply(node.replies, parentId, reply);
+    if (replies === node.replies) return node; // the target is not in this subtree: reuse it as is
+    changed = true;
+    return { ...node, replies };
   });
+  return changed ? next : nodes; // nothing changed at this level: hand back the original array
 }`,
               explanation:
                 "测试用 Object.freeze 深冻结原树后调用它 —— 如果实现里有任何一处直接改原对象，严格模式下会立刻抛错。这是验证「真的不可变」最省事的办法。",
@@ -5823,11 +5941,11 @@ $ npx vitest run src/CommentTree.test.tsx
 
 $ npx vitest run src/CommentTree.test.tsx
 
- ✕ addReply 挂到深层节点，且不改原树
+ ✕ addReply attaches to a deep node and leaves the original tree untouched
    TypeError: Cannot add property 0, object is not extensible
    (The test deep-froze the original tree; the implementation edits it in place.)
 
- ✕ 给三层的评论再回复，落在正确的位置
+ ✕ a reply to a third-level comment lands in the right place
    Unable to find an element with the text: 第四层
 
 # Manual repro: click Reply on a comment, type something, send it
@@ -5901,12 +6019,19 @@ const handleReply = (parentId: number, text: string) => {
           fixed: tested(
             "ts",
             `export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
-  return nodes.map((node) => {
+  let changed = false;
+  const next = nodes.map((node) => {
     if (node.id === parentId) {
+      changed = true;
       return { ...node, replies: [...node.replies, reply] };
     }
-    return { ...node, replies: addReply(node.replies, parentId, reply) };
+    // 目标可能在更深处，继续往下找
+    const replies = addReply(node.replies, parentId, reply);
+    if (replies === node.replies) return node; // 目标不在这棵子树里：原样复用
+    changed = true;
+    return { ...node, replies };
   });
+  return changed ? next : nodes; // 这一层没变就把原数组还回去
 }
 
 // 调用处也改成函数式更新
@@ -5918,12 +6043,19 @@ const handleReply = (parentId: number, text: string) => {
               filename: "改对之后（7/7 通过）",
               filenameEn: "After the fix (7 of 7 pass)",
               codeEn: `export function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {
-  return nodes.map((node) => {
+  let changed = false;
+  const next = nodes.map((node) => {
     if (node.id === parentId) {
+      changed = true;
       return { ...node, replies: [...node.replies, reply] };
     }
-    return { ...node, replies: addReply(node.replies, parentId, reply) };
+    // the target may be deeper down, so keep looking
+    const replies = addReply(node.replies, parentId, reply);
+    if (replies === node.replies) return node; // the target is not in this subtree: reuse it as is
+    changed = true;
+    return { ...node, replies };
   });
+  return changed ? next : nodes; // nothing changed at this level: hand back the original array
 }
 
 // The call site becomes a functional update too
@@ -6283,7 +6415,7 @@ setComments(next);`,
 <App theme={theme}>
   <Layout theme={theme}>
     <Sidebar theme={theme}>
-      <ThemedCard theme={theme} />   {/* 只有这里真的要用 */}
+      <ThemedCard theme={theme} />   {/* the only place that really needs it */}
     </Sidebar>
   </Layout>
 </App>
@@ -6292,7 +6424,7 @@ setComments(next);`,
 <ThemeProvider>
   <Layout>
     <Sidebar>
-      <ThemedCard />                 {/* 自己去 context 里取 */}
+      <ThemedCard />                 {/* reads it from context itself */}
     </Sidebar>
   </Layout>
 </ThemeProvider>`,
@@ -6341,10 +6473,10 @@ setComments(next);`,
                   <tbody>
                     <tr>
                       <td>
-                        <code>createContext()</code>（题目给的参考结构）
+                        <code>createContext()</code>（Cab Booking 那种 JS 写法；TS 里不传参会报 TS2554）
                       </td>
                       <td>
-                        拿到 <code>undefined</code>，在解构那一行炸出一句
+                        拿到 <code>undefined</code>，在解构那一行抛出一句
                         很难读的 <code>Cannot destructure property…</code>
                       </td>
                     </tr>
@@ -6411,7 +6543,7 @@ setComments(next);`,
                   <tbody>
                     <tr>
                       <td>
-                        <code>createContext()</code> (the reference shape in the question)
+                        <code>createContext()</code> (the JavaScript form used in Cab Booking; in TypeScript, calling it with no argument is error TS2554)
                       </td>
                       <td>
                         You get <code>undefined</code> and it throws on the destructuring line
@@ -6681,14 +6813,14 @@ $ npx vitest run src/Theme.test.tsx
  Tests  1 failed | 7 passed (8)
 
 # 注意：功能测试全都还是绿的 —— 主题该切也切，颜色该变也变。
-# 挂掉的只有这条性能相关的。这正是「测试通过 ≠ 做对了」。`,
+# 失败的只有这条性能相关的。这正是「测试通过 ≠ 做对了」。`,
               {
                 filename: "本机实测：漏掉 useMemo 的后果",
                 filenameEn: "Measured here: what a missing useMemo costs",
                 codeEn: `# The real output after deleting useMemo and passing the object literal straight through
 $ npx vitest run src/Theme.test.tsx
 
- ✕ theme 没变时 context value 不换新对象（useMemo 生效）
+ ✕ the context value stays the same object while theme does not change (useMemo at work)
    AssertionError: expected 2 to be 1 // Object.is equality
 
  Tests  1 failed | 7 passed (8)
@@ -6888,6 +7020,7 @@ $ npx vitest run src/Theme.test.tsx
           code: [
             tested("bash", "npx vitest run src/Theme.test.tsx   # 8 passed", {
               filename: "验证命令",
+              filenameEn: "The command that verifies it",
             }),
             tested("tsx", THEME_TEST, {
               codeEn: THEME_TEST_EN,
@@ -6938,6 +7071,25 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (___4___) throw new Error("useTheme 必须在 <ThemeProvider> 里面用");
+  return ctx;
+}`,
+          templateEn: `const ThemeContext = ___1___<ThemeContextValue | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<Theme>("light");
+
+  const toggleTheme = useCallback(() => {
+    setTheme(___2___);
+  }, []);
+
+  const value = ___3___(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+
+export function useTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (___4___) throw new Error("useTheme must be used inside <ThemeProvider>");
   return ctx;
 }`,
           blanks: [
@@ -7166,7 +7318,7 @@ export function useTheme(): ThemeContextValue {
             { label: "没有把 theme 放到模块级全局变量", labelEn: "theme is not kept in a module-level global", mustNot: "^let\\s+theme\\s*=" },
           ],
           hints: [
-            "先想清楚三个问题：这个值放在谁的 state 里？谁能读到它？「忘了套 Provider」的时候，你希望程序静默地用一个假默认值，还是当场炸给你看？",
+            "先想清楚三个问题：这个值放在谁的 state 里？谁能读到它？「忘了套 Provider」的时候，你希望程序静默地用一个假默认值，还是当场报错？",
             "createContext 的默认值给 undefined，然后在 useTheme 里 if (!ctx) throw —— 这样既报得清楚，TS 也会把类型收窄。toggleTheme 用 setTheme(prev => ...) 并包 useCallback(..., [])，value 用 useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme])。",
             `const Ctx = createContext<值的类型 | undefined>(undefined)
 
@@ -7252,11 +7404,11 @@ TypeError: Cannot destructure property 'theme' of
  ✕ 点一下变 dark：按钮文字和卡片底色一起变
  ✕ 再点一下切回 light
  ✕ 没套 Provider 就用 useTheme()，必须立刻报错
- ✕ toggleTheme 是稳定引用：theme 变了它也不变
 
- Tests  5 failed | 3 passed (8)
+ Tests  4 failed | 4 passed (8)
 
-# 浏览器里的报错略有不同，意思一样：
+# 另外几条测试自己套了 ThemeProvider，所以照常通过 —— Provider 本身没问题，问题在范围。
+# 浏览器里的报错略有不同，意思一样（报错里的变量名也随 Vite 版本变化）：
 #   Cannot destructure property 'theme' of 'useTheme(...)' as it is undefined.`,
           errorOutputEn: `$ npx vitest run src/Theme.test.tsx
 
@@ -7265,15 +7417,15 @@ TypeError: Cannot destructure property 'theme' of
     at ThemedCard (src/components/ThemedCard/index.tsx:6:11)
     at ThemeApp
 
- ✕ 默认是 light，按钮说 Switch to Dark
- ✕ 点一下变 dark：按钮文字和卡片底色一起变
- ✕ 再点一下切回 light
- ✕ 没套 Provider 就用 useTheme()，必须立刻报错
- ✕ toggleTheme 是稳定引用：theme 变了它也不变
+ ✕ default is light, and the button says Switch to Dark
+ ✕ one click turns it dark: the button text and the card colour change together
+ ✕ a second click switches back to light
+ ✕ using useTheme() without a Provider must throw at once
 
- Tests  5 failed | 3 passed (8)
+ Tests  4 failed | 4 passed (8)
 
-# The browser wording is slightly different but means the same thing:
+# The other tests wrap themselves in ThemeProvider, so they still pass — the Provider is fine; its scope is the problem.
+# The browser wording is slightly different but means the same thing (the variable name also varies with the Vite version):
 #   Cannot destructure property 'theme' of 'useTheme(...)' as it is undefined.`,
           broken: demo(
             "tsx",
@@ -7397,7 +7549,7 @@ const ThemeApp: React.FC = () => (
                 <code>useContext</code> 只会往上找<strong>祖先</strong>里最近的
                 Provider —— 找不到就返回 <code>createContext</code>
                 的默认值，这里是 <code>undefined</code>。
-                然后 <code>{"const { theme } = undefined"}</code> 直接炸。
+                然后 <code>{"const { theme } = undefined"}</code> 直接报错。
               </p>
               <p>
                 <strong>为什么按钮是好的？</strong>
@@ -7531,7 +7683,7 @@ const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });`,
               点按钮调的是那个空函数，什么都不会发生。
               <br />
               这是最难查的一类 bug ——
-              <strong>宁可炸，也别静默地对。</strong>
+              <strong>宁可直接报错，也别悄无声息地「看起来正常」。</strong>
             </>
           ),
           whyEn: (
@@ -7658,7 +7810,7 @@ export function ThemeProvider({ children }) {
       recap: [
         "Context 解决跨层传值，适合「整棵树都读、又不常变」的东西；它不是状态管理器。",
         "三个动作：createContext 造管道、Provider 灌值、useContext 取值；第四步自己包 hook 加守卫。",
-        "默认值给 undefined + hook 里 throw，比给个假默认值好 —— 宁可炸也别静默地对。",
+        "默认值给 undefined + hook 里 throw，比给个假默认值好 —— 宁可直接报错，也别悄无声息地「看起来正常」。",
         "toggleTheme 用函数式更新 + useCallback([])；一次事件连调两次也能正确翻回来。",
         "value 必须 useMemo，否则所有消费者每次都重渲染，而功能测试全绿查不出来。",
         "按钮文字是「要切到哪」，不是「现在是哪」—— 这是读题分。",

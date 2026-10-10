@@ -199,7 +199,10 @@ export const reactMentalModel: Module = {
                 <code>&lt;input&gt;</code>）当成真实 HTML 标签；
                 大写开头（<code>&lt;NoteManager /&gt;</code>）当成你的组件。
                 写成 <code>&lt;noteManager /&gt;</code>，React 会去找一个叫
-                notemanager 的 HTML 标签，然后什么都不显示 —— 而且<strong>不报错</strong>。
+                notemanager 的 HTML 标签，页面上什么都不显示。它不会让页面崩溃，
+                但开发模式下控制台会打印{" "}
+                <code>The tag &lt;noteManager&gt; is unrecognized in this browser…</code>，
+                直接告诉你要大写开头。
               </p>
             </>
           ),
@@ -224,8 +227,10 @@ export const reactMentalModel: Module = {
                 (<code>&lt;div&gt;</code>, <code>&lt;input&gt;</code>) means a real
                 HTML tag; uppercase (<code>&lt;NoteManager /&gt;</code>) means your
                 component. Write <code>&lt;noteManager /&gt;</code> and React goes
-                hunting for an HTML tag called notemanager, then renders nothing —
-                and <strong>says nothing about it</strong>.
+                hunting for an HTML tag called notemanager and renders nothing. The page
+                does not crash, but in development the console prints{" "}
+                <code>The tag &lt;noteManager&gt; is unrecognized in this browser…</code>,
+                which tells you exactly what to fix.
               </p>
             </>
           ),
@@ -276,7 +281,7 @@ export default App;`,
                 </li>
                 <li>
                   <strong>属性名用 camelCase，<code>class</code> 要写 <code>className</code>。</strong>
-                  因为 <code>class</code> 是 JavaScript 的保留字。同理
+                  因为 <code>class</code> 是 JavaScript 的保留字。事件属性同样用 camelCase：
                   <code>onclick</code> 要写 <code>onClick</code>。
                 </li>
                 <li>
@@ -309,8 +314,9 @@ export default App;`,
                 </li>
                 <li>
                   <strong>Attributes are camelCase, and <code>class</code> becomes <code>className</code>.</strong>{" "}
-                  Because <code>class</code> is a reserved word in JavaScript. Same
-                  reason <code>onclick</code> is written <code>onClick</code>.
+                  Because <code>class</code> is a reserved word in JavaScript. Event
+                  attributes follow the same camelCase rule: <code>onclick</code> becomes{" "}
+                  <code>onClick</code>.
                 </li>
                 <li>
                   <strong>Self-closing tags need the slash.</strong>{" "}
@@ -478,8 +484,8 @@ export default NoteItem;`,
           title: "哪一行会把变量的值显示出来",
           titleEn: "Which line prints the value of a variable",
           level: 1,
-          prompt: <p>下面哪一行会在页面上显示这条笔记的标题内容？</p>,
-          promptEn: <p>Which line below shows the title of this note on the page?</p>,
+          prompt: <p>下面哪一行会在页面上<strong>只</strong>显示这条笔记的标题本身？</p>,
+          promptEn: <p>Which line below shows exactly the title of this note on the page, and nothing else?</p>,
           options: [
             { id: "a", label: "<td>note.title</td>" },
             { id: "b", label: "<td>{note.title}</td>" },
@@ -490,17 +496,19 @@ export default NoteItem;`,
           explain: (
             <>
               花括号是「切回 JavaScript」的开关。A 会原样显示
-              <code>note.title</code> 这十个字符；C 是模板字符串的语法，
-              在 JSX 里不生效，会原样显示 <code>$&#123;note.title&#125;</code>；
+              <code>note.title</code> 这十个字符；C 里的 <code>$</code> 只是普通文字，
+              后面的 <code>{"{note.title}"}</code> 照样是 JSX 表达式，页面会显示「$会议记录」这样
+              多一个 <code>$</code> 的结果 —— 模板字符串的 <code>$&#123;&#125;</code> 只在反引号里才有意义；
               D 的 <code>value</code> 不是 <code>&lt;td&gt;</code> 的有效属性。
             </>
           ),
           explainEn: (
             <>
               Curly braces are the switch back into JavaScript. A prints the ten
-              characters <code>note.title</code> as text. C is template string
-              syntax, which does nothing in JSX, so it prints{" "}
-              <code>$&#123;note.title&#125;</code> as text. In D,{" "}
+              characters <code>note.title</code> as text. In C the <code>$</code> is
+              plain text and <code>{"{note.title}"}</code> is still a JSX expression, so
+              the page shows the title with a stray <code>$</code> in front;{" "}
+              <code>$&#123;&#125;</code> only means something inside backticks. In D,{" "}
               <code>value</code> is not a valid attribute on{" "}
               <code>&lt;td&gt;</code>.
             </>
@@ -556,14 +564,14 @@ export default NoteItem;`,
         {
           wrong: demo(
             "tsx",
-            `// ✗ 组件名小写开头 —— 页面上什么都不出现，而且不报错
+            `// ✗ 组件名小写开头 —— 页面上什么都不出现（控制台有大小写警告）
 function noteItem() { return <tr>...</tr>; }
 
 export default function App() {
   return <noteItem />;   // React 当成 HTML 标签处理
 }`,
             {
-              codeEn: `// ✗ Name starts with a lowercase letter — nothing appears, and no error
+              codeEn: `// ✗ Name starts with a lowercase letter — nothing appears (the console shows a casing warning)
 function noteItem() { return <tr>...</tr>; }
 
 export default function App() {
@@ -574,19 +582,21 @@ export default function App() {
           why: (
             <>
               JSX 用首字母大小写区分「HTML 标签」和「你的组件」。
-              小写开头会被当成一个不存在的 HTML 元素，
-              浏览器默默忽略它。<strong>这类 bug 没有报错，只有空白</strong> ——
-              看到「组件不显示但控制台干净」时，先检查首字母。
+              小写开头会被当成一个不存在的 HTML 元素，页面上什么也不显示。
+              <strong>这类 bug 不会让页面崩溃，只留下一块空白</strong>；
+              开发模式下控制台会出现 <code>incorrect casing</code> /{" "}
+              <code>is unrecognized in this browser</code> 的红字 —— 看到它们就检查首字母。
             </>
           ),
           whyEn: (
             <>
               JSX uses the first letter to tell an HTML tag apart from a
               component of your own. A lowercase name is read as an HTML
-              element that does not exist, and the browser ignores it without
-              saying anything. <strong>This kind of bug produces no error, only
-              an empty area</strong> — when a component does not appear and the
-              console is clean, check the first letter first.
+              element that does not exist, and nothing shows on the page.{" "}
+              <strong>This kind of bug does not crash the page; it leaves an empty
+              area</strong>, and in development the console shows{" "}
+              <code>incorrect casing</code> / <code>is unrecognized in this browser</code>{" "}
+              in red — when you see either, check the first letter.
             </>
           ),
         },
@@ -627,8 +637,8 @@ return (
       ],
       transfer: [
         {
-          signal: "组件不显示但控制台干净",
-          signalEn: "Component does not appear, but the console is clean",
+          signal: "组件不显示，控制台提示 is unrecognized in this browser",
+          signalEn: "A component does not appear, and the console says is unrecognized in this browser",
           reachFor: "检查组件名是否大写开头",
           reachForEn: "Check that the component name starts with a capital letter",
         },
@@ -768,8 +778,9 @@ return (
               <p>
                 这看起来很啰嗦 —— 为什么不让 <code>NoteItem</code>
                 直接找 <code>NoteManager</code> 拿数据？
-                因为 React 里<strong>没有这条路</strong>。
-                数据只能一层一层往下传。这个限制听起来麻烦，
+                因为只用 props 时<strong>没有这条路</strong>：
+                数据只能一层一层往下传。（React 另有 Context 专门解决跨很多层传数据，
+                变式五和 Cab Booking 会讲；这个项目只用 props。）这个限制听起来麻烦，
                 但它换来一个巨大的好处：<strong>任何时候你都能顺着 props
                 往上找到数据的源头</strong>。数据出错时，只需要沿着一条链排查。
               </p>
@@ -786,9 +797,12 @@ return (
               </p>
               <p>
                 This looks like busywork — why not let <code>NoteItem</code>{" "}
-                reach up to <code>NoteManager</code> for the data itself? Because
-                React <strong>has no such path</strong>. Data travels down, one level
-                at a time. The limit sounds annoying, and it buys you something big:{" "}
+                reach up to <code>NoteManager</code> for the data itself? Because with
+                props alone there <strong>is no such path</strong>: data travels down, one
+                level at a time. (React&rsquo;s Context is a separate tool for passing data
+                across many levels; Variation 5 and the Cab Booking course cover it. This
+                project uses props only.) The limit sounds annoying, and it buys you
+                something big:{" "}
                 <strong>you can always follow props upward to where the data comes
                 from</strong>. When a value is wrong, there is exactly one chain to
                 walk.
@@ -841,8 +855,8 @@ return (
           id: "callback-props",
           heading: "事件往上报：把函数当 props 传下去",
           headingEn: "Events are reported upward: pass a function down as props",
-          lede: "这是 React 里子组件影响父组件的唯一正当方式。",
-          ledeEn: "This is the only correct way for a child to affect its parent in React.",
+          lede: "这是只用 props 时，子组件影响父组件的标准方式。",
+          ledeEn: "With props alone, this is the standard way for a child to affect its parent.",
           body: (
             <>
               <p>
@@ -931,7 +945,7 @@ const handleDelete = (id: number) => {
         {
           id: "fn-vs-call",
           heading: "onClick={fn} 和 onClick={fn()}：差一对括号，行为天差地别",
-          headingEn: "onClick={fn} and onClick={fn()}: one pair of parentheses apart, and the behavior is completely different",
+          headingEn: "onClick={fn} and onClick={fn()}: one pair of parentheses apart, and the behaviour is completely different",
           lede: "这是新手最高频的错误之一，而且症状很奇怪。",
           ledeEn: "This is one of the most common beginner mistakes, and the symptom looks strange.",
           body: (
@@ -962,9 +976,10 @@ const handleDelete = (id: number) => {
               <p>
                 最后那种在这个项目里会造成什么？ <code>NoteTable</code>
                 渲染时，每一行都会立刻调一次 <code>onDelete</code>，
-                于是所有笔记在显示出来的瞬间就被删干净了 ——
-                然后 state 变了触发重渲染，再删一遍……
-                很可能直接卡死。
+                于是所有笔记在显示出来的瞬间就被删干净了；列表空了，渲染随之停止，
+                表格保持空白，控制台出现{" "}
+                <code>Cannot update a component while rendering a different component</code>{" "}
+                的警告。
               </p>
             </>
           ),
@@ -997,8 +1012,9 @@ const handleDelete = (id: number) => {
                 What would the last one do in this project? While{" "}
                 <code>NoteTable</code> renders, every row calls{" "}
                 <code>onDelete</code> once, so every note is wiped the instant it
-                appears — then the state change triggers another render, which
-                deletes again... it will most likely lock up.
+                appears; once the list is empty the rendering stops, the table stays
+                blank, and the console warns{" "}
+                <code>Cannot update a component while rendering a different component</code>.
               </p>
             </>
           ),
@@ -1116,28 +1132,27 @@ const handleDelete = (id: number) => {
           level: 2,
           prompt: (
             <p>
-              添加两条笔记后刷新页面（假设有持久化），表格瞬间变空。
-              有时候浏览器还会卡住。先判断类型，再找病灶。
+              添加两条笔记后刷新页面（假设有持久化），表格瞬间变空，
+              点按钮也没有任何反应。先判断类型，再找病灶。
             </p>
           ),
           promptEn: (
             <p>
               Add two notes, then reload the page (assume the notes are saved
-              somewhere). The table goes empty at once, and sometimes the browser
-              stops responding. First name the kind of error, then find the line
-              that causes it.
+              somewhere). The table goes empty at once, and clicking does nothing.
+              First name the kind of error, then find the line that causes it.
             </p>
           ),
-          errorOutput: `Warning: Maximum update depth exceeded. This can happen when a component
-repeatedly calls setState inside componentWillUpdate or componentDidUpdate.
-React limits the number of nested updates to prevent infinite loops.
+          errorOutput: `Cannot update a component (\`NoteManager\`) while rendering a different component (\`NoteItem\`).
+To locate the bad setState() call inside \`NoteItem\`, follow the stack trace as described in
+https://react.dev/link/setstate-in-render
 
-（另一种表现：没有任何报错，但表格永远是空的）`,
-          errorOutputEn: `Warning: Maximum update depth exceeded. This can happen when a component
-repeatedly calls setState inside componentWillUpdate or componentDidUpdate.
-React limits the number of nested updates to prevent infinite loops.
+# 表格在页面打开的瞬间就空了，点击按钮也没有反应（React 18 的这条警告前面多一个 Warning:）`,
+          errorOutputEn: `Cannot update a component (\`NoteManager\`) while rendering a different component (\`NoteItem\`).
+To locate the bad setState() call inside \`NoteItem\`, follow the stack trace as described in
+https://react.dev/link/setstate-in-render
 
-(Another symptom: no warning at all, but the table stays empty forever.)`,
+# The table is empty the moment the page opens, and clicking does nothing (React 18 prefixes this warning with Warning:)`,
           broken: demo(
             "tsx",
             `const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {
@@ -1212,9 +1227,10 @@ React limits the number of nested updates to prevent infinite loops.
                 所以真正点击时什么都不会发生。
               </p>
               <p>
-                更糟的是：渲染 → 调用 onDelete → setState → 重渲染 → 又调用 onDelete，
-                形成无限循环，于是 React 抛出
-                <code>Maximum update depth exceeded</code>。
+                更糟的是：每一行在渲染时都把自己删掉，列表很快被删空；删空之后不再渲染
+                NoteItem，渲染也就停了 —— 所以不是无限循环，而是一打开就没了。
+                开发模式下 React 会警告{" "}
+                <code>Cannot update a component while rendering a different component</code>。
               </p>
               <p>
                 记住这条判别法：<strong>onClick 后面的花括号里，
@@ -1234,9 +1250,11 @@ React limits the number of nested updates to prevent infinite loops.
                 nothing.
               </p>
               <p>
-                It gets worse: render, call onDelete, setState, render again,
-                call onDelete again. That is an endless loop, and React throws{" "}
-                <code>Maximum update depth exceeded</code>.
+                It gets worse: each row deletes itself while rendering, so the list is
+                emptied at once; with no rows left no NoteItem renders and the rendering
+                stops — not an endless loop, the notes are simply gone the moment the page
+                opens. In development React warns{" "}
+                <code>Cannot update a component while rendering a different component</code>.
               </p>
               <p>
                 Remember this rule of thumb:{" "}
@@ -1265,10 +1283,10 @@ React limits the number of nested updates to prevent infinite loops.
           reachForEn: "Wrap it in an arrow function: () => fn(arg)",
         },
         {
-          signal: "Maximum update depth exceeded",
-          signalEn: "Maximum update depth exceeded",
-          reachFor: "先查有没有在渲染时调用了处理函数",
-          reachForEn: "First check whether a handler is called during render",
+          signal: "Cannot update a component while rendering a different component",
+          signalEn: "Cannot update a component while rendering a different component",
+          reachFor: "先查有没有在渲染时调用了处理函数（同一个组件在渲染中改自己的 state，React 报的是 Too many re-renders）",
+          reachForEn: "First check whether a handler is called during render (when a component sets its own state during render, React reports Too many re-renders instead)",
         },
         {
           signal: "点了按钮毫无反应",
@@ -1483,7 +1501,7 @@ const NoteManager = () => {
                 explanation:
                   "noteToEdit 用 null 表示「现在不在编辑任何东西」。这个 state 是 Task 3 的核心 —— 它同时决定了「表单里显示什么」和「按钮上写 Add 还是 Update」。",
                 explanationEn:
-                  "A null value for noteToEdit means nothing is being edited right now. This piece of state is the center of Task 3: it decides both what the form shows and whether the button reads Add or Update.",
+                  "A null value for noteToEdit means nothing is being edited right now. This piece of state is the centre of Task 3: it decides both what the form shows and whether the button reads Add or Update.",
               },
             ),
           ],
@@ -1751,9 +1769,9 @@ export default NoteManager;`,
             {
               label: "用了函数式更新 setNotes(prev => ...)",
               labelEn: "A functional update is used: setNotes(prev => ...)",
-              must: "setNotes\\s*\\(\\s*\\(?\\s*prev",
+              must: "setNotes\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>",
             },
-            { label: "按 id 比较，用的是 !==", labelEn: "The comparison is by id, with !==", must: "!==\\s*id" },
+            { label: "按 id 比较，用的是 !==", labelEn: "The comparison is by id, with !==", must: "(\\.id\\s*!==\\s*id\\b|\\bid\\s*!==\\s*\\w+\\.id)" },
             {
               label: "没有用 push / splice 改原数组",
               labelEn: "The original array is not changed with push / splice",
@@ -1834,7 +1852,7 @@ console.log(notes.length);   // still the old length!`,
               <code>setNotes</code> 只是「预约一次重新渲染」，
               它不会当场改变 <code>notes</code> 这个变量。
               新值要到<strong>下一次渲染</strong>才看得到。
-              想在更新后做点什么，用 <code>useEffect</code>（下一节讲）。
+              想在更新后做点什么，用 <code>useEffect</code>（第 2 部分的 useEffect 那一节讲）。
             </>
           ),
           whyEn: (
@@ -1842,8 +1860,8 @@ console.log(notes.length);   // still the old length!`,
               <code>setNotes</code> only asks React for one more render. It
               does not change the <code>notes</code> variable on the spot. The
               new value is visible on the <strong>next render</strong>. To do
-              something after the update, use <code>useEffect</code> (the next
-              lesson).
+              something after the update, use <code>useEffect</code> (covered in the
+              useEffect lesson in part 2).
             </>
           ),
         },
