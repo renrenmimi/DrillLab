@@ -79,7 +79,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [narrow, setNarrow] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 960px)");
-    const sync = () => setNarrow(mq.matches);
+    const sync = () => {
+      setNarrow(mq.matches);
+      // 抽屉开着时把窗口拉宽到桌面：侧栏变回常驻列，抽屉也就不存在了。
+      // 不关的话侧栏在桌面上还挂着 role="dialog" 和焦点陷阱，Tab 出不去（审查 A14）。
+      if (!mq.matches) setDrawer(false);
+    };
     sync();
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
@@ -92,6 +97,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const leaveForNav = () => {
     restoreScroll.current = false;
     setDrawer(false);
+  };
+  /** 用户自己关掉抽屉（Esc / 蒙层）：焦点还给汉堡按钮。
+      蒙层那条路曾经不还，焦点留在已经 inert 的抽屉里，掉到 body 上（审查 A13）。
+      【preventScroll】不加的话浏览器会为了「把汉堡露出来」再滚一次，
+      而 html 上是 scroll-behavior: smooth —— 刚瞬间跳回去的位置又被滑走。 */
+  const closeDrawer = () => {
+    setDrawer(false);
+    openerRef.current?.focus({ preventScroll: true });
   };
 
   useEffect(() => {
@@ -170,10 +183,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
-        setDrawer(false);
-        // 【preventScroll】不加的话浏览器会为了「把汉堡露出来」再滚一次，
-        // 而 html 上是 scroll-behavior: smooth —— 刚瞬间跳回去的位置又被滑走。
-        openerRef.current?.focus({ preventScroll: true });
+        closeDrawer();
         return;
       }
       if (e.key !== "Tab" || !panel) return;
@@ -360,7 +370,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div
         className="drawer-scrim"
         data-open={drawer || undefined}
-        onClick={() => setDrawer(false)}
+        onClick={closeDrawer}
         aria-hidden
       />
       <aside
