@@ -38,19 +38,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (attr === "dark" || attr === "light") setTheme(attr);
   }, []);
 
+  // 【副作用不放进 setState 的 updater】updater 必须是纯函数（StrictMode 下会跑两次）。
+  // 当前主题以 <html data-theme> 为准 —— bootstrap 脚本和这里都会同步写它。
   const toggle = useCallback(() => {
-    setTheme((prev) => {
-      const next: Theme = prev === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", next);
-      // 原生控件（滚动条、输入框、date picker）跟着走 —— 只写 CSS 变量它们不认
-      document.documentElement.style.colorScheme = next;
-      try {
-        window.localStorage.setItem(KEY, next);
-      } catch {
-        /* 隐私模式写入失败：只影响持久化，不影响本次会话 */
-      }
-      return next;
-    });
+    const next: Theme =
+      document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", next);
+    // 原生控件（滚动条、输入框、date picker）跟着走 —— 只写 CSS 变量它们不认
+    document.documentElement.style.colorScheme = next;
+    try {
+      window.localStorage.setItem(KEY, next);
+    } catch {
+      /* 隐私模式写入失败：只影响持久化，不影响本次会话 */
+    }
+    setTheme(next);
   }, []);
 
   return <Ctx.Provider value={{ theme, toggle }}>{children}</Ctx.Provider>;

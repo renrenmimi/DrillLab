@@ -338,9 +338,11 @@
     gap: var(--sp-1);
   }
 
-  /* 窄屏顶栏：品牌 · 〔继续〕· 搜索 · 菜单。位置指示让给它们。 */
+  /* 窄屏顶栏：品牌 · 〔继续〕· 搜索 · 菜单。位置指示让给它们。
+     min-height 和旁边那排 44px 的按钮一致 —— 不写的话这个链接只有 17px 高（审查 A28）。 */
   .topbar-brand {
     display: flex;
+    min-height: 44px;
   }
 
   .topbar-loc {
@@ -1062,6 +1064,8 @@ a.ladder-link:hover {
 .ladder-more-head {
   display: inline-flex;
   align-items: center;
+  /* 触控目标至少 24px（WCAG 2.5.8）—— 只有一行小字时它只有 21px 高 */
+  min-height: 24px;
   gap: 5px;
   font-size: var(--fs-meta);
   color: var(--ink-3);
