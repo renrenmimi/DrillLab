@@ -132,7 +132,7 @@ export function CodingList({ query }: { query: CodingQuery }) {
                   <>
                     The sandbox has two modes. Learn it the first time{" "}
                     <strong>with the scaffold</strong>; the second time hit{" "}
-                    <strong>start blank</strong> — every implementation file is
+                    <strong>Blank slate</strong> — every implementation file is
                     emptied and only the tests remain. That pass is the one that
                     counts.
                   </>

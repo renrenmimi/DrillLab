@@ -39,8 +39,8 @@ const STEPS = [
     name: { zh: "课内练习", en: "Lesson exercises" },
     goal: { zh: "认得出", en: "Spot it" },
     gives: {
-      zh: "填空、写整块、Debug Lab —— 挖好了空等你填",
-      en: "Fill-in-the-blank, write-a-block, debug labs",
+      zh: "填空、写整块、Debug Lab —— 代码大体给好，关键处由你完成",
+      en: "Fill-in-the-blank, write-a-block, debug labs — most of the code is there; the key parts are yours",
     },
   },
   {

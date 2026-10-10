@@ -52,8 +52,14 @@ test("the mock self-score accepts only 0 to full marks, in halves", async ({ pag
 test.describe("touch targets on a phone", () => {
   test.skip(({ viewport }) => (viewport?.width ?? 0) > 960, "只在窄屏上检查");
 
+  // Rounded to 0.01px: layout works in 1/64px units, and under load a 24px min-height
+  // has come back as 23.99993896484375, which failed the >= 24 check for no real reason.
   const height = (page: Page, selector: string) =>
-    page.locator(selector).filter({ visible: true }).first().evaluate((el) => el.getBoundingClientRect().height);
+    page
+      .locator(selector)
+      .filter({ visible: true })
+      .first()
+      .evaluate((el) => Math.round(el.getBoundingClientRect().height * 100) / 100);
 
   test("the top bar brand link is as tall as the buttons beside it", async ({ page }) => {
     await page.goto("/drill");

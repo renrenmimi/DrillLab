@@ -1255,6 +1255,9 @@ function build(): CodingProblem[] {
       runnable: spec.runnable,
       commands: spec.commands,
       explainLessonId: spec.explain,
+      // 自带题面的题（tabs、player）只是借来源练习挂个号，提示不能跟着它走 ——
+      // 否则 Tabs 那道会显示星级评分的提示（和上面 SELF_BRIEF 那段是同一个坑）
+      sourceExerciseId: SELF_BRIEF.has(spec.id) ? undefined : spec.from,
       sandbox: spec.sandbox,
       solution,
     };

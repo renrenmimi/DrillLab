@@ -296,7 +296,7 @@ const TONE_LABEL: Record<ConceptTone, { zh: string; en: string }> = {
   note: { zh: "顺带一说", en: "By the way" },
   why: { zh: "为什么是这样", en: "Why it works this way" },
   warn: { zh: "小心", en: "Careful" },
-  trap: { zh: "这是个坑", en: "This is a trap" },
+  trap: { zh: "易错点", en: "This is a trap" },
   transfer: { zh: "换个题也能用", en: "Transfers to other problems" },
 };
 

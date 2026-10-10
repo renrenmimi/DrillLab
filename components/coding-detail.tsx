@@ -51,16 +51,20 @@ function lessonById(lessonId: string): { lesson: Lesson; examId: string } | unde
  * 有几道题的答案是从课文代码块里挑的（Tabs / 播放器 / Dropdown / RTK），
  * 那几道找不到练习，就不显示提示。宁可没有，也不现编。
  */
-function hintsFor(problem: CodingProblem): string[] {
+function hintsFor(problem: CodingProblem): { hints: string[]; hintsEn?: string[] } {
+  // 按来源练习的 id 反查。曾经靠 solution[0] 的引用相等去找 —— 一道题只要用
+  // spec.solution 覆盖了参考答案，提示就静默消失（cab-booking-app 就这样没了提示）。
+  // 另外只取了中文那一份，英文界面的四级提示整段是中文。
   const first = problem.solution[0];
-  if (!first) return [];
-
   for (const ref of allExercises()) {
     const ex = ref.exercise;
-    if (ex.kind === "code-completion" && ex.solution === first) return ex.hints;
-    if (ex.kind === "from-scratch" && ex.solution.includes(first)) return ex.hints;
+    if (ex.kind !== "code-completion" && ex.kind !== "from-scratch") continue;
+    const byId = problem.sourceExerciseId !== undefined && ex.id === problem.sourceExerciseId;
+    const bySolution =
+      !!first && (ex.kind === "code-completion" ? ex.solution === first : ex.solution.includes(first));
+    if (byId || bySolution) return { hints: ex.hints, hintsEn: ex.hintsEn };
   }
-  return [];
+  return { hints: [] };
 }
 
 // 为什么这道题没有浏览器沙箱。逐题写 —— 「跑不了」和「为什么跑不了」是两件事。
@@ -97,7 +101,7 @@ export function CodingDetail({ id }: { id: string }) {
   const next = all[index + 1];
 
   const explain = problem.explainLessonId ? lessonById(problem.explainLessonId) : undefined;
-  const hints = hintsFor(problem);
+  const { hints, hintsEn } = hintsFor(problem);
   const inBrowser = problem.runnable && !!problem.sandbox;
 
   return (
@@ -269,7 +273,7 @@ export function CodingDetail({ id }: { id: string }) {
                       en="The hints come one level at a time. If all four leave you stuck, open the answer."
                     />
                   </p>
-                  <HintPanel hints={hints} />
+                  <HintPanel hints={hints} hintsEn={hintsEn} />
                 </>
               ) : (
                 <p className="sec-lede">

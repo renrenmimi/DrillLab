@@ -514,6 +514,8 @@ export interface CodingProblem {
   commands?: { cmd: string; expect: string; expectEn?: string }[];
   /** 「展开讲解」引用哪一节 */
   explainLessonId?: string;
+  /** 题面和提示派生自哪一道练习（Spec.from）。提示按它反查，不靠 solution 的引用 */
+  sourceExerciseId?: string;
   /** 参考答案，放在门后 */
   solution: CodeExample[];
 }
@@ -577,6 +579,8 @@ export interface ArenaChallenge {
 
   /* 以下全部只在交卷后可见 —— 交卷前服务端不许渲染 */
   hints: [string, string, string, string];
+  /** 英文版，四级与 hints 一一对应 */
+  hintsEn?: [string, string, string, string];
   solution: CodeExample[];
   explainLessonId?: string;
 }
