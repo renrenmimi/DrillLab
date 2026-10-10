@@ -48,6 +48,20 @@ export default function App() {
 
 const TEST_PATH = "/App.test.tsx";
 
+/** 没写 dependencies 的题共用这一个空对象 —— 每次渲染新建一个会让 Sandpack 以为配置变了 */
+const NO_DEPS: Record<string, string> = {};
+
+/** 这一档上次写到一半的改动（只存和起始文件不一样的那几个文件）。见 coding-sandpack.tsx 的 KeepEdits */
+function savedEdits(key: string): Record<string, string> {
+  try {
+    const raw = window.sessionStorage.getItem(key);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : null;
+    return parsed && typeof parsed === "object" ? (parsed as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
 /** 把一份 SandboxSpec 摊成 Sandpack 要的文件表 */
 function buildFiles(spec: SandboxSpec, blank: boolean): Record<string, string> {
   const keep = new Set(spec.blankKeep ?? []);
@@ -67,17 +81,32 @@ function buildFiles(spec: SandboxSpec, blank: boolean): Record<string, string> {
 }
 
 export function SandboxPanel({
+  id,
   spec,
   blank,
   onBlank,
 }: {
+  /** 题目 id —— 改动按「题目 + 档位」存进 sessionStorage */
+  id: string;
   spec: SandboxSpec;
   blank: boolean;
   onBlank: (next: boolean) => void;
 }) {
   const { theme } = useTheme();
   const [open, setOpen] = useState(false);
-  const files = useMemo(() => buildFiles(spec, blank), [spec, blank]);
+  const starterFiles = useMemo(() => buildFiles(spec, blank), [spec, blank]);
+  const storageKey = `drilllab-sandbox:${id}:${blank ? "blank" : "scaffold"}`;
+  // 切档、刷新之后把这一档写到一半的代码接回来（审查 A7）。只在打开工作区之后读 ——
+  // 这一段在服务端不渲染（open 初值是 false），所以碰 sessionStorage 不会有 hydration 问题。
+  const files = useMemo(() => {
+    if (!open) return starterFiles;
+    const saved = savedEdits(storageKey);
+    const merged = { ...starterFiles };
+    for (const [path, code] of Object.entries(saved)) {
+      if (path in merged && typeof code === "string") merged[path] = code;
+    }
+    return merged;
+  }, [open, starterFiles, storageKey]);
   const fileCount = Object.keys(spec.files).length;
 
   if (!open) {
@@ -120,6 +149,7 @@ export function SandboxPanel({
           type="button"
           className="sbx-mode"
           data-on={!blank}
+          aria-pressed={!blank}
           onClick={() => onBlank(false)}
         >
           <T zh="带脚手架" en="With scaffold" />
@@ -128,6 +158,7 @@ export function SandboxPanel({
           type="button"
           className="sbx-mode"
           data-on={blank}
+          aria-pressed={blank}
           onClick={() => onBlank(true)}
         >
           <T zh="空白重来" en="Blank slate" />
@@ -154,10 +185,12 @@ export function SandboxPanel({
             : (spec.activeFile ?? spec.blankKeep?.[0] ?? Object.keys(spec.files)[0])
         }
         blank={blank}
-        dependencies={spec.dependencies ?? {}}
+        dependencies={spec.dependencies ?? NO_DEPS}
         expect={spec.expect}
         files={files}
         key={blank ? "blank" : "scaffold"}
+        starterFiles={starterFiles}
+        storageKey={storageKey}
         theme={theme}
       />
     </div>

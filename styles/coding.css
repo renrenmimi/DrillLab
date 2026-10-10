@@ -374,6 +374,24 @@
   color: var(--ink-2);
 }
 
+/* 「跑测试」下面那一行补充说明：语法错误怎么读、连不上打包服务怎么办 */
+.sbx-note {
+  margin: 0;
+  padding: var(--sp-1) var(--sp-2);
+  border-top: 1px solid var(--rule);
+  background: var(--sunken);
+  font-size: var(--fs-meta);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+/* 「空白重来」档下 §03 讲解和 §04 答案都不渲染了，右栏目录里对应的两条也一起收起来，
+   免得点了没反应（审查 A21）。.cd-hidden 是那一档才有的那句说明。 */
+.main:has(.cd-hidden) .rail-toc li:has(> a[href="#explain"]),
+.main:has(.cd-hidden) .rail-toc li:has(> a[href="#solution"]) {
+  display: none;
+}
+
 /* —— 跑不了沙箱的那两道：只给本机命令，不给假编辑器 —— */
 .sbx-local {
   margin: var(--sp-3) 0;
