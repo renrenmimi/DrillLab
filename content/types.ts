@@ -445,8 +445,11 @@ export interface Exam {
   stack: string[];
   modules: Module[];
   mockExams: MockExam[];
-  /** 真实项目里的任务覆盖清单，展示在考试首页 */
-  checklist?: { task: string; covered: string; tested: boolean }[];
+  /**
+   * 真实项目里的任务覆盖清单，展示在考试首页。
+   * taskEn / coveredEn 是英文版，可选 —— 没写的条目在英文界面回落中文。
+   */
+  checklist?: { task: string; taskEn?: string; covered: string; coveredEn?: string; tested: boolean }[];
   /** 状态：ready = 内容完整；draft = 占位 */
   status: "ready" | "draft";
 }

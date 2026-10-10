@@ -48,7 +48,9 @@ export function ArenaBrief({ id }: { id: string }) {
               <span className="crumb-sep" aria-hidden>
                 /
               </span>
-              <span>{exam.shortTitle}</span>
+              <span>
+                <T zh={exam.shortTitle} en={exam.shortTitleEn} />
+              </span>
             </>
           )}
         </nav>

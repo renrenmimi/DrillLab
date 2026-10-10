@@ -50,7 +50,9 @@ export interface NavMock {
   title: string;
   titleEn?: string;
   scenario: string;
+  scenarioEn?: string;
   mirrors: string;
+  mirrorsEn?: string;
   minutes: number;
   taskCount: number;
   taskTitles: string[];
@@ -84,7 +86,8 @@ export interface NavExam {
   exerciseLevels: Record<string, number>;
   modules: NavModule[];
   mockExams: NavMock[];
-  checklist: { task: string; covered: string; tested: boolean }[];
+  /** taskEn / coveredEn 是可选的：没写英文的条目回落中文 */
+  checklist: { task: string; taskEn?: string; covered: string; coveredEn?: string; tested: boolean }[];
 }
 
 /* ---------- 刷题层的轻量清单 ----------

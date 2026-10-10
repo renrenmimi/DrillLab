@@ -143,7 +143,13 @@ export function PlanChooser() {
           </h1>
           <p className="ui-lede">
             <T
-              zh="分类整理的是科目，引导计划把几个分类里的东西排成一条推荐顺序。换一条**不会删除任何进度** —— 已经读过的课文、做对的练习、自评过的八股全都还在，新计划照样把它们算进去。"
+              zh={
+                <>
+                  分类整理的是科目，引导计划把几个分类里的东西排成一条推荐顺序。换一条
+                  <strong>不会删除任何进度</strong>
+                  {" —— 已经读过的课文、做对的练习、自评过的八股全都还在，新计划照样把它们算进去。"}
+                </>
+              }
               en="Tracks organise subjects. A guided plan puts work from several tracks into one recommended order. Switching erases nothing — every lesson you have read, exercise you have solved and question you have rated stays, and the new plan counts them too."
             />
           </p>

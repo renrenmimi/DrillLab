@@ -244,16 +244,19 @@ const PlanSideContinue = dynamic(
   { ssr: false, loading: () => <RecentSideContinue onNavigate={() => {}} /> },
 );
 
+// 【课名走 <T>，不走 t()】t() 读的是 locale state，它在 hydration 之前一律是 en ——
+// 服务端 HTML 里于是只有英文那一份，中文用户要等 hydration 完才看到中文课名（审查 A18）。
+// <T> 两份都进 HTML，由 <html lang> 当场决定显示哪一份。title 属性只能是字符串，仍用 t()。
 function RecentSideContinue({ onNavigate }: { onNavigate: () => void }) {
   const { target } = useContinue();
-  const t = useT();
-  const name = t(target.title, target.titleEn ?? target.title);
   return (
     <Link className="side-cta" href={target.href} onClick={onNavigate}>
       <span className="side-cta-label">
         {target.fresh ? <T zh="开始" en="Start" /> : <T zh="继续" en="Continue" />}
       </span>
-      <span className="side-cta-item">{name}</span>
+      <span className="side-cta-item">
+        <T zh={target.title} en={target.titleEn} />
+      </span>
     </Link>
   );
 }
@@ -274,7 +277,9 @@ function RecentContinueButton() {
       <span className="cont-btn-label">
         {target.fresh ? <T zh="开始" en="Start" /> : <T zh="继续" en="Continue" />}
       </span>
-      <span className="cont-btn-item">{name}</span>
+      <span className="cont-btn-item">
+        <T zh={target.title} en={target.titleEn} />
+      </span>
     </Link>
   );
 }
