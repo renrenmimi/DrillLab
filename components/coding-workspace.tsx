@@ -47,7 +47,7 @@ export function CodingWorkspace({
         </div>
 
         {spec ? (
-          <SandboxPanel blank={blank} onBlank={setBlank} spec={spec} />
+          <SandboxPanel blank={blank} id={id} onBlank={setBlank} spec={spec} />
         ) : (
           <LocalRunCard commands={commands ?? []} why={localWhy} />
         )}
