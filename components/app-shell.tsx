@@ -36,6 +36,7 @@
 // 窄屏靠 CSS 把 .sidebar 变成抽屉，不是另渲染一份。渲染两份会在无障碍树里
 // 留下两个同名的导航地标，读屏的人会听到两遍。
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -46,9 +47,14 @@ import { useTheme } from "@/lib/theme";
 import { cedesContinue, ContinueButton } from "./continue";
 import { Search } from "./search";
 import { Mark, SideNav } from "./side-nav";
-import { ContextSidebar } from "./sidebars";
 import { T } from "./t";
 
+
+/* 【分隔线以下那一段懒加载】四个模式的侧栏要读 content/nav（课程树、八股和 coding 的计数，
+   gzip 后约 31 KB）。它只在模式页面上渲染，而首页、/plans、使用说明、速查这几页根本没有它 ——
+   静态 import 的话那几页也得白下 nav（审查 A35）。
+   ssr 保持默认的 true：侧栏照样在服务端渲染好，hydration 之前看到的就是完整的侧栏，不会闪。 */
+const ContextSidebar = dynamic(() => import("./sidebars").then((m) => m.ContextSidebar));
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = usePathname();
