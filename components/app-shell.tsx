@@ -61,15 +61,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const loc = locationOf(path);
 
   // 【答案 tab 跟着界面语言走】
-  // AnswerTabs 是纯 CSS 的 radio tab（正文留在服务端，不进客户端 chunk），
-  // 所以 CSS 没法替它选中另一个 radio。这里只在语言变化时把页面上所有
-  // 答案 tab 拨到对应那一档，不传任何内容进来。
+  // AnswerTabs 是纯 CSS 的 radio tab（正文留在服务端，不进客户端 chunk）。
+  // 没选的时候显示哪一份由 CSS 按 <html lang> 决定；这里在语言变化**和换页**时
+  // 把页面上所有答案 tab 拨到对应那一档，让 tab 的高亮也对上，不传任何内容进来。
+  // 曾经只跟 locale —— 客户端换页之后新页面的 tab 全回到中文（审查 A34）。
   useEffect(() => {
     const cls = locale === "en" ? "ans-radio-en" : "ans-radio-zh";
     document.querySelectorAll<HTMLInputElement>(`.${cls}`).forEach((r) => {
       r.checked = true;
     });
-  }, [locale]);
+  }, [locale, path]);
 
   const [drawer, setDrawer] = useState(false);
   const panelRef = useRef<HTMLElement | null>(null);

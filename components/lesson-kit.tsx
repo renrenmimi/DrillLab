@@ -208,6 +208,11 @@ export function LearningObjective({
  * 切换只是 :checked 状态变化，不需要一行 JS，也不会有 hydration 问题。
  *
  * radio 必须排在 label 和 panel 之前，~ 选择器才能生效。
+ *
+ * 【两个 radio 默认都不选】没选的时候显示哪一份，由 CSS 按 <html lang> 决定
+ * （styles/lesson.css）。曾经写死了中文那个 defaultChecked：英文界面在 hydration
+ * 之前、每次客户端换页之后、抽认卡每次翻面，看到的都是中文答案（审查 A34）。
+ * 外壳在语言变化和换页时会把 radio 拨到当前语言，只是为了让 tab 的高亮对上。
  */
 export function AnswerTabs({
   id,
@@ -226,7 +231,6 @@ export function AnswerTabs({
         name={name}
         id={`${name}-zh`}
         className="ans-radio ans-radio-zh"
-        defaultChecked
       />
       <input
         type="radio"
