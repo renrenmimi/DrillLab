@@ -65,18 +65,12 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // 【副作用不放进 setState 的 updater】updater 必须是纯函数（StrictMode 下会跑两次）。
+  // 当前语言以 <html lang> 为准 —— setLocale 每次都会同步写它。
   const toggle = useCallback(() => {
-    setLocaleState((prev) => {
-      const next: Locale = prev === "zh" ? "en" : "zh";
-      document.documentElement.setAttribute("lang", HTML_LANG[next]);
-      try {
-        window.localStorage.setItem(KEY, next);
-      } catch {
-        /* 同上 */
-      }
-      return next;
-    });
-  }, []);
+    const cur = document.documentElement.getAttribute("lang");
+    setLocale(cur && cur.startsWith("zh") ? "en" : "zh");
+  }, [setLocale]);
 
   return <Ctx.Provider value={{ locale, setLocale, toggle }}>{children}</Ctx.Provider>;
 }

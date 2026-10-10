@@ -112,12 +112,13 @@ export function NoRunnerNote({
 
   return (
     <div className="setup-why">
-      <h3 className="setup-why-title">
+      {/* h2：模拟考页上它紧跟在 h1 后面，前面没有别的 h2 —— 写成 h3 就跳了一级（审查 A25） */}
+      <h2 className="setup-why-title">
         <T
           zh="这一页故意不给运行环境"
           en="There is deliberately no runner on this page"
         />
-      </h3>
+      </h2>
       <p>
         <T
           zh={

@@ -28,6 +28,15 @@
   color: var(--ink-2);
 }
 
+/* 窄屏和触屏上面包屑链接只有 15px 高 —— 撑到 24px（WCAG 2.5.8，审查 A28） */
+@media (max-width: 960px), (pointer: coarse) {
+  .crumb a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+  }
+}
+
 /* 一节面包屑 = 分隔符 + 链接。这个盒子原来是 lesson-kit.tsx 里的一句
    内联 style（gap: 7）—— 内联写死的数字既不在 --sp-* 里，也扫不出来。 */
 .crumb-item {
@@ -753,6 +762,11 @@
   font-weight: 600;
   color: var(--ink);
   line-height: 1.35;
+}
+
+/* 行内的标题链接只有字形那么高（22px）。inline-block 之后按行高算，够 24px（审查 A28） */
+a.exam-name {
+  display: inline-block;
 }
 
 a.exam-name:hover {
