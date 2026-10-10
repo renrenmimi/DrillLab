@@ -6,7 +6,7 @@
 //  EditableCode     —— 可编辑代码区（Reset / 复制 / 外部传入的动作按钮）
 //  DiffView         —— 行级差异对照（用户代码 vs 参考答案）
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { highlight, LANG_LABEL, type Lang } from "@/lib/highlight";
 import { useT } from "@/lib/locale";
 import { Loc, T, pick, type LocalizedString } from "./t";
@@ -154,7 +154,8 @@ export function CodeBlock({ ex }: { ex: CodeExample }) {
       <div className="codewin-bar">
         <span className="codewin-lang">{LANG_LABEL[ex.language]}</span>
         {ex.filename && (
-          <span className="codewin-name">
+          // 窄屏上文件名会被省略号截掉，title 让完整的那一行还能看到（审查 A27）
+          <span className="codewin-name" title={t(ex.filename, ex.filenameEn ?? ex.filename)}>
             <T zh={ex.filename} en={ex.filenameEn} />
           </span>
         )}
@@ -313,6 +314,7 @@ export function TerminalCommand({
 export function EditableCode({
   language,
   filename,
+  filenameEn,
   value,
   onChange,
   onReset,
@@ -322,6 +324,7 @@ export function EditableCode({
 }: {
   language: Lang;
   filename?: string;
+  filenameEn?: string;
   value: string;
   onChange: (next: string) => void;
   onReset: () => void;
@@ -331,12 +334,19 @@ export function EditableCode({
 }) {
   const { copied, copy } = useCopy();
   const t = useT();
+  const keysId = useId();
+  // 按过 Esc 之后的下一次 Tab 放行 —— 只用键盘的人靠它离开编辑框
+  const escaped = useRef(false);
 
   return (
     <div className="editor">
       <div className="editor-bar">
         <span className="codewin-lang">{LANG_LABEL[language]}</span>
-        {filename && <span className="codewin-name">{filename}</span>}
+        {filename && (
+          <span className="codewin-name" title={t(filename, filenameEn ?? filename)}>
+            <T zh={filename} en={filenameEn} />
+          </span>
+        )}
         <span className="codewin-bar-right">
           <button
             className="codewin-copy"
@@ -355,10 +365,20 @@ export function EditableCode({
         spellCheck={false}
         autoCapitalize="off"
         autoCorrect="off"
+        aria-label={t("代码编辑区", "Code editor")}
+        aria-describedby={keysId}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
-          // Tab 插两个空格，而不是跳走焦点
-          if (e.key === "Tab") {
+          if (e.key === "Escape") {
+            escaped.current = true;
+            return;
+          }
+          // Tab 插两个空格，而不是跳走焦点。但 Shift+Tab、带修饰键的 Tab、
+          // 以及按过 Esc 之后的那一次 Tab 一律放行 —— 曾经每一种 Tab 都被拦下，
+          // 只用键盘的人进了这个框就出不来（WCAG 2.1.2，审查 A36）。
+          const leave = escaped.current || e.shiftKey || e.altKey || e.ctrlKey || e.metaKey;
+          escaped.current = false;
+          if (e.key === "Tab" && !leave) {
             e.preventDefault();
             const el = e.currentTarget;
             const { selectionStart: s, selectionEnd: t } = el;
@@ -377,6 +397,12 @@ export function EditableCode({
           <T en="Reset" zh="重置" />
         </button>
         {message && <span className="editor-hintmsg">{message}</span>}
+        <span className="editor-keys" id={keysId}>
+          <T
+            zh="Tab 缩进两格；先按 Esc 再按 Tab 离开编辑框。"
+            en="Tab indents by two spaces; press Esc, then Tab, to leave the editor."
+          />
+        </span>
       </div>
     </div>
   );

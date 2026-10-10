@@ -90,6 +90,13 @@
   border-radius: var(--r-pill);
 }
 
+/* iOS Safari 在聚焦字号小于 16px 的输入框时会把整页放大（审查 A23） */
+@media (max-width: 960px), (pointer: coarse) {
+  .drill-search-input {
+    font-size: var(--fs-body);
+  }
+}
+
 .drill-search-input::placeholder {
   color: var(--ink-3);
 }
