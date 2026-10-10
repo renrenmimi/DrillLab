@@ -19,8 +19,11 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV, lessonPath, navExam, navLessonsOf } from "@/content/nav";
-import { pathGroups } from "@/content/path";
+// 【读 track-manifest，不读 content/nav】这个文件在外壳里，每个路由的首屏都带着它。
+// 它只要「每门课按顺序的课文 id / 标题」和课程短名 —— track-manifest 正好是这一份
+// （首页的进度盘也读它）。曾经 import 的是 content/nav（gzip 后约 31 KB），
+// 于是 nav 跟着外壳进了每一页的首屏（审查 A35）。
+import { TRACKS } from "@/content/track-manifest";
 import { useT } from "@/lib/locale";
 import { modeById, type ModeId } from "@/lib/modes";
 import { useProgress } from "@/lib/progress";
@@ -39,23 +42,31 @@ export interface ContinueTarget {
   minutes?: number;
 }
 
+/**
+ * 主线课程，按 /path 的顺序。
+ *
+ * 和 content/path.ts 的 pathGroups() 同一个划分（parallel 是生成器按同一条判据算的）。
+ * 顺序：pathGroups 在主线内部把「没有前置」的排最前，其余保持登记顺序 ——
+ * 现在没有前置的只有地基，它本来就登记在第一个，所以登记顺序就是 /path 的顺序。
+ */
+const MAIN_TRACKS = TRACKS.filter((t) => !t.parallel);
+
 /** 地基第一节 —— 全站唯一的「零历史」落点 */
 function foundationsStart(): ContinueTarget {
-  const exam = NAV.find((e) => e.id === "foundations") ?? NAV[0];
-  const first = exam ? navLessonsOf(exam)[0] : undefined;
-  if (!first) {
+  const track = TRACKS.find((t) => t.id === "foundations") ?? TRACKS[0];
+  const first = track?.lessons[0];
+  if (!track || !first) {
     // 内容全空只可能发生在开发中途，别让顶栏因此崩掉
     return { mode: "learn", href: "/path", title: "课程", titleEn: "Courses", fresh: true };
   }
   return {
     mode: "learn",
-    href: lessonPath(exam.id, first.lesson.id),
-    title: first.lesson.title,
-    titleEn: first.lesson.titleEn,
-    sub: exam.shortTitle,
-    subEn: exam.shortTitleEn,
+    href: first.href,
+    title: first.zh,
+    titleEn: first.en,
+    sub: track.zh,
+    subEn: track.en,
     fresh: true,
-    minutes: first.lesson.minutes,
   };
 }
 
@@ -134,17 +145,17 @@ export function useLearnTarget(): { target: ContinueTarget; resumed: boolean } {
       };
     }
 
-    for (const exam of pathGroups().find((g) => g.kind === "main")?.exams ?? []) {
-      const hit = navLessonsOf(exam).find((r) => !lessonDone(exam.id, r.lesson.id));
+    for (const track of MAIN_TRACKS) {
+      const hit = track.lessons.find((l) => !lessonDone(track.id, l.id));
       if (!hit) continue;
       return {
         target: {
           mode: "learn",
-          href: lessonPath(exam.id, hit.lesson.id),
-          title: hit.lesson.title,
-          titleEn: hit.lesson.titleEn,
-          sub: exam.shortTitle,
-          subEn: exam.shortTitleEn,
+          href: hit.href,
+          title: hit.zh,
+          titleEn: hit.en,
+          sub: track.zh,
+          subEn: track.en,
           fresh: false,
         },
         resumed: false,
@@ -159,7 +170,7 @@ export function useLearnTarget(): { target: ContinueTarget; resumed: boolean } {
  * 「你在这门课的第几节」。
  *
  * 只有 learn 那一档能算出来 —— href 形如 /exams/<examId>/<lessonId>，
- * 从 NAV 里反查得到序号和总数。别的模式没有线性序号，返回 undefined，
+ * 从 track-manifest 里反查得到序号和总数。别的模式没有线性序号，返回 undefined，
  * 调用方就只显示模式名和 sub。
  */
 export function lessonPositionOf(href: string):
@@ -167,17 +178,17 @@ export function lessonPositionOf(href: string):
   | undefined {
   const m = /^\/exams\/([^/?#]+)\/([^/?#]+)/.exec(href);
   if (!m) return undefined;
-  const exam = navExam(m[1]);
-  if (!exam) return undefined;
-  const ref = navLessonsOf(exam).find((r) => r.lesson.id === m[2]);
-  if (!ref) return undefined;
+  const track = TRACKS.find((t) => t.id === m[1]);
+  if (!track) return undefined;
+  const at = track.lessons.findIndex((l) => l.id === m[2]);
+  if (at < 0) return undefined;
   return {
-    examId: exam.id,
-    lessonId: ref.lesson.id,
-    index: ref.index,
-    total: ref.total,
-    courseZh: exam.shortTitle,
-    courseEn: exam.shortTitleEn,
+    examId: track.id,
+    lessonId: track.lessons[at].id,
+    index: at + 1,
+    total: track.lessons.length,
+    courseZh: track.zh,
+    courseEn: track.en,
   };
 }
 
