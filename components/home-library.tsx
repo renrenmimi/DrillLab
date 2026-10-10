@@ -256,8 +256,8 @@ export function HomeLibrary() {
             </ul>
             <p className="dimmer" style={{ fontSize: "var(--fs-sm)" }}>
               <T
-                zh="三门真题课读的是本机上的 react-notes-app、graphql-federation-practice 与 cab-booking-context，只读不改。标了「源项目」或「已跑通」的代码都在本机真实跑过。"
-                en="The three assessment courses read three real projects on this machine, read-only. Every block marked “source” or “verified” was actually run here."
+                zh="三门真题课依据的是 react-notes-app、graphql-federation-practice 与 cab-booking-context 三个真实项目，课程只引用、不改动它们。标了「源项目」或「已跑通」的代码，都在编写课程时于本地实际运行过。"
+                en="The three assessment courses are built on three real projects — react-notes-app, graphql-federation-practice and cab-booking-context — which the course quotes but never changes. Every block marked “source” or “verified” was actually run locally when the course was written."
               />
             </p>
             <p className="dimmer" style={{ fontSize: "var(--fs-sm)" }}>

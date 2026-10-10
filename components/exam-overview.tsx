@@ -74,8 +74,8 @@ export function ExamOverview({ examId }: { examId: string }) {
           <>
             <div className="minihead">
               <T
-                en="Where the content comes from · the real project on your machine"
-                zh="内容来源 · 你本机上的真实项目"
+                en="Where the content comes from · the real project behind this course"
+                zh="内容来源 · 本课依据的真实项目"
               />
             </div>
             {/* showContent：项目根路径在快照里是一棵目录树（只有文件名，

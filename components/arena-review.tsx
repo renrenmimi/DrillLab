@@ -79,7 +79,7 @@ export function ArenaReview({ id }: { id: string }) {
               en="If you did not finish, start at hint 1 and stop as soon as you can carry on alone. Do not click straight to the bottom."
             />
           </p>
-          <HintPanel hints={a.hints} />
+          <HintPanel hints={a.hints} hintsEn={a.hintsEn} />
 
           <div style={{ marginTop: "var(--sp-3)" }}>
             <SolutionGate

@@ -94,7 +94,7 @@ export function PlanPicker({ level = "h1" }: { level?: "h1" | "h2" }) {
       </div>
 
       <Heading className="pick-h1 display" id="pick-h">
-        <T zh="你想为什么做好准备？" en="What do you want to be ready for?" />
+        <T zh="你想为哪一件事做好准备？" en="What do you want to be ready for?" />
       </Heading>
 
       <p className="pick-lede">

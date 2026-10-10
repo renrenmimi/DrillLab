@@ -50,8 +50,8 @@ export function Reference() {
           </h1>
           <p className="ui-lede">
             <T
-              en="Only what the two real projects actually use. Every command runs in one of them; every error message really came up during the audit."
-              zh="只收两个真实项目里实际用到的东西。命令都是这两个项目能跑的，报错都是审计时真实出现过的。"
+              en="Only what the two real projects actually use. Every command runs in one of them; every error message really came up while this site was being written."
+              zh="只收两个真实项目里实际用到的东西。命令都是这两个项目能跑的，报错都是编写本站时真实出现过的。"
             />
           </p>
         </div>
@@ -199,7 +199,7 @@ export function Reference() {
           />
 
           <div className="minihead">
-            <T zh="通用小抄" en="General cheatsheet" />
+            <T zh="通用速查表" en="General cheatsheet" />
           </div>
           <TerminalCommand
             steps={[
@@ -627,7 +627,7 @@ field: [T]!          # list non-null, items nullable
 field: [T!]!         # both non-null -> resolver needs ?? [], an empty list is valid
 
 # Built-in scalars: ID String Int Float Boolean
-# ID serializes to a string. Do not treat it as a number.
+# ID serialises to a string. Do not treat it as a number.
 
 enum OrderStatus { PENDING PROCESSING SHIPPED DELIVERED CANCELLED }
 # Returning a value that is not in the list is an error. Case sensitive.
@@ -1081,12 +1081,12 @@ MDC.get("correlationId")`,
             <T
               zh={
                 <>
-                  都是审计和课程里真实出现过的。<strong>先看这张表再改代码。</strong>
+                  都是编写本站和课程时真实出现过的。<strong>先看这张表再改代码。</strong>
                 </>
               }
               en={
                 <>
-                  Every one of these really came up during the audit or in a
+                  Every one of these really came up while this site was being written or in a
                   lesson. <strong>Read this table before you edit code.</strong>
                 </>
               }
@@ -1808,8 +1808,8 @@ MDC.get("correlationId")`,
           </div>
           <p className="dimmer">
             <T
-              en="Only what the two real projects actually use. Every error here really came up during the audit or in a lesson — none of it is copied from a manual. Commands, field names and the raw error text are left exactly as they appear in a terminal."
-              zh="这一页只收两个真实项目里实际用到的东西。报错都是审计或课程里真实出现过的，不是从手册里抄的。"
+              en="Only what the two real projects actually use. Every error here really came up while this site was being written or in a lesson — none of it is copied from a manual. Commands, field names and the raw error text are left exactly as they appear in a terminal."
+              zh="这一页只收两个真实项目里实际用到的东西。报错都是编写本站或课程时真实出现过的，不是从手册里抄的。"
             />
           </p>
         </div>

@@ -128,8 +128,8 @@ export function ArenaStartPanel({
                 <T zh={`按下去就开始 ${minutes} 分钟计时`} en={`Pressing start begins the ${minutes} min clock`} />
               </strong>
               <T
-                zh="题面在下一页。手机、水杯、要装的依赖，先准备好。"
-                en="The paper is on the next page. Sort out your setup before you press it."
+                zh="题面在下一页。按下之前先把环境准备好：要装的依赖先装好，手机放到一边。"
+                en="The paper is on the next page. Before you press it, get your setup ready: install the dependencies you need and put your phone away."
               />
             </div>
             <button type="button" className="btn btn-primary" onClick={start}>
