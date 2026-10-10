@@ -31,7 +31,7 @@ import { T } from "./t";
 
 export function ArenaClock({ id, minutes }: { id: string; minutes: number }) {
   const router = useRouter();
-  const { ready, arenaLive, abandonArena } = useProgress();
+  const { ready, arenaLive, abandonArena, submitArena } = useProgress();
   const [now, setNow] = useState(0); // 0 = 还没挂载
   const [ask, setAsk] = useState<"none" | "submit" | "quit">("none");
 
@@ -160,12 +160,12 @@ export function ArenaClock({ id, minutes }: { id: string; minutes: number }) {
             onClick={() => {
               // 【为什么这里不调 finishArena】
               // finishArena 需要 checks，而 checks 要在下一页逐条勾。
-              // 所以这一步只做导航，arenaLive 先留着 —— 它就是「交了卷但还没自评」
-              // 这个状态的标记。记录在自评页按「记下这次」时一次性写入，
-              // startedAt 用的还是同一个 arenaLive.startedAt，时间不会丢。
-              // 代价：记录里的 endedAt 是「按下记录」那一刻，比真正交卷晚了勾选的
-              // 那几十秒。要精确到交卷那一秒，需要 progress 支持传入 endedAt ——
-              // 见报告里那条请求。
+              // 所以这一步只记下交卷那一刻（arenaLive.submittedAt），arenaLive 先留着 ——
+              // 它就是「交了卷但还没自评」这个状态的标记。记录在自评页按「记下这次」时
+              // 一次性写入，用时按 startedAt → submittedAt 算：勾选验收命令花的时间、
+              // 刷新复盘页、隔几个小时才回来自评，都不会把这一次算成超时。
+              // （这一行曾经漏掉，submittedAt 从来没写过 —— 审查 A31。）
+              submitArena(id);
               router.push(`${arenaPath(id)}/review`);
             }}
           >

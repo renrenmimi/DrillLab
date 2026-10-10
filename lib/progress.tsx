@@ -605,7 +605,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       submitArena: (id) => {
         update((prev) => {
           const live = prev.arenaLive;
-          if (!live || live.id !== id || live.submittedAt) return prev;
+          if (!live || live.id !== id) return prev;
+          // 交过卷又回考场接着写、再交一次 —— 以最后一次交卷为准
           return { ...prev, arenaLive: { ...live, submittedAt: Date.now() } };
         });
       },

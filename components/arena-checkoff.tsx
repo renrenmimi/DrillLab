@@ -22,11 +22,10 @@
 //   ③ 中途关掉页面，arenaLive 还在 —— 下次进列表页会看到「有一场还在计时中」，
 //      必须显式交卷或放弃才能收尾。跑掉了不算自动作废，这正是想要的约束。
 //
-// B 的代价：finishArena 里的 endedAt 是 Date.now()，也就是「按下记录」那一刻，
-// 比真正交卷晚了勾选的那几十秒。所以这一页显示的用时以**进这一页时**冻结的
-// 时间戳为准（见 stopped），而落进记录的时间会略长一点。
-// 要让两者完全一致，需要 progress 那边支持 finishArena(..., endedAt) ——
-// 报告里写了这条请求，没有自己去改 lib/progress.tsx。
+// 用时的终点是交卷那一刻：上一页按「确定，交卷」时 submitArena 写下
+// arenaLive.submittedAt，这一页显示的用时、「超时」的判断、finishArena 落进记录的
+// endedAt 都以它为准。所以勾选花的时间、刷新这一页、隔几个小时才回来自评，
+// 都不会改变结果。stopped（进这一页的时刻）只是给没有 submittedAt 的老数据兜底。
 // ============================================================
 
 import Link from "next/link";
@@ -87,7 +86,8 @@ export function ArenaCheckoff({
 
   /* ---------- ① 交了卷，还没自评 ---------- */
   if (pending) {
-    const at = stopped > 0 ? stopped : Date.now();
+    // 交卷时刻优先；老数据（交卷时还没记 submittedAt）退回进这一页的时刻
+    const at = pending.submittedAt ?? (stopped > 0 ? stopped : Date.now());
     const elapsed = Math.max(0, at - pending.startedAt);
     const over = elapsed > limitMs(minutes);
     const hit = checks.filter(Boolean).length;
