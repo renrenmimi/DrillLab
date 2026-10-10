@@ -18,7 +18,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { useT } from "@/lib/locale";
 import type { ModeId } from "@/lib/modes";
 import { litePlanById, type LiteItem, type LiteStatus } from "@/lib/plan-lite";
@@ -84,10 +84,18 @@ export function useActivePlan(): {
   ready: boolean;
   optedOut: boolean;
 } {
-  const { data, ready, planRound } = useProgress();
+  const { data, ready, planRound, forgetPlan } = useProgress();
   // ready 之前不认 data.plan —— 那时 data 是 EMPTY，认了会在 hydration 后跳一次
-  const plan = litePlanById(ready ? data.plan?.id : undefined);
+  const storedId = ready ? data.plan?.id : undefined;
+  const plan = litePlanById(storedId);
   const round = plan ? planRound(plan.id) : undefined;
+
+  // 【存着的 id 不在清单里】计划改名、导入的老数据都会这样。外壳只看「有没有 plan」
+  // 就走计划那一支，而这里一个字都画不出来 —— 全站唯一那颗〔继续〕随之消失（审查 A33）。
+  // 所以当成没跟计划：去掉这一条，外壳回到「接着上次」那一支。
+  useEffect(() => {
+    if (storedId && !plan) forgetPlan(storedId);
+  }, [storedId, plan, forgetPlan]);
   const status = useMemo(
     () => (plan ? planStatus(plan, data, round) : undefined),
     [plan, data, round],

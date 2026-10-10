@@ -213,6 +213,11 @@ interface Ctx {
   /** 不跟计划了。已有的完成记录一条不动，只是首页不再把它摆在第一位 */
   clearActivePlan: () => void;
   /**
+   * 存着的计划 id 已经不在清单里（计划改名、导入的老数据）时，把它当成没跟计划。
+   * 和 clearActivePlan 不同：不记 planOptOut —— 用户并没有说「我自己逛」。
+   */
+  forgetPlan: (id: string) => void;
+  /**
    * 这条计划「这一轮」的起点。没重走过就是 undefined，
    * 那时计划算完成度看的是全部记录。
    */
@@ -271,6 +276,7 @@ const ProgressCtx = createContext<Ctx>({
   activePlan: () => undefined,
   setActivePlan: () => {},
   clearActivePlan: () => {},
+  forgetPlan: () => {},
   planRound: () => undefined,
   restartPlanRound: () => {},
   clearPlanRound: () => {},
@@ -290,9 +296,17 @@ const ProgressCtx = createContext<Ctx>({
   reset: () => {},
 });
 
-function load(): ProgressData {
+/** 存储里的原文。读不到（隐私模式）就当没有 */
+function readRaw(): string | null {
   try {
-    const raw = window.localStorage.getItem(KEY);
+    return window.localStorage.getItem(KEY);
+  } catch {
+    return null;
+  }
+}
+
+function load(raw: string | null): ProgressData {
+  try {
     if (!raw) return EMPTY;
     const p = JSON.parse(raw) as Partial<ProgressData>;
     return {
@@ -342,35 +356,83 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
    *    → dataRef 是真相来源，每次写都基于「上一次写完的结果」，不是渲染快照。
    *
    * 顺带一提：这两条正是本站教的「过期闭包」和「effect 依赖」在真实代码里的样子。
+   *
+   * ③ 多个标签页互相覆盖（审查 A1）。每个标签页只在挂载时读一次存储，之后写盘
+   *    写的是自己那份内存快照 —— 另一个标签页期间写进去的记录（八股自评、课文打勾、
+   *    考场记录）会被整份抹掉。实测：A 页标「会」、B 页再打一个课文勾，A 的标记消失。
+   *    → rawRef 记着「这个标签页最后一次读到或写入的原文」。每次写之前先看存储里的
+   *      原文变没变，变了就以它为 prev；另外监听 storage 事件，别的页一写这边就跟上。
    */
   const dataRef = useRef<ProgressData>(EMPTY);
+  const rawRef = useRef<string | null>(null);
   const dataReady = useRef(false);
 
+  /**
+   * 存储里的最新一份。原文没变就原样返回 dataRef.current（**同一个引用**）——
+   * noteRecent 这类幂等写入靠「返回 prev 本身」让 React 跳过重渲染，
+   * 每次都重新 parse 出一个新对象会把它们变成死循环。
+   */
+  const readLatest = useCallback((): ProgressData => {
+    const raw = readRaw();
+    if (raw === rawRef.current) return dataRef.current;
+    rawRef.current = raw;
+    dataRef.current = load(raw);
+    return dataRef.current;
+  }, []);
+
   useEffect(() => {
-    const loaded = load();
+    rawRef.current = readRaw();
+    const loaded = load(rawRef.current);
     dataRef.current = loaded;
     dataReady.current = true;
     setData(loaded);
     setReady(true);
-  }, []);
+
+    // 别的标签页写了进度 —— 这边立刻跟上，不用等下一次自己写。
+    // key 为 null 是 localStorage.clear()。
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== null && e.key !== KEY) return;
+      const before = dataRef.current;
+      const latest = readLatest();
+      if (latest !== before) setData(latest);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [readLatest]);
 
   /**
    * 所有写入的唯一入口。收一个 (prev) => next 的函数 ——
-   * prev 永远是最新那份，所以同一 tick 里连写多次也不会互相盖掉。
+   * prev 永远是最新那份（本页刚写的，或者别的标签页刚写的），
+   * 所以同一 tick 里连写多次、两个标签页交替写，都不会互相盖掉。
    */
-  const update = useCallback((fn: (prev: ProgressData) => ProgressData) => {
-    const next = fn(dataRef.current);
-    dataRef.current = next;
-    setData(next);
-    // 还没从 localStorage 读回来 —— 只更新内存，不写盘。
-    // 读回来之后 dataRef 会被 loaded 覆盖，这一笔就当没发生（调用方负责等 ready）。
-    if (!dataReady.current) return;
-    try {
-      window.localStorage.setItem(KEY, JSON.stringify(next));
-    } catch {
-      /* 写不进去（隐私模式 / 配额满）就只留内存态 */
-    }
-  }, []);
+  const update = useCallback(
+    (fn: (prev: ProgressData) => ProgressData) => {
+      let base = dataRef.current;
+      if (dataReady.current) {
+        const latest = readLatest();
+        // 别的标签页写过 —— 即使这一笔什么都不改，也要把那份同步进来
+        if (latest !== base) {
+          base = latest;
+          setData(latest);
+        }
+      }
+      const next = fn(base);
+      if (next === base) return;
+      dataRef.current = next;
+      setData(next);
+      // 还没从 localStorage 读回来 —— 只更新内存，不写盘。
+      // 读回来之后 dataRef 会被 loaded 覆盖，这一笔就当没发生（调用方负责等 ready）。
+      if (!dataReady.current) return;
+      try {
+        const raw = JSON.stringify(next);
+        window.localStorage.setItem(KEY, raw);
+        rawRef.current = raw;
+      } catch {
+        /* 写不进去（隐私模式 / 配额满）就只留内存态 */
+      }
+    },
+    [readLatest],
+  );
 
   const value = useMemo<Ctx>(() => {
     const k = (examId: string, id: string) => `${examId}/${id}`;
@@ -532,6 +594,17 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         update((prev) => {
           if (!prev.plan && prev.planOptOut) return prev;
           const next = { ...prev, planOptOut: true };
+          delete next.plan;
+          return next;
+        });
+      },
+
+      forgetPlan: (id) => {
+        if (!dataReady.current) return;
+        update((prev) => {
+          // 只认这一条 —— 别的标签页可能刚换成了一条有效的计划
+          if (prev.plan?.id !== id) return prev;
+          const next = { ...prev };
           delete next.plan;
           return next;
         });
