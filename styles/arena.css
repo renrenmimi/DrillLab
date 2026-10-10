@@ -542,6 +542,13 @@
   border-radius: var(--r-sm);
 }
 
+/* iOS Safari 在聚焦字号小于 16px 的输入框时会把整页放大（审查 A23） */
+@media (max-width: 960px), (pointer: coarse) {
+  .mk-score {
+    font-size: var(--fs-body);
+  }
+}
+
 .mk-score:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;

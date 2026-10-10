@@ -464,6 +464,20 @@
   color: var(--ink-3);
 }
 
+/* 编辑框里 Tab 是缩进 —— 这一行告诉只用键盘的人怎么出去（textarea 的 aria-describedby 也指向它） */
+.editor-keys {
+  flex-basis: 100%;
+  font-size: var(--fs-meta);
+  color: var(--ink-3);
+}
+
+/* iOS Safari 在聚焦字号小于 16px 的输入框时会把整页放大（审查 A23） */
+@media (max-width: 960px), (pointer: coarse) {
+  .editor-area {
+    font-size: var(--fs-body);
+  }
+}
+
 /* ---------- 差异对照 ---------- */
 
 .diff {

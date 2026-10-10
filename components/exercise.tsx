@@ -10,7 +10,7 @@
 //
 // 做对了会写进进度(useProgress.markExercise)，不做花哨的庆祝动画。
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type {
   CodeCompletionExercise,
   DebugExercise,
@@ -25,7 +25,7 @@ import { BilingualList } from "./lesson-kit";
 import { L, T } from "./t";
 import { CodeBlock, CodeFragment, DiffView, EditableCode, TerminalCommand } from "./code";
 import { HintPanel, SolutionGate } from "./hint-panel";
-import { useT } from "@/lib/locale";
+import { useLocale, useT } from "@/lib/locale";
 import { KIND_LABEL, LEVEL_HINT, LEVEL_LABEL } from "@/lib/exercise-labels";
 
 /* ============================================================
@@ -369,7 +369,7 @@ function FillBlank({ ex, examId }: { ex: FillBlankExercise; examId: string }) {
         <div className="codewin-bar">
           <span className="codewin-lang">{ex.language.toUpperCase()}</span>
           {ex.filename && (
-            <span className="codewin-name">
+            <span className="codewin-name" title={t(ex.filename, ex.filenameEn ?? ex.filename)}>
               <T zh={ex.filename} en={ex.filenameEn} />
             </span>
           )}
@@ -538,9 +538,24 @@ function stripNoise(code: string) {
 
 function CodeCompletion({ ex, examId }: { ex: CodeCompletionExercise; examId: string }) {
   const t = useT();
+  const { locale } = useLocale();
   const { markExercise } = useProgress();
-  const [value, setValue] = useState(ex.starter);
+  // 起始代码按界面语言给（starterEn 的行数和结构由 npm run audit:code 保证与中文一致）。
+  // 曾经一律是中文那一份，英文界面里的注释全是中文（审查 A24）。
+  const starter = locale === "en" ? (ex.starterEn ?? ex.starter) : ex.starter;
+  const [value, setValue] = useState(starter);
   const [checked, setChecked] = useState(false);
+
+  // 切了语言：编辑框里还原样是上一种语言的起始代码（没动过）就换成这一种；
+  // 动过的一律不碰 —— 写了一半的代码比注释的语言重要。
+  // locale 在 hydration 之后才从 en 翻成 zh，所以中文用户第一次挂载也走这一支。
+  const shownStarter = useRef(starter);
+  useEffect(() => {
+    const prev = shownStarter.current;
+    shownStarter.current = starter;
+    if (prev === starter) return;
+    setValue((v) => (v === prev ? starter : v));
+  }, [starter]);
 
   const results = useMemo(() => {
     const src = stripNoise(value);
@@ -566,13 +581,14 @@ function CodeCompletion({ ex, examId }: { ex: CodeCompletionExercise; examId: st
       <EditableCode
         language={ex.language}
         filename={ex.filename}
+        filenameEn={ex.filenameEn}
         value={value}
         onChange={(v) => {
           setValue(v);
           setChecked(false);
         }}
         onReset={() => {
-          setValue(ex.starter);
+          setValue(starter);
           setChecked(false);
         }}
         rows={Math.max(10, ex.starter.split("\n").length + 4)}

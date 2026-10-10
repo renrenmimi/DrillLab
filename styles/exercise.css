@@ -374,6 +374,14 @@
   vertical-align: baseline;
 }
 
+/* iOS Safari 在聚焦字号小于 16px 的输入框时会把整页放大（审查 A23）。
+   空位宽度按 em 算，会跟着字号等比变宽。 */
+@media (max-width: 960px), (pointer: coarse) {
+  .blank-input {
+    font-size: var(--fs-body);
+  }
+}
+
 .blank-input:focus {
   outline: 0;
   background: rgba(255, 255, 255, 0.13);
