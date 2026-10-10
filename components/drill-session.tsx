@@ -57,6 +57,8 @@ interface RoundMark {
   search: string;
   i: number;
   total: number;
+  /** 这一轮已经自评过的。离开再回来，结果页要算上它们（审查 A11） */
+  tally?: Record<string, DrillMark>;
 }
 
 /* ============================================================
@@ -468,7 +470,13 @@ function Round({ cards, search }: { cards: DrillCardData[]; search: string }) {
       const raw = window.sessionStorage.getItem(ROUND_KEY);
       if (!raw) return;
       const r = JSON.parse(raw) as RoundMark;
-      if (r?.search === search && r.i > 0 && r.i < order.length) setI(r.i);
+      if (r?.search !== search) return;
+      if (r.i > 0 && r.i < order.length) setI(r.i);
+      // 离开之前评过的那几张也要接上，不然结果页只算回来之后的
+      if (r.tally) {
+        const known = new Set(order);
+        setTally(Object.fromEntries(Object.entries(r.tally).filter(([k]) => known.has(k))));
+      }
     } catch {
       /* 读不到就从头开始 */
     }
@@ -478,15 +486,17 @@ function Round({ cards, search }: { cards: DrillCardData[]; search: string }) {
 
   useEffect(() => {
     try {
-      if (done) window.sessionStorage.removeItem(ROUND_KEY);
+      // 「再过一遍」之后这一轮已经不是 URL 上那一轮了 —— 位置不能再记在原来的
+      // search 名下，否则「接着做」会打开原来那一整轮（审查 A10）
+      if (done || derived) window.sessionStorage.removeItem(ROUND_KEY);
       else {
-        const r: RoundMark = { search, i, total: order.length };
+        const r: RoundMark = { search, i, total: order.length, tally };
         window.sessionStorage.setItem(ROUND_KEY, JSON.stringify(r));
       }
     } catch {
       /* 隐私模式写不进去：只影响「接着做」，不影响这一轮 */
     }
-  }, [done, i, order.length, search]);
+  }, [done, derived, i, order.length, search, tally]);
 
   /* —— 操作 —— */
 
@@ -539,6 +549,16 @@ function Round({ cards, search }: { cards: DrillCardData[]; search: string }) {
       const tag = el?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || el?.isContentEditable) return;
 
+      // 一轮结束之后只认 Esc。结果页上 1 / 2 / 3 / ← / → 曾经照样生效，
+      // 会悄悄改掉最后一张（以及往回翻到的那几张）已经存下的自评（审查 A2）
+      if (done) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          exit();
+        }
+        return;
+      }
+
       // 空格：焦点在按钮上时让按钮自己响应，不然会翻两次
       if (e.key === " " || e.key === "Spacebar") {
         if (tag === "BUTTON" || tag === "SUMMARY" || tag === "A") return;
@@ -569,7 +589,7 @@ function Round({ cards, search }: { cards: DrillCardData[]; search: string }) {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [assess, exit, flip, goNext, goPrev]);
+  }, [assess, done, exit, flip, goNext, goPrev]);
 
   const again = (ids: string[]) => {
     // 「再过一遍」不重新导航：这些题的正文已经在这一页上了
@@ -578,6 +598,7 @@ function Round({ cards, search }: { cards: DrillCardData[]; search: string }) {
     setFlipped(false);
     setTally({});
     setDone(false);
+    setDerived(true);
   };
 
   if (done) return <RoundResult order={order} tally={tally} onAgain={again} />;
@@ -675,11 +696,18 @@ function Round({ cards, search }: { cards: DrillCardData[]; search: string }) {
             </span>
           </div>
 
-          {qLang !== "en" && <h2 className="dsess-q display">{meta.zh}</h2>}
-          {qLang !== "zh" && (
+          {/* 题面就是这一页的标题，所以是 h1（曾经是 h2，整页没有 h1 —— 审查 A15）。
+              只看英文时英文那一行升成 h1，外观不变（styles/drill.css）。 */}
+          {qLang !== "en" && <h1 className="dsess-q display">{meta.zh}</h1>}
+          {qLang === "both" && (
             <p className="dsess-q-en" lang="en">
               {meta.en}
             </p>
+          )}
+          {qLang === "en" && (
+            <h1 className="dsess-q-en" lang="en">
+              {meta.en}
+            </h1>
           )}
 
           {flipped ? (
