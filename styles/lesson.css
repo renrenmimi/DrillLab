@@ -1009,6 +1009,29 @@ a.chip[data-done="true"] {
   display: block;
 }
 
+/* 一个都没选（服务端渲染出来的默认状态）时跟着界面语言走。
+   曾经写死默认中文 —— 英文界面在 hydration 之前、客户端换页之后、抽认卡翻面之后
+   看到的都是中文答案（审查 A34）。 */
+html[lang="zh-CN"] .ans-panel-zh,
+html:not([lang="zh-CN"]) .ans-panel-en {
+  display: block;
+}
+
+/* 手动选了另一种语言：把上面按界面语言放出来的那一份收回去 */
+.ans-radio-zh:checked ~ .ans-panel-en,
+.ans-radio-en:checked ~ .ans-panel-zh {
+  display: none;
+}
+
+/* 一个都没选时，tab 的高亮也按界面语言给（抽认卡翻面时外壳不会去拨 radio）。
+   不支持 :has() 的浏览器整条规则作废，只是少了这个高亮，面板照样对。 */
+html[lang="zh-CN"] .ans-tabs:not(:has(> .ans-radio:checked)) .ans-tab:first-of-type,
+html:not([lang="zh-CN"]) .ans-tabs:not(:has(> .ans-radio:checked)) .ans-tab:last-of-type {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+}
+
 
 /* ============================================================
    上一条 / 下一条的页脚
