@@ -2,6 +2,7 @@
 // 全部围绕 graphql-federation-practice/node-subgraph 的真实文件展开。
 
 import { DataFlowDiagram } from "@/components/data-flow";
+import { L, T } from "@/components/t";
 import type { Module } from "../types";
 import { demo, real } from "../helpers";
 
@@ -112,91 +113,176 @@ console.log(\`Federation SDL available at \${url}?query={_service{sdl}}\`);`;
 
 const QUERY_FLOW = (
   <DataFlowDiagram
-    title="一次 GraphQL 查询的执行流程"
+    title={L("一次 GraphQL 查询的执行流程", "How one GraphQL query is executed")}
     nodes={[
-      { kind: "客户端", title: "发出 query" },
-      { kind: "服务器", title: "按 schema 校验" },
-      { kind: "执行器", title: "逐字段调 resolver" },
-      { kind: "数据源", title: "DataSource" },
-      { kind: "响应", title: "按查询形状组装" },
+      { kind: L("客户端", "Client"), title: L("发出 query", "Sends the query") },
+      { kind: L("服务器", "Server"), title: L("按 schema 校验", "Validates it against the schema") },
+      { kind: L("执行器", "Executor"), title: L("逐字段调 resolver", "Calls resolvers field by field") },
+      { kind: L("数据源", "Data source"), title: "DataSource" },
+      { kind: L("响应", "Response"), title: L("按查询形状组装", "Built in the shape of the query") },
     ]}
     frames={[
       {
         active: 0,
         detail: ['{ orders(userId:"123") {\n  id status\n  shippingInfo { status }\n} }', undefined, undefined, undefined, undefined],
         msg: (
-          <>
-            客户端只发一个字符串。<strong>注意它自己决定了要哪些字段</strong> ——
-            这就是 GraphQL 和 REST 最大的区别：形状由调用方说。
-          </>
+          <T
+            zh={
+              <>
+                客户端只发一个字符串。<strong>注意它自己决定了要哪些字段</strong> ——
+                这就是 GraphQL 和 REST 最大的区别：形状由调用方说。
+              </>
+            }
+            en={
+              <>
+                The client sends a single string.{" "}
+                <strong>Note that the client itself decides which fields it wants</strong> —
+                that is the biggest difference between GraphQL and REST: the caller sets
+                the shape.
+              </>
+            }
+          />
         ),
       },
       {
         active: 1,
-        detail: [undefined, "Query.orders 存在吗？\nuserId 是 ID! 吗？\nOrder 上有 shippingInfo 吗？", undefined, undefined, undefined],
+        detail: [undefined, L("Query.orders 存在吗？\nuserId 是 ID! 吗？\nOrder 上有 shippingInfo 吗？", "Does Query.orders exist?\nIs userId an ID!?\nDoes Order have shippingInfo?"), undefined, undefined, undefined],
         msg: (
-          <>
-            服务器<strong>先拿 schema 校验</strong>：字段存不存在、参数类型对不对。
-            这一步不碰任何数据。查询里写了一个 schema 里没有的字段，
-            会在这里就被拒掉，报 <code>Cannot query field ... on type ...</code>。
-          </>
+          <T
+            zh={
+              <>
+                服务器<strong>先拿 schema 校验</strong>：字段存不存在、参数类型对不对。
+                这一步不碰任何数据。查询里写了一个 schema 里没有的字段，
+                会在这里就被拒掉，报 <code>Cannot query field ... on type ...</code>。
+              </>
+            }
+            en={
+              <>
+                The server <strong>first validates the query against the schema</strong>:
+                do the fields exist, are the argument types right? This step touches no
+                data. A field that is not in the schema is rejected right here, with{" "}
+                <code>Cannot query field ... on type ...</code>.
+              </>
+            }
+          />
         ),
       },
       {
         active: 2,
-        detail: [undefined, "校验通过", "① Query.orders(_, {userId:\"123\"}, ctx)", undefined, undefined],
+        detail: [undefined, L("校验通过", "Validation passed"), "① Query.orders(_, {userId:\"123\"}, ctx)", undefined, undefined],
         msg: (
-          <>
-            <strong>从最外层字段开始</strong>，调 <code>Query.orders</code> 的
-            resolver。它拿到四个参数，其中 <code>args</code> 里有
-            <code>userId</code>，<code>context</code> 里有数据源。
-          </>
+          <T
+            zh={
+              <>
+                <strong>从最外层字段开始</strong>，调 <code>Query.orders</code> 的
+                resolver。它拿到四个参数，其中 <code>args</code> 里有
+                <code>userId</code>，<code>context</code> 里有数据源。
+              </>
+            }
+            en={
+              <>
+                <strong>Execution starts from the outermost field</strong> and calls the{" "}
+                <code>Query.orders</code> resolver. It receives four arguments:{" "}
+                <code>args</code> carries <code>userId</code>, and <code>context</code>{" "}
+                carries the data sources.
+              </>
+            }
+          />
         ),
       },
       {
         active: 3,
-        detail: [undefined, undefined, "等 resolver 返回", "orderDataSource\n  .getOrdersByUserId(\"123\")\n→ [order-456, order-457]", undefined],
+        detail: [undefined, undefined, L("等 resolver 返回", "Waits for the resolver"), "orderDataSource\n  .getOrdersByUserId(\"123\")\n→ [order-456, order-457]", undefined],
         msg: (
-          <>
-            resolver 去数据源取数。这一步可能是查数据库、
-            也可能是发 HTTP 给别的微服务 —— 这个项目里是 mock 数据 + 10ms 假延迟。
-          </>
+          <T
+            zh={
+              <>
+                resolver 去数据源取数。这一步可能是查数据库、
+                也可能是发 HTTP 给别的微服务 —— 这个项目里是 mock 数据 + 10ms 假延迟。
+              </>
+            }
+            en={
+              <>
+                The resolver fetches from the data source. In a real system this could be
+                a database query or an HTTP call to another microservice — in this project
+                it is mock data with a fake 10ms delay.
+              </>
+            }
+          />
         ),
       },
       {
         active: 2,
         detail: [undefined, undefined, "② Order.shippingInfo(order-456, …)\n③ Order.shippingInfo(order-457, …)", undefined, undefined],
         msg: (
-          <>
-            <strong>关键一步：</strong>拿到 2 个 order 之后，执行器
-            <strong>对每一个 order 分别</strong>调 <code>Order.shippingInfo</code>。
-            上一层的返回值成了这一层的 <code>parent</code> 参数。
-            <br />
-            <strong>N 个 order 就是 N 次调用 —— 这就是 N+1 问题的来源。</strong>
-          </>
+          <T
+            zh={
+              <>
+                <strong>关键一步：</strong>拿到 2 个 order 之后，执行器
+                <strong>对每一个 order 分别</strong>调 <code>Order.shippingInfo</code>。
+                上一层的返回值成了这一层的 <code>parent</code> 参数。
+                <br />
+                <strong>N 个 order 就是 N 次调用 —— 这就是 N+1 问题的来源。</strong>
+              </>
+            }
+            en={
+              <>
+                <strong>The key step:</strong> with 2 orders in hand, the executor calls{" "}
+                <code>Order.shippingInfo</code> <strong>once for each order</strong>. The
+                value returned by the level above becomes the <code>parent</code> argument
+                at this level.
+                <br />
+                <strong>N orders mean N calls — this is where the N+1 problem comes from.</strong>
+              </>
+            }
+          />
         ),
       },
       {
         active: 3,
-        detail: [undefined, undefined, undefined, "shippingInfoLoader.load(id)\n→ DataLoader 把两次 load\n  合并成一次批量请求", undefined],
+        detail: [undefined, undefined, undefined, L("shippingInfoLoader.load(id)\n→ DataLoader 把两次 load\n  合并成一次批量请求", "shippingInfoLoader.load(id)\n→ DataLoader merges the two loads\n  into one batched request"), undefined],
         msg: (
-          <>
-            所以这个字段用了 <strong>DataLoader</strong>：两次
-            <code>load()</code> 被攒到同一个事件循环里，
-            合并成<strong>一次</strong>批量调用。日志里会看到
-            <code>[DataLoader] Batching 2 shipping info requests</code>。
-          </>
+          <T
+            zh={
+              <>
+                所以这个字段用了 <strong>DataLoader</strong>：两次
+                <code>load()</code> 被攒到同一个事件循环里，
+                合并成<strong>一次</strong>批量调用。日志里会看到
+                <code>[DataLoader] Batching 2 shipping info requests</code>。
+              </>
+            }
+            en={
+              <>
+                That is why this field uses <strong>DataLoader</strong>: the two{" "}
+                <code>load()</code> calls are collected within the same tick of the event
+                loop and merged into <strong>one</strong> batched call. The log shows{" "}
+                <code>[DataLoader] Batching 2 shipping info requests</code>.
+              </>
+            }
+          />
         ),
       },
       {
         active: 4,
         detail: [undefined, undefined, undefined, undefined, '{"data":{"orders":[\n {"id":"order-456","status":"SHIPPED",\n  "shippingInfo":{"status":"IN_TRANSIT"}},\n ...\n]}}'],
         msg: (
-          <>
-            所有 resolver 都返回后，执行器<strong>按查询的形状</strong>
-            把结果拼成 JSON。客户端要什么就得到什么，
-            不多不少 —— 这是审计时进程内实测出来的真实输出。
-          </>
+          <T
+            zh={
+              <>
+                所有 resolver 都返回后，执行器<strong>按查询的形状</strong>
+                把结果拼成 JSON。客户端要什么就得到什么，
+                不多不少 —— 这是编写本课时在进程内实测得到的真实输出。
+              </>
+            }
+            en={
+              <>
+                Once every resolver has returned, the executor assembles the result into
+                JSON <strong>in the shape of the query</strong>. The client gets exactly
+                what it asked for, nothing more and nothing less — this is real output,
+                measured in-process when this lesson was written.
+              </>
+            }
+          />
         ),
       },
     ]}
@@ -205,88 +291,166 @@ const QUERY_FLOW = (
 
 const ENTITY_FLOW = (
   <DataFlowDiagram
-    title="Router 怎么把两个 subgraph 的数据缝在一起"
+    title={L("Router 怎么把两个 subgraph 的数据缝在一起", "How the Router stitches together data from two subgraphs")}
     direction="column"
     nodes={[
-      { kind: "客户端", title: "查 user + 他的 orders" },
-      { kind: "Router", title: "拆查询计划" },
-      { kind: "subgraph A", title: "Accounts（不在本仓库）" },
-      { kind: "Router", title: "拿到 User 的引用" },
-      { kind: "subgraph B", title: "Orders（就是本项目）" },
-      { kind: "Router", title: "合并成一个响应" },
+      { kind: L("客户端", "Client"), title: L("查 user + 他的 orders", "Asks for a user and their orders") },
+      { kind: "Router", title: L("拆查询计划", "Splits it into a query plan") },
+      { kind: "subgraph A", title: L("Accounts（不在本仓库）", "Accounts (not in this repo)") },
+      { kind: "Router", title: L("拿到 User 的引用", "Holds a reference to the User") },
+      { kind: "subgraph B", title: L("Orders（就是本项目）", "Orders (this project)") },
+      { kind: "Router", title: L("合并成一个响应", "Merges everything into one response") },
     ]}
     frames={[
       {
         active: 0,
         detail: ['{ user(id:"123") {\n  name\n  orders { id status }\n} }'],
         msg: (
-          <>
-            客户端眼里只有<strong>一张图</strong>：
-            <code>user</code> 上就是有 <code>orders</code> 字段。
-            它完全不知道背后有两个服务。
-          </>
+          <T
+            zh={
+              <>
+                客户端眼里只有<strong>一张图</strong>：
+                <code>user</code> 上就是有 <code>orders</code> 字段。
+                它完全不知道背后有两个服务。
+              </>
+            }
+            en={
+              <>
+                To the client there is <strong>a single graph</strong>:{" "}
+                <code>user</code> simply has an <code>orders</code> field. It has no idea
+                that two services sit behind it.
+              </>
+            }
+          />
         ),
       },
       {
         active: 1,
-        detail: [undefined, "name → Accounts 拥有\norders → Orders 拥有"],
+        detail: [undefined, L("name → Accounts 拥有\norders → Orders 拥有", "name → owned by Accounts\norders → owned by Orders")],
         msg: (
-          <>
-            Router 启动时收集过所有 subgraph 的 SDL，
-            所以它知道<strong>哪个字段属于谁</strong>。
-            于是它把这一个查询拆成一个「查询计划」：先问 Accounts，再问 Orders。
-          </>
+          <T
+            zh={
+              <>
+                Router 启动时收集过所有 subgraph 的 SDL，
+                所以它知道<strong>哪个字段属于谁</strong>。
+                于是它把这一个查询拆成一个「查询计划」：先问 Accounts，再问 Orders。
+              </>
+            }
+            en={
+              <>
+                At startup the Router collected the SDL of every subgraph, so it knows{" "}
+                <strong>which field belongs to whom</strong>. It therefore splits this one
+                query into a query plan: ask Accounts first, then Orders.
+              </>
+            }
+          />
         ),
       },
       {
         active: 2,
         detail: [undefined, undefined, '{ user(id:"123") {\n  __typename id name\n} }'],
         msg: (
-          <>
-            第一步问 Accounts。注意它<strong>额外要了 <code>__typename</code> 和
-            <code>id</code></strong> —— 因为 <code>User</code> 的
-            <code>@key(fields: &quot;id&quot;)</code> 声明了「靠 id 认人」，
-            Router 需要这两个东西才能去别处接着查。
-          </>
+          <T
+            zh={
+              <>
+                第一步问 Accounts。注意它<strong>额外要了 <code>__typename</code> 和
+                <code>id</code></strong> —— 因为 <code>User</code> 的
+                <code>@key(fields: &quot;id&quot;)</code> 声明了「靠 id 认人」，
+                Router 需要这两个东西才能去别处接着查。
+              </>
+            }
+            en={
+              <>
+                Step one asks Accounts. Note that it{" "}
+                <strong>also requests <code>__typename</code> and <code>id</code></strong>{" "}
+                — <code>User</code>&rsquo;s <code>@key(fields: &quot;id&quot;)</code>{" "}
+                declares that users are identified by id, and the Router needs both values
+                to continue the query elsewhere.
+              </>
+            }
+          />
         ),
       },
       {
         active: 3,
         detail: [undefined, '{ __typename: "User", id: "123" }'],
         msg: (
-          <>
-            Accounts 返回了 name，同时 Router 手上有了一个
-            <strong>entity representation（实体引用）</strong>：
-            <code>{'{ __typename: "User", id: "123" }'}</code>。
-            这就是「同一个 User 在不同服务间的身份证」。
-          </>
+          <T
+            zh={
+              <>
+                Accounts 返回了 name，同时 Router 手上有了一个
+                <strong>entity representation（实体引用）</strong>：
+                <code>{'{ __typename: "User", id: "123" }'}</code>。
+                这就是「同一个 User 在不同服务间的身份证」。
+              </>
+            }
+            en={
+              <>
+                Accounts returns the name, and the Router now holds an{" "}
+                <strong>entity representation</strong>:{" "}
+                <code>{'{ __typename: "User", id: "123" }'}</code>. It is the identity
+                card the same User carries from one service to another.
+              </>
+            }
+          />
         ),
       },
       {
         active: 4,
         detail: [undefined, undefined, undefined, undefined, 'query($r:[_Any!]!){\n  _entities(representations:$r){\n    ... on User { orders { id status } }\n  }\n}'],
         msg: (
-          <>
-            <strong>Router 拿这个引用去问本项目的 subgraph。</strong>
-            它调的是一个叫 <code>_entities</code> 的特殊字段
-            （由 <code>buildSubgraphSchema</code> 自动生成，你不用写）。
-            <br />
-            本地流程是：<code>User.__resolveReference</code> 把引用变成本地对象 →
-            <code>User.orders</code> 用它的 id 去查订单。
-          </>
+          <T
+            zh={
+              <>
+                <strong>Router 拿这个引用去问本项目的 subgraph。</strong>
+                它调的是一个叫 <code>_entities</code> 的特殊字段
+                （由 <code>buildSubgraphSchema</code> 自动生成，你不用写）。
+                <br />
+                本地流程是：<code>User.__resolveReference</code> 把引用变成本地对象 →
+                <code>User.orders</code> 用它的 id 去查订单。
+              </>
+            }
+            en={
+              <>
+                <strong>The Router takes this reference to this project&rsquo;s subgraph.</strong>{" "}
+                It calls a special field named <code>_entities</code> (generated by{" "}
+                <code>buildSubgraphSchema</code>; you do not write it).
+                <br />
+                Locally: <code>User.__resolveReference</code> turns the reference into a
+                local object → <code>User.orders</code> uses its id to look up the orders.
+              </>
+            }
+          />
         ),
       },
       {
         active: 5,
         detail: [undefined, undefined, undefined, undefined, '{"_entities":[{"id":"123",\n "orders":[{"id":"order-456",...},\n           {"id":"order-457",...}]}]}', '{"data":{"user":{\n "name":"…",\n "orders":[…]}}}'],
         msg: (
-          <>
-            Router 把两段结果按 id 缝起来，返回给客户端一个完整的 user。
-            <br />
-            <strong>上面那段 <code>_entities</code> 的输出是审计时进程内真实跑出来的</strong>
-            —— 也就是说，你写的 <code>User.orders</code>
-            最终是在这条链路上被调用的。
-          </>
+          <T
+            zh={
+              <>
+                Router 把两段结果按 id 缝起来，返回给客户端一个完整的 user。
+                <br />
+                <strong>上面那段 <code>_entities</code> 的输出是编写本课时在进程内真实运行得到的</strong>
+                —— 也就是说，你写的 <code>User.orders</code>
+                最终是在这条链路上被调用的。
+              </>
+            }
+            en={
+              <>
+                The Router stitches the two results together by id and returns one
+                complete user to the client.
+                <br />
+                <strong>
+                  The <code>_entities</code> output above is real, produced in-process when
+                  this lesson was written
+                </strong>{" "}
+                — in other words, the <code>User.orders</code> you write is called on
+                exactly this path.
+              </>
+            }
+          />
         ),
       },
     ]}
