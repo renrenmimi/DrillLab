@@ -492,6 +492,14 @@
   margin: 0;
 }
 
+/* 只看英文时这一行就是页面的 h1 —— 外观仍按原来那一行正文，不吃 h1 的显示字 */
+h1.dsess-q-en {
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
+}
+
 /* 翻到答案。抽认卡这一屏的主动作就是它，所以它是这一页唯一的实心块 ——
    老版本是一个虚线框，读起来像「这里还没做完」。 */
 .dsess-flip {
