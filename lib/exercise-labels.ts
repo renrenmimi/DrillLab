@@ -36,13 +36,13 @@ export const LEVEL_LABEL: Record<number, string> = {
 /** 难度的一句话含义 —— 和四档（说得出 / 认得出 / 写得对 / 空手做）同一个意思 */
 export const LEVEL_HINT: Record<number, { zh: string; en: string }> = {
   1: { zh: "给你选项", en: "You get options" },
-  2: { zh: "挖好了空", en: "Blanks are cut for you" },
+  2: { zh: "给你大部分代码", en: "You get most of the code" },
   3: { zh: "给你起始文件", en: "You get a starter file" },
   4: { zh: "什么都不给", en: "Nothing is handed to you" },
 };
 
 export const KIND_LABEL: Record<Exercise["kind"], { zh: string; en: string }> = {
-  recognition: { zh: "认出来", en: "Spot it" },
+  recognition: { zh: "认出来", en: "Pick it out" },
   ordering: { zh: "排顺序", en: "Order it" },
   "fill-blank": { zh: "填空", en: "Fill the blanks" },
   "code-completion": { zh: "写整块", en: "Write a block" },
