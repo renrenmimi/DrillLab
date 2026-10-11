@@ -153,9 +153,7 @@ export const reactQ2: Module = {
           body: (
             <>
               <p>
-                这段注释就在 <code>q2/taskRunner.ts</code> 的最上面。
-                下面的 <code>{"// TODO: implement me"}</code> 就是你要填的地方
-                （磁盘上的项目里这一句注释还留着，但下面已经有完整实现了）：
+                这段注释就在 <code>q2/taskRunner.ts</code> 的最上面。下面的 <code>{"// TODO: implement me"}</code> 就是你要填的地方（磁盘上的项目里这一句注释还留着，但下面已经有完整实现了）：
               </p>
             </>
           ),
@@ -199,8 +197,7 @@ export const reactQ2: Module = {
                         <code>tasks</code> is an array of <strong>FUNCTIONS</strong>
                       </td>
                       <td>
-                        传进来的是一堆<strong>还没被调用</strong>的函数，
-                        调用它才会开始干活
+                        传进来的是一堆<strong>还没被调用</strong>的函数，调用它才会开始干活
                       </td>
                       <td>
                         排除了「直接 <code>await</code> 数组元素」——
@@ -212,8 +209,7 @@ export const reactQ2: Module = {
                         At most <code>limit</code> tasks may be RUNNING at the same time
                       </td>
                       <td>
-                        同一时刻最多 <code>limit</code> 个在跑。
-                        必须等其中一个结束，才能开下一个
+                        同一时刻最多 <code>limit</code> 个在跑。必须等其中一个结束，才能开下一个
                       </td>
                       <td>
                         排除了 <code>Promise.allSettled(tasks.map(t =&gt; t()))</code>
@@ -225,12 +221,10 @@ export const reactQ2: Module = {
                         NEVER throws … results IN THE SAME ORDER
                       </td>
                       <td>
-                        任何任务失败都不能让整体抛错；
-                        结果数组的顺序必须和输入一致
+                        任何任务失败都不能让整体抛错；结果数组的顺序必须和输入一致
                       </td>
                       <td>
-                        排除了 <code>Promise.all</code>（一个失败就整体 reject）；
-                        也排除了「谁先完成谁先 push」（顺序会乱）
+                        排除了 <code>Promise.all</code>（一个失败就整体 reject）；也排除了「谁先完成谁先 push」（顺序会乱）
                       </td>
                     </tr>
                   </tbody>
@@ -239,8 +233,7 @@ export const reactQ2: Module = {
               <p>
                 注释最后一句直接给了答案的形状：
                 <em>This mimics Promise.allSettled, but with a concurrency throttle.</em>
-                —— <strong>「allSettled 的语义 + 一个并发节流」</strong>。
-                题面已经把要做什么说清楚了，剩下的是怎么做。
+                —— <strong>「allSettled 的语义 + 一个并发节流」</strong>。题面已经把要做什么说清楚了，剩下的是怎么做。
               </p>
             </>
           ),
@@ -322,22 +315,15 @@ export const reactQ2: Module = {
                 <strong>拿到 Promise 的时候，产生它的那项工作已经开始了，没法让它暂停。</strong>
               </p>
               <p>
-                所以如果签名是 <code>runTasks(promises: Promise&lt;T&gt;[], limit)</code>，
-                那么调用方写 <code>runTasks([fetch(a), fetch(b), fetch(c)], 2)</code>
-                的那一瞬间，三个请求就已经<strong>同时</strong>发出去了。
-                你在函数内部再怎么排队都没意义 —— 网络请求早出去了。
+                所以如果签名是 <code>runTasks(promises: Promise&lt;T&gt;[], limit)</code>，那么调用方写 <code>runTasks([fetch(a), fetch(b), fetch(c)], 2)</code>
+                的那一瞬间，三个请求就已经<strong>同时</strong>发出去了。你在函数内部再怎么排队都没意义 —— 网络请求早出去了。
               </p>
               <p>
-                改成 <code>() =&gt; Promise&lt;T&gt;</code> 之后，
-                调用方交给你的是<strong>「怎么开始」的说明书</strong>，
-                而不是「已经开始的事」。什么时候按说明书开工、
-                同时开几份，完全由你决定。<strong>这才有并发控制的余地。</strong>
+                改成 <code>() =&gt; Promise&lt;T&gt;</code> 之后，调用方交给你的是<strong>「怎么开始」的说明书</strong>，而不是「已经开始的事」。什么时候按说明书开工、同时开几份，完全由你决定。<strong>这才有并发控制的余地。</strong>
               </p>
               <p>
-                这个设计在真实世界里到处都是：批量上传文件时限制同时上传数、
-                爬虫限制并发请求、数据库连接池。
-                <strong>看到「限制同时进行的数量」，
-                第一反应就该是「参数得是工厂函数，不能是已启动的任务」。</strong>
+                这个设计在真实世界里到处都是：批量上传文件时限制同时上传数、爬虫限制并发请求、数据库连接池。
+                <strong>看到「限制同时进行的数量」，第一反应就该是「参数得是工厂函数，不能是已启动的任务」。</strong>
               </p>
             </>
           ),
@@ -428,16 +414,11 @@ const tasks = [
           body: (
             <>
               <p>
-                <code>SettledResult&lt;T&gt;</code> 是两个对象形状的联合：
-                要么有 <code>value</code>，要么有 <code>reason</code>，
-                两者<strong>不会同时存在</strong>。
+                <code>SettledResult&lt;T&gt;</code> 是两个对象形状的联合：要么有 <code>value</code>，要么有 <code>reason</code>，两者<strong>不会同时存在</strong>。
               </p>
               <p>
-                <code>status</code> 这个字段是<strong>判别标签</strong>：
-                它的值是字面量 <code>&quot;fulfilled&quot;</code> 或
-                <code>&quot;rejected&quot;</code>。
-                写了 <code>if (r.status === &quot;fulfilled&quot;)</code> 之后，
-                TypeScript 就知道<strong>这个分支里一定有 <code>value</code>
+                <code>status</code> 这个字段是<strong>判别标签</strong>：它的值是字面量 <code>&quot;fulfilled&quot;</code> 或
+                <code>&quot;rejected&quot;</code>。写了 <code>if (r.status === &quot;fulfilled&quot;)</code> 之后，TypeScript 就知道<strong>这个分支里一定有 <code>value</code>
                 且一定没有 <code>reason</code></strong>。这叫
                 <strong>类型收窄</strong>，这种类型叫
                 <strong>可辨识联合（discriminated union）</strong>。
@@ -447,8 +428,7 @@ const tasks = [
                 <code>interface</code> —— interface 不能表达「A 或 B」。
               </p>
               <p>
-                实用含义：你写结果时必须<strong>严格</strong>按这两种形状之一来。
-                写成 <code>{"{ status: \"fulfilled\", value, reason: undefined }"}</code>
+                实用含义：你写结果时必须<strong>严格</strong>按这两种形状之一来。写成 <code>{"{ status: \"fulfilled\", value, reason: undefined }"}</code>
                 会类型报错。
               </p>
             </>
@@ -522,12 +502,10 @@ for (const r of results) {
             <>
               <p>
                 <code>demo.ts</code> 用一个模块级变量 <code>running</code>
-                记录「此刻有几个任务在跑」：任务开始时 <code>running++</code>，
-                结束时 <code>running--</code>，并且每次都打印出来。
+                记录「此刻有几个任务在跑」：任务开始时 <code>running++</code>，结束时 <code>running--</code>，并且每次都打印出来。
               </p>
               <p>
-                它准备了 6 个任务，其中<strong>第 3 个会 reject</strong>，
-                然后用 <code>limit = 2</code> 调用。
+                它准备了 6 个任务，其中<strong>第 3 个会 reject</strong>，然后用 <code>limit = 2</code> 调用。
               </p>
               <p>
                 所以验收标准是三条，全靠肉眼：
@@ -542,8 +520,7 @@ for (const r of results) {
                   <code>#1</code> 必须是 task 1 的结果，即使它跑得最慢。
                 </li>
                 <li>
-                  <strong>task 3 以 <code>rejected</code> 出现，
-                  而且 4、5、6 照样跑完了。</strong>
+                  <strong>task 3 以 <code>rejected</code> 出现，而且 4、5、6 照样跑完了。</strong>
                   如果程序在 task 3 之后就崩溃了，说明没接住错误。
                 </li>
               </ol>
@@ -647,9 +624,7 @@ runTasks(tasks, 2).then((results) => {
           prompt: (
             <p>
               假设签名改成{" "}
-              <code>runTasks(promises: Promise&lt;T&gt;[], limit: number)</code>，
-              调用方写 <code>runTasks([task1(), task2(), task3()], 2)</code>。
-              会发生什么？
+              <code>runTasks(promises: Promise&lt;T&gt;[], limit: number)</code>，调用方写 <code>runTasks([task1(), task2(), task3()], 2)</code>。会发生什么？
             </p>
           ),
           promptEn: (
@@ -670,12 +645,10 @@ runTasks(tasks, 2).then((results) => {
           answer: ["b"],
           explain: (
             <>
-              <code>task1()</code> 这个括号一写，任务就启动了。
-              等 <code>runTasks</code> 拿到参数时，三个都已经在跑 ——
+              <code>task1()</code> 这个括号一写，任务就启动了。等 <code>runTasks</code> 拿到参数时，三个都已经在跑 ——
               你在函数内部无论怎么排队，都改变不了「它们已经并发开始」这个事实。
               <br />
-              <strong>并发控制的前提是「我说了才开始」，
-              所以参数必须是还没被调用的函数。</strong>
+              <strong>并发控制的前提是「我说了才开始」，所以参数必须是还没被调用的函数。</strong>
             </>
           ),
           explainEn: (
@@ -703,8 +676,7 @@ runTasks(tasks, 2).then((results) => {
           prompt: (
             <p>
               有人写{" "}
-              <code>return Promise.allSettled(tasks.map((t) =&gt; t()))</code>。
-              它满足几条要求？
+              <code>return Promise.allSettled(tasks.map((t) =&gt; t()))</code>。它满足几条要求？
             </p>
           ),
           promptEn: (
@@ -723,13 +695,10 @@ runTasks(tasks, 2).then((results) => {
           answer: ["b"],
           explain: (
             <>
-              <code>allSettled</code> 本身确实「不抛错」而且「保序」。
-              问题在 <code>tasks.map((t) =&gt; t())</code> ——
-              这一行<strong>把所有任务一次性全调用了</strong>，
-              6 个任务同时开跑，<code>running now</code> 会冲到 6。
+              <code>allSettled</code> 本身确实「不抛错」而且「保序」。问题在 <code>tasks.map((t) =&gt; t())</code> ——
+              这一行<strong>把所有任务一次性全调用了</strong>，6 个任务同时开跑，<code>running now</code> 会冲到 6。
               <br />
-              所以这道题的全部难点就在<strong>那个节流</strong>上：
-              怎么做到「一次只开 limit 个」。
+              所以这道题的全部难点就在<strong>那个节流</strong>上：怎么做到「一次只开 limit 个」。
             </>
           ),
           explainEn: (
@@ -806,17 +775,14 @@ runTasks(tasks, 2).then((results) => {
           body: (
             <>
               <p>
-                分批的写法是：取前 2 个跑完，再取接下来 2 个，再取最后 2 个。
-                并发数确实不会超过 2。
+                分批的写法是：取前 2 个跑完，再取接下来 2 个，再取最后 2 个。并发数确实不会超过 2。
               </p>
               <p>
                 <strong>问题在于它浪费时间。</strong>
-                每一批都要等<strong>那一批里最慢的</strong>结束，
-                才能开始下一批。用 demo 里的真实耗时算一下：
+                每一批都要等<strong>那一批里最慢的</strong>结束，才能开始下一批。用 demo 里的真实耗时算一下：
               </p>
               <p>
-                分批要 650ms，worker pool 只要 500ms。
-                题面只说 limit 是上限：
+                分批要 650ms，worker pool 只要 500ms。题面只说 limit 是上限：
                 <em>A new task may only start after one of the running tasks
                 finishes</em> 限制的是「不能提前开」，并没有要求「一结束就必须立刻补位」。
                 <strong>worker pool 能把上限用满，分批做不到</strong>。
@@ -907,35 +873,25 @@ runTasks(tasks, 2).then((results) => {
               <ol>
                 <li>
                   <strong>一个预分配的结果数组</strong>{" "}
-                  <code>new Array(tasks.length)</code>。
-                  长度一开始就定好，之后按下标填 ——
-                  <strong>这就是顺序保证的全部秘密</strong>，
-                  不需要任何排序。
+                  <code>new Array(tasks.length)</code>。长度一开始就定好，之后按下标填 ——
+                  <strong>这就是顺序保证的全部秘密</strong>，不需要任何排序。
                 </li>
                 <li>
-                  <strong>一个共享游标</strong> <code>let nextIndex = 0</code>。
-                  它记录「下一个该做的是第几号任务」。
-                  所有 worker 共用这一个变量（靠闭包共享）。
+                  <strong>一个共享游标</strong> <code>let nextIndex = 0</code>。它记录「下一个该做的是第几号任务」。所有 worker 共用这一个变量（靠闭包共享）。
                 </li>
                 <li>
-                  <strong>一个 worker 函数</strong>。
-                  它是个循环：抢一个任务号 → 游标 +1 → 跑它 →
-                  结果写回对应下标 → 回到循环开头再抢。
-                  队列空了就退出。
+                  <strong>一个 worker 函数</strong>。它是个循环：抢一个任务号 → 游标 +1 → 跑它 →
+                  结果写回对应下标 → 回到循环开头再抢。队列空了就退出。
                 </li>
                 <li>
-                  <strong>启动 <code>limit</code> 个 worker，
-                  然后 <code>await Promise.all</code> 等它们全收工。</strong>
-                  <strong>同时存在的 worker 只有 limit 个，
-                  所以同时在跑的任务也只有 limit 个 ——
+                  <strong>启动 <code>limit</code> 个 worker，然后 <code>await Promise.all</code> 等它们全收工。</strong>
+                  <strong>同时存在的 worker 只有 limit 个，所以同时在跑的任务也只有 limit 个 ——
                   并发上限是这么来的，不需要任何计数器。</strong>
                 </li>
               </ol>
               <p>
                 <strong>这两个「天然保证」是这个解法漂亮的地方：</strong>
-                并发上限来自「worker 的个数」，
-                顺序来自「按下标写回」。
-                两件难事都不需要额外代码。
+                并发上限来自「worker 的个数」，顺序来自「按下标写回」。两件难事都不需要额外代码。
               </p>
             </>
           ),
@@ -990,19 +946,15 @@ runTasks(tasks, 2).then((results) => {
                 看这两行：
               </p>
               <p>
-                在多线程语言里，两个线程可能同时读到 <code>nextIndex = 3</code>，
-                然后都去做第 3 号任务 —— 这叫竞态条件，得加锁。
+                在多线程语言里，两个线程可能同时读到 <code>nextIndex = 3</code>，然后都去做第 3 号任务 —— 这叫竞态条件，得加锁。
               </p>
               <p>
-                但 <strong>JavaScript 是单线程的</strong>。
-                只有遇到 <code>await</code> 时才会把控制权交出去。
+                但 <strong>JavaScript 是单线程的</strong>。只有遇到 <code>await</code> 时才会把控制权交出去。
                 <code>const i = nextIndex; nextIndex++;</code> 这两行中间
-                <strong>没有 await</strong>，所以它们是一口气执行完的，
-                不可能被打断。
+                <strong>没有 await</strong>，所以它们是一口气执行完的，不可能被打断。
               </p>
               <p>
-                <strong>所以不需要锁。</strong>这是 JavaScript 并发模型的一个
-                实实在在的好处，也是这道题能写得这么短的原因。
+                <strong>所以不需要锁。</strong>这是 JavaScript 并发模型的一个实实在在的好处，也是这道题能写得这么短的原因。
               </p>
             </>
           ),
@@ -1061,15 +1013,11 @@ nextIndex++;           // move the cursor at once so nobody grabs the same one
               </p>
               <p>
                 <strong>第三步：启动 worker 并等待。</strong>
-                <code>Math.min(limit, tasks.length)</code> 是个细节：
-                3 个任务、上限 10，只需要开 3 个 worker，
-                多开的会立刻发现队列空了然后退出 —— 没坏处，但没必要。
+                <code>Math.min(limit, tasks.length)</code> 是个细节：3 个任务、上限 10，只需要开 3 个 worker，多开的会立刻发现队列空了然后退出 —— 没坏处，但没必要。
               </p>
               <p>
                 <strong>第四步：空数组早退。</strong>
-                <code>tasks.length === 0</code> 时直接返回 <code>[]</code>。
-                其实不加也对（0 个 worker，Promise.all([]) 立刻 resolve，
-                返回空数组），但显式写出来更清楚。
+                <code>tasks.length === 0</code> 时直接返回 <code>[]</code>。其实不加也对（0 个 worker，Promise.all([]) 立刻 resolve，返回空数组），但显式写出来更清楚。
               </p>
             </>
           ),
@@ -1218,13 +1166,11 @@ return results;`,
               <ul>
                 <li>
                   <strong>并发不超 2</strong> ——
-                  盯住 <code>running now</code> 那一列，
-                  它在 1 和 2 之间来回，从来没到 3。✓
+                  盯住 <code>running now</code> 那一列，它在 1 和 2 之间来回，从来没到 3。✓
                 </li>
                 <li>
                   <strong>顺序与输入一致</strong> ——
-                  <code>#1</code> 是 task 1 的结果，尽管它耗时 300ms、
-                  是第二个完成的。✓
+                  <code>#1</code> 是 task 1 的结果，尽管它耗时 300ms、是第二个完成的。✓
                 </li>
                 <li>
                   <strong>失败不连累别人</strong> ——
@@ -1233,8 +1179,7 @@ return results;`,
                 </li>
               </ul>
               <p>
-                另外注意 <code>task 3 FAIL (running now: 1)</code> 这一行：
-                失败也让槽位空了出来，紧接着 task 5 就启动了。
+                另外注意 <code>task 3 FAIL (running now: 1)</code> 这一行：失败也让槽位空了出来，紧接着 task 5 就启动了。
                 <strong>失败和成功对调度器是一样的 —— 都只是「一个槽位空了」。</strong>
               </p>
             </>
@@ -1392,12 +1337,10 @@ task 6 DONE    (running now: 0)
               hintEn: "The cursor starts at 0, so the last valid index is length - 1.",
               why: (
                 <>
-                  <code>&lt;</code>。下标从 0 到 <code>length - 1</code>，
-                  所以条件是 <code>nextIndex &lt; tasks.length</code>。
+                  <code>&lt;</code>。下标从 0 到 <code>length - 1</code>，所以条件是 <code>nextIndex &lt; tasks.length</code>。
                   <br />
                   写成 <code>&lt;=</code> 会多跑一轮，
-                  <code>tasks[length]</code> 是 <code>undefined</code>，
-                  调用它会抛 <code>TypeError: tasks[i] is not a function</code>——
+                  <code>tasks[length]</code> 是 <code>undefined</code>，调用它会抛 <code>TypeError: tasks[i] is not a function</code>——
                   然后被 catch 接住，静默产生一条多余的 rejected 结果。
                   <strong>一个不报错但结果多一条的 bug。</strong>
                 </>
@@ -1431,11 +1374,7 @@ task 6 DONE    (running now: 0)
                   <code>tasks[i]()</code> —— <strong>括号不能少</strong>。
                   <br />
                   <code>await tasks[i]</code>（没括号）是在 await 一个函数对象。
-                  <code>await</code> 遇到非 Promise 会立刻放行，
-                  于是 <code>value</code> 变成那个函数本身，
-                  而任务<strong>根本没被执行过</strong>。
-                  症状：<code>npm run q2</code> 一行 START 都不打印，
-                  结果里全是函数。
+                  <code>await</code> 遇到非 Promise 会立刻放行，于是 <code>value</code> 变成那个函数本身，而任务<strong>根本没被执行过</strong>。症状：<code>npm run q2</code> 一行 START 都不打印，结果里全是函数。
                 </>
               ),
               whyEn: (
@@ -1464,8 +1403,7 @@ task 6 DONE    (running now: 0)
                   <code>i</code> —— 也就是这个任务在<strong>输入数组里的原始下标</strong>。
                   <br />
                   <strong>这一个字母就是「顺序与输入一致」的全部实现。</strong>
-                  换成 <code>results.push(...)</code> 会变成「谁先完成谁在前」，
-                  顺序就乱了。
+                  换成 <code>results.push(...)</code> 会变成「谁先完成谁在前」，顺序就乱了。
                 </>
               ),
               whyEn: (
@@ -1492,8 +1430,7 @@ task 6 DONE    (running now: 0)
               why: (
                 <>
                   <code>rejected</code>。必须<strong>一字不差</strong> ——
-                  它是可辨识联合的判别标签，
-                  写成 <code>&quot;reject&quot;</code> 或
+                  它是可辨识联合的判别标签，写成 <code>&quot;reject&quot;</code> 或
                   <code>&quot;failed&quot;</code> 都会类型报错。
                 </>
               ),
@@ -1518,8 +1455,7 @@ task 6 DONE    (running now: 0)
                   <code>min</code>。开 <code>Math.min(limit, tasks.length)</code> 个。
                   <br />
                   用 <code>max</code> 就成了「3 个任务开 10 个 worker」——
-                  多出来的 7 个会立刻发现队列空了然后退出，
-                  结果仍然正确，但白开了 7 个。
+                  多出来的 7 个会立刻发现队列空了然后退出，结果仍然正确，但白开了 7 个。
                 </>
               ),
               whyEn: (
@@ -1545,8 +1481,7 @@ task 6 DONE    (running now: 0)
           level: 3,
           prompt: (
             <p>
-              只给签名。这是 Q2 的完整答案，写对了这道题就通了。
-              写完可以在本机 <code>npm run q2</code> 验证。
+              只给签名。这是 Q2 的完整答案，写对了这道题就通了。写完可以在本机 <code>npm run q2</code> 验证。
             </p>
           ),
           promptEn: (
@@ -1754,29 +1689,20 @@ const worker = async () => {
           rootCause: (
             <>
               <p>
-                <code>tasks[i]</code> 的类型是 <code>Task&lt;T&gt;</code>，
-                也就是 <code>() =&gt; Promise&lt;T&gt;</code> ——
+                <code>tasks[i]</code> 的类型是 <code>Task&lt;T&gt;</code>，也就是 <code>() =&gt; Promise&lt;T&gt;</code> ——
                 <strong>一个函数</strong>，不是 Promise。
               </p>
               <p>
-                <code>await</code> 一个非 Promise 的值时，
-                它会<strong>立刻放行并把这个值原样返回</strong>。
-                所以 <code>value</code> 变成了那个函数对象，
-                而函数体（里面的 <code>running++</code>、
+                <code>await</code> 一个非 Promise 的值时，它会<strong>立刻放行并把这个值原样返回</strong>。所以 <code>value</code> 变成了那个函数对象，而函数体（里面的 <code>running++</code>、
                 <code>console.log</code>、<code>setTimeout</code>）
                 <strong>一次都没执行过</strong>。
               </p>
               <p>
-                三个症状互相印证：没有 START 打印（函数体没跑）、
-                task 3 没 reject（reject 在函数体里）、
-                value 是函数（await 原样返回）。
+                三个症状互相印证：没有 START 打印（函数体没跑）、task 3 没 reject（reject 在函数体里）、value 是函数（await 原样返回）。
               </p>
               <p>
-                <strong>这个 bug 完全不报错</strong>，
-                TypeScript 也拦不住（<code>await</code> 非 Promise 是合法的，
-                只会有个 lint 提示）。识别特征：
-                <strong>「结果里出现 [Function] 或 Promise 对象」
-                = 少写了括号，或者多写了括号。</strong>
+                <strong>这个 bug 完全不报错</strong>，TypeScript 也拦不住（<code>await</code> 非 Promise 是合法的，只会有个 lint 提示）。识别特征：
+                <strong>「结果里出现 [Function] 或 Promise 对象」= 少写了括号，或者多写了括号。</strong>
               </p>
             </>
           ),
@@ -1842,10 +1768,7 @@ try {
           ),
           why: (
             <>
-              <code>push</code> 按<strong>完成时间</strong>追加。
-              task 2（100ms）会排在 task 1（300ms）前面，
-              于是 <code>#1</code> 变成了 task 2 的结果。
-              违反「IN THE SAME ORDER as tasks」。
+              <code>push</code> 按<strong>完成时间</strong>追加。task 2（100ms）会排在 task 1（300ms）前面，于是 <code>#1</code> 变成了 task 2 的结果。违反「IN THE SAME ORDER as tasks」。
               <br />
               <strong>正解是预分配数组 + 按原始下标 <code>results[i]</code> 写回。</strong>
             </>
@@ -1887,10 +1810,8 @@ try {
           ),
           why: (
             <>
-              task 3 失败后，那个 worker 直接退出，
-              剩下的任务只能靠另一个 worker 慢慢做 ——
-              并发实际降到 1，而且如果两个 worker 都遇到失败，
-              后面的任务永远不会被执行，
+              task 3 失败后，那个 worker 直接退出，剩下的任务只能靠另一个 worker 慢慢做 ——
+              并发实际降到 1，而且如果两个 worker 都遇到失败，后面的任务永远不会被执行，
               <code>results</code> 里留下 <code>undefined</code> 的洞。
               <br />
               <strong>catch 里只记录，不中断循环。</strong>
@@ -1927,13 +1848,10 @@ const worker = async () => {
           ),
           why: (
             <>
-              游标写在 worker 内部，每个 worker 就有<strong>自己的一份</strong>，
-              于是每个 worker 都从 0 开始把所有任务做一遍 ——
-              limit=2 时每个任务被执行两次：同时在跑的数量没有超标，但总工作量翻倍、
-              副作用（请求、写库）会发生两次，结果数组里每一格也被写了两遍。
+              游标写在 worker 内部，每个 worker 就有<strong>自己的一份</strong>，于是每个 worker 都从 0 开始把所有任务做一遍 ——
+              limit=2 时每个任务被执行两次：同时在跑的数量没有超标，但总工作量翻倍、副作用（请求、写库）会发生两次，结果数组里每一格也被写了两遍。
               <br />
-              <strong>游标必须在 worker 外面声明，
-              靠闭包被所有 worker 共享。</strong>
+              <strong>游标必须在 worker 外面声明，靠闭包被所有 worker 共享。</strong>
             </>
           ),
           whyEn: (
@@ -2069,9 +1987,7 @@ export const reactMastery: Module = {
               </div>
               <p>
                 <strong>最难的是第四类 —— 没有报错的那一类。</strong>
-                它的特征是「<code>console.log</code> 数据是对的，
-                但屏幕上没反应」。看到这个组合，
-                直接去查有没有修改原对象。
+                它的特征是「<code>console.log</code> 数据是对的，但屏幕上没反应」。看到这个组合，直接去查有没有修改原对象。
               </p>
             </>
           ),
@@ -2160,8 +2076,7 @@ export const reactMastery: Module = {
                 </table>
               </div>
               <p>
-                这四种在前面的课里都各自练过一次。
-                下面的练习是把它们放在一起，不告诉你是哪一种。
+                这四种在前面的课里都各自练过一次。下面的练习是把它们放在一起，不告诉你是哪一种。
               </p>
             </>
           ),
@@ -2213,20 +2128,14 @@ export const reactMastery: Module = {
               </p>
               <ol>
                 <li>
-                  <code>npx vitest run</code> —— 及格线。
-                  4 个测试全过说明没有低级错误。
+                  <code>npx vitest run</code> —— 及格线。4 个测试全过说明没有低级错误。
                 </li>
                 <li>
-                  <code>npm run dev</code> + 手动三个场景 —— 真正的正确性。
-                  加三条同名笔记删中间那条（验「按 id」）、
-                  编辑中间那条（验「原位置」）、
-                  更新完看按钮是否回到 Add（验「退出编辑模式」）。
+                  <code>npm run dev</code> + 手动三个场景 —— 真正的正确性。加三条同名笔记删中间那条（验「按 id」）、编辑中间那条（验「原位置」）、更新完看按钮是否回到 Add（验「退出编辑模式」）。
                 </li>
               </ol>
               <p>
-                Q2 那边的验证是 <code>npm run q2</code>，
-                盯 <code>running now</code> 不超过 limit、
-                最终顺序与输入一致、失败的那条以 rejected 出现。
+                Q2 那边的验证是 <code>npm run q2</code>，盯 <code>running now</code> 不超过 limit、最终顺序与输入一致、失败的那条以 rejected 出现。
               </p>
             </>
           ),
@@ -2267,8 +2176,7 @@ export const reactMastery: Module = {
           level: 2,
           prompt: (
             <p>
-              新建了组件之后，本地一切正常；可代码推到 CI（Linux）上一跑，
-              Vite 直接报错，构建失败。
+              新建了组件之后，本地一切正常；可代码推到 CI（Linux）上一跑，Vite 直接报错，构建失败。
             </p>
           ),
           promptEn: (
@@ -2336,19 +2244,14 @@ function App() {
                 目录的真实名字是 <code>NoteManager</code>（大写 N 和 M）。
               </p>
               <p>
-                <strong>这个 bug 在 macOS 上特别隐蔽</strong>：
-                macOS 默认文件系统<strong>不区分大小写</strong>，
-                Vite 在本机能照常解析，所以本地看不出问题；
-                一到<strong>大小写敏感</strong>的 Linux（CI、Docker、部署机）
-                就报 <code>Failed to resolve import</code> —— 本地正常，一提交就失败。
+                <strong>这个 bug 在 macOS 上特别隐蔽</strong>：macOS 默认文件系统<strong>不区分大小写</strong>，Vite 在本机能照常解析，所以本地看不出问题；一到<strong>大小写敏感</strong>的 Linux（CI、Docker、部署机）就报 <code>Failed to resolve import</code> —— 本地正常，一提交就失败。
               </p>
               <p>
                 注意选项 C：这个项目走 Vite，
                 <strong>可以</strong>省略扩展名（Vite 会自动补
                 <code>/index.tsx</code>）。所以加后缀不是必需的 ——
                 不像上一门课讲的原生 ESM 那样强制。
-                <strong>同一件事在不同环境下规则不同，
-                这正是要读构建配置的原因。</strong>
+                <strong>同一件事在不同环境下规则不同，这正是要读构建配置的原因。</strong>
               </p>
             </>
           ),
@@ -2393,8 +2296,7 @@ function App() {
           level: 2,
           prompt: (
             <p>
-              重构时把父组件传的 prop 名改了，子组件忘了跟着改。
-              页面能显示，但点 Delete 直接崩。
+              重构时把父组件传的 prop 名改了，子组件忘了跟着改。页面能显示，但点 Delete 直接崩。
             </p>
           ),
           promptEn: (
@@ -2498,13 +2400,10 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
             <>
               <p>
                 <strong>props 的名字就是组件的接口契约。</strong>
-                <code>NoteItemProps</code> 声明了它需要 <code>onDelete</code>，
-                调用方就必须传 <code>onDelete</code>。
+                <code>NoteItemProps</code> 声明了它需要 <code>onDelete</code>，调用方就必须传 <code>onDelete</code>。
               </p>
               <p>
-                再看<strong>报错的顺序</strong>：
-                TypeScript 的 TS2322 在<strong>编译期</strong>就报了，
-                而 <code>onDelete is not a function</code> 是
+                再看<strong>报错的顺序</strong>：TypeScript 的 TS2322 在<strong>编译期</strong>就报了，而 <code>onDelete is not a function</code> 是
                 <strong>运行时</strong>才报错。
                 <strong>先看编译期报错</strong> ——
                 它更准确地指出了「哪一行传错了」。
@@ -2512,8 +2411,7 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
               <p>
                 选项 D（把 <code>onDelete</code> 改成可选）并不能消除这条类型错误 ——
                 <code>onRemove</code> 仍是多余属性；即使再把 <code>onRemove</code>{" "}
-                也加进接口，运行时 <code>onDelete</code> 还是 undefined。
-                这样做是在与编译器对抗。
+                也加进接口，运行时 <code>onDelete</code> 还是 undefined。这样做是在与编译器对抗。
                 <strong>类型报错是在帮你，别绕过它。</strong>
               </p>
             </>
@@ -2627,16 +2525,12 @@ Ignored nodes: comments, script, style
             <>
               <p>
                 README 明确写了「<strong>不得修改任何 data-testid</strong>」。
-                <code>form-input</code> 被改成了 <code>title-input</code>，
-                测试的 <code>getByTestId(&quot;form-input&quot;)</code>
+                <code>form-input</code> 被改成了 <code>title-input</code>，测试的 <code>getByTestId(&quot;form-input&quot;)</code>
                 自然找不到。
               </p>
               <p>
                 <strong>读这个报错的技巧：</strong>
-                Testing Library 失败时会<strong>把整个 DOM 打出来</strong>。
-                在那段 DOM 里搜一下你期望的 testid，
-                如果搜不到但看到一个长得很像的 —— 就是它被改名了。
-                这比猜快得多。
+                Testing Library 失败时会<strong>把整个 DOM 打出来</strong>。在那段 DOM 里搜一下你期望的 testid，如果搜不到但看到一个长得很像的 —— 就是它被改名了。这比猜快得多。
               </p>
               <p>
                 注意 <code>data-</code> 前缀不能省（选项 C），
@@ -2679,8 +2573,7 @@ Ignored nodes: comments, script, style
           prompt: (
             <p>
               这一题不告诉你是哪一类。控制台干净，
-              <code>console.log</code> 显示数据是对的。
-              自己分诊。
+              <code>console.log</code> 显示数据是对的。自己分诊。
             </p>
           ),
           promptEn: (
@@ -2782,33 +2675,24 @@ console.log("after:", notes);
               <p>
                 <code>notes[i] = submittedNote</code> 修改了
                 <strong>原数组本身</strong>。内容确实变了 ——
-                这正是 <code>console.log</code> 显示正确的原因，
-                也是这个 bug 最迷惑人的地方。
+                这正是 <code>console.log</code> 显示正确的原因，也是这个 bug 最迷惑人的地方。
               </p>
               <p>
                 但 <code>setNotes(notes)</code> 传进去的还是
-                <strong>同一个数组对象</strong>。React 比较新旧值，
-                发现是同一个引用，判断「没变化」，跳过重新渲染。
+                <strong>同一个数组对象</strong>。React 比较新旧值，发现是同一个引用，判断「没变化」，跳过重新渲染。
               </p>
               <p>
                 <strong>这个组合症状值得背下来：</strong>
-                「没有报错」+「日志里数据是对的」+「屏幕不动」
-                = <strong>改了原对象</strong>。
-                去找 <code>push</code>、<code>splice</code>、
+                「没有报错」+「日志里数据是对的」+「屏幕不动」= <strong>改了原对象</strong>。去找 <code>push</code>、<code>splice</code>、
                 <code>arr[i] =</code>、<code>obj.x =</code> 这四种写法。
               </p>
               <p>
                 顺带说：就算加上 <code>setNotes([...notes])</code>
-                强行造个新数组也能「修好」这个 bug，
-                但那是治症状不治病 —— 原数组已经被污染了，
-                在有多处引用同一份数据时会引发更难查的问题。
+                强行造个新数组也能「修好」这个 bug，但那是治症状不治病 —— 原数组已经被污染了，在有多处引用同一份数据时会引发更难查的问题。
                 <strong>正解是从头到尾都不碰原数组。</strong>
               </p>
               <p>
-                再说选项 C：补上 <code>setNoteToEdit(null)</code> 会多触发一次重渲染，
-                屏幕上居然就显示 B2 了 —— 但那只是碰巧掩盖：原数组已经被就地修改，
-                哪天只剩 <code>setNotes(notes)</code> 这一个更新，界面就又不动了。
-                退出编辑模式确实要补，但病灶在第 4、5 行。
+                再说选项 C：补上 <code>setNoteToEdit(null)</code> 会多触发一次重渲染，屏幕上居然就显示 B2 了 —— 但那只是碰巧掩盖：原数组已经被就地修改，哪天只剩 <code>setNotes(notes)</code> 这一个更新，界面就又不动了。退出编辑模式确实要补，但病灶在第 4、5 行。
               </p>
             </>
           ),
@@ -2920,16 +2804,13 @@ console.log("after:", notes);
           body: (
             <>
               <p>
-                看着答案点头「嗯，这里用 map」很容易。
-                面对空文件想起「我该建几个文件、state 放哪、
-                useEffect 的依赖写什么」，是完全不同的一件事。
+                看着答案点头「嗯，这里用 map」很容易。面对空文件想起「我该建几个文件、state 放哪、useEffect 的依赖写什么」，是完全不同的一件事。
               </p>
               <p>
                 前面几节课里，你已经在 L3 练习里分别写过
                 <code>handleSubmitNote</code>、<code>handleDelete</code>、
                 <code>runTasks</code>。这一关是把它们
-                <strong>放回一个完整项目里</strong>，
-                加上你自己搭的配置、你自己划分的组件。
+                <strong>放回一个完整项目里</strong>，加上你自己搭的配置、你自己划分的组件。
               </p>
               <p>
                 <strong>不要跳过这一关直接看参考答案。</strong>
@@ -2971,8 +2852,7 @@ console.log("after:", notes);
               <ol>
                 <li>
                   <strong>新建一个目录，不要在 react-notes-app 里改。</strong>
-                  比如 <code>~/Downloads/my-notes-manager</code>。
-                  源项目要留着最后对照。
+                  比如 <code>~/Downloads/my-notes-manager</code>。源项目要留着最后对照。
                 </li>
                 <li>
                   <strong>先把项目跑起来再写业务。</strong>
@@ -2988,8 +2868,7 @@ console.log("after:", notes);
                 </li>
                 <li>
                   <strong>一个测试一个测试地攻。</strong>
-                  先让第 1 个过（Add），再第 2 个（disabled），
-                  依次推进。别想一次写完所有东西。
+                  先让第 1 个过（Add），再第 2 个（disabled），依次推进。别想一次写完所有东西。
                 </li>
                 <li>
                   <strong>卡住超过 15 分钟再看提示。</strong>
@@ -3055,8 +2934,7 @@ console.log("after:", notes);
           level: 4,
           prompt: (
             <p>
-              空目录开始，建出一个 React + TypeScript + Vite 项目，
-              实现 Notes Manager 的增删改，让下面那四个测试全过。
+              空目录开始，建出一个 React + TypeScript + Vite 项目，实现 Notes Manager 的增删改，让下面那四个测试全过。
               <strong>不要打开 react-notes-app 参考。</strong>
             </p>
           ),
@@ -3385,8 +3263,7 @@ export default NoteForm;`,
           level: 4,
           prompt: (
             <p>
-              只给类型定义和三条要求。自己写出 <code>runTasks</code>，
-              并自己写一个验证台来证明它对。
+              只给类型定义和三条要求。自己写出 <code>runTasks</code>，并自己写一个验证台来证明它对。
             </p>
           ),
           promptEn: (

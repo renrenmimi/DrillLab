@@ -1787,8 +1787,7 @@ export const reactVariants: Module = {
               </p>
               <p>
                 <strong>注意 <code>Filter</code> 不属于任何一条 todo</strong> ——
-                它是「界面当前怎么看这份数据」，所以它是独立的一个 state，
-                而不是 todo 上的字段。这个区分在很多人那里是模糊的。
+                它是「界面当前怎么看这份数据」，所以它是独立的一个 state，而不是 todo 上的字段。这个区分在很多人那里是模糊的。
               </p>
             </>
           ),
@@ -1832,19 +1831,15 @@ export type Todo = {
             <>
               <p>
                 Q1 的「就地更新」是<strong>整条替换</strong>
-                （<code>note.id === x ? submittedNote : note</code>）。
-                这里只想改一个字段，所以用<strong>对象展开 + 覆盖</strong>：
+                （<code>note.id === x ? submittedNote : note</code>）。这里只想改一个字段，所以用<strong>对象展开 + 覆盖</strong>：
               </p>
               <p>
-                <code>{"{ ...t, done: !t.done }"}</code> 造了一个新对象：
-                旧字段全部照抄，只把 <code>done</code> 换成反过来的值。
+                <code>{"{ ...t, done: !t.done }"}</code> 造了一个新对象：旧字段全部照抄，只把 <code>done</code> 换成反过来的值。
               </p>
               <p>
                 <strong>为什么不能直接 <code>t.done = !t.done</code>?</strong>
-                那是在改原对象。虽然数组是新的（map 返回新数组），
-                但里面那个 todo 对象还是同一个引用 ——
-                如果哪天你给列表项加了 <code>React.memo</code>，
-                它会认为「props 没变」而不重渲染，于是勾选框不动。
+                那是在改原对象。虽然数组是新的（map 返回新数组），但里面那个 todo 对象还是同一个引用 ——
+                如果哪天你给列表项加了 <code>React.memo</code>，它会认为「props 没变」而不重渲染，于是勾选框不动。
                 <strong>不可变更新要一路到底，不能只做外层。</strong>
               </p>
             </>
@@ -1930,8 +1925,7 @@ setTodos((prev) =>
             <>
               <p>
                 这道题最容易过度设计的地方是「剩余几项」和「筛选后的列表」——
-                很多人会为它们各开一个 <code>useState</code>，
-                再用 <code>useEffect</code> 同步。<strong>全都不需要。</strong>
+                很多人会为它们各开一个 <code>useState</code>，再用 <code>useEffect</code> 同步。<strong>全都不需要。</strong>
               </p>
               <p>
                 <code>visible</code> / <code>remaining</code> /
@@ -1939,12 +1933,9 @@ setTodos((prev) =>
                 <code>filter</code> 当场算出来，每次渲染重算，永远不会不一致。
               </p>
               <p>
-                <strong>关键陷阱：所有写操作都要作用于 <code>todos</code>，
-                不是 <code>visible</code>。</strong>
+                <strong>关键陷阱：所有写操作都要作用于 <code>todos</code>，不是 <code>visible</code>。</strong>
                 筛选到「已完成」时点删除，如果你写
-                <code>setTodos(visible.filter(...))</code>，
-                那些被筛掉的未完成项会全部消失。这一条在模拟考 A 里也考过，
-                是同一个陷阱。
+                <code>setTodos(visible.filter(...))</code>，那些被筛掉的未完成项会全部消失。这一条在模拟考 A 里也考过，是同一个陷阱。
               </p>
             </>
           ),
@@ -2014,14 +2005,11 @@ const remove = (id: number) => {
           body: (
             <>
               <p>
-                <strong>全选 / 取消全选</strong>的正确语义是
-                「以当前是否已全部完成为准，整体反转」——
-                而不是「每一条各自翻转」。后者在混合状态下会得到一半勾一半不勾，
-                不符合用户预期。
+                <strong>全选 / 取消全选</strong>的正确语义是「以当前是否已全部完成为准，整体反转」——
+                而不是「每一条各自翻转」。后者在混合状态下会得到一半勾一半不勾，不符合用户预期。
               </p>
               <p>
-                <strong>清除已完成</strong>就是一次 filter，
-                和删除单条是同一个动作，只是条件不同。
+                <strong>清除已完成</strong>就是一次 filter，和删除单条是同一个动作，只是条件不同。
               </p>
             </>
           ),
@@ -2083,9 +2071,7 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
           body: (
             <>
               <p>
-                注意 <code>data-testid</code> 用了模板字符串生成
-                （<code>{"`filter-${f}`"}</code>）—— 三个筛选按钮共用一段渲染代码，
-                这是列表渲染的常见写法。
+                注意 <code>data-testid</code> 用了模板字符串生成（<code>{"`filter-${f}`"}</code>）—— 三个筛选按钮共用一段渲染代码，这是列表渲染的常见写法。
               </p>
             </>
           ),
@@ -2116,18 +2102,14 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
           body: (
             <>
               <p>
-                想真正练这道题，就在一个空的 Vite + React + TS 项目里
-                （react-notes-app 的脚手架直接能用）新建
+                想真正练这道题，就在一个空的 Vite + React + TS 项目里（react-notes-app 的脚手架直接能用）新建
                 <code>src/types/Todo.ts</code> 和
-                <code>src/components/TodoList/index.tsx</code>，
-                把下面这个测试文件放到 <code>src/TodoList.test.tsx</code>，
-                然后自己把组件写出来。
+                <code>src/components/TodoList/index.tsx</code>，把下面这个测试文件放到 <code>src/TodoList.test.tsx</code>，然后自己把组件写出来。
               </p>
               <p>
                 注意测试是按 <code>data-testid</code> 和
                 <code>aria-label</code> 找元素的 ——
-                <strong>这些名字必须和测试对上</strong>，
-                这也是真实 assessment 的规矩（Q1 的六个 testid 一个都不能改）。
+                <strong>这些名字必须和测试对上</strong>，这也是真实 assessment 的规矩（Q1 的六个 testid 一个都不能改）。
               </p>
               <p>
                 第 5 条 <code>filters without losing data</code>
@@ -2181,8 +2163,7 @@ setTodos((prev) => prev.map((t) => ({ ...t, done: !t.done })));`,
           generated: true,
           prompt: (
             <p>
-              四个空。第 2 个是「只改一个字段」的写法，第 4 个考的是
-              「全选」和「反选」的区别。
+              四个空。第 2 个是「只改一个字段」的写法，第 4 个考的是「全选」和「反选」的区别。
             </p>
           ),
           promptEn: (
@@ -2278,8 +2259,7 @@ const toggleAll = () => {
                 <>
                   <code>filter</code> 再取 <code>.length</code>。
                   <br />
-                  也可以用 <code>reduce</code>，但 filter + length 更直白。
-                  重点是<strong>别把它做成 state</strong>。
+                  也可以用 <code>reduce</code>，但 filter + length 更直白。重点是<strong>别把它做成 state</strong>。
                 </>
               ),
               whyEn: (
@@ -2302,8 +2282,7 @@ const toggleAll = () => {
                   <code>!allDone</code>。先算出一个统一目标值再整体套上去。
                   <br />
                   如果写成每条 <code>!t.done</code>，混合状态下就变成了
-                  <strong>反选</strong>而不是全选 —— 勾了的取消、没勾的勾上，
-                  用户会觉得按钮坏了。
+                  <strong>反选</strong>而不是全选 —— 勾了的取消、没勾的勾上，用户会觉得按钮坏了。
                 </>
               ),
               whyEn: (
@@ -2330,8 +2309,7 @@ const toggleAll = () => {
           generated: true,
           prompt: (
             <p>
-              已有 <code>todos</code> 和 <code>filter</code> 两个 state。
-              写出可见列表和「清除已完成」，注意筛选态下的写操作该作用于谁。
+              已有 <code>todos</code> 和 <code>filter</code> 两个 state。写出可见列表和「清除已完成」，注意筛选态下的写操作该作用于谁。
             </p>
           ),
           promptEn: (
@@ -2482,8 +2460,7 @@ useEffect(() => {
           ),
           why: (
             <>
-              同一个事实存了两份，还多了一次渲染。而且只要有一处忘了触发同步
-              就会不一致。<strong>能算出来的别存。</strong>
+              同一个事实存了两份，还多了一次渲染。而且只要有一处忘了触发同步就会不一致。<strong>能算出来的别存。</strong>
             </>
           ),
           whyEn: (
@@ -2510,8 +2487,7 @@ const remove = (id: number) => {
           ),
           why: (
             <>
-              筛选到「已完成」时，<code>visible</code> 里只有已完成项。
-              这一行会把所有未完成项<strong>一起丢掉</strong>。
+              筛选到「已完成」时，<code>visible</code> 里只有已完成项。这一行会把所有未完成项<strong>一起丢掉</strong>。
               <br />
               <strong>写操作永远作用于完整数据。</strong>
             </>
@@ -2605,8 +2581,7 @@ const remove = (id: number) => {
           body: (
             <>
               <p>
-                前面讲 <code>useEffect</code> 时只讲了「什么时候跑」。
-                完整的规则是<strong>四句话</strong>：
+                前面讲 <code>useEffect</code> 时只讲了「什么时候跑」。完整的规则是<strong>四句话</strong>：
               </p>
               <ol>
                 <li>首次渲染后，执行 effect。</li>
@@ -2618,15 +2593,13 @@ const remove = (id: number) => {
               </ol>
               <p>
                 所以清理函数的职责很明确：<strong>把这一次 effect 建立起来的东西拆掉。</strong>
-                建了定时器就清定时器，加了事件监听就移除监听，
-                开了订阅就取消订阅，发了请求就中止请求。
+                建了定时器就清定时器，加了事件监听就移除监听，开了订阅就取消订阅，发了请求就中止请求。
               </p>
               <p>
                 <strong>判别口诀：effect 里只要出现了
                 <code>setInterval</code> / <code>setTimeout</code> /
                 <code>addEventListener</code> / <code>subscribe</code> /
-                <code>new WebSocket</code> / <code>fetch</code>，
-                就一定要有 return。</strong>
+                <code>new WebSocket</code> / <code>fetch</code>，就一定要有 return。</strong>
               </p>
             </>
           ),
@@ -2701,8 +2674,7 @@ const remove = (id: number) => {
               </p>
               <p>
                 依赖是 <code>[running]</code>，所以 <code>seconds</code> 变化
-                <strong>不会</strong>重建 effect，那个回调也就永远不会被替换。
-                于是它每一秒都在算「当时那个 seconds + 1」：
+                <strong>不会</strong>重建 effect，那个回调也就永远不会被替换。于是它每一秒都在算「当时那个 seconds + 1」：
               </p>
               <p>
                 <strong>函数式更新绕开了这个问题</strong>：
@@ -2711,9 +2683,7 @@ const remove = (id: number) => {
               </p>
               <p>
                 <strong>另一条常见但更差的解法</strong>是把
-                <code>seconds</code> 加进依赖数组。那样每一秒都会
-                销毁定时器再建一个新的 —— 能跑，但计时会因为反复重建而漂移，
-                而且完全没必要。
+                <code>seconds</code> 加进依赖数组。那样每一秒都会销毁定时器再建一个新的 —— 能跑，但计时会因为反复重建而漂移，而且完全没必要。
               </p>
             </>
           ),
@@ -2786,19 +2756,15 @@ setSeconds((s) => s + 1);`,
               <p>
                 <strong>后果一：秒数越跳越快。</strong>
                 每次 <code>running</code> 变成 <code>true</code> 就新建一个
-                interval，旧的没被清掉还在跑。start / pause 来回四次之后，
-                同时有 4 个 interval 在给同一个 state 加一。
+                interval，旧的没被清掉还在跑。start / pause 来回四次之后，同时有 4 个 interval 在给同一个 state 加一。
               </p>
               <p>
-                测试里那条「start/pause 四次，每次 1 秒，应该正好 4 秒」
-                就是专门抓它的 —— 漏了清理会得到
+                测试里那条「start/pause 四次，每次 1 秒，应该正好 4 秒」就是专门抓它的 —— 漏了清理会得到
                 <strong>1 + 2 + 3 + 4 = 10 秒</strong>。这是实测输出：
               </p>
               <p>
                 <strong>后果二：组件卸载后定时器还在跑。</strong>
-                这是内存泄漏，而且回调还会对已经卸载的组件调用 setState。
-                测试用 <code>vi.getTimerCount()</code> 直接查：
-                卸载后应该是 0，漏了清理就是 1。
+                这是内存泄漏，而且回调还会对已经卸载的组件调用 setState。测试用 <code>vi.getTimerCount()</code> 直接查：卸载后应该是 0，漏了清理就是 1。
               </p>
             </>
           ),
@@ -2937,8 +2903,7 @@ $ npx vitest run src/Timer.test.tsx
               </p>
               <ul>
                 <li>
-                  推时间必须包在 <code>act()</code> 里，
-                  否则 React 的 state 更新还没落到 DOM，断言会读到旧值。
+                  推时间必须包在 <code>act()</code> 里，否则 React 的 state 更新还没落到 DOM，断言会读到旧值。
                 </li>
                 <li>
                   <code>vi.getTimerCount()</code> 直接查「现在还有几个定时器活着」
@@ -2950,8 +2915,7 @@ $ npx vitest run src/Timer.test.tsx
                 </li>
               </ul>
               <p>
-                <code>start/pause many times does not speed up</code> 那一条
-                就是上面「1+2+3+4 = 10」的来源。
+                <code>start/pause many times does not speed up</code> 那一条就是上面「1+2+3+4 = 10」的来源。
               </p>
             </>
           ),
@@ -3014,8 +2978,7 @@ $ npx vitest run src/Timer.test.tsx
           generated: true,
           prompt: (
             <p>
-              三个空，全在这九行里。第 2 个空漏了会「越跳越快」，
-              第 3 个空写错会「卡在 1 不动」。
+              三个空，全在这九行里。第 2 个空漏了会「越跳越快」，第 3 个空写错会「卡在 1 不动」。
             </p>
           ),
           promptEn: (
@@ -3048,8 +3011,7 @@ $ npx vitest run src/Timer.test.tsx
                   <br />
                   写 <code>[]</code> → 点 Start 也不会启动。
                   <br />
-                  写 <code>[running, seconds]</code> → 每秒销毁重建一次定时器，
-                  能跑但会漂移，而且没必要。
+                  写 <code>[running, seconds]</code> → 每秒销毁重建一次定时器，能跑但会漂移，而且没必要。
                   <br />
                   不写依赖数组 → 每次渲染都拆掉重建一次定时器：还能跑，但和{" "}
                   <code>[running, seconds]</code> 一样多余、会漂移。
@@ -3082,8 +3044,7 @@ $ npx vitest run src/Timer.test.tsx
                   <code>clearInterval</code>。
                   <br />
                   <strong>这是整道题的考点。</strong>
-                  漏了它，start/pause 四次会得到 10 秒而不是 4 秒
-                  （实测），而且组件卸载后定时器还活着。
+                  漏了它，start/pause 四次会得到 10 秒而不是 4 秒（实测），而且组件卸载后定时器还活着。
                   <br />
                   注意别写成 <code>clearTimeout</code> ——
                   虽然多数浏览器里两者可以互换，但语义不对，review 会挑。
@@ -3114,10 +3075,8 @@ $ npx vitest run src/Timer.test.tsx
                 <>
                   <code>(s) =&gt; s + 1</code> —— 函数式更新。
                   <br />
-                  写成 <code>seconds + 1</code> 会遇到<strong>过期闭包</strong>：
-                  依赖是 <code>[running]</code>，<code>seconds</code> 变化不重建
-                  effect，那个回调里的 <code>seconds</code> 永远是 0，
-                  于是每秒都算出 1，显示卡在 <code>00:01</code>。
+                  写成 <code>seconds + 1</code> 会遇到<strong>过期闭包</strong>：依赖是 <code>[running]</code>，<code>seconds</code> 变化不重建
+                  effect，那个回调里的 <code>seconds</code> 永远是 0，于是每秒都算出 1，显示卡在 <code>00:01</code>。
                 </>
               ),
               whyEn: (
@@ -3145,8 +3104,7 @@ $ npx vitest run src/Timer.test.tsx
           generated: true,
           prompt: (
             <p>
-              两个 state、一个 effect、一个 reset、一个 mm:ss 格式化。
-              检查器会专门查清理函数和函数式更新。
+              两个 state、一个 effect、一个 reset、一个 mm:ss 格式化。检查器会专门查清理函数和函数式更新。
             </p>
           ),
           promptEn: (
@@ -3316,8 +3274,7 @@ useEffect(() => {
           generated: true,
           prompt: (
             <p>
-              点了几次 Start / Pause 之后，秒数开始一次跳好几秒。
-              下面是真实的测试输出。
+              点了几次 Start / Pause 之后，秒数开始一次跳好几秒。下面是真实的测试输出。
             </p>
           ),
           promptEn: (
@@ -3450,26 +3407,19 @@ useEffect(() => {
               </p>
               <p>
                 start / pause 四轮之后，同时有 4 个 interval 在给同一个 state
-                加一。第一轮 1 秒、第二轮 2 秒/秒、第三轮 3 秒/秒、
-                第四轮 4 秒/秒 —— 累计正好 <strong>1+2+3+4 = 10</strong>。
-                这和实测输出的 <code>00:10</code> 完全对上。
+                加一。第一轮 1 秒、第二轮 2 秒/秒、第三轮 3 秒/秒、第四轮 4 秒/秒 —— 累计正好 <strong>1+2+3+4 = 10</strong>。这和实测输出的 <code>00:10</code> 完全对上。
               </p>
               <p>
                 <strong>选项 B 为什么不行？</strong>
-                把 <code>seconds</code> 加进依赖能让「过期闭包」问题消失，
-                但<strong>治不了泄漏</strong> —— 每次 seconds 变化重建定时器时，
-                旧的照样没被清掉，只是叠加速度不同了。
+                把 <code>seconds</code> 加进依赖能让「过期闭包」问题消失，但<strong>治不了泄漏</strong> —— 每次 seconds 变化重建定时器时，旧的照样没被清掉，只是叠加速度不同了。
                 <strong>清理函数是唯一的正解。</strong>
               </p>
               <p>
                 <strong>选项 C 也不对：</strong>换成
-                <code>setTimeout</code> 只是让它跳一次就停，
-                根本不再是计时器。
+                <code>setTimeout</code> 只是让它跳一次就停，根本不再是计时器。
               </p>
               <p>
-                记住这条判别法：<strong>effect 里凡是「建立了一个会持续存在的东西」
-                （定时器、监听器、订阅、连接、在途请求），
-                就必须 return 一个把它拆掉的函数。</strong>
+                记住这条判别法：<strong>effect 里凡是「建立了一个会持续存在的东西」（定时器、监听器、订阅、连接、在途请求），就必须 return 一个把它拆掉的函数。</strong>
               </p>
             </>
           ),
@@ -3532,9 +3482,7 @@ const id = setInterval(() => {
           ),
           why: (
             <>
-              回调闭包捕获的 <code>seconds</code> 是 effect 创建那一刻的值。
-              依赖里没有 <code>seconds</code>，effect 不会重建，
-              所以它每秒都在算 <code>0 + 1</code>。
+              回调闭包捕获的 <code>seconds</code> 是 effect 创建那一刻的值。依赖里没有 <code>seconds</code>，effect 不会重建，所以它每秒都在算 <code>0 + 1</code>。
               <strong>改成 <code>setSeconds(s =&gt; s + 1)</code>。</strong>
             </>
           ),
@@ -3590,11 +3538,9 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
           ),
           why: (
             <>
-              能跑，但把「副作用的生命周期」从 React 手里拿走了自己管，
-              卸载时很容易漏清理。
+              能跑，但把「副作用的生命周期」从 React 手里拿走了自己管，卸载时很容易漏清理。
               <br />
-              定时器 id 不是渲染要用的数据，本来就不该是 state
-              （真要存也该用 <code>useRef</code>）。
+              定时器 id 不是渲染要用的数据，本来就不该是 state（真要存也该用 <code>useRef</code>）。
               <strong>让 effect + 清理函数管，代码更短也更难写错。</strong>
             </>
           ),
@@ -3706,9 +3652,7 @@ const pause = () => { if (timerId) clearInterval(timerId); };`,
                 标准写法是三个 state 加三个提前返回：
               </p>
               <p>
-                <strong>顺序不能乱。</strong>先判 loading，再判 error，
-                最后才渲染数据。如果先判 <code>!user</code>，
-                第一次渲染时（还在加载）就会闪一下「没有数据」。
+                <strong>顺序不能乱。</strong>先判 loading，再判 error，最后才渲染数据。如果先判 <code>!user</code>，第一次渲染时（还在加载）就会闪一下「没有数据」。
               </p>
               <p>
                 <strong><code>loading</code> 初始值必须是 <code>true</code>。</strong>
@@ -3785,19 +3729,16 @@ return <article data-testid="user">…</article>;`,
             <>
               <p>
                 <code>fetch</code> 的 promise <strong>只在网络层失败时 reject</strong>
-                （断网、DNS 解析失败、CORS 被拒）。
-                服务器返回 404 或 500 时，它是<strong>成功的</strong>——
+                （断网、DNS 解析失败、CORS 被拒）。服务器返回 404 或 500 时，它是<strong>成功的</strong>——
                 你成功地拿到了一个「失败响应」。
               </p>
               <p>
                 所以不检查 <code>res.ok</code> 的话，
-                <code>res.json()</code> 会去解析错误页的内容，
-                然后你把它当用户数据渲染出来 ——
+                <code>res.json()</code> 会去解析错误页的内容，然后你把它当用户数据渲染出来 ——
                 轻则显示 <code>undefined</code>，重则整页报错。
               </p>
               <p>
-                这一点和 <code>axios</code> 相反（axios 会对非 2xx 抛错），
-                所以从 axios 转过来的人特别容易漏。
+                这一点和 <code>axios</code> 相反（axios 会对非 2xx 抛错），所以从 axios 转过来的人特别容易漏。
               </p>
             </>
           ),
@@ -3855,23 +3796,18 @@ const data: User = await res.json();`,
           body: (
             <>
               <p>
-                场景：用户点了用户 1（这个请求很慢，200ms），
-                马上又点了用户 2（这个很快，10ms）。
+                场景：用户点了用户 1（这个请求很慢，200ms），马上又点了用户 2（这个很快，10ms）。
               </p>
               <p>
                 <strong>没有防护的话，最终屏幕上显示的是用户 1</strong>——
-                因为它最后才回来，把用户 2 的数据覆盖了。
-                URL 上是 2，界面上是 1。
+                因为它最后才回来，把用户 2 的数据覆盖了。URL 上是 2，界面上是 1。
               </p>
               <p>
                 解法是在清理函数里立一个「这次请求作废」的旗子：
               </p>
               <p>
-                <code>ignore</code> 是<strong>普通局部变量</strong>，
-                每次 effect 执行都有自己的一份。清理函数通过闭包改的是
-                <strong>它那一次</strong>的 <code>ignore</code>。
-                所以旧请求回来时看到的是自己的 <code>ignore === true</code>，
-                于是什么都不做。
+                <code>ignore</code> 是<strong>普通局部变量</strong>，每次 effect 执行都有自己的一份。清理函数通过闭包改的是
+                <strong>它那一次</strong>的 <code>ignore</code>。所以旧请求回来时看到的是自己的 <code>ignore === true</code>，于是什么都不做。
               </p>
               <p>
                 <strong>为什么不用 state 存这个旗子？</strong>
@@ -3985,8 +3921,7 @@ t=200  response for user 1 arrives -> ignore#1 is true  -> thrown away ✓
                     <tr>
                       <td><code>ignore</code> 标志</td>
                       <td>
-                        <strong>旧响应不许写 state</strong>（竞态、
-                        以及卸载后 setState）
+                        <strong>旧响应不许写 state</strong>（竞态、以及卸载后 setState）
                       </td>
                       <td>网络请求本身还在跑，流量照走</td>
                     </tr>
@@ -3996,23 +3931,19 @@ t=200  response for user 1 arrives -> ignore#1 is true  -> thrown away ✓
                         <strong>真的把在途请求掐掉</strong>，省流量和服务器资源
                       </td>
                       <td>
-                        不是所有环境都尊重 signal（比如被 mock 掉的 fetch、
-                        某些 polyfill），所以不能只靠它
+                        不是所有环境都尊重 signal（比如被 mock 掉的 fetch、某些 polyfill），所以不能只靠它
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
               <p>
-                所以生产写法是<strong>两个一起用</strong>。
-                另外 <code>abort()</code> 会让 <code>await fetch</code> 抛一个
+                所以生产写法是<strong>两个一起用</strong>。另外 <code>abort()</code> 会让 <code>await fetch</code> 抛一个
                 <code>AbortError</code> —— 那是我们自己干的，
                 <strong>不能当成错误展示给用户</strong>，要在 catch 里过滤掉。
               </p>
               <p>
-                测试里有一条 <code>aborts the in-flight request on unmount</code>：
-                mock 的 fetch 把收到的 <code>signal</code> 存下来，
-                卸载后断言 <code>signal.aborted === true</code>。
+                测试里有一条 <code>aborts the in-flight request on unmount</code>：mock 的 fetch 把收到的 <code>signal</code> 存下来，卸载后断言 <code>signal.aborted === true</code>。
               </p>
             </>
           ),
@@ -4112,15 +4043,12 @@ return () => {
           body: (
             <>
               <p>
-                注意 async 逻辑包在一个<strong>立即执行的 async 箭头函数</strong>里，
-                而不是把 effect 本身写成 async ——
+                注意 async 逻辑包在一个<strong>立即执行的 async 箭头函数</strong>里，而不是把 effect 本身写成 async ——
                 因为 effect 的返回值必须是清理函数，
                 <code>async</code> 函数返回的是 Promise，React 会警告。
               </p>
               <p>
-                <code>finally</code> 里也要判 <code>ignore</code>：
-                否则旧请求回来时会把新请求的 loading 提前关掉，
-                出现「转圈消失但数据还没到」的空窗。
+                <code>finally</code> 里也要判 <code>ignore</code>：否则旧请求回来时会把新请求的 loading 提前关掉，出现「转圈消失但数据还没到」的空窗。
               </p>
             </>
           ),
@@ -4158,24 +4086,18 @@ return () => {
           body: (
             <>
               <p>
-                关键手法是 <strong>deferred promise</strong>：
-                造一个 promise，把它的 <code>resolve</code> 抓在手里，
-                想让哪个请求什么时候回来，就手动调它。
-                这样「慢的先发、快的后发、慢的最后才回来」这个顺序
-                是<strong>确定的</strong>，不靠 <code>setTimeout</code> 赌时间。
+                关键手法是 <strong>deferred promise</strong>：造一个 promise，把它的 <code>resolve</code> 抓在手里，想让哪个请求什么时候回来，就手动调它。这样「慢的先发、快的后发、慢的最后才回来」这个顺序是<strong>确定的</strong>，不靠 <code>setTimeout</code> 赌时间。
               </p>
               <p>
                 <code>vi.stubGlobal(&quot;fetch&quot;, ...)</code> 把全局
-                <code>fetch</code> 换成假的，按 URL 决定返回哪个 promise。
-                注意假的响应对象要自己带上 <code>ok</code> /
+                <code>fetch</code> 换成假的，按 URL 决定返回哪个 promise。注意假的响应对象要自己带上 <code>ok</code> /
                 <code>status</code> / <code>json()</code>——
                 因为组件用的就是这三个。
               </p>
               <p>
                 最后那条 <code>aborts the in-flight request on unmount</code>
                 用了个小技巧：假 fetch 返回一个<strong>永不 settle 的
-                promise</strong>（<code>{"new Promise(() => {})"}</code>），
-                把收到的 <code>signal</code> 存下来，卸载后断言
+                promise</strong>（<code>{"new Promise(() => {})"}</code>），把收到的 <code>signal</code> 存下来，卸载后断言
                 <code>signal.aborted === true</code>。
               </p>
             </>
@@ -4270,10 +4192,8 @@ return () => {
               hintEn: "A plain local variable that says whether this request still counts.",
               why: (
                 <>
-                  <code>ignore</code>。它是<strong>普通局部变量</strong>，
-                  不是 state 也不是 ref —— 因为每次 effect 都需要
-                  <strong>独立的一份</strong>，而 state / ref 是共享的。
-                  清理函数通过闭包改的正是它自己那一次的那一份。
+                  <code>ignore</code>。它是<strong>普通局部变量</strong>，不是 state 也不是 ref —— 因为每次 effect 都需要
+                  <strong>独立的一份</strong>，而 state / ref 是共享的。清理函数通过闭包改的正是它自己那一次的那一份。
                 </>
               ),
               whyEn: (
@@ -4299,9 +4219,7 @@ return () => {
                   200–299 时为 true。
                   <br />
                   <strong>不检查它是 fetch 题最常见的错。</strong>
-                  404 会让 <code>res.json()</code> 去解析错误页，
-                  然后你把它当数据渲染 —— 显示 undefined 或直接崩。
-                  这一点和 axios 相反（axios 会自己抛），所以特别容易漏。
+                  404 会让 <code>res.json()</code> 去解析错误页，然后你把它当数据渲染 —— 显示 undefined 或直接崩。这一点和 axios 相反（axios 会自己抛），所以特别容易漏。
                 </>
               ),
               whyEn: (
@@ -4327,11 +4245,7 @@ return () => {
               hintEn: "The cleanup has to declare that this request no longer counts.",
               why: (
                 <>
-                  <code>true</code>。清理函数在
-                  「<code>userId</code> 变化前」和「卸载时」执行，
-                  把这一次的 <code>ignore</code> 置为 true，
-                  于是它的响应回来后所有 <code>if (!ignore)</code> 都不成立，
-                  一个 state 都不会被写。
+                  <code>true</code>。清理函数在「<code>userId</code> 变化前」和「卸载时」执行，把这一次的 <code>ignore</code> 置为 true，于是它的响应回来后所有 <code>if (!ignore)</code> 都不成立，一个 state 都不会被写。
                 </>
               ),
               whyEn: (
@@ -4386,8 +4300,7 @@ return () => {
           generated: true,
           prompt: (
             <p>
-              三个 state 已给好。写出 effect 和三个提前返回。
-              检查器会查 <code>res.ok</code>、清理函数、竞态防护和 AbortError 过滤。
+              三个 state 已给好。写出 effect 和三个提前返回。检查器会查 <code>res.ok</code>、清理函数、竞态防护和 AbortError 过滤。
             </p>
           ),
           promptEn: (
@@ -4586,8 +4499,7 @@ return () => { ignore = true; controller.abort(); };`,
           generated: true,
           prompt: (
             <p>
-              快速点两个用户，界面最后显示的是<strong>先点的那个</strong>。
-              慢一点点就没问题。控制台干净。
+              快速点两个用户，界面最后显示的是<strong>先点的那个</strong>。慢一点点就没问题。控制台干净。
             </p>
           ),
           promptEn: (
@@ -4742,25 +4654,18 @@ $ npx vitest run src/UserCard.test.tsx
           rootCause: (
             <>
               <p>
-                两个请求同时在飞，<strong>谁后回来谁写 state</strong>。
-                而「后回来」和「更新」不是一回事 —— 慢的旧请求后回来，
-                它写的是过期数据。
+                两个请求同时在飞，<strong>谁后回来谁写 state</strong>。而「后回来」和「更新」不是一回事 —— 慢的旧请求后回来，它写的是过期数据。
               </p>
               <p>
-                这类 bug 在开发时几乎撞不到（本地接口都是几毫秒），
-                一上线就出现，而且<strong>没有任何报错</strong>，
-                只是用户偶尔看到「点了 A 却显示 B」。
+                这类 bug 在开发时几乎撞不到（本地接口都是几毫秒），一上线就出现，而且<strong>没有任何报错</strong>，只是用户偶尔看到「点了 A 却显示 B」。
               </p>
               <p>
                 <code>ignore</code> 之所以有效，是因为它是
-                <strong>每次 effect 各自独立的局部变量</strong>：
-                清理函数通过闭包只改自己那一次的那一份。
-                旧请求回来时看到的是「我已经作废了」。
+                <strong>每次 effect 各自独立的局部变量</strong>：清理函数通过闭包只改自己那一次的那一份。旧请求回来时看到的是「我已经作废了」。
               </p>
               <p>
                 <strong>选项 C（在开头 setUser(null)）</strong>
-                是个有用的改进（避免加载中显示旧用户），
-                但<strong>治不了竞态</strong>——
+                是个有用的改进（避免加载中显示旧用户），但<strong>治不了竞态</strong>——
                 旧响应回来时照样会 setUser。
               </p>
               <p>
@@ -4768,9 +4673,7 @@ $ npx vitest run src/UserCard.test.tsx
                 是典型的「靠时间赌」的修法，网络一慢就再次失效。
               </p>
               <p>
-                顺带说：这套 <code>ignore</code> 写法<strong>同时</strong>解决了
-                另一个常见问题 —— 组件卸载后请求才回来、
-                对已卸载组件 setState。所以它是这类代码的标准骨架。
+                顺带说：这套 <code>ignore</code> 写法<strong>同时</strong>解决了另一个常见问题 —— 组件卸载后请求才回来、对已卸载组件 setState。所以它是这类代码的标准骨架。
               </p>
               <p>
                 另外，测试里的 <code>aborts the in-flight request on unmount</code>{" "}
@@ -4850,10 +4753,8 @@ useEffect(async () => {
           ),
           why: (
             <>
-              effect 的返回值必须是<strong>清理函数或 undefined</strong>，
-              而 async 函数返回 Promise。React 会警告
-              <code>useEffect must not return anything besides a function</code>，
-              而且这样根本没法写清理函数。
+              effect 的返回值必须是<strong>清理函数或 undefined</strong>，而 async 函数返回 Promise。React 会警告
+              <code>useEffect must not return anything besides a function</code>，而且这样根本没法写清理函数。
               <br />
               正解是在 effect 内部包一个立即执行的 async 箭头函数。
             </>
@@ -4887,9 +4788,7 @@ useEffect(() => {
           why: (
             <>
               每次渲染都发一次请求，而 <code>setUser</code> 又触发渲染 ——
-              <strong>无限请求循环</strong>。
-              开发时表现为网络面板疯狂刷屏，接口被打爆。
-              这是 fetch 题最经典的事故。
+              <strong>无限请求循环</strong>。开发时表现为网络面板疯狂刷屏，接口被打爆。这是 fetch 题最经典的事故。
             </>
           ),
           whyEn: (
@@ -4925,9 +4824,7 @@ try {
           ),
           why: (
             <>
-              出错时 <code>loading</code> 永远是 true，
-              于是界面卡在「Loading…」，错误信息根本没机会显示
-              （因为 <code>if (loading)</code> 先返回了）。
+              出错时 <code>loading</code> 永远是 true，于是界面卡在「Loading…」，错误信息根本没机会显示（因为 <code>if (loading)</code> 先返回了）。
               <br />
               <strong>关 loading 要放在 <code>finally</code> 里。</strong>
             </>
@@ -5038,15 +4935,11 @@ try {
               </p>
               <p>
                 <code>replies</code> 的类型是 <code>Comment[]</code> ——
-                <strong>它引用了正在定义的这个类型自己</strong>。
-                TypeScript 允许这样递归定义，这就是树。
+                <strong>它引用了正在定义的这个类型自己</strong>。TypeScript 允许这样递归定义，这就是树。
               </p>
               <p>
                 <strong>深度不在数据里。</strong>
-                注意 <code>Comment</code> 上没有 <code>depth</code> 字段。
-                深度是「它在树里的位置」，是渲染时算出来的，
-                不该存进数据 —— 存了就要在移动节点时维护，
-                而且很容易和实际结构不一致。
+                注意 <code>Comment</code> 上没有 <code>depth</code> 字段。深度是「它在树里的位置」，是渲染时算出来的，不该存进数据 —— 存了就要在移动节点时维护，而且很容易和实际结构不一致。
               </p>
             </>
           ),
@@ -5104,27 +4997,20 @@ try {
               </p>
               <p>
                 <strong>终止条件在哪？</strong>
-                在 <code>comment.replies.map(...)</code> 这一句里。
-                当 <code>replies</code> 是空数组时，
-                map 什么都不产出，于是不再有新的 <code>CommentNode</code>
+                在 <code>comment.replies.map(...)</code> 这一句里。当 <code>replies</code> 是空数组时，map 什么都不产出，于是不再有新的 <code>CommentNode</code>
                 被创建 —— <strong>递归自然停住，不需要写
                 <code>if (depth &gt; N) return null</code> 之类的东西</strong>。
               </p>
               <p>
                 <strong>depth 靠参数往下传。</strong>
-                每往下一层就 <code>depth + 1</code>，
-                用来做缩进和 <code>data-depth</code>。
-                根节点从 0 开始。
+                每往下一层就 <code>depth + 1</code>，用来做缩进和 <code>data-depth</code>。根节点从 0 开始。
               </p>
               <p>
-                <strong>key 还是 <code>child.id</code></strong>，
-                和普通列表一样 —— 同一层里唯一就够了，不需要全树唯一。
+                <strong>key 还是 <code>child.id</code></strong>，和普通列表一样 —— 同一层里唯一就够了，不需要全树唯一。
               </p>
               <p>
                 <strong>一个真实的注意点：</strong>
-                如果数据可能有环（A 的回复里有 A），递归会栈溢出。
-                真实接口一般不会，但如果题目提到「数据来自用户输入」，
-                提一句「加一个 visited 集合或最大深度兜底」是加分的。
+                如果数据可能有环（A 的回复里有 A），递归会栈溢出。真实接口一般不会，但如果题目提到「数据来自用户输入」，提一句「加一个 visited 集合或最大深度兜底」是加分的。
               </p>
             </>
           ),
@@ -5204,18 +5090,13 @@ try {
           body: (
             <>
               <p>
-                「总共多少条评论（含所有层级）」是这类题的常见附加要求。
-                写成递归只有一行：
+                「总共多少条评论（含所有层级）」是这类题的常见附加要求。写成递归只有一行：
               </p>
               <p>
-                读法：<strong>每个节点贡献「自己这 1 条 + 它子树的全部」</strong>。
-                空数组时 <code>reduce</code> 直接返回初始值 0，
-                递归在这里终止。
+                读法：<strong>每个节点贡献「自己这 1 条 + 它子树的全部」</strong>。空数组时 <code>reduce</code> 直接返回初始值 0，递归在这里终止。
               </p>
               <p>
-                同一个模式可以套出很多东西：最大深度
-                （<code>1 + Math.max(...children)</code>）、
-                查找某个 id、把树拍平成数组。
+                同一个模式可以套出很多东西：最大深度（<code>1 + Math.max(...children)</code>）、查找某个 id、把树拍平成数组。
                 <strong>树的题目基本都是这一个骨架换个累加方式。</strong>
               </p>
             </>
@@ -5273,15 +5154,12 @@ export function countComments(nodes: Comment[]): number {
           body: (
             <>
               <p>
-                要求是「往 id 为 X 的节点的 <code>replies</code> 里加一条」，
-                而 X 可能在任意深度。
+                要求是「往 id 为 X 的节点的 <code>replies</code> 里加一条」，而 X 可能在任意深度。
               </p>
               <p>
                 <strong>为什么不能直接找到它 push 进去？</strong>
                 那是改原对象。React 比较的是根数组的引用 ——
-                你改了深处的对象，根数组还是同一个，界面不更新。
-                （就算你顺手 <code>setComments([...comments])</code> 造个新根，
-                原数据也已经被污染了。）
+                你改了深处的对象，根数组还是同一个，界面不更新。（就算你顺手 <code>setComments([...comments])</code> 造个新根，原数据也已经被污染了。）
               </p>
               <p>
                 <strong>正解是递归地造新对象</strong>：
@@ -5299,9 +5177,7 @@ export function countComments(nodes: Comment[]): number {
                 </li>
                 <li>
                   不是目标：<strong>先递归，再比一比</strong>。
-                  <code>addReply(node.replies, ...)</code> 返回的还是原来那个数组，
-                  说明目标不在这棵子树里，<strong>原样返回这个节点</strong>；
-                  返回了新数组，才造一个新节点把它接上。
+                  <code>addReply(node.replies, ...)</code> 返回的还是原来那个数组，说明目标不在这棵子树里，<strong>原样返回这个节点</strong>；返回了新数组，才造一个新节点把它接上。
                 </li>
                 <li>
                   这一层一个都没变，就把原数组 <code>nodes</code> 本身还回去 ——
@@ -5314,16 +5190,13 @@ export function countComments(nodes: Comment[]): number {
               </ul>
               <p>
                 <strong>一个容易误解的点：这不是深拷贝。</strong>
-                只有<strong>从根到目标那条路径</strong>上的节点是新对象；
-                路径以外的分支连外壳都不换，<strong>还是原来那个对象</strong>。
-                这正是 React 想要的：
+                只有<strong>从根到目标那条路径</strong>上的节点是新对象；路径以外的分支连外壳都不换，<strong>还是原来那个对象</strong>。这正是 React 想要的：
                 <strong>变了的路径引用变了，没变的部分引用不变</strong>，
                 <code>React.memo</code> 才能正确跳过。
               </p>
               <p>
                 测试里专门验证了三件事：原树完全没动（用 <code>Object.freeze</code>
-                深冻结，改了就抛错）、路径上的对象确实是新引用、
-                旁边的分支还是原来那个对象（用 <code>toBe</code> 比引用）。
+                深冻结，改了就抛错）、路径上的对象确实是新引用、旁边的分支还是原来那个对象（用 <code>toBe</code> 比引用）。
               </p>
             </>
           ),
@@ -5441,15 +5314,12 @@ const next = JSON.parse(JSON.stringify(comments));`,
             <>
               <p>
                 <strong>折叠状态放在每个节点自己身上</strong>
-                （<code>CommentNode</code> 内部的 <code>open</code>），
-                不是提到顶层。因为「这一条折没折」只有它自己关心 ——
+                （<code>CommentNode</code> 内部的 <code>open</code>），不是提到顶层。因为「这一条折没折」只有它自己关心 ——
                 提到顶层就要维护一个 id 集合，纯属自找麻烦。
               </p>
               <p>
-                <code>onReply</code> 从顶层一路传下去。
-                树很深时这会显得啰嗦，真实项目里会用 Context 或状态库 ——
-                但在 assessment 里<strong>老老实实传 props 是最稳的答案</strong>，
-                除非题目明确要求用 Context。
+                <code>onReply</code> 从顶层一路传下去。树很深时这会显得啰嗦，真实项目里会用 Context 或状态库 ——
+                但在 assessment 里<strong>老老实实传 props 是最稳的答案</strong>，除非题目明确要求用 Context。
               </p>
             </>
           ),
@@ -5489,22 +5359,16 @@ const next = JSON.parse(JSON.stringify(comments));`,
             <>
               <p>
                 <code>deepFreeze</code> 递归地把原树每一层都
-                <code>Object.freeze</code> 掉。冻结之后任何写操作
-                在严格模式下（TS/ESM 默认严格）会<strong>直接抛
+                <code>Object.freeze</code> 掉。冻结之后任何写操作在严格模式下（TS/ESM 默认严格）会<strong>直接抛
                 <code>TypeError</code></strong>，而不是静默失败。
               </p>
               <p>
                 所以如果你的 <code>addReply</code> 里有一处
-                <code>push</code> 或直接赋值，
-                测试会报 <code>Cannot add property 0, object is not extensible</code>
-                —— <strong>不可变性从「靠人肉 review」变成了「机器能查」</strong>。
-                这个技巧在任何考不可变更新的题里都能用。
+                <code>push</code> 或直接赋值，测试会报 <code>Cannot add property 0, object is not extensible</code>
+                —— <strong>不可变性从「靠人肉 review」变成了「机器能查」</strong>。这个技巧在任何考不可变更新的题里都能用。
               </p>
               <p>
-                第 3 条测的是「<strong>只重建路径</strong>」：
-                路径上的节点必须 <code>not.toBe</code> 原来那个（新引用），
-                而旁边的分支必须 <code>toBe</code> 原来那个（同一个对象）。
-                这一条能把用深拷贝应付过去的解法区分出来 —— 深拷贝会让旁边的分支也变成新对象。
+                第 3 条测的是「<strong>只重建路径</strong>」：路径上的节点必须 <code>not.toBe</code> 原来那个（新引用），而旁边的分支必须 <code>toBe</code> 原来那个（同一个对象）。这一条能把用深拷贝应付过去的解法区分出来 —— 深拷贝会让旁边的分支也变成新对象。
               </p>
             </>
           ),
@@ -5614,8 +5478,7 @@ export function countComments(nodes: Comment[]): number {
                 <>
                   <code>1</code> —— 当前这个节点自己。
                   <br />
-                  递归统计的通用读法是「<strong>我自己 + 我的子树</strong>」。
-                  漏了这个 1，最后会数出 0（因为叶子都只贡献子树的 0）。
+                  递归统计的通用读法是「<strong>我自己 + 我的子树</strong>」。漏了这个 1，最后会数出 0（因为叶子都只贡献子树的 0）。
                 </>
               ),
               whyEn: (
@@ -5664,8 +5527,7 @@ export function countComments(nodes: Comment[]): number {
                 <>
                   <code>CommentNode</code> —— 组件递归渲染自身。
                   <br />
-                  这就是「评论的评论的评论」能无限嵌套的原因：
-                  你只写了一层，剩下的靠递归展开。
+                  这就是「评论的评论的评论」能无限嵌套的原因：你只写了一层，剩下的靠递归展开。
                 </>
               ),
               whyEn: (
@@ -5685,12 +5547,10 @@ export function countComments(nodes: Comment[]): number {
               hintEn: "A child sits one level deeper than its parent.",
               why: (
                 <>
-                  <code>depth + 1</code>。深度靠参数往下传，
-                  用来做缩进和 <code>data-depth</code>。
+                  <code>depth + 1</code>。深度靠参数往下传，用来做缩进和 <code>data-depth</code>。
                   <br />
                   <strong>不要把 depth 存进数据</strong>——
-                  它是「节点在树里的位置」，是渲染时算的；
-                  存进去就得在移动节点时维护，很容易和实际结构不一致。
+                  它是「节点在树里的位置」，是渲染时算的；存进去就得在移动节点时维护，很容易和实际结构不一致。
                 </>
               ),
               whyEn: (
@@ -5717,8 +5577,7 @@ export function countComments(nodes: Comment[]): number {
           generated: true,
           prompt: (
             <p>
-              这是这道题真正的难点。目标节点可能在任意深度，
-              要返回一棵新树，而且<strong>原树一个字节都不能改</strong>。
+              这是这道题真正的难点。目标节点可能在任意深度，要返回一棵新树，而且<strong>原树一个字节都不能改</strong>。
             </p>
           ),
           promptEn: (
@@ -5912,8 +5771,7 @@ return changed ? next : nodes;`,
           generated: true,
           prompt: (
             <p>
-              给深层评论加回复，<code>console.log</code> 打出来的树里
-              新回复确实在，但界面没变化。控制台干净。
+              给深层评论加回复，<code>console.log</code> 打出来的树里新回复确实在，但界面没变化。控制台干净。
             </p>
           ),
           promptEn: (
@@ -6068,23 +5926,17 @@ const handleReply = (parentId: number, text: string) => {
           rootCause: (
             <>
               <p>
-                <code>push</code> 改的是<strong>原来那个 replies 数组</strong>，
-                然后 <code>return nodes</code> 返回的还是<strong>原来那个根数组</strong>。
-                <code>setComments</code> 拿到的引用和当前 state 一模一样，
-                React 判断「没变化」，跳过重渲染。
+                <code>push</code> 改的是<strong>原来那个 replies 数组</strong>，然后 <code>return nodes</code> 返回的还是<strong>原来那个根数组</strong>。
+                <code>setComments</code> 拿到的引用和当前 state 一模一样，React 判断「没变化」，跳过重渲染。
               </p>
               <p>
-                这和 Q1 里 <code>notes.push()</code> 那个 bug 是<strong>同一个病</strong>，
-                只是发生在树上，所以更难看出来 ——
+                这和 Q1 里 <code>notes.push()</code> 那个 bug 是<strong>同一个病</strong>，只是发生在树上，所以更难看出来 ——
                 因为「新数据确实在 <code>console.log</code> 里」这个假象更强。
               </p>
               <p>
                 <strong>选项 B（<code>return [...nodes]</code>）为什么不够？</strong>
                 它让根数组的引用变了，界面确实会更新一次 ——
-                <strong>但原数据已经被污染了</strong>。后果是：
-                原树的历史状态被破坏（做不了撤销），
-                如果同一份数据在别处也被引用会跟着变，
-                而且深层节点的引用没变，用了
+                <strong>但原数据已经被污染了</strong>。后果是：原树的历史状态被破坏（做不了撤销），如果同一份数据在别处也被引用会跟着变，而且深层节点的引用没变，用了
                 <code>React.memo</code> 的子树仍然不会重渲染。
                 <strong>这是「让症状消失」而不是修好。</strong>
               </p>
@@ -6150,9 +6002,7 @@ type Comment = { id: number; body: string; depth: number; replies: Comment[] };`
           ),
           why: (
             <>
-              深度是「节点在树里的位置」，是渲染时算出来的。
-              存进数据之后，任何移动/嵌套操作都要递归维护它，
-              一漏就和实际结构不一致。
+              深度是「节点在树里的位置」，是渲染时算出来的。存进数据之后，任何移动/嵌套操作都要递归维护它，一漏就和实际结构不一致。
               <strong>用参数往下传 <code>depth + 1</code> 就够了。</strong>
             </>
           ),
@@ -6177,9 +6027,7 @@ const [collapsed, setCollapsed] = useState<Set<number>>(new Set());`,
           ),
           why: (
             <>
-              「这一条折没折」只有它自己关心，属于典型的局部 state。
-              提到顶层要维护一个 id 集合，还得处理 Set 的不可变更新，
-              纯属自找麻烦。
+              「这一条折没折」只有它自己关心，属于典型的局部 state。提到顶层要维护一个 id 集合，还得处理 Set 的不可变更新，纯属自找麻烦。
               <br />
               例外：如果题目要求「一键全部折叠」，那才需要提上去。
             </>
@@ -6212,10 +6060,7 @@ setComments(next);`,
           ),
           why: (
             <>
-              结果是对的，原树也没被改 —— 所以测试可能全过。
-              但<strong>每个节点的引用都变了</strong>，
-              用了 <code>React.memo</code> 的子树全部重渲染，
-              大树上会明显卡。而且深拷贝本身在大数据上很贵。
+              结果是对的，原树也没被改 —— 所以测试可能全过。但<strong>每个节点的引用都变了</strong>，用了 <code>React.memo</code> 的子树全部重渲染，大树上会明显卡。而且深拷贝本身在大数据上很贵。
               <br />
               <strong>只重建路径</strong>才是这道题想考的。
             </>
@@ -6324,19 +6169,16 @@ setComments(next);`,
           body: (
             <>
               <p>
-                前面讲过 <strong>props 往下流、事件往上报</strong>。
-                这套规则在两三层内很好用，但主题这种东西
+                前面讲过 <strong>props 往下流、事件往上报</strong>。这套规则在两三层内很好用，但主题这种东西
                 <strong>整棵树都要读</strong>：
               </p>
               <p>
                 中间那些组件根本不关心主题，却被迫接一个
                 <code>theme</code> 再往下递。这叫
-                <strong>props 层层透传（prop drilling）</strong>。
-                加一个 <code>toggleTheme</code> 就得再透传一次。
+                <strong>props 层层透传（prop drilling）</strong>。加一个 <code>toggleTheme</code> 就得再透传一次。
               </p>
               <p>
-                Context 的作用就是<strong>跳过中间层</strong>：
-                Provider 在上面放一个值，子树里任何深度的组件直接取。
+                Context 的作用就是<strong>跳过中间层</strong>：Provider 在上面放一个值，子树里任何深度的组件直接取。
               </p>
               <p>
                 <strong>但别把它当状态管理器用。</strong>
@@ -6348,8 +6190,7 @@ setComments(next);`,
                   —— 主题、当前用户、语言、路由。
                 </li>
                 <li>
-                  <strong>不该用</strong>：只有两三层要用的（直接传 props）；
-                  或者每秒都在变的（context 一变，
+                  <strong>不该用</strong>：只有两三层要用的（直接传 props）；或者每秒都在变的（context 一变，
                   <strong>所有</strong>消费者都重渲染，会卡）。
                 </li>
               </ul>
@@ -6455,9 +6296,7 @@ setComments(next);`,
               </p>
               <p>
                 <strong>4. 包成 <code>useTheme()</code>。</strong>
-                这一步不是可选的装饰，它有两个实际好处：
-                消费者不用 import 那个 context 对象，
-                以及<strong>可以在这里放守卫</strong>。
+                这一步不是可选的装饰，它有两个实际好处：消费者不用 import 那个 context 对象，以及<strong>可以在这里放守卫</strong>。
               </p>
               <p>
                 <strong>关于默认值，三种写法差别很大：</strong>
@@ -6476,8 +6315,7 @@ setComments(next);`,
                         <code>createContext()</code>（Cab Booking 那种 JS 写法；TS 里不传参会报 TS2554）
                       </td>
                       <td>
-                        拿到 <code>undefined</code>，在解构那一行抛出一句
-                        很难读的 <code>Cannot destructure property…</code>
+                        拿到 <code>undefined</code>，在解构那一行抛出一句很难读的 <code>Cannot destructure property…</code>
                       </td>
                     </tr>
                     <tr>
@@ -6485,8 +6323,7 @@ setComments(next);`,
                         <code>{'createContext({ theme: "light", toggleTheme: () => {} })'}</code>
                       </td>
                       <td>
-                        <strong>不报错</strong>，界面正常显示浅色，
-                        点按钮没反应 —— 最难查的一种
+                        <strong>不报错</strong>，界面正常显示浅色，点按钮没反应 —— 最难查的一种
                       </td>
                     </tr>
                     <tr>
@@ -6504,9 +6341,7 @@ setComments(next);`,
               </div>
               <p>
                 第三种是推荐写法。TS strict 下它还有个附带好处：
-                <strong>守卫之后类型自动收窄</strong>，
-                消费者拿到的是 <code>ThemeContextValue</code> 而不是
-                可能为 undefined 的联合类型，不用到处写 <code>?.</code>。
+                <strong>守卫之后类型自动收窄</strong>，消费者拿到的是 <code>ThemeContextValue</code> 而不是可能为 undefined 的联合类型，不用到处写 <code>?.</code>。
               </p>
             </>
           ),
@@ -6620,22 +6455,18 @@ export function useTheme(): ThemeContextValue {
               </p>
               <p>
                 写成 <code>setTheme(theme === &quot;light&quot; ? &quot;dark&quot; : &quot;light&quot;)</code>
-                在「点一下」这种场景下也能跑，
-                但只要<strong>一次事件里连调两次</strong>就露馅 ——
+                在「点一下」这种场景下也能跑，但只要<strong>一次事件里连调两次</strong>就露馅 ——
                 两次都读到同一个旧 <code>theme</code>，结果只翻转了一次。
               </p>
               <p>
                 测试里专门有一条抓这个：一个按钮的 onClick 里调两次
                 <code>toggleTheme()</code>，
-                <strong>正确实现应该原样回到 light</strong>。
-                这条测试是 DrillLab 加的，很多教程版本过不去。
+                <strong>正确实现应该原样回到 light</strong>。这条测试是 DrillLab 加的，很多教程版本过不去。
               </p>
               <p>
                 另外 <code>toggleTheme</code> 要包
-                <code>useCallback(..., [])</code>。
-                依赖是空数组 —— 因为它内部只用函数式更新，
-                <strong>不读任何外部变量</strong>，所以永远不需要重建。
-                这一步是下一节 <code>useMemo</code> 生效的前提。
+                <code>useCallback(..., [])</code>。依赖是空数组 —— 因为它内部只用函数式更新，
+                <strong>不读任何外部变量</strong>，所以永远不需要重建。这一步是下一节 <code>useMemo</code> 生效的前提。
               </p>
             </>
           ),
@@ -6716,26 +6547,17 @@ onClick={() => { toggleTheme(); toggleTheme(); }}
               </p>
               <p>
                 问题在于 <code>{"{ theme, toggleTheme }"}</code> 是
-                <strong>字面量对象 —— 每次 Provider 渲染都是一个新对象</strong>。
-                Context 判断「值变没变」用的是引用比较（<code>Object.is</code>），
-                新对象就是「变了」。
+                <strong>字面量对象 —— 每次 Provider 渲染都是一个新对象</strong>。Context 判断「值变没变」用的是引用比较（<code>Object.is</code>），新对象就是「变了」。
               </p>
               <p>
-                后果：只要 Provider 的父层因为<strong>任何别的原因</strong>重渲染，
-                所有 <code>useTheme()</code> 的组件都会跟着重渲染
-                —— 哪怕主题一动没动。子树越大越明显，
-                而且 <code>React.memo</code> 也挡不住
-                （memo 挡的是 props，context 走的是另一条路）。
+                后果：只要 Provider 的父层因为<strong>任何别的原因</strong>重渲染，所有 <code>useTheme()</code> 的组件都会跟着重渲染
+                —— 哪怕主题一动没动。子树越大越明显，而且 <code>React.memo</code> 也挡不住（memo 挡的是 props，context 走的是另一条路）。
               </p>
               <p>
-                <strong>正解是 <code>useMemo</code></strong>，
-                配合上一节的 <code>useCallback</code>：
-                只有 <code>theme</code> 真的变了，才产生新的 value。
+                <strong>正解是 <code>useMemo</code></strong>，配合上一节的 <code>useCallback</code>：只有 <code>theme</code> 真的变了，才产生新的 value。
               </p>
               <p>
-                这条能被测出来 —— 测试里放一个探针组件，
-                记录每次拿到的 value，父层重渲染后断言引用没变。
-                把 <code>useMemo</code> 删掉真跑一遍：
+                这条能被测出来 —— 测试里放一个探针组件，记录每次拿到的 value，父层重渲染后断言引用没变。把 <code>useMemo</code> 删掉真跑一遍：
               </p>
             </>
           ),
@@ -6841,13 +6663,11 @@ $ npx vitest run src/Theme.test.tsx
             <>
               <p>
                 <strong>按钮的文字是「要切到哪」，不是「现在是哪」。</strong>
-                当前 light，就显示 <code>Switch to Dark</code>。
-                这一点很多人会写反 —— 题目明确要求了，
+                当前 light，就显示 <code>Switch to Dark</code>。这一点很多人会写反 —— 题目明确要求了，
                 <strong>读题的时候就要把这句话圈出来</strong>。
               </p>
               <p>
-                <code>onClick={"{toggleTheme}"}</code> 直接传函数引用，
-                不用写 <code>{"() => toggleTheme()"}</code>——
+                <code>onClick={"{toggleTheme}"}</code> 直接传函数引用，不用写 <code>{"() => toggleTheme()"}</code>——
                 后者每次渲染造一个新函数，没必要。
               </p>
               <p>
@@ -6856,10 +6676,7 @@ $ npx vitest run src/Theme.test.tsx
                 <strong>只拿自己要用的</strong>。
               </p>
               <p>
-                <code>data-theme={"{theme}"}</code> 这个属性是给测试用的：
-                比对 <code>style</code> 里的颜色值更稳，
-                改配色不用改测试。真实项目里也常这么干
-                （本站的深色模式就是靠
+                <code>data-theme={"{theme}"}</code> 这个属性是给测试用的：比对 <code>style</code> 里的颜色值更稳，改配色不用改测试。真实项目里也常这么干（本站的深色模式就是靠
                 <code>{'document.documentElement.setAttribute("data-theme", next)'}</code>
                 驱动 CSS 变量的）。
               </p>
@@ -6911,14 +6728,12 @@ $ npx vitest run src/Theme.test.tsx
             <>
               <p>
                 <code>ThemeProvider</code> 里 <code>children</code> 的类型是
-                <code>ReactNode</code>—— 这是「任何能渲染的东西」的标准类型，
-                字符串、数字、元素、数组、null 都算。
+                <code>ReactNode</code>—— 这是「任何能渲染的东西」的标准类型，字符串、数字、元素、数组、null 都算。
               </p>
               <p>
                 <strong>Provider 必须包在最外层。</strong>
                 只有它的子树能 <code>useTheme()</code>；
-                <code>ThemeProvider</code> 组件自己内部也不能用
-                （那时 Provider 还没渲染出来）。
+                <code>ThemeProvider</code> 组件自己内部也不能用（那时 Provider 还没渲染出来）。
               </p>
             </>
           ),
@@ -6958,9 +6773,7 @@ $ npx vitest run src/Theme.test.tsx
           body: (
             <>
               <p>
-                关键心态：<strong>不要去测 context 对象</strong>，
-                测「套在 Provider 里的组件表现对不对」。
-                所以每个测试都自己组装一小棵树。
+                关键心态：<strong>不要去测 context 对象</strong>，测「套在 Provider 里的组件表现对不对」。所以每个测试都自己组装一小棵树。
               </p>
               <p>
                 <strong>三个值得学的写法：</strong>
@@ -6969,8 +6782,7 @@ $ npx vitest run src/Theme.test.tsx
                 <li>
                   <strong>探针组件</strong>——
                   在测试文件里现写一个只调 <code>useTheme()</code>
-                  然后把结果 push 进数组的组件。想断言「引用有没有变」
-                  只能这么干。
+                  然后把结果 push 进数组的组件。想断言「引用有没有变」只能这么干。
                 </li>
                 <li>
                   <strong>断言抛错要静音 console</strong>——
@@ -6980,8 +6792,7 @@ $ npx vitest run src/Theme.test.tsx
                 </li>
                 <li>
                   <strong>多消费者一起断言</strong>——
-                  <code>getAllByTestId</code> 拿一组，比较整个数组。
-                  这条测的正是 Context 的核心价值：一处改、处处变。
+                  <code>getAllByTestId</code> 拿一组，比较整个数组。这条测的正是 Context 的核心价值：一处改、处处变。
                 </li>
               </ul>
             </>
@@ -7041,8 +6852,7 @@ $ npx vitest run src/Theme.test.tsx
           generated: true,
           prompt: (
             <p>
-              四个空。第 3 个是最容易漏的那一步，第 4 个决定「忘了套 Provider」
-              时报错清不清楚。
+              四个空。第 3 个是最容易漏的那一步，第 4 个决定「忘了套 Provider」时报错清不清楚。
             </p>
           ),
           promptEn: (
@@ -7102,8 +6912,7 @@ export function useTheme(): ThemeContextValue {
                 <>
                   <code>createContext</code>。
                   <br />
-                  它返回一个对象，上面挂着 <code>.Provider</code>；
-                  这个对象本身还要传给 <code>useContext</code> 才能取值。
+                  它返回一个对象，上面挂着 <code>.Provider</code>；这个对象本身还要传给 <code>useContext</code> 才能取值。
                 </>
               ),
               whyEn: (
@@ -7132,10 +6941,8 @@ export function useTheme(): ThemeContextValue {
                   函数式更新：
                   <code>{'(prev) => (prev === "light" ? "dark" : "light")'}</code>。
                   <br />
-                  写成 <code>theme === &quot;light&quot; ? …</code> 读的是闭包里的旧值。
-                  单次点击看不出问题，
-                  <strong>一次事件里连调两次就只翻转一次</strong>。
-                  也正因为不读外部变量，上面那个
+                  写成 <code>theme === &quot;light&quot; ? …</code> 读的是闭包里的旧值。单次点击看不出问题，
+                  <strong>一次事件里连调两次就只翻转一次</strong>。也正因为不读外部变量，上面那个
                   <code>useCallback</code> 的依赖才能是空数组。
                 </>
               ),
@@ -7164,12 +6971,9 @@ export function useTheme(): ThemeContextValue {
                 <>
                   <code>useMemo</code>。<strong>这是这道题最容易漏的一步。</strong>
                   <br />
-                  漏了它，<code>{"{ theme, toggleTheme }"}</code> 每次渲染都是新对象，
-                  Context 按引用比较认为「变了」，
-                  于是所有消费者跟着重渲染 —— 哪怕主题没动。
+                  漏了它，<code>{"{ theme, toggleTheme }"}</code> 每次渲染都是新对象，Context 按引用比较认为「变了」，于是所有消费者跟着重渲染 —— 哪怕主题没动。
                   <br />
-                  漏掉之后功能测试<strong>全是绿的</strong>，只有那条
-                  「value 不换新对象」会红。又一次「测试通过 ≠ 做对了」。
+                  漏掉之后功能测试<strong>全是绿的</strong>，只有那条「value 不换新对象」会红。又一次「测试通过 ≠ 做对了」。
                 </>
               ),
               whyEn: (
@@ -7198,10 +7002,7 @@ export function useTheme(): ThemeContextValue {
                 <>
                   <code>!ctx</code>。
                   <br />
-                  两个作用：给出一句人能看懂的报错
-                  （而不是 <code>Cannot destructure property &apos;theme&apos;…</code>），
-                  以及<strong>让 TS 把返回类型收窄到非 undefined</strong>，
-                  消费者就不用到处写 <code>?.</code> 了。
+                  两个作用：给出一句人能看懂的报错（而不是 <code>Cannot destructure property &apos;theme&apos;…</code>），以及<strong>让 TS 把返回类型收窄到非 undefined</strong>，消费者就不用到处写 <code>?.</code> 了。
                 </>
               ),
               whyEn: (
@@ -7230,8 +7031,7 @@ export function useTheme(): ThemeContextValue {
           generated: true,
           prompt: (
             <p>
-              类型已给好。写出 context、Provider、自定义 hook 三部分。
-              检查器会查记忆化、函数式更新和守卫。
+              类型已给好。写出 context、Provider、自定义 hook 三部分。检查器会查记忆化、函数式更新和守卫。
             </p>
           ),
           promptEn: (
@@ -7548,21 +7348,16 @@ const ThemeApp: React.FC = () => (
                 <strong>兄弟</strong>位置，不在它的子树里。
                 <code>useContext</code> 只会往上找<strong>祖先</strong>里最近的
                 Provider —— 找不到就返回 <code>createContext</code>
-                的默认值，这里是 <code>undefined</code>。
-                然后 <code>{"const { theme } = undefined"}</code> 直接报错。
+                的默认值，这里是 <code>undefined</code>。然后 <code>{"const { theme } = undefined"}</code> 直接报错。
               </p>
               <p>
                 <strong>为什么按钮是好的？</strong>
                 因为它确实在 Provider 里面。
-                <strong>「一部分组件正常、一部分报 undefined」是这个 bug 的
-                典型指纹</strong>—— 说明 Provider 存在，只是范围不够大。
+                <strong>「一部分组件正常、一部分报 undefined」是这个 bug 的典型指纹</strong>—— 说明 Provider 存在，只是范围不够大。
               </p>
               <p>
                 <strong>选项 B（给个默认值）为什么更糟？</strong>
-                它让报错消失了，但换来一个<strong>静默的错</strong>：
-                卡片永远显示浅色，点按钮毫无反应，
-                而且完全没有任何报错提示你「这个组件没连上 Provider」。
-                白屏至少告诉你出了问题；这个连线索都不给。
+                它让报错消失了，但换来一个<strong>静默的错</strong>：卡片永远显示浅色，点按钮毫无反应，而且完全没有任何报错提示你「这个组件没连上 Provider」。白屏至少告诉你出了问题；这个连线索都不给。
                 <strong>能早失败就别晚失败。</strong>
               </p>
               <p>
@@ -7573,10 +7368,7 @@ const ThemeApp: React.FC = () => (
               <p>
                 注意报错里的 <code>__vite_ssr_import_1__</code>
                 只是 Vite 转换后的变量名，不用管它 ——
-                <strong>读报错要抓住三样：错误类型
-                （<code>TypeError</code>）、
-                哪个属性（<code>&apos;theme&apos;</code>）、
-                哪个组件（<code>at ThemedCard</code>）。</strong>
+                <strong>读报错要抓住三样：错误类型（<code>TypeError</code>）、哪个属性（<code>&apos;theme&apos;</code>）、哪个组件（<code>at ThemedCard</code>）。</strong>
                 这三样凑起来就够定位了。
               </p>
             </>
@@ -7649,8 +7441,7 @@ const ThemeApp: React.FC = () => (
           ),
           why: (
             <>
-              每次渲染都是新对象，Context 按引用比较认为「变了」，
-              所有消费者跟着重渲染 —— 主题没动也一样。
+              每次渲染都是新对象，Context 按引用比较认为「变了」，所有消费者跟着重渲染 —— 主题没动也一样。
               <br />
               <strong>用 <code>useMemo</code>。</strong>
               而且功能测试不会红，只有专门测引用的那条会红。
@@ -7679,8 +7470,7 @@ const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });`,
           ),
           why: (
             <>
-              忘了套 Provider 时<strong>不报错</strong>：界面正常显示浅色，
-              点按钮调的是那个空函数，什么都不会发生。
+              忘了套 Provider 时<strong>不报错</strong>：界面正常显示浅色，点按钮调的是那个空函数，什么都不会发生。
               <br />
               这是最难查的一类 bug ——
               <strong>宁可直接报错，也别悄无声息地「看起来正常」。</strong>
@@ -7745,8 +7535,7 @@ export function ThemeProvider({ children }) {
           ),
           why: (
             <>
-              题目要求的是<strong>「要切到哪」</strong>：
-              当前 light 就显示 <code>Switch to Dark</code>。
+              题目要求的是<strong>「要切到哪」</strong>：当前 light 就显示 <code>Switch to Dark</code>。
               <br />
               这条不涉及任何技术难点，纯粹是<strong>读题</strong>——
               而 assessment 里这种分丢得最不值。

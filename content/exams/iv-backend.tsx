@@ -52,11 +52,7 @@ export const ivBackend: Module = {
             <>
               <p>
                 <strong>一句话：</strong>Node 是
-                <strong>单线程执行 JS + 多线程做 I/O</strong>。
-                主线程跑 JS，
-                耗时的 I/O 交给 libuv 的线程池或操作系统，
-                完成后把回调放进队列，
-                事件循环再取出来执行。
+                <strong>单线程执行 JS + 多线程做 I/O</strong>。主线程跑 JS，耗时的 I/O 交给 libuv 的线程池或操作系统，完成后把回调放进队列，事件循环再取出来执行。
               </p>
               <p>
                 <strong>六个阶段（顺序要记住）：</strong>
@@ -76,8 +72,7 @@ export const ivBackend: Module = {
                 </li>
                 <li>
                   <strong>poll</strong>——
-                  <strong>取新的 I/O 事件，
-                  大部分时间待在这里</strong>
+                  <strong>取新的 I/O 事件，大部分时间待在这里</strong>
                 </li>
                 <li>
                   <strong>check</strong>——
@@ -89,11 +84,8 @@ export const ivBackend: Module = {
                 </li>
               </ol>
               <p>
-                <strong>关键：自 Node 11 起，每执行完一个回调（不论哪个阶段），
-                都会先清空 nextTick 队列和 Promise 微任务，再执行下一个回调</strong>——
-                这一点已和浏览器一致（Node 10 及以前才是「整个阶段跑完再清」，
-                旧的面试资料里常见这个说法）。
-                Node 的微任务分两级：<code>process.nextTick</code>
+                <strong>关键：自 Node 11 起，每执行完一个回调（不论哪个阶段），都会先清空 nextTick 队列和 Promise 微任务，再执行下一个回调</strong>——
+                这一点已和浏览器一致（Node 10 及以前才是「整个阶段跑完再清」，旧的面试资料里常见这个说法）。Node 的微任务分两级：<code>process.nextTick</code>
                 有自己的队列，和 Promise 微任务分开排。
               </p>
               <p>
@@ -102,25 +94,19 @@ export const ivBackend: Module = {
                 <code>setImmediate</code>
                 和 <code>process.nextTick</code>
                 这两个浏览器没有的东西；
-                <strong>CommonJS 里 nextTick 队列先于 Promise 微任务</strong>，
-                ES 模块的顶层代码里则是 Promise 先执行。
+                <strong>CommonJS 里 nextTick 队列先于 Promise 微任务</strong>，ES 模块的顶层代码里则是 Promise 先执行。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「<code>setTimeout(fn, 0)</code> 和
                 <code>setImmediate</code> 谁先？」——
-                <strong>不确定</strong>！
-                在主模块里两者顺序取决于进程启动耗时；
-                但<strong>在 I/O 回调里，
+                <strong>不确定</strong>！在主模块里两者顺序取决于进程启动耗时；但<strong>在 I/O 回调里，
                 <code>setImmediate</code> 一定更早</strong>
-                （因为 check 阶段紧跟在 poll 后面，
-                而 timers 要等下一轮）。
+                （因为 check 阶段紧跟在 poll 后面，而 timers 要等下一轮）。
                 <strong>能答出「主模块里不确定」很加分。</strong>
                 <br />
                 「CPU 密集任务怎么办？」——
-                单线程会被长时间占住，其他请求都得等。
-                用 <code>worker_threads</code>、
-                子进程，或者干脆交给别的服务。
+                单线程会被长时间占住，其他请求都得等。用 <code>worker_threads</code>、子进程，或者干脆交给别的服务。
               </p>
             </>
           ),
@@ -254,8 +240,7 @@ console.log("6 sync");
                   把请求体解析成 <code>req.body</code>
                   （<strong>不加这个中间件
                   <code>req.body</code> 就是
-                  <code>undefined</code></strong>，
-                  这是最常见的新手问题）
+                  <code>undefined</code></strong>，这是最常见的新手问题）
                 </li>
                 <li>
                   <strong>通用中间件</strong>——
@@ -289,11 +274,9 @@ console.log("6 sync");
               </p>
               <ul>
                 <li>
-                  <strong>中间件按注册顺序执行</strong>，
-                  必须调 <code>next()</code>
+                  <strong>中间件按注册顺序执行</strong>，必须调 <code>next()</code>
                   才会往下走 ——
-                  忘了调请求就<strong>永远挂着</strong>，
-                  客户端一直转圈。
+                  忘了调请求就<strong>永远挂着</strong>，客户端一直转圈。
                 </li>
                 <li>
                   <strong>一个请求只能响应一次。</strong>
@@ -306,19 +289,15 @@ console.log("6 sync");
                 <li>
                   <strong>错误处理中间件有四个参数</strong>
                   <code>(err, req, res, next)</code>——
-                  <strong>少一个参数 Express 就认不出它是错误处理器</strong>，
-                  这是很经典的陷阱。
+                  <strong>少一个参数 Express 就认不出它是错误处理器</strong>，这是很经典的陷阱。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>
                 「异步函数里抛的错误
                 Express 会自动捕获吗？」——
-                <strong>Express 4 里不会</strong>，
-                会变成未处理的 rejection，请求一直挂起，得不到响应。
-                要么自己 <code>try/catch</code>
-                后 <code>next(err)</code>，
-                要么包一层 asyncHandler。
+                <strong>Express 4 里不会</strong>，会变成未处理的 rejection，请求一直挂起，得不到响应。要么自己 <code>try/catch</code>
+                后 <code>next(err)</code>，要么包一层 asyncHandler。
                 <strong>Express 5 才支持自动转发。</strong>
               </p>
             </>
@@ -512,26 +491,18 @@ app.use((err, req, res, next) => {
               <p>
                 <strong>设计判据一句话：</strong>
                 <strong>「去掉它之后，还是同一个资源吗？」</strong>
-                去掉 <code>42</code> 就不知道是谁了 → 路径参数；
-                去掉 <code>?page=2</code>
+                去掉 <code>42</code> 就不知道是谁了 → 路径参数；去掉 <code>?page=2</code>
                 还是同一批用户，只是换一页 → 查询参数。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「密码能放查询参数吗？」——
-                <strong>绝对不行</strong>。
-                URL 会进浏览器历史、
-                服务器访问日志、
-                Referer 头、CDN 日志 ——
-                <strong>即使用了 HTTPS，
-                URL 本身也会被大量记录</strong>。
-                敏感数据放请求体或请求头。
+                <strong>绝对不行</strong>。URL 会进浏览器历史、服务器访问日志、Referer 头、CDN 日志 ——
+                <strong>即使用了 HTTPS，URL 本身也会被大量记录</strong>。敏感数据放请求体或请求头。
                 <br />
                 「查询参数有长度限制吗？」——
                 规范没有，但实践上服务器和 CDN
-                通常限制 URL 在 2 KB 到 8 KB。
-                复杂查询条件多的搜索接口
-                有时会改用 <code>POST</code> 带 body。
+                通常限制 URL 在 2 KB 到 8 KB。复杂查询条件多的搜索接口有时会改用 <code>POST</code> 带 body。
               </p>
             </>
           ),
@@ -631,8 +602,7 @@ app.use((err, req, res, next) => {
             <>
               <p>
                 <strong>一句话：</strong>Create / Read /
-                Update / Delete —— 数据操作的四种基本类型。
-                REST 把它们映射到 HTTP 方法。
+                Update / Delete —— 数据操作的四种基本类型。REST 把它们映射到 HTTP 方法。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -695,8 +665,7 @@ app.use((err, req, res, next) => {
                 <code>PATCH</code> 是
                 <strong>局部更新</strong>——
                 只改传了的字段。
-                <strong>实践中很多人把 PUT 当 PATCH 用，
-                这是错的</strong>，但要知道现实如此。
+                <strong>实践中很多人把 PUT 当 PATCH 用，这是错的</strong>，但要知道现实如此。
               </p>
               <p>
                 <strong>② 幂等性。</strong>
@@ -723,9 +692,7 @@ app.use((err, req, res, next) => {
               </ul>
               <p>
                 <strong>为什么重要：</strong>
-                客户端重试、
-                网关超时重发时，
-                幂等的接口是安全的，
+                客户端重试、网关超时重发时，幂等的接口是安全的，
                 <code>POST</code> 需要
                 <strong>幂等键（idempotency key）</strong>
                 来防重复下单。
@@ -733,12 +700,8 @@ app.use((err, req, res, next) => {
               <p>
                 <strong>再一个追问：</strong>
                 「删一个不存在的资源返回什么？」——
-                <strong>可以是 204 也可以是 404</strong>。
-                返 204 更符合幂等语义
-                （「删完了」这个结果达成了）；
-                返 404 信息更明确。
-                <strong>关键是团队内一致，
-                并且写进接口文档。</strong>
+                <strong>可以是 204 也可以是 404</strong>。返 204 更符合幂等语义（「删完了」这个结果达成了）；返 404 信息更明确。
+                <strong>关键是团队内一致，并且写进接口文档。</strong>
               </p>
             </>
           ),
@@ -974,11 +937,7 @@ app.use((err, req, res, next) => {
             <>
               <p>
                 <strong>一句话：</strong>关系型
-                <strong>先定好表结构、用 JOIN 关联、
-                强调一致性</strong>；
-                非关系型<strong>结构灵活、
-                按查询模式组织数据、
-                强调扩展性</strong>。
+                <strong>先定好表结构、用 JOIN 关联、强调一致性</strong>；非关系型<strong>结构灵活、按查询模式组织数据、强调扩展性</strong>。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -1017,8 +976,7 @@ app.use((err, req, res, next) => {
                         订单、账务、库存
                       </td>
                       <td>
-                        <strong>结构多变、读多写多、
-                        单次查询取一整块</strong>——
+                        <strong>结构多变、读多写多、单次查询取一整块</strong>——
                         日志、内容、会话、缓存
                       </td>
                     </tr>
@@ -1046,17 +1004,12 @@ app.use((err, req, res, next) => {
               <p>
                 <strong>会追问：</strong>
                 「MongoDB 没有 schema 是优点吗？」——
-                <strong>是双刃剑</strong>。
-                前期迭代快，但<strong>约束跑到了应用层</strong>，
-                时间长了同一个集合里会存在好几代不同形状的文档。
-                所以实践中一般还是用 Mongoose 这类工具
+                <strong>是双刃剑</strong>。前期迭代快，但<strong>约束跑到了应用层</strong>，时间长了同一个集合里会存在好几代不同形状的文档。所以实践中一般还是用 Mongoose 这类工具
                 <strong>在应用层加回 schema</strong>。
                 <br />
                 「现在还有清楚的界限吗？」——
                 在模糊：PostgreSQL 的
-                <code>jsonb</code> 让它能存文档并建索引，
-                所以<strong>「先上 Postgres，
-                需要文档就用 jsonb」</strong>
+                <code>jsonb</code> 让它能存文档并建索引，所以<strong>「先上 Postgres，需要文档就用 jsonb」</strong>
                 是很常见的现实选择。
               </p>
             </>
@@ -1192,8 +1145,7 @@ app.use((err, req, res, next) => {
               <p>
                 <strong>一句话：</strong>
                 <strong>主键唯一标识本表的一行</strong>；
-                <strong>外键指向另一张表的主键</strong>，
-                用来表达关联并保证引用有效。
+                <strong>外键指向另一张表的主键</strong>，用来表达关联并保证引用有效。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -1237,20 +1189,14 @@ app.use((err, req, res, next) => {
                 </table>
               </div>
               <p>
-                <strong>「外键索引」那一条是加分点</strong>：
-                PostgreSQL 里外键列
-                <strong>不会自动建索引</strong>，
-                而 JOIN 和级联删除都要用到它 ——
+                <strong>「外键索引」那一条是加分点</strong>：PostgreSQL 里外键列
+                <strong>不会自动建索引</strong>，而 JOIN 和级联删除都要用到它 ——
                 <strong>忘了手动建索引是很常见的性能问题</strong>。
               </p>
               <p>
                 <strong>外键的核心价值是
-                <em>引用完整性</em></strong>：
-                数据库<strong>拒绝</strong>你插入一条
-                指向不存在用户的订单，
-                也拒绝你删掉还有订单的用户。
-                <strong>这是数据库帮你兜住的一致性，
-                不用在应用层写检查。</strong>
+                <em>引用完整性</em></strong>：数据库<strong>拒绝</strong>你插入一条指向不存在用户的订单，也拒绝你删掉还有订单的用户。
+                <strong>这是数据库帮你兜住的一致性，不用在应用层写检查。</strong>
               </p>
               <p>
                 <strong>会追问删除行为</strong>——
@@ -1265,23 +1211,17 @@ app.use((err, req, res, next) => {
                 <li>
                   <code>CASCADE</code>——
                   <strong>连着子记录一起删</strong>
-                  （很方便也很危险，
-                  删一个用户可能连带删掉几万条记录）
+                  （很方便也很危险，删一个用户可能连带删掉几万条记录）
                 </li>
                 <li>
                   <code>SET NULL</code>——
-                  把子记录的外键置空
-                  （适合「作者被删了，文章保留为匿名」）
+                  把子记录的外键置空（适合「作者被删了，文章保留为匿名」）
                 </li>
               </ul>
               <p>
                 <strong>还会追问：</strong>
                 「主键用自增 id 还是 UUID？」——
-                自增：短、索引局部性好、
-                但<strong>暴露数据量</strong>、分库时会冲突。
-                UUID：全局唯一、
-                适合分布式和前端预生成，
-                但<strong>更长、随机写入对 B+ 树索引不友好</strong>。
+                自增：短、索引局部性好、但<strong>暴露数据量</strong>、分库时会冲突。UUID：全局唯一、适合分布式和前端预生成，但<strong>更长、随机写入对 B+ 树索引不友好</strong>。
                 <strong>折中是 ULID / UUIDv7（带时间前缀，有序）</strong>——
                 这个答出来会显得很专业。
               </p>
@@ -1520,8 +1460,7 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`, filename: "建表时的三
             <>
               <p>
                 <strong>一句话：</strong>浏览器的
-                <strong>同源策略</strong>默认禁止页面读取
-                跨源响应；CORS 是
+                <strong>同源策略</strong>默认禁止页面读取跨源响应；CORS 是
                 <strong>服务器通过响应头「授权」某些跨源请求</strong>
                 的机制。
               </p>
@@ -1531,22 +1470,18 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`, filename: "建表时的三
               <ul>
                 <li>
                   <strong>是浏览器在拦，不是服务器拒绝。</strong>
-                  <strong>请求通常已经发出去了、
-                  服务器也已经处理了</strong>——
+                  <strong>请求通常已经发出去了、服务器也已经处理了</strong>——
                   只是浏览器不让 JS 读响应。
                   <strong>所以看到 CORS 错误不等于接口没执行</strong>
-                  （非幂等接口尤其要注意，
-                  可能已经创建了数据）。
+                  （非幂等接口尤其要注意，可能已经创建了数据）。
                 </li>
                 <li>
                   <strong>所以前端改不了。</strong>
-                  必须服务端加响应头，
-                  或者走代理。
+                  必须服务端加响应头，或者走代理。
                   <strong>在前端加什么请求头都没用。</strong>
                 </li>
                 <li>
-                  <strong>同源 = 协议 + 域名 + 端口
-                  三者全同。</strong>
+                  <strong>同源 = 协议 + 域名 + 端口三者全同。</strong>
                   <code>http</code> 和 <code>https</code> 不同源，
                   <code>3000</code> 和 <code>3001</code> 不同源。
                 </li>
@@ -1555,8 +1490,7 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`, filename: "建表时的三
                 <strong>简单请求 vs 预检请求：</strong>
                 <code>GET</code> / <code>HEAD</code> /
                 <code>POST</code> 且只用安全头、
-                <code>Content-Type</code> 限于三种
-                （<code>form-urlencoded</code>、
+                <code>Content-Type</code> 限于三种（<code>form-urlencoded</code>、
                 <code>multipart/form-data</code>、
                 <code>text/plain</code>）→ 直接发。
                 <br />
@@ -1572,13 +1506,11 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`, filename: "建表时的三
               <ol>
                 <li>
                   <strong>服务端加头</strong>（正解）——
-                  <code>Access-Control-Allow-Origin</code>，
-                  Express 里 <code>app.use(cors())</code>。
+                  <code>Access-Control-Allow-Origin</code>，Express 里 <code>app.use(cors())</code>。
                 </li>
                 <li>
                   <strong>开发时用 dev server 代理</strong>——
-                  Vite 的 <code>server.proxy</code>，
-                  让浏览器以为是同源。
+                  Vite 的 <code>server.proxy</code>，让浏览器以为是同源。
                 </li>
                 <li>
                   <strong>生产用同源部署或网关</strong>——
@@ -1591,16 +1523,13 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);`, filename: "建表时的三
               <p>
                 <strong>会追问：</strong>
                 「要带 cookie 怎么办？」——
-                前端 <code>credentials: &quot;include&quot;</code>，
-                服务端 <code>Allow-Credentials: true</code>，
+                前端 <code>credentials: &quot;include&quot;</code>，服务端 <code>Allow-Credentials: true</code>，
                 <strong>而且此时
                 <code>Allow-Origin</code>
-                不能是 <code>*</code>，必须写具体域名</strong>。
-                这是最常见的「配了 cors 还是不行」的原因。
+                不能是 <code>*</code>，必须写具体域名</strong>。这是最常见的「配了 cors 还是不行」的原因。
                 <br />
                 「预检能缓存吗？」——
-                <code>Access-Control-Max-Age</code>，
-                避免每个请求都多一次往返。
+                <code>Access-Control-Max-Age</code>，避免每个请求都多一次往返。
               </p>
             </>
           ),
@@ -1741,8 +1670,7 @@ server: {
             <>
               <p>
                 <strong>一句话：</strong>HTTPS =
-                HTTP + <strong>TLS 加密层</strong>。
-                同一套协议，只是传输过程被加密和验证了。
+                HTTP + <strong>TLS 加密层</strong>。同一套协议，只是传输过程被加密和验证了。
               </p>
               <p>
                 <strong>它提供三样东西（要说全）：</strong>
@@ -1753,9 +1681,7 @@ server: {
                 </li>
                 <li>
                   <strong>身份验证</strong>——
-                  证书证明「你连的确实是这个域名的服务器」，
-                  防的是中间人冒充；<strong>它不防钓鱼</strong>：
-                  钓鱼站点用自己的域名，照样能拿到合法证书
+                  证书证明「你连的确实是这个域名的服务器」，防的是中间人冒充；<strong>它不防钓鱼</strong>：钓鱼站点用自己的域名，照样能拿到合法证书
                 </li>
                 <li>
                   <strong>完整性</strong>——
@@ -1769,30 +1695,21 @@ server: {
                 <strong>用非对称加密协商出一个对称密钥</strong> →
                 之后用对称加密传数据。
                 <strong>为什么要混用两种加密？</strong>
-                非对称安全但慢，
-                对称快但要先安全地交换密钥 ——
-                <strong>所以用非对称来交换对称密钥</strong>。
-                这一句是加分点。
+                非对称安全但慢，对称快但要先安全地交换密钥 ——
+                <strong>所以用非对称来交换对称密钥</strong>。这一句是加分点。
               </p>
               <p>
-                <strong>端口：</strong>HTTP 80，
-                HTTPS 443。
+                <strong>端口：</strong>HTTP 80，HTTPS 443。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「HTTPS 慢吗？」——
-                握手有额外开销，
-                但<strong>TLS 1.3 把握手压到一次往返</strong>，
-                而且<strong>HTTP/2 和 HTTP/3 只在 HTTPS 上可用</strong>——
+                握手有额外开销，但<strong>TLS 1.3 把握手压到一次往返</strong>，而且<strong>HTTP/2 和 HTTP/3 只在 HTTPS 上可用</strong>——
                 多路复用带来的收益通常
-                <strong>超过加密的开销</strong>。
-                所以「用 HTTPS 会变慢」现在基本不成立。
+                <strong>超过加密的开销</strong>。所以「用 HTTPS 会变慢」现在基本不成立。
                 <br />
                 「有了 HTTPS 就安全了吗？」——
-                <strong>不</strong>。它只保护传输过程。
-                XSS、SQL 注入、
-                弱口令、越权
-                一个都没解决。
+                <strong>不</strong>。它只保护传输过程。XSS、SQL 注入、弱口令、越权一个都没解决。
               </p>
             </>
           ),
@@ -1862,8 +1779,7 @@ server: {
             <>
               <p>
                 <strong>一句话：</strong>JSON Web Token ——
-                一个<strong>自带签名的字符串</strong>，
-                服务器不用存它也能验证它没被篡改。
+                一个<strong>自带签名的字符串</strong>，服务器不用存它也能验证它没被篡改。
               </p>
               <p>
                 <strong>三段结构，用点分隔：</strong>
@@ -1887,18 +1803,13 @@ server: {
                 <strong>最重要的一条（必答）：</strong>
                 前两段只是
                 <strong>Base64URL 编码，不是加密</strong>——
-                <strong>任何人都能解出来看</strong>。
-                所以<strong>payload 里绝不能放密码、
-                身份证号这类敏感信息</strong>。
-                签名保证的是
+                <strong>任何人都能解出来看</strong>。所以<strong>payload 里绝不能放密码、身份证号这类敏感信息</strong>。签名保证的是
                 <strong>「没被改过」，不是「看不到」</strong>。
               </p>
               <p>
                 <strong>优点：</strong>
                 <strong>无状态</strong>——
-                服务器不用存 session，
-                天然适合多实例和微服务
-                （任何一台都能独立验证）。
+                服务器不用存 session，天然适合多实例和微服务（任何一台都能独立验证）。
               </p>
               <p>
                 <strong>缺点（这半边是重点）：</strong>
@@ -1906,19 +1817,15 @@ server: {
               <ul>
                 <li>
                   <strong>没法主动失效。</strong>
-                  签出去就有效到过期。
-                  用户改密码、
-                  管理员封号，
+                  签出去就有效到过期。用户改密码、管理员封号，
                   <strong>旧 token 照样能用</strong>。
                 </li>
                 <li>
-                  <strong>体积比 session id 大</strong>，
-                  每个请求都要带。
+                  <strong>体积比 session id 大</strong>，每个请求都要带。
                 </li>
                 <li>
                   <strong>放哪都有风险</strong>——
-                  <code>localStorage</code> 怕 XSS，
-                  cookie 怕 CSRF。
+                  <code>localStorage</code> 怕 XSS，cookie 怕 CSRF。
                 </li>
               </ul>
               <p>
@@ -1928,21 +1835,18 @@ server: {
               <ul>
                 <li>
                   <strong>短过期 + refresh token</strong>——
-                  access token 只活 15 分钟，
-                  用一个可撤销的 refresh token 换新的。
+                  access token 只活 15 分钟，用一个可撤销的 refresh token 换新的。
                   <strong>这是标准做法。</strong>
                 </li>
                 <li>
                   <strong>黑名单</strong>——
                   把要作废的 token id 存 Redis。
-                  <strong>但这就重新变成有状态了</strong>，
-                  等于放弃了 JWT 的主要优点。
+                  <strong>但这就重新变成有状态了</strong>，等于放弃了 JWT 的主要优点。
                 </li>
               </ul>
               <p>
                 <strong>安全上还有一个经典陷阱：</strong>
-                验证时<strong>必须指定期望的算法</strong>，
-                不能信 header 里写的 ——
+                验证时<strong>必须指定期望的算法</strong>，不能信 header 里写的 ——
                 否则攻击者把 <code>alg</code>
                 改成 <code>none</code> 就绕过签名了。
               </p>
@@ -2083,8 +1987,7 @@ server: {
               </div>
               <p>
                 <strong>典型流程：</strong>
-                登录成功 → 服务器建 session、
-                生成 session id →
+                登录成功 → 服务器建 session、生成 session id →
                 通过 <code>Set-Cookie</code> 发给浏览器 →
                 之后每个请求浏览器自动带上 →
                 服务器用 id 查出用户。
@@ -2122,18 +2025,14 @@ server: {
                   （后台管理、支付类）→ <strong>session</strong>
                 </li>
                 <li>
-                  <strong>多服务、跨域、
-                  移动端 + Web 共用</strong>
+                  <strong>多服务、跨域、移动端 + Web 共用</strong>
                   → <strong>JWT</strong>（配 refresh token）
                 </li>
               </ul>
               <p>
                 <strong>还会问：</strong>
                 「session 在多实例部署下怎么办？」——
-                存内存会导致「刷新一下就掉登录」
-                （请求打到别的实例）。
-                解法是<strong>把 session 存 Redis</strong>，
-                或者用粘性会话（不推荐）。
+                存内存会导致「刷新一下就掉登录」（请求打到别的实例）。解法是<strong>把 session 存 Redis</strong>，或者用粘性会话（不推荐）。
               </p>
             </>
           ),
@@ -2353,22 +2252,16 @@ server: {
                 <strong>401 是「没认证」，403 是「认证了但没授权」</strong>。
                 <br />
                 实践里有个细节：为了
-                <strong>不泄露资源是否存在</strong>，
-                有些接口会把「没权限」也返回 404。
+                <strong>不泄露资源是否存在</strong>，有些接口会把「没权限」也返回 404。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「业务错误该用 4xx 还是 200 带错误码？」——
                 <strong>REST 风格用 4xx</strong>
-                （让 HTTP 语义承载错误），
-                但要注意<strong>有些老网关会吞掉 4xx 的响应体</strong>。
-                <strong>GraphQL 执行阶段的错误则一律返回 200</strong>，
-                错误放在 <code>errors</code> 字段里 ——
-                因为一个请求可能<strong>部分成功</strong>，
-                没法用单个状态码表达；请求本身语法或校验不通过时，
-                Apollo Server 4 会返回 400。
-                <strong>这个对比答出来很加分</strong>，
-                Federation 那门课里 <code>extensions.code</code>
+                （让 HTTP 语义承载错误），但要注意<strong>有些老网关会吞掉 4xx 的响应体</strong>。
+                <strong>GraphQL 执行阶段的错误则一律返回 200</strong>，错误放在 <code>errors</code> 字段里 ——
+                因为一个请求可能<strong>部分成功</strong>，没法用单个状态码表达；请求本身语法或校验不通过时，Apollo Server 4 会返回 400。
+                <strong>这个对比答出来很加分</strong>，Federation 那门课里 <code>extensions.code</code>
                 就是干这个的。
               </p>
             </>
@@ -2523,62 +2416,43 @@ server: {
             <>
               <p>
                 <strong>一句话：</strong>按范围从小到大 ——
-                <strong>单元 → 集成 → 端到端</strong>，
-                这就是「测试金字塔」：
+                <strong>单元 → 集成 → 端到端</strong>，这就是「测试金字塔」：
                 <strong>越往上越慢越脆，所以数量越少</strong>。
               </p>
               <ul>
                 <li>
                   <strong>单元测试（unit）</strong>——
-                  测一个函数或一个组件，
-                  依赖全部 mock。
+                  测一个函数或一个组件，依赖全部 mock。
                   <strong>快、多、定位准。</strong>
-                  例：一个纯函数、
-                  一个 React 组件的渲染。
+                  例：一个纯函数、一个 React 组件的渲染。
                 </li>
                 <li>
                   <strong>集成测试（integration）</strong>——
-                  测几个模块<strong>协作</strong>是否正确，
-                  可能真的连数据库或起一个测试服务器。
-                  例：调一个 API 端点，
-                  断言它真的写进了库。
+                  测几个模块<strong>协作</strong>是否正确，可能真的连数据库或起一个测试服务器。例：调一个 API 端点，断言它真的写进了库。
                 </li>
                 <li>
                   <strong>端到端（E2E）</strong>——
-                  <strong>用真实浏览器走完整用户流程</strong>。
-                  Playwright / Cypress。
-                  最接近真实，也最慢最容易随机失败。
+                  <strong>用真实浏览器走完整用户流程</strong>。Playwright / Cypress。最接近真实，也最慢最容易随机失败。
                 </li>
               </ul>
               <p>
                 <strong>还会提到的几种：</strong>
-                回归测试（防止改坏老功能）、
-                快照测试（比对渲染输出，
-                <strong>容易变成「随手更新快照」的橡皮章</strong>）、
-                性能 / 压力测试、
-                可访问性测试、
-                冒烟测试（上线后快速验证主流程）。
+                回归测试（防止改坏老功能）、快照测试（比对渲染输出，
+                <strong>容易变成「随手更新快照」的橡皮章</strong>）、性能 / 压力测试、可访问性测试、冒烟测试（上线后快速验证主流程）。
               </p>
               <p>
                 <strong>Testing Library 的核心理念值得说：</strong>
                 <strong>「像用户一样测试」</strong>——
-                按可见文本和 role 查元素，
-                而不是按 class 名或组件内部结构。
-                这样重构内部实现测试不会碎。
+                按可见文本和 role 查元素，而不是按 class 名或组件内部结构。这样重构内部实现测试不会碎。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「测试覆盖率要多少？」——
-                <strong>不要给一个死数字</strong>。
-                正确回答是：
-                <strong>覆盖率只说明「代码被执行过」，
-                不说明「断言是对的」</strong>。
+                <strong>不要给一个死数字</strong>。正确回答是：
+                <strong>覆盖率只说明「代码被执行过」，不说明「断言是对的」</strong>。
                 <br />
-                <strong>这一点我可以给一个实测例子</strong>：
-                Federation 那门课的源项目里，
-                六个端点<strong>全部 <code>return null</code>
-                也能通过 3 个测试</strong>，
-                node-subgraph 的 4 个「通过」里
+                <strong>这一点我可以给一个实测例子</strong>：Federation 那门课的源项目里，六个端点<strong>全部 <code>return null</code>
+                也能通过 3 个测试</strong>，node-subgraph 的 4 个「通过」里
                 <strong>3 个是「空实现恰好满足断言」</strong>。
                 <strong>所以「测试通过 ≠ 做对了」</strong>——
                 比覆盖率数字更该关心的是断言够不够强。

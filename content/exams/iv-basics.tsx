@@ -57,8 +57,7 @@ export const ivBasics: Module = {
           body: (
             <>
               <p>
-                <strong>一句话：</strong>块级元素独占一行、宽高可控；
-                行内元素跟着文字流走、宽高由内容决定。
+                <strong>一句话：</strong>块级元素独占一行、宽高可控；行内元素跟着文字流走、宽高由内容决定。
               </p>
               <p>
                 具体差别就三处，记住这三条就够答：
@@ -66,8 +65,7 @@ export const ivBasics: Module = {
               <ul>
                 <li>
                   <strong>换行</strong>—— 块级前后自动断行（<code>div</code>、
-                  <code>p</code>、<code>h1</code>、<code>ul</code>）；
-                  行内不断行（<code>span</code>、<code>a</code>、
+                  <code>p</code>、<code>h1</code>、<code>ul</code>）；行内不断行（<code>span</code>、<code>a</code>、
                   <code>strong</code>、<code>img</code>）。
                 </li>
                 <li>
@@ -75,23 +73,17 @@ export const ivBasics: Module = {
                   <code>height</code>；行内设了<strong>不生效</strong>。
                 </li>
                 <li>
-                  <strong>内外边距</strong>—— 块级四个方向都生效；
-                  行内的<strong>上下 margin 不生效</strong>，
-                  上下 padding 视觉上会溢出但不撑开行高。
+                  <strong>内外边距</strong>—— 块级四个方向都生效；行内的<strong>上下 margin 不生效</strong>，上下 padding 视觉上会溢出但不撑开行高。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>「那 <code>inline-block</code> 呢？」
-                —— 它是折中：不换行（像行内），但宽高和上下 margin 都生效（像块级）。
-                导航按钮常用它。
+                —— 它是折中：不换行（像行内），但宽高和上下 margin 都生效（像块级）。导航按钮常用它。
               </p>
               <p>
-                <strong>还会追问：</strong>「<code>img</code> 是行内元素，
-                为什么能设宽高？」—— 因为它是
-                <strong>替换元素（replaced element）</strong>，
-                内容由外部资源决定，浏览器对它网开一面。
-                <code>input</code>、<code>video</code> 同理。
-                这个点答出来会加分。
+                <strong>还会追问：</strong>「<code>img</code> 是行内元素，为什么能设宽高？」—— 因为它是
+                <strong>替换元素（replaced element）</strong>，内容由外部资源决定，浏览器对它网开一面。
+                <code>input</code>、<code>video</code> 同理。这个点答出来会加分。
               </p>
             </>
           ),
@@ -147,19 +139,16 @@ export const ivBasics: Module = {
             <>
               <p>
                 <strong>一句话：</strong>一次点击在 DOM 里走三段
-                —— 先从 <code>window</code> 往下到目标（捕获），
-                在目标上触发（目标阶段），再从目标往上回到
+                —— 先从 <code>window</code> 往下到目标（捕获），在目标上触发（目标阶段），再从目标往上回到
                 <code>window</code>（冒泡）。
                 <strong>捕获从外到内，冒泡从内到外。</strong>
               </p>
               <p>
-                <code>addEventListener</code> 第三个参数决定你在哪一段听：
-                默认 <code>false</code> 听冒泡，
+                <code>addEventListener</code> 第三个参数决定你在哪一段听：默认 <code>false</code> 听冒泡，
                 <code>true</code>（或 <code>{"{ capture: true }"}</code>）听捕获。
               </p>
               <p>
-                <strong>为什么默认是冒泡？</strong>因为绝大多数时候你想知道的是
-                「用户点了什么」，从内往外传最自然 ——
+                <strong>为什么默认是冒泡？</strong>因为绝大多数时候你想知道的是「用户点了什么」，从内往外传最自然 ——
                 而且这才让<strong>事件委托</strong>成为可能（见 #289）。
               </p>
               <p>
@@ -175,16 +164,14 @@ export const ivBasics: Module = {
                 </li>
                 <li>
                   <code>e.preventDefault()</code>—— 阻止的是
-                  <strong>默认行为</strong>（链接跳转、表单提交），
-                  和传播完全无关。这两个最容易混，别答错。
+                  <strong>默认行为</strong>（链接跳转、表单提交），和传播完全无关。这两个最容易混，别答错。
                 </li>
               </ul>
               <p>
                 <strong>还会追问：</strong>
                 「有哪些事件不冒泡？」——<code>focus</code>、<code>blur</code>、
                 <code>load</code>、<code>mouseenter</code>、
-                <code>mouseleave</code>。
-                需要委托时用它们的冒泡版：<code>focusin</code> /
+                <code>mouseleave</code>。需要委托时用它们的冒泡版：<code>focusin</code> /
                 <code>focusout</code> / <code>mouseover</code> /
                 <code>mouseout</code>。
               </p>
@@ -280,8 +267,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
           body: (
             <>
               <p>
-                <strong>一句话：</strong><code>meta</code> 放的是
-                「关于这个页面的信息」——
+                <strong>一句话：</strong><code>meta</code> 放的是「关于这个页面的信息」——
                 浏览器、搜索引擎、社交平台读它，用户看不到它。
               </p>
               <p>
@@ -290,18 +276,14 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               <ul>
                 <li>
                   <code>{'<meta charset="UTF-8">'}</code>——
-                  <strong>必须放在 head 最前面</strong>。
-                  没有它中文会乱码，因为浏览器得先知道用什么编码去解析后面的字节。
+                  <strong>必须放在 head 最前面</strong>。没有它中文会乱码，因为浏览器得先知道用什么编码去解析后面的字节。
                 </li>
                 <li>
                   <code>viewport</code>——
-                  <strong>移动端适配的前提</strong>。
-                  不写这一行，手机浏览器会假装自己有 980px 宽然后整页缩小，
-                  你写的所有响应式 CSS 全白费（见 #274）。
+                  <strong>移动端适配的前提</strong>。不写这一行，手机浏览器会假装自己有 980px 宽然后整页缩小，你写的所有响应式 CSS 全白费（见 #274）。
                 </li>
                 <li>
-                  <code>description</code>—— 搜索结果里那段摘要。
-                  它<strong>不影响排名</strong>，但影响点击率。
+                  <code>description</code>—— 搜索结果里那段摘要。它<strong>不影响排名</strong>，但影响点击率。
                 </li>
                 <li>
                   <strong>Open Graph</strong>（<code>og:title</code>、
@@ -311,8 +293,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               </ul>
               <p>
                 <strong>会追问：</strong>「<code>keywords</code> 还有用吗？」
-                —— 没用了，Google 早就不看，因为被滥用成了堆关键词。
-                这个点能答出来说明你不是背的旧教程。
+                —— 没用了，Google 早就不看，因为被滥用成了堆关键词。这个点能答出来说明你不是背的旧教程。
               </p>
             </>
           ),
@@ -389,8 +370,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                 <strong>一句话：</strong>标签名本身说明了内容的角色 ——
                 <code>header</code> / <code>nav</code> / <code>main</code> /
                 <code>article</code> / <code>section</code> /
-                <code>aside</code> / <code>footer</code>，
-                而 <code>div</code> 和 <code>span</code> 什么都没说。
+                <code>aside</code> / <code>footer</code>，而 <code>div</code> 和 <code>span</code> 什么都没说。
               </p>
               <p>
                 <strong>关键是别答成「代码更好看」。</strong>
@@ -400,24 +380,19 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                 <li>
                   <strong>屏幕阅读器能导航。</strong>
                   视障用户可以按「跳到主内容」「列出所有标题」来浏览 ——
-                  这些功能<strong>依赖标签语义</strong>。
-                  一整页 <code>div</code>，读屏软件只能从头念到尾。
+                  这些功能<strong>依赖标签语义</strong>。一整页 <code>div</code>，读屏软件只能从头念到尾。
                 </li>
                 <li>
                   <strong>机器更容易认出正文。</strong>
                   搜索引擎、阅读模式、读屏的「跳到主内容」都依赖
-                  <code>main</code> / <code>article</code> 这类标签
-                  （别说成「main 的排名权重更高」）。
+                  <code>main</code> / <code>article</code> 这类标签（别说成「main 的排名权重更高」）。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>
                 「<code>section</code> 和 <code>div</code> 到底怎么选？」——
-                判断标准是<strong>「这块内容有没有自己的标题」</strong>。
-                有（能配一个 <code>h2</code>）就用 <code>section</code>；
-                纯粹为了布局套一层就用 <code>div</code>。
-                <strong>为了样式而套的容器就该是 <code>div</code></strong>，
-                硬换成 <code>section</code> 反而污染了大纲。
+                判断标准是<strong>「这块内容有没有自己的标题」</strong>。有（能配一个 <code>h2</code>）就用 <code>section</code>；纯粹为了布局套一层就用 <code>div</code>。
+                <strong>为了样式而套的容器就该是 <code>div</code></strong>，硬换成 <code>section</code> 反而污染了大纲。
               </p>
             </>
           ),
@@ -475,8 +450,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               <ul>
                 <li>
                   <strong>无障碍（accessibility, a11y）</strong>——
-                  <strong>有障碍的人能不能用</strong>。视障、听障、
-                  运动障碍、认知障碍。
+                  <strong>有障碍的人能不能用</strong>。视障、听障、运动障碍、认知障碍。
                 </li>
                 <li>
                   <strong>可用性（usability）</strong>——
@@ -484,13 +458,11 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                 </li>
                 <li>
                   <strong>包容性（inclusion）</strong>——
-                  <strong>范围够不够宽</strong>。老年人、网速慢的、
-                  用小屏手机的、非母语用户、临时单手抱着孩子操作的。
+                  <strong>范围够不够宽</strong>。老年人、网速慢的、用小屏手机的、非母语用户、临时单手抱着孩子操作的。
                 </li>
               </ul>
               <p>
-                三者是<strong>包含关系</strong>：无障碍是包容性的一部分，
-                可用性差的东西对所有人都差。
+                三者是<strong>包含关系</strong>：无障碍是包容性的一部分，可用性差的东西对所有人都差。
               </p>
               <p>
                 <strong>每个给一个例子（面试要的就是例子）：</strong>
@@ -500,26 +472,19 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                   <strong>a11y</strong>：给 <code>img</code> 写
                   <code>alt</code>；表单 <code>label</code> 用
                   <code>for</code>（JSX 里写 <code>htmlFor</code>）关联到 <code>input</code>；
-                  <strong>保证键盘能 Tab 到所有交互元素</strong>，
-                  并且焦点环别用 <code>outline: none</code> 删掉。
+                  <strong>保证键盘能 Tab 到所有交互元素</strong>，并且焦点环别用 <code>outline: none</code> 删掉。
                 </li>
                 <li>
-                  <strong>usability</strong>：按钮文字写「保存草稿」
-                  而不是「提交」；表单报错指向出错的那个字段，
-                  而不是页面顶部一句「表单有误」。
+                  <strong>usability</strong>：按钮文字写「保存草稿」而不是「提交」；表单报错指向出错的那个字段，而不是页面顶部一句「表单有误」。
                 </li>
                 <li>
-                  <strong>inclusion</strong>：正文对比度至少 4.5:1；
-                  不用颜色作为唯一的信息载体
-                  （红绿色盲看不出「红色是错的」，
-                  <strong>要同时给图标或文字</strong>）；
-                  首屏在 3G 下也能出内容。
+                  <strong>inclusion</strong>：正文对比度至少 4.5:1；不用颜色作为唯一的信息载体（红绿色盲看不出「红色是错的」，
+                  <strong>要同时给图标或文字</strong>）；首屏在 3G 下也能出内容。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>「怎么测？」——
-                键盘走一遍（不碰鼠标能不能完成主流程）、
-                Chrome DevTools 的 Lighthouse 跑一次 a11y 评分、
+                键盘走一遍（不碰鼠标能不能完成主流程）、Chrome DevTools 的 Lighthouse 跑一次 a11y 评分、
                 <code>axe</code> 插件扫一遍。说得出工具名比说概念更可信。
               </p>
             </>
@@ -670,8 +635,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
           body: (
             <>
               <p>
-                <strong>一句话：</strong>每个元素都是一个盒子，
-                由内到外四层：
+                <strong>一句话：</strong>每个元素都是一个盒子，由内到外四层：
                 <strong>content → padding → border → margin</strong>。
               </p>
               <p>
@@ -703,22 +667,17 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               <p>
                 <strong>为什么现在几乎所有项目都全局改成
                 <code>border-box</code>？</strong>
-                因为「我说 200 宽就是 200 宽」符合直觉。
-                默认那套会让你在做「三列各 33.3%」时，
-                一加 padding 就换行 —— 这是新手最常撞的墙。
+                因为「我说 200 宽就是 200 宽」符合直觉。默认那套会让你在做「三列各 33.3%」时，一加 padding 就换行 —— 这是新手最常撞的墙。
               </p>
               <p>
                 <strong>会追问：</strong>「margin 属于盒子吗？」——
-                <code>border-box</code> 也<strong>不包含 margin</strong>。
-                margin 永远在盒子外面，是「盒子之间的距离」。
+                <code>border-box</code> 也<strong>不包含 margin</strong>。margin 永远在盒子外面，是「盒子之间的距离」。
               </p>
               <p>
                 <strong>还会追问 margin 折叠（margin collapse）：</strong>
                 上下相邻的两个块级元素，上面的 <code>margin-bottom: 20px</code>
                 和下面的 <code>margin-top: 30px</code>
-                <strong>不会得到 50px，而是 30px</strong>（取较大值）。
-                这也是很多人「怎么调都差一点」的原因。
-                Flex 和 Grid 容器的子项<strong>不发生折叠</strong>。
+                <strong>不会得到 50px，而是 30px</strong>（取较大值）。这也是很多人「怎么调都差一点」的原因。Flex 和 Grid 容器的子项<strong>不发生折叠</strong>。
               </p>
             </>
           ),
@@ -803,8 +762,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
           body: (
             <>
               <p>
-                <strong>一句话：</strong>padding 在边框<strong>里面</strong>，
-                是「内容和边框的距离」；margin 在边框
+                <strong>一句话：</strong>padding 在边框<strong>里面</strong>，是「内容和边框的距离」；margin 在边框
                 <strong>外面</strong>，是「这个盒子和别人的距离」。
               </p>
               <p>
@@ -813,28 +771,23 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               <ul>
                 <li>
                   <strong>要不要背景色 / 点击区。</strong>
-                  padding 属于元素本身，会被背景色覆盖、点它算点到元素；
-                  margin 是空白，点不到。
+                  padding 属于元素本身，会被背景色覆盖、点它算点到元素；margin 是空白，点不到。
                   <strong>按钮想加大点击区一定用 padding。</strong>
                 </li>
                 <li>
                   <strong>会不会折叠。</strong>
-                  margin 会上下折叠，padding 永远不会。
-                  想要「稳定的 20px 间距」用 padding 更可控。
+                  margin 会上下折叠，padding 永远不会。想要「稳定的 20px 间距」用 padding 更可控。
                 </li>
                 <li>
                   <strong>负值。</strong>
-                  margin 可以是负数（常用来做重叠、抵消父级 padding），
-                  padding 不行。
+                  margin 可以是负数（常用来做重叠、抵消父级 padding），padding 不行。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>
                 「<code>margin: 0 auto</code> 为什么能居中，
                 <code>padding: auto</code> 为什么不行？」——
-                margin 的 <code>auto</code> 会吃掉剩余空间并平分，
-                padding 根本不支持 <code>auto</code>。
-                而且这招只对<strong>设了宽度的块级元素</strong>有效。
+                margin 的 <code>auto</code> 会吃掉剩余空间并平分，padding 根本不支持 <code>auto</code>。而且这招只对<strong>设了宽度的块级元素</strong>有效。
               </p>
             </>
           ),
@@ -880,14 +833,11 @@ outer.addEventListener("click", () => console.log("outer bubble"));
           body: (
             <>
               <p>
-                <strong>一句话：</strong>Flex 是<strong>一维</strong>的
-                （一行或一列，内容驱动）；
-                Grid 是<strong>二维</strong>的（同时管行和列，布局驱动）。
+                <strong>一句话：</strong>Flex 是<strong>一维</strong>的（一行或一列，内容驱动）；Grid 是<strong>二维</strong>的（同时管行和列，布局驱动）。
               </p>
               <p>
                 <strong>怎么选，一个判断句就够：</strong>
-                「我需要同时控制行和列的对齐吗？」
-                要 → Grid；不要 → Flex。
+                「我需要同时控制行和列的对齐吗？」要 → Grid；不要 → Flex。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -912,12 +862,10 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                     <tr>
                       <td>典型场景</td>
                       <td>
-                        导航栏、按钮组、卡片内部的图文排列、
-                        「左边文字右边按钮」
+                        导航栏、按钮组、卡片内部的图文排列、「左边文字右边按钮」
                       </td>
                       <td>
-                        整页骨架（头/侧栏/主体/脚）、
-                        商品瀑布流、日历、表单的标签列 + 输入列
+                        整页骨架（头/侧栏/主体/脚）、商品瀑布流、日历、表单的标签列 + 输入列
                       </td>
                     </tr>
                     <tr>
@@ -933,17 +881,12 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               </div>
               <p>
                 <strong>会追问：</strong>「能一起用吗？」——
-                <strong>正常做法就是一起用</strong>：
-                Grid 搭页面骨架，每个格子内部用 Flex 排内容。
-                答「二选一」反而显得没实战过。
+                <strong>正常做法就是一起用</strong>：Grid 搭页面骨架，每个格子内部用 Flex 排内容。答「二选一」反而显得没实战过。
               </p>
               <p>
                 <strong>还会追问 <code>flex: 1</code> 是什么：</strong>
                 它是三个属性的简写 ——
-                <code>flex-grow: 1; flex-shrink: 1; flex-basis: 0%</code>。
-                意思是「剩余空间我来占，需要时也可以被压缩，
-                初始尺寸按 0 算」。
-                这就是「一个固定宽侧栏 + 一个自适应主体」最短的写法。
+                <code>flex-grow: 1; flex-shrink: 1; flex-basis: 0%</code>。意思是「剩余空间我来占，需要时也可以被压缩，初始尺寸按 0 算」。这就是「一个固定宽侧栏 + 一个自适应主体」最短的写法。
               </p>
             </>
           ),
@@ -1077,15 +1020,10 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               </p>
               <ul>
                 <li>
-                  <strong>基础</strong>：标签 <code>div</code>、
-                  类 <code>.card</code>、id <code>#app</code>、
-                  通用 <code>*</code>
+                  <strong>基础</strong>：标签 <code>div</code>、类 <code>.card</code>、id <code>#app</code>、通用 <code>*</code>
                 </li>
                 <li>
-                  <strong>组合</strong>：后代 <code>a b</code>（空格）、
-                  直接子元素 <code>a &gt; b</code>、
-                  紧邻兄弟 <code>a + b</code>、
-                  后面所有兄弟 <code>a ~ b</code>
+                  <strong>组合</strong>：后代 <code>a b</code>（空格）、直接子元素 <code>a &gt; b</code>、紧邻兄弟 <code>a + b</code>、后面所有兄弟 <code>a ~ b</code>
                 </li>
                 <li>
                   <strong>属性</strong>：<code>[type="text"]</code>、
@@ -1139,16 +1077,12 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               </div>
               <p>
                 伪类算一个 class，伪元素算一个标签，
-                <code>:not()</code> 本身不算分但<strong>括号里的算</strong>。
-                行内 <code>style</code> 比任何选择器都高，
+                <code>:not()</code> 本身不算分但<strong>括号里的算</strong>。行内 <code>style</code> 比任何选择器都高，
                 <code>!important</code> 再高一层 ——
-                <strong>但别把 <code>!important</code> 当解法</strong>，
-                它通常说明选择器设计已经失控了。
+                <strong>但别把 <code>!important</code> 当解法</strong>，它通常说明选择器设计已经失控了。
               </p>
               <p>
-                <strong>同分怎么办？</strong>后写的赢。
-                这就是为什么覆盖第三方样式时，
-                把自己的 CSS 放在后面加载往往就够了。
+                <strong>同分怎么办？</strong>后写的赢。这就是为什么覆盖第三方样式时，把自己的 CSS 放在后面加载往往就够了。
               </p>
             </>
           ),
@@ -1241,18 +1175,15 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               <ul>
                 <li>
                   <strong>普通 import</strong>——
-                  <code>{'import "./styles.css"'}</code>，
-                  打包工具接管，全局生效。
+                  <code>{'import "./styles.css"'}</code>，打包工具接管，全局生效。
                 </li>
                 <li>
                   <strong>CSS Modules</strong>——
-                  <code>{'import s from "./x.module.css"'}</code>，
-                  类名自动加哈希，<strong>天然不冲突</strong>。
+                  <code>{'import s from "./x.module.css"'}</code>，类名自动加哈希，<strong>天然不冲突</strong>。
                 </li>
                 <li>
                   <strong>CSS-in-JS</strong>（styled-components、emotion）——
-                  样式写在 JS 里，能用 props 做条件样式。
-                  代价是运行时开销。
+                  样式写在 JS 里，能用 props 做条件样式。代价是运行时开销。
                 </li>
                 <li>
                   <strong>原子化</strong>（Tailwind）——
@@ -1262,12 +1193,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               <p>
                 <strong>会追问：</strong>
                 「为什么不推荐 <code>@import</code>？」——
-                因为它是<strong>串行</strong>的：
-                浏览器要先下载并解析外层 CSS，
-                才发现里面还有个 <code>@import</code>，再去下载。
-                这形成了一条请求链，直接拖慢首屏。
-                构建工具里的 <code>@import</code> 是编译期合并的，
-                不算这个问题 —— 说清这个区别是加分项。
+                因为它是<strong>串行</strong>的：浏览器要先下载并解析外层 CSS，才发现里面还有个 <code>@import</code>，再去下载。这形成了一条请求链，直接拖慢首屏。构建工具里的 <code>@import</code> 是编译期合并的，不算这个问题 —— 说清这个区别是加分项。
               </p>
             </>
           ),
@@ -1324,38 +1250,28 @@ outer.addEventListener("click", () => console.log("outer bubble"));
             <>
               <p>
                 <strong>一句话：</strong>SCSS 是 Sass 的一种语法，
-                <strong>CSS 的超集</strong>—— 合法的 CSS 就是合法的 SCSS，
-                但它多了变量、嵌套、mixin、函数这些编程能力，
-                最后编译成普通 CSS。
+                <strong>CSS 的超集</strong>—— 合法的 CSS 就是合法的 SCSS，但它多了变量、嵌套、mixin、函数这些编程能力，最后编译成普通 CSS。
               </p>
               <p>
                 <strong>Sass 和 SCSS 什么关系？</strong>
                 同一个工具的两种写法：
                 <code>.sass</code> 靠缩进、没有大括号和分号；
                 <code>.scss</code> 长得像 CSS。
-                <strong>现在基本都用 <code>.scss</code></strong>，
-                因为可以直接把老 CSS 粘进来。
+                <strong>现在基本都用 <code>.scss</code></strong>，因为可以直接把老 CSS 粘进来。
               </p>
               <p>
                 <strong>核心能力四个：</strong>
-                变量（<code>$brand: #2b6</code>）、
-                嵌套（层级关系一眼看出来）、
+                变量（<code>$brand: #2b6</code>）、嵌套（层级关系一眼看出来）、
                 <code>@mixin</code> / <code>@include</code>（复用一组声明，可传参）、
                 <code>@use</code> 拆文件。
               </p>
               <p>
                 <strong>会追问（这题真正想考的）：</strong>
-                「现在还需要它吗？」—— 老实说，需求少了很多：
-                变量被<strong>原生 CSS 自定义属性</strong>
-                （<code>--brand</code>）取代，而且原生的能在运行时改、
-                能被 JS 读写、能跟着主题切换，
-                <strong>在多数场景下比 SCSS 变量更灵活</strong>（本站的深色模式就是这么做的）；
-                但 <code>var()</code> 不能写进媒体查询条件和选择器，
-                断点这类值仍要靠 SCSS 变量或构建期常量。
-                嵌套也已经进了 CSS 标准。
+                「现在还需要它吗？」—— 老实说，需求少了很多：变量被<strong>原生 CSS 自定义属性</strong>
+                （<code>--brand</code>）取代，而且原生的能在运行时改、能被 JS 读写、能跟着主题切换，
+                <strong>在多数场景下比 SCSS 变量更灵活</strong>（本站的深色模式就是这么做的）；但 <code>var()</code> 不能写进媒体查询条件和选择器，断点这类值仍要靠 SCSS 变量或构建期常量。嵌套也已经进了 CSS 标准。
                 <br />
-                <strong>剩下真正还有价值的是 mixin 和循环生成</strong>。
-                能这么答说明你知道边界在哪。
+                <strong>剩下真正还有价值的是 mixin 和循环生成</strong>。能这么答说明你知道边界在哪。
               </p>
             </>
           ),
@@ -1428,12 +1344,10 @@ $brand: #2b6cb0;
           body: (
             <>
               <p>
-                <strong>一句话：</strong>预处理器是「用一种更强的语言写样式，
-                再编译成 CSS」。Sass / Less / Stylus 都是。
+                <strong>一句话：</strong>预处理器是「用一种更强的语言写样式，再编译成 CSS」。Sass / Less / Stylus 都是。
               </p>
               <p>
-                <strong>好处：</strong>变量集中管理、嵌套让结构清晰、
-                mixin 复用、能循环生成（比如 <code>.mt-1</code> 到
+                <strong>好处：</strong>变量集中管理、嵌套让结构清晰、mixin 复用、能循环生成（比如 <code>.mt-1</code> 到
                 <code>.mt-10</code>）、能拆成很多小文件再合并。
               </p>
               <p>
@@ -1441,13 +1355,11 @@ $brand: #2b6cb0;
               </p>
               <ul>
                 <li>
-                  <strong>多一步构建</strong>。多一个依赖、多一份配置、
-                  多一处可能出错的地方。
+                  <strong>多一步构建</strong>。多一个依赖、多一份配置、多一处可能出错的地方。
                 </li>
                 <li>
                   <strong>嵌套太容易写深。</strong>
-                  一不注意就写出 <code>.a .b .c .d span</code>，
-                  优先级越滚越高，最后只能靠
+                  一不注意就写出 <code>.a .b .c .d span</code>，优先级越滚越高，最后只能靠
                   <code>!important</code> 收场。
                   <strong>这是预处理器最常见的陷阱</strong>——
                   实践里一般限制自己不超过三层。
@@ -1462,10 +1374,8 @@ $brand: #2b6cb0;
               </ul>
               <p>
                 <strong>结论怎么说：</strong>
-                「大项目、有设计系统、需要批量生成样式时值得；
-                小项目用原生 CSS 加自定义属性就够，
-                <strong>因为它当年解决的两个主要问题（变量、嵌套）
-                原生已经支持了</strong>。」
+                「大项目、有设计系统、需要批量生成样式时值得；小项目用原生 CSS 加自定义属性就够，
+                <strong>因为它当年解决的两个主要问题（变量、嵌套）原生已经支持了</strong>。」
                 —— 有取舍的回答比一味夸好。
               </p>
             </>
@@ -1525,8 +1435,7 @@ $brand: #2b6cb0;
           body: (
             <>
               <p>
-                <strong>一句话：</strong>一套代码在不同屏幕尺寸下
-                都给出合适的排版，而不是给手机单独做一个站。
+                <strong>一句话：</strong>一套代码在不同屏幕尺寸下都给出合适的排版，而不是给手机单独做一个站。
               </p>
               <p>
                 <strong>四个手段，按重要性排：</strong>
@@ -1539,8 +1448,7 @@ $brand: #2b6cb0;
                 <li>
                   <strong>弹性单位</strong>——
                   宽度用 <code>%</code> / <code>fr</code> /
-                  <code>min()</code> / <code>clamp()</code>，
-                  字号用 <code>rem</code>，别到处写死 <code>px</code>。
+                  <code>min()</code> / <code>clamp()</code>，字号用 <code>rem</code>，别到处写死 <code>px</code>。
                   <code>clamp(16px, 4vw, 24px)</code>
                   一行就能做出「有上下限的流式字号」。
                 </li>
@@ -1557,16 +1465,11 @@ $brand: #2b6cb0;
               </ul>
               <p>
                 <strong>会追问：</strong>「断点怎么定？」——
-                正确答案是<strong>「按内容定，不是按设备定」</strong>：
-                把浏览器慢慢拉窄，哪里开始难看就在哪里加断点。
-                追着 iPhone 型号列表定断点是过时做法，
-                因为设备尺寸年年变。
+                正确答案是<strong>「按内容定，不是按设备定」</strong>：把浏览器慢慢拉窄，哪里开始难看就在哪里加断点。追着 iPhone 型号列表定断点是过时做法，因为设备尺寸年年变。
               </p>
               <p>
                 <strong>还会追问 mobile-first：</strong>
-                默认样式写窄屏，用 <code>min-width</code> 往上加。
-                好处是移动端加载的 CSS 最少，
-                而且「加东西」比「删东西」好写 ——
+                默认样式写窄屏，用 <code>min-width</code> 往上加。好处是移动端加载的 CSS 最少，而且「加东西」比「删东西」好写 ——
                 用 <code>max-width</code> 往下覆盖经常要反复清理属性。
               </p>
             </>

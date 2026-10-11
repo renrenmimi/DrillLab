@@ -505,8 +505,7 @@ const cabBooking: Exam = {
               body: (
                 <>
                   <p>
-                    <strong>一句话：</strong>四个测试从「首页长对了吗」一路走到
-                    「连订四辆车之后历史对吗」，
+                    <strong>一句话：</strong>四个测试从「首页长对了吗」一路走到「连订四辆车之后历史对吗」，
                     <strong>刚好是一次完整的用户流程</strong>。
                   </p>
                   <div className="table-wrap">
@@ -555,8 +554,7 @@ const cabBooking: Exam = {
                           <td>keeps only the newest three rides</td>
                           <td>
                             连订 4 辆，历史<strong>只剩 3 条</strong>，顺序是
-                            Ford Explorer / Toyota Highlander / Honda Accord，
-                            而且 <code>Ford Fusion</code>
+                            Ford Explorer / Toyota Highlander / Honda Accord，而且 <code>Ford Fusion</code>
                             <strong>必须已经不在 DOM 里</strong>
                           </td>
                         </tr>
@@ -567,17 +565,14 @@ const cabBooking: Exam = {
                     <strong>测试 2 那个 </strong>
                     <code>toEqual</code>
                     <strong> 要特别注意：</strong>它比的是一个
-                    <strong>有序数组</strong>，不是「包含这三个」。
-                    分组顺序错了就红。而顺序不是你决定的 ——
-                    它来自 <code>data.json</code> 的键顺序，
-                    你只要老实地 <code>Object.keys(cabData).map(...)</code> 就对了。
+                    <strong>有序数组</strong>，不是「包含这三个」。分组顺序错了就红。而顺序不是你决定的 ——
+                    它来自 <code>data.json</code> 的键顺序，你只要老实地 <code>Object.keys(cabData).map(...)</code> 就对了。
                   </p>
                   <p>
                     <strong>测试 4 是分水岭。</strong>它同时查三件事：
                     <strong>只剩三条</strong>（数量）、
                     <strong>最新在最上</strong>（顺序）、
-                    <strong>最旧那条真的不在 DOM 里</strong>（不是藏起来了）。
-                    后面有一整节专门讲它。
+                    <strong>最旧那条真的不在 DOM 里</strong>（不是藏起来了）。后面有一整节专门讲它。
                   </p>
                 </>
               ),
@@ -680,8 +675,7 @@ const cabBooking: Exam = {
               body: (
                 <>
                   <p>
-                    <strong>一句话：</strong>这道题的判分不看你的 class 名、
-                    不看 DOM 结构、也不看样式，
+                    <strong>一句话：</strong>这道题的判分不看你的 class 名、不看 DOM 结构、也不看样式，
                     <strong>只看 13 个 <code>data-testid</code> 和它们里面的文字</strong>。
                   </p>
                   <div className="table-wrap">
@@ -749,9 +743,7 @@ const cabBooking: Exam = {
                   <ul>
                     <li>
                       <code>no-ride-title</code> 和 <code>history-cabs</code>
-                      <strong>是互斥的</strong> —— 空的时候只有前者，
-                      有记录的时候只有后者。所以 RideHistory 里必须是一个三元表达式，
-                      不能两个都渲染。
+                      <strong>是互斥的</strong> —— 空的时候只有前者，有记录的时候只有后者。所以 RideHistory 里必须是一个三元表达式，不能两个都渲染。
                     </li>
                     <li>
                       测试 4 最后一行是{" "}
@@ -759,9 +751,7 @@ const cabBooking: Exam = {
                       <strong>不能</strong>存在。注意它用的是{" "}
                       <code>queryBy</code> 而不是 <code>getBy</code> ——
                       <strong><code>getBy</code> 找不到会抛错，
-                      <code>queryBy</code> 找不到返回 null</strong>，
-                      所以断言「不存在」时只能用 <code>queryBy</code>。
-                      这一点面试也会问。
+                      <code>queryBy</code> 找不到返回 null</strong>，所以断言「不存在」时只能用 <code>queryBy</code>。这一点面试也会问。
                     </li>
                   </ul>
                 </>
@@ -871,11 +861,8 @@ const cabBooking: Exam = {
                 <>
                   README 说「先运行完整答案熟悉流程」。
                   <strong>但原样 <code>npx vitest run</code> 是 0 个测试跑起来</strong> ——
-                  不是某个测试失败，是连收集阶段都过不去。
-                  原因是个扩展名问题，第 3 部分的 Debug Lab 专门讲。
-                  现在只要知道：<strong>把 <code>src/context/CabContext.js</code>
-                  改名成 <code>.jsx</code></strong> 就能跑，
-                  而且所有 import 都是无扩展名的，改名不用动任何 import。
+                  不是某个测试失败，是连收集阶段都过不去。原因是个扩展名问题，第 3 部分的 Debug Lab 专门讲。现在只要知道：<strong>把 <code>src/context/CabContext.js</code>
+                  改名成 <code>.jsx</code></strong> 就能跑，而且所有 import 都是无扩展名的，改名不用动任何 import。
                 </>
               ),
               bodyEn: (
@@ -920,12 +907,9 @@ const cabBooking: Exam = {
               answer: ["b"],
               explain: (
                 <>
-                  <code>toEqual</code> 比的是<strong>有序数组</strong>。
-                  把三个 <code>car-type-heading</code> 的文字按 DOM 顺序取出来，
-                  必须正好是 <code>[&quot;Sedan&quot;, &quot;SUV&quot;, &quot;Luxury&quot;]</code>。
+                  <code>toEqual</code> 比的是<strong>有序数组</strong>。把三个 <code>car-type-heading</code> 的文字按 DOM 顺序取出来，必须正好是 <code>[&quot;Sedan&quot;, &quot;SUV&quot;, &quot;Luxury&quot;]</code>。
                   <br />
-                  好消息是这个顺序不用你操心 —— 它就是 <code>data.json</code> 的键顺序，
-                  老实用 <code>Object.keys(cabData).map(...)</code> 就对了。
+                  好消息是这个顺序不用你操心 —— 它就是 <code>data.json</code> 的键顺序，老实用 <code>Object.keys(cabData).map(...)</code> 就对了。
                   <strong>反而是「我来排个序」会把它弄坏。</strong>
                 </>
               ),
@@ -951,8 +935,7 @@ const cabBooking: Exam = {
               titleEn: "Fill in the two testids of RideHistory and the either-or logic",
               prompt: (
                 <>
-                  空的时候只能出现 <code>no-ride-title</code>，
-                  有记录的时候只能出现 <code>history-cabs</code>。把三个空填上。
+                  空的时候只能出现 <code>no-ride-title</code>，有记录的时候只能出现 <code>history-cabs</code>。把三个空填上。
                 </>
               ),
               promptEn: (
@@ -997,10 +980,7 @@ const cabBooking: Exam = {
                   hintEn: "The tests count these with getAllByTestId.",
                   why: (
                     <>
-                      测试 3 和测试 4 都用 <code>history-cabs</code> 找历史条目，
-                      测试 4 还用 <code>toHaveLength(3)</code> 数它。
-                      所以它必须挂在<strong>每一条 <code>&lt;li&gt;</code> 上</strong>，
-                      不是挂在外层 <code>&lt;ul&gt;</code> 上 ——
+                      测试 3 和测试 4 都用 <code>history-cabs</code> 找历史条目，测试 4 还用 <code>toHaveLength(3)</code> 数它。所以它必须挂在<strong>每一条 <code>&lt;li&gt;</code> 上</strong>，不是挂在外层 <code>&lt;ul&gt;</code> 上 ——
                       挂错地方会变成只有 1 个，测试 4 直接红。
                     </>
                   ),
@@ -1022,11 +1002,9 @@ const cabBooking: Exam = {
                   hintEn: "Test 1 uses it to assert the empty state.",
                   why: (
                     <>
-                      测试 1：<code>getByTestId(&quot;no-ride-title&quot;)</code>。
-                      注意它和 <code>history-cabs</code>
+                      测试 1：<code>getByTestId(&quot;no-ride-title&quot;)</code>。注意它和 <code>history-cabs</code>
                       <strong>在同一时刻只能有一个存在</strong> ——
-                      所以这里必须是三元表达式的两个分支，
-                      不能把空状态那段一直渲染着。
+                      所以这里必须是三元表达式的两个分支，不能把空状态那段一直渲染着。
                     </>
                   ),
                   whyEn: (
@@ -1047,9 +1025,7 @@ const cabBooking: Exam = {
                   why: (
                     <>
                       <code>toHaveTextContent(&quot;No ride history yet.&quot;)</code> ——
-                      文字必须对得上。<strong>这类「文案即断言」的地方
-                      千万别自己改写</strong>，
-                      「暂无记录」或者 &ldquo;No rides yet&rdquo; 都会红。
+                      文字必须对得上。<strong>这类「文案即断言」的地方千万别自己改写</strong>，「暂无记录」或者 &ldquo;No rides yet&rdquo; 都会红。
                     </>
                   ),
                   whyEn: (
@@ -1093,13 +1069,11 @@ const cabBooking: Exam = {
                 <>
                   测试 4 是 <code>expect(rides).toHaveLength(3)</code>。
                   <code>history-cabs</code> 挂在 <code>&lt;ul&gt;</code> 上，
-                  <code>getAllByTestId</code> 只找到 <strong>1 个</strong>，
-                  断言 3 直接失败。
+                  <code>getAllByTestId</code> 只找到 <strong>1 个</strong>，断言 3 直接失败。
                   <br />
                   <strong>顺带另一个错：</strong>
                   <code>key={"{ride.id}"}</code> 在这里不安全 ——
-                  同一辆车可以被订两次，id 会重复。
-                  源项目用的是 <code>{"`${ride.id}-${index}`"}</code>。
+                  同一辆车可以被订两次，id 会重复。源项目用的是 <code>{"`${ride.id}-${index}`"}</code>。
                 </>
               ),
               whyEn: (
@@ -1203,8 +1177,7 @@ const cabBooking: Exam = {
                   <p>
                     <strong>一句话：</strong>
                     <code>createContext()</code> 造一根管道，
-                    <code>Provider</code> 往管道里灌值，
-                    子树里任何组件用 <code>useContext</code> 就能取到 ——
+                    <code>Provider</code> 往管道里灌值，子树里任何组件用 <code>useContext</code> 就能取到 ——
                     <strong>不用一层层传 props</strong>。
                   </p>
                   <p>
@@ -1213,31 +1186,23 @@ const cabBooking: Exam = {
                   <ul>
                     <li>
                       <strong><code>const CabContext = createContext()</code></strong>
-                      —— 造管道。注意源项目<strong>没给默认值</strong>，
-                      所以没套 Provider 时 <code>useContext</code> 返回{" "}
+                      —— 造管道。注意源项目<strong>没给默认值</strong>，所以没套 Provider 时 <code>useContext</code> 返回{" "}
                       <code>undefined</code>。这是故意的，见下一条。
                     </li>
                     <li>
-                      <strong><code>CabProvider</code></strong> —— 一个普通组件。
-                      两个 <code>useState</code> 存状态，
-                      一个函数改状态，
-                      三样东西打包成 <code>value</code> 灌进 <code>Provider</code>。
+                      <strong><code>CabProvider</code></strong> —— 一个普通组件。两个 <code>useState</code> 存状态，一个函数改状态，三样东西打包成 <code>value</code> 灌进 <code>Provider</code>。
                     </li>
                     <li>
-                      <strong><code>useCabContext</code></strong> —— 自定义 hook。
-                      它不只是 <code>useContext</code> 的别名，
+                      <strong><code>useCabContext</code></strong> —— 自定义 hook。它不只是 <code>useContext</code> 的别名，
                       <strong>它还带一个守卫</strong>：拿不到就抛错。
                     </li>
                   </ul>
                   <p>
                     <strong>那个守卫在防什么</strong>
-                    （下面代码块里高亮的 26–28 行）：
-                    如果没有守卫，忘了套 Provider 时 <code>context</code> 是{" "}
-                    <code>undefined</code>，
-                    然后 <code>const {"{ rideHistory }"} = undefined</code> 会抛一个
+                    （下面代码块里高亮的 26–28 行）：如果没有守卫，忘了套 Provider 时 <code>context</code> 是{" "}
+                    <code>undefined</code>，然后 <code>const {"{ rideHistory }"} = undefined</code> 会抛一个
                     <strong>看不懂的解构错误</strong>
-                    （<code>Cannot destructure property ... of undefined</code>）。
-                    有了守卫，报错直接说
+                    （<code>Cannot destructure property ... of undefined</code>）。有了守卫，报错直接说
                     <code>useCabContext must be used within a CabProvider</code> ——
                     <strong>把「忘了套 Provider」这个真正的原因摆在你脸上。</strong>
                   </p>
@@ -1245,8 +1210,7 @@ const cabBooking: Exam = {
                     <strong>会追问：</strong>
                     「为什么不给 <code>createContext</code> 一个默认值？」——
                     给了默认值，忘套 Provider 时代码会
-                    <strong>静默地用假数据跑下去</strong>，
-                    你会以为功能坏了而不是配置错了。
+                    <strong>静默地用假数据跑下去</strong>，你会以为功能坏了而不是配置错了。
                     <strong>不给默认值 + 守卫抛错，是让错误尽早暴露。</strong>
                   </p>
                 </>
@@ -1327,24 +1291,20 @@ const cabBooking: Exam = {
                   <p>
                     <strong>一句话：</strong>
                     <strong>一个组件读不到自己 return 里提供的 Context。</strong>
-                    <code>useContext</code> 往<strong>上</strong>找 Provider，
-                    不往下找。
+                    <code>useContext</code> 往<strong>上</strong>找 Provider，不往下找。
                   </p>
                   <p>
                     <strong>为什么这道题特别容易在这里失分：</strong>看下面{" "}
                     <code>App</code> 的第 14 行 ——
-                    <code>App</code> 自己调了 <code>useCabContext()</code>，
-                    因为 <code>handleSelectCab</code> 需要
+                    <code>App</code> 自己调了 <code>useCabContext()</code>，因为 <code>handleSelectCab</code> 需要
                     <code>updateBookedCabDetails</code>。
                     <strong>所以 App 是消费者，不是提供者。</strong>
                   </p>
                   <p>
                     <strong>如果你把 Provider 写进 App 的 return 里：</strong>
                     <code>App</code> 顶部那句 <code>useCabContext()</code>
-                    在<strong>渲染 App 自己的时候</strong>就执行了，
-                    那时候 Provider 还没挂上 —— <code>context</code> 是{" "}
-                    <code>undefined</code>，
-                    守卫立刻抛 <code>useCabContext must be used within a CabProvider</code>，
+                    在<strong>渲染 App 自己的时候</strong>就执行了，那时候 Provider 还没挂上 —— <code>context</code> 是{" "}
+                    <code>undefined</code>，守卫立刻抛 <code>useCabContext must be used within a CabProvider</code>，
                     <strong>四个测试全红</strong>。
                   </p>
                   <p>
@@ -1357,10 +1317,7 @@ const cabBooking: Exam = {
                   <p>
                     <strong>会追问：</strong>
                     「那 Provider 能不能再往上，包在 <code>StrictMode</code> 外面？」——
-                    能，位置只要在所有消费者之上就行。
-                    源项目放在 <code>StrictMode</code> 里面，
-                    好处是<strong>开发模式下的双次渲染也会覆盖到 Provider</strong>，
-                    能更早暴露副作用写在渲染里这类问题。
+                    能，位置只要在所有消费者之上就行。源项目放在 <code>StrictMode</code> 里面，好处是<strong>开发模式下的双次渲染也会覆盖到 Provider</strong>，能更早暴露副作用写在渲染里这类问题。
                   </p>
                 </>
               ),
@@ -1471,12 +1428,9 @@ const App = () => {
                   </p>
                   <p>
                     <strong>为什么这两件事必须在一个函数里：</strong>
-                    如果让调用方自己调两次
-                    （<code>setBookedCabDetails(cab)</code> 加{" "}
-                    <code>setRideHistory(...)</code>），
-                    那么<strong>「选车」这个业务动作就散在调用方了</strong> ——
-                    以后加一条「同一辆车不重复记录」的规则，
-                    你得去每个调用点改。
+                    如果让调用方自己调两次（<code>setBookedCabDetails(cab)</code> 加{" "}
+                    <code>setRideHistory(...)</code>），那么<strong>「选车」这个业务动作就散在调用方了</strong> ——
+                    以后加一条「同一辆车不重复记录」的规则，你得去每个调用点改。
                     <strong>把动作包成一个函数，规则就只有一个地方。</strong>
                   </p>
                   <p>
@@ -1503,10 +1457,8 @@ const App = () => {
                     <code>bookedCabDetails</code>、
                     <code>RideHistory</code> 只要 <code>rideHistory</code>。
                     <strong>三个组件各取所需，互相不知道对方存在</strong> ——
-                    这就是用 Context 而不是 props 的收益。
-                    用 props 的话，<code>rideHistory</code> 得从 App 一路传到
-                    <code>Home</code> 再传到 <code>RideHistory</code>，
-                    而 <code>Home</code> 自己根本不用它。
+                    这就是用 Context 而不是 props 的收益。用 props 的话，<code>rideHistory</code> 得从 App 一路传到
+                    <code>Home</code> 再传到 <code>RideHistory</code>，而 <code>Home</code> 自己根本不用它。
                   </p>
                 </>
               ),
@@ -1583,13 +1535,11 @@ const App = () => {
                 <>
                   测试里的 <code>renderApp()</code> 是
                   <code>render(&lt;CabProvider&gt;&lt;App /&gt;&lt;/CabProvider&gt;)</code>。
-                  <strong>这是因为测试直接 render 的是 <code>App</code>，
-                  不是 <code>index.jsx</code></strong> ——
+                  <strong>这是因为测试直接 render 的是 <code>App</code>，不是 <code>index.jsx</code></strong> ——
                   <code>index.jsx</code> 那一层在测试里根本没被执行。
                   <br />
                   换个角度看：<strong>测试文件已经把答案告诉你了</strong> ——
-                  它包了 Provider，说明 <code>App</code> 需要一个在它上面的 Provider。
-                  读测试能读出结构，这是这道题送分的地方。
+                  它包了 Provider，说明 <code>App</code> 需要一个在它上面的 Provider。读测试能读出结构，这是这道题送分的地方。
                 </>
               ),
               bodyEn: (
@@ -1666,8 +1616,7 @@ export { CabProvider, useCabContext };`,
                   hintEn: "The one imported from react.",
                   why: (
                     <>
-                      <code>createContext()</code> 造管道。
-                      源项目<strong>没传默认值</strong> ——
+                      <code>createContext()</code> 造管道。源项目<strong>没传默认值</strong> ——
                       所以没套 Provider 时 <code>useContext</code> 返回{" "}
                       <code>undefined</code>，正好被第 4 个空的守卫抓住。
                     </>
@@ -1701,8 +1650,7 @@ export { CabProvider, useCabContext };`,
                       测试撞不到，因为每次订车之间都有完整的页面切换和重渲染。
                       <br />
                       <code>(prev) =&gt; [...prev, details]</code> 是函数式更新，
-                      <strong>永远读到最新值</strong>，是更稳的写法。
-                      第 3 部分会专门讲这个差别。
+                      <strong>永远读到最新值</strong>，是更稳的写法。第 3 部分会专门讲这个差别。
                       <br />
                       两种都不许用 <code>push</code> —— 那是原地修改，React 看不到变化。
                     </>
@@ -1768,8 +1716,7 @@ export { CabProvider, useCabContext };`,
                       没有它，你会看到{" "}
                       <code>Cannot destructure property &apos;rideHistory&apos; of
                       undefined</code>
-                      ，然后去查 <code>rideHistory</code> —— 而真正的原因是
-                      「忘了套 Provider」。
+                      ，然后去查 <code>rideHistory</code> —— 而真正的原因是「忘了套 Provider」。
                     </>
                   ),
                   whyEn: (
@@ -1797,9 +1744,7 @@ export { CabProvider, useCabContext };`,
               titleEn: "Write the whole CabContext from the signature",
               prompt: (
                 <>
-                  只给你 import 和导出。三件套自己写出来，
-                  包括那个守卫。检查器会查守卫、查不可变更新、
-                  以及<strong>不许用 push</strong>。
+                  只给你 import 和导出。三件套自己写出来，包括那个守卫。检查器会查守卫、查不可变更新、以及<strong>不许用 push</strong>。
                 </>
               ),
               promptEn: (
@@ -1932,8 +1877,7 @@ const updateBookedCabDetails = (details) => {
                   React 用 <code>Object.is</code> 比较新旧 state，
                   <strong>发现一样就跳过重渲染</strong>。
                   <br />
-                  症状很迷惑：数据其实变了，但界面不更新；
-                  然后某次别的 state 变化触发重渲染，历史突然一次冒出好几条。
+                  症状很迷惑：数据其实变了，但界面不更新；然后某次别的 state 变化触发重渲染，历史突然一次冒出好几条。
                   <strong>必须造新数组：<code>[...rideHistory, details]</code>。</strong>
                 </>
               ),
@@ -1974,14 +1918,10 @@ const useCabContext = () => {
               why: (
                 <>
                   这样忘套 Provider 时不会报错，
-                  <strong>页面会静默地显示「没有历史记录」</strong>。
-                  你会去查 <code>RideHistory</code> 为什么不显示数据，
-                  而真正的原因在 <code>index.jsx</code>。
+                  <strong>页面会静默地显示「没有历史记录」</strong>。你会去查 <code>RideHistory</code> 为什么不显示数据，而真正的原因在 <code>index.jsx</code>。
                   <br />
-                  <strong>守卫的意义就是让配置错误在第一时间暴露出来，
-                  而不是伪装成功能 bug。</strong>
-                  这一条面试常问，本站「主题切换（Context + value 记忆化）」
-                  那道题也考同一个点。
+                  <strong>守卫的意义就是让配置错误在第一时间暴露出来，而不是伪装成功能 bug。</strong>
+                  这一条面试常问，本站「主题切换（Context + value 记忆化）」那道题也考同一个点。
                 </>
               ),
               whyEn: (
@@ -2102,8 +2042,7 @@ const useCabContext = () => {
                 <>
                   <p>
                     <strong>一句话：</strong>
-                    <code>currentPage</code> 只可能是四个字符串之一，
-                    每个页面用 <code>&&</code> 判断自己该不该出现。
+                    <code>currentPage</code> 只可能是四个字符串之一，每个页面用 <code>&&</code> 判断自己该不该出现。
                   </p>
                   <p>
                     <strong>先画转移图：</strong>
@@ -2143,8 +2082,7 @@ const useCabContext = () => {
                   </div>
                   <p>
                     <strong>四条转移，四个回调。</strong>代码里就是四个
-                    <code>setCurrentPage(...)</code>，
-                    分别通过 <code>onBookClick</code> / <code>onSelectCab</code> /
+                    <code>setCurrentPage(...)</code>，分别通过 <code>onBookClick</code> / <code>onSelectCab</code> /
                     <code>onComplete</code> / <code>onConfirm</code> 传下去。
                     <strong>子组件一个都不知道「页面」这回事</strong> ——
                     它们只知道自己有个回调要调。
@@ -2152,17 +2090,14 @@ const useCabContext = () => {
                   <p>
                     <strong>为什么用 <code>&&</code> 而不是三元：</strong>
                     这里是「四选一」，用嵌套三元会变成
-                    <code>a ? X : b ? Y : c ? Z : W</code>，
-                    读起来累而且加第五个页面要改结构。
-                    四个平行的 <code>&&</code> 一行一个页面，
+                    <code>a ? X : b ? Y : c ? Z : W</code>，读起来累而且加第五个页面要改结构。四个平行的 <code>&&</code> 一行一个页面，
                     <strong>加页面就加一行</strong>。
                   </p>
                   <p>
                     <strong>会追问：</strong>「为什么不用四个 boolean？」——
                     因为 boolean 允许非法状态。
                     <code>isLoading</code> 和 <code>isHome</code> 同时为 true
-                    时页面上会有两个 <code>&lt;main&gt;</code>；
-                    它们只要有同名的 testid 或文字，<code>getByTestId</code> /{" "}
+                    时页面上会有两个 <code>&lt;main&gt;</code>；它们只要有同名的 testid 或文字，<code>getByTestId</code> /{" "}
                     <code>getByText</code> 就会因为匹配到多个而抛错，即使没有，界面也已经错了。
                     <strong>用一个字符串，非法状态在类型层面就不存在</strong> ——
                     这个思路叫「让不可能的状态无法表示」。
@@ -2263,42 +2198,31 @@ const useCabContext = () => {
                 <>
                   <p>
                     <strong>一句话：</strong>选一辆车要
-                    <strong>写 Context</strong> 加 <strong>切页面</strong>，
-                    而「切页面」这件事只有 <code>App</code> 做得到 ——
+                    <strong>写 Context</strong> 加 <strong>切页面</strong>，而「切页面」这件事只有 <code>App</code> 做得到 ——
                     <code>currentPage</code> 在它手里。
                   </p>
                   <p>
                     <strong>换个问法：<code>CabCard</code> 能不能自己调
                     <code>updateBookedCabDetails</code>？</strong>
                     技术上能 —— 它也在 Provider 底下，
-                    <code>useCabContext()</code> 一样能用。
-                    但它<strong>没法切页面</strong>，
-                    所以还是得往上抛一个回调。
-                    <strong>既然回调躲不掉，就把两件事都放在回调里</strong>，
-                    别拆成「Card 写数据 + App 切页面」两半。
+                    <code>useCabContext()</code> 一样能用。但它<strong>没法切页面</strong>，所以还是得往上抛一个回调。
+                    <strong>既然回调躲不掉，就把两件事都放在回调里</strong>，别拆成「Card 写数据 + App 切页面」两半。
                   </p>
                   <p>
-                    <strong>拆成两半会出什么问题：</strong>「选车」这个动作变成
-                    两个组件配合完成的，
+                    <strong>拆成两半会出什么问题：</strong>「选车」这个动作变成两个组件配合完成的，
                     <strong>顺序和完整性没人保证</strong> ——
-                    以后有人在 <code>CabCard</code> 里加个提前 return，
-                    就会出现「页面切了但 Context 没写」，
-                    确认页车名一栏是空的（<code> is on the way…</code>）。
+                    以后有人在 <code>CabCard</code> 里加个提前 return，就会出现「页面切了但 Context 没写」，确认页车名一栏是空的（<code> is on the way…</code>）。
                   </p>
                   <p>
                     <strong>看 <code>CabCard</code> 有多干净：</strong>
                     它只有 <code>onClick={"{() => onSelectCab(cab)}"}</code>，
-                    <strong>完全不知道 Context 存在，也不知道有页面这回事</strong>。
-                    这种组件最好测、最好复用。
+                    <strong>完全不知道 Context 存在，也不知道有页面这回事</strong>。这种组件最好测、最好复用。
                   </p>
                   <p>
                     <strong>会追问：</strong>「这不就是状态提升（lifting state up）吗？」——
                     对。<strong>规则是：状态放在所有需要它的组件的最近公共祖先。</strong>
-                    <code>currentPage</code> 四个页面都要用，
-                    公共祖先就是 <code>App</code>；
-                    <code>rideHistory</code> 的消费者跨了三层，
-                    提升到 <code>App</code> 还得往下传，
-                    所以它去了 Context。
+                    <code>currentPage</code> 四个页面都要用，公共祖先就是 <code>App</code>；
+                    <code>rideHistory</code> 的消费者跨了三层，提升到 <code>App</code> 还得往下传，所以它去了 Context。
                     <strong>两种手段解决的是同一个问题，只是距离不同。</strong>
                   </p>
                 </>
@@ -2378,14 +2302,10 @@ const useCabContext = () => {
               titleEn: "RideHistory lives inside the home page; it is not a page of its own",
               body: (
                 <>
-                  <code>Home</code> 的最后一行是 <code>&lt;RideHistory /&gt;</code>。
-                  所以测试 1 能在首页直接查 <code>no-ride-title</code>，
-                  测试 3 / 4 点完确认回到首页也能直接查 <code>history-cabs</code> ——
+                  <code>Home</code> 的最后一行是 <code>&lt;RideHistory /&gt;</code>。所以测试 1 能在首页直接查 <code>no-ride-title</code>，测试 3 / 4 点完确认回到首页也能直接查 <code>history-cabs</code> ——
                   <strong>不用再点一次「查看历史」</strong>。
                   <br />
-                  顺带注意 <code>Home</code> <strong>自己不用 Context</strong>，
-                  它只是把 <code>RideHistory</code> 放进去。
-                  历史数据从 Context 直接流进 <code>RideHistory</code>，
+                  顺带注意 <code>Home</code> <strong>自己不用 Context</strong>，它只是把 <code>RideHistory</code> 放进去。历史数据从 Context 直接流进 <code>RideHistory</code>，
                   <strong>不经过 <code>Home</code></strong> —— 这就是不用 props 的收益。
                 </>
               ),
@@ -2439,15 +2359,12 @@ const useCabContext = () => {
                   <br />
                   <strong>但实际上这两句谁先谁后都不影响结果</strong> ——
                   React 会把同一个事件里的多个 setState
-                  <strong>批处理（batching）</strong>成一次重渲染，
-                  所以中间不存在「Context 已写但页面还没切」的可渲染状态。
+                  <strong>批处理（batching）</strong>成一次重渲染，所以中间不存在「Context 已写但页面还没切」的可渲染状态。
                   <br />
-                  写成先写数据再切页，是给<strong>人</strong>看的顺序：
-                  数据先准备好，再让界面往前走。
+                  写成先写数据再切页，是给<strong>人</strong>看的顺序：数据先准备好，再让界面往前走。
                   <br />
                   <strong>第 6 步是关键：</strong>回到首页时
-                  <code>RideHistory</code> 重新挂载，
-                  从 Context 里读到了已经更新的 <code>rideHistory</code> ——
+                  <code>RideHistory</code> 重新挂载，从 Context 里读到了已经更新的 <code>rideHistory</code> ——
                   <strong>它不需要任何人通知它</strong>。
                 </>
               ),
@@ -2530,10 +2447,8 @@ const useCabContext = () => {
                   why: (
                     <>
                       初始页必须是 <code>home</code> —— 测试 1 <code>render</code>
-                      之后直接查 <code>book-button</code>，
-                      没有任何点击动作。
-                      <strong>初始值写错，四个测试全红</strong>，
-                      因为后面三个测试第一步都是点 <code>book-button</code>。
+                      之后直接查 <code>book-button</code>，没有任何点击动作。
+                      <strong>初始值写错，四个测试全红</strong>，因为后面三个测试第一步都是点 <code>book-button</code>。
                     </>
                   ),
                   whyEn: (
@@ -2556,10 +2471,8 @@ const useCabContext = () => {
                       <code>App</code> 是<strong>只写</strong>的消费者 ——
                       它不显示车名也不显示历史。
                       <br />
-                      顺带一个习惯：<strong>只解构你真正要用的</strong>。
-                      写成 <code>const ctx = useCabContext()</code> 然后到处
-                      <code>ctx.xxx</code> 也能跑，但读代码的人得翻遍整个组件
-                      才知道它用了 Context 的哪几样东西。
+                      顺带一个习惯：<strong>只解构你真正要用的</strong>。写成 <code>const ctx = useCabContext()</code> 然后到处
+                      <code>ctx.xxx</code> 也能跑，但读代码的人得翻遍整个组件才知道它用了 Context 的哪几样东西。
                     </>
                   ),
                   whyEn: (
@@ -2587,8 +2500,7 @@ const useCabContext = () => {
                       <code>bookedCabDetails</code> 和 <code>rideHistory</code>。
                       <br />
                       <strong>如果你在这里又补一句
-                      <code>setRideHistory</code>，历史会多出一条重复记录</strong>，
-                      测试 4 数出来 4 条而不是 3 条。
+                      <code>setRideHistory</code>，历史会多出一条重复记录</strong>，测试 4 数出来 4 条而不是 3 条。
                     </>
                   ),
                   whyEn: (
@@ -2609,21 +2521,16 @@ const useCabContext = () => {
                   hintEn: "Pass the function itself, do not call it.",
                   why: (
                     <>
-                      <strong>这里写 <code>handleSelectCab</code>，
-                      不是 <code>handleSelectCab()</code>。</strong>
+                      <strong>这里写 <code>handleSelectCab</code>，不是 <code>handleSelectCab()</code>。</strong>
                       加括号就变成「渲染时立刻执行」——
-                      <code>cab</code> 是 <code>undefined</code>，
-                      历史里多一条空记录；
-                      <code>setCurrentPage(&quot;loading&quot;)</code> 在渲染中执行，
-                      页面会直接跳过选车页进入 loading，确认页车名为空，
-                      控制台还会出现{" "}
+                      <code>cab</code> 是 <code>undefined</code>，历史里多一条空记录；
+                      <code>setCurrentPage(&quot;loading&quot;)</code> 在渲染中执行，页面会直接跳过选车页进入 loading，确认页车名为空，控制台还会出现{" "}
                       <code>Cannot update a component while rendering a different component</code>{" "}
                       的警告。
                       <br />
                       也不用写成 <code>{"(cab) => handleSelectCab(cab)"}</code> ——
                       参数一模一样地转手一遍，多包一层没有收益。
-                      <strong>只有需要「补参数」时才包箭头函数</strong>，
-                      比如上面那几个 <code>{"() => setCurrentPage(\"...\")"}</code>。
+                      <strong>只有需要「补参数」时才包箭头函数</strong>，比如上面那几个 <code>{"() => setCurrentPage(\"...\")"}</code>。
                     </>
                   ),
                   whyEn: (
@@ -2654,14 +2561,11 @@ const useCabContext = () => {
                   why: (
                     <>
                       回首页。<strong>测试 3 和 4 都依赖这一条</strong> ——
-                      它们点完 <code>confirm-button</code> 之后
-                      直接查 <code>history-cabs</code>，
-                      而历史是在首页里的。
+                      它们点完 <code>confirm-button</code> 之后直接查 <code>history-cabs</code>，而历史是在首页里的。
                       <br />
                       测试 4 更狠：它连订四辆，
                       <strong>每一轮都要能从确认页回到首页再点一次
-                      <code>book-button</code></strong>。
-                      这一条写错，测试 4 第二轮就找不到按钮了。
+                      <code>book-button</code></strong>。这一条写错，测试 4 第二轮就找不到按钮了。
                     </>
                   ),
                   whyEn: (
@@ -2722,14 +2626,12 @@ const handleSelectCab = (cab) => {
               ),
               why: (
                 <>
-                  四个 boolean 有 <strong>16 种组合</strong>，其中只有 4 种是合法的。
-                  每次切页你得记住「开一个、关一个」，
+                  四个 boolean 有 <strong>16 种组合</strong>，其中只有 4 种是合法的。每次切页你得记住「开一个、关一个」，
                   <strong>漏关一个就出现两个页面同时在屏幕上</strong>。
                   <br />
                   一个字符串 state 只有 4 种取值，
                   <code>setCurrentPage(&quot;loading&quot;)</code>
-                  <strong>天然就把别的页面关掉了</strong>。
-                  这不是「写法更漂亮」，是把一整类 bug 从可能变成不可能。
+                  <strong>天然就把别的页面关掉了</strong>。这不是「写法更漂亮」，是把一整类 bug 从可能变成不可能。
                 </>
               ),
               whyEn: (
@@ -2854,12 +2756,9 @@ const handleSelectCab = (cab) => {
                   </p>
                   <p>
                     <strong>分组顺序是送分题：</strong>
-                    <code>Object.keys()</code> 返回的字符串键顺序，
-                    在现代 JS 里<strong>就是它们被写进对象的顺序</strong>
+                    <code>Object.keys()</code> 返回的字符串键顺序，在现代 JS 里<strong>就是它们被写进对象的顺序</strong>
                     （各引擎一直按插入顺序返回字符串键，ES2020 起写进了规范）。
-                    <code>data.json</code> 里写的是 Sedan → SUV → Luxury，
-                    所以 <code>Object.keys(cabData)</code> 出来就是这个顺序，
-                    正好对上测试 2 的 <code>toEqual</code>。
+                    <code>data.json</code> 里写的是 Sedan → SUV → Luxury，所以 <code>Object.keys(cabData)</code> 出来就是这个顺序，正好对上测试 2 的 <code>toEqual</code>。
                   </p>
                   <p>
                     <strong>反而是「我来排个序」会把它弄坏：</strong>
@@ -2870,12 +2769,9 @@ const handleSelectCab = (cab) => {
                   <p>
                     <strong>会追问：</strong>
                     「<code>Object.keys</code> 的顺序真的可靠吗？」——
-                    对字符串键可靠，插入顺序。
-                    但<strong>纯数字键会被排到最前面并按数值升序</strong>
+                    对字符串键可靠，插入顺序。但<strong>纯数字键会被排到最前面并按数值升序</strong>
                     （<code>{"{ \"2\": …, \"10\": …, \"a\": … }"}</code>
-                    出来是 <code>2, 10, a</code>）。
-                    这道题的键都是单词，撞不到；
-                    但如果分组键是年份或编号，就得自己维护一个顺序数组。
+                    出来是 <code>2, 10, a</code>）。这道题的键都是单词，撞不到；但如果分组键是年份或编号，就得自己维护一个顺序数组。
                   </p>
                 </>
               ),
@@ -3016,11 +2912,9 @@ const handleSelectCab = (cab) => {
                   </p>
                   <p>
                     <strong>测试只数个数，不查内容</strong> ——
-                    五个断言都是 <code>toHaveLength(6)</code>。
-                    但别因此偷懒：
+                    五个断言都是 <code>toHaveLength(6)</code>。但别因此偷懒：
                     <code>alt={"{cab.name}"}</code> 该写还是要写，
-                    <strong>图片没有 alt 是真实的可访问性缺陷</strong>，
-                    面试和 code review 都会提。
+                    <strong>图片没有 alt 是真实的可访问性缺陷</strong>，面试和 code review 都会提。
                   </p>
                   <p>
                     <strong>现在说 key。</strong>两个列表，两种情况：
@@ -3035,11 +2929,8 @@ const handleSelectCab = (cab) => {
                       <strong>历史列表（<code>RideHistory</code> 里）：</strong>
                       <code>key={"{ride.id}"}</code>
                       <strong>不安全</strong> ——
-                      <strong>同一辆车可以被订两次</strong>，
-                      历史里就有两条 <code>id: &quot;sedan-1&quot;</code>。
-                      React 会警告
-                      <code>Encountered two children with the same key</code>，
-                      并且在更新时可能复用错的 DOM 节点。
+                      <strong>同一辆车可以被订两次</strong>，历史里就有两条 <code>id: &quot;sedan-1&quot;</code>。React 会警告
+                      <code>Encountered two children with the same key</code>，并且在更新时可能复用错的 DOM 节点。
                     </li>
                   </ul>
                   <p>
@@ -3052,15 +2943,10 @@ const handleSelectCab = (cab) => {
                     「不是说 index 不能当 key 吗？」——
                     <strong>说的是「不要只用 index」。</strong>
                     纯 index 的问题是列表中间插入/删除时
-                    key 会错位到别的数据上；
-                    这里的 <code>{"`${ride.id}-${index}`"}</code> 只解决了重复 key：
-                    渲染用的是倒序后的下标，每新增一条，每行的 key 都会变；
-                    本题三行纯文本无碍，真要稳定就给每条记录自己的 id（下面那条）。
+                    key 会错位到别的数据上；这里的 <code>{"`${ride.id}-${index}`"}</code> 只解决了重复 key：渲染用的是倒序后的下标，每新增一条，每行的 key 都会变；本题三行纯文本无碍，真要稳定就给每条记录自己的 id（下面那条）。
                     <br />
                     <strong>真正干净的做法是给每条记录一个自己的 id</strong>
-                    （比如 <code>bookedAt: Date.now()</code>），
-                    这样 key 就有了天然唯一值。
-                    源项目没这么做，但这是面试里可以主动说的加分点。
+                    （比如 <code>bookedAt: Date.now()</code>），这样 key 就有了天然唯一值。源项目没这么做，但这是面试里可以主动说的加分点。
                   </p>
                 </>
               ),
@@ -3147,11 +3033,8 @@ const handleSelectCab = (cab) => {
                   <code>toHaveTextContent(&quot;$20&quot;)</code>，
                   <strong>那个美元符号在历史列表里是必须的</strong>。
                   <br />
-                  <code>toHaveTextContent</code> 是<strong>子串匹配</strong>，
-                  所以 <code>Fare: $20</code> 也能过；
-                  但 <code>20</code>（没有 <code>$</code>）过不了。
-                  <strong>凡是被 <code>toHaveTextContent</code> 断言的地方，
-                  照抄原文最安全。</strong>
+                  <code>toHaveTextContent</code> 是<strong>子串匹配</strong>，所以 <code>Fare: $20</code> 也能过；但 <code>20</code>（没有 <code>$</code>）过不了。
+                  <strong>凡是被 <code>toHaveTextContent</code> 断言的地方，照抄原文最安全。</strong>
                 </>
               ),
               bodyEn: (
@@ -3181,8 +3064,7 @@ const handleSelectCab = (cab) => {
               titleEn: "Which key goes wrong in the history list?",
               prompt: (
                 <>
-                  用户连订了两次同一辆 Ford Fusion（<code>id: &quot;sedan-1&quot;</code>）。
-                  历史列表用下面哪个 key 会报「重复 key」警告？
+                  用户连订了两次同一辆 Ford Fusion（<code>id: &quot;sedan-1&quot;</code>）。历史列表用下面哪个 key 会报「重复 key」警告？
                 </>
               ),
               promptEn: (
@@ -3201,22 +3083,12 @@ const handleSelectCab = (cab) => {
               answer: ["b"],
               explain: (
                 <>
-                  <strong>B。</strong>两条记录的 <code>ride.id</code> 都是 sedan-1，
-                  React 报 <code>Encountered two children with the same key, &#96;sedan-1&#96;</code>。
+                  <strong>B。</strong>两条记录的 <code>ride.id</code> 都是 sedan-1，React 报 <code>Encountered two children with the same key, &#96;sedan-1&#96;</code>。
                   <br />
-                  A 和 D 都带了 <code>index</code>，不会重复。
-                  C 纯 index 也不会重复 ——
-                  <strong>但它是另一类问题</strong>：
-                  历史是「最新在最上」的，
-                  新增一条会让所有旧记录的 index 全部后移一位，
-                  于是<strong>每个 key 对应的数据都变了</strong>，
-                  React 会把所有行都当成「内容改了」重新渲染。
-                  这个列表只有三行、也没有输入框，所以看不出毛病；
-                  但要是每行有个 <code>&lt;input&gt;</code>，
-                  用户输的内容就会串行。
+                  A 和 D 都带了 <code>index</code>，不会重复。C 纯 index 也不会重复 ——
+                  <strong>但它是另一类问题</strong>：历史是「最新在最上」的，新增一条会让所有旧记录的 index 全部后移一位，于是<strong>每个 key 对应的数据都变了</strong>，React 会把所有行都当成「内容改了」重新渲染。这个列表只有三行、也没有输入框，所以看不出毛病；但要是每行有个 <code>&lt;input&gt;</code>，用户输的内容就会串行。
                   <br />
-                  <strong>结论：<code>{"`${ride.id}-${index}`"}</code> 只保证不重复；
-                  要稳定，就给每条记录自己的 id。</strong>
+                  <strong>结论：<code>{"`${ride.id}-${index}`"}</code> 只保证不重复；要稳定，就给每条记录自己的 id。</strong>
                 </>
               ),
               explainEn: (
@@ -3248,8 +3120,7 @@ const handleSelectCab = (cab) => {
               titleEn: "Write CabCard from an empty file",
               prompt: (
                 <>
-                  只给你 props 签名。五个 testid 自己写出来，
-                  别忘了 <code>alt</code> 和 <code>type=&quot;button&quot;</code>。
+                  只给你 props 签名。五个 testid 自己写出来，别忘了 <code>alt</code> 和 <code>type=&quot;button&quot;</code>。
                 </>
               ),
               promptEn: (
@@ -3371,8 +3242,7 @@ const CabCard = ({ cab, onSelectCab }) => {
               ),
               why: (
                 <>
-                  <code>sort()</code> 默认按字符串比较，大写字母在前，
-                  出来是 <code>Luxury → SUV → Sedan</code>。
+                  <code>sort()</code> 默认按字符串比较，大写字母在前，出来是 <code>Luxury → SUV → Sedan</code>。
                   <br />
                   <strong>而 <code>data.json</code> 的键顺序本来就是对的。</strong>
                   这个错误的模式很典型：
@@ -3380,9 +3250,7 @@ const CabCard = ({ cab, onSelectCab }) => {
                   但数据源已经表达了顺序意图时，任何加工都是破坏。
                   <br />
                   顺带：<code>sort()</code> 还会
-                  <strong>原地修改</strong>它作用的数组。
-                  这里作用在 <code>Object.keys()</code> 返回的新数组上所以无害，
-                  但直接 <code>someStateArray.sort()</code> 就会改到 state。
+                  <strong>原地修改</strong>它作用的数组。这里作用在 <code>Object.keys()</code> 返回的新数组上所以无害，但直接 <code>someStateArray.sort()</code> 就会改到 state。
                 </>
               ),
               whyEn: (
@@ -3432,16 +3300,12 @@ const CabCard = ({ cab, onSelectCab }) => {
               ),
               why: (
                 <>
-                  DOM 事件处理器<strong>永远收到事件对象作为第一个参数</strong>。
-                  所以 <code>onClick={"{onSelectCab}"}</code> 等于
-                  <code>onSelectCab(clickEvent)</code>，
-                  而 <code>cab</code> 从来没被传出去。
+                  DOM 事件处理器<strong>永远收到事件对象作为第一个参数</strong>。所以 <code>onClick={"{onSelectCab}"}</code> 等于
+                  <code>onSelectCab(clickEvent)</code>，而 <code>cab</code> 从来没被传出去。
                   <br />
                   <strong>症状很迷惑：不报错，流程也走得通</strong> ——
-                  页面照样切到 loading、再切到确认页，
-                  只是车名变成了空白（因为 <code>?.name</code> 是{" "}
-                  <code>undefined</code>，React 什么也不渲染）。
-                  测试 3 会在
+                  页面照样切到 loading、再切到确认页，只是车名变成了空白（因为 <code>?.name</code> 是{" "}
+                  <code>undefined</code>，React 什么也不渲染）。测试 3 会在
                   <code>toHaveTextContent(&quot;Ford Fusion is on the way…&quot;)</code> 这一句失败。
                   <br />
                   <strong>需要传自己的参数，就包一层：</strong>
@@ -3553,16 +3417,14 @@ const CabCard = ({ cab, onSelectCab }) => {
                   <p>
                     <strong>一句话：</strong>
                     <code>setTimeout</code> 是<strong>副作用</strong> ——
-                    它改变了组件外面的东西（浏览器的定时器表）。
-                    副作用必须放进 <code>useEffect</code>。
+                    它改变了组件外面的东西（浏览器的定时器表）。副作用必须放进 <code>useEffect</code>。
                   </p>
                   <p>
                     <strong>写在组件体里会怎样：</strong>
                   </p>
                   <ul>
                     <li>
-                      组件每渲染一次就<strong>多开一个定时器</strong>，
-                      而且没人记得它们的 id，清不掉；
+                      组件每渲染一次就<strong>多开一个定时器</strong>，而且没人记得它们的 id，清不掉；
                     </li>
                     <li>
                       React 18 的 <code>StrictMode</code>
@@ -3570,8 +3432,7 @@ const CabCard = ({ cab, onSelectCab }) => {
                       <strong>一次挂载就开两个</strong>；
                     </li>
                     <li>
-                      每个定时器到期都会调一次 <code>onComplete()</code>，
-                      于是 <code>setCurrentPage</code> 被调多次 ——
+                      每个定时器到期都会调一次 <code>onComplete()</code>，于是 <code>setCurrentPage</code> 被调多次 ——
                       功能上看起来没事，因为设成同一个值，
                       <strong>但这是运气</strong>。
                     </li>
@@ -3586,14 +3447,11 @@ const CabCard = ({ cab, onSelectCab }) => {
                     <br />
                     但它有个后果：<code>App</code> 传下来的是
                     <code>{"() => setCurrentPage(\"cab-confirmation\")"}</code>，
-                    <strong>每次 App 重渲染都是一个新函数</strong>，
-                    所以 <code>onComplete</code> 变了、effect 会重跑
-                    （先 <code>clearTimeout</code> 再重新计时）。
+                    <strong>每次 App 重渲染都是一个新函数</strong>，所以 <code>onComplete</code> 变了、effect 会重跑（先 <code>clearTimeout</code> 再重新计时）。
                     <br />
                     <strong>这个应用里撞不到问题</strong>，因为
                     <code>Loading</code> 显示期间 <code>App</code> 不会重渲染 ——
-                    没有别的 state 在变。
-                    但换个场景（比如页头有个每秒刷新的时钟），
+                    没有别的 state 在变。但换个场景（比如页头有个每秒刷新的时钟），
                     <strong>这个定时器会被无限重置，永远跳不到确认页</strong>。
                   </p>
                   <p>
@@ -3601,11 +3459,8 @@ const CabCard = ({ cab, onSelectCab }) => {
                     两条路：
                     <strong>①</strong> <code>App</code> 那边用
                     <code>useCallback</code> 把 <code>onComplete</code> 稳住；
-                    <strong>②</strong> 依赖写 <code>[]</code>，
-                    并用一个 ref 存住最新的 <code>onComplete</code>。
-                    ① 更常见，② 更彻底。
-                    <strong>面试时能说出「新函数身份导致 effect 重跑」
-                    这个因果链，比背出答案更重要。</strong>
+                    <strong>②</strong> 依赖写 <code>[]</code>，并用一个 ref 存住最新的 <code>onComplete</code>。① 更常见，② 更彻底。
+                    <strong>面试时能说出「新函数身份导致 effect 重跑」这个因果链，比背出答案更重要。</strong>
                   </p>
                 </>
               ),
@@ -3698,8 +3553,7 @@ const CabCard = ({ cab, onSelectCab }) => {
                   </p>
                   <p>
                     <strong>不清理的真实症状：</strong>
-                    这道题里 <code>Loading</code> 只活 1 秒、也没有别的路能提前离开，
-                    所以<strong>四个测试全都不会因为少了清理而失败</strong>。
+                    这道题里 <code>Loading</code> 只活 1 秒、也没有别的路能提前离开，所以<strong>四个测试全都不会因为少了清理而失败</strong>。
                     <br />
                     这正是要警惕的地方 ——
                     <strong>「测试通过 ≠ 做对了」在这里又出现了一次。</strong>
@@ -3724,14 +3578,12 @@ const CabCard = ({ cab, onSelectCab }) => {
                     </li>
                   </ul>
                   <p>
-                    <strong>注意这不是「内存泄漏」那么抽象的东西</strong>，
-                    它是一个用户能看见的 bug。
+                    <strong>注意这不是「内存泄漏」那么抽象的东西</strong>，它是一个用户能看见的 bug。
                     <br />
                     <strong>会追问：</strong>「React 不是会警告
                     <code>Can&apos;t perform a React state update on an unmounted
                     component</code> 吗？」——
-                    <strong>React 18 起那条警告被移除了</strong>，
-                    因为它误报太多。所以现在
+                    <strong>React 18 起那条警告被移除了</strong>，因为它误报太多。所以现在
                     <strong>不清理不会有任何提示，只会有诡异行为</strong>。
                   </p>
                   <p>
@@ -3746,23 +3598,19 @@ const CabCard = ({ cab, onSelectCab }) => {
                     <li>
                       <code>act(() =&gt; {"{ vi.advanceTimersByTime(1000) }"})</code> ——
                       手动把表拨快 1 秒，定时器立刻到期。
-                      <strong>套 <code>act</code> 是因为到期会触发 setState</strong>，
-                      不套的话 React 会警告更新发生在 act 外面，
-                      而且断言可能在重渲染之前就跑了；
+                      <strong>套 <code>act</code> 是因为到期会触发 setState</strong>，不套的话 React 会警告更新发生在 act 外面，而且断言可能在重渲染之前就跑了；
                     </li>
                     <li>
                       <code>afterEach</code> 里{" "}
                       <code>vi.runOnlyPendingTimers()</code> 再{" "}
                       <code>useRealTimers()</code> ——
-                      <strong>把没到期的定时器清干净再还原</strong>，
-                      不然会漏到下一个测试里。
+                      <strong>把没到期的定时器清干净再还原</strong>，不然会漏到下一个测试里。
                     </li>
                   </ul>
                   <p>
                     <strong>所以延迟不能超过 1000（写 1000 最贴题）。</strong>
                     写 1200 的话，<code>advanceTimersByTime(1000)</code>
-                    之后定时器还没到期，
-                    页面还停在 loading，
+                    之后定时器还没到期，页面还停在 loading，
                     <code>getByTestId(&quot;confirm-message&quot;)</code> 找不到 ——
                     测试 3 和 4 全红。
                   </p>
@@ -3925,8 +3773,7 @@ it("completes a booking …", () => {
               body: (
                 <>
                   React 考试变式二「计时器」考的是同一件事：
-                  <code>setInterval</code> + <code>clearInterval</code>，
-                  而且那道题<strong>有测试专门抓「忘了清理」</strong> ——
+                  <code>setInterval</code> + <code>clearInterval</code>，而且那道题<strong>有测试专门抓「忘了清理」</strong> ——
                   实测删掉 <code>clearInterval</code> 之后
                   4 failed / 4 passed，
                   <code>00:04</code> 的位置实收 <code>00:10</code>。
@@ -3997,8 +3844,7 @@ const Loading = ({ onComplete }) => {
                   hintEn: "Where does a side effect belong?",
                   why: (
                     <>
-                      <code>setTimeout</code> 是副作用，
-                      写在组件体里会<strong>每次渲染都开一个新的</strong>，
+                      <code>setTimeout</code> 是副作用，写在组件体里会<strong>每次渲染都开一个新的</strong>，
                       <code>StrictMode</code> 下一次挂载就开两个。
                     </>
                   ),
@@ -4019,10 +3865,7 @@ const Loading = ({ onComplete }) => {
                     <>
                       <strong>是 <code>setTimeout</code> 不是
                       <code>setInterval</code></strong> ——
-                      只需要「1 秒后跳一次」。
-                      用 <code>setInterval</code> 的话，
-                      跳到确认页之后组件卸载、清理函数跑掉才停；
-                      要是忘了清理，它会<strong>每秒把用户拉回确认页一次</strong>。
+                      只需要「1 秒后跳一次」。用 <code>setInterval</code> 的话，跳到确认页之后组件卸载、清理函数跑掉才停；要是忘了清理，它会<strong>每秒把用户拉回确认页一次</strong>。
                     </>
                   ),
                   whyEn: (
@@ -4043,12 +3886,9 @@ const Loading = ({ onComplete }) => {
                   hintEn: "How many milliseconds do the tests move the clock?",
                   why: (
                     <>
-                      测试写的是 <code>vi.advanceTimersByTime(1000)</code>，
-                      所以延迟<strong>必须 ≤ 1000</strong>，写 1000 最贴题
-                      （题目要求就是「模拟 1 秒延迟」）。
+                      测试写的是 <code>vi.advanceTimersByTime(1000)</code>，所以延迟<strong>必须 ≤ 1000</strong>，写 1000 最贴题（题目要求就是「模拟 1 秒延迟」）。
                       <br />
-                      写 1200 的话，拨完 1 秒定时器还没到，
-                      页面停在 loading，
+                      写 1200 的话，拨完 1 秒定时器还没到，页面停在 loading，
                       <strong>测试 3 和 4 全红</strong>。
                     </>
                   ),
@@ -4073,12 +3913,8 @@ const Loading = ({ onComplete }) => {
                       <strong>四个测试都不会因为少了这一句而失败</strong> ——
                       这道题里 <code>Loading</code> 没有别的退出路径。
                       <br />
-                      但只要加一个「取消」按钮，
-                      少了它就会出现「用户已经回首页了，
-                      1 秒后页面自己跳到确认页」。
-                      而且 React 18 起
-                      <strong>不再警告「在已卸载组件上更新 state」</strong>，
-                      所以你不会收到任何提示。
+                      但只要加一个「取消」按钮，少了它就会出现「用户已经回首页了，1 秒后页面自己跳到确认页」。而且 React 18 起
+                      <strong>不再警告「在已卸载组件上更新 state」</strong>，所以你不会收到任何提示。
                       <br />
                       <strong>该写的清理就写上，别等测试来逼你。</strong>
                     </>
@@ -4110,9 +3946,7 @@ const Loading = ({ onComplete }) => {
               titleEn: "Debug Lab: the tests are green, but the browser sits on Loading",
               prompt: (
                 <>
-                  四个测试全过。可是在浏览器里点了 Book a Cab、选了一辆车之后，
-                  页面一直停在 Loading，标题后面的点还在一个个地跳。
-                  下面这个 <code>Loading</code> 比源项目多了一个加载动画 ——
+                  四个测试全过。可是在浏览器里点了 Book a Cab、选了一辆车之后，页面一直停在 Loading，标题后面的点还在一个个地跳。下面这个 <code>Loading</code> 比源项目多了一个加载动画 ——
                   <strong>还少了一个东西</strong>。
                 </>
               ),
@@ -4273,8 +4107,7 @@ const Loading = ({ onComplete }) => {
               rootCause: (
                 <>
                   <p>
-                    <strong>根因：<code>useEffect</code> 没写依赖数组，
-                    等于「每次渲染后都跑一遍」。</strong>
+                    <strong>根因：<code>useEffect</code> 没写依赖数组，等于「每次渲染后都跑一遍」。</strong>
                   </p>
                   <p>
                     <code>useEffect(fn)</code> 和{" "}
@@ -4289,32 +4122,24 @@ const Loading = ({ onComplete }) => {
                     </li>
                     <li>
                       <code>useEffect(fn)</code> ——
-                      <strong>每次渲染后都重跑</strong>，
-                      而且重跑之前会先执行上一次的清理函数
+                      <strong>每次渲染后都重跑</strong>，而且重跑之前会先执行上一次的清理函数
                     </li>
                   </ul>
                   <p>
                     <strong>为什么在这里会一直重渲染：</strong>
                     加载动画每 300ms 调一次 <code>setDots</code>，
-                    <code>Loading</code> 就每 300ms 重渲染一次。
-                    每次重渲染，没有依赖数组的那个 effect 都会先用
-                    <strong><code>clearTimeout</code> 清掉还没到期的 1 秒定时器</strong>，
-                    再开一个新的 —— 它永远数不到 1 秒。
-                    （源项目的 <code>Loading</code> 没有自己的 state，
-                    加载期间 <code>App</code> 也没有别的 state 在变，
-                    所以单是漏写依赖数组，页面并不会卡住。）
+                    <code>Loading</code> 就每 300ms 重渲染一次。每次重渲染，没有依赖数组的那个 effect 都会先用
+                    <strong><code>clearTimeout</code> 清掉还没到期的 1 秒定时器</strong>，再开一个新的 —— 它永远数不到 1 秒。（源项目的 <code>Loading</code> 没有自己的 state，加载期间 <code>App</code> 也没有别的 state 在变，所以单是漏写依赖数组，页面并不会卡住。）
                   </p>
                   <p>
                     <strong>为什么测试抓不到：</strong>
                     测试用 fake timers，在 <code>act</code> 里调
                     <code>advanceTimersByTime(1000)</code>。
-                    <code>act</code> 把这 1 秒里 <code>setDots</code> 引起的更新攒到推进结束才统一渲染，
-                    中途没有重渲染、也就没有清理，1 秒定时器照常到期 —— 四个测试都过。
+                    <code>act</code> 把这 1 秒里 <code>setDots</code> 引起的更新攒到推进结束才统一渲染，中途没有重渲染、也就没有清理，1 秒定时器照常到期 —— 四个测试都过。
                   </p>
                   <p>
                     <strong>怎么一眼认出这类问题：</strong>
-                    「本该发生的异步跳转没发生」，
-                    而组件里又有东西在不停地重渲染（动画、轮询、计时）——
+                    「本该发生的异步跳转没发生」，而组件里又有东西在不停地重渲染（动画、轮询、计时）——
                     去看那个 effect 的依赖数组。
                     <strong>测试全绿也要在浏览器里走一遍，这道题就是例子。</strong>
                   </p>
@@ -4418,19 +4243,13 @@ useEffect(() => {
               why: (
                 <>
                   两个错叠在一起。
-                  <strong><code>setInterval</code> 会反复触发</strong>，
-                  而<strong>没有清理函数意味着它连组件卸载都不停</strong>。
+                  <strong><code>setInterval</code> 会反复触发</strong>，而<strong>没有清理函数意味着它连组件卸载都不停</strong>。
                   <br />
-                  有意思的是<strong>四个测试都会过</strong>：
-                  fake timers 下时间只在 <code>advanceTimersByTime</code> 里前进，
-                  遗留的 interval 只会在 loading 页再触发一次
-                  <code>setCurrentPage(&quot;cab-confirmation&quot;)</code>，结果一样。
-                  但在真实浏览器里，用户点 Okay 回首页之后，
+                  有意思的是<strong>四个测试都会过</strong>：fake timers 下时间只在 <code>advanceTimersByTime</code> 里前进，遗留的 interval 只会在 loading 页再触发一次
+                  <code>setCurrentPage(&quot;cab-confirmation&quot;)</code>，结果一样。但在真实浏览器里，用户点 Okay 回首页之后，
                   <strong>1 秒内又会被切回确认页</strong>，而且这个定时器永远不会停止。
                   <br />
-                  <strong>「只跑一次」用 <code>setTimeout</code>，
-                  「反复跑」才用 <code>setInterval</code>，
-                  两者都必须清理。</strong>
+                  <strong>「只跑一次」用 <code>setTimeout</code>，「反复跑」才用 <code>setInterval</code>，两者都必须清理。</strong>
                 </>
               ),
               whyEn: (
@@ -4547,8 +4366,7 @@ useEffect(() => {
                     <strong>先看数据是怎么排的：</strong>
                     <code>updateBookedCabDetails</code> 用的是
                     <code>[...rideHistory, details]</code> ——
-                    <strong>新记录追加在尾部</strong>。
-                    所以数组是「最旧 → 最新」的顺序。
+                    <strong>新记录追加在尾部</strong>。所以数组是「最旧 → 最新」的顺序。
                   </p>
                   <div className="table-wrap">
                     <table className="table">
@@ -4563,16 +4381,14 @@ useEffect(() => {
                         <tr>
                           <td><code>slice(-3)</code></td>
                           <td>
-                            Honda Accord / Toyota Highlander / Ford Explorer
-                            （第 2、3、4 次）
+                            Honda Accord / Toyota Highlander / Ford Explorer（第 2、3、4 次）
                           </td>
                           <td>✓ 正确</td>
                         </tr>
                         <tr>
                           <td><code>slice(0, 3)</code></td>
                           <td>
-                            Ford Fusion / Honda Accord / Toyota Highlander
-                            （第 1、2、3 次）
+                            Ford Fusion / Honda Accord / Toyota Highlander（第 1、2、3 次）
                           </td>
                           <td>
                             ✕ 最后一行断言直接失败 ——
@@ -4589,8 +4405,7 @@ useEffect(() => {
                   </div>
                   <p>
                     <strong>注意 <code>slice(0, 3)</code> 有多阴：</strong>
-                    <code>toHaveLength(3)</code> 会过，
-                    因为它确实是 3 条。
+                    <code>toHaveLength(3)</code> 会过，因为它确实是 3 条。
                     <strong>只有最后那句
                     <code>queryByText(/Ford Fusion/)</code> 抓得住它。</strong>
                     <br />
@@ -4600,12 +4415,9 @@ useEffect(() => {
                   <p>
                     <strong>会追问：</strong>
                     「数组不足三条时 <code>slice(-3)</code> 会怎样？」——
-                    <strong>安全</strong>。只有 1 条时返回那 1 条，
-                    空数组时返回空数组，<strong>不会报错也不会补 undefined</strong>。
-                    所以测试 1（空历史）和测试 3（1 条）都不用特殊处理。
+                    <strong>安全</strong>。只有 1 条时返回那 1 条，空数组时返回空数组，<strong>不会报错也不会补 undefined</strong>。所以测试 1（空历史）和测试 3（1 条）都不用特殊处理。
                     <br />
-                    这一点值得记住：<strong><code>slice</code> 越界不抛错</strong>，
-                    这也是它比手写下标循环安全的地方。
+                    这一点值得记住：<strong><code>slice</code> 越界不抛错</strong>，这也是它比手写下标循环安全的地方。
                   </p>
                 </>
               ),
@@ -4742,9 +4554,7 @@ history.slice(-3).reverse();
                 <>
                   <p>
                     <strong>一句话：</strong>
-                    <code>reverse()</code> 会<strong>改掉它作用的那个数组本身</strong>，
-                    但 <code>slice()</code> 返回的是新数组，
-                    所以 <code>slice(-3).reverse()</code> 改的是那个副本，
+                    <code>reverse()</code> 会<strong>改掉它作用的那个数组本身</strong>，但 <code>slice()</code> 返回的是新数组，所以 <code>slice(-3).reverse()</code> 改的是那个副本，
                     <strong>碰不到 state</strong>。
                   </p>
                   <p>
@@ -4765,17 +4575,13 @@ history.slice(-3).reverse();
                       顺序彻底乱了；
                     </li>
                     <li>
-                      <strong>而且每次渲染都翻一次</strong>，
-                      顺序在两种排列之间来回跳。
+                      <strong>而且每次渲染都翻一次</strong>，顺序在两种排列之间来回跳。
                     </li>
                   </ul>
                   <p>
-                    <strong>这个 bug 的表现极不稳定</strong>，
-                    因为它取决于渲染了几次 ——
-                    没有 <code>StrictMode</code> 时（生产、测试）每次渲染都再翻一次，
-                    新记录又接在翻转过的数组尾部，顺序很快就乱；
-                    <code>StrictMode</code> 开发模式下每次渲染调用两次、两次翻转抵消，
-                    列表一直按最旧在前显示。
+                    <strong>这个 bug 的表现极不稳定</strong>，因为它取决于渲染了几次 ——
+                    没有 <code>StrictMode</code> 时（生产、测试）每次渲染都再翻一次，新记录又接在翻转过的数组尾部，顺序很快就乱；
+                    <code>StrictMode</code> 开发模式下每次渲染调用两次、两次翻转抵消，列表一直按最旧在前显示。
                     <strong>开发和生产表现不一样，这类 bug 尤其难查。</strong>
                   </p>
                   <p>
@@ -4820,10 +4626,8 @@ history.slice(-3).reverse();
                     <br />
                     <strong>会追问：</strong>「有没有不改原数组的版本？」——
                     有，<code>toSorted()</code> / <code>toReversed()</code> /{" "}
-                    <code>toSpliced()</code>，ES2023 加的，
-                    Node 20+ 和现代浏览器都支持。
-                    <strong>但这道题的 <code>slice(-3).reverse()</code> 已经安全了，
-                    没必要换</strong> —— 知道有这么个东西就行。
+                    <code>toSpliced()</code>，ES2023 加的，Node 20+ 和现代浏览器都支持。
+                    <strong>但这道题的 <code>slice(-3).reverse()</code> 已经安全了，没必要换</strong> —— 知道有这么个东西就行。
                   </p>
                 </>
               ),
@@ -4999,12 +4803,10 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
                     <li>
                       <strong>但只要有人把 <code>CabConfirmation</code>
                       单独 render 出来测试</strong>
-                      （比如写一个组件级单测），
-                      就会立刻报错；
+                      （比如写一个组件级单测），就会立刻报错；
                     </li>
                     <li>
-                      或者以后加一个「查看上次行程」的入口，
-                      在没有行程时点进去 ——
+                      或者以后加一个「查看上次行程」的入口，在没有行程时点进去 ——
                       <strong>白屏 + 控制台一行
                       <code>Cannot read properties of null (reading &apos;name&apos;)</code></strong>。
                     </li>
@@ -5012,30 +4814,24 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
                   <p>
                     <strong>可选链 <code>?.</code> 做什么：</strong>
                     左边是 <code>null</code> 或 <code>undefined</code> 时
-                    <strong>整个表达式短路成 <code>undefined</code></strong>，
-                    不抛错。
-                    而 React 遇到 <code>{"{undefined}"}</code>
+                    <strong>整个表达式短路成 <code>undefined</code></strong>，不抛错。而 React 遇到 <code>{"{undefined}"}</code>
                     <strong>什么也不渲染</strong>（不是渲染字符串
-                    &ldquo;undefined&rdquo;），
-                    所以页面只是少一段文字，不会崩。
+                    &ldquo;undefined&rdquo;），所以页面只是少一段文字，不会崩。
                   </p>
                   <p>
                     <strong>注意它只挡 null / undefined</strong> ——
                     <code>bookedCabDetails</code> 是 <code>{"{}"}</code> 时
-                    <code>?.name</code> 照样是 <code>undefined</code>，
-                    但那是<strong>属性不存在</strong>，不是崩溃。
+                    <code>?.name</code> 照样是 <code>undefined</code>，但那是<strong>属性不存在</strong>，不是崩溃。
                     <strong><code>?.</code> 防的是「取属性的动作本身抛错」。</strong>
                   </p>
                   <p>
                     <strong>会追问：</strong>「那是不是所有地方都该加 <code>?.</code>？」——
                     <strong>不是。</strong>
                     到处加 <code>?.</code> 会把「这里可能没有值」这个信息
-                    <strong>抹平成噪音</strong>，
-                    真正可能为空的地方反而看不出来。
+                    <strong>抹平成噪音</strong>，真正可能为空的地方反而看不出来。
                     <br />
                     <strong>规则是：只在「这个值确实可能不存在」的地方加。</strong>
-                    这道题里 <code>bookedCabDetails</code> 初始 <code>null</code>，
-                    该加；<code>ride.name</code> 是遍历出来的记录，
+                    这道题里 <code>bookedCabDetails</code> 初始 <code>null</code>，该加；<code>ride.name</code> 是遍历出来的记录，
                     <strong>能进数组就一定有 name，不该加</strong>。
                   </p>
                 </>
@@ -5131,16 +4927,14 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
               body: (
                 <>
                   写成 <code>slice(0, 3)</code>：历史确实是 3 条，
-                  <strong><code>toHaveLength(3)</code> 会过</strong>，
-                  页面上也确实有三行 ——
+                  <strong><code>toHaveLength(3)</code> 会过</strong>，页面上也确实有三行 ——
                   <strong>肉眼看不出错</strong>。
                   <br />
                   抓住它的只有最后那一句
                   <code>expect(screen.queryByText(/Ford Fusion/)).not.toBeInTheDocument()</code>。
                   <br />
                   <strong>这是本站主线 ① 的又一个实例：</strong>
-                  测试写得细，才抓得住「数量对但内容错」这种问题。
-                  你自己写测试的时候，
+                  测试写得细，才抓得住「数量对但内容错」这种问题。你自己写测试的时候，
                   <strong>光断言「有几个」几乎总是不够的。</strong>
                 </>
               ),
@@ -5172,8 +4966,7 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
               prompt: (
                 <>
                   历史是 <code>[Fusion, Accord, Highlander, Explorer]</code>
-                  （最旧 → 最新）。
-                  断言要求：3 条、顺序
+                  （最旧 → 最新）。断言要求：3 条、顺序
                   <code>Explorer / Highlander / Accord</code>、
                   <code>Fusion</code> 不在 DOM 里。
                 </>
@@ -5203,26 +4996,18 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
                       <code>slice</code> 先造新数组，<code>reverse</code> 改副本。
                     </li>
                     <li>
-                      <strong>C</strong> —— 先整体复制再翻转再取前三，
-                      结果一样。<strong>多复制了整个数组</strong>，
-                      历史只有几条时无所谓。
+                      <strong>C</strong> —— 先整体复制再翻转再取前三，结果一样。<strong>多复制了整个数组</strong>，历史只有几条时无所谓。
                     </li>
                     <li>
-                      <strong>E</strong> —— <code>toReversed()</code>（ES2023）
-                      本身就返回新数组，最明确。
+                      <strong>E</strong> —— <code>toReversed()</code>（ES2023）本身就返回新数组，最明确。
                     </li>
                   </ul>
-                  <strong>B 错：</strong>取的是最旧三条再翻转，
-                  变成 <code>Highlander / Accord / Fusion</code> ——
+                  <strong>B 错：</strong>取的是最旧三条再翻转，变成 <code>Highlander / Accord / Fusion</code> ——
                   数量对、顺序看着也「像」倒序，
                   <strong>但 Fusion 还在，最后一句断言失败</strong>。
                   <br />
-                  <strong>D 错得最隐蔽：</strong>单看一次计算，结果是对的；
-                  但 <code>reverse()</code> 已经<strong>把 state 就地翻转了</strong>。
-                  之后每次渲染再翻一次，新记录又接在翻转后的尾部，
-                  连订四辆后列表是 <code>Explorer / Accord / Fusion</code>，测试 4 失败。
-                  <strong>这是「当次结果对、后续全错」的典型，
-                  也是为什么不能只看一次计算的结果。</strong>
+                  <strong>D 错得最隐蔽：</strong>单看一次计算，结果是对的；但 <code>reverse()</code> 已经<strong>把 state 就地翻转了</strong>。之后每次渲染再翻一次，新记录又接在翻转后的尾部，连订四辆后列表是 <code>Explorer / Accord / Fusion</code>，测试 4 失败。
+                  <strong>这是「当次结果对、后续全错」的典型，也是为什么不能只看一次计算的结果。</strong>
                 </>
               ),
               explainEn: (
@@ -5269,8 +5054,7 @@ const latestRides = [...rideHistory].reverse().slice(0, 3);
               titleEn: "Write RideHistory from an empty file",
               prompt: (
                 <>
-                  从 Context 读历史，取最新三条、最新在最上，
-                  空的时候显示空状态。检查器会挡住原地修改。
+                  从 Context 读历史，取最新三条、最新在最上，空的时候显示空状态。检查器会挡住原地修改。
                 </>
               ),
               promptEn: (
@@ -5400,8 +5184,7 @@ const RideHistory = () => {
               why: (
                 <>
                   <strong>这次的结果是对的，下次就不对了。</strong>
-                  <code>reverse()</code> 把 state 数组就地翻成「最新 → 最旧」，
-                  React 不知道（引用没变）。
+                  <code>reverse()</code> 把 state 数组就地翻成「最新 → 最旧」，React 不知道（引用没变）。
                   <br />
                   然后下一次 <code>[...rideHistory, details]</code>
                   把新记录接在<strong>已经翻转过的数组尾部</strong> ——
@@ -5409,8 +5192,7 @@ const RideHistory = () => {
                   <br />
                   更麻烦的是<strong>每次渲染都翻一次</strong>：
                   <code>StrictMode</code> 下开发模式渲染两次、两次翻转抵消，
-                  <strong>列表一直按最旧在前显示</strong>；生产环境里每次渲染都再翻，
-                  顺序越来越乱 —— 开发和生产表现不一样。
+                  <strong>列表一直按最旧在前显示</strong>；生产环境里每次渲染都再翻，顺序越来越乱 —— 开发和生产表现不一样。
                   <strong>把「读」和「改」分清楚 —— 渲染函数里只许读。</strong>
                 </>
               ),
@@ -5460,15 +5242,11 @@ const RideHistory = () => {
               why: (
                 <>
                   <code>useState(null)</code> 的初始值就是 <code>null</code>。
-                  <strong>在完整流程里撞不到</strong>（走到确认页时一定已经选过车），
-                  所以四个测试都过 ——
+                  <strong>在完整流程里撞不到</strong>（走到确认页时一定已经选过车），所以四个测试都过 ——
                   <strong>又一次「测试通过 ≠ 做对了」</strong>。
                   <br />
-                  但只要有人给 <code>CabConfirmation</code> 写一个组件级单测，
-                  或者以后加一个「查看上次行程」的入口，
-                  <strong>它就是白屏</strong>。
-                  React 没有默认的 error boundary，
-                  渲染时抛错会让<strong>整棵树卸载</strong>。
+                  但只要有人给 <code>CabConfirmation</code> 写一个组件级单测，或者以后加一个「查看上次行程」的入口，
+                  <strong>它就是白屏</strong>。React 没有默认的 error boundary，渲染时抛错会让<strong>整棵树卸载</strong>。
                   <br />
                   <strong>初始值是 null 的 state，读它的属性就该配 <code>?.</code>。</strong>
                 </>
@@ -5658,11 +5436,8 @@ const RideHistory = () => {
                   </div>
                   <p>
                     <strong>为什么 esbuild 不干脆都按 JSX 解析：</strong>
-                    因为 JSX 不是标准 JavaScript，
-                    esbuild 只在扩展名声明了的时候才开启这个语法扩展。
-                    真正会冲突的是 TypeScript：<code>&lt;T&gt;value</code> 类型断言和
-                    <code>&lt;T&gt;(x) =&gt; x</code> 泛型箭头函数在 <code>.tsx</code> 里
-                    会被当成 JSX 标签，所以 TS 靠 <code>.ts</code> / <code>.tsx</code> 区分。
+                    因为 JSX 不是标准 JavaScript，esbuild 只在扩展名声明了的时候才开启这个语法扩展。真正会冲突的是 TypeScript：<code>&lt;T&gt;value</code> 类型断言和
+                    <code>&lt;T&gt;(x) =&gt; x</code> 泛型箭头函数在 <code>.tsx</code> 里会被当成 JSX 标签，所以 TS 靠 <code>.ts</code> / <code>.tsx</code> 区分。
                     <strong>所以只能靠扩展名声明「这个文件里有 JSX」。</strong>
                   </p>
                   <p>
@@ -5671,8 +5446,7 @@ const RideHistory = () => {
                     对，CRA 用 Babel 且配置成对所有 <code>.js</code>
                     都跑 JSX 转换。
                     <strong>这是工具链的选择，不是语言规定。</strong>
-                    Vite 选了「按扩展名」，
-                    所以从 CRA 迁到 Vite 的项目
+                    Vite 选了「按扩展名」，所以从 CRA 迁到 Vite 的项目
                     <strong>经常一片红</strong>，全是这个原因。
                   </p>
                 </>
@@ -5842,8 +5616,7 @@ Error: Failed to parse source for import analysis because the content contains i
                           <td>要改多少 import</td>
                           <td>
                             <strong>0 个</strong> —— 所有 import 都是
-                            <code>from &quot;./context/CabContext&quot;</code>，
-                            没写扩展名
+                            <code>from &quot;./context/CabContext&quot;</code>，没写扩展名
                           </td>
                           <td>0 个</td>
                         </tr>
@@ -5861,8 +5634,7 @@ Error: Failed to parse source for import analysis because the content contains i
                           <td>
                             掩盖了问题本身；以后再有人在 <code>.js</code>{" "}
                             里写 JSX 也不会被发现；
-                            <strong>换个构建工具（Jest / Next / tsc）
-                            又会报错</strong>
+                            <strong>换个构建工具（Jest / Next / tsc）又会报错</strong>
                           </td>
                         </tr>
                       </tbody>
@@ -5870,27 +5642,22 @@ Error: Failed to parse source for import analysis because the content contains i
                   </div>
                   <p>
                     <strong>为什么改名不用动 import：</strong>
-                    ES 模块的路径在浏览器里必须写全扩展名，
-                    但<strong>打包器会做「扩展名解析」</strong> ——
+                    ES 模块的路径在浏览器里必须写全扩展名，但<strong>打包器会做「扩展名解析」</strong> ——
                     看到 <code>./context/CabContext</code>
                     就依次试 <code>.js</code> / <code>.jsx</code> /{" "}
-                    <code>.ts</code> / <code>.tsx</code> / <code>.json</code>。
-                    所以只要 import 没写扩展名，改名就是无痛的。
+                    <code>.ts</code> / <code>.tsx</code> / <code>.json</code>。所以只要 import 没写扩展名，改名就是无痛的。
                     <strong>这也是为什么「import 不写扩展名」在打包项目里是好习惯。</strong>
                   </p>
                   <p>
                     <strong>更一般的判断标准：</strong>
                     <strong>能改一个文件解决的，别去改全局配置。</strong>
-                    全局配置的每一行都是「以后所有人都要遵守的规则」，
-                    而这里真正的问题只是<strong>一个文件的名字起错了</strong>。
+                    全局配置的每一行都是「以后所有人都要遵守的规则」，而这里真正的问题只是<strong>一个文件的名字起错了</strong>。
                   </p>
                   <p>
                     <strong>会追问：</strong>
                     「那真实项目里什么时候该改配置？」——
-                    当「不合规」的文件多到改不动的时候
-                    （比如从 CRA 迁过来的几百个 <code>.js</code>）。
-                    <strong>那时改配置是过渡手段</strong>，
-                    通常配一条 lint 规则 + 计划分批改名。
+                    当「不合规」的文件多到改不动的时候（比如从 CRA 迁过来的几百个 <code>.js</code>）。
+                    <strong>那时改配置是过渡手段</strong>，通常配一条 lint 规则 + 计划分批改名。
                     <strong>一个文件的时候改配置，是拿长期换短期。</strong>
                   </p>
                 </>
@@ -6006,8 +5773,7 @@ Error: Failed to parse source for import analysis because the content contains i
                 <>
                   <p>
                     <strong>一句话：</strong>源项目有两处写法
-                    <strong>在这个应用里完全正确</strong>，
-                    但<strong>换个场景就会出问题</strong> ——
+                    <strong>在这个应用里完全正确</strong>，但<strong>换个场景就会出问题</strong> ——
                     面试官很爱问这种。
                   </p>
                   <p>
@@ -6016,8 +5782,7 @@ Error: Failed to parse source for import analysis because the content contains i
                   </p>
                   <p>
                     <code>setRideHistory([...rideHistory, details])</code>
-                    读的是<strong>闭包里那个 <code>rideHistory</code></strong>，
-                    也就是「本次渲染时的值」。
+                    读的是<strong>闭包里那个 <code>rideHistory</code></strong>，也就是「本次渲染时的值」。
                     <br />
                     <strong>什么时候会出错：</strong>
                     同一个事件里连调两次 ——
@@ -6030,8 +5795,7 @@ Error: Failed to parse source for import analysis because the content contains i
                     <br />
                     <strong>函数式写法：</strong>
                     <code>setRideHistory((prev) =&gt; [...prev, details])</code> ——
-                    <code>prev</code> 是 React 给的<strong>最新值</strong>，
-                    跟闭包无关。
+                    <code>prev</code> 是 React 给的<strong>最新值</strong>，跟闭包无关。
                     <strong>只要更新依赖旧值，就用函数式。</strong>
                   </p>
                   <p>
@@ -6044,8 +5808,7 @@ Error: Failed to parse source for import analysis because the content contains i
                     <br />
                     <strong>后果：</strong>所有 <code>useContext</code>
                     的消费者都会重渲染，
-                    <strong>即使它们用的那部分数据没变</strong>。
-                    而且 <code>React.memo</code> 挡不住这个 ——
+                    <strong>即使它们用的那部分数据没变</strong>。而且 <code>React.memo</code> 挡不住这个 ——
                     context 变化会穿透 memo。
                     <br />
                     <strong>为什么这里无所谓：</strong>
@@ -6055,8 +5818,7 @@ Error: Failed to parse source for import analysis because the content contains i
                     <br />
                     <strong>标准答案：</strong>
                     <code>useCallback</code> 稳住函数 +{" "}
-                    <code>useMemo</code> 稳住 value 对象。
-                    本站 <code>/code</code> 里
+                    <code>useMemo</code> 稳住 value 对象。本站 <code>/code</code> 里
                     <strong>「主题切换（Context + value 记忆化）」</strong>
                     那道题专门练这个 ——
                     实测删掉 <code>useMemo</code> 之后
@@ -6064,13 +5826,8 @@ Error: Failed to parse source for import analysis because the content contains i
                   </p>
                   <p>
                     <strong>面试时怎么说才漂亮：</strong>
-                    别说「这里写错了」——它没写错。
-                    说<strong>「这个写法在当前规模下没问题，
-                    因为消费者少且 Provider 只在 state 变化时重渲染；
-                    如果 Provider 上面加了会频繁重渲染的父组件，
-                    就该上 useMemo / useCallback」</strong>。
-                    <strong>能说出「什么条件下会变成问题」，
-                    比背出 useMemo 强得多。</strong>
+                    别说「这里写错了」——它没写错。说<strong>「这个写法在当前规模下没问题，因为消费者少且 Provider 只在 state 变化时重渲染；如果 Provider 上面加了会频繁重渲染的父组件，就该上 useMemo / useCallback」</strong>。
+                    <strong>能说出「什么条件下会变成问题」，比背出 useMemo 强得多。</strong>
                   </p>
                 </>
               ),
@@ -6219,16 +5976,12 @@ const value = useMemo(
               titleEn: "Why the first thing is always to run a baseline",
               body: (
                 <>
-                  拿到任何项目，<strong>先跑测试，把当前状态记下来</strong>。
-                  这门课的基线是「0 个测试跑起来」，
+                  拿到任何项目，<strong>先跑测试，把当前状态记下来</strong>。这门课的基线是「0 个测试跑起来」，
                   <strong>知道这一点，你就不会花二十分钟检查自己的组件写没写对</strong>。
                   <br />
-                  本站另外三门课的基线也都不是零：
-                  node-subgraph 是 <strong>6 failed / 4 passed</strong>
-                  （而且 4 个通过里 3 个是「空实现恰好满足断言」的假通过），
-                  java-service 是 <strong>5 run / 2 failures</strong>
-                  （六个端点全 <code>return null</code> 也过了 3 个），
-                  react-notes-app 的 <code>npm run build</code> 原生就失败。
+                  本站另外三门课的基线也都不是零：node-subgraph 是 <strong>6 failed / 4 passed</strong>
+                  （而且 4 个通过里 3 个是「空实现恰好满足断言」的假通过），java-service 是 <strong>5 run / 2 failures</strong>
+                  （六个端点全 <code>return null</code> 也过了 3 个），react-notes-app 的 <code>npm run build</code> 原生就失败。
                   <br />
                   <strong>基线不是零，是常态。</strong>
                 </>
@@ -6335,8 +6088,7 @@ Error: Failed to parse source for import analysis because the content contains i
                   <p>
                     <strong>根因：文件里有 JSX，但扩展名是 <code>.js</code>。</strong>
                     Vite 用 esbuild 转换，
-                    <strong>esbuild 按扩展名选 loader</strong>，
-                    js loader 不解析 <code>&lt;CabContext.Provider&gt;</code> 这种语法。
+                    <strong>esbuild 按扩展名选 loader</strong>，js loader 不解析 <code>&lt;CabContext.Provider&gt;</code> 这种语法。
                   </p>
                   <p>
                     <strong>三个判断依据，任何一个都够：</strong>
@@ -6349,28 +6101,23 @@ Error: Failed to parse source for import analysis because the content contains i
                     </li>
                     <li>
                       <code>Plugin: vite:import-analysis</code> ——
-                      报错来自<strong>构建插件</strong>，
-                      不是 React 也不是 vitest；
+                      报错来自<strong>构建插件</strong>，不是 React 也不是 vitest；
                     </li>
                     <li>
                       <code>Tests no tests</code> ——
-                      <strong>连收集阶段都没过</strong>。
-                      测试代码本身根本没执行，
-                      所以不可能是断言或组件逻辑的问题。
+                      <strong>连收集阶段都没过</strong>。测试代码本身根本没执行，所以不可能是断言或组件逻辑的问题。
                     </li>
                   </ul>
                   <p>
                     <strong>修法：<code>mv CabContext.js CabContext.jsx</code>。</strong>
                     所有 import 都写的是
-                    <code>from &quot;./context/CabContext&quot;</code>（无扩展名），
-                    打包器会自己解析，<strong>一处 import 都不用改</strong>。
+                    <code>from &quot;./context/CabContext&quot;</code>（无扩展名），打包器会自己解析，<strong>一处 import 都不用改</strong>。
                   </p>
                   <p>
                     <strong>不要改 <code>vite.config.mjs</code> 加
                     <code>loader: {"{ \".js\": \"jsx\" }"}</code>。</strong>
                     那会让整个项目所有 <code>.js</code> 都按 JSX 解析，
-                    <strong>把「一个文件名字起错了」变成一条全局规则</strong>，
-                    而且换个构建工具还会再报错一次。
+                    <strong>把「一个文件名字起错了」变成一条全局规则</strong>，而且换个构建工具还会再报错一次。
                   </p>
                   <p>
                     <strong>更大的教训：</strong>
@@ -6482,8 +6229,7 @@ Error: Failed to parse source for import analysis because the content contains i
               answer: ["a", "b", "d"],
               explain: (
                 <>
-                  <strong>A 对。</strong>闭包读的是本次渲染的值。
-                  这道题撞不到是因为每次订车之间都有完整的重渲染。
+                  <strong>A 对。</strong>闭包读的是本次渲染的值。这道题撞不到是因为每次订车之间都有完整的重渲染。
                   <br />
                   <strong>B 对。</strong>字面量对象每次都是新引用，
                   <code>useContext</code> 靠引用比较判断变化。
@@ -6491,8 +6237,7 @@ Error: Failed to parse source for import analysis because the content contains i
                   <strong>C 错。</strong>
                   <code>React.memo</code> 只挡 props 变化，
                   <strong>context 变化会穿透 memo</strong> ——
-                  这是很常见的误解。要挡就得让 value 本身别变（<code>useMemo</code>），
-                  或者把 context 拆细。
+                  这是很常见的误解。要挡就得让 value 本身别变（<code>useMemo</code>），或者把 context 拆细。
                   <br />
                   <strong>D 对，而且这是最容易犯的错误。</strong>
                   <code>useMemo(() =&gt; ({"{ fn }"}), [fn])</code> 里
@@ -6502,10 +6247,7 @@ Error: Failed to parse source for import analysis because the content contains i
                   通常成对出现，就是这个原因。</strong>
                   <br />
                   <strong>E 错 —— 这一条最重要。</strong>
-                  它们<strong>不是 bug</strong>：在这个应用的实际条件下
-                  （消费者少、Provider 只因自身 state 变化而重渲染、
-                  没有同一事件内的连续调用），
-                  两处写法都完全正确。
+                  它们<strong>不是 bug</strong>：在这个应用的实际条件下（消费者少、Provider 只因自身 state 变化而重渲染、没有同一事件内的连续调用），两处写法都完全正确。
                   <strong>「在什么条件下会变成问题」才是要掌握的东西</strong> ——
                   把正确代码说成 bug，在 code review 里是要挨批的。
                 </>
@@ -6579,11 +6321,9 @@ export default defineConfig({
                   代价有三层：
                   <strong>①</strong> 以后任何人在 <code>.js</code> 里写 JSX
                   都不会被发现，问题会扩散；
-                  <strong>②</strong> 换构建工具就再报错一次
-                  （Jest、Next、单独跑 <code>tsc</code> 都不看这个配置）；
+                  <strong>②</strong> 换构建工具就再报错一次（Jest、Next、单独跑 <code>tsc</code> 都不看这个配置）；
                   <strong>③</strong> 一个新人打开
-                  <code>CabContext.js</code> 看到 JSX，
-                  会以为「原来 <code>.js</code> 里可以写 JSX」，
+                  <code>CabContext.js</code> 看到 JSX，会以为「原来 <code>.js</code> 里可以写 JSX」，
                   <strong>学到一个错的结论</strong>。
                   <br />
                   <strong>判断标准很简单：改一个文件能解决的，别动全局配置。</strong>
@@ -6710,10 +6450,7 @@ export default defineConfig({
                   </p>
                   <p>
                     <strong>为什么不要「全写完再跑」：</strong>
-                    六个组件加一个 Context 一次写完，
-                    第一次跑出来<strong>四条全红</strong>，
-                    你不知道是哪一层的问题。
-                    而<strong>一次只让一条变绿，红的原因永远只有一个</strong>。
+                    六个组件加一个 Context 一次写完，第一次跑出来<strong>四条全红</strong>，你不知道是哪一层的问题。而<strong>一次只让一条变绿，红的原因永远只有一个</strong>。
                   </p>
                   <p>
                     <strong>推荐顺序（每一步都跑一次
@@ -6725,14 +6462,12 @@ export default defineConfig({
                       <code>npm create vite@latest</code>、装
                       <code>vitest</code> / <code>jsdom</code> /{" "}
                       <code>@testing-library/react</code> /{" "}
-                      <code>@testing-library/jest-dom</code>，
-                      配好 <code>vite.config.mjs</code> 的 <code>test</code> 段和
+                      <code>@testing-library/jest-dom</code>，配好 <code>vite.config.mjs</code> 的 <code>test</code> 段和
                       setup 文件。
                       <strong>把测试文件放进去，先确认它「能跑起来并且全红」</strong> ——
                       测试会 import <code>../context/CabContext</code>，所以先建一个只导出
                       <code>{"CabProvider = ({ children }) => children"}</code> 的
-                      <code>src/context/CabContext.jsx</code> 占位，测试才能跑起来；
-                      这一步就已经比源项目的基线好了。
+                      <code>src/context/CabContext.jsx</code> 占位，测试才能跑起来；这一步就已经比源项目的基线好了。
                     </li>
                     <li>
                       <strong>Context + Provider。</strong>
@@ -6747,8 +6482,7 @@ export default defineConfig({
                     </li>
                     <li>
                       <strong>CabOptions + CabCard → 测试 2 变绿。</strong>
-                      <code>data.json</code> 照抄，
-                      六张卡的五个 testid 对照表检查一遍。
+                      <code>data.json</code> 照抄，六张卡的五个 testid 对照表检查一遍。
                     </li>
                     <li>
                       <strong>App 的状态机 + Loading + CabConfirmation
@@ -6764,11 +6498,9 @@ export default defineConfig({
                   <p>
                     <strong>卡住的时候：</strong>
                     提示分四级，
-                    <strong>先自己想 15 分钟再看第一级</strong>。
-                    看提示不丢人，
+                    <strong>先自己想 15 分钟再看第一级</strong>。看提示不丢人，
                     <strong>但一上来就看提示，这一节就白做了</strong> ——
-                    你练的不是「照着提示写代码」，
-                    是「没有提示时自己找路」。
+                    你练的不是「照着提示写代码」，是「没有提示时自己找路」。
                   </p>
                 </>
               ),
@@ -6862,15 +6594,11 @@ export default defineConfig({
                   <code>npm create vite@latest</code> 起项目，
                   <code>npx vitest run</code> 跑测试。
                   <br />
-                  <strong>装不了 Node 的话用 StackBlitz</strong>：
-                  它的 WebContainers 把 Node 编译进了浏览器，
+                  <strong>装不了 Node 的话用 StackBlitz</strong>：它的 WebContainers 把 Node 编译进了浏览器，
                   <code>npm install</code> 和 <code>npm test</code> 都能真跑。
                   <br />
                   <strong>这一节故意不给页面内的运行环境</strong> ——
-                  「在空文件夹里、没有答案的情况下写出来」是这个站的验收下限，
-                  给你配一个连好依赖和测试的编辑器，就把这一档删掉了。
-                  前面第 1、2 部分的练习本来就是「写得对」那一档，
-                  这一节是「空手做」。
+                  「在空文件夹里、没有答案的情况下写出来」是这个站的验收下限，给你配一个连好依赖和测试的编辑器，就把这一档删掉了。前面第 1、2 部分的练习本来就是「写得对」那一档，这一节是「空手做」。
                 </>
               ),
               bodyEn: (
@@ -7081,9 +6809,7 @@ $ npx vitest run
                   三种完全不同的原因会给出<strong>同一个输出</strong>。
                   <br />
                   而按测试顺序推进的话，
-                  <strong>每一步只有一个变量</strong>：
-                  刚写完 <code>RideHistory</code>、测试 1 还是红，
-                  那问题只可能在你刚写的那几行或 Provider 层级里。
+                  <strong>每一步只有一个变量</strong>：刚写完 <code>RideHistory</code>、测试 1 还是红，那问题只可能在你刚写的那几行或 Provider 层级里。
                   <br />
                   <strong>这不是「教学建议」，是真实考试里的时间管理。</strong>
                   考场有计时，

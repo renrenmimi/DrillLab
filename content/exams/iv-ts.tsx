@@ -59,11 +59,9 @@ export const ivTs: Module = {
           body: (
             <>
               <p>
-                <strong>一句话：</strong>五个都是「按规则从已有类型造新类型」的
-                工具类型（utility types）：<code>Partial</code> 全变可选、
+                <strong>一句话：</strong>五个都是「按规则从已有类型造新类型」的工具类型（utility types）：<code>Partial</code> 全变可选、
                 <code>Required</code> 全变必填、<code>Pick</code> 只留白名单、
-                <code>Omit</code> 去掉黑名单、<code>Record</code> 按键集合造字典。
-                考点不是背 API，是看到场景知道伸手拿哪个。
+                <code>Omit</code> 去掉黑名单、<code>Record</code> 按键集合造字典。考点不是背 API，是看到场景知道伸手拿哪个。
               </p>
               <p>
                 <strong>三个高频场景：</strong>
@@ -73,43 +71,29 @@ export const ivTs: Module = {
                   <strong>
                     更新函数的 patch 参数 → <code>{"Partial<User>"}</code>。
                   </strong>
-                  调用方只传要改的字段，但传了的字段类型必须对，
-                  拼错字段名照样编译报错
-                  （<code>{"Object literal may only specify known properties"}</code>）。
-                  这是它比 <code>{"Record<string, unknown>"}</code> 强的地方：
-                  可选，但没有放弃字段级检查。
+                  调用方只传要改的字段，但传了的字段类型必须对，拼错字段名照样编译报错（<code>{"Object literal may only specify known properties"}</code>）。这是它比 <code>{"Record<string, unknown>"}</code> 强的地方：可选，但没有放弃字段级检查。
                 </li>
                 <li>
                   <strong>
                     从大类型裁 props → <code>{'Pick<User, "name" | "role">'}</code>。
                   </strong>
-                  组件只声明真正用到的字段，<code>User</code> 以后加字段不会波及它。
-                  反方向的「去掉不该外泄的字段」用
+                  组件只声明真正用到的字段，<code>User</code> 以后加字段不会波及它。反方向的「去掉不该外泄的字段」用
                   <code>{'Omit<User, "email">'}</code>。
                 </li>
                 <li>
                   <strong>
-                    键集合已知的字典 → <code>{"Record<Theme, string>"}</code>，
-                    别用索引签名。
+                    键集合已知的字典 → <code>{"Record<Theme, string>"}</code>，别用索引签名。
                   </strong>
-                  键是字面量联合（literal union）时，Record 的键集合是封闭的：
-                  少一个键、多一个键都是编译错误。
-                  索引签名对任何 string 键都放行，还谎称读出来的值一定存在。
+                  键是字面量联合（literal union）时，Record 的键集合是封闭的：少一个键、多一个键都是编译错误。索引签名对任何 string 键都放行，还谎称读出来的值一定存在。
                 </li>
               </ul>
               <p>
-                <strong>Pick 和 Omit 怎么选：</strong>白名单还是黑名单。
-                类型以后会加字段时，<code>Omit</code> 会把新字段自动带进来 ——
-                透传配置时这是优点，做脱敏时这是漏洞。
-                所以对外暴露的公开类型建议用 <code>Pick</code>：
-                新加的敏感字段默认不外泄。
+                <strong>Pick 和 Omit 怎么选：</strong>白名单还是黑名单。类型以后会加字段时，<code>Omit</code> 会把新字段自动带进来 ——
+                透传配置时这是优点，做脱敏时这是漏洞。所以对外暴露的公开类型建议用 <code>Pick</code>：新加的敏感字段默认不外泄。
               </p>
               <p>
-                <strong>会追问：</strong>「Partial 是深的还是浅的？」—— 浅的，
-                只动第一层，嵌套对象内部照样必填；要深的得自己写递归的 mapped type。
-                「<code>{"Record<string, T>"}</code> 和索引签名什么区别？」——
-                几乎等价，但 Record 的键能用字面量联合，索引签名不行。
-                答完这两问，多半会接一句「那 Partial 自己怎么实现？」——
+                <strong>会追问：</strong>「Partial 是深的还是浅的？」—— 浅的，只动第一层，嵌套对象内部照样必填；要深的得自己写递归的 mapped type。「<code>{"Record<string, T>"}</code> 和索引签名什么区别？」——
+                几乎等价，但 Record 的键能用字面量联合，索引签名不行。答完这两问，多半会接一句「那 Partial 自己怎么实现？」——
                 那就是下一题。
               </p>
             </>
@@ -266,11 +250,9 @@ loose["drak"];   // The compiler allows it and claims string — at runtime it i
           body: (
             <>
               <p>
-                <strong>一句话：</strong>映射类型（mapped type）是
-                「对属性名的联合做一次循环」。
+                <strong>一句话：</strong>映射类型（mapped type）是「对属性名的联合做一次循环」。
                 <code>{"{ [K in keyof T]?: T[K] }"}</code> 这一行就是
-                Partial 的完整实现：逐个取出 T 的属性名，抄下原类型，
-                加上可选修饰符。
+                Partial 的完整实现：逐个取出 T 的属性名，抄下原类型，加上可选修饰符。
               </p>
               <p>
                 <strong>逐段拆这一行：</strong>
@@ -281,18 +263,15 @@ loose["drak"];   // The compiler allows it and claims string — at runtime it i
                   <code>{'"id" | "name" | "email"'}</code>。
                 </li>
                 <li>
-                  <code>{"[K in keyof T]"}</code> —— 映射本体：
-                  对联合里的每个成员各生成一个属性，<code>K</code> 是循环变量。
+                  <code>{"[K in keyof T]"}</code> —— 映射本体：对联合里的每个成员各生成一个属性，<code>K</code> 是循环变量。
                 </li>
                 <li>
-                  <code>?:</code> —— 给生成的属性加可选修饰符。
-                  同一个位置还能写 <code>readonly</code>；写成
+                  <code>?:</code> —— 给生成的属性加可选修饰符。同一个位置还能写 <code>readonly</code>；写成
                   <code>-?</code> 是反向操作 —— 去掉可选，这正是
                   <code>Required</code> 的实现。
                 </li>
                 <li>
-                  <code>{"T[K]"}</code> —— 索引访问类型（indexed access type）：
-                  原属性是什么类型，就抄什么类型。
+                  <code>{"T[K]"}</code> —— 索引访问类型（indexed access type）：原属性是什么类型，就抄什么类型。
                 </li>
               </ul>
               <p>
@@ -300,16 +279,11 @@ loose["drak"];   // The compiler allows it and claims string — at runtime it i
                 <code>K extends keyof T</code>。没有它，调用方可以给 K 传任何东西，
                 <code>{"T[P]"}</code> 也就没法算。有了它，
                 <code>{'MyPick<User, "age">'}</code> 在调用处直接报
-                <code>{"Type '\"age\"' does not satisfy the constraint"}</code>，
-                而不是悄悄得出一个错的类型。
+                <code>{"Type '\"age\"' does not satisfy the constraint"}</code>，而不是悄悄得出一个错的类型。
               </p>
               <p>
                 <strong>会追问：</strong>「Omit 怎么用 Pick 组合出来？」——
-                <code>{"Pick<T, Exclude<keyof T, K>>"}</code>：
-                先用 Exclude 从全部键里去掉 K，剩下的交给 Pick。
-                能再补一句「官方 <code>Omit</code> 的约束是 <code>keyof any</code>，
-                比 <code>keyof T</code> 宽，所以官方版允许去掉一个不存在的键」，
-                说明你真读过 lib.es5.d.ts ——
+                <code>{"Pick<T, Exclude<keyof T, K>>"}</code>：先用 Exclude 从全部键里去掉 K，剩下的交给 Pick。能再补一句「官方 <code>Omit</code> 的约束是 <code>keyof any</code>，比 <code>keyof T</code> 宽，所以官方版允许去掉一个不存在的键」，说明你真读过 lib.es5.d.ts ——
                 背 API 的人和读过实现的人，在这一问上分开。
               </p>
             </>
@@ -473,33 +447,21 @@ type NoEmail = MyOmit<User, "email">;
             <>
               <p>
                 <strong>一句话：</strong>三个都是条件类型（conditional type）——
-                类型层面的三元表达式 <code>T extends U ? X : Y</code>。
-                Exclude 和 Extract 靠它的分配律（distributive）过滤联合；
-                ReturnType 再加上 <code>infer</code>，从函数类型里拆出返回值。
+                类型层面的三元表达式 <code>T extends U ? X : Y</code>。Exclude 和 Extract 靠它的分配律（distributive）过滤联合；ReturnType 再加上 <code>infer</code>，从函数类型里拆出返回值。
               </p>
               <p>
-                <strong>分配律：</strong>当 <code>T</code> 是裸类型参数、
-                实参又是联合时，条件类型不把联合当整体判断，
-                而是逐个成员代入、再把结果并起来。
-                <code>{'Exclude<"a" | "b" | "c", "a">'}</code> 因此展开成三次判断：
-                命中的变成 <code>never</code>，而 never 是空联合，
-                并进结果就消失了。「过滤」的本质，是「把不要的变成 never」。
+                <strong>分配律：</strong>当 <code>T</code> 是裸类型参数、实参又是联合时，条件类型不把联合当整体判断，而是逐个成员代入、再把结果并起来。
+                <code>{'Exclude<"a" | "b" | "c", "a">'}</code> 因此展开成三次判断：命中的变成 <code>never</code>，而 never 是空联合，并进结果就消失了。「过滤」的本质，是「把不要的变成 never」。
               </p>
               <p>
-                <strong>infer：</strong>在 <code>extends</code> 右边的模式里挖一个洞，
-                匹配成功时编译器负责把洞填上。
+                <strong>infer：</strong>在 <code>extends</code> 右边的模式里挖一个洞，匹配成功时编译器负责把洞填上。
                 <code>{"T extends (...args: any[]) => infer R ? R : never"}</code>
-                里的 <code>R</code> 就是那个洞 —— T 匹配到函数类型时，
-                R 被填成它的返回类型。同一招能拆数组元素、Promise 的值、
-                函数参数（<code>Parameters</code> 就是把洞挖在参数位置）。
+                里的 <code>R</code> 就是那个洞 —— T 匹配到函数类型时，R 被填成它的返回类型。同一招能拆数组元素、Promise 的值、函数参数（<code>Parameters</code> 就是把洞挖在参数位置）。
               </p>
               <p>
                 <strong>会追问：</strong>「怎么关掉分配律？」—— 两边包一层元组：
-                <code>{"[T] extends [U]"}</code>，T 不再是裸的，联合就被当成整体。
-                「<code>{"Exclude<T, T>"}</code> 是什么？」——
-                <code>never</code>，每个成员都被自己命中。
-                「never 传进去呢？」—— 还是 never：空联合循环零次。
-                三问全是分配律的推论，吃透一条规则就全能答。
+                <code>{"[T] extends [U]"}</code>，T 不再是裸的，联合就被当成整体。「<code>{"Exclude<T, T>"}</code> 是什么？」——
+                <code>never</code>，每个成员都被自己命中。「never 传进去呢？」—— 还是 never：空联合循环零次。三问全是分配律的推论，吃透一条规则就全能答。
               </p>
             </>
           ),
@@ -673,14 +635,11 @@ type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类
           explain: (
             <>
               <p>
-                <strong>B。</strong><code>-?</code> 是「去掉可选修饰符」：
-                映射每个属性时，把原来的 <code>?</code> 摘掉。
-                这正是官方 <code>Required</code> 的实现。
+                <strong>B。</strong><code>-?</code> 是「去掉可选修饰符」：映射每个属性时，把原来的 <code>?</code> 摘掉。这正是官方 <code>Required</code> 的实现。
               </p>
               <p>
                 A 是 <code>?</code>（Partial 的做法）；C 是
-                <code>readonly</code>（Readonly 的做法）；
-                D 那种「按条件挑属性」要靠键重映射（key remapping，
+                <code>readonly</code>（Readonly 的做法）；D 那种「按条件挑属性」要靠键重映射（key remapping，
                 <code>as</code> 子句）配合条件类型，这一行里并没有出现。
               </p>
             </>
@@ -785,38 +744,27 @@ type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类
           body: (
             <>
               <p>
-                <strong>一句话：</strong>这个约束向编译器证明
-                「K 一定是 T 的属性名之一」。有了它，<code>{"obj[key]"}</code>
+                <strong>一句话：</strong>这个约束向编译器证明「K 一定是 T 的属性名之一」。有了它，<code>{"obj[key]"}</code>
                 才编译得过，返回类型才能精确写成 <code>{"T[K]"}</code> ——
                 一个约束同时解决合法性和精确性两件事。
               </p>
               <p>
                 <strong>不写约束报什么错：</strong>
                 <code>{"Type 'K' cannot be used to index type 'T'."}</code>
-                不加约束时 K 和 T 之间没有任何关系，
-                编译器无法证明 obj 上存在这个键，索引表达式直接被拒。
-                这是泛型题里最常见的报错，认出它就知道缺的是约束。
+                不加约束时 K 和 T 之间没有任何关系，编译器无法证明 obj 上存在这个键，索引表达式直接被拒。这是泛型题里最常见的报错，认出它就知道缺的是约束。
               </p>
               <p>
                 <strong>为什么返回 <code>{"T[K]"}</code> 而不是 any：</strong>
                 T[K] 是索引访问类型，在每个调用点按实参单独求值 ——
                 <code>{'getProp(user, "name")'}</code> 得 string，
-                <code>{'getProp(user, "active")'}</code> 得 boolean。
-                精确性的来源是 K 被推断成<strong>字面量类型（literal type）</strong>
-                （<code>{'"name"'}</code>，而不是 string）。
-                返回 any 的版本编译也过，但类型信息在函数出口全部蒸发，
-                调用方从此拿着一个不受检查的值。
+                <code>{'getProp(user, "active")'}</code> 得 boolean。精确性的来源是 K 被推断成<strong>字面量类型（literal type）</strong>
+                （<code>{'"name"'}</code>，而不是 string）。返回 any 的版本编译也过，但类型信息在函数出口全部蒸发，调用方从此拿着一个不受检查的值。
               </p>
               <p>
                 <strong>会追问：</strong>「那写
                 <code>{"(obj: object, key: string): any"}</code> 有什么问题？」——
-                能跑，但传错对象、拼错键、用错返回值，全都要等运行时才暴露出来；
-                junior 版和 senior 版的差距就在这。
-                「约束能带默认值吗？」—— 能：
-                <code>{"<T extends object = Record<string, unknown>>"}</code>。
-                「为什么要两个类型参数？」—— 因为 K 的合法取值依赖 T。
-                「一个参数的取值范围由另一个参数决定」，
-                正是泛型约束的典型使用场景。
+                能跑，但传错对象、拼错键、用错返回值，全都要等运行时才暴露出来；junior 版和 senior 版的差距就在这。「约束能带默认值吗？」—— 能：
+                <code>{"<T extends object = Record<string, unknown>>"}</code>。「为什么要两个类型参数？」—— 因为 K 的合法取值依赖 T。「一个参数的取值范围由另一个参数决定」，正是泛型约束的典型使用场景。
               </p>
             </>
           ),
@@ -907,42 +855,23 @@ const a = getProp(user, "active");   // a has type boolean
           body: (
             <>
               <p>
-                <strong>一句话：</strong>判别联合（discriminated union，
-                也译可辨识联合）指每个成员都带同一个字段、
-                且字段类型是互不相同的字面量。<code>switch</code> 这个字段，
-                每个 <code>case</code> 里编译器自动收窄；<code>default</code>
-                里把值赋给 <code>never</code>，将来加了成员忘了处理，
-                编译直接失败 —— 这就是穷尽检查（exhaustiveness check）。
+                <strong>一句话：</strong>判别联合（discriminated union，也译可辨识联合）指每个成员都带同一个字段、且字段类型是互不相同的字面量。<code>switch</code> 这个字段，每个 <code>case</code> 里编译器自动收窄；<code>default</code>
+                里把值赋给 <code>never</code>，将来加了成员忘了处理，编译直接失败 —— 这就是穷尽检查（exhaustiveness check）。
               </p>
               <p>
-                <strong>穷尽检查的机制：</strong>控制流走到 default 时，
-                编译器算出「还没被 case 排除的成员」。三个成员都处理过，
-                剩下的是 never，<code>{"const exhausted: never = s"}</code> 成立；
-                第四个成员加进来却没写 case，剩下的就不是 never，
-                这一行立刻报错。错误出现在「忘了改的那处代码」，
-                而不是上线之后。
+                <strong>穷尽检查的机制：</strong>控制流走到 default 时，编译器算出「还没被 case 排除的成员」。三个成员都处理过，剩下的是 never，<code>{"const exhausted: never = s"}</code> 成立；第四个成员加进来却没写 case，剩下的就不是 never，这一行立刻报错。错误出现在「忘了改的那处代码」，而不是上线之后。
               </p>
               <p>
-                <strong>对比 as 断言：</strong>收窄的每一步都对应一个
-                真实的运行时检查，是「证明」；<code>as</code>
+                <strong>对比 as 断言：</strong>收窄的每一步都对应一个真实的运行时检查，是「证明」；<code>as</code>
                 不产生任何运行时代码，只是「让编译器不再报错」。
-                <code>{"JSON.parse(...) as Shape"}</code> 能过编译，
-                但值长什么样由运行时说了算，
-                错误被推迟到离出错点很远的地方爆发。
-                as 有正当用途（类型守卫内部、测试代码、DOM 查询的细化），
-                但拿它替代收窄，等于手动关掉编译期的保障。
+                <code>{"JSON.parse(...) as Shape"}</code> 能过编译，但值长什么样由运行时说了算，错误被推迟到离出错点很远的地方爆发。as 有正当用途（类型守卫内部、测试代码、DOM 查询的细化），但拿它替代收窄，等于手动关掉编译期的保障。
               </p>
               <p>
                 <strong>会追问：</strong>「typeof 收窄为什么不够用？」——
-                typeof 对一切对象都返回 <code>{'"object"'}</code>，
-                分不开对象联合的成员；判别联合就是给对象联合准备的收窄手段。
-                本站 foundations 的 TS 课里 <code>SettledResult</code> 按
-                <code>status</code> 收窄就是同一招，这一题只是往深处多走一层。
-                「判别字段为什么必须是字面量类型？」——
-                两个成员的字段如果都是 string，编译器无从区分。
-                还会问 assertNever：把 default 里那两行抽成
-                <code>{"function assertNever(x: never): never"}</code>，
-                每个 switch 复用。
+                typeof 对一切对象都返回 <code>{'"object"'}</code>，分不开对象联合的成员；判别联合就是给对象联合准备的收窄手段。本站 foundations 的 TS 课里 <code>SettledResult</code> 按
+                <code>status</code> 收窄就是同一招，这一题只是往深处多走一层。「判别字段为什么必须是字面量类型？」——
+                两个成员的字段如果都是 string，编译器无从区分。还会问 assertNever：把 default 里那两行抽成
+                <code>{"function assertNever(x: never): never"}</code>，每个 switch 复用。
               </p>
             </>
           ),
@@ -1083,50 +1012,34 @@ if (isShape(raw)) {
           body: (
             <>
               <p>
-                <strong>一句话：</strong><code>unknown</code> 是
-                「还不知道是什么，用之前必须先证明」；<code>any</code> 是
-                「放弃检查，双向放行」；<code>never</code> 是「不可能有值」。
-                三个词各占类型系统的一个极端。
+                <strong>一句话：</strong><code>unknown</code> 是「还不知道是什么，用之前必须先证明」；<code>any</code> 是「放弃检查，双向放行」；<code>never</code> 是「不可能有值」。三个词各占类型系统的一个极端。
               </p>
               <p>
                 <strong>放进类型层级看：</strong>
               </p>
               <ul>
                 <li>
-                  <code>unknown</code> 是顶类型（top type）：任何值都能赋给它；
-                  但不先收窄，它什么都做不了 —— 连
+                  <code>unknown</code> 是顶类型（top type）：任何值都能赋给它；但不先收窄，它什么都做不了 —— 连
                   <code>u.toUpperCase()</code> 都编译不过。
                 </li>
                 <li>
-                  <code>never</code> 是底类型（bottom type）：它能赋给任何类型，
-                  但没有类型能赋给它 —— 因为它根本没有值。
+                  <code>never</code> 是底类型（bottom type）：它能赋给任何类型，但没有类型能赋给它 —— 因为它根本没有值。
                 </li>
                 <li>
-                  <code>any</code> 不在层级里，它是关掉检查的开关：
-                  双向都能赋，而且会传染 —— 碰过 any 的表达式结果还是 any，
-                  一处 any 能顺着数据流污染一整个模块。
+                  <code>any</code> 不在层级里，它是关掉检查的开关：双向都能赋，而且会传染 —— 碰过 any 的表达式结果还是 any，一处 any 能顺着数据流污染一整个模块。
                 </li>
               </ul>
               <p>
-                <strong><code>catch (e)</code> 怎么处理：</strong>strict 模式下
-                （TS 4.4 起的 <code>useUnknownInCatchVariables</code>）
-                e 是 unknown，因为 JS 允许 throw 任何值。直接读
+                <strong><code>catch (e)</code> 怎么处理：</strong>strict 模式下（TS 4.4 起的 <code>useUnknownInCatchVariables</code>）e 是 unknown，因为 JS 允许 throw 任何值。直接读
                 <code>e.message</code> 编译不过；标准写法是
-                <code>e instanceof Error</code> 收窄后读 message，
-                else 分支 <code>String(e)</code> 兜底。推而广之：
-                JSON.parse 的结果、API 响应、一切外部输入，
-                入口处都该标 unknown，收窄之后再进业务代码 ——
+                <code>e instanceof Error</code> 收窄后读 message，else 分支 <code>String(e)</code> 兜底。推而广之：JSON.parse 的结果、API 响应、一切外部输入，入口处都该标 unknown，收窄之后再进业务代码 ——
                 unknown 是边界上的类型。
               </p>
               <p>
                 <strong>会追问：</strong>「void 和 never 什么区别？」——
-                void 是正常返回、只是不带值；never 是根本不会正常返回
-                （throw 或死循环）。「never 还有什么用？」——
-                上一题的穷尽检查，加上在 <code>Exclude</code> 里当删除用：
-                never 是空联合，并进联合就消失。
-                「为什么宁用 unknown 不用 any？」——
-                unknown 把「先检查再用」变成编译器强制的动作；
-                any 把它变成自觉，而自觉在赶工期的时候最先消失。
+                void 是正常返回、只是不带值；never 是根本不会正常返回（throw 或死循环）。「never 还有什么用？」——
+                上一题的穷尽检查，加上在 <code>Exclude</code> 里当删除用：never 是空联合，并进联合就消失。「为什么宁用 unknown 不用 any？」——
+                unknown 把「先检查再用」变成编译器强制的动作；any 把它变成自觉，而自觉在赶工期的时候最先消失。
               </p>
             </>
           ),
@@ -1315,10 +1228,7 @@ function fail(msg: string): never {
               </p>
               <p>
                 A 能编译，但等于把检查整个关掉 ——
-                unknown 存在的意义就是逼你写检查。
-                C 也能编译，但 <code>as</code> 不产生运行时检查：
-                throw 出来的可以是字符串，运行时照样 undefined。
-                D 把「调用方可能传任何东西」这个事实改没了 ——
+                unknown 存在的意义就是逼你写检查。C 也能编译，但 <code>as</code> 不产生运行时检查：throw 出来的可以是字符串，运行时照样 undefined。D 把「调用方可能传任何东西」这个事实改没了 ——
                 类型应该描述事实，不是描述愿望。
               </p>
             </>

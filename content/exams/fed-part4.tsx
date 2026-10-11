@@ -584,11 +584,8 @@ export const fedMastery: Module = {
               </div>
               <p>
                 <strong>第四类是 GraphQL 特有的、也是最难查的。</strong>
-                React 里名字写错通常会有类型错误或运行时报错；
-                GraphQL 里 resolver 就是个普通对象的键 ——
-                键名写错等于「这个 resolver 不存在」，
-                执行器于是用默认 resolver（取 <code>parent[字段名]</code>），
-                取不到就返回 <code>null</code>。<strong>一声不响。</strong>
+                React 里名字写错通常会有类型错误或运行时报错；GraphQL 里 resolver 就是个普通对象的键 ——
+                键名写错等于「这个 resolver 不存在」，执行器于是用默认 resolver（取 <code>parent[字段名]</code>），取不到就返回 <code>null</code>。<strong>一声不响。</strong>
               </p>
             </>
           ),
@@ -690,14 +687,12 @@ export const fedMastery: Module = {
               <ol>
                 <li>
                   <strong>resolver 的键名和 schema 字段名不一致。</strong>
-                  schema 里是 <code>shippingInfo</code>，
-                  你写成了 <code>shipping</code> 或 <code>shippingInfos</code>。
+                  schema 里是 <code>shippingInfo</code>，你写成了 <code>shipping</code> 或 <code>shippingInfos</code>。
                   <strong>大小写也算</strong>。
                 </li>
                 <li>
                   <strong>resolver 挂在了错误的类型下。</strong>
-                  <code>shippingInfo</code> 是 <code>Order</code> 上的字段，
-                  写进 <code>resolvers.Query</code> 里就永远不会被调用。
+                  <code>shippingInfo</code> 是 <code>Order</code> 上的字段，写进 <code>resolvers.Query</code> 里就永远不会被调用。
                 </li>
                 <li>
                   <strong>忘了 return。</strong>
@@ -709,15 +704,11 @@ export const fedMastery: Module = {
                 <strong>排查手法：</strong>
                 在 resolver 第一行放一个探针
                 <code>console.error(&apos;&gt;&gt;&gt; shippingInfo called&apos;)</code>。
-                <strong>如果它根本没打印</strong>，
-                就是第 1 或第 2 种；打印了但结果是 null，
-                就是第 3 种或数据源真的没数据。
-                （用 console.error 而不是 console.log：本课后面的 verify-schema.mjs
+                <strong>如果它根本没打印</strong>，就是第 1 或第 2 种；打印了但结果是 null，就是第 3 种或数据源真的没数据。（用 console.error 而不是 console.log：本课后面的 verify-schema.mjs
                 在第 30 行把 console.log 静音了；npm test 下两种都会打印。）
               </p>
               <p>
-                这个手法很朴素，但它能在十秒内区分
-                「我的 resolver 没被调用」和「我的 resolver 逻辑错了」——
+                这个手法很朴素，但它能在十秒内区分「我的 resolver 没被调用」和「我的 resolver 逻辑错了」——
                 这两者的排查方向完全不同。
               </p>
             </>
@@ -775,9 +766,7 @@ export const fedMastery: Module = {
             <>
               <p>
                 Router 启动时会向每个 subgraph 查
-                <code>{"{ _service { sdl } }"}</code>，
-                然后把所有 SDL 组合成 supergraph。
-                这一步失败的常见原因：
+                <code>{"{ _service { sdl } }"}</code>，然后把所有 SDL 组合成 supergraph。这一步失败的常见原因：
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -838,14 +827,11 @@ export const fedMastery: Module = {
                 <strong>本地能测出一半：</strong>
                 前四类里有三类会在 <code>buildSubgraphSchema</code>
                 这一步就报错（服务起不来），或者让
-                <code>{"{ _service { sdl } }"}</code> 报错。
-                所以<strong>「服务能起来 + SDL 查得出来」
-                已经排除了大部分 composition 问题。</strong>
+                <code>{"{ _service { sdl } }"}</code> 报错。所以<strong>「服务能起来 + SDL 查得出来」已经排除了大部分 composition 问题。</strong>
               </p>
               <p>
                 真跨 subgraph 的冲突（第三类）本地测不出来 ——
-                需要两个 subgraph 才能复现。这类问题在本次 assessment 里不会遇到，
-                因为只有一个 subgraph。
+                需要两个 subgraph 才能复现。这类问题在本次 assessment 里不会遇到，因为只有一个 subgraph。
               </p>
             </>
           ),
@@ -943,19 +929,14 @@ export const fedMastery: Module = {
           body: (
             <>
               <p>
-                <code>npm test</code> 只覆盖了单元层面。
-                下面这个脚本（编写本课时实际用的）在<strong>进程内</strong>
-                把 federation 的关键路径全走一遍，
-                不需要起服务器、不占端口：
+                <code>npm test</code> 只覆盖了单元层面。下面这个脚本（编写本课时实际用的）在<strong>进程内</strong>
+                把 federation 的关键路径全走一遍，不需要起服务器、不占端口：
               </p>
               <p>
                 <strong>期望输出</strong>（参考解法下，编写本课时实测）：
               </p>
               <p>
-                八行输出对应八件事：SDL 出得来、@key 在里面、
-                普通查询 + 字段 resolver 正常、按 id 查正常、
-                找不到时错误码正确、entity 解析正常、
-                mutation 的价格补全正常、校验错误码正确。
+                八行输出对应八件事：SDL 出得来、@key 在里面、普通查询 + 字段 resolver 正常、按 id 查正常、找不到时错误码正确、entity 解析正常、mutation 的价格补全正常、校验错误码正确。
                 <strong>全对了，Task 1 就真的做完了。</strong>
               </p>
             </>
@@ -1021,8 +1002,7 @@ createOrder empty items code: [ 'INVALID_INPUT' ]`,
           level: 3,
           prompt: (
             <p>
-              你确信写了 <code>shippingInfo</code> 的实现，
-              测试也不报错，但查询返回的 <code>shippingInfo</code> 是
+              你确信写了 <code>shippingInfo</code> 的实现，测试也不报错，但查询返回的 <code>shippingInfo</code> 是
               <code>null</code>。控制台里连你加的 console.error 探针都没打印。
             </p>
           ),
@@ -1128,30 +1108,24 @@ Query.orders + shippingInfo: {"orders":[
             <>
               <p>
                 <strong>resolver 就是一个普通对象的键。</strong>
-                执行器解析 <code>Order.shippingInfo</code> 时，
-                去 <code>resolvers.Order.shippingInfo</code> 找 ——
-                找不到（你写的是 <code>shipping</code>），
-                于是用<strong>默认 resolver</strong>：
-                取 <code>parent.shippingInfo</code>。
+                执行器解析 <code>Order.shippingInfo</code> 时，去 <code>resolvers.Order.shippingInfo</code> 找 ——
+                找不到（你写的是 <code>shipping</code>），于是用<strong>默认 resolver</strong>：取 <code>parent.shippingInfo</code>。
               </p>
               <p>
                 而数据源返回的 order 对象上<strong>没有</strong>
-                <code>shippingInfo</code> 属性（物流在另一个服务），
-                所以拿到 <code>undefined</code> → 序列化成 <code>null</code>。
+                <code>shippingInfo</code> 属性（物流在另一个服务），所以拿到 <code>undefined</code> → 序列化成 <code>null</code>。
                 <strong>字段可空，所以不报错。</strong>
               </p>
               <p>
                 <strong>「探针一次都没打印」是决定性线索。</strong>
-                它说明这个函数从未被调用 —— 排除了「逻辑写错」，
-                直接指向「名字或位置不对」。
+                它说明这个函数从未被调用 —— 排除了「逻辑写错」，直接指向「名字或位置不对」。
                 <strong>遇到静默 null 时，第一件事就是在 resolver
                 第一行放一个 console.error 探针，确认它有没有被调用。</strong>
                 （verify-schema.mjs 第 30 行把 console.log 静音了，所以探针别用 console.log。）
               </p>
               <p>
                 <strong>选项 B（改 schema）为什么不行？</strong>
-                <code>schema.graphql</code> 是 PROVIDED，
-                而且改字段名会破坏客户端契约和测试。
+                <code>schema.graphql</code> 是 PROVIDED，而且改字段名会破坏客户端契约和测试。
               </p>
             </>
           ),
@@ -1319,25 +1293,17 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
               <p>
                 <strong>为什么整个 data 会变成 null？</strong>
                 非空字段返回 null 时，GraphQL 执行器会
-                <strong>向上冒泡</strong>：把这个字段设为 null，
-                如果父字段也非空，父字段也变 null，
-                一直往上直到遇到可空的祖先，或者到根节点让
+                <strong>向上冒泡</strong>：把这个字段设为 null，如果父字段也非空，父字段也变 null，一直往上直到遇到可空的祖先，或者到根节点让
                 <code>data</code> 整个变成 null。
-                <strong>所以一个 resolver 忘了兜底，
-                可能让客户端拿不到任何数据。</strong>
+                <strong>所以一个 resolver 忘了兜底，可能让客户端拿不到任何数据。</strong>
               </p>
               <p>
                 <strong>选项 B（改 schema 成可空）</strong>
-                是典型的「让报错消失」式修法：schema 是 PROVIDED、
-                是客户端契约，改它等于把问题推给所有调用方
-                （他们从此都得判断 null）。
+                是典型的「让报错消失」式修法：schema 是 PROVIDED、是客户端契约，改它等于把问题推给所有调用方（他们从此都得判断 null）。
                 <strong>schema 说非空，就是在要求你保证非空。</strong>
               </p>
               <p>
-                注意这个项目的数据源用 <code>filter</code> 实现，
-                实际会返回 <code>[]</code> 而不是 undefined，
-                所以这个 bug 在当前实现下<strong>不会真的触发</strong>。
-                但你不该依赖数据源的实现细节 ——
+                注意这个项目的数据源用 <code>filter</code> 实现，实际会返回 <code>[]</code> 而不是 undefined，所以这个 bug 在当前实现下<strong>不会真的触发</strong>。但你不该依赖数据源的实现细节 ——
                 <strong>按 schema 的契约写。</strong>
               </p>
             </>
@@ -1398,8 +1364,7 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
           level: 3,
           prompt: (
             <p>
-              查两个订单的物流，返回的数据<strong>对上了错的订单</strong>。
-              没有任何报错。这是 DataLoader 最隐蔽的一类误用。
+              查两个订单的物流，返回的数据<strong>对上了错的订单</strong>。没有任何报错。这是 DataLoader 最隐蔽的一类误用。
             </p>
           ),
           promptEn: (
@@ -1542,14 +1507,12 @@ return shippingInfos;`,
                 <code>info456</code> 交给 order-457。长度没变，DataLoader 发现不了。
               </p>
               <p>
-                如果用 <code>filter</code> 改变了长度，DataLoader 反而会直接抛 TypeError
-                （<code>…the same length as the Array of keys</code>），这一批全部失败
+                如果用 <code>filter</code> 改变了长度，DataLoader 反而会直接抛 TypeError（<code>…the same length as the Array of keys</code>），这一批全部失败
                 —— 那是会报错的一种。
               </p>
               <p>
                 <strong>为什么这是最隐蔽的一类？</strong>
-                因为它<strong>不报错，只是数据错了</strong>。
-                而且「排个序」看起来是个再无害不过的操作 ——
+                因为它<strong>不报错，只是数据错了</strong>。而且「排个序」看起来是个再无害不过的操作 ——
                 在别的地方它确实无害，只有在 batch 函数里是致命的。
               </p>
               <p>
@@ -1559,14 +1522,11 @@ return shippingInfos;`,
                 <br />
                 ② 第 i 个结果对应第 i 个 key。
                 <br />
-                「没有」用 <code>null</code> 占位，
-                「出错」用 <code>Error</code> 对象占位，
+                「没有」用 <code>null</code> 占位，「出错」用 <code>Error</code> 对象占位，
                 <strong>永远不要跳过</strong>。
               </p>
               <p>
-                真实系统里调批量接口（<code>WHERE id IN (...)</code>）时，
-                数据库返回的顺序不保证、缺失的行也不返回，
-                所以必须用 Map 重排：
+                真实系统里调批量接口（<code>WHERE id IN (...)</code>）时，数据库返回的顺序不保证、缺失的行也不返回，所以必须用 Map 重排：
                 <code>ids.map(id =&gt; byId.get(id) ?? null)</code>。
               </p>
             </>
@@ -1632,8 +1592,7 @@ return shippingInfos;`,
           level: 2,
           prompt: (
             <p>
-              Java 那边。<code>mvn test</code> 全过，
-              但客户端传小写的 <code>shipped</code> 时服务返回 500。
+              Java 那边。<code>mvn test</code> 全过，但客户端传小写的 <code>shipped</code> 时服务返回 500。
             </p>
           ),
           promptEn: (
@@ -1745,26 +1704,21 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
           rootCause: (
             <>
               <p>
-                <code>Enum.valueOf</code> <strong>大小写敏感</strong>，
-                找不到常量时抛 <code>IllegalArgumentException</code>。
+                <code>Enum.valueOf</code> <strong>大小写敏感</strong>，找不到常量时抛 <code>IllegalArgumentException</code>。
                 <code>GlobalExceptionHandler</code> 只处理
                 <code>EntityNotFoundException</code> 和
-                <code>MethodArgumentNotValidException</code>，
-                所以这个异常一路冒到 Spring 默认处理器 → <strong>500</strong>。
+                <code>MethodArgumentNotValidException</code>，所以这个异常一路冒到 Spring 默认处理器 → <strong>500</strong>。
               </p>
               <p>
                 <strong>为什么这是个真问题？</strong>
-                500 的语义是「服务器内部出错了，不是你的问题，请重试」。
-                客户端会重试 —— 而重试永远不会成功。
+                500 的语义是「服务器内部出错了，不是你的问题，请重试」。客户端会重试 —— 而重试永远不会成功。
                 <strong>正确的信号是 400：「你的输入不对，改了再来」。</strong>
               </p>
               <p>
                 <strong>选项 C 为什么不好？</strong>
                 加一个 <code>@ExceptionHandler(Exception.class)</code>{" "}
-                catch-all 会把<strong>所有</strong>未预期的异常
-                都变成同一个状态码，掩盖真正的服务器故障。
-                <strong>要在最靠近问题的地方处理，
-                而不是在最外层兜底。</strong>
+                catch-all 会把<strong>所有</strong>未预期的异常都变成同一个状态码，掩盖真正的服务器故障。
+                <strong>要在最靠近问题的地方处理，而不是在最外层兜底。</strong>
               </p>
               <p>
                 另外注意 <code>null</code> 也要挡 ——
@@ -1931,12 +1885,9 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
                 加上你自己搭的 schema 加载、context 构造、依赖配置。
               </p>
               <p>
-                <strong>而且这一关会强迫你面对一件事：
-                没有人告诉你埋雷在哪。</strong>
+                <strong>而且这一关会强迫你面对一件事：没有人告诉你埋雷在哪。</strong>
                 你要自己写 loader、自己写 mutation ——
-                如果你在这里犯了和 starter 一样的错
-                （方法名、签名、catch 吞错误），
-                那说明前面那几节只是「看懂了」。
+                如果你在这里犯了和 starter 一样的错（方法名、签名、catch 吞错误），那说明前面那几节只是「看懂了」。
               </p>
               <p>
                 <strong>不要跳过这一关直接看答案。</strong>
@@ -1980,26 +1931,22 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
               <ol>
                 <li>
                   <strong>新建目录，不要在源项目里改。</strong>
-                  比如 <code>~/Downloads/my-order-subgraph</code>。
-                  源项目留着最后对照。
+                  比如 <code>~/Downloads/my-order-subgraph</code>。源项目留着最后对照。
                 </li>
                 <li>
                   <strong>先让空服务器能起来。</strong>
-                  <code>npm init</code> → 装依赖 → 写一个最小 schema
-                  （只有 <code>type Query {"{ ping: String }"}</code>）→
+                  <code>npm init</code> → 装依赖 → 写一个最小 schema（只有 <code>type Query {"{ ping: String }"}</code>）→
                   <code>npm start</code> 能看到
                   <code>Subgraph ready at ...</code> 再往下走。
                   <strong>这是所有项目的正确起手式。</strong>
                 </li>
                 <li>
                   <strong>把 schema、数据源、测试抄进去。</strong>
-                  这三样是「题目」，不是「答案」。
-                  抄它们等于把考场搭起来。
+                  这三样是「题目」，不是「答案」。抄它们等于把考场搭起来。
                 </li>
                 <li>
                   <strong>一个测试一个测试地攻。</strong>
-                  先让 <code>User.orders</code> 的两条过，
-                  再 <code>shippingInfo</code>，依次推进。
+                  先让 <code>User.orders</code> 的两条过，再 <code>shippingInfo</code>，依次推进。
                 </li>
                 <li>
                   <strong>10 个测试全绿之后，写 verify 脚本。</strong>
@@ -2078,9 +2025,7 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
           level: 4,
           prompt: (
             <p>
-              空目录开始，搭出一个 Apollo Federation subgraph，
-              实现四个 resolver 加一个 mutation，让 10 个测试全过，
-              并且 <code>_service</code> 和 <code>_entities</code> 都能正常工作。
+              空目录开始，搭出一个 Apollo Federation subgraph，实现四个 resolver 加一个 mutation，让 10 个测试全过，并且 <code>_service</code> 和 <code>_entities</code> 都能正常工作。
               <strong>不要打开源项目的 orderResolvers.js。</strong>
             </p>
           ),
@@ -2344,8 +2289,7 @@ if (error instanceof GraphQLError) throw error;`,
           level: 4,
           prompt: (
             <p>
-              给你 <code>OrderService</code> 的方法签名和五个测试。
-              自己搭一个 Spring Boot 项目，写出六个端点。
+              给你 <code>OrderService</code> 的方法签名和五个测试。自己搭一个 Spring Boot 项目，写出六个端点。
               <strong>不要打开源项目的 OrderController.java。</strong>
             </p>
           ),

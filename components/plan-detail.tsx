@@ -624,9 +624,7 @@ export function PlanDetail({ plan }: { plan: ResolvedPlan }) {
             zh={
               <>
                 计划里每一格的完成状态都是<strong>已有进度的一个视图</strong> ——
-                以前自己刷过的八股、做过的练习一条都不会白做，跟着计划做完的
-                也照样在 <Link href="/path">课程</Link> 里打勾。
-                换计划、不跟计划都不动任何记录。
+                以前自己刷过的八股、做过的练习一条都不会白做，跟着计划做完的也照样在 <Link href="/path">课程</Link> 里打勾。换计划、不跟计划都不动任何记录。
               </>
             }
             en={

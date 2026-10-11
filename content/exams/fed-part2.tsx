@@ -282,8 +282,7 @@ export const fedTask1: Module = {
               <p>README 里 Task 1 的部分，一个字没改：</p>
               <p>
                 注意最后那句 <strong>integration issues</strong> ——
-                这是在暗示「starter 代码里有本来就坏掉的地方」。
-                它没说有几个、在哪。
+                这是在暗示「starter 代码里有本来就坏掉的地方」。它没说有几个、在哪。
               </p>
             </>
           ),
@@ -329,8 +328,7 @@ that may need attention.`,
             <>
               <p>
                 README 列了三条（<code>User.orders</code>、
-                <code>Order.shippingInfo</code>、<code>Query.orders</code>），
-                但打开代码会发现<strong>还有一个</strong>：
+                <code>Order.shippingInfo</code>、<code>Query.orders</code>），但打开代码会发现<strong>还有一个</strong>：
                 <code>Query.order</code>（单个订单）也是 TODO。
               </p>
               <div className="table-wrap">
@@ -372,8 +370,7 @@ that may need attention.`,
                 </table>
               </div>
               <p>
-                <strong><code>Query.order</code> 既没在 README 里被提到，
-                也没有测试。</strong>但代码里的 TODO 明确要求实现它。
+                <strong><code>Query.order</code> 既没在 README 里被提到，也没有测试。</strong>但代码里的 TODO 明确要求实现它。
                 <strong>不实现它不会有任何测试变红</strong> ——
                 但人工 review 会看到一个没做的 TODO。
                 <strong>照代码里的 TODO 做，别只照 README。</strong>
@@ -465,10 +462,7 @@ that may need attention.`,
                 <code>dataSources/orderDataSource.js</code>）：
               </p>
               <p>
-                这张表值得在开始写之前<strong>真的抄一遍</strong>。
-                starter 代码里有两处名字是错的
-                （<code>orderAPI</code>、<code>getOrderById</code>），
-                而它们都是「听起来非常合理」的名字 ——
+                这张表值得在开始写之前<strong>真的抄一遍</strong>。starter 代码里有两处名字是错的（<code>orderAPI</code>、<code>getOrderById</code>），而它们都是「听起来非常合理」的名字 ——
                 靠直觉写就会中招，靠核对就不会。
               </p>
             </>
@@ -639,12 +633,10 @@ Tests:       6 failed, 4 passed, 10 total`,
                 <strong>三个「假通过」的共同点：断言的都是「返回空」。</strong>
                 而空实现正好就返回空。所以这三条测试
                 <strong>对你的实现完全没有约束力</strong> ——
-                它们从第一秒就是绿的，改完之后还是绿的，
-                但中间你可能写出了完全错误的代码。
+                它们从第一秒就是绿的，改完之后还是绿的，但中间你可能写出了完全错误的代码。
               </p>
               <p>
-                <strong>怎么办？</strong>把注意力放在那 6 个红的上，
-                以及那些「测试没覆盖」的要求（correlation id 日志、
+                <strong>怎么办？</strong>把注意力放在那 6 个红的上，以及那些「测试没覆盖」的要求（correlation id 日志、
                 <code>Query.order</code>、DataLoader 的使用）。
                 <strong>红转绿是及格线，测试之外的要求才是分差。</strong>
               </p>
@@ -766,12 +758,10 @@ Tests:       6 failed, 4 passed, 10 total`,
                 <strong>PROVIDED 的意思是「别动」。</strong>
                 判卷时这些文件很可能被替换回原版 ——
                 你改了 <code>orderDataSource.js</code> 加一个
-                <code>getOrderById</code> 方法，判卷时那个方法就消失了，
-                你的 loader 又会报错。
+                <code>getOrderById</code> 方法，判卷时那个方法就消失了，你的 loader 又会报错。
               </p>
               <p>
-                <strong>所以埋雷 1 的正确修法是改 loader 里的调用，
-                不是给数据源加方法。</strong>
+                <strong>所以埋雷 1 的正确修法是改 loader 里的调用，不是给数据源加方法。</strong>
                 这个判断在考场上值好几分。
               </p>
             </>
@@ -841,11 +831,9 @@ Tests:       6 failed, 4 passed, 10 total`,
               <code>return []</code> / <code>return null</code>
               恰好满足了它们的断言。
               <br />
-              第四个（shipping 的 DataLoader 批量测试）是真通过，
-              因为 <code>createShippingInfoLoader</code> 本身没有埋雷。
+              第四个（shipping 的 DataLoader 批量测试）是真通过，因为 <code>createShippingInfoLoader</code> 本身没有埋雷。
               <br />
-              <strong>结论：这三条测试对你的实现零约束。
-              绿色不等于做对了。</strong>
+              <strong>结论：这三条测试对你的实现零约束。绿色不等于做对了。</strong>
             </>
           ),
           explainEn: (
@@ -875,8 +863,7 @@ Tests:       6 failed, 4 passed, 10 total`,
           prompt: (
             <p>
               <code>createOrderLoader</code> 调了不存在的
-              <code>orderDataSource.getOrderById(id)</code>。
-              正确的修法是？
+              <code>orderDataSource.getOrderById(id)</code>。正确的修法是？
             </p>
           ),
           promptEn: (
@@ -945,15 +932,12 @@ Tests:       6 failed, 4 passed, 10 total`,
           answer: ["a", "b", "d", "e", "f"],
           explain: (
             <>
-              先装依赖跑基线 → 读 schema、index.js 和数据源
-              （知道要返回什么形状、能调什么）→
-              <strong>先修埋雷</strong>（否则你写对了 TODO，测试还是红的，
-              会误以为自己写错了）→ 再写 TODO → 最后验证。
+              先装依赖跑基线 → 读 schema、index.js 和数据源（知道要返回什么形状、能调什么）→
+              <strong>先修埋雷</strong>（否则你写对了 TODO，测试还是红的，会误以为自己写错了）→ 再写 TODO → 最后验证。
               <br />
               <strong>「先修埋雷」这个顺序很重要</strong> ——
               埋雷 1 会让 DataLoader 测试失败，如果你先写
-              <code>Query.order</code>（它用 orderLoader），
-              会被埋雷的报错干扰，浪费时间怀疑自己的代码。
+              <code>Query.order</code>（它用 orderLoader），会被埋雷的报错干扰，浪费时间怀疑自己的代码。
             </>
           ),
           explainEn: (
@@ -981,12 +965,9 @@ Tests:       6 failed, 4 passed, 10 total`,
           titleEn: "This project is a rebuild",
           body: (
             <p>
-              这个参考项目是<strong>为练习专门搭的</strong>：结构、TODO、测试、
-              埋雷都是照着「一个真实的 Federation 服务会长什么样」设计的，
-              目的是让你在尽量接近真实工程的环境里练，而不是在玩具里练。
+              这个参考项目是<strong>为练习专门搭的</strong>：结构、TODO、测试、埋雷都是照着「一个真实的 Federation 服务会长什么样」设计的，目的是让你在尽量接近真实工程的环境里练，而不是在玩具里练。
               <br />
-              这不影响学习价值 —— 考点、埋雷类型、验收方式都是真实的。
-              但如果你的真题里某个细节不一样，以真题为准。
+              这不影响学习价值 —— 考点、埋雷类型、验收方式都是真实的。但如果你的真题里某个细节不一样，以真题为准。
             </p>
           ),
           bodyEn: (
@@ -1075,8 +1056,7 @@ Tests:       6 failed, 4 passed, 10 total`,
                 <li><strong>实现</strong> —— 返回这个用户的订单列表。</li>
                 <li>
                   <strong>proper error handling</strong> ——
-                  数据源出错时要抛结构化的 <code>GraphQLError</code>，
-                  不能让原始异常裸奔到客户端。
+                  数据源出错时要抛结构化的 <code>GraphQLError</code>，不能让原始异常裸奔到客户端。
                 </li>
                 <li>
                   <strong>correlation ID tracing</strong> ——
@@ -1130,13 +1110,11 @@ Tests:       6 failed, 4 passed, 10 total`,
                 <li>
                   <strong>你知不知道 parent 是什么。</strong>
                   <code>user.id</code> 来自
-                  <code>__resolveReference</code> 的返回值，
-                  而它只返回了 <code>{'{ id }'}</code>。
+                  <code>__resolveReference</code> 的返回值，而它只返回了 <code>{'{ id }'}</code>。
                 </li>
                 <li>
                   <strong>你会不会核对方法名。</strong>
-                  是 <code>getOrdersByUserId</code>，
-                  不是 <code>getOrders</code>、不是 <code>findByUser</code>。
+                  是 <code>getOrdersByUserId</code>，不是 <code>getOrders</code>、不是 <code>findByUser</code>。
                 </li>
                 <li>
                   <strong>你读没读 schema 的可空性。</strong>
@@ -1217,12 +1195,9 @@ Tests:       6 failed, 4 passed, 10 total`,
               </p>
               <p>
                 <strong>第二步：加兜底。</strong>
-                <code>getOrdersByUserId</code> 用 <code>filter</code> 实现，
-                找不到会返回 <code>[]</code> 而不是 undefined，
-                所以这里的 <code>?? []</code> 严格说是防御性的。
+                <code>getOrdersByUserId</code> 用 <code>filter</code> 实现，找不到会返回 <code>[]</code> 而不是 undefined，所以这里的 <code>?? []</code> 严格说是防御性的。
                 <strong>但还是要写</strong> ——
-                schema 是双重非空，你不该依赖数据源的实现细节。
-                真实项目里数据源换个实现（比如换成 HTTP 调用）就可能返回 undefined。
+                schema 是双重非空，你不该依赖数据源的实现细节。真实项目里数据源换个实现（比如换成 HTTP 调用）就可能返回 undefined。
               </p>
               <p>
                 <strong>第三步：加 try/catch 和日志。</strong>
@@ -1326,21 +1301,16 @@ async orders(user, _, { dataSources, correlationId }) {
                 包括<strong>你自己故意抛的那个结构化错误</strong>。
               </p>
               <p>
-                想一个场景：<code>Query.orders</code> 里你先校验
-                「userId 不能为空」，不合法就抛
-                <code>GraphQLError(code: INVALID_INPUT)</code>。
-                然后自己的 catch 接住它，重新包成
+                想一个场景：<code>Query.orders</code> 里你先校验「userId 不能为空」，不合法就抛
+                <code>GraphQLError(code: INVALID_INPUT)</code>。然后自己的 catch 接住它，重新包成
                 <code>code: SERVICE_ERROR</code>。
               </p>
               <p>
-                <strong>结果：客户端收到的是「服务器内部错误」，
-                而实际上是「你的输入不合法」。</strong>
-                这是完全错误的信号 —— 客户端会重试（以为是临时故障），
-                而重试永远不会成功。
+                <strong>结果：客户端收到的是「服务器内部错误」，而实际上是「你的输入不合法」。</strong>
+                这是完全错误的信号 —— 客户端会重试（以为是临时故障），而重试永远不会成功。
               </p>
               <p>
-                所以模式是：<strong>catch 的第一行先问「这个错误已经是
-                我精心构造过的了吗？」是就原样往上抛。</strong>
+                所以模式是：<strong>catch 的第一行先问「这个错误已经是我精心构造过的了吗？」是就原样往上抛。</strong>
               </p>
               <p>
                 <strong>这个模式在项目里的三处都需要</strong>：
@@ -1351,9 +1321,7 @@ async orders(user, _, { dataSources, correlationId }) {
                 starter 代码漏了这一行，测试直接失败。
               </p>
               <p>
-                <code>User.orders</code> 里其实没有自己抛业务错误，
-                所以这一行是防御性的。但<strong>统一写法</strong>比
-                「哪里需要哪里写」更可靠，也更容易 review。
+                <code>User.orders</code> 里其实没有自己抛业务错误，所以这一行是防御性的。但<strong>统一写法</strong>比「哪里需要哪里写」更可靠，也更容易 review。
               </p>
             </>
           ),
@@ -1613,8 +1581,7 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
           level: 2,
           prompt: (
             <p>
-              四个空。第 2 个是数据源上的<strong>真实方法名</strong>，
-              第 4 个是那行最容易漏的防御。
+              四个空。第 2 个是数据源上的<strong>真实方法名</strong>，第 4 个是那行最容易漏的防御。
             </p>
           ),
           promptEn: (
@@ -1709,8 +1676,7 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
               hintEn: "The schema says this field is [Order!]!.",
               why: (
                 <>
-                  <code>??</code>。<code>[Order!]!</code> 双重非空，
-                  返回 null 会触发
+                  <code>??</code>。<code>[Order!]!</code> 双重非空，返回 null 会触发
                   <code>Cannot return null for non-nullable field</code>
                   并向上冒泡。
                   <br />
@@ -1743,8 +1709,7 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
                   <br />
                   没有这一行，自己抛的
                   <code>INVALID_INPUT</code> / <code>ORDER_NOT_FOUND</code>
-                  会被自己的 catch 重新包成 <code>SERVICE_ERROR</code>，
-                  客户端收到完全错误的信号。
+                  会被自己的 catch 重新包成 <code>SERVICE_ERROR</code>，客户端收到完全错误的信号。
                   <br />
                   <strong>这正是项目里埋雷 3 的病因。</strong>
                 </>
@@ -1777,8 +1742,7 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
           level: 3,
           prompt: (
             <p>
-              按 TODO 的三条要求写完整实现。检查器会核对方法名、兜底、
-              错误处理和 correlation id。
+              按 TODO 的三条要求写完整实现。检查器会核对方法名、兜底、错误处理和 correlation id。
             </p>
           ),
           promptEn: (
@@ -1963,12 +1927,10 @@ async orders(user, _, { loaders }) {
           why: (
             <>
               <code>orderLoader</code> 是按 <strong>order id</strong>
-              取单个订单的，不是按 user id 取列表。
-              传 <code>&quot;123&quot;</code> 进去会去找
+              取单个订单的，不是按 user id 取列表。传 <code>&quot;123&quot;</code> 进去会去找
               <code>id === &quot;123&quot;</code> 的 order —— 找不到，返回 undefined。
               <br />
-              <strong>loader 不是万能的</strong>，要看它 batch 函数里调的是什么。
-              这里该用 <code>orderDataSource.getOrdersByUserId</code>。
+              <strong>loader 不是万能的</strong>，要看它 batch 函数里调的是什么。这里该用 <code>orderDataSource.getOrdersByUserId</code>。
             </>
           ),
           whyEn: (
@@ -1999,11 +1961,9 @@ async orders(user, _, { dataSources }) {
           ),
           why: (
             <>
-              这个项目的数据源用 <code>filter</code> 实现，
-              找不到返回 <code>[]</code>，所以<strong>恰好不会出问题</strong>。
+              这个项目的数据源用 <code>filter</code> 实现，找不到返回 <code>[]</code>，所以<strong>恰好不会出问题</strong>。
               <br />
-              但你不该依赖这个实现细节 —— schema 是 <code>[Order!]!</code>，
-              而数据源随时可能换成 HTTP 调用（那时找不到可能返回
+              但你不该依赖这个实现细节 —— schema 是 <code>[Order!]!</code>，而数据源随时可能换成 HTTP 调用（那时找不到可能返回
               <code>undefined</code> 或 <code>null</code>）。
               <strong>按 schema 的契约写，不按数据源的当前行为写。</strong>
             </>
@@ -2093,14 +2053,11 @@ async orders(user, _, { dataSources }) {
               </p>
               <p>
                 <strong>「using DataLoader」是硬性指定。</strong>
-                四个 TODO 里有两个点名了 DataLoader（这里和 Query.order），
-                而这一个还写明了目的：prevent N+1 queries。
-                这说明 N+1 就是这一问的全部考点。
+                四个 TODO 里有两个点名了 DataLoader（这里和 Query.order），而这一个还写明了目的：prevent N+1 queries。这说明 N+1 就是这一问的全部考点。
               </p>
               <p>
                 schema 那边：<code>shippingInfo: ShippingInfo</code>，
-                <strong>可空</strong>。所以「这个订单没有物流信息」
-                返回 <code>null</code> 是正确行为。
+                <strong>可空</strong>。所以「这个订单没有物流信息」返回 <code>null</code> 是正确行为。
               </p>
             </>
           ),
@@ -2168,20 +2125,17 @@ async orders(user, _, { dataSources }) {
                 因为测试是<strong>直接调 resolver 函数</strong>的：
               </p>
               <p>
-                它一次只调一个 order，所以「有没有合并」根本体现不出来。
-                两种写法都返回正确的物流信息，两条测试都过。
+                它一次只调一个 order，所以「有没有合并」根本体现不出来。两种写法都返回正确的物流信息，两条测试都过。
               </p>
               <p>
                 <strong>那怎么知道自己写对了？</strong>
                 看日志。走 loader 的写法会打印
                 <code>[DataLoader] Batching N shipping info requests</code>，
-                <strong>N 个订单只打一行</strong>。
-                直接调数据源的写法一行都不打。
+                <strong>N 个订单只打一行</strong>。直接调数据源的写法一行都不打。
               </p>
               <p>
                 所以验证方式是：用<strong>真实的 GraphQL 查询</strong>
-                （不是单元测试）查一个有多个订单的用户，
-                然后数日志行数。
+                （不是单元测试）查一个有多个订单的用户，然后数日志行数。
               </p>
             </>
           ),
@@ -2296,19 +2250,16 @@ it('should return null for order without shipping info', async () => {
               <ul>
                 <li>
                   测试断言的是 <code>toBeNull()</code>。
-                  <strong><code>undefined</code> 不等于 <code>null</code></strong>，
-                  一旦有 undefined 漏出去，这条断言就会失败。
+                  <strong><code>undefined</code> 不等于 <code>null</code></strong>，一旦有 undefined 漏出去，这条断言就会失败。
                 </li>
                 <li>
                   DataLoader 的 batch 函数如果返回的数组某个位置是
                   <code>undefined</code>（比如未来数据源换实现），
-                  <code>load()</code> 就会 resolve 成 undefined。
-                  显式兜底能挡住这种情况。
+                  <code>load()</code> 就会 resolve 成 undefined。显式兜底能挡住这种情况。
                 </li>
               </ul>
               <p>
-                <strong>习惯：可空字段显式 <code>?? null</code>，
-                非空列表显式 <code>?? []</code>。</strong>
+                <strong>习惯：可空字段显式 <code>?? null</code>，非空列表显式 <code>?? []</code>。</strong>
                 两行都写，不依赖下游实现细节。
               </p>
             </>
@@ -2433,11 +2384,7 @@ it('should return null for order without shipping info', async () => {
               </p>
               <p>
                 <strong>关键是数那行 <code>[DataLoader] Batching</code>。</strong>
-                两个订单只出现<strong>一行</strong>且 <code>N=2</code>，
-                说明合并生效。如果出现两行 <code>N=1</code>，
-                说明两次 <code>load()</code> 不在同一个 tick 里
-                （通常是因为你在 resolver 里加了不必要的 await 把它们错开了）。
-                如果一行都没有，说明你根本没走 loader。
+                两个订单只出现<strong>一行</strong>且 <code>N=2</code>，说明合并生效。如果出现两行 <code>N=1</code>，说明两次 <code>load()</code> 不在同一个 tick 里（通常是因为你在 resolver 里加了不必要的 await 把它们错开了）。如果一行都没有，说明你根本没走 loader。
               </p>
             </>
           ),
@@ -2510,8 +2457,7 @@ it('should return null for order without shipping info', async () => {
           level: 2,
           prompt: (
             <p>
-              三个空。第 1 个决定你答不答得到 N+1 考点，
-              第 3 个决定第二条测试过不过。
+              三个空。第 1 个决定你答不答得到 N+1 考点，第 3 个决定第二条测试过不过。
             </p>
           ),
           promptEn: (
@@ -2550,8 +2496,7 @@ it('should return null for order without shipping info', async () => {
                   <em>using DataLoader to prevent N+1 queries</em>。
                   <br />
                   写成 <code>dataSources.shippingDataSource.getShippingInfo(...)</code>
-                  <strong>也能过两条测试</strong>（测试一次只调一个 order），
-                  但那样 N+1 这个考点就没答到 —— 这一问的分主要在这里。
+                  <strong>也能过两条测试</strong>（测试一次只调一个 order），但那样 N+1 这个考点就没答到 —— 这一问的分主要在这里。
                 </>
               ),
               whyEn: (
@@ -2577,12 +2522,9 @@ it('should return null for order without shipping info', async () => {
                 "parent is that order object. What is the loader's key?",
               why: (
                 <>
-                  <code>id</code>。<code>shippingInfoLoader</code> 的 batch 函数
-                  调的是 <code>getShippingInfo(orderId)</code>，
-                  所以 key 就是订单 id。
+                  <code>id</code>。<code>shippingInfoLoader</code> 的 batch 函数调的是 <code>getShippingInfo(orderId)</code>，所以 key 就是订单 id。
                   <br />
-                  <code>parent</code> 是上一层返回的 order 对象，
-                  它有 <code>id</code>、<code>userId</code>、
+                  <code>parent</code> 是上一层返回的 order 对象，它有 <code>id</code>、<code>userId</code>、
                   <code>status</code> 等属性。别传成 <code>parent.userId</code>。
                 </>
               ),
@@ -2615,8 +2557,7 @@ it('should return null for order without shipping info', async () => {
                   <code>!</code>，可空。
                   <br />
                   ② 测试用的是 <code>expect(shippingInfo).toBeNull()</code> ——
-                  <strong><code>undefined</code> 不等于 <code>null</code></strong>，
-                  这里填 undefined，断言就会失败。本项目的数据源找不到时已经返回 null，
+                  <strong><code>undefined</code> 不等于 <code>null</code></strong>，这里填 undefined，断言就会失败。本项目的数据源找不到时已经返回 null，
                   <code>?? null</code> 是防御性写法，防的是以后数据源改成返回 undefined。
                   <br />
                   写成 <code>[]</code> 或 <code>{"{}"}</code> 都会让测试失败。
@@ -2672,9 +2613,7 @@ it('should return null for order without shipping info', async () => {
           answer: ["b"],
           explain: (
             <>
-              测试一次只调一个 order，所以<strong>抓不到</strong>这个区别。
-              但 TODO 原文点名了 DataLoader，而查 100 个订单时
-              直接调数据源会产生 100 次请求。
+              测试一次只调一个 order，所以<strong>抓不到</strong>这个区别。但 TODO 原文点名了 DataLoader，而查 100 个订单时直接调数据源会产生 100 次请求。
               <br />
               <strong>这是本项目「测试通过 ≠ 做对了」的第三个实例</strong>
               （前两个是三个假通过、以及 Java 那边全 return null 过 3/5）。
@@ -2720,10 +2659,8 @@ async shippingInfo(parent, _, { loaders }) {
           ),
           why: (
             <>
-              DataLoader 靠「同一个 tick 里的 load 攒起来」实现合并。
-              中间插一个 <code>await</code> 会把各个 order 的
-              <code>load()</code> 推到<strong>不同的 tick</strong>，
-              于是变成 N 次 batch，每次 N=1。
+              DataLoader 靠「同一个 tick 里的 load 攒起来」实现合并。中间插一个 <code>await</code> 会把各个 order 的
+              <code>load()</code> 推到<strong>不同的 tick</strong>，于是变成 N 次 batch，每次 N=1。
               <br />
               症状：日志出现多行 <code>Batching 1 ... requests</code>。
               <strong>合并没了，但测试还是过的。</strong>
@@ -2757,9 +2694,7 @@ async shippingInfo(parent, _, { loaders }) {
           ),
           why: (
             <>
-              <code>orderLoader</code> 取的是 order，不是物流信息。
-              这会返回那个 order 本身，
-              然后 GraphQL 试图把它当 <code>ShippingInfo</code> 用 ——
+              <code>orderLoader</code> 取的是 order，不是物流信息。这会返回那个 order 本身，然后 GraphQL 试图把它当 <code>ShippingInfo</code> 用 ——
               <code>status</code> 字段恰好都有（值是 SHIPPED 而不是 IN_TRANSIT），
               <code>trackingNumber</code> 是 undefined。
               <br />
@@ -2905,8 +2840,7 @@ async shippingInfo(parent, _, { loaders }) {
               <p>
                 <strong>注意 <code>Query.orders</code> 的签名里没有
                 <code>loaders</code>。</strong>
-                starter 代码就是这么写的 —— 这是出题人在提示
-                「这个字段不用 loader」。<strong>参数签名本身就是提示。</strong>
+                starter 代码就是这么写的 —— 这是出题人在提示「这个字段不用 loader」。<strong>参数签名本身就是提示。</strong>
               </p>
               <p>
                 <strong>为什么 orders 不用 loader？</strong>
@@ -3009,24 +2943,17 @@ async shippingInfo(parent, _, { loaders }) {
             <>
               <p>
                 <strong>为什么这里用 loader？</strong>
-                这个字段本身只取一条，看起来不需要合并。
-                但 loader 的<strong>另一个作用是同请求内缓存</strong> ——
-                如果一次查询里多处引用同一个 order
-                （比如 <code>{"{ a: order(id:\"1\") { ... } b: order(id:\"1\") { ... } }"}</code>），
-                loader 只会真的取一次。而且 TODO 原文点名了它。
+                这个字段本身只取一条，看起来不需要合并。但 loader 的<strong>另一个作用是同请求内缓存</strong> ——
+                如果一次查询里多处引用同一个 order（比如 <code>{"{ a: order(id:\"1\") { ... } b: order(id:\"1\") { ... } }"}</code>），loader 只会真的取一次。而且 TODO 原文点名了它。
               </p>
               <p>
                 <strong>找不到怎么办？</strong>
-                schema 说 <code>order(id: ID!): Order</code> 是可空的，
-                所以 <code>return null</code> 不违反 schema。
-                但 TODO 要求 <em>structured error handling</em>，
-                而 <code>ErrorCodes</code> 里恰好准备了一个
+                schema 说 <code>order(id: ID!): Order</code> 是可空的，所以 <code>return null</code> 不违反 schema。但 TODO 要求 <em>structured error handling</em>，而 <code>ErrorCodes</code> 里恰好准备了一个
                 <code>ORDER_NOT_FOUND</code> —— 这是明显的暗示。
               </p>
               <p>
                 <strong>那个 <code>ErrorCodes</code> 常量表值得注意：</strong>
-                四个 code 里有一个（<code>INVENTORY_ERROR</code>）
-                在参考答案里没用到，
+                四个 code 里有一个（<code>INVENTORY_ERROR</code>）在参考答案里没用到，
                 <code>ORDER_NOT_FOUND</code> 只有这里用。
                 <strong>准备好的常量往往是提示</strong>（本例 <code>ORDER_NOT_FOUND</code>
                 只为 Query.order 准备）；但也可能只是预留 ——
@@ -3168,22 +3095,16 @@ async shippingInfo(parent, _, { loaders }) {
               <p>
                 看 <code>Query.order</code> 的结构：
                 <code>try</code> 块里<strong>自己抛了</strong>一个
-                <code>ORDER_NOT_FOUND</code>。
-                而同一个 <code>catch</code> 又要负责接住数据源可能抛的系统异常。
+                <code>ORDER_NOT_FOUND</code>。而同一个 <code>catch</code> 又要负责接住数据源可能抛的系统异常。
               </p>
               <p>
                 <strong>如果 catch 里没有 instanceof 判断：</strong>
-                你抛的 <code>ORDER_NOT_FOUND</code> 会被自己的 catch 接住，
-                然后重新包成 <code>SERVICE_ERROR</code>。
-                客户端查一个不存在的订单，收到的是「服务器内部错误」——
+                你抛的 <code>ORDER_NOT_FOUND</code> 会被自己的 catch 接住，然后重新包成 <code>SERVICE_ERROR</code>。客户端查一个不存在的订单，收到的是「服务器内部错误」——
                 它会重试，而重试永远不会成功。
               </p>
               <p>
                 <strong>加上那一行之后：</strong>
-                <code>ORDER_NOT_FOUND</code> 原样传出去，
-                客户端知道「这个 id 不存在，别重试了」；
-                而数据源真的出故障（比如网络超时）时，
-                才会得到 <code>SERVICE_ERROR</code>。
+                <code>ORDER_NOT_FOUND</code> 原样传出去，客户端知道「这个 id 不存在，别重试了」；而数据源真的出故障（比如网络超时）时，才会得到 <code>SERVICE_ERROR</code>。
                 <strong>两种情况被正确区分了。</strong>
               </p>
               <p>
@@ -3242,11 +3163,8 @@ async shippingInfo(parent, _, { loaders }) {
                 </li>
                 <li>
                   <strong>要校验 userId。</strong>
-                  schema 写的是 <code>userId: ID!</code>，
-                  GraphQL 会保证它不是 null。
-                  但<strong>空字符串 <code>&quot;&quot;</code> 能通过 schema 校验</strong>
-                  （它是个合法的 ID 值），所以自己再挡一道更稳。
-                  这也是 TODO 里 <em>error handling</em> 的一部分。
+                  schema 写的是 <code>userId: ID!</code>，GraphQL 会保证它不是 null。但<strong>空字符串 <code>&quot;&quot;</code> 能通过 schema 校验</strong>
+                  （它是个合法的 ID 值），所以自己再挡一道更稳。这也是 TODO 里 <em>error handling</em> 的一部分。
                 </li>
               </ul>
               <p>
@@ -3329,20 +3247,17 @@ async shippingInfo(parent, _, { loaders }) {
           body: (
             <>
               <p>
-                十个测试里，<code>Query.order</code> 一条都没有。
-                所以你完全不实现它，<code>npm test</code> 也是全绿。
+                十个测试里，<code>Query.order</code> 一条都没有。所以你完全不实现它，<code>npm test</code> 也是全绿。
               </p>
               <p>三种可能的处理方式，以及各自的后果：</p>
               <ol>
                 <li>
                   <strong>不实现，留着 <code>return null</code>。</strong>
-                  测试全绿。但代码里留着一个明晃晃的 TODO 注释，
-                  人工 review 一眼就看到。
+                  测试全绿。但代码里留着一个明晃晃的 TODO 注释，人工 review 一眼就看到。
                 </li>
                 <li>
                   <strong>删掉 TODO 注释但还是 return null。</strong>
-                  更糟 —— 这看起来像「我以为我做完了」，
-                  比留着 TODO 更容易被判定为疏漏。
+                  更糟 —— 这看起来像「我以为我做完了」，比留着 TODO 更容易被判定为疏漏。
                 </li>
                 <li>
                   <strong>照 TODO 要求实现。</strong>
@@ -3352,11 +3267,8 @@ async shippingInfo(parent, _, { loaders }) {
               </ol>
               <p>
                 <strong>选 3。</strong>
-                Online Assessment 通常是「自动测试 + 人工 review」双轨的。
-                自动测试是及格线，人工 review 看的是
-                「有没有做完、有没有理解设计意图」。
-                <strong>一个没被测试覆盖但明确要求的 TODO，
-                正是拉开差距的地方。</strong>
+                Online Assessment 通常是「自动测试 + 人工 review」双轨的。自动测试是及格线，人工 review 看的是「有没有做完、有没有理解设计意图」。
+                <strong>一个没被测试覆盖但明确要求的 TODO，正是拉开差距的地方。</strong>
               </p>
             </>
           ),
@@ -3522,8 +3434,7 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   <strong>只有这一处会用到</strong>。
                   <br />
                   <strong>给好的常量往往是在提示你该抛什么。</strong>
-                  看到一个没用上的错误码，先想「它是为哪个场景准备的」；
-                  找不到对应场景（比如 <code>INVENTORY_ERROR</code>），也可能只是预留。
+                  看到一个没用上的错误码，先想「它是为哪个场景准备的」；找不到对应场景（比如 <code>INVENTORY_ERROR</code>），也可能只是预留。
                 </>
               ),
               whyEn: (
@@ -3551,8 +3462,7 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                 "schema: orders(userId: ID!). Which argument do you destructure it from?",
               why: (
                 <>
-                  <code>userId</code>。它在 <strong>args</strong>（第二个参数）里，
-                  因为 schema 声明的是 <code>orders(userId: ID!)</code>。
+                  <code>userId</code>。它在 <strong>args</strong>（第二个参数）里，因为 schema 声明的是 <code>orders(userId: ID!)</code>。
                   <br />
                   第一个参数是 <code>_</code> —— 顶层 Query 字段的 parent 没有意义。
                   <br />
@@ -3588,11 +3498,9 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                 "The schema says [Order!]!. How do you express \"no orders\"?",
               why: (
                 <>
-                  <code>[]</code>。双重非空 → 不能返回 null，
-                  但空数组合法。
+                  <code>[]</code>。双重非空 → 不能返回 null，但空数组合法。
                   <br />
-                  对比上面 <code>Query.order</code>：那个是可空的，
-                  所以它可以（也确实）在找不到时走抛错的路。
+                  对比上面 <code>Query.order</code>：那个是可空的，所以它可以（也确实）在找不到时走抛错的路。
                   <strong>同一个项目里两种兜底策略，依据全在 schema 的感叹号上。</strong>
                 </>
               ),
@@ -3622,8 +3530,7 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
           level: 3,
           prompt: (
             <p>
-              两个函数一起写。注意它们的数据来源、兜底策略、
-              context 解构都不一样。
+              两个函数一起写。注意它们的数据来源、兜底策略、context 解构都不一样。
             </p>
           ),
           promptEn: (
@@ -3857,11 +3764,9 @@ async orders(_, { userId }, { loaders }) {
           ),
           why: (
             <>
-              <code>orderLoader</code> 的 key 是 <strong>order id</strong>，
-              不是 user id。传 <code>&quot;123&quot;</code> 进去会去找
+              <code>orderLoader</code> 的 key 是 <strong>order id</strong>，不是 user id。传 <code>&quot;123&quot;</code> 进去会去找
               <code>id === &quot;123&quot;</code> 的订单 ——
-              数据源里的 id 长得像 <code>order-456</code>，所以找不到，
-              返回 <code>undefined</code>。
+              数据源里的 id 长得像 <code>order-456</code>，所以找不到，返回 <code>undefined</code>。
               <br />
               而且返回的是单个对象而不是数组，违反 <code>[Order!]!</code>。
               <br />
@@ -3900,11 +3805,9 @@ return order ?? null;`,
           ),
           why: (
             <>
-              这<strong>不违反 schema</strong>（<code>order</code> 是可空的），
-              而且没有测试会失败。
+              这<strong>不违反 schema</strong>（<code>order</code> 是可空的），而且没有测试会失败。
               <br />
-              但 TODO 要求 <em>structured error handling</em>，
-              而 <code>ErrorCodes.ORDER_NOT_FOUND</code> 明摆着是为这里准备的。
+              但 TODO 要求 <em>structured error handling</em>，而 <code>ErrorCodes.ORDER_NOT_FOUND</code> 明摆着是为这里准备的。
               <strong>不用它，就没满足 TODO 要求的 structured error handling。</strong>
             </>
           ),
@@ -3992,21 +3895,17 @@ return order ?? null;`,
           body: (
             <>
               <p>
-                README 说有 integration issues，但不说在哪。
-                系统的做法是<strong>核对三件事</strong>：
+                README 说有 integration issues，但不说在哪。系统的做法是<strong>核对三件事</strong>：
               </p>
               <ol>
                 <li>
-                  <strong>每一处 <code>context.xxx</code> 的键名</strong>，
-                  对照 <code>index.js</code> 里 context 函数的 return。
+                  <strong>每一处 <code>context.xxx</code> 的键名</strong>，对照 <code>index.js</code> 里 context 函数的 return。
                 </li>
                 <li>
-                  <strong>每一处数据源方法调用的名字和参数</strong>，
-                  对照 <code>dataSources/orderDataSource.js</code> 里的类定义。
+                  <strong>每一处数据源方法调用的名字和参数</strong>，对照 <code>dataSources/orderDataSource.js</code> 里的类定义。
                 </li>
                 <li>
-                  <strong>每一处 <code>throw</code> 和 <code>catch</code> 的配对</strong>，
-                  看有没有「自己抛的错被自己吞掉」。
+                  <strong>每一处 <code>throw</code> 和 <code>catch</code> 的配对</strong>，看有没有「自己抛的错被自己吞掉」。
                 </li>
               </ol>
               <p>
@@ -4016,8 +3915,7 @@ return order ?? null;`,
               </p>
               <p>
                 更快的办法：<strong>先跑测试，看报错指向哪一行。</strong>
-                三处埋雷各让一个测试失败：前两处的报错很直接，第三处只是错误码不对。
-                但你得能看懂报错说的是什么。
+                三处埋雷各让一个测试失败：前两处的报错很直接，第三处只是错误码不对。但你得能看懂报错说的是什么。
               </p>
             </>
           ),
@@ -4085,8 +3983,7 @@ return order ?? null;`,
               </p>
               <p>
                 <strong>为什么容易犯：</strong>
-                <code>getOrderById</code> 是个再自然不过的名字。
-                很多项目就叫这个。<strong>靠直觉写就中招。</strong>
+                <code>getOrderById</code> 是个再自然不过的名字。很多项目就叫这个。<strong>靠直觉写就中招。</strong>
               </p>
             </>
           ),
@@ -4158,30 +4055,24 @@ orderIds.map(id => orderDataSource.getOrder(id))`,
               <ol>
                 <li>
                   <strong>键名错。</strong>context 里是
-                  <code>orderDataSource</code>，没有 <code>orderAPI</code>。
-                  所以 <code>dataSources.orderAPI</code> 是 <code>undefined</code>，
-                  在它上面取 <code>.createOrder</code> 就抛了。
+                  <code>orderDataSource</code>，没有 <code>orderAPI</code>。所以 <code>dataSources.orderAPI</code> 是 <code>undefined</code>，在它上面取 <code>.createOrder</code> 就抛了。
                 </li>
                 <li>
                   <strong>签名错。</strong>
                   真实签名是 <code>createOrder(userId, items)</code> ——
-                  <strong>两个位置参数</strong>，不是一个对象。
-                  传对象进去，<code>userId</code> 会是那个对象，
+                  <strong>两个位置参数</strong>，不是一个对象。传对象进去，<code>userId</code> 会是那个对象，
                   <code>items</code> 会是 undefined。
                 </li>
                 <li>
                   <strong>缺一步。</strong>
-                  <code>OrderItemInput</code> 里没有 <code>price</code>，
-                  而数据源要用 <code>item.price</code> 算总价。
+                  <code>OrderItemInput</code> 里没有 <code>price</code>，而数据源要用 <code>item.price</code> 算总价。
                   <strong>resolver 必须先去查价格。</strong>
                 </li>
               </ol>
               <p>
-                第 3 点是最隐蔽的 —— 前两点报错很直接，
-                第 3 点即使前两点修好了，也只会表现为
+                第 3 点是最隐蔽的 —— 前两点报错很直接，第 3 点即使前两点修好了，也只会表现为
                 <code>totalAmount</code> 是 NaN、
-                <code>items[0].price</code> 是 undefined。
-                测试用
+                <code>items[0].price</code> 是 undefined。测试用
                 <code>expect(order.items[0].price).toBeDefined()</code>
                 和 <code>expect(order.totalAmount).toBeGreaterThan(0)</code>
                 两条断言抓它。
@@ -4303,9 +4194,7 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
               <p>
                 <strong>病因：</strong>
                 <code>try</code> 块里先抛了
-                <code>GraphQLError(code: INVALID_INPUT)</code>，
-                紧接着自己的 <code>catch</code> 把它接住，
-                重新包成 <code>code: SERVICE_ERROR</code>。
+                <code>GraphQLError(code: INVALID_INPUT)</code>，紧接着自己的 <code>catch</code> 把它接住，重新包成 <code>code: SERVICE_ERROR</code>。
               </p>
               <p>
                 <strong>修法：</strong>
@@ -4314,13 +4203,9 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
               </p>
               <p>
                 <strong>为什么这是最重要的一处：</strong>
-                前两处是「打错字」级别的错误，报错很直接。
-                这一处是<strong>设计缺陷</strong> ——
+                前两处是「打错字」级别的错误，报错很直接。这一处是<strong>设计缺陷</strong> ——
                 代码能跑、不抛异常、只是给客户端的信号是错的。
-                <strong>这类 bug 在生产环境里能藏几个月</strong>：
-                客户端一直在重试「输入不合法」的请求，
-                监控看到的是「服务错误率高」，
-                实际是校验失败被误报成了系统故障。
+                <strong>这类 bug 在生产环境里能藏几个月</strong>：客户端一直在重试「输入不合法」的请求，监控看到的是「服务错误率高」，实际是校验失败被误报成了系统故障。
               </p>
             </>
           ),
@@ -4422,10 +4307,8 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
           body: (
             <>
               <p>
-                <code>Mutation.createOrder</code> 的注释写着
-                「provided for reference - candidates focus on Query resolvers」，
-                <strong>但它是坏的</strong>。
-                「给你参考」不等于「它是对的」——
+                <code>Mutation.createOrder</code> 的注释写着「provided for reference - candidates focus on Query resolvers」，
+                <strong>但它是坏的</strong>。「给你参考」不等于「它是对的」——
                 这也是这个项目的一个小陷阱。
               </p>
               <p>编写本课时实测：这样改完之后 10 个测试全部通过。</p>
@@ -4602,14 +4485,12 @@ Tests:       10 passed, 10 total`,
                   「参数打包成对象」是现代 JS 的流行风格。
                 </li>
                 <li>
-                  catch 里统一包装错误 —— 这是<strong>好实践</strong>，
-                  只是漏了一个例外情况。
+                  catch 里统一包装错误 —— 这是<strong>好实践</strong>，只是漏了一个例外情况。
                 </li>
               </ul>
               <p>
                 <strong>所以「读一遍觉得没问题」是不够的。</strong>
-                必须核对。这也是为什么本门课反复强调
-                「写代码前先抄一张方法名对照表」——
+                必须核对。这也是为什么本门课反复强调「写代码前先抄一张方法名对照表」——
                 那五分钟能省下半小时的困惑。
               </p>
             </>
@@ -4659,8 +4540,7 @@ Tests:       10 passed, 10 total`,
           level: 3,
           prompt: (
             <p>
-              <code>Mutation.createOrder</code> 的测试失败了。
-              报错说在读一个 undefined 的属性。自己分诊。
+              <code>Mutation.createOrder</code> 的测试失败了。报错说在读一个 undefined 的属性。自己分诊。
             </p>
           ),
           promptEn: (
@@ -4773,21 +4653,17 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
                 <li>
                   <strong>键名。</strong><code>dataSources.orderAPI</code>
                   是 <code>undefined</code>，在它上面取
-                  <code>.createOrder</code> 直接抛 TypeError。
-                  真实键名是 <code>orderDataSource</code>。
+                  <code>.createOrder</code> 直接抛 TypeError。真实键名是 <code>orderDataSource</code>。
                 </li>
                 <li>
                   <strong>签名。</strong>真实签名是
                   <code>createOrder(userId, items)</code> ——
-                  两个位置参数。传一个对象进去，
-                  数据源里的 <code>userId</code> 会变成那个对象，
-                  <code>items</code> 是 undefined，
-                  接着 <code>items.reduce</code> 又抛。
+                  两个位置参数。传一个对象进去，数据源里的 <code>userId</code> 会变成那个对象，
+                  <code>items</code> 是 undefined，接着 <code>items.reduce</code> 又抛。
                 </li>
                 <li>
                   <strong>缺 price。</strong>
-                  <code>OrderItemInput</code> 只有 productId 和 quantity，
-                  而数据源要算 <code>item.price * item.quantity</code>。
+                  <code>OrderItemInput</code> 只有 productId 和 quantity，而数据源要算 <code>item.price * item.quantity</code>。
                   <strong>选项 B 修了前两个但漏了这个</strong> ——
                   测试会挂在
                   <code>expect(order.items[0].price).toBeDefined()</code> 上。
@@ -4797,12 +4673,10 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
                 <strong>读这个报错的技巧：</strong>
                 最外层的 <code>GraphQLError: Failed to create order</code>
                 是<strong>你自己包装的</strong>，它掩盖了真实原因。
-                <strong>往上翻 <code>console.error</code> 打出的
-                原始 message</strong> —— 那才是病灶。
+                <strong>往上翻 <code>console.error</code> 打出的原始 message</strong> —— 那才是病灶。
                 <br />
                 这也说明为什么错误包装时要保留
-                <code>originalError: error.message</code>：
-                否则真实原因就彻底丢了。
+                <code>originalError: error.message</code>：否则真实原因就彻底丢了。
               </p>
             </>
           ),
@@ -4865,8 +4739,7 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
           level: 3,
           prompt: (
             <p>
-              代码跑得通，没有异常。但测试说错误码不对。
-              这是三处埋雷里最值得理解的一处。
+              代码跑得通，没有异常。但测试说错误码不对。这是三处埋雷里最值得理解的一处。
             </p>
           ),
           promptEn: (
@@ -5002,34 +4875,27 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
               <p>
                 <code>catch</code> 会接住 <code>try</code> 块里
                 <strong>任何</strong>抛出的东西 ——
-                包括你自己精心构造的那个 <code>INVALID_INPUT</code>。
-                然后它被重新包成 <code>SERVICE_ERROR</code>。
+                包括你自己精心构造的那个 <code>INVALID_INPUT</code>。然后它被重新包成 <code>SERVICE_ERROR</code>。
               </p>
               <p>
                 <strong>为什么这是三处里最重要的一处？</strong>
-                因为它<strong>不报错</strong>。代码正常执行、
-                客户端也收到了一个 GraphQLError ——
+                因为它<strong>不报错</strong>。代码正常执行、客户端也收到了一个 GraphQLError ——
                 只是 code 是错的。
               </p>
               <p>
                 后果在生产环境里很实际：<code>INVALID_INPUT</code>
                 告诉客户端「你的请求有问题，改了再来」，
-                <code>SERVICE_ERROR</code> 告诉客户端「服务器临时故障，
-                请重试」。客户端会按后者的语义<strong>不断重试一个
-                永远不会成功的请求</strong>，同时你的监控面板显示
-                「服务错误率飙升」，而真实原因是有人一直传空数组。
+                <code>SERVICE_ERROR</code> 告诉客户端「服务器临时故障，请重试」。客户端会按后者的语义<strong>不断重试一个永远不会成功的请求</strong>，同时你的监控面板显示「服务错误率飙升」，而真实原因是有人一直传空数组。
               </p>
               <p>
                 <strong>选项 B（把校验移到 try 外面）</strong>
                 也能让这个测试过，但它是个更差的设计 ——
-                校验和主逻辑分开，可读性下降，
-                而且以后 try 里再抛别的业务错误还是会被吞。
+                校验和主逻辑分开，可读性下降，而且以后 try 里再抛别的业务错误还是会被吞。
                 <strong>正解是在 catch 里做类型判断。</strong>
               </p>
               <p>
                 这个模式值得记牢：
-                <strong>凡是「catch 里统一包装错误」的地方，
-                第一行都该先放行已经包装好的错误。</strong>
+                <strong>凡是「catch 里统一包装错误」的地方，第一行都该先放行已经包装好的错误。</strong>
               </p>
             </>
           ),

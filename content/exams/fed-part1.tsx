@@ -151,9 +151,7 @@ const QUERY_FLOW = (
           <T
             zh={
               <>
-                服务器<strong>先拿 schema 校验</strong>：字段存不存在、参数类型对不对。
-                这一步不碰任何数据。查询里写了一个 schema 里没有的字段，
-                会在这里就被拒掉，报 <code>Cannot query field ... on type ...</code>。
+                服务器<strong>先拿 schema 校验</strong>：字段存不存在、参数类型对不对。这一步不碰任何数据。查询里写了一个 schema 里没有的字段，会在这里就被拒掉，报 <code>Cannot query field ... on type ...</code>。
               </>
             }
             en={
@@ -197,8 +195,7 @@ const QUERY_FLOW = (
           <T
             zh={
               <>
-                resolver 去数据源取数。这一步可能是查数据库、
-                也可能是发 HTTP 给别的微服务 —— 这个项目里是 mock 数据 + 10ms 假延迟。
+                resolver 去数据源取数。这一步可能是查数据库、也可能是发 HTTP 给别的微服务 —— 这个项目里是 mock 数据 + 10ms 假延迟。
               </>
             }
             en={
@@ -219,8 +216,7 @@ const QUERY_FLOW = (
             zh={
               <>
                 <strong>关键一步：</strong>拿到 2 个 order 之后，执行器
-                <strong>对每一个 order 分别</strong>调 <code>Order.shippingInfo</code>。
-                上一层的返回值成了这一层的 <code>parent</code> 参数。
+                <strong>对每一个 order 分别</strong>调 <code>Order.shippingInfo</code>。上一层的返回值成了这一层的 <code>parent</code> 参数。
                 <br />
                 <strong>N 个 order 就是 N 次调用 —— 这就是 N+1 问题的来源。</strong>
               </>
@@ -246,8 +242,7 @@ const QUERY_FLOW = (
             zh={
               <>
                 所以这个字段用了 <strong>DataLoader</strong>：两次
-                <code>load()</code> 被攒到同一个事件循环里，
-                合并成<strong>一次</strong>批量调用。日志里会看到
+                <code>load()</code> 被攒到同一个事件循环里，合并成<strong>一次</strong>批量调用。日志里会看到
                 <code>[DataLoader] Batching 2 shipping info requests</code>。
               </>
             }
@@ -270,8 +265,7 @@ const QUERY_FLOW = (
             zh={
               <>
                 所有 resolver 都返回后，执行器<strong>按查询的形状</strong>
-                把结果拼成 JSON。客户端要什么就得到什么，
-                不多不少 —— 这是编写本课时在进程内实测得到的真实输出。
+                把结果拼成 JSON。客户端要什么就得到什么，不多不少 —— 这是编写本课时在进程内实测得到的真实输出。
               </>
             }
             en={
@@ -310,8 +304,7 @@ const ENTITY_FLOW = (
             zh={
               <>
                 客户端眼里只有<strong>一张图</strong>：
-                <code>user</code> 上就是有 <code>orders</code> 字段。
-                它完全不知道背后有两个服务。
+                <code>user</code> 上就是有 <code>orders</code> 字段。它完全不知道背后有两个服务。
               </>
             }
             en={
@@ -331,9 +324,7 @@ const ENTITY_FLOW = (
           <T
             zh={
               <>
-                Router 启动时收集过所有 subgraph 的 SDL，
-                所以它知道<strong>哪个字段属于谁</strong>。
-                于是它把这一个查询拆成一个「查询计划」：先问 Accounts，再问 Orders。
+                Router 启动时收集过所有 subgraph 的 SDL，所以它知道<strong>哪个字段属于谁</strong>。于是它把这一个查询拆成一个「查询计划」：先问 Accounts，再问 Orders。
               </>
             }
             en={
@@ -355,8 +346,7 @@ const ENTITY_FLOW = (
               <>
                 第一步问 Accounts。注意它<strong>额外要了 <code>__typename</code> 和
                 <code>id</code></strong> —— 因为 <code>User</code> 的
-                <code>@key(fields: &quot;id&quot;)</code> 声明了「靠 id 认人」，
-                Router 需要这两个东西才能去别处接着查。
+                <code>@key(fields: &quot;id&quot;)</code> 声明了「靠 id 认人」，Router 需要这两个东西才能去别处接着查。
               </>
             }
             en={
@@ -380,8 +370,7 @@ const ENTITY_FLOW = (
               <>
                 Accounts 返回了 name，同时 Router 手上有了一个
                 <strong>entity representation（实体引用）</strong>：
-                <code>{'{ __typename: "User", id: "123" }'}</code>。
-                这就是「同一个 User 在不同服务间的身份证」。
+                <code>{'{ __typename: "User", id: "123" }'}</code>。这就是「同一个 User 在不同服务间的身份证」。
               </>
             }
             en={
@@ -403,8 +392,7 @@ const ENTITY_FLOW = (
             zh={
               <>
                 <strong>Router 拿这个引用去问本项目的 subgraph。</strong>
-                它调的是一个叫 <code>_entities</code> 的特殊字段
-                （由 <code>buildSubgraphSchema</code> 自动生成，你不用写）。
+                它调的是一个叫 <code>_entities</code> 的特殊字段（由 <code>buildSubgraphSchema</code> 自动生成，你不用写）。
                 <br />
                 本地流程是：<code>User.__resolveReference</code> 把引用变成本地对象 →
                 <code>User.orders</code> 用它的 id 去查订单。
@@ -508,20 +496,15 @@ export const gqlBasics: Module = {
           body: (
             <>
               <p>
-                <strong>schema</strong> 声明「这个服务提供哪些类型、
-                每个类型有哪些字段、字段是什么类型、能不能为空」。
-                它是一份<strong>契约</strong>，用一种叫
+                <strong>schema</strong> 声明「这个服务提供哪些类型、每个类型有哪些字段、字段是什么类型、能不能为空」。它是一份<strong>契约</strong>，用一种叫
                 <strong>SDL（Schema Definition Language）</strong>的语法写。
               </p>
               <p>
-                <strong>resolver</strong> 是一堆函数，负责「某个字段的值实际怎么算出来」。
-                schema 说 <code>Order</code> 有个 <code>shippingInfo</code> 字段，
-                resolver 负责真的去物流服务把它取回来。
+                <strong>resolver</strong> 是一堆函数，负责「某个字段的值实际怎么算出来」。schema 说 <code>Order</code> 有个 <code>shippingInfo</code> 字段，resolver 负责真的去物流服务把它取回来。
               </p>
               <p>
                 两半必须对得上。schema 里有、但没写 resolver 的字段，交给
-                <strong>默认 resolver</strong>：它直接读上一层返回对象里同名的属性，
-                对象里也没有这个属性时才得到 null。
+                <strong>默认 resolver</strong>：它直接读上一层返回对象里同名的属性，对象里也没有这个属性时才得到 null。
                 <strong>resolver 的名字和 schema 里的字段名不一致 →
                 这个 resolver 永远不会被调用，而且不报错。</strong>
                 这是 GraphQL 最难查的一类 bug，后面 Debug Lab 会专门练。
@@ -566,8 +549,7 @@ export const gqlBasics: Module = {
           body: (
             <>
               <p>
-                这是 <code>node-subgraph/src/schema.graphql</code> 的全文，
-                一个字没改。第 1–2 行的 <code>extend schema @link</code>
+                这是 <code>node-subgraph/src/schema.graphql</code> 的全文，一个字没改。第 1–2 行的 <code>extend schema @link</code>
                 是 Federation 专用的，下一个模块再讲，先跳过：
               </p>
             </>
@@ -603,21 +585,18 @@ export const gqlBasics: Module = {
                 <code>type Order {"{ ... }"}</code> 声明了一个
                 <strong>对象类型</strong>，花括号里每一行是一个
                 <strong>字段（field）</strong>，格式是
-                <code>字段名： 类型</code>。
+                <code>字段名：类型</code>。
               </p>
               <p>字段的类型分三种：</p>
               <ul>
                 <li>
-                  <strong>标量（scalar）</strong> —— 内置的叶子类型，
-                  不能再往下展开。GraphQL 内置 5 个：
+                  <strong>标量（scalar）</strong> —— 内置的叶子类型，不能再往下展开。GraphQL 内置 5 个：
                   <code>ID</code>、<code>String</code>、<code>Int</code>、
-                  <code>Float</code>、<code>Boolean</code>。
-                  这份 schema 里 <code>totalAmount: Float!</code>、
+                  <code>Float</code>、<code>Boolean</code>。这份 schema 里 <code>totalAmount: Float!</code>、
                   <code>quantity: Int!</code> 都是。
                   <br />
                   <strong>注意 <code>createdAt: String!</code></strong> ——
-                  时间被存成了字符串，不是什么 DateTime 类型。
-                  GraphQL 没有内置日期标量。
+                  时间被存成了字符串，不是什么 DateTime 类型。GraphQL 没有内置日期标量。
                 </li>
                 <li>
                   <strong>对象类型</strong> —— 可以继续往下查。
@@ -634,9 +613,7 @@ export const gqlBasics: Module = {
                 </li>
               </ul>
               <p>
-                <code>ID</code> 值得单说：它序列化成字符串，
-                但语义是「这是个标识符，不要拿它做算术」。
-                所以 <code>getOrdersByUserId(&quot;123&quot;)</code> 里那个 userId
+                <code>ID</code> 值得单说：它序列化成字符串，但语义是「这是个标识符，不要拿它做算术」。所以 <code>getOrdersByUserId(&quot;123&quot;)</code> 里那个 userId
                 是字符串 <code>&quot;123&quot;</code> 而不是数字 123 ——
                 这一点和 React 那门考试里 <code>Note.id</code> 是
                 <code>number</code> 正好相反，别混。
@@ -712,22 +689,16 @@ export const gqlBasics: Module = {
                 <li>
                   <strong><code>Mutation</code> = 写。</strong>
                   这里只有 <code>createOrder</code>。
-                  <strong>GraphQL 不强制你把写操作放 Mutation</strong>，
-                  但这是所有人都遵守的约定 —— 而且 Mutation 的多个字段
-                  是<strong>串行</strong>执行的，Query 的字段是并行的。
+                  <strong>GraphQL 不强制你把写操作放 Mutation</strong>，但这是所有人都遵守的约定 —— 而且 Mutation 的多个字段是<strong>串行</strong>执行的，Query 的字段是并行的。
                 </li>
               </ul>
               <p>
                 圆括号里的是<strong>参数（argument）</strong>：
-                <code>order(id: ID!)</code> 意思是「调这个字段必须给一个非空的 ID」。
-                参数在 resolver 里通过第二个参数 <code>args</code> 拿到。
+                <code>order(id: ID!)</code> 意思是「调这个字段必须给一个非空的 ID」。参数在 resolver 里通过第二个参数 <code>args</code> 拿到。
               </p>
               <p>
-                <code>input OrderItemInput</code> 是<strong>输入类型</strong>。
-                它和 <code>type</code> 的区别是：input 只能当参数用，
-                字段只能是标量、enum 或别的 input，不能有 resolver。
-                <strong>这个 input 在后面会成为一个主要陷阱</strong>，
-                下一节专门讲。
+                <code>input OrderItemInput</code> 是<strong>输入类型</strong>。它和 <code>type</code> 的区别是：input 只能当参数用，字段只能是标量、enum 或别的 input，不能有 resolver。
+                <strong>这个 input 在后面会成为一个主要陷阱</strong>，下一节专门讲。
               </p>
             </>
           ),
@@ -782,8 +753,7 @@ export const gqlBasics: Module = {
           body: (
             <>
               <p>
-                REST 里 <code>GET /api/orders/456</code> 返回什么字段，
-                是服务端定的。GraphQL 里客户端自己写：
+                REST 里 <code>GET /api/orders/456</code> 返回什么字段，是服务端定的。GraphQL 里客户端自己写：
               </p>
               <p>
                 这带来两个后果，都跟考试有关：
@@ -796,10 +766,7 @@ export const gqlBasics: Module = {
                 </li>
                 <li>
                   <strong>N+1 问题的根源。</strong>
-                  客户端查了 100 个 order 的 shippingInfo，
-                  执行器就会调 100 次 <code>Order.shippingInfo</code>。
-                  客户端一句话，后端 100 次请求。
-                  这就是为什么这个项目里要用 DataLoader。
+                  客户端查了 100 个 order 的 shippingInfo，执行器就会调 100 次 <code>Order.shippingInfo</code>。客户端一句话，后端 100 次请求。这就是为什么这个项目里要用 DataLoader。
                 </li>
               </ol>
             </>
@@ -890,8 +857,7 @@ export const gqlBasics: Module = {
           body: (
             <>
               <p>
-                把上面的知识串起来。下面这张图是第二个查询（带 shippingInfo 的那个）
-                在服务端的完整旅程，七步：
+                把上面的知识串起来。下面这张图是第二个查询（带 shippingInfo 的那个）在服务端的完整旅程，七步：
               </p>
               {QUERY_FLOW}
             </>
@@ -917,8 +883,7 @@ export const gqlBasics: Module = {
           level: 1,
           prompt: (
             <p>
-              看真实 schema 里的 <code>type Order</code>。
-              下面哪些字段的类型是<strong>标量</strong>（不能再往下展开）？（多选）
+              看真实 schema 里的 <code>type Order</code>。下面哪些字段的类型是<strong>标量</strong>（不能再往下展开）？（多选）
             </p>
           ),
           promptEn: (
@@ -957,14 +922,11 @@ export const gqlBasics: Module = {
               标量是 <code>ID</code>、<code>String</code>、<code>Int</code>、
               <code>Float</code>、<code>Boolean</code> 这五个内置叶子类型。
               <br />
-              <code>status</code> 是 <strong>enum</strong> —— 它也是叶子
-              （不能往下展开），但不是标量。
+              <code>status</code> 是 <strong>enum</strong> —— 它也是叶子（不能往下展开），但不是标量。
               <br />
-              <code>items</code> 是<strong>对象类型的列表</strong>，
-              可以继续查 <code>{"{ productId quantity price }"}</code>。
+              <code>items</code> 是<strong>对象类型的列表</strong>，可以继续查 <code>{"{ productId quantity price }"}</code>。
               <br />
-              <code>createdAt</code> 虽然语义上是时间，
-              但类型确实是 <code>String</code> —— GraphQL 没有内置日期标量。
+              <code>createdAt</code> 虽然语义上是时间，但类型确实是 <code>String</code> —— GraphQL 没有内置日期标量。
             </>
           ),
           explainEn: (
@@ -1015,15 +977,12 @@ export const gqlBasics: Module = {
           answer: ["b"],
           explain: (
             <>
-              GraphQL <strong>不在语法层面</strong>阻止你把写操作放 Query。
-              但两点很重要：
+              GraphQL <strong>不在语法层面</strong>阻止你把写操作放 Query。但两点很重要：
               <br />
-              ① <strong>约定</strong>：所有工具、缓存、客户端库都假设「Query 是安全的、
-              可缓存的、可重试的」。放了写操作会破坏这个假设。
+              ① <strong>约定</strong>：所有工具、缓存、客户端库都假设「Query 是安全的、可缓存的、可重试的」。放了写操作会破坏这个假设。
               <br />
               ② <strong>执行语义不同</strong>：Query 的多个顶层字段
-              <strong>并行</strong>执行，Mutation 的<strong>串行</strong>执行。
-              写操作放 Query 里，同一个请求里的多个写会并发执行，可能互相干扰。
+              <strong>并行</strong>执行，Mutation 的<strong>串行</strong>执行。写操作放 Query 里，同一个请求里的多个写会并发执行，可能互相干扰。
             </>
           ),
           explainEn: (
@@ -1049,8 +1008,7 @@ export const gqlBasics: Module = {
           level: 2,
           prompt: (
             <p>
-              照真实 <code>schema.graphql</code> 补全。
-              三个空分别关系到「入口类型」「枚举」「输入类型」。
+              照真实 <code>schema.graphql</code> 补全。三个空分别关系到「入口类型」「枚举」「输入类型」。
             </p>
           ),
           promptEn: (
@@ -1088,8 +1046,7 @@ ___3___ OrderItemInput {
               hintEn: "The value can only be one of the ones listed.",
               why: (
                 <>
-                  <code>enum</code>。它限定了 <code>status</code> 字段的取值范围。
-                  resolver 返回一个不在这五个里的字符串（比如小写的
+                  <code>enum</code>。它限定了 <code>status</code> 字段的取值范围。resolver 返回一个不在这五个里的字符串（比如小写的
                   <code>&quot;shipped&quot;</code>）会被执行器拒绝并报错。
                 </>
               ),
@@ -1112,9 +1069,7 @@ ___3___ OrderItemInput {
                 "The entry type the client reads data through. Its name is fixed by convention.",
               why: (
                 <>
-                  <code>Query</code>。它是<strong>约定的读入口</strong>，
-                  名字不能自己改（虽然理论上能在 schema 定义里重命名，
-                  但没人这么做）。resolver 里对应的就是
+                  <code>Query</code>。它是<strong>约定的读入口</strong>，名字不能自己改（虽然理论上能在 schema 定义里重命名，但没人这么做）。resolver 里对应的就是
                   <code>resolvers.Query.orders</code>。
                 </>
               ),
@@ -1137,8 +1092,7 @@ ___3___ OrderItemInput {
                 "This type is only used as an argument. A query never returns it.",
               why: (
                 <>
-                  <code>input</code>。它和 <code>type</code> 的区别：
-                  只能当参数用、字段只能是标量/enum/别的 input、不能有 resolver。
+                  <code>input</code>。它和 <code>type</code> 的区别：只能当参数用、字段只能是标量/enum/别的 input、不能有 resolver。
                   <br />
                   <strong>顺便记住这个 input 只有两个字段 ——
                   没有 <code>price</code>。</strong>
@@ -1246,8 +1200,7 @@ ___3___ OrderItemInput {
                       <td>上一层字段的返回值</td>
                       <td>
                         <code>Order.shippingInfo</code> 里的
-                        <code>parent</code> 就是那个 order 对象，
-                        所以能用 <code>parent.id</code>
+                        <code>parent</code> 就是那个 order 对象，所以能用 <code>parent.id</code>
                       </td>
                     </tr>
                     <tr>
@@ -1286,9 +1239,7 @@ ___3___ OrderItemInput {
               </p>
               <p>
                 注意 <strong>顶层的 <code>Query</code> / <code>Mutation</code>
-                字段没有有意义的 parent</strong>（是 undefined 或根值），
-                所以它们的第一个参数总是 <code>_</code>。
-                而 <code>Order.shippingInfo</code> 这种<strong>字段 resolver</strong>
+                字段没有有意义的 parent</strong>（是 undefined 或根值），所以它们的第一个参数总是 <code>_</code>。而 <code>Order.shippingInfo</code> 这种<strong>字段 resolver</strong>
                 的 parent 非常重要 —— 它就是「哪个 order」。
               </p>
             </>
@@ -1383,10 +1334,8 @@ ___3___ OrderItemInput {
                   <code>[order456, order457]</code>。
                 </li>
                 <li>
-                  客户端还查了 <code>shippingInfo</code>，
-                  于是执行器<strong>对数组里每个元素</strong>调
-                  <code>Order.shippingInfo</code>，
-                  把那个元素作为 <code>parent</code> 传进去。
+                  客户端还查了 <code>shippingInfo</code>，于是执行器<strong>对数组里每个元素</strong>调
+                  <code>Order.shippingInfo</code>，把那个元素作为 <code>parent</code> 传进去。
                 </li>
                 <li>
                   所以 <code>parent.id</code> 就是 <code>&quot;order-456&quot;</code>
@@ -1395,20 +1344,15 @@ ___3___ OrderItemInput {
               </ol>
               <p>
                 <strong>字段没有 resolver 时会怎样？</strong>
-                执行器会用<strong>默认 resolver</strong>：
-                直接取 <code>parent[字段名]</code>。
+                执行器会用<strong>默认 resolver</strong>：直接取 <code>parent[字段名]</code>。
               </p>
               <p>
-                这解释了一件重要的事：<code>Order</code> 有 7 个字段，
-                但 <code>resolvers.Order</code> 里<strong>只写了
-                <code>shippingInfo</code> 一个</strong>。
-                其余 6 个（id、userId、status……）不需要写 ——
+                这解释了一件重要的事：<code>Order</code> 有 7 个字段，但 <code>resolvers.Order</code> 里<strong>只写了
+                <code>shippingInfo</code> 一个</strong>。其余 6 个（id、userId、status……）不需要写 ——
                 因为数据源返回的对象上正好有这些同名属性，默认 resolver 直接取就行。
               </p>
               <p>
-                <strong>而 <code>shippingInfo</code> 必须自己写</strong>，
-                因为数据源返回的 order 对象上<strong>没有</strong>这个属性
-                （物流信息在另一个服务里）。
+                <strong>而 <code>shippingInfo</code> 必须自己写</strong>，因为数据源返回的 order 对象上<strong>没有</strong>这个属性（物流信息在另一个服务里）。
               </p>
             </>
           ),
@@ -1512,8 +1456,7 @@ ___3___ OrderItemInput {
                 <code>orderDataSource</code>、
                 <code>inventoryDataSource</code>、
                 <code>shippingDataSource</code>。
-                <strong>不是 <code>orderAPI</code>，
-                不是 <code>orderService</code>。</strong>
+                <strong>不是 <code>orderAPI</code>，不是 <code>orderService</code>。</strong>
                 （项目里的 starter 代码就写错成了 <code>orderAPI</code> ——
                 这是三个埋雷之一。）
               </p>
@@ -1523,10 +1466,8 @@ ___3___ OrderItemInput {
               </p>
               <p>
                 <strong>为什么 loader 要每请求新建？</strong>
-                DataLoader 自带缓存。如果建在模块顶层，
-                第一个请求缓存的数据会被第二个请求看到 ——
-                跨请求数据泄漏，而且数据永远不刷新。
-                所以正确做法就是像这里一样，在 <code>context</code>
+                DataLoader 自带缓存。如果建在模块顶层，第一个请求缓存的数据会被第二个请求看到 ——
+                跨请求数据泄漏，而且数据永远不刷新。所以正确做法就是像这里一样，在 <code>context</code>
                 函数里 <code>new</code>。
               </p>
             </>
@@ -1624,26 +1565,20 @@ ___3___ OrderItemInput {
             <>
               <p>
                 四个 TODO 里有两个明确写了
-                <em>correlation ID tracing</em> / <em>correlation ID logging</em>。
-                这不是装饰。
+                <em>correlation ID tracing</em> / <em>correlation ID logging</em>。这不是装饰。
               </p>
               <p>
                 在微服务系统里，一个用户请求会经过 Router → subgraph A →
-                subgraph B → 数据库，每一跳都在打日志。
-                出问题时你需要把<strong>同一次请求</strong>的所有日志找出来 ——
+                subgraph B → 数据库，每一跳都在打日志。出问题时你需要把<strong>同一次请求</strong>的所有日志找出来 ——
                 <strong>correlation id 就是那根线</strong>。
               </p>
               <p>
                 <code>index.js</code> 里的逻辑是：优先用客户端传来的
-                <code>x-correlation-id</code> 请求头，没有就自己生成一个。
-                这样调用方（比如 Router）传下来的 id 会被沿用，
-                整条链路的日志能串起来。
+                <code>x-correlation-id</code> 请求头，没有就自己生成一个。这样调用方（比如 Router）传下来的 id 会被沿用，整条链路的日志能串起来。
               </p>
               <p>
                 你要做的很简单：<strong>在 resolver 的日志和错误里带上它</strong>。
-                <code>{"console.log(`[${correlationId}] ...`)"}</code>，
-                以及 <code>{"extensions: { code, correlationId }"}</code>。
-                Java 那道题里也有同一套思路（用 SLF4J 的 MDC 实现）。
+                <code>{"console.log(`[${correlationId}] ...`)"}</code>，以及 <code>{"extensions: { code, correlationId }"}</code>。Java 那道题里也有同一套思路（用 SLF4J 的 MDC 实现）。
               </p>
             </>
           ),
@@ -1705,8 +1640,7 @@ ___3___ OrderItemInput {
           level: 1,
           prompt: (
             <p>
-              照 <code>index.js</code> 里 context 的真实结构，
-              哪个写法能拿到订单数据源？
+              照 <code>index.js</code> 里 context 的真实结构，哪个写法能拿到订单数据源？
             </p>
           ),
           promptEn: (
@@ -1725,8 +1659,7 @@ ___3___ OrderItemInput {
           explain: (
             <>
               <code>index.js</code> 里 return 的是
-              <code>{"{ dataSources: { orderDataSource, ... }, loaders: {...}, correlationId }"}</code>。
-              所以路径是 <code>context.dataSources.orderDataSource</code>。
+              <code>{"{ dataSources: { orderDataSource, ... }, loaders: {...}, correlationId }"}</code>。所以路径是 <code>context.dataSources.orderDataSource</code>。
               <br />
               <strong>A 是项目里真实存在的埋雷</strong> ——
               starter 的 <code>Mutation.createOrder</code> 里写的就是
@@ -1756,8 +1689,7 @@ ___3___ OrderItemInput {
           level: 1,
           prompt: (
             <p>
-              <code>Order.shippingInfo</code> 需要知道「是哪个 order 的物流」。
-              这个 order 的 id 从哪个参数拿？
+              <code>Order.shippingInfo</code> 需要知道「是哪个 order 的物流」。这个 order 的 id 从哪个参数拿？
             </p>
           ),
           promptEn: (
@@ -1810,8 +1742,7 @@ ___3___ OrderItemInput {
           prompt: (
             <p>
               客户端发{" "}
-              <code>{'{ orders(userId:"123") { id shippingInfo { status } } }'}</code>，
-              数据源里 user 123 有两个订单。把服务端的动作排序。
+              <code>{'{ orders(userId:"123") { id shippingInfo { status } } }'}</code>，数据源里 user 123 有两个订单。把服务端的动作排序。
             </p>
           ),
           promptEn: (
@@ -1836,8 +1767,7 @@ ___3___ OrderItemInput {
               往下调字段 resolver → DataLoader 在同一个事件循环里合并 →
               最后按形状组装。
               <br />
-              <strong>第 3 步「对每个 order 分别调」就是 N+1 的来源</strong>，
-              第 4 步是它的解药。
+              <strong>第 3 步「对每个 order 分别调」就是 N+1 的来源</strong>，第 4 步是它的解药。
             </>
           ),
           explainEn: (
@@ -1925,9 +1855,7 @@ ___3___ OrderItemInput {
             <>
               <p>
                 <strong>GraphQL 里所有类型默认可空</strong>。
-                <code>!</code> 是「保证不为 null」。
-                列表的方括号和元素各能带一个 <code>!</code>，
-                所以有四种组合：
+                <code>!</code> 是「保证不为 null」。列表的方括号和元素各能带一个 <code>!</code>，所以有四种组合：
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -1972,14 +1900,12 @@ ___3___ OrderItemInput {
               <p>
                 这份 schema 里有<strong>两处</strong>用了最严格的
                 <code>[Order!]!</code>：
-                <code>User.orders</code> 和 <code>Query.orders</code>。
-                两个都是你要实现的 TODO。
+                <code>User.orders</code> 和 <code>Query.orders</code>。两个都是你要实现的 TODO。
               </p>
               <p>
                 <strong>实践结论：这两个 resolver 绝对不能返回
                 <code>null</code> 或 <code>undefined</code>。</strong>
-                「没有订单」的正确表达是<strong>空数组 <code>[]</code></strong>，
-                不是 null。所以真实答案里都写了
+                「没有订单」的正确表达是<strong>空数组 <code>[]</code></strong>，不是 null。所以真实答案里都写了
                 <code>return orders ?? []</code>。
               </p>
             </>
@@ -2105,8 +2031,7 @@ type Order {
           body: (
             <>
               <p>
-                如果 <code>Query.orders</code> 返回了 <code>null</code>，
-                GraphQL 执行器不会容忍 —— 它会：
+                如果 <code>Query.orders</code> 返回了 <code>null</code>，GraphQL 执行器不会容忍 —— 它会：
               </p>
               <ol>
                 <li>
@@ -2116,24 +2041,19 @@ type Order {
                 </li>
                 <li>
                   <strong>把这个字段的值设为 null，然后往上冒泡</strong> ——
-                  如果父字段也是非空的，父字段也变 null，一直往上，
-                  直到遇到一个可空的祖先，或者到根节点让整个
+                  如果父字段也是非空的，父字段也变 null，一直往上，直到遇到一个可空的祖先，或者到根节点让整个
                   <code>data</code> 变成 <code>null</code>。
                 </li>
               </ol>
               <p>
                 所以一个 resolver 忘了兜底，可能导致
                 <strong>整个响应的 data 变成 null</strong> ——
-                客户端拿不到任何数据，即使其他字段都好着。
-                这就是为什么 schema 设计里「该可空的地方就标可空」很重要，
-                也是为什么这两个列表字段必须 <code>?? []</code>。
+                客户端拿不到任何数据，即使其他字段都好着。这就是为什么 schema 设计里「该可空的地方就标可空」很重要，也是为什么这两个列表字段必须 <code>?? []</code>。
               </p>
               <p>
-                反过来，<code>Order.shippingInfo</code> 是<strong>可空</strong>的，
-                所以「order-999 没有物流信息」这种情况返回 <code>null</code>
+                反过来，<code>Order.shippingInfo</code> 是<strong>可空</strong>的，所以「order-999 没有物流信息」这种情况返回 <code>null</code>
                 完全正常，不会报错。数据源那边正是这么设计的 ——
-                <code>getShippingInfo</code> 只有 order-456/457 有数据，
-                其余返回 <code>null</code>。测试也直接断言了这一点。
+                <code>getShippingInfo</code> 只有 order-456/457 有数据，其余返回 <code>null</code>。测试也直接断言了这一点。
               </p>
             </>
           ),
@@ -2187,8 +2107,7 @@ type Order {
             <>
               <p>
                 <strong>先看 schema 里的 input：</strong>
-                只有 <code>productId</code> 和 <code>quantity</code>。
-                客户端调 <code>createOrder</code> 时<strong>不传 price</strong>
+                只有 <code>productId</code> 和 <code>quantity</code>。客户端调 <code>createOrder</code> 时<strong>不传 price</strong>
                 （合理 —— 价格不能让客户端说）。
               </p>
               <p>
@@ -2200,8 +2119,7 @@ type Order {
                 原样交给数据源，那 <code>item.price</code> 是
                 <code>undefined</code>，
                 <code>undefined * 2</code> 得到 <code>NaN</code>，
-                <code>totalAmount</code> 变成 <code>NaN</code>。
-                而 <code>totalAmount: Float!</code> 收到 NaN 会序列化失败。
+                <code>totalAmount</code> 变成 <code>NaN</code>。而 <code>totalAmount: Float!</code> 收到 NaN 会序列化失败。
               </p>
               <p>
                 <strong>解法：</strong>resolver 必须先去
@@ -2210,14 +2128,12 @@ type Order {
               </p>
               <p>
                 这就是 <code>InventoryDataSource</code> 存在的原因 ——
-                它不是干扰项。（<code>getInventoryStatus</code> 才是干扰项，
-                没有任何地方需要它。）
+                它不是干扰项。（<code>getInventoryStatus</code> 才是干扰项，没有任何地方需要它。）
               </p>
               <p>
                 <strong>测试怎么抓这个的？</strong>
                 <code>expect(order.items[0].price).toBeDefined()</code> 和
-                <code>expect(order.totalAmount).toBeGreaterThan(0)</code>。
-                编写本课时实测：不补 price，这个测试失败。
+                <code>expect(order.totalAmount).toBeGreaterThan(0)</code>。编写本课时实测：不补 price，这个测试失败。
               </p>
             </>
           ),
@@ -2364,8 +2280,7 @@ type Order {
           prompt: (
             <p>
               schema 写的是{" "}
-              <code>orders(userId: ID!): [Order!]!</code>。
-              user 999 没有任何订单。resolver 该返回什么？
+              <code>orders(userId: ID!): [Order!]!</code>。user 999 没有任何订单。resolver 该返回什么？
             </p>
           ),
           promptEn: (
@@ -2383,8 +2298,7 @@ type Order {
           answer: ["c"],
           explain: (
             <>
-              <code>[]</code>。<code>[Order!]!</code> 是双重非空：
-              列表本身不能为 null，元素也不能为 null。
+              <code>[]</code>。<code>[Order!]!</code> 是双重非空：列表本身不能为 null，元素也不能为 null。
               <strong>但空列表是合法的</strong> ——
               「没有订单」的正确表达就是空数组。
               <br />
@@ -2392,8 +2306,7 @@ type Order {
               并向上冒泡；D 违反了元素的非空约束。
               <br />
               测试里正好有这一条：
-              <code>should return empty array for user with no orders</code>，
-              断言 <code>orders.length === 0</code>。
+              <code>should return empty array for user with no orders</code>，断言 <code>orders.length === 0</code>。
             </>
           ),
           explainEn: (
@@ -2423,8 +2336,7 @@ type Order {
           prompt: (
             <p>
               客户端调{" "}
-              <code>createOrder(userId: &quot;789&quot;, items: [{"{ productId: \"prod-789\", quantity: 2 }"}])</code>。
-              如果 resolver 把 items 原样交给
+              <code>createOrder(userId: &quot;789&quot;, items: [{"{ productId: \"prod-789\", quantity: 2 }"}])</code>。如果 resolver 把 items 原样交给
               <code>orderDataSource.createOrder</code>，会怎样？
             </p>
           ),
@@ -2445,17 +2357,14 @@ type Order {
           answer: ["b"],
           explain: (
             <>
-              <code>OrderItemInput</code> 里没有 <code>price</code>，
-              所以 <code>item.price</code> 是 <code>undefined</code>。
+              <code>OrderItemInput</code> 里没有 <code>price</code>，所以 <code>item.price</code> 是 <code>undefined</code>。
               <code>undefined * 2 = NaN</code>，
               <code>0 + NaN = NaN</code>。
               <br />
-              数据源<strong>不会</strong>自己查价格 —— 它只做那一行乘法。
-              查价格是 resolver 的责任，用
+              数据源<strong>不会</strong>自己查价格 —— 它只做那一行乘法。查价格是 resolver 的责任，用
               <code>inventoryDataSource.getProductPrice(productId)</code>。
               <br />
-              C 不对：schema 校验只看 input 的形状，
-              客户端确实只该传这两个字段。
+              C 不对：schema 校验只看 input 的形状，客户端确实只该传这两个字段。
             </>
           ),
           explainEn: (
@@ -2483,8 +2392,7 @@ type Order {
           level: 2,
           prompt: (
             <p>
-              照 schema 的非空标记，给每个 resolver 填上正确的返回表达式。
-              想清楚「这个字段能不能是 null」。
+              照 schema 的非空标记，给每个 resolver 填上正确的返回表达式。想清楚「这个字段能不能是 null」。
             </p>
           ),
           promptEn: (
@@ -2556,8 +2464,7 @@ async order(_, { id }, { loaders, correlationId }) {
                   时用 []」。
                   <br />
                   <code>||</code> 也能用，但语义更宽 ——
-                  它连 <code>0</code>、<code>&quot;&quot;</code> 这些假值也会替换。
-                  对数组来说没区别，但 <code>??</code> 表达意图更准。
+                  它连 <code>0</code>、<code>&quot;&quot;</code> 这些假值也会替换。对数组来说没区别，但 <code>??</code> 表达意图更准。
                 </>
               ),
               whyEn: (
@@ -2584,15 +2491,11 @@ async order(_, { id }, { loaders, correlationId }) {
               why: (
                 <>
                   <code>null</code>。schema 里
-                  <code>shippingInfo: ShippingInfo</code> 没有 <code>!</code>，
-                  所以返回 null 是<strong>合法且正确</strong>的。
+                  <code>shippingInfo: ShippingInfo</code> 没有 <code>!</code>，所以返回 null 是<strong>合法且正确</strong>的。
                   <br />
                   测试直接断言了这一点：
-                  <code>should return null for order without shipping info</code>，
-                  用 <code>expect(shippingInfo).toBeNull()</code>。
-                  <strong>注意是 toBeNull 而不是 toBeUndefined</strong>。
-                  本项目的数据源找不到时已经返回 null，所以不写 <code>?? null</code> 这条测试也能过；
-                  写上它是防御性写法，防的是以后数据源改成返回 undefined。
+                  <code>should return null for order without shipping info</code>，用 <code>expect(shippingInfo).toBeNull()</code>。
+                  <strong>注意是 toBeNull 而不是 toBeUndefined</strong>。本项目的数据源找不到时已经返回 null，所以不写 <code>?? null</code> 这条测试也能过；写上它是防御性写法，防的是以后数据源改成返回 undefined。
                 </>
               ),
               whyEn: (
@@ -2622,12 +2525,9 @@ async order(_, { id }, { loaders, correlationId }) {
               why: (
                 <>
                   <code>!order</code>。<code>orderLoader.load(id)</code>
-                  底层调的是 <code>getOrder(id)</code>，
-                  它用 <code>find</code> 实现，找不到返回 <code>undefined</code>。
+                  底层调的是 <code>getOrder(id)</code>，它用 <code>find</code> 实现，找不到返回 <code>undefined</code>。
                   <br />
-                  <code>Query.order</code> 在 schema 里是可空的，
-                  所以直接 <code>return null</code> 也不违反 schema。
-                  但 TODO 原文要求
+                  <code>Query.order</code> 在 schema 里是可空的，所以直接 <code>return null</code> 也不违反 schema。但 TODO 原文要求
                   <em>structured error handling</em>，所以抛一个带
                   <code>ORDER_NOT_FOUND</code> code 的 GraphQLError 更符合题意。
                 </>
@@ -2720,8 +2620,7 @@ export const fedMentalModel: Module = {
           body: (
             <>
               <p>
-                假设一家公司有账号团队、商品团队、订单团队、物流团队。
-                如果只有一个 GraphQL 服务，那么：
+                假设一家公司有账号团队、商品团队、订单团队、物流团队。如果只有一个 GraphQL 服务，那么：
               </p>
               <ul>
                 <li>
@@ -2730,8 +2629,7 @@ export const fedMentalModel: Module = {
                 </li>
                 <li>
                   <strong>一起发布。</strong>
-                  物流团队改一行，整个 API 网关要重新部署；
-                  任何一个团队的 bug 会拖垮所有查询。
+                  物流团队改一行，整个 API 网关要重新部署；任何一个团队的 bug 会拖垮所有查询。
                 </li>
                 <li>
                   <strong>技术栈被锁定。</strong>
@@ -2741,8 +2639,7 @@ export const fedMentalModel: Module = {
               <p>
                 <strong>Federation 的做法：</strong>
                 每个团队维护自己的 <strong>subgraph</strong>
-                （一个独立的 GraphQL 服务，有自己的 schema、自己的部署、
-                自己的语言），然后由一个 <strong>Router</strong>
+                （一个独立的 GraphQL 服务，有自己的 schema、自己的部署、自己的语言），然后由一个 <strong>Router</strong>
                 把它们组合成一张对客户端而言完整的
                 <strong>supergraph</strong>。
               </p>
@@ -2801,20 +2698,15 @@ export const fedMentalModel: Module = {
               </p>
               <p>
                 关键在 <code>Review</code> 那一行：
-                <strong>Reviews 服务需要说「这条评论是谁写的、评的哪个商品」</strong>，
-                但它自己没有用户表和商品表。它只有 id。
+                <strong>Reviews 服务需要说「这条评论是谁写的、评的哪个商品」</strong>，但它自己没有用户表和商品表。它只有 id。
               </p>
               <p>
                 Federation 的答案是：Reviews 服务在自己的 schema 里
-                <strong>声明一个只有 id 的 User 和 Product</strong>，
-                标上 <code>@key</code>，剩下的字段（name、price）
-                由 Router 去对应的 subgraph 补齐。
+                <strong>声明一个只有 id 的 User 和 Product</strong>，标上 <code>@key</code>，剩下的字段（name、price）由 Router 去对应的 subgraph 补齐。
               </p>
               <p>
                 <strong>本项目就是这个模式的一半。</strong>
-                <code>node-subgraph</code> 是「Orders 服务」，
-                它需要往 <code>User</code> 上挂一个 <code>orders</code> 字段，
-                但它不拥有 User。所以它的 schema 里有：
+                <code>node-subgraph</code> 是「Orders 服务」，它需要往 <code>User</code> 上挂一个 <code>orders</code> 字段，但它不拥有 User。所以它的 schema 里有：
               </p>
             </>
           ),
@@ -2918,22 +2810,18 @@ type Review { id body author: User product: Product }`,
           body: (
             <>
               <p>
-                客户端也可以先请求 Accounts 拿 user，再请求 Orders 拿订单，
-                自己拼起来。为什么要 Router？
+                客户端也可以先请求 Accounts 拿 user，再请求 Orders 拿订单，自己拼起来。为什么要 Router？
               </p>
               <ul>
                 <li>
                   <strong>往返次数。</strong>
-                  客户端拼需要 N 次网络往返（而且往往是串行的，
-                  因为第二个请求需要第一个的 id）。Router 在
-                  <strong>数据中心内部</strong>完成这些跳转，
-                  客户端只发一次请求。移动网络下这个差别是几百毫秒。
+                  客户端拼需要 N 次网络往返（而且往往是串行的，因为第二个请求需要第一个的 id）。Router 在
+                  <strong>数据中心内部</strong>完成这些跳转，客户端只发一次请求。移动网络下这个差别是几百毫秒。
                 </li>
                 <li>
                   <strong>一致的类型系统。</strong>
                   客户端不需要知道「哪个字段在哪个服务」——
-                  这个知识是会变的（服务拆分/合并），
-                  写进客户端就等于每次后端重构都要发新版 App。
+                  这个知识是会变的（服务拆分/合并），写进客户端就等于每次后端重构都要发新版 App。
                 </li>
                 <li>
                   <strong>统一的横切关注点。</strong>
@@ -2941,9 +2829,7 @@ type Review { id body author: User product: Product }`,
                 </li>
               </ul>
               <p>
-                <strong>代价</strong>也要说清楚：多了一跳（Router 本身的延迟）、
-                查询计划可能是串行的（下一节会展开）、
-                组合失败会让整个 supergraph 起不来。
+                <strong>代价</strong>也要说清楚：多了一跳（Router 本身的延迟）、查询计划可能是串行的（下一节会展开）、组合失败会让整个 supergraph 起不来。
                 <strong>书面题 1 问的就是这里的第二条。</strong>
               </p>
             </>
@@ -3025,16 +2911,14 @@ type Review { id body author: User product: Product }`,
                       <td>Router / Gateway</td>
                       <td>❌ 不在</td>
                       <td>
-                        没有 <code>supergraph.yaml</code>、没有 rover、
-                        没有 <code>@apollo/gateway</code> 依赖
+                        没有 <code>supergraph.yaml</code>、没有 rover、没有 <code>@apollo/gateway</code> 依赖
                       </td>
                     </tr>
                     <tr>
                       <td>java-service（REST）</td>
                       <td>✅ 在，但<strong>不是 subgraph</strong></td>
                       <td>
-                        纯 Spring Web REST，没有任何 GraphQL 依赖；
-                        subgraph 也不调它（用的是 mock 数据源）
+                        纯 Spring Web REST，没有任何 GraphQL 依赖；subgraph 也不调它（用的是 mock 数据源）
                       </td>
                     </tr>
                   </tbody>
@@ -3048,9 +2932,7 @@ type Review { id body author: User product: Product }`,
               </p>
               <p>
                 <strong>那怎么在本地验证 Federation 部分？</strong>
-                两个办法，下一节会实际用：
-                查询 <code>{"{ _service { sdl } }"}</code> 拿 federation SDL，
-                以及直接调 <code>_entities</code> ——
+                两个办法，下一节会实际用：查询 <code>{"{ _service { sdl } }"}</code> 拿 federation SDL，以及直接调 <code>_entities</code> ——
                 这两个正是 Router 会对你的 subgraph 发的请求。
               </p>
             </>
@@ -3143,14 +3025,11 @@ type Review { id body author: User product: Product }`,
           answer: ["b"],
           explain: (
             <>
-              Federation 首先是一个<strong>组织问题的技术方案</strong>：
-              schema 所有权的拆分。
+              Federation 首先是一个<strong>组织问题的技术方案</strong>：schema 所有权的拆分。
               <br />
-              A 恰恰相反 —— 多一跳 Router、可能串行的查询计划，
-              单次查询通常<strong>更慢</strong>。
+              A 恰恰相反 —— 多一跳 Router、可能串行的查询计划，单次查询通常<strong>更慢</strong>。
               <br />
-              D 是 DataLoader 解决的问题，和 Federation 是两件事
-              （虽然这个项目里两者都考）。
+              D 是 DataLoader 解决的问题，和 Federation 是两件事（虽然这个项目里两者都考）。
             </>
           ),
           explainEn: (
@@ -3196,8 +3075,7 @@ type Review { id body author: User product: Product }`,
               <br />
               B：只在 schema 里通过 <code>@external</code> 被引用。
               <br />
-              D：<strong>subgraph 用的是 mock 数据源</strong>，
-              不发 HTTP 到 8080。两个服务在代码层面无关联 ——
+              D：<strong>subgraph 用的是 mock 数据源</strong>，不发 HTTP 到 8080。两个服务在代码层面无关联 ——
               别浪费时间找它。
               <br />
               C 在，而且是你必须精读的文件。
@@ -3290,11 +3168,9 @@ type Review { id body author: User product: Product }`,
               <ol>
                 <li>
                   <strong>读 schema 文件。</strong>
-                  <code>readFileSync(join(__dirname, &apos;schema.graphql&apos;))</code>，
-                  然后 <code>gql(...)</code> 把字符串解析成 AST。
+                  <code>readFileSync(join(__dirname, &apos;schema.graphql&apos;))</code>，然后 <code>gql(...)</code> 把字符串解析成 AST。
                   <br />
-                  （<code>__dirname</code> 在 ESM 里不是内置的，
-                  所以上面用 <code>fileURLToPath(import.meta.url)</code>
+                  （<code>__dirname</code> 在 ESM 里不是内置的，所以上面用 <code>fileURLToPath(import.meta.url)</code>
                   手动算了一个 —— 这是 ESM 项目的标准写法。）
                 </li>
                 <li>
@@ -3316,8 +3192,7 @@ type Review { id body author: User product: Product }`,
               </ol>
               <p>
                 <code>formatError</code> 那段值得注意：它<strong>原样返回</strong>
-                <code>formattedError</code>，只是顺手打了日志。
-                也就是说<strong>你在 resolver 里放进
+                <code>formattedError</code>，只是顺手打了日志。也就是说<strong>你在 resolver 里放进
                 <code>extensions</code> 的东西会被客户端看到</strong> ——
                 这是「结构化错误」能起作用的前提。
               </p>
@@ -3374,27 +3249,20 @@ type Review { id body author: User product: Product }`,
           body: (
             <>
               <p>
-                普通 GraphQL 服务用 <code>makeExecutableSchema</code>。
-                subgraph 用 <code>buildSubgraphSchema</code>
-                （来自 <code>@apollo/subgraph</code>）。
-                后者多做三件事：
+                普通 GraphQL 服务用 <code>makeExecutableSchema</code>。subgraph 用 <code>buildSubgraphSchema</code>
+                （来自 <code>@apollo/subgraph</code>）。后者多做三件事：
               </p>
               <ol>
                 <li>
                   <strong>认识 federation 的 directive</strong>：
                   <code>@key</code>、<code>@external</code>、
-                  <code>@shareable</code> 等。
-                  普通 schema 遇到它们会报「未知指令」。
+                  <code>@shareable</code> 等。普通 schema 遇到它们会报「未知指令」。
                 </li>
                 <li>
-                  <strong>自动加一个 <code>_service</code> 字段</strong>，
-                  返回本 subgraph 的 federation SDL。
-                  Router 启动时就是靠查这个字段来收集 schema 的。
+                  <strong>自动加一个 <code>_service</code> 字段</strong>，返回本 subgraph 的 federation SDL。Router 启动时就是靠查这个字段来收集 schema 的。
                 </li>
                 <li>
-                  <strong>自动加一个 <code>_entities</code> 字段</strong>，
-                  接收一批 entity representation，返回对应的对象。
-                  Router 在运行时靠它做跨服务的实体解析。
+                  <strong>自动加一个 <code>_entities</code> 字段</strong>，接收一批 entity representation，返回对应的对象。Router 在运行时靠它做跨服务的实体解析。
                 </li>
               </ol>
               <p>
@@ -3468,14 +3336,11 @@ const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);`,
               </p>
               <p>
                 <strong>办法二：进程内执行，不起服务器。</strong>
-                直接用 <code>buildSubgraphSchema</code> 造出 schema，
-                再用 <code>graphql()</code> 执行查询。
-                <strong>好处是不占端口、不需要等服务器起来、
-                可以在一个脚本里跑一串查询。</strong>
+                直接用 <code>buildSubgraphSchema</code> 造出 schema，再用 <code>graphql()</code> 执行查询。
+                <strong>好处是不占端口、不需要等服务器起来、可以在一个脚本里跑一串查询。</strong>
               </p>
               <p>
-                下面这个脚本是编写本课时实际用来验证的工具。
-                它把 federation 的关键路径全跑了一遍 ——
+                下面这个脚本是编写本课时实际用来验证的工具。它把 federation 的关键路径全跑了一遍 ——
                 包括 <code>_entities</code>，也就是 Router 会发的那个请求。
                 <strong>做完 Task 1 之后强烈建议你也写一个类似的。</strong>
               </p>
@@ -3659,8 +3524,7 @@ _entities: {"_entities":[{"id":"123","orders":[{"id":"order-456"},{"id":"order-4
                 <li>
                   <strong>import 要带 <code>.js</code>。</strong>
                   <code>from &apos;./resolvers/orderResolvers.js&apos;</code> ——
-                  这个项目是原生 ESM（<code>&quot;type&quot;: &quot;module&quot;</code>），
-                  不走打包器，所以扩展名必须写。Foundations 那门课有个
+                  这个项目是原生 ESM（<code>&quot;type&quot;: &quot;module&quot;</code>），不走打包器，所以扩展名必须写。Foundations 那门课有个
                   Debug Lab 专门练这个。
                 </li>
                 <li>
@@ -3734,8 +3598,7 @@ _entities: {"_entities":[{"id":"123","orders":[{"id":"order-456"},{"id":"order-4
           explain: (
             <>
               <code>buildSubgraphSchema</code>（来自
-              <code>@apollo/subgraph</code>）在组装 schema 时
-              自动加上 <code>_service</code> 和 <code>_entities</code>
+              <code>@apollo/subgraph</code>）在组装 schema 时自动加上 <code>_service</code> 和 <code>_entities</code>
               两个字段，以及 federation 的各种 directive 定义。
               <br />
               这也是它和普通 <code>makeExecutableSchema</code> 的核心区别。
@@ -3785,12 +3648,10 @@ _entities: {"_entities":[{"id":"123","orders":[{"id":"order-456"},{"id":"order-4
           answer: ["c"],
           explain: (
             <>
-              <code>_entities</code> 就是 Router 会发的那个请求。
-              直接查它，等于在本地复现了 federation 链路的关键一跳。
+              <code>_entities</code> 就是 Router 会发的那个请求。直接查它，等于在本地复现了 federation 链路的关键一跳。
               <br />
               D 不对：<code>Query.orders</code> 和 <code>User.orders</code>
-              是<strong>两个不同的 resolver</strong>，
-              走的路径也不同（后者要先经过
+              是<strong>两个不同的 resolver</strong>，走的路径也不同（后者要先经过
               <code>__resolveReference</code>）。两个都要验。
               <br />
               B 可行但没必要，而且擅自加依赖在考试里是风险动作。
@@ -3883,9 +3744,7 @@ _entities: {"_entities":[{"id":"123","orders":[{"id":"order-456"},{"id":"order-4
           body: (
             <>
               <p>
-                <strong>entity（实体）</strong>是「同一个东西在多个 subgraph 里
-                都有一部分字段」的类型。<code>User</code> 就是：
-                Accounts 有它的 name/email，本项目有它的 orders。
+                <strong>entity（实体）</strong>是「同一个东西在多个 subgraph 里都有一部分字段」的类型。<code>User</code> 就是：Accounts 有它的 name/email，本项目有它的 orders。
               </p>
               <p>
                 要成为 entity，类型必须声明
@@ -3895,20 +3754,16 @@ _entities: {"_entities":[{"id":"123","orders":[{"id":"order-456"},{"id":"order-4
               <p>
                 <code>@key(fields: &quot;id&quot;)</code> 读作：
                 <strong>「拿 <code>id</code> 这个字段就能唯一定位一个 User」。</strong>
-                于是 Router 只要手里有 <code>{'{ __typename: "User", id: "123" }'}</code>，
-                就能去任何声明了这个 key 的 subgraph 补齐字段。
+                于是 Router 只要手里有 <code>{'{ __typename: "User", id: "123" }'}</code>，就能去任何声明了这个 key 的 subgraph 补齐字段。
               </p>
               <p>
                 <strong>@key 可以是复合的</strong>：
-                <code>@key(fields: &quot;orgId userId&quot;)</code> 表示
-                要两个字段才能定位。也可以有<strong>多个</strong> @key
-                （同一个类型能用几种方式定位）。本项目只用了最简单的单字段形式。
+                <code>@key(fields: &quot;orgId userId&quot;)</code> 表示要两个字段才能定位。也可以有<strong>多个</strong> @key（同一个类型能用几种方式定位）。本项目只用了最简单的单字段形式。
               </p>
               <p>
                 <strong>不是 entity 的类型呢？</strong>
                 看这份 schema：<code>Order</code>、<code>OrderItem</code>、
-                <code>ShippingInfo</code> 都<strong>没有</strong> <code>@key</code>。
-                因为它们只在本 subgraph 里存在，别的服务不需要引用它们。
+                <code>ShippingInfo</code> 都<strong>没有</strong> <code>@key</code>。因为它们只在本 subgraph 里存在，别的服务不需要引用它们。
                 <strong>没必要就不要加 @key</strong> ——
                 加了反而要维护 <code>__resolveReference</code>。
               </p>
@@ -3988,8 +3843,7 @@ type Order {                     # ← not an entity: no @key
             <>
               <p>
                 <code>id: ID! @external</code> 的意思是
-                <strong>「这个字段由别的 subgraph 定义和提供，
-                我只是需要它来完成 @key」</strong>。
+                <strong>「这个字段由别的 subgraph 定义和提供，我只是需要它来完成 @key」</strong>。
               </p>
               <p>
                 所以本项目<strong>不需要</strong>为 <code>User.id</code>
@@ -4001,8 +3855,7 @@ type Order {                     # ← not an entity: no @key
               </p>
               <p>
                 <strong>一个诚实的注解：</strong>
-                在 Federation 2 里，为一个自己不拥有的 entity 加字段，
-                标准写法其实是 <code>type User @key(fields: &quot;id&quot;)</code>
+                在 Federation 2 里，为一个自己不拥有的 entity 加字段，标准写法其实是 <code>type User @key(fields: &quot;id&quot;)</code>
                 加上普通的 <code>id: ID!</code>（不用 <code>@external</code>）。
                 <code>@external</code> 更多是 Federation 1 的遗留写法。
                 <strong>但这个项目就是这么写的，而且
@@ -4058,8 +3911,7 @@ type Order {                     # ← not an entity: no @key
                 <code>User.__resolveReference</code>。
               </p>
               <p>
-                <strong>它的职责：</strong>拿到这个「引用」，
-                返回一个本地能用的对象。这个返回值会成为
+                <strong>它的职责：</strong>拿到这个「引用」，返回一个本地能用的对象。这个返回值会成为
                 <strong>下游所有字段 resolver 的 <code>parent</code></strong>。
               </p>
               <p>
@@ -4067,14 +3919,11 @@ type Order {                     # ← not an entity: no @key
               </p>
               <p>
                 <strong>为什么这么简单就够了？</strong>
-                因为本 subgraph 只贡献 <code>orders</code> 一个字段，
-                而算 orders 只需要 <code>user.id</code>。
-                不需要去查用户表 —— 本项目也没有用户表。
+                因为本 subgraph 只贡献 <code>orders</code> 一个字段，而算 orders 只需要 <code>user.id</code>。不需要去查用户表 —— 本项目也没有用户表。
               </p>
               <p>
                 <strong>这一行是理解 User.orders 的钥匙：</strong>
-                <code>__resolveReference</code> 返回 <code>{'{ id: "123" }'}</code>，
-                所以你写的 <code>User.orders(user, ...)</code> 里那个
+                <code>__resolveReference</code> 返回 <code>{'{ id: "123" }'}</code>，所以你写的 <code>User.orders(user, ...)</code> 里那个
                 <code>user</code> 就是 <code>{'{ id: "123" }'}</code>，
                 <code>user.id</code> 就是 <code>&quot;123&quot;</code>。
                 <strong>它上面没有 name、没有 email</strong> ——
@@ -4082,8 +3931,7 @@ type Order {                     # ← not an entity: no @key
               </p>
               <p>
                 测试也是这么模拟的：
-                <code>const user = {"{ id: '123' }"}</code>，
-                然后 <code>resolvers.User.orders(user, {"{}"}, context)</code>。
+                <code>const user = {"{ id: '123' }"}</code>，然后 <code>resolvers.User.orders(user, {"{}"}, context)</code>。
                 <strong>直接调 resolver 函数，绕过了整个 GraphQL 执行器</strong>——
                 这就是为什么这些测试跑得那么快（0.16 秒）。
               </p>
@@ -4192,8 +4040,7 @@ type Order {                     # ← not an entity: no @key
           body: (
             <>
               <p>
-                把上面所有东西串起来。这张图六步走完 Router 的实体解析，
-                其中第 5 步就是你要写的代码被调用的地方：
+                把上面所有东西串起来。这张图六步走完 Router 的实体解析，其中第 5 步就是你要写的代码被调用的地方：
               </p>
               {ENTITY_FLOW}
             </>
@@ -4237,14 +4084,11 @@ type Order {                     # ← not an entity: no @key
           answer: ["b"],
           explain: (
             <>
-              <code>@key</code> 声明的是<strong>跨服务的身份识别方式</strong>。
-              它和数据库主键<strong>没有必然关系</strong>（可以是任何能唯一定位的字段组合）。
+              <code>@key</code> 声明的是<strong>跨服务的身份识别方式</strong>。它和数据库主键<strong>没有必然关系</strong>（可以是任何能唯一定位的字段组合）。
               <br />
-              判断口诀：<strong>看到 @key 不要先背语法，
-              先问「另一个服务需要用哪个字段找到这个对象？」</strong>
+              判断口诀：<strong>看到 @key 不要先背语法，先问「另一个服务需要用哪个字段找到这个对象？」</strong>
               <br />
-              C 是 <code>ID!</code> 那个感叹号在说的事；
-              D 是 <code>Query</code> 字段参数的事，都和 @key 无关。
+              C 是 <code>ID!</code> 那个感叹号在说的事；D 是 <code>Query</code> 字段参数的事，都和 @key 无关。
             </>
           ),
           explainEn: (
@@ -4275,8 +4119,7 @@ type Order {                     # ← not an entity: no @key
           level: 1,
           prompt: (
             <p>
-              <code>__resolveReference</code> 返回 <code>{'{ id: user.id }'}</code>。
-              那么 <code>User.orders(user, ...)</code> 里的 <code>user</code>
+              <code>__resolveReference</code> 返回 <code>{'{ id: user.id }'}</code>。那么 <code>User.orders(user, ...)</code> 里的 <code>user</code>
               上有哪些属性？
             </p>
           ),
@@ -4302,8 +4145,7 @@ type Order {                     # ← not an entity: no @key
               <code>parent</code> 就是什么。它返回的是
               <code>{'{ id: user.id }'}</code>，一个属性。
               <br />
-              这也是本项目的合理设计 —— 它没有用户表，
-              name/email 是 Accounts subgraph 的事。
+              这也是本项目的合理设计 —— 它没有用户表，name/email 是 Accounts subgraph 的事。
               <br />
               <strong>实践含义：你的 orders resolver 只能用
               <code>user.id</code>。</strong>
@@ -4336,8 +4178,7 @@ type Order {                     # ← not an entity: no @key
           level: 2,
           prompt: (
             <p>
-              三个空。第一个是 directive，第二个是标记「这不是我的字段」，
-              第三个是引用解析要返回什么。
+              三个空。第一个是 directive，第二个是标记「这不是我的字段」，第三个是引用解析要返回什么。
             </p>
           ),
           promptEn: (
@@ -4373,8 +4214,7 @@ type User ___1___(fields: "id") {
                 "The directive that says which field identifies the object across services.",
               why: (
                 <>
-                  <code>@key</code>。它让 <code>User</code> 成为一个 entity，
-                  Router 因此知道「给我 id 就能在这个 subgraph 里找到 User」。
+                  <code>@key</code>。它让 <code>User</code> 成为一个 entity，Router 因此知道「给我 id 就能在这个 subgraph 里找到 User」。
                   <br />
                   注意它必须写在<strong>类型名后面</strong>，不是字段上。
                 </>
@@ -4403,8 +4243,7 @@ type User ___1___(fields: "id") {
                   定义的，所以不需要为它写 resolver。
                   <br />
                   <strong>而 <code>orders</code> 上没有它</strong> ——
-                  说明那个字段是本 subgraph 贡献的，必须自己实现。
-                  这一个对比就能看出「哪个字段是我的责任」。
+                  说明那个字段是本 subgraph 贡献的，必须自己实现。这一个对比就能看出「哪个字段是我的责任」。
                 </>
               ),
               whyEn: (
@@ -4431,8 +4270,7 @@ type User ___1___(fields: "id") {
               why: (
                 <>
                   <code>user.id</code>。传进来的 <code>user</code> 是
-                  <code>{'{ __typename: "User", id: "123" }'}</code>，
-                  取出 id 原样返回即可。
+                  <code>{'{ __typename: "User", id: "123" }'}</code>，取出 id 原样返回即可。
                   <br />
                   <strong>返回值会成为下游所有字段 resolver 的 parent</strong> ——
                   所以你的 <code>orders</code> resolver 里
@@ -4527,24 +4365,19 @@ type User ___1___(fields: "id") {
           body: (
             <>
               <p>
-                回忆执行流程：<code>Query.orders</code> 返回 N 个 order，
-                然后执行器<strong>对每一个 order 分别调</strong>
+                回忆执行流程：<code>Query.orders</code> 返回 N 个 order，然后执行器<strong>对每一个 order 分别调</strong>
                 <code>Order.shippingInfo</code>。
               </p>
               <p>
                 所以如果 <code>shippingInfo</code> 的实现是直接调数据源：
               </p>
               <p>
-                查 2 个订单 → 3 次数据源调用（1 次取列表 + 2 次取物流）。
-                查 100 个订单 → <strong>101 次</strong>。
-                这就是 <strong>N+1 问题</strong>：1 次主查询 + N 次子查询。
+                查 2 个订单 → 3 次数据源调用（1 次取列表 + 2 次取物流）。查 100 个订单 → <strong>101 次</strong>。这就是 <strong>N+1 问题</strong>：1 次主查询 + N 次子查询。
               </p>
               <p>
                 <strong>为什么在 GraphQL 里特别严重？</strong>
                 因为客户端决定形状 —— 后端<strong>无法预知</strong>
-                这次查询会不会展开 shippingInfo。REST 里你可以手写一个
-                「带物流的订单列表」接口，用一次 JOIN 解决；
-                GraphQL 里每个字段的 resolver 是独立的，各自不知道别人的存在。
+                这次查询会不会展开 shippingInfo。REST 里你可以手写一个「带物流的订单列表」接口，用一次 JOIN 解决；GraphQL 里每个字段的 resolver 是独立的，各自不知道别人的存在。
               </p>
             </>
           ),
@@ -4611,15 +4444,11 @@ async shippingInfo(parent, _, { dataSources }) {
           body: (
             <>
               <p>
-                你调 <code>loader.load(&apos;order-456&apos;)</code>，
-                DataLoader <strong>不会立刻</strong>去取数据。
-                它把这个 key 记下来，返回一个 Promise，
-                然后<strong>等当前这一轮微任务结束</strong>。
+                你调 <code>loader.load(&apos;order-456&apos;)</code>，DataLoader <strong>不会立刻</strong>去取数据。它把这个 key 记下来，返回一个 Promise，然后<strong>等当前这一轮微任务结束</strong>。
               </p>
               <p>
                 因为执行器是在<strong>同一个 tick 里</strong>对所有 order
-                调 <code>shippingInfo</code> 的，所以这一轮结束时，
-                DataLoader 手上已经攒了 N 个 key。这时它调<strong>一次</strong>
+                调 <code>shippingInfo</code> 的，所以这一轮结束时，DataLoader 手上已经攒了 N 个 key。这时它调<strong>一次</strong>
                 你给的 batch 函数，把整个数组传进去。
               </p>
               <p>
@@ -4636,9 +4465,7 @@ async shippingInfo(parent, _, { dataSources }) {
                 <strong>一行，不是两行</strong>。这就是合并生效的证据。
               </p>
               <p>
-                <strong>另外 DataLoader 自带缓存</strong>：
-                同一个请求里对同一个 key 调多次 <code>load()</code>，
-                只会真的取一次。这对「同一个 order 在查询里出现两次」的场景很有用。
+                <strong>另外 DataLoader 自带缓存</strong>：同一个请求里对同一个 key 调多次 <code>load()</code>，只会真的取一次。这对「同一个 order 在查询里出现两次」的场景很有用。
               </p>
             </>
           ),
@@ -4737,15 +4564,12 @@ async shippingInfo(parent, _, { dataSources }) {
                 <strong>「找不到」怎么办？</strong>
                 在对应位置放 <code>null</code>（或一个 Error 对象），
                 <strong>不要跳过</strong>。这个项目的
-                <code>getShippingInfo</code> 正是这么设计的：
-                order-999 没有物流，返回 <code>null</code>，
-                数组长度不变。
+                <code>getShippingInfo</code> 正是这么设计的：order-999 没有物流，返回 <code>null</code>，数组长度不变。
               </p>
               <p>
                 真实系统里如果 batch 函数调的是
                 <code>WHERE id IN (...)</code> 这种批量查询，
-                <strong>数据库返回的顺序不保证和你传进去的一致，
-                而且缺失的行不会返回</strong>。这时必须自己重排：
+                <strong>数据库返回的顺序不保证和你传进去的一致，而且缺失的行不会返回</strong>。这时必须自己重排：
               </p>
             </>
           ),
@@ -4826,8 +4650,7 @@ new DataLoader(async ids => {
           body: (
             <>
               <p>
-                DataLoader 的缓存<strong>没有过期机制</strong>。
-                一旦某个 key 被 load 过，之后同一个 loader 实例上的
+                DataLoader 的缓存<strong>没有过期机制</strong>。一旦某个 key 被 load 过，之后同一个 loader 实例上的
                 <code>load(同一个key)</code> 永远返回缓存值。
               </p>
               <p>如果建在模块顶层（一个全局实例），后果是：</p>
@@ -4838,20 +4661,17 @@ new DataLoader(async ids => {
                 </li>
                 <li>
                   <strong>跨请求数据泄漏。</strong>
-                  如果 loader 的实现里带了权限过滤，
-                  用户 A 的缓存会被用户 B 看到。<strong>这是安全问题。</strong>
+                  如果 loader 的实现里带了权限过滤，用户 A 的缓存会被用户 B 看到。<strong>这是安全问题。</strong>
                 </li>
               </ul>
               <p>
                 所以正确做法就是 <code>index.js</code> 里那样 ——
                 在 <code>context</code> 函数里 <code>new</code>，
-                <strong>每个请求一套全新的 loader</strong>。
-                请求结束，loader 和它的缓存一起被回收。
+                <strong>每个请求一套全新的 loader</strong>。请求结束，loader 和它的缓存一起被回收。
               </p>
               <p>
                 测试文件里的 <code>beforeEach</code> 也是同一个道理 ——
-                每个测试用例都重建 dataSources 和 loaders，
-                避免上一个用例的缓存影响下一个。
+                每个测试用例都重建 dataSources 和 loaders，避免上一个用例的缓存影响下一个。
               </p>
             </>
           ),
@@ -4956,22 +4776,19 @@ export const resolvers = {
                 <code>createOrderLoader</code> <strong>有问题</strong>。
               </p>
               <p>
-                对照 <code>OrderDataSource</code> 的方法名看一眼：
-                它有 <code>getOrder(id)</code>、
+                对照 <code>OrderDataSource</code> 的方法名看一眼：它有 <code>getOrder(id)</code>、
                 <code>getOrdersByUserId(userId)</code>、
                 <code>createOrder(userId, items)</code> 三个方法。
                 <strong>没有 <code>getOrderById</code>。</strong>
               </p>
               <p>
                 所以这个 loader 一被使用就会抛
-                <code>TypeError: orderDataSource.getOrderById is not a function</code>。
-                编写本课时实测：测试 <code>should batch multiple order requests</code>
+                <code>TypeError: orderDataSource.getOrderById is not a function</code>。编写本课时实测：测试 <code>should batch multiple order requests</code>
                 就是因为这个失败的。
               </p>
               <p>
                 这是三个埋雷之一，后面会有专门一节讲怎么系统地找出它们。
-                <strong>现在只要记住这个教训：写 resolver 之前，
-                先把数据源的方法名抄一遍。</strong>
+                <strong>现在只要记住这个教训：写 resolver 之前，先把数据源的方法名抄一遍。</strong>
               </p>
             </>
           ),
@@ -5059,15 +4876,13 @@ export const resolvers = {
           explain: (
             <>
               DataLoader 用的是 JavaScript 的微任务队列：
-              <code>load()</code> 只登记 key 并返回 Promise，
-              当前 tick 的所有同步代码跑完后，才把攒到的 keys
+              <code>load()</code> 只登记 key 并返回 Promise，当前 tick 的所有同步代码跑完后，才把攒到的 keys
               一次性交给 batch 函数。
               <br />
               GraphQL 执行器正好是在同一个 tick 里对所有 order 调
               <code>shippingInfo</code> 的，所以合并才成立。
               <br />
-              D 描述的是它的<strong>另一个</strong>功能（同请求内缓存），
-              不是合并机制 —— 而且缓存不能跨请求，否则是 bug。
+              D 描述的是它的<strong>另一个</strong>功能（同请求内缓存），不是合并机制 —— 而且缓存不能跨请求，否则是 bug。
             </>
           ),
           explainEn: (
@@ -5095,8 +4910,7 @@ export const resolvers = {
           level: 1,
           prompt: (
             <p>
-              batch 函数收到 <code>ids = [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;]</code>，
-              其中 b 在数据库里不存在。下面哪种返回是<strong>错的</strong>？
+              batch 函数收到 <code>ids = [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;]</code>，其中 b 在数据库里不存在。下面哪种返回是<strong>错的</strong>？
             </p>
           ),
           promptEn: (
@@ -5116,10 +4930,7 @@ export const resolvers = {
           answer: ["b"],
           explain: (
             <>
-              B 违反了「长度必须等于 keys 长度」这条硬约束。
-              DataLoader 分发结果之前会先检查长度，不相等就直接抛 TypeError
-              （<code>… the same length as the Array of keys</code>），
-              这一批三个 <code>load()</code> 全部失败。
+              B 违反了「长度必须等于 keys 长度」这条硬约束。DataLoader 分发结果之前会先检查长度，不相等就直接抛 TypeError（<code>… the same length as the Array of keys</code>），这一批三个 <code>load()</code> 全部失败。
               <br />
               更隐蔽的是<strong>长度对、顺序错</strong>：比如返回
               <code>[rowA, rowC, null]</code>，DataLoader 会把 <code>rowC</code>
@@ -5165,8 +4976,7 @@ export const resolvers = {
           level: 2,
           prompt: (
             <p>
-              两个空。第一个要你填对数据源上<strong>真实存在</strong>的方法名，
-              第二个要你用 loader 而不是数据源。
+              两个空。第一个要你填对数据源上<strong>真实存在</strong>的方法名，第二个要你用 loader 而不是数据源。
             </p>
           ),
           promptEn: (
@@ -5221,9 +5031,7 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
                   <code>getOrder</code>、<code>getOrdersByUserId</code>、
                   <code>createOrder</code> 三个方法。
                   <br />
-                  <strong>starter 代码里写的是 <code>getOrderById</code>，
-                  这个方法不存在</strong> —— 这是项目里三个埋雷之一，
-                  会导致 <code>TypeError: ... is not a function</code>。
+                  <strong>starter 代码里写的是 <code>getOrderById</code>，这个方法不存在</strong> —— 这是项目里三个埋雷之一，会导致 <code>TypeError: ... is not a function</code>。
                   <br />
                   教训：<strong>写 resolver 前先把数据源的方法名抄一遍。</strong>
                 </>
@@ -5294,8 +5102,7 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
           level: 2,
           prompt: (
             <p>
-              跑 <code>npm test</code>，其中一个 DataLoader 相关的测试失败了。
-              报错指向 loader 内部。
+              跑 <code>npm test</code>，其中一个 DataLoader 相关的测试失败了。报错指向 loader 内部。
             </p>
           ),
           promptEn: (
@@ -5414,25 +5221,21 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
               <p>
                 <code>OrderDataSource</code> 上只有三个方法：
                 <code>getOrder</code>、<code>getOrdersByUserId</code>、
-                <code>createOrder</code>。<code>getOrderById</code> 不存在，
-                所以它是 <code>undefined</code>，调用 undefined 抛 TypeError。
+                <code>createOrder</code>。<code>getOrderById</code> 不存在，所以它是 <code>undefined</code>，调用 undefined 抛 TypeError。
               </p>
               <p>
                 <strong>为什么这个错这么容易犯？</strong>
                 因为 <code>getOrderById</code> 是个<strong>非常自然的名字</strong>——
-                很多项目就是这么命名的。出题人正是利用了这一点：
-                你会凭直觉往下写，而不去核对。
+                很多项目就是这么命名的。出题人正是利用了这一点：你会凭直觉往下写，而不去核对。
               </p>
               <p>
                 <strong>选项 D 为什么不行？</strong>
                 README 明确标了 <code>dataSources/orderDataSource.js</code> 是
-                <strong>PROVIDED</strong>（给好了，别动）。
-                改它可能导致判卷时被替换回原版，你的改动全废。
+                <strong>PROVIDED</strong>（给好了，别动）。改它可能导致判卷时被替换回原版，你的改动全废。
                 <strong>只改标了 EDIT THIS 的文件。</strong>
               </p>
               <p>
-                预防办法很朴素：<strong>写 resolver 之前，
-                打开数据源文件，把所有方法的名字和签名抄在纸上。</strong>
+                预防办法很朴素：<strong>写 resolver 之前，打开数据源文件，把所有方法的名字和签名抄在纸上。</strong>
                 本门课「读题」那节会给你一张现成的表。
               </p>
             </>

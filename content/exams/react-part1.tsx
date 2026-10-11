@@ -39,8 +39,7 @@ const RENDER_FLOW = (
             zh={
               <>
                 <code>NoteItem</code> 的 onClick 触发，调用从 props 拿到的{" "}
-                <code>onDelete(2)</code>。注意 NoteItem 自己<strong>不改任何数据</strong>，
-                它只负责把这次点击报告给父组件。
+                <code>onDelete(2)</code>。注意 NoteItem 自己<strong>不改任何数据</strong>，它只负责把这次点击报告给父组件。
               </>
             }
             en={
@@ -61,8 +60,7 @@ const RENDER_FLOW = (
           <T
             zh={
               <>
-                <code>NoteManager</code> 的 <code>handleDelete</code> 执行，
-                用 filter 算出新数组 <code>[1, 3]</code>，交给 <code>setNotes</code>。
+                <code>NoteManager</code> 的 <code>handleDelete</code> 执行，用 filter 算出新数组 <code>[1, 3]</code>，交给 <code>setNotes</code>。
                 <strong>此刻屏幕还没变</strong>，notes 变量也还是旧值。
               </>
             }
@@ -84,9 +82,7 @@ const RENDER_FLOW = (
           <T
             zh={
               <>
-                React 记下新值，然后<strong>把 NoteManager 整个函数重新执行一遍</strong>。
-                这一次 <code>notes</code> 是 <code>[1, 3]</code>，
-                于是 <code>notes.map(...)</code> 只产出两个 NoteItem。
+                React 记下新值，然后<strong>把 NoteManager 整个函数重新执行一遍</strong>。这一次 <code>notes</code> 是 <code>[1, 3]</code>，于是 <code>notes.map(...)</code> 只产出两个 NoteItem。
               </>
             }
             en={
@@ -108,8 +104,7 @@ const RENDER_FLOW = (
             zh={
               <>
                 React 对比前后两次渲染产出的元素树，发现少了一行，于是<strong>只删掉那一个
-                <code>&lt;tr&gt;</code></strong>，别的节点原样保留。
-                全程你没写一行 DOM 操作 —— 这就是 React 的价值。
+                <code>&lt;tr&gt;</code></strong>，别的节点原样保留。全程你没写一行 DOM 操作 —— 这就是 React 的价值。
               </>
             }
             en={
@@ -183,26 +178,19 @@ export const reactMentalModel: Module = {
           body: (
             <>
               <p>
-                看这个项目里最短的文件。<code>App</code> 是一个普通的 JavaScript 函数，
-                它没有参数，<code>return</code> 一个看起来像 HTML 的东西：
+                看这个项目里最短的文件。<code>App</code> 是一个普通的 JavaScript 函数，它没有参数，<code>return</code> 一个看起来像 HTML 的东西：
               </p>
               <p>
                 那个 <code>&lt;NoteManager /&gt;</code> 不是 HTML 标签 ——
-                HTML 里没有这个元素。它是在说「把 NoteManager 这个组件渲染在这里」。
-                这种「在 JavaScript 里直接写标签」的语法叫
-                <strong>JSX</strong>，它会被构建工具（这个项目里是 Vite）
-                翻译成普通的函数调用。
+                HTML 里没有这个元素。它是在说「把 NoteManager 这个组件渲染在这里」。这种「在 JavaScript 里直接写标签」的语法叫
+                <strong>JSX</strong>，它会被构建工具（这个项目里是 Vite）翻译成普通的函数调用。
               </p>
               <p>
                 <strong>为什么组件名必须大写开头？</strong>
                 因为 JSX 靠首字母区分两件事：小写开头（<code>&lt;div&gt;</code>、
-                <code>&lt;input&gt;</code>）当成真实 HTML 标签；
-                大写开头（<code>&lt;NoteManager /&gt;</code>）当成你的组件。
-                写成 <code>&lt;noteManager /&gt;</code>，React 会去找一个叫
-                notemanager 的 HTML 标签，页面上什么都不显示。它不会让页面崩溃，
-                但开发模式下控制台会打印{" "}
-                <code>The tag &lt;noteManager&gt; is unrecognized in this browser…</code>，
-                直接告诉你要大写开头。
+                <code>&lt;input&gt;</code>）当成真实 HTML 标签；大写开头（<code>&lt;NoteManager /&gt;</code>）当成你的组件。写成 <code>&lt;noteManager /&gt;</code>，React 会去找一个叫
+                notemanager 的 HTML 标签，页面上什么都不显示。它不会让页面崩溃，但开发模式下控制台会打印{" "}
+                <code>The tag &lt;noteManager&gt; is unrecognized in this browser…</code>，直接告诉你要大写开头。
               </p>
             </>
           ),
@@ -263,21 +251,18 @@ export default App;`,
           body: (
             <>
               <p>
-                看 <code>NoteItem</code>，这是这个项目里最纯粹的展示型组件。
-                它把这些规则都用到了：
+                看 <code>NoteItem</code>，这是这个项目里最纯粹的展示型组件。它把这些规则都用到了：
               </p>
               <ul>
                 <li>
                   <strong>只能返回一个根元素。</strong>
                   这里返回的是一个 <code>&lt;tr&gt;</code>，里面包着四个
-                  <code>&lt;td&gt;</code>。想并列返回两个同级元素，
-                  要用 <code>&lt;&gt;...&lt;/&gt;</code> 包起来。
+                  <code>&lt;td&gt;</code>。想并列返回两个同级元素，要用 <code>&lt;&gt;...&lt;/&gt;</code> 包起来。
                 </li>
                 <li>
                   <strong>花括号 <code>{"{}"}</code> 是「切回 JavaScript」的开关。</strong>
                   <code>{"{note.title}"}</code> 的意思是「这里放
-                  <code>note.title</code> 这个变量的值」。
-                  写成 <code>note.title</code>（不带花括号）会原样显示这十个字符。
+                  <code>note.title</code> 这个变量的值」。写成 <code>note.title</code>（不带花括号）会原样显示这十个字符。
                 </li>
                 <li>
                   <strong>属性名用 camelCase，<code>class</code> 要写 <code>className</code>。</strong>
@@ -381,9 +366,7 @@ export default NoteItem;`,
                 能同时影响表单和表格的地方 —— 所以三道题的代码全都写在它里面。
               </p>
               <p>
-                <code>NoteTable</code> 和 <code>NoteItem</code> 都是纯展示的：
-                它们不持有任何数据，只负责「把拿到的东西画出来」和
-                「把用户的点击原样上报给上面」。
+                <code>NoteTable</code> 和 <code>NoteItem</code> 都是纯展示的：它们不持有任何数据，只负责「把拿到的东西画出来」和「把用户的点击原样上报给上面」。
               </p>
             </>
           ),
@@ -438,17 +421,14 @@ export default NoteItem;`,
                 <code>const X: React.FC&lt;XProps&gt; = ({"{...}"}) =&gt; {"{...}"}</code>。
               </p>
               <p>
-                <code>React.FC</code> 是 React 提供的一个类型，
-                全称 <strong>Function Component</strong>。
-                <code>React.FC&lt;NoteItemProps&gt;</code> 的意思是：
-                「这是一个函数组件，它的 props 类型是 <code>NoteItemProps</code>」。
+                <code>React.FC</code> 是 React 提供的一个类型，全称 <strong>Function Component</strong>。
+                <code>React.FC&lt;NoteItemProps&gt;</code> 的意思是：「这是一个函数组件，它的 props 类型是 <code>NoteItemProps</code>」。
               </p>
               <p>
                 它不是必须的 —— 直接写
                 <code>function NoteItem(props: NoteItemProps) {"{...}"}</code>
                 完全等价。但这个项目统一用了 <code>React.FC</code>，
-                <strong>你写的代码应该跟着项目的风格</strong>。
-                考试不会因为风格扣分，但保持一致会让人觉得你读过代码。
+                <strong>你写的代码应该跟着项目的风格</strong>。考试不会因为风格扣分，但保持一致会让人觉得你读过代码。
               </p>
             </>
           ),
@@ -496,10 +476,7 @@ export default NoteItem;`,
           explain: (
             <>
               花括号是「切回 JavaScript」的开关。A 会原样显示
-              <code>note.title</code> 这十个字符；C 里的 <code>$</code> 只是普通文字，
-              后面的 <code>{"{note.title}"}</code> 照样是 JSX 表达式，页面会显示「$会议记录」这样
-              多一个 <code>$</code> 的结果 —— 模板字符串的 <code>$&#123;&#125;</code> 只在反引号里才有意义；
-              D 的 <code>value</code> 不是 <code>&lt;td&gt;</code> 的有效属性。
+              <code>note.title</code> 这十个字符；C 里的 <code>$</code> 只是普通文字，后面的 <code>{"{note.title}"}</code> 照样是 JSX 表达式，页面会显示「$会议记录」这样多一个 <code>$</code> 的结果 —— 模板字符串的 <code>$&#123;&#125;</code> 只在反引号里才有意义；D 的 <code>value</code> 不是 <code>&lt;td&gt;</code> 的有效属性。
             </>
           ),
           explainEn: (
@@ -522,8 +499,7 @@ export default NoteItem;`,
           level: 1,
           prompt: (
             <p>
-              Q1 的三个任务（Add / Delete / Edit）都要改动笔记列表。
-              这些逻辑主要写在哪个文件里？
+              Q1 的三个任务（Add / Delete / Edit）都要改动笔记列表。这些逻辑主要写在哪个文件里？
             </p>
           ),
           promptEn: (
@@ -541,11 +517,9 @@ export default NoteItem;`,
           answer: ["c"],
           explain: (
             <>
-              <code>notes</code> 这个 state 住在 <code>NoteManager</code> 里，
-              而三道题都是在改这个列表。<code>NoteForm</code> 只负责收集输入并
+              <code>notes</code> 这个 state 住在 <code>NoteManager</code> 里，而三道题都是在改这个列表。<code>NoteForm</code> 只负责收集输入并
               <code>onSubmit</code> 上报；<code>NoteItem</code> 只负责把点击
-              <code>onEdit</code> / <code>onDelete</code> 上报。
-              它们都不碰列表本身。
+              <code>onEdit</code> / <code>onDelete</code> 上报。它们都不碰列表本身。
             </>
           ),
           explainEn: (
@@ -581,10 +555,8 @@ export default function App() {
           ),
           why: (
             <>
-              JSX 用首字母大小写区分「HTML 标签」和「你的组件」。
-              小写开头会被当成一个不存在的 HTML 元素，页面上什么也不显示。
-              <strong>这类 bug 不会让页面崩溃，只留下一块空白</strong>；
-              开发模式下控制台会出现 <code>incorrect casing</code> /{" "}
+              JSX 用首字母大小写区分「HTML 标签」和「你的组件」。小写开头会被当成一个不存在的 HTML 元素，页面上什么也不显示。
+              <strong>这类 bug 不会让页面崩溃，只留下一块空白</strong>；开发模式下控制台会出现 <code>incorrect casing</code> /{" "}
               <code>is unrecognized in this browser</code> 的红字 —— 看到它们就检查首字母。
             </>
           ),
@@ -619,9 +591,7 @@ return (
           why: (
             <>
               JSX 只能返回一个根元素。这段会直接编译报错
-              <code>JSX expressions must have one parent element</code>。
-              解法是用真正的父元素（这里是 <code>&lt;tr&gt;</code>）
-              或者空标签 <code>&lt;&gt;...&lt;/&gt;</code> 包起来。
+              <code>JSX expressions must have one parent element</code>。解法是用真正的父元素（这里是 <code>&lt;tr&gt;</code>）或者空标签 <code>&lt;&gt;...&lt;/&gt;</code> 包起来。
             </>
           ),
           whyEn: (
@@ -723,8 +693,7 @@ return (
           body: (
             <>
               <p>
-                写 <code>&lt;NoteItem note={"{n}"} onDelete={"{handleDelete}"} /&gt;</code>，
-                等于调用 <code>NoteItem({"{ note: n, onDelete: handleDelete }"})</code>。
+                写 <code>&lt;NoteItem note={"{n}"} onDelete={"{handleDelete}"} /&gt;</code>，等于调用 <code>NoteItem({"{ note: n, onDelete: handleDelete }"})</code>。
                 <code>props</code> 没有任何魔法，就是一个普通对象。
               </p>
               <p>
@@ -733,9 +702,7 @@ return (
               </p>
               <p>
                 <strong>props 是只读的。</strong>子组件不许改它：
-                <code>note.title = &quot;新标题&quot;</code> 这种写法
-                在 React 里是禁止的（TypeScript 不一定拦得住你，
-                但界面不会更新，而且会引入极难查的 bug）。
+                <code>note.title = &quot;新标题&quot;</code> 这种写法在 React 里是禁止的（TypeScript 不一定拦得住你，但界面不会更新，而且会引入极难查的 bug）。
               </p>
             </>
           ),
@@ -771,17 +738,11 @@ return (
             <>
               <p>
                 看 <code>NoteTable</code>。它收到 <code>notes</code>、
-                <code>onDelete</code>、<code>onEdit</code> 三个 props，
-                然后<strong>原样</strong>传给每一个 <code>NoteItem</code>。
-                它自己什么都没改。
+                <code>onDelete</code>、<code>onEdit</code> 三个 props，然后<strong>原样</strong>传给每一个 <code>NoteItem</code>。它自己什么都没改。
               </p>
               <p>
                 这看起来很啰嗦 —— 为什么不让 <code>NoteItem</code>
-                直接找 <code>NoteManager</code> 拿数据？
-                因为只用 props 时<strong>没有这条路</strong>：
-                数据只能一层一层往下传。（React 另有 Context 专门解决跨很多层传数据，
-                变式五和 Cab Booking 会讲；这个项目只用 props。）这个限制听起来麻烦，
-                但它换来一个巨大的好处：<strong>任何时候你都能顺着 props
+                直接找 <code>NoteManager</code> 拿数据？因为只用 props 时<strong>没有这条路</strong>：数据只能一层一层往下传。（React 另有 Context 专门解决跨很多层传数据，变式五和 Cab Booking 会讲；这个项目只用 props。）这个限制听起来麻烦，但它换来一个巨大的好处：<strong>任何时候你都能顺着 props
                 往上找到数据的源头</strong>。数据出错时，只需要沿着一条链排查。
               </p>
             </>
@@ -860,16 +821,12 @@ return (
           body: (
             <>
               <p>
-                <code>NoteManager</code> 里定义了 <code>handleDelete</code>，
-                然后把它<strong>作为 props 传下去</strong>。
-                <code>NoteItem</code> 在按钮被点时调用它。
-                于是发生了一件事：
+                <code>NoteManager</code> 里定义了 <code>handleDelete</code>，然后把它<strong>作为 props 传下去</strong>。
+                <code>NoteItem</code> 在按钮被点时调用它。于是发生了一件事：
                 <strong>点击发生在最底层，state 修改发生在最顶层。</strong>
               </p>
               <p>
-                这个模式的命名习惯是：<strong>props 叫 <code>onXxx</code>，
-                处理函数叫 <code>handleXxx</code></strong>。
-                这个项目严格遵守了它：
+                这个模式的命名习惯是：<strong>props 叫 <code>onXxx</code>，处理函数叫 <code>handleXxx</code></strong>。这个项目严格遵守了它：
                 <code>onDelete</code> ← <code>handleDelete</code>、
                 <code>onEdit</code> ← <code>handleEdit</code>、
                 <code>onSubmit</code> ← <code>handleSubmitNote</code>。
@@ -967,17 +924,12 @@ const handleDelete = (id: number) => {
                 </li>
                 <li>
                   <code>onClick={"{onDelete(note.id)}"}</code> ✗
-                  这是<strong>立刻调用</strong>，然后把它的返回值
-                  （<code>undefined</code>）交给 onClick。
-                  结果：<strong>组件一渲染就触发删除</strong>，
-                  而且真正点击时毫无反应。
+                  这是<strong>立刻调用</strong>，然后把它的返回值（<code>undefined</code>）交给 onClick。结果：<strong>组件一渲染就触发删除</strong>，而且真正点击时毫无反应。
                 </li>
               </ul>
               <p>
                 最后那种在这个项目里会造成什么？ <code>NoteTable</code>
-                渲染时，每一行都会立刻调一次 <code>onDelete</code>，
-                于是所有笔记在显示出来的瞬间就被删干净了；列表空了，渲染随之停止，
-                表格保持空白，控制台出现{" "}
+                渲染时，每一行都会立刻调一次 <code>onDelete</code>，于是所有笔记在显示出来的瞬间就被删干净了；列表空了，渲染随之停止，表格保持空白，控制台出现{" "}
                 <code>Cannot update a component while rendering a different component</code>{" "}
                 的警告。
               </p>
@@ -1046,9 +998,7 @@ const handleDelete = (id: number) => {
           level: 2,
           prompt: (
             <p>
-              这是 <code>NoteItem</code> 真实的两个按钮。
-              一个要传整条笔记，一个只传 id —— 想清楚各自要传什么，
-              以及怎么才能「点击时才执行」。
+              这是 <code>NoteItem</code> 真实的两个按钮。一个要传整条笔记，一个只传 id —— 想清楚各自要传什么，以及怎么才能「点击时才执行」。
             </p>
           ),
           promptEn: (
@@ -1079,10 +1029,7 @@ const handleDelete = (id: number) => {
               hintEn: "It has to run only on the click, and it has to pass an argument.",
               why: (
                 <>
-                  <code>() =&gt;</code>。需要传参数时，必须包一层箭头函数，
-                  否则 <code>onEdit(note)</code> 会在渲染时立刻执行。
-                  这里传的是<strong>整条 note</strong>，
-                  因为 <code>NoteForm</code> 要用它的 title 和 content 回填表单。
+                  <code>() =&gt;</code>。需要传参数时，必须包一层箭头函数，否则 <code>onEdit(note)</code> 会在渲染时立刻执行。这里传的是<strong>整条 note</strong>，因为 <code>NoteForm</code> 要用它的 title 和 content 回填表单。
                 </>
               ),
               whyEn: (
@@ -1105,8 +1052,7 @@ const handleDelete = (id: number) => {
               why: (
                 <>
                   <code>note.id</code>。<code>onDelete</code> 的类型签名是
-                  <code>(id: number) =&gt; void</code>，只要 id。
-                  README 也明确写了删除要<strong>「按 id」</strong>——
+                  <code>(id: number) =&gt; void</code>，只要 id。README 也明确写了删除要<strong>「按 id」</strong>——
                   传整条 note 会类型报错，按 title 删则违反题目要求。
                 </>
               ),
@@ -1132,8 +1078,7 @@ const handleDelete = (id: number) => {
           level: 2,
           prompt: (
             <p>
-              添加两条笔记后刷新页面（假设有持久化），表格瞬间变空，
-              点按钮也没有任何反应。先判断类型，再找病灶。
+              添加两条笔记后刷新页面（假设有持久化），表格瞬间变空，点按钮也没有任何反应。先判断类型，再找病灶。
             </p>
           ),
           promptEn: (
@@ -1222,20 +1167,15 @@ https://react.dev/link/setstate-in-render
             <>
               <p>
                 <code>onClick={"{onDelete(note.id)}"}</code> 的花括号里是一个
-                <strong>函数调用表达式</strong>，它在 JSX 求值时（也就是渲染时）
-                就执行了。React 拿到的是它的返回值 <code>undefined</code>，
-                所以真正点击时什么都不会发生。
+                <strong>函数调用表达式</strong>，它在 JSX 求值时（也就是渲染时）就执行了。React 拿到的是它的返回值 <code>undefined</code>，所以真正点击时什么都不会发生。
               </p>
               <p>
                 更糟的是：每一行在渲染时都把自己删掉，列表很快被删空；删空之后不再渲染
-                NoteItem，渲染也就停了 —— 所以不是无限循环，而是一打开就没了。
-                开发模式下 React 会警告{" "}
+                NoteItem，渲染也就停了 —— 所以不是无限循环，而是一打开就没了。开发模式下 React 会警告{" "}
                 <code>Cannot update a component while rendering a different component</code>。
               </p>
               <p>
-                记住这条判别法：<strong>onClick 后面的花括号里，
-                要么是一个名字，要么是一个箭头函数。
-                出现「名字 + 括号」就一定是错的。</strong>
+                记住这条判别法：<strong>onClick 后面的花括号里，要么是一个名字，要么是一个箭头函数。出现「名字 + 括号」就一定是错的。</strong>
               </p>
             </>
           ),
@@ -1353,19 +1293,14 @@ https://react.dev/link/setstate-in-render
             <>
               <p>
                 这是理解 React 最关键的一件事：
-                <strong>组件函数会被反复调用</strong>。
-                每次界面需要更新，React 就把你的组件函数再执行一次，
-                拿到新的 JSX，然后对比、更新真实 DOM。
+                <strong>组件函数会被反复调用</strong>。每次界面需要更新，React 就把你的组件函数再执行一次，拿到新的 JSX，然后对比、更新真实 DOM。
               </p>
               <p>
-                所以如果你在组件里写 <code>let notes = []</code>，
-                那么每次重新渲染，这行都会重新执行，
+                所以如果你在组件里写 <code>let notes = []</code>，那么每次重新渲染，这行都会重新执行，
                 <code>notes</code> 又变回空数组。数据存不住。
               </p>
               <p>
-                <code>useState</code> 解决的正是这个问题：
-                它让 React <strong>在组件外部替你记住</strong>这个值，
-                每次重新渲染时把上次的值交还给你。
+                <code>useState</code> 解决的正是这个问题：它让 React <strong>在组件外部替你记住</strong>这个值，每次重新渲染时把上次的值交还给你。
               </p>
             </>
           ),
@@ -1434,21 +1369,17 @@ const NoteManager = () => {
               <ol>
                 <li>
                   声明一块由 React 保管的状态，初始值 <code>[]</code>。
-                  <strong>这个初始值只在第一次渲染时用</strong>，
-                  之后的渲染会忽略它。
+                  <strong>这个初始值只在第一次渲染时用</strong>，之后的渲染会忽略它。
                 </li>
                 <li>
                   <code>notes</code> 拿到<strong>当前这次渲染</strong>看到的值。
                 </li>
                 <li>
-                  <code>setNotes</code> 是<strong>唯一</strong>合法的修改途径。
-                  调用它 = 告诉 React「值变了，请重新渲染」。
+                  <code>setNotes</code> 是<strong>唯一</strong>合法的修改途径。调用它 = 告诉 React「值变了，请重新渲染」。
                 </li>
               </ol>
               <p>
-                <code>useState</code> 返回的是<strong>数组</strong>，
-                所以用 <code>[a, b]</code> 这种数组解构，
-                名字随你起（但习惯上是 <code>x</code> / <code>setX</code>）。
+                <code>useState</code> 返回的是<strong>数组</strong>，所以用 <code>[a, b]</code> 这种数组解构，名字随你起（但习惯上是 <code>x</code> / <code>setX</code>）。
               </p>
               <p>
                 真实项目里的两个 state：
@@ -1516,18 +1447,14 @@ const NoteManager = () => {
             <>
               <p>
                 <code>notes</code> 这个变量拿到的是
-                <strong>当前这次渲染时的快照</strong>。
-                如果你在同一个事件里连续调用两次 setter，
-                第二次看到的 <code>notes</code> 还是旧的：
+                <strong>当前这次渲染时的快照</strong>。如果你在同一个事件里连续调用两次 setter，第二次看到的 <code>notes</code> 还是旧的：
               </p>
               <p>
                 而<strong>函数式更新</strong> <code>setNotes(prev =&gt; ...)</code>
-                里的 <code>prev</code> 是 React 交给你的
-                「此刻最新的值」，连续调用也不会丢。
+                里的 <code>prev</code> 是 React 交给你的「此刻最新的值」，连续调用也不会丢。
               </p>
               <p>
-                Q1 里其实不会连续调两次，所以两种写法都能过测试。
-                但真实项目里的代码统一用了函数式更新 ——
+                Q1 里其实不会连续调两次，所以两种写法都能过测试。但真实项目里的代码统一用了函数式更新 ——
                 <strong>这是更稳的默认习惯，跟着写就对了</strong>。
               </p>
             </>
@@ -1585,21 +1512,15 @@ setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
           body: (
             <>
               <p>
-                下面是「点 Delete 按钮」这一下，从手指到屏幕之间发生的全部事情。
-                一步一步点过去。
+                下面是「点 Delete 按钮」这一下，从手指到屏幕之间发生的全部事情。一步一步点过去。
               </p>
               {RENDER_FLOW}
               <p>
-                关键在第 4 步：<strong>React 并不知道「哪一行被删了」</strong>。
-                它只知道「state 变了」，于是把 <code>NoteManager</code>
-                整个重新执行一遍，拿到新的 JSX，再和上一次的对比，
-                最后只把真正变化的 DOM 改掉。
+                关键在第 4 步：<strong>React 并不知道「哪一行被删了」</strong>。它只知道「state 变了」，于是把 <code>NoteManager</code>
+                整个重新执行一遍，拿到新的 JSX，再和上一次的对比，最后只把真正变化的 DOM 改掉。
               </p>
               <p>
-                所以你<strong>不需要</strong>手动去删 DOM 节点、
-                不需要 <code>document.querySelector</code>。
-                你只管改数据，界面自己跟上。
-                这就是 React 的全部承诺。
+                所以你<strong>不需要</strong>手动去删 DOM 节点、不需要 <code>document.querySelector</code>。你只管改数据，界面自己跟上。这就是 React 的全部承诺。
               </p>
             </>
           ),
@@ -1700,8 +1621,7 @@ setNotes((prev) => [...prev, b]);   // prev = [a]     → [a, b] ✓`,
           level: 3,
           prompt: (
             <p>
-              只给你组件外壳。按要求补出两个 state 和 <code>handleDelete</code>。
-              不要看下面的答案，先自己写。
+              只给你组件外壳。按要求补出两个 state 和 <code>handleDelete</code>。不要看下面的答案，先自己写。
             </p>
           ),
           promptEn: (
@@ -1820,9 +1740,7 @@ notes = [...notes, newNote];`,
           ),
           why: (
             <>
-              <code>notes</code> 是 <code>const</code> 声明的，
-              这行连编译都过不去。就算改成 <code>let</code>，
-              React 也不会知道值变了 —— 它只监听 setter 的调用。
+              <code>notes</code> 是 <code>const</code> 声明的，这行连编译都过不去。就算改成 <code>let</code>，React 也不会知道值变了 —— 它只监听 setter 的调用。
               <strong>唯一的修改途径是 setNotes。</strong>
             </>
           ),
@@ -1849,10 +1767,7 @@ console.log(notes.length);   // still the old length!`,
           ),
           why: (
             <>
-              <code>setNotes</code> 只是「预约一次重新渲染」，
-              它不会当场改变 <code>notes</code> 这个变量。
-              新值要到<strong>下一次渲染</strong>才看得到。
-              想在更新后做点什么，用 <code>useEffect</code>（第 2 部分的 useEffect 那一节讲）。
+              <code>setNotes</code> 只是「预约一次重新渲染」，它不会当场改变 <code>notes</code> 这个变量。新值要到<strong>下一次渲染</strong>才看得到。想在更新后做点什么，用 <code>useEffect</code>（第 2 部分的 useEffect 那一节讲）。
             </>
           ),
           whyEn: (

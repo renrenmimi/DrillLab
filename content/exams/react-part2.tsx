@@ -133,17 +133,14 @@ export const reactHooks: Module = {
           body: (
             <>
               <p>
-                原生 HTML 里，<code>&lt;input&gt;</code> 自己记着用户输入了什么。
-                你要读它得 <code>document.querySelector(...).value</code>。
-                这叫<strong>非受控</strong>。
+                原生 HTML 里，<code>&lt;input&gt;</code> 自己记着用户输入了什么。你要读它得 <code>document.querySelector(...).value</code>。这叫<strong>非受控</strong>。
               </p>
               <p>
                 React 里的常规做法是反过来：
               </p>
               <ol>
                 <li>
-                  <code>value={"{title}"}</code> —— 输入框显示什么，
-                  由 state 决定。
+                  <code>value={"{title}"}</code> —— 输入框显示什么，由 state 决定。
                 </li>
                 <li>
                   <code>onChange={"{(e) => setTitle(e.target.value)}"}</code> ——
@@ -243,10 +240,7 @@ export const reactHooks: Module = {
           body: (
             <>
               <p>
-                想清楚这个逻辑链：<code>value={"{title}"}</code> 意味着
-                「输入框显示的永远是 <code>title</code>」。
-                而 <code>title</code> 只能通过 <code>setTitle</code> 改。
-                如果没有 <code>onChange</code>，就没人调 <code>setTitle</code>，
+                想清楚这个逻辑链：<code>value={"{title}"}</code> 意味着「输入框显示的永远是 <code>title</code>」。而 <code>title</code> 只能通过 <code>setTitle</code> 改。如果没有 <code>onChange</code>，就没人调 <code>setTitle</code>，
                 <code>title</code> 永远是初始值 <code>&quot;&quot;</code>。
               </p>
               <p>
@@ -254,10 +248,7 @@ export const reactHooks: Module = {
                 React 开发模式下会给一条警告：
               </p>
               <p>
-                这条警告也提示了另一条路：如果你只是想给一个初始值、
-                之后不管它，用 <code>defaultValue</code>（非受控）。
-                但这道题必须用受控 —— 因为提交时要读到内容，
-                而且 Task 3 要能<strong>从外部把值填进去</strong>。
+                这条警告也提示了另一条路：如果你只是想给一个初始值、之后不管它，用 <code>defaultValue</code>（非受控）。但这道题必须用受控 —— 因为提交时要读到内容，而且 Task 3 要能<strong>从外部把值填进去</strong>。
               </p>
             </>
           ),
@@ -302,18 +293,14 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
             <>
               <p>
                 这个项目用的是真正的 <code>&lt;form&gt;</code> +
-                <code>&lt;button type=&quot;submit&quot;&gt;</code>，
-                提交处理挂在 <code>form</code> 的 <code>onSubmit</code> 上。
+                <code>&lt;button type=&quot;submit&quot;&gt;</code>，提交处理挂在 <code>form</code> 的 <code>onSubmit</code> 上。
               </p>
               <p>
                 <strong>浏览器的默认行为是：提交表单 = 发一个 HTTP 请求并刷新页面。</strong>
-                在单页应用里这是灾难 —— 页面一刷新，所有 state 归零，
-                刚添加的笔记全没了。
+                在单页应用里这是灾难 —— 页面一刷新，所有 state 归零，刚添加的笔记全没了。
               </p>
               <p>
-                <code>event.preventDefault()</code> 就是在说
-                「别做默认那件事，我自己处理」。<strong>忘了它，
-                Task 1 的表现是「点 Add 之后页面闪一下，什么都没发生」。</strong>
+                <code>event.preventDefault()</code> 就是在说「别做默认那件事，我自己处理」。<strong>忘了它，Task 1 的表现是「点 Add 之后页面闪一下，什么都没发生」。</strong>
               </p>
               <p>
                 看真实实现里 <code>handleSubmit</code> 的五个动作，顺序很讲究：
@@ -324,8 +311,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
                 <li>
                   构造 note。注意 id：
                   <code>noteToEdit ? noteToEdit.id : Date.now()</code> ——
-                  <strong>这一行同时服务 Add 和 Update 两种情况</strong>，
-                  是 Task 3 的关键之一。
+                  <strong>这一行同时服务 Add 和 Update 两种情况</strong>，是 Task 3 的关键之一。
                 </li>
                 <li><code>onSubmit(newNote)</code> —— 上报给父组件。</li>
                 <li>
@@ -448,8 +434,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           level: 2,
           prompt: (
             <p>
-              把 <code>NoteForm</code> 里 textarea 那一段补全。
-              三个空构成一个完整的闭环。
+              把 <code>NoteForm</code> 里 textarea 那一段补全。三个空构成一个完整的闭环。
             </p>
           ),
           promptEn: (
@@ -499,9 +484,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               hintEn: "What is shown is decided by the current value in state.",
               why: (
                 <>
-                  <code>content</code>。这条把「state → 界面」这半边接上了。
-                  写成 <code>setContent</code> 是把函数塞进 value，
-                  React 会警告 <code>Invalid value for prop value</code>，输入框显示为空。
+                  <code>content</code>。这条把「state → 界面」这半边接上了。写成 <code>setContent</code> 是把函数塞进 value，React 会警告 <code>Invalid value for prop value</code>，输入框显示为空。
                 </>
               ),
               whyEn: (
@@ -522,8 +505,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               why: (
                 <>
                   <code>e.target.value</code>。<code>e.target</code>
-                  是触发事件的那个 DOM 元素，<code>.value</code> 是它的当前内容。
-                  这条把「界面 → state」另外半边接上，闭环完成。
+                  是触发事件的那个 DOM 元素，<code>.value</code> 是它的当前内容。这条把「界面 → state」另外半边接上，闭环完成。
                   <br />
                   常见错写：<code>e.value</code>（<code>e</code> 是事件不是元素）、
                   <code>e.target.text</code>（textarea 也用 value，不是 text）。
@@ -553,8 +535,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           level: 2,
           prompt: (
             <p>
-              填好标题和内容，点 Add。页面明显闪了一下，
-              地址栏出现了 <code>?</code>，表格还是空的。
+              填好标题和内容，点 Add。页面明显闪了一下，地址栏出现了 <code>?</code>，表格还是空的。
             </p>
           ),
           promptEn: (
@@ -624,20 +605,15 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           rootCause: (
             <>
               <p>
-                <code>&lt;button type=&quot;submit&quot;&gt;</code> 被点击时，
-                浏览器执行表单的<strong>默认提交行为</strong>：
-                把表单数据编码进 URL、发起一次导航、重新加载页面。
-                页面一重载，React 应用整个重启，所有 state 归零。
+                <code>&lt;button type=&quot;submit&quot;&gt;</code> 被点击时，浏览器执行表单的<strong>默认提交行为</strong>：把表单数据编码进 URL、发起一次导航、重新加载页面。页面一重载，React 应用整个重启，所有 state 归零。
               </p>
               <p>
                 地址栏出现 <code>?</code> 就是这个默认行为的证据 ——
                 看到它基本可以直接确诊。
               </p>
               <p>
-                注意选项 C（把 button 改成 <code>type=&quot;button&quot;</code>）
-                虽然也能阻止提交，但那样 <code>form</code> 的
-                <code>onSubmit</code> 就不会触发了，
-                还得把处理函数改挂到 button 的 <code>onClick</code> 上 ——
+                注意选项 C（把 button 改成 <code>type=&quot;button&quot;</code>）虽然也能阻止提交，但那样 <code>form</code> 的
+                <code>onSubmit</code> 就不会触发了，还得把处理函数改挂到 button 的 <code>onClick</code> 上 ——
                 而且会破坏「回车提交」。<strong>正解是 preventDefault。</strong>
               </p>
             </>
@@ -683,11 +659,9 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           ),
           why: (
             <>
-              <code>e.target</code> 是那个 DOM 元素对象，不是字符串。
-              TypeScript 会报 TS2345：
+              <code>e.target</code> 是那个 DOM 元素对象，不是字符串。TypeScript 会报 TS2345：
               <code>Argument of type &apos;EventTarget &amp; HTMLInputElement&apos; is not
-              assignable to parameter of type &apos;SetStateAction&lt;string&gt;&apos;</code>。
-              这是好事 —— 在 JavaScript 项目里，这个错会一直藏到运行时。
+              assignable to parameter of type &apos;SetStateAction&lt;string&gt;&apos;</code>。这是好事 —— 在 JavaScript 项目里，这个错会一直藏到运行时。
             </>
           ),
           whyEn: (
@@ -716,9 +690,7 @@ onSubmit(newNote);
           why: (
             <>
               测试里第四个用例（编辑）会先 <code>clear</code> 再
-              <code>type</code>，所以不清空<strong>不一定</strong>让测试挂。
-              但用户体验上，添加完一条之后输入框还留着上一条的内容，
-              明显是 bug。<strong>题目没写的细节，也是评分点。</strong>
+              <code>type</code>，所以不清空<strong>不一定</strong>让测试挂。但用户体验上，添加完一条之后输入框还留着上一条的内容，明显是 bug。<strong>题目没写的细节，也是评分点。</strong>
             </>
           ),
           whyEn: (
@@ -813,22 +785,16 @@ onSubmit(newNote);
           body: (
             <>
               <p>
-                <code>notes</code> 是一个数组，页面上要出现对应数量的行。
-                做法就是 <code>map</code> —— 上一门课讲过它「长度不变、逐个变形」。
-                这里的变形是「一条 Note → 一个 <code>&lt;NoteItem /&gt;</code>」。
+                <code>notes</code> 是一个数组，页面上要出现对应数量的行。做法就是 <code>map</code> —— 上一门课讲过它「长度不变、逐个变形」。这里的变形是「一条 Note → 一个 <code>&lt;NoteItem /&gt;</code>」。
               </p>
               <p>
-                注意 <code>{"{notes.map(...)}"}</code> 外面那对花括号：
-                这是「切回 JavaScript」。里面返回的是一个
+                注意 <code>{"{notes.map(...)}"}</code> 外面那对花括号：这是「切回 JavaScript」。里面返回的是一个
                 <strong>JSX 数组</strong>，React 会把它平铺渲染出来。
               </p>
               <p>
                 <strong>箭头函数的两种写法别混淆：</strong>
-                <code>(note) =&gt; (&lt;NoteItem ... /&gt;)</code> 用圆括号，
-                是「直接返回」；如果写成花括号
-                <code>(note) =&gt; {"{ <NoteItem /> }"}</code>，
-                那就是函数体，<strong>必须显式 <code>return</code></strong>，
-                否则返回 <code>undefined</code>，页面上什么都不出现。
+                <code>(note) =&gt; (&lt;NoteItem ... /&gt;)</code> 用圆括号，是「直接返回」；如果写成花括号
+                <code>(note) =&gt; {"{ <NoteItem /> }"}</code>，那就是函数体，<strong>必须显式 <code>return</code></strong>，否则返回 <code>undefined</code>，页面上什么都不出现。
               </p>
             </>
           ),
@@ -889,19 +855,14 @@ onSubmit(newNote);
               <p>
                 React 重新渲染时要做一次对比：
                 <strong>「上一次的这一串，和这一次的这一串，谁是谁？」</strong>
-                有了 <code>key</code>，它就能一一对应：
-                key 还在的复用、key 消失的删掉、新 key 的插入。
+                有了 <code>key</code>，它就能一一对应：key 还在的复用、key 消失的删掉、新 key 的插入。
               </p>
               <p>
-                没有 <code>key</code>，React 只能<strong>按位置猜</strong>，
-                并且给出警告：
+                没有 <code>key</code>，React 只能<strong>按位置猜</strong>，并且给出警告：
               </p>
               <p>
-                <code>key</code> 的要求：<strong>在这一串里唯一、
-                并且跟着数据本身走</strong>。
-                这个项目用 <code>note.id</code>，正合适 ——
-                id 是 <code>Date.now()</code> 生成的，每条唯一，
-                而且这条笔记不管排在第几位，id 都不变。
+                <code>key</code> 的要求：<strong>在这一串里唯一、并且跟着数据本身走</strong>。这个项目用 <code>note.id</code>，正合适 ——
+                id 是 <code>Date.now()</code> 生成的，每条唯一，而且这条笔记不管排在第几位，id 都不变。
               </p>
             </>
           ),
@@ -951,22 +912,14 @@ for more information.`,
               </p>
               <p>
                 删掉中间那条之后，剩下两条重新 map，下标变成
-                <code>0</code>、<code>1</code>。于是 React 看到的是：
-                「key=0 还在（内容变了？没变）、key=1 还在（内容从 B 变成 C）、
-                key=2 消失了」。
+                <code>0</code>、<code>1</code>。于是 React 看到的是：「key=0 还在（内容变了？没变）、key=1 还在（内容从 B 变成 C）、key=2 消失了」。
               </p>
               <p>
-                结果 React 会<strong>复用</strong> key=1 那个组件实例，
-                只把里面的文字改掉。对纯展示组件影响不大，
-                但如果组件内部有自己的 state（比如一个展开/收起的开关、
-                一个未提交的输入框），<strong>那个 state 会留在原位置，
-                跟错误的数据配上对</strong>。
+                结果 React 会<strong>复用</strong> key=1 那个组件实例，只把里面的文字改掉。对纯展示组件影响不大，但如果组件内部有自己的 state（比如一个展开/收起的开关、一个未提交的输入框），<strong>那个 state 会留在原位置，跟错误的数据配上对</strong>。
               </p>
               <p>
-                症状是「删了第二行，第三行的勾选状态跑到了第二行」这种，
-                极难查。所以规矩是：
-                <strong>有稳定 id 就用 id；只有列表永远不删除、不插入、不重排时，
-                index 才不会出问题</strong> —— 这道题有删除，所以不能用 index。
+                症状是「删了第二行，第三行的勾选状态跑到了第二行」这种，极难查。所以规矩是：
+                <strong>有稳定 id 就用 id；只有列表永远不删除、不插入、不重排时，index 才不会出问题</strong> —— 这道题有删除，所以不能用 index。
               </p>
             </>
           ),
@@ -1040,10 +993,7 @@ key = note.id:
           body: (
             <>
               <p>
-                不需要。<code>[].map(...)</code> 返回空数组，
-                React 渲染空数组 = 什么都不渲染。
-                所以初始状态下 <code>&lt;tbody&gt;</code> 是空的，
-                表头照常显示。
+                不需要。<code>[].map(...)</code> 返回空数组，React 渲染空数组 = 什么都不渲染。所以初始状态下 <code>&lt;tbody&gt;</code> 是空的，表头照常显示。
               </p>
               <p>
                 这一点对测试很重要：测试里有一句
@@ -1096,8 +1046,7 @@ key = note.id:
           prompt: (
             <p>
               <code>notes</code> 里每条是{" "}
-              <code>{"{ id: number; title: string; content: string }"}</code>，
-              用户可以删除任意一条。下面哪个是最合适的 key?
+              <code>{"{ id: number; title: string; content: string }"}</code>，用户可以删除任意一条。下面哪个是最合适的 key?
             </p>
           ),
           promptEn: (
@@ -1163,9 +1112,7 @@ key = note.id:
           answer: ["b"],
           explain: (
             <>
-              B 用了花括号函数体但<strong>没有 return</strong>，
-              所以每次回调返回 <code>undefined</code>，
-              map 出来是一串 undefined，React 什么都不渲染 ——
+              B 用了花括号函数体但<strong>没有 return</strong>，所以每次回调返回 <code>undefined</code>，map 出来是一串 undefined，React 什么都不渲染 ——
               而且<strong>不报错</strong>。
               <br />
               A 用圆括号是隐式返回，C 用花括号加显式 return，两者等价。
@@ -1275,8 +1222,7 @@ key = note.id:
             <>
               <p>
                 <code>useEffect(fn, deps)</code> 的意思是：
-                <strong>「这次渲染结束、DOM 更新完之后，
-                如果 deps 里有东西变了，就执行 fn」</strong>。
+                <strong>「这次渲染结束、DOM 更新完之后，如果 deps 里有东西变了，就执行 fn」</strong>。
               </p>
               <p>依赖数组有三种写法，行为完全不同：</p>
               <div className="table-wrap">
@@ -1310,8 +1256,7 @@ key = note.id:
               <p>
                 第三种是无限循环的常见来源：fn 里把 state 改成一个新值 → 触发重渲染 →
                 fn 又执行 → 又改成一个新值 → …… React 最后会抛
-                <code>Maximum update depth exceeded</code>。
-                （如果 fn 每次设的是同一个值，React 会跳过这次更新，循环一轮就停。）
+                <code>Maximum update depth exceeded</code>。（如果 fn 每次设的是同一个值，React 会跳过这次更新，循环一轮就停。）
               </p>
             </>
           ),
@@ -1372,27 +1317,20 @@ key = note.id:
               <p>
                 问题是这样的：<code>NoteForm</code> 的输入框内容存在它
                 <strong>自己的</strong> state（<code>title</code> /{" "}
-                <code>content</code>）里。而「用户点了哪条笔记的 Edit」
-                这件事发生在<strong>外面</strong>，
-                通过 <code>noteToEdit</code> 这个 prop 传进来。
+                <code>content</code>）里。而「用户点了哪条笔记的 Edit」这件事发生在<strong>外面</strong>，通过 <code>noteToEdit</code> 这个 prop 传进来。
               </p>
               <p>
-                所以需要一条规则：<strong>「每当 noteToEdit 变了，
-                就把内部两个 state 改成它的值」</strong>。
-                这正是 <code>useEffect(fn, [noteToEdit])</code>。
+                所以需要一条规则：<strong>「每当 noteToEdit 变了，就把内部两个 state 改成它的值」</strong>。这正是 <code>useEffect(fn, [noteToEdit])</code>。
               </p>
               <p>
                 <code>else</code> 分支也重要：<code>noteToEdit</code>
-                变回 <code>null</code>（编辑完成、退出编辑模式）时，
-                要<strong>清空</strong>表单。没有这个 else，
-                提交完之后表单里还留着刚才编辑的内容。
+                变回 <code>null</code>（编辑完成、退出编辑模式）时，要<strong>清空</strong>表单。没有这个 else，提交完之后表单里还留着刚才编辑的内容。
               </p>
               <p>
                 <strong>为什么不能直接写在渲染里？</strong>
                 因为在组件函数体里直接调 <code>setTitle</code>
                 会立刻触发新一轮渲染，而那一轮又会再调一次 ——
-                死循环。<code>useEffect</code> + 依赖数组保证了
-                「只在 noteToEdit 真的变了的时候才动手」。
+                死循环。<code>useEffect</code> + 依赖数组保证了「只在 noteToEdit 真的变了的时候才动手」。
               </p>
             </>
           ),
@@ -1462,16 +1400,13 @@ key = note.id:
                   <strong><code>[]</code></strong> ——
                   只在首次渲染跑一次。点 Edit 时 <code>noteToEdit</code>
                   变了，但 effect 不再执行。
-                  <strong>症状：点 Edit 按钮文字变成了 Update，
-                  但输入框是空的。</strong>
+                  <strong>症状：点 Edit 按钮文字变成了 Update，但输入框是空的。</strong>
                   （因为按钮文字是渲染时直接读 prop 算的，不依赖 effect。）
                 </li>
                 <li>
-                  <strong>什么都不写</strong> —— 每次渲染后都跑。
-                  effect 调 setTitle 把 title 改回 noteToEdit 决定的值（或 &quot;&quot;）→
+                  <strong>什么都不写</strong> —— 每次渲染后都跑。effect 调 setTitle 把 title 改回 noteToEdit 决定的值（或 &quot;&quot;）→
                   重渲染 → effect 又跑，但这回设的是同一个值，React 跳过更新，循环一轮就停。
-                  <strong>症状：输入框敲不进字 —— 每敲一个字，effect 又把内容改回去；
-                  控制台没有任何报错，4 个测试中 3 个失败。</strong>
+                  <strong>症状：输入框敲不进字 —— 每敲一个字，effect 又把内容改回去；控制台没有任何报错，4 个测试中 3 个失败。</strong>
                 </li>
                 <li>
                   <strong><code>[noteToEdit, title, content]</code></strong> ——
@@ -1479,9 +1414,7 @@ key = note.id:
                   effect 又跑 → setTitle 把它改回去。
                   <strong>症状：和上一种一样，输入框敲不进字，也没有报错。</strong>
                   <br />
-                  这条特别值得记：<strong>effect 里改的 state，
-                  不要放进它自己的依赖数组</strong> —— 轻则把用户输入覆盖掉，
-                  重则（每次设的值都不同时）无限循环。
+                  这条特别值得记：<strong>effect 里改的 state，不要放进它自己的依赖数组</strong> —— 轻则把用户输入覆盖掉，重则（每次设的值都不同时）无限循环。
                 </li>
               </ol>
             </>
@@ -1536,8 +1469,7 @@ key = note.id:
           level: 2,
           prompt: (
             <p>
-              这是 <code>NoteForm</code> 里那个决定 Task 3 成败的 effect。
-              两个空：一个分支条件，一个依赖数组。
+              这是 <code>NoteForm</code> 里那个决定 Task 3 成败的 effect。两个空：一个分支条件，一个依赖数组。
             </p>
           ),
           promptEn: (
@@ -1566,14 +1498,11 @@ key = note.id:
               hintEn: "The type of noteToEdit is Note | null. You have to tell \u201cthere is one\u201d from \u201cthere is none\u201d.",
               why: (
                 <>
-                  <code>noteToEdit</code>。类型是 <code>Note | null</code>，
-                  直接当条件判断即可（<code>null</code> 是假值）。
+                  <code>noteToEdit</code>。类型是 <code>Note | null</code>，直接当条件判断即可（<code>null</code> 是假值）。
                   <br />
                   这个 <code>if</code> 还有一个副作用：TypeScript 在
                   strict 模式下知道 <code>if</code> 内部
-                  <code>noteToEdit</code> 一定不是 null，
-                  所以 <code>noteToEdit.title</code> 才不报错。
-                  这叫<strong>类型收窄</strong>。
+                  <code>noteToEdit</code> 一定不是 null，所以 <code>noteToEdit.title</code> 才不报错。这叫<strong>类型收窄</strong>。
                 </>
               ),
               whyEn: (
@@ -1598,14 +1527,11 @@ key = note.id:
                 <>
                   <code>[noteToEdit]</code>。
                   <br />
-                  写 <code>[]</code> → 点 Edit 不回填（按钮文字倒是会变，
-                  很误导）。
+                  写 <code>[]</code> → 点 Edit 不回填（按钮文字倒是会变，很误导）。
                   <br />
-                  不写 → 每次渲染都跑：你敲的字会被 effect 立刻改回去，输入框敲不进字
-                  （它每次设的是同一个值，所以不会死循环，也不报错）。
+                  不写 → 每次渲染都跑：你敲的字会被 effect 立刻改回去，输入框敲不进字（它每次设的是同一个值，所以不会死循环，也不报错）。
                   <br />
-                  写 <code>[noteToEdit, title, content]</code> → 同样敲不进字，
-                  因为 effect 自己改了 title 和 content。
+                  写 <code>[noteToEdit, title, content]</code> → 同样敲不进字，因为 effect 自己改了 title 和 content。
                 </>
               ),
               whyEn: (
@@ -1635,8 +1561,7 @@ key = note.id:
           level: 3,
           prompt: (
             <p>
-              在 Title 输入框里打字，字符出现一瞬间又消失；点某一行的 Edit，
-              表单能回填，但同样改不动。控制台没有任何报错。请判断类型并定位。
+              在 Title 输入框里打字，字符出现一瞬间又消失；点某一行的 Edit，表单能回填，但同样改不动。控制台没有任何报错。请判断类型并定位。
             </p>
           ),
           promptEn: (
@@ -1701,21 +1626,16 @@ key = note.id:
                 effect 执行 → 调 <code>setTitle</code> 把 <code>title</code> 改回
                 noteToEdit 的值（或 &quot;&quot;）。你一敲字，<code>title</code> 变了 →
                 React 发现依赖里的 <code>title</code> 变了 → effect 又执行 →
-                又把 <code>title</code> 改回去。改回去的是同一个值，React 跳过这次更新，
-                所以不会死循环，也没有任何报错；但你敲的每个字都被立刻覆盖了。
+                又把 <code>title</code> 改回去。改回去的是同一个值，React 跳过这次更新，所以不会死循环，也没有任何报错；但你敲的每个字都被立刻覆盖了。
               </p>
               <p>
-                <strong>规则：effect 内部会修改的 state，
-                不能出现在它自己的依赖数组里</strong> —— 轻则像这里一样把用户输入覆盖掉，
-                重则（每次设的值都不同时）无限循环。
-                依赖里只应该放「触发这次同步的原因」——
+                <strong>规则：effect 内部会修改的 state，不能出现在它自己的依赖数组里</strong> —— 轻则像这里一样把用户输入覆盖掉，重则（每次设的值都不同时）无限循环。依赖里只应该放「触发这次同步的原因」——
                 这里就是 <code>noteToEdit</code>。
               </p>
               <p>
                 顺带说选项 D：<code>setTitle</code> / <code>setContent</code>
                 这两个 setter 的身份是<strong>稳定的</strong>
-                （React 保证每次渲染都是同一个函数），
-                放进依赖数组不会造成循环，但也毫无意义。
+                （React 保证每次渲染都是同一个函数），放进依赖数组不会造成循环，但也毫无意义。
               </p>
             </>
           ),
@@ -1770,11 +1690,8 @@ const NoteForm = ({ noteToEdit }) => {
           ),
           why: (
             <>
-              在渲染期间调用 setter 会立刻安排下一次渲染，
-              而下一次渲染又会再调一次。
-              <strong>「渲染要纯粹」</strong>是 React 的基本规则：
-              组件函数只负责根据当前 props/state 算出 JSX，
-              不做任何副作用。副作用放 <code>useEffect</code>。
+              在渲染期间调用 setter 会立刻安排下一次渲染，而下一次渲染又会再调一次。
+              <strong>「渲染要纯粹」</strong>是 React 的基本规则：组件函数只负责根据当前 props/state 算出 JSX，不做任何副作用。副作用放 <code>useEffect</code>。
             </>
           ),
           whyEn: (
@@ -1804,12 +1721,10 @@ useEffect(() => {
           why: (
             <>
               <code>[]</code> = 只在首次渲染后跑一次。首次渲染时
-              <code>noteToEdit</code> 是 <code>null</code>，
-              所以什么都没发生；后面点 Edit，effect 不再执行。
+              <code>noteToEdit</code> 是 <code>null</code>，所以什么都没发生；后面点 Edit，effect 不再执行。
               <br />
               这个 bug 特别迷惑人：<strong>按钮文字会正确变成
-              &quot;Update&quot;</strong>（那是渲染时直接读 prop 算的），
-              让人以为「Edit 生效了」，但输入框是空的。
+              &quot;Update&quot;</strong>（那是渲染时直接读 prop 算的），让人以为「Edit 生效了」，但输入框是空的。
             </>
           ),
           whyEn: (
@@ -1925,21 +1840,15 @@ useEffect(() => {
               </p>
               <p>
                 这种「从已有 state 直接算出来的值」叫
-                <strong>派生数据（derived data）</strong>。
-                它自动就是最新的，因为每次渲染都重算。
+                <strong>派生数据（derived data）</strong>。它自动就是最新的，因为每次渲染都重算。
               </p>
               <p>
-                如果做成 <code>useState</code> 会怎样？
-                你得在每一处修改 title 或 content 的地方
-                <strong>记得同步更新它</strong>。
-                漏掉一处，就出现「输入框有内容，按钮还是灰的」这种 bug。
-                这类 bug 的名字叫<strong>状态不一致</strong>，
-                根源就是「同一个事实存了两份」。
+                如果做成 <code>useState</code> 会怎样？你得在每一处修改 title 或 content 的地方
+                <strong>记得同步更新它</strong>。漏掉一处，就出现「输入框有内容，按钮还是灰的」这种 bug。这类 bug 的名字叫<strong>状态不一致</strong>，根源就是「同一个事实存了两份」。
               </p>
               <p>
                 判断方法很简单：
-                <strong>「这个值能不能只用现有的 state 和 props 算出来？」
-                能 → 别做 state。</strong>
+                <strong>「这个值能不能只用现有的 state 和 props 算出来？」能 → 别做 state。</strong>
               </p>
             </>
           ),
@@ -2012,8 +1921,7 @@ if (isFormInvalid) return;      // handleSubmit blocks it a second time`,
                 </li>
                 <li>
                   <strong>按钮上写 Add 还是 Update</strong> ——
-                  <code>{"{noteToEdit ? \"Update\" : \"Add\"}"}</code>，
-                  渲染时当场算。
+                  <code>{"{noteToEdit ? \"Update\" : \"Add\"}"}</code>，渲染时当场算。
                 </li>
                 <li>
                   <strong>提交时是新建还是更新</strong> ——
@@ -2082,35 +1990,29 @@ if (isFormInvalid) return;      // handleSubmit blocks it a second time`,
           body: (
             <>
               <p>
-                <code>notes</code> 为什么必须住在 <code>NoteManager</code>?
-                因为有两方需要它：
+                <code>notes</code> 为什么必须住在 <code>NoteManager</code>?因为有两方需要它：
               </p>
               <ul>
                 <li><code>NoteTable</code> 要<strong>读</strong>它来渲染。</li>
                 <li>
-                  <code>NoteForm</code> 的提交要<strong>改</strong>它
-                  （通过 onSubmit 间接改）。
+                  <code>NoteForm</code> 的提交要<strong>改</strong>它（通过 onSubmit 间接改）。
                 </li>
               </ul>
               <p>
-                这两个组件是兄弟，而 React 的数据只能往下流。
-                所以数据必须放在它们的<strong>最近共同祖先</strong> ——
+                这两个组件是兄弟，而 React 的数据只能往下流。所以数据必须放在它们的<strong>最近共同祖先</strong> ——
                 <code>NoteManager</code>。这个动作叫
                 <strong>状态提升（lifting state up）</strong>。
               </p>
               <p>
-                反过来看 <code>title</code> / <code>content</code>：
-                只有 <code>NoteForm</code> 用得到，所以留在
+                反过来看 <code>title</code> / <code>content</code>：只有 <code>NoteForm</code> 用得到，所以留在
                 <code>NoteForm</code> 自己身上就好。
                 <strong>不要无脑把所有 state 都提到顶层</strong> ——
                 那会让顶层组件变成一个什么都管的怪物。
               </p>
               <p>
-                <code>noteToEdit</code> 是个有意思的中间情况：
-                它<strong>由 NoteTable 的点击产生</strong>
+                <code>noteToEdit</code> 是个有意思的中间情况：它<strong>由 NoteTable 的点击产生</strong>
                 （NoteItem → onEdit），
-                <strong>被 NoteForm 消费</strong>。
-                所以它也必须住在 <code>NoteManager</code>。
+                <strong>被 NoteForm 消费</strong>。所以它也必须住在 <code>NoteManager</code>。
               </p>
             </>
           ),
@@ -2183,8 +2085,7 @@ isFormInvalid computed from title/content        not state, computed inline`,
           level: 1,
           prompt: (
             <p>
-              假设要给 Notes Manager 加一个「显示当前有几条笔记」的文字。
-              这个数字应该怎么实现？
+              假设要给 Notes Manager 加一个「显示当前有几条笔记」的文字。这个数字应该怎么实现？
             </p>
           ),
           promptEn: (
@@ -2205,8 +2106,7 @@ isFormInvalid computed from title/content        not state, computed inline`,
               <code>notes.length</code> 就是答案。它<strong>永远</strong>
               和 notes 一致，因为每次渲染重算。
               <br />
-              A 和 C 都是「同一个事实存两份」，一旦有一处忘了同步就不一致。
-              C 还多了一次不必要的渲染（effect 里 setState 会再触发一轮）。
+              A 和 C 都是「同一个事实存两份」，一旦有一处忘了同步就不一致。C 还多了一次不必要的渲染（effect 里 setState 会再触发一轮）。
               <br />
               判断口诀：<strong>能从现有 state 算出来的，就别存。</strong>
             </>
@@ -2233,9 +2133,7 @@ isFormInvalid computed from title/content        not state, computed inline`,
           level: 1,
           prompt: (
             <p>
-              假设要加一个搜索框（在 NoteForm 上方，属于 NoteManager 的直接子元素），
-              输入关键词后表格只显示匹配的笔记。
-              搜索关键词这个 state 该放在哪？
+              假设要加一个搜索框（在 NoteForm 上方，属于 NoteManager 的直接子元素），输入关键词后表格只显示匹配的笔记。搜索关键词这个 state 该放在哪？
             </p>
           ),
           promptEn: (
@@ -2262,8 +2160,7 @@ isFormInvalid computed from title/content        not state, computed inline`,
               这个<strong>派生数据</strong>，传给 <code>NoteTable</code> ——
               注意<strong>不要</strong>再开一个 <code>filteredNotes</code> state。
               <br />
-              这也是最常见的 React 面试变式题：加筛选、加排序。
-              解法都是「一个 state 存条件 + 一个派生数组」。
+              这也是最常见的 React 面试变式题：加筛选、加排序。解法都是「一个 state 存条件 + 一个派生数组」。
             </>
           ),
           explainEn: (
@@ -2291,8 +2188,7 @@ isFormInvalid computed from title/content        not state, computed inline`,
           level: 3,
           prompt: (
             <p>
-              补出 <code>isFormInvalid</code> 和按钮的两处动态部分。
-              注意：只输入空格也应该算无效。
+              补出 <code>isFormInvalid</code> 和按钮的两处动态部分。注意：只输入空格也应该算无效。
             </p>
           ),
           promptEn: (

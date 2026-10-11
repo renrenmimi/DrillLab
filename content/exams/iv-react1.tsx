@@ -53,14 +53,11 @@ export const ivReactBasics: Module = {
             <>
               <p>
                 <strong>一句话：</strong>单页应用 ——
-                <strong>只加载一个 HTML</strong>，
-                之后的页面切换由 JS 在前端换内容，
-                不再向服务器请求整页。
+                <strong>只加载一个 HTML</strong>，之后的页面切换由 JS 在前端换内容，不再向服务器请求整页。
               </p>
               <p>
                 <strong>好处：</strong>
-                切页面没有白屏刷新、体验接近原生 App、
-                前后端彻底分离（后端只给 JSON）。
+                切页面没有白屏刷新、体验接近原生 App、前后端彻底分离（后端只给 JSON）。
               </p>
               <p>
                 <strong>代价（面试重点问这半边）：</strong>
@@ -68,25 +65,20 @@ export const ivReactBasics: Module = {
               <ul>
                 <li>
                   <strong>首屏慢</strong>—— 要先下载并执行一大包 JS
-                  才能看到内容。
-                  解法是代码分割（<code>React.lazy</code>，见 #347）
-                  和 SSR。
+                  才能看到内容。解法是代码分割（<code>React.lazy</code>，见 #347）和 SSR。
                 </li>
                 <li>
                   <strong>SEO 差</strong>—— 爬虫拿到的 HTML 是空的
-                  <code>{'<div id="root"></div>'}</code>。
-                  解法是 SSR / SSG（Next.js）。
+                  <code>{'<div id="root"></div>'}</code>。解法是 SSR / SSG（Next.js）。
                 </li>
                 <li>
                   <strong>路由要自己管</strong>——
-                  前进后退、深链接、刷新后还在当前页，
-                  都得靠 <code>history</code> API
+                  前进后退、深链接、刷新后还在当前页，都得靠 <code>history</code> API
                   和服务端的 fallback 配置。
                   <strong>「刷新 404」就是漏配了 fallback</strong>。
                 </li>
                 <li>
-                  <strong>内存泄漏风险</strong>—— 页面不刷新，
-                  定时器和监听器不会被自动清掉。
+                  <strong>内存泄漏风险</strong>—— 页面不刷新，定时器和监听器不会被自动清掉。
                   <strong>这就是 <code>useEffect</code>
                   必须写清理函数的现实原因。</strong>
                 </li>
@@ -94,8 +86,7 @@ export const ivReactBasics: Module = {
               <p>
                 <strong>会追问：</strong>
                 「MPA 什么时候更好？」——
-                内容型站点（博客、文档、电商详情页），
-                重 SEO、首屏优先、交互不复杂的。
+                内容型站点（博客、文档、电商详情页），重 SEO、首屏优先、交互不复杂的。
                 <strong>答得出「看场景」比一味夸 SPA 好。</strong>
               </p>
             </>
@@ -167,41 +158,30 @@ export const ivReactBasics: Module = {
               <p>
                 <strong>一句话：</strong>
                 <strong>声明式 + 组件化 + 单向数据流</strong>——
-                你描述「界面应该长什么样」，
-                React 负责把 DOM 变成那样。
+                你描述「界面应该长什么样」，React 负责把 DOM 变成那样。
               </p>
               <ul>
                 <li>
                   <strong>声明式</strong>—— 你写
-                  <code>{"{items.map(...)}"}</code>，
-                  不写「找到 ul、创建 li、appendChild」。
-                  <strong>省掉的是「怎么从状态 A 变到状态 B」这类过程代码</strong>，
-                  而这正是 bug 最多的地方。
+                  <code>{"{items.map(...)}"}</code>，不写「找到 ul、创建 li、appendChild」。
+                  <strong>省掉的是「怎么从状态 A 变到状态 B」这类过程代码</strong>，而这正是 bug 最多的地方。
                 </li>
                 <li>
-                  <strong>组件化</strong>—— UI 拆成可复用、
-                  可独立测试的单元。
+                  <strong>组件化</strong>—— UI 拆成可复用、可独立测试的单元。
                 </li>
                 <li>
                   <strong>单向数据流</strong>——
-                  props 往下、事件往上。
-                  出问题时<strong>排查路径是确定的</strong>：
-                  数据只可能从一个方向来。
+                  props 往下、事件往上。出问题时<strong>排查路径是确定的</strong>：数据只可能从一个方向来。
                 </li>
                 <li>
-                  <strong>生态</strong>—— Router、
-                  状态库、Next.js、React Native
-                  （<strong>同一套心智模型能写移动端</strong>）。
+                  <strong>生态</strong>—— Router、状态库、Next.js、React Native（<strong>同一套心智模型能写移动端</strong>）。
                 </li>
               </ul>
               <p>
-                <strong>会追问缺点</strong>（一定要准备）：
-                只是个视图库，路由和状态都要自己选，
-                <strong>选型成本高</strong>；
-                性能优化默认要手动（<code>memo</code> /
+                <strong>会追问缺点</strong>（一定要准备）：只是个视图库，路由和状态都要自己选，
+                <strong>选型成本高</strong>；性能优化默认要手动（<code>memo</code> /
                 <code>useMemo</code>）；自动记忆化要另外接入 React Compiler ——
-                它是独立的编译插件，不是 React 19 自带的；
-                JSX 和 hooks 规则对新手有门槛；
+                它是独立的编译插件，不是 React 19 自带的；JSX 和 hooks 规则对新手有门槛；
                 <strong>版本迁移的心智负担不小</strong>
                 （class → hooks → Server Components）。
               </p>
@@ -263,10 +243,8 @@ export const ivReactBasics: Module = {
             <>
               <p>
                 <strong>一句话：</strong>React 是
-                <strong>库</strong>（只管视图，其他自己选）；
-                Angular 是<strong>框架</strong>
-                （路由、HTTP、表单、依赖注入、
-                测试全都自带）。
+                <strong>库</strong>（只管视图，其他自己选）；Angular 是<strong>框架</strong>
+                （路由、HTTP、表单、依赖注入、测试全都自带）。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -313,17 +291,12 @@ export const ivReactBasics: Module = {
               </div>
               <p>
                 <strong>怎么答得体面：</strong>
-                不要贬低一方、抬高另一方。说
-                「React 给自由也给选型负担，
-                Angular 给约定也给学习成本；
-                <strong>小而快的项目和需要长期多人维护的大项目，
-                答案不一样</strong>」。
+                不要贬低一方、抬高另一方。说「React 给自由也给选型负担，Angular 给约定也给学习成本；
+                <strong>小而快的项目和需要长期多人维护的大项目，答案不一样</strong>」。
               </p>
               <p>
                 <strong>会追问 Vue</strong>——
-                Vue 在两者之间：有官方路由和状态库
-                （比 React 统一），
-                但比 Angular 轻；模板语法上手快。
+                Vue 在两者之间：有官方路由和状态库（比 React 统一），但比 Angular 轻；模板语法上手快。
               </p>
             </>
           ),
@@ -404,18 +377,13 @@ export const ivReactBasics: Module = {
           body: (
             <>
               <p>
-                <strong>一句话：</strong>JavaScript 的语法扩展，
-                让你在 JS 里写类似 HTML 的结构。
-                <strong>浏览器不认识它</strong>，
-                要经过 Babel 编译成普通函数调用。
+                <strong>一句话：</strong>JavaScript 的语法扩展，让你在 JS 里写类似 HTML 的结构。
+                <strong>浏览器不认识它</strong>，要经过 Babel 编译成普通函数调用。
               </p>
               <p>
-                <strong>编译成什么</strong>（这是考点）：
-                旧版编译成
+                <strong>编译成什么</strong>（这是考点）：旧版编译成
                 <code>React.createElement(type, props, ...children)</code>；
-                <strong>React 17 之后</strong>用新的 JSX 转换，
-                编译成 <code>_jsx(...)</code>，
-                所以<strong>不用再手动
+                <strong>React 17 之后</strong>用新的 JSX 转换，编译成 <code>_jsx(...)</code>，所以<strong>不用再手动
                 <code>import React</code></strong> 了。
               </p>
               <p>
@@ -424,8 +392,7 @@ export const ivReactBasics: Module = {
               <ul>
                 <li>
                   <strong>必须有单一根节点</strong>——
-                  因为函数只能返回一个值。
-                  不想多套 <code>div</code> 就用
+                  因为函数只能返回一个值。不想多套 <code>div</code> 就用
                   <code>Fragment</code>（见 #338）。
                 </li>
                 <li>
@@ -435,26 +402,20 @@ export const ivReactBasics: Module = {
                   <code>htmlFor</code>、<code>onClick</code>。
                 </li>
                 <li>
-                  <code>{"{}"}</code> 里放<strong>表达式</strong>，
-                  不能放语句 —— 所以条件渲染用三元或
+                  <code>{"{}"}</code> 里放<strong>表达式</strong>，不能放语句 —— 所以条件渲染用三元或
                   <code>&amp;&amp;</code>，不能写 <code>if</code>。
                 </li>
                 <li>
-                  <strong>JSX 默认转义</strong>，
-                  所以天然防 XSS；
-                  要插 HTML 得显式写
+                  <strong>JSX 默认转义</strong>，所以天然防 XSS；要插 HTML 得显式写
                   <code>dangerouslySetInnerHTML</code>——
-                  <strong>名字故意起得难听</strong>，
-                  就是让你警觉。
+                  <strong>名字故意起得难听</strong>，就是让你警觉。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>
                 「JSX 是必须的吗？」——
                 不是，你可以手写
-                <code>createElement</code>，
-                只是没人愿意。<strong>JSX 的价值是让
-                「UI 结构」在代码里长得像结构</strong>。
+                <code>createElement</code>，只是没人愿意。<strong>JSX 的价值是让「UI 结构」在代码里长得像结构</strong>。
               </p>
             </>
           ),
@@ -557,9 +518,7 @@ const el = React.createElement(
             <>
               <p>
                 <strong>一句话：</strong>虚拟 DOM 是
-                <strong>用普通 JS 对象描述真实 DOM 的一棵轻量树</strong>。
-                状态变了先在内存里生成新树，
-                和旧树 diff，
+                <strong>用普通 JS 对象描述真实 DOM 的一棵轻量树</strong>。状态变了先在内存里生成新树，和旧树 diff，
                 <strong>算出最小改动，再一次性打到真实 DOM 上</strong>。
               </p>
               <p>
@@ -567,25 +526,19 @@ const el = React.createElement(
               </p>
               <ul>
                 <li>
-                  <strong>批量</strong>—— 十次 state 更新
-                  合并成一次 DOM 操作，
-                  避免十次重排（见 #288）。
+                  <strong>批量</strong>—— 十次 state 更新合并成一次 DOM 操作，避免十次重排（见 #288）。
                 </li>
                 <li>
                   <strong>最小化</strong>——
-                  只改真正变了的属性和节点，
-                  不重建整棵子树。
+                  只改真正变了的属性和节点，不重建整棵子树。
                 </li>
               </ul>
               <p>
                 <strong>但要说出这层真相（加分点）：</strong>
                 <strong>虚拟 DOM 不一定比手写 DOM 快</strong>——
-                精心手写的原生操作永远更快，
-                虚拟 DOM 还额外付出了「建树 + diff」的开销。
-                <strong>它真正的价值是「在保持声明式写法的同时，
-                性能仍然够好」</strong>——
-                是<strong>可维护性和性能的折中</strong>，
-                不是性能银弹。
+                精心手写的原生操作永远更快，虚拟 DOM 还额外付出了「建树 + diff」的开销。
+                <strong>它真正的价值是「在保持声明式写法的同时，性能仍然够好」</strong>——
+                是<strong>可维护性和性能的折中</strong>，不是性能银弹。
               </p>
               <p>
                 <strong>diff 的三条启发式规则</strong>
@@ -593,13 +546,11 @@ const el = React.createElement(
               </p>
               <ol>
                 <li>
-                  <strong>只比同层</strong>，不跨层移动节点。
-                  跨层的话就是删了重建。
+                  <strong>只比同层</strong>，不跨层移动节点。跨层的话就是删了重建。
                 </li>
                 <li>
                   <strong>类型不同直接整棵重建</strong>——
-                  <code>div</code> 换成 <code>span</code>，
-                  子树全部丢弃重做（state 也丢）。
+                  <code>div</code> 换成 <code>span</code>，子树全部丢弃重做（state 也丢）。
                 </li>
                 <li>
                   <strong>同层列表用 <code>key</code> 认身份</strong>。
@@ -607,13 +558,7 @@ const el = React.createElement(
               </ol>
               <p>
                 <strong>key 为什么不能用 index</strong>——
-                这是 React 面试最实用的一条：
-                在开头插入或删除一项时，
-                所有元素的 index 都变了，
-                React 会认为「每一项的内容都变了」，
-                于是<strong>大量误更新</strong>；
-                更糟的是<strong>非受控输入框的内容会串到别的行</strong>，
-                因为 DOM 节点被复用了。
+                这是 React 面试最实用的一条：在开头插入或删除一项时，所有元素的 index 都变了，React 会认为「每一项的内容都变了」，于是<strong>大量误更新</strong>；更糟的是<strong>非受控输入框的内容会串到别的行</strong>，因为 DOM 节点被复用了。
                 <strong>Q1 那道真题有删除功能，所以列表必须用 note.id 当 key</strong>——
                 「列表渲染与 key」那一课推演过用 index 会怎样串位。
               </p>
@@ -739,16 +684,12 @@ const el = React.createElement(
             <>
               <p>
                 <strong>一句话：</strong>reconciliation（协调）是
-                <strong>「比较新旧虚拟 DOM 树，
-                决定要对真实 DOM 做哪些操作」的整个过程</strong>。
-                diff 算法是它的一部分。
+                <strong>「比较新旧虚拟 DOM 树，决定要对真实 DOM 做哪些操作」的整个过程</strong>。diff 算法是它的一部分。
               </p>
               <p>
                 <strong>diff 和 reconciliation 什么关系？</strong>
                 这是本题的考点：
-                <strong>diff 是「怎么比」的算法，
-                reconciliation 是「比 + 决定 + 提交」的完整流程</strong>。
-                说它们是一回事不算错，但分得清更好。
+                <strong>diff 是「怎么比」的算法，reconciliation 是「比 + 决定 + 提交」的完整流程</strong>。说它们是一回事不算错，但分得清更好。
               </p>
               <p>
                 <strong>React 16 之后的 Fiber 架构</strong>
@@ -758,34 +699,25 @@ const el = React.createElement(
               <ul>
                 <li>
                   <strong>render 阶段（可中断）</strong>——
-                  构建 Fiber 树、做 diff、
-                  标记要改什么。
-                  <strong>这个阶段可以被打断和恢复</strong>，
-                  所以高优先级的更新（比如用户输入）能插队。
+                  构建 Fiber 树、做 diff、标记要改什么。
+                  <strong>这个阶段可以被打断和恢复</strong>，所以高优先级的更新（比如用户输入）能插队。
                 </li>
                 <li>
                   <strong>commit 阶段（不可中断）</strong>——
-                  把标记好的改动一次性打到真实 DOM 上，
-                  然后跑 <code>useEffect</code>。
-                  <strong>这一段必须同步完成</strong>，
-                  否则用户会看到半渲染的界面。
+                  把标记好的改动一次性打到真实 DOM 上，然后跑 <code>useEffect</code>。
+                  <strong>这一段必须同步完成</strong>，否则用户会看到半渲染的界面。
                 </li>
               </ul>
               <p>
                 <strong>为什么要能中断？</strong>
                 因为老架构（Stack Reconciler）是
-                <strong>递归的、一旦开始就停不下来</strong>，
-                大列表更新时会阻塞主线程十几毫秒以上，
-                输入卡顿。Fiber 用链表 + 循环替代递归，
-                每处理一小块就检查「有没有更急的事」。
+                <strong>递归的、一旦开始就停不下来</strong>，大列表更新时会阻塞主线程十几毫秒以上，输入卡顿。Fiber 用链表 + 循环替代递归，每处理一小块就检查「有没有更急的事」。
                 <strong>这就是「并发特性」的基础</strong>（见 #344）。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「StrictMode 为什么渲染两次？」——
-                因为 render 阶段可能被中断和重跑，
-                所以<strong>渲染函数必须是纯的</strong>；
-                两次渲染就是帮你把不纯的地方暴露出来（见 #332）。
+                因为 render 阶段可能被中断和重跑，所以<strong>渲染函数必须是纯的</strong>；两次渲染就是帮你把不纯的地方暴露出来（见 #332）。
               </p>
             </>
           ),
@@ -866,17 +798,13 @@ const el = React.createElement(
                   <code>@babel/preset-react</code> 转 JSX，
                   <code>@babel/preset-env</code>
                   按目标浏览器把 ES2020+ 降级。
-                  <strong>它只做语法转换</strong>，
-                  新 API（<code>Promise</code>、
+                  <strong>它只做语法转换</strong>，新 API（<code>Promise</code>、
                   <code>Array.flat</code>）要靠 polyfill 补。
                   <strong>这个区分是加分点。</strong>
                 </li>
                 <li>
                   <strong>Webpack</strong>——
-                  解析 <code>import</code> 建依赖图、
-                  让 CSS 和图片也能被 import、
-                  tree shaking、代码分割、
-                  开发时提供 dev server 和热更新。
+                  解析 <code>import</code> 建依赖图、让 CSS 和图片也能被 import、tree shaking、代码分割、开发时提供 dev server 和热更新。
                 </li>
               </ul>
               <p>
@@ -888,14 +816,11 @@ const el = React.createElement(
               <p>
                 <strong>会追问：</strong>
                 「现在还用它们吗？」——
-                这题答得出现状才显得在跟进：
-                新项目多用 <strong>Vite</strong>
-                （开发用原生 ESM；Vite 7 及以前配 esbuild + Rollup，
-                Vite 8 起统一用 Rolldown；本课源项目用的是 Vite 5），
+                这题答得出现状才显得在跟进：新项目多用 <strong>Vite</strong>
+                （开发用原生 ESM；Vite 7 及以前配 esbuild + Rollup，Vite 8 起统一用 Rolldown；本课源项目用的是 Vite 5），
                 <strong>Babel 常被 esbuild / SWC 取代</strong>
                 （快一个量级）。
-                <strong>Webpack 仍在大量存量项目和
-                需要复杂定制的场景里。</strong>
+                <strong>Webpack 仍在大量存量项目和需要复杂定制的场景里。</strong>
                 <br />
                 我们这门课的 React 源项目用的就是 Vite —— 所以
                 <code>node_modules</code> 里根本没有 webpack。
@@ -1038,9 +963,7 @@ const el = React.createElement(
           body: (
             <>
               <p>
-                <strong>一句话：</strong>现在一律写函数组件。
-                类组件只在维护老代码和写错误边界时才用
-                （错误边界目前还只能用 class）。
+                <strong>一句话：</strong>现在一律写函数组件。类组件只在维护老代码和写错误边界时才用（错误边界目前还只能用 class）。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -1086,9 +1009,7 @@ const el = React.createElement(
               </p>
               <ul>
                 <li>
-                  <strong>逻辑能按关注点组织，
-                  而不是按生命周期切碎</strong>。
-                  类组件里「订阅」和「取消订阅」被迫分在
+                  <strong>逻辑能按关注点组织，而不是按生命周期切碎</strong>。类组件里「订阅」和「取消订阅」被迫分在
                   <code>componentDidMount</code> 和
                   <code>componentWillUnmount</code> 两个方法里；
                   <code>useEffect</code> 让它们
@@ -1096,8 +1017,7 @@ const el = React.createElement(
                 </li>
                 <li>
                   <strong>复用逻辑不用套娃。</strong>
-                  HOC 叠三层就变成「wrapper 地狱」，
-                  自定义 hook 是平的。
+                  HOC 叠三层就变成「wrapper 地狱」，自定义 hook 是平的。
                 </li>
                 <li>
                   <strong><code>this</code> 的问题彻底消失。</strong>
@@ -1106,8 +1026,7 @@ const el = React.createElement(
               <p>
                 <strong>会追问：</strong>
                 「函数组件里怎么拿 <code>shouldComponentUpdate</code>？」——
-                <code>React.memo</code>，
-                但它默认是浅比较，需要自定义就传第二个参数。
+                <code>React.memo</code>，但它默认是浅比较，需要自定义就传第二个参数。
               </p>
             </>
           ),
@@ -1217,8 +1136,7 @@ const el = React.createElement(
                   <code>render</code> →
                   <code>getSnapshotBeforeUpdate</code> →
                   <strong><code>componentDidUpdate</code></strong>
-                  （<strong>这里改 state 必须加条件</strong>，
-                  否则死循环）
+                  （<strong>这里改 state 必须加条件</strong>，否则死循环）
                 </li>
                 <li>
                   <strong>卸载</strong>：
@@ -1237,19 +1155,14 @@ const el = React.createElement(
                 <code>componentWillMount</code>、
                 <code>componentWillReceiveProps</code>、
                 <code>componentWillUpdate</code>。
-                <strong>原因是 Fiber 的 render 阶段可能被中断和重跑</strong>，
-                这几个方法可能被调用多次，
-                放在里面的副作用会重复执行。
+                <strong>原因是 Fiber 的 render 阶段可能被中断和重跑</strong>，这几个方法可能被调用多次，放在里面的副作用会重复执行。
                 <strong>能说出这个原因很加分。</strong>
               </p>
               <p>
                 <strong>会追问：</strong>
                 「请求为什么不放
                 <code>componentWillMount</code>？」——
-                除了上面的原因，
-                它在 SSR 时也会执行，
-                而且并不会更早拿到数据
-                （请求是异步的，反正要等）。
+                除了上面的原因，它在 SSR 时也会执行，而且并不会更早拿到数据（请求是异步的，反正要等）。
               </p>
             </>
           ),
@@ -1317,10 +1230,8 @@ const el = React.createElement(
               <p>
                 <strong>一句话（这句要说准）：</strong>
                 <code>useEffect</code>
-                <strong>不是生命周期的替代品，
-                它是「同步副作用」的另一种思路</strong>——
-                你声明「这个副作用依赖哪些值」，
-                值变了它就重新跑。
+                <strong>不是生命周期的替代品，它是「同步副作用」的另一种思路</strong>——
+                你声明「这个副作用依赖哪些值」，值变了它就重新跑。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -1365,30 +1276,23 @@ const el = React.createElement(
               <p>
                 <strong>但这张表有个陷阱</strong>——
                 <code>useEffect(fn, [])</code>
-                不完全等于 <code>componentDidMount</code>：
-                前者在<strong>浏览器绘制之后</strong>
+                不完全等于 <code>componentDidMount</code>：前者在<strong>浏览器绘制之后</strong>
                 异步执行，后者是同步的。
                 <strong>所以用 <code>useEffect</code>
-                测量 DOM 再改样式会闪一下</strong>，
-                这种情况要用
+                测量 DOM 再改样式会闪一下</strong>，这种情况要用
                 <code>useLayoutEffect</code>。
                 <br />
-                <code>getSnapshotBeforeUpdate</code> 目前没有对应的 hook，
-                真要用只能写类组件。
+                <code>getSnapshotBeforeUpdate</code> 目前没有对应的 hook，真要用只能写类组件。
               </p>
               <p>
                 <strong>更重要的是别用生命周期的思维写 effect。</strong>
-                正确的问法不是「我要在挂载时干什么」，
-                而是<strong>「这个副作用依赖哪些值」</strong>。
-                依赖列全，React 自然会在该跑的时候跑。
+                正确的问法不是「我要在挂载时干什么」，而是<strong>「这个副作用依赖哪些值」</strong>。依赖列全，React 自然会在该跑的时候跑。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「清理函数什么时候执行？」——
                 <strong>依赖变化前</strong>和<strong>卸载时</strong>。
-                <strong>我们那道计时器变式题就是这个考点</strong>：
-                漏了 <code>clearInterval</code>，
-                start/pause 四次会得到 10 秒而不是 4 秒（实测）。
+                <strong>我们那道计时器变式题就是这个考点</strong>：漏了 <code>clearInterval</code>，start/pause 四次会得到 10 秒而不是 4 秒（实测）。
               </p>
             </>
           ),
@@ -1522,9 +1426,7 @@ const el = React.createElement(
               <p>
                 <strong>为什么 props 必须只读？</strong>
                 因为<strong>组件的渲染函数应该是纯的</strong>
-                （见 #293）：同样的 props 渲染出同样的 UI。
-                改了 props 就等于改了「输入」，
-                父组件下次渲染又会把它覆盖回去 ——
+                （见 #293）：同样的 props 渲染出同样的 UI。改了 props 就等于改了「输入」，父组件下次渲染又会把它覆盖回去 ——
                 数据源变成两个，谁也说不清现在该信谁。
               </p>
               <p>
@@ -1550,12 +1452,8 @@ const el = React.createElement(
                 「能把 props 存进 state 吗？」——
                 <strong>能但通常是 bug</strong>：
                 <code>useState(props.value)</code>
-                只在首次渲染取值，
-                之后 props 变了 state 不会跟着变。
-                只有「需要一个可编辑的初始值」时才这么做，
-                而且要想清楚 props 变化时要不要重置。
-                <strong>Q1 那道题的编辑功能就是这个场景</strong>，
-                它用 <code>useEffect</code> 显式同步。
+                只在首次渲染取值，之后 props 变了 state 不会跟着变。只有「需要一个可编辑的初始值」时才这么做，而且要想清楚 props 变化时要不要重置。
+                <strong>Q1 那道题的编辑功能就是这个场景</strong>，它用 <code>useEffect</code> 显式同步。
               </p>
             </>
           ),
@@ -1651,45 +1549,35 @@ const el = React.createElement(
                   <strong>父 → 子</strong>：props。
                 </li>
                 <li>
-                  <strong>子 → 父</strong>：
-                  父把回调函数当 props 传下去，
-                  子调用它。<strong>「事件往上报」就是这个。</strong>
+                  <strong>子 → 父</strong>：父把回调函数当 props 传下去，子调用它。<strong>「事件往上报」就是这个。</strong>
                 </li>
                 <li>
                   <strong>兄弟之间</strong>：
-                  <strong>状态提升</strong>到共同父级，
-                  再分别往下传（#345）。
+                  <strong>状态提升</strong>到共同父级，再分别往下传（#345）。
                 </li>
                 <li>
                   <strong>跨很多层</strong>：
                   <strong>Context</strong>——
-                  适合主题、当前用户、语言这种
-                  「整棵树都要读、又不常变」的值。
+                  适合主题、当前用户、语言这种「整棵树都要读、又不常变」的值。
                 </li>
                 <li>
-                  <strong>全局、复杂、多处修改</strong>：
-                  状态库（Redux / Zustand / Jotai）
-                  或服务端状态库（TanStack Query）。
+                  <strong>全局、复杂、多处修改</strong>：状态库（Redux / Zustand / Jotai）或服务端状态库（TanStack Query）。
                 </li>
               </ul>
               <p>
                 <strong>还有两个偏门但会问的：</strong>
                 <code>ref</code> +
                 <code>useImperativeHandle</code>
-                （父组件主动调子组件的方法，
-                比如 <code>focus()</code>、
-                <code>play()</code>）；
-                以及 <code>props.children</code>
+                （父组件主动调子组件的方法，比如 <code>focus()</code>、
+                <code>play()</code>）；以及 <code>props.children</code>
                 （组合优于配置，也是解决
                 props drilling 的一招）。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「什么时候该上状态库？」——
-                判据：<strong>同一份状态被很多不相关的组件读写</strong>、
-                或者需要<strong>时间旅行调试 / 中间件</strong>。
-                <strong>只是「层数深」不该上 Redux，
-                Context 或组合就够</strong>——
+                判据：<strong>同一份状态被很多不相关的组件读写</strong>、或者需要<strong>时间旅行调试 / 中间件</strong>。
+                <strong>只是「层数深」不该上 Redux，Context 或组合就够</strong>——
                 这个回答比「大项目就用 Redux」好得多。
               </p>
             </>
@@ -1792,8 +1680,7 @@ function Child({ onChange }) {
                 <strong>一句话：</strong>
                 <strong>受控 = 值由 React state 说了算</strong>
                 （<code>value</code> + <code>onChange</code>）；
-                <strong>非受控 = 值由 DOM 自己保管</strong>，
-                需要时用 <code>ref</code> 去读。
+                <strong>非受控 = 值由 DOM 自己保管</strong>，需要时用 <code>ref</code> 去读。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -1835,33 +1722,27 @@ function Child({ onChange }) {
               </div>
               <p>
                 <strong>默认用受控。</strong>
-                因为一旦要做「输入为空就禁用提交按钮」
-                「实时显示字数」「两个字段联动」，
-                受控是唯一顺手的方式 ——
+                因为一旦要做「输入为空就禁用提交按钮」「实时显示字数」「两个字段联动」，受控是唯一顺手的方式 ——
                 <strong>Q1 那道真题的校验要求就是这样</strong>。
               </p>
               <p>
                 <strong>非受控的两个真实场景：</strong>
                 <code>{'<input type="file">'}</code>
                 （<strong>只能非受控</strong>，出于安全
-                JS 不能设它的值）；
-                以及性能敏感的大表单
-                （每次按键都重渲染整个表单时）。
+                JS 不能设它的值）；以及性能敏感的大表单（每次按键都重渲染整个表单时）。
               </p>
               <p>
                 <strong>会追问（高频）：</strong>
                 「<code>value</code> 传了但没传
                 <code>onChange</code> 会怎样？」——
-                输入框<strong>变成只读</strong>，
-                打字没反应，React 还会警告。
+                输入框<strong>变成只读</strong>，打字没反应，React 还会警告。
                 <br />
                 「怎么给受控组件一个初始值又不锁死？」——
                 <code>defaultValue</code>，但那就是非受控了。
                 <br />
                 「<code>value={"{undefined}"}</code> 呢？」——
                 React 会把它当成非受控，
-                <strong>然后在你后来传了值时报「从非受控变成受控」的警告</strong>。
-                所以初始值该写 <code>&quot;&quot;</code> 而不是
+                <strong>然后在你后来传了值时报「从非受控变成受控」的警告</strong>。所以初始值该写 <code>&quot;&quot;</code> 而不是
                 <code>undefined</code>。
               </p>
             </>
@@ -1985,8 +1866,7 @@ const ref = useRef(null);
             <>
               <p>
                 <strong>一句话：</strong>两个兄弟组件要共享同一份数据时，
-                <strong>把 state 移到它们最近的共同父级</strong>，
-                再通过 props 往下传、通过回调往上报。
+                <strong>把 state 移到它们最近的共同父级</strong>，再通过 props 往下传、通过回调往上报。
               </p>
               <p>
                 <strong>为什么必须这样？</strong>
@@ -1996,32 +1876,24 @@ const ref = useRef(null);
               </p>
               <p>
                 <strong>做法三步：</strong>
-                ① 找到最近的共同父级；
-                ② state 搬上去；
-                ③ 父级把「值」和「改值的函数」
-                分别传给两个孩子。
+                ① 找到最近的共同父级；② state 搬上去；③ 父级把「值」和「改值的函数」分别传给两个孩子。
               </p>
               <p>
                 <strong>代价（要主动说）：</strong>
                 提得越高，<strong>中间层被迫透传的 props 越多</strong>
-                （这就是 props drilling，#331），
-                而且父级重渲染会带着整棵子树重渲染。
+                （这就是 props drilling，#331），而且父级重渲染会带着整棵子树重渲染。
                 <strong>所以原则是「提到刚好够用的那一层，别更高」。</strong>
               </p>
               <p>
                 <strong>Q1 那道真题就是一个标准的状态提升</strong>：
                 <code>notes</code> 放在
-                <code>NoteManager</code>（父），
-                表单和表格都是它的孩子；
-                表单提交时调用父传下来的回调。
+                <code>NoteManager</code>（父），表单和表格都是它的孩子；表单提交时调用父传下来的回调。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「提太高怎么办？」——
-                Context、组合（<code>children</code>）、
-                或者状态库。
-                <strong>注意 Context 解决的是「传递」，
-                不是「共享」</strong>——
+                Context、组合（<code>children</code>）、或者状态库。
+                <strong>注意 Context 解决的是「传递」，不是「共享」</strong>——
                 state 该放哪还是得想清楚。
               </p>
             </>
@@ -2090,8 +1962,7 @@ const ref = useRef(null);
               <ul>
                 <li>
                   <strong>中间组件被污染</strong>——
-                  它的 props 签名里出现了跟它无关的字段，
-                  可复用性下降。
+                  它的 props 签名里出现了跟它无关的字段，可复用性下降。
                 </li>
                 <li>
                   <strong>改一处动一串</strong>——
@@ -2108,14 +1979,11 @@ const ref = useRef(null);
               <ol>
                 <li>
                   <strong>组合 / <code>children</code></strong>——
-                  <strong>最被低估的一招</strong>。
-                  把元素直接当 props 传下去，
-                  中间层就不用知道它需要什么数据。
+                  <strong>最被低估的一招</strong>。把元素直接当 props 传下去，中间层就不用知道它需要什么数据。
                 </li>
                 <li>
                   <strong>Context</strong>——
-                  适合主题、用户、语言这类
-                  「整棵树都读、不常变」的值。
+                  适合主题、用户、语言这类「整棵树都读、不常变」的值。
                   <strong>我们那道主题切换变式题就是这个。</strong>
                 </li>
                 <li>
@@ -2129,10 +1997,7 @@ const ref = useRef(null);
               <p>
                 <strong>会追问：</strong>
                 「传两三层也要上 Context 吗？」——
-                <strong>不要</strong>。
-                两三层的 props 是清晰的、可追踪的；
-                Context 会让「这个值从哪来」变得不明显，
-                而且 context 一变<strong>所有消费者都重渲染</strong>。
+                <strong>不要</strong>。两三层的 props 是清晰的、可追踪的；Context 会让「这个值从哪来」变得不明显，而且 context 一变<strong>所有消费者都重渲染</strong>。
                 <strong>「drilling 超过三四层且中间层完全无关」才值得上。</strong>
               </p>
             </>
@@ -2213,47 +2078,36 @@ const ref = useRef(null);
                 <code>React.PureComponent</code>
                 自带一个<strong>浅比较</strong>的
                 <code>shouldComponentUpdate</code>——
-                props 和 state 浅比较都没变就跳过渲染。
-                函数组件的对应物是
+                props 和 state 浅比较都没变就跳过渲染。函数组件的对应物是
                 <code>React.memo</code>。
               </p>
               <p>
                 <strong>「浅比较」是本题全部的考点。</strong>
                 它对每个 prop 用
-                <code>Object.is</code> 比一层。
-                所以：
+                <code>Object.is</code> 比一层。所以：
               </p>
               <ul>
                 <li>
-                  <strong>传对象/数组/函数字面量 → 优化完全失效</strong>，
-                  因为每次渲染都是新引用。
+                  <strong>传对象/数组/函数字面量 → 优化完全失效</strong>，因为每次渲染都是新引用。
                 </li>
                 <li>
-                  <strong>内部深层改了对象 → 不会重渲染</strong>，
-                  因为引用没变 —— 界面就不更新了。
+                  <strong>内部深层改了对象 → 不会重渲染</strong>，因为引用没变 —— 界面就不更新了。
                 </li>
               </ul>
               <p>
                 <strong>所以 PureComponent /
-                <code>memo</code> 和「不可变更新」是一对</strong>：
-                你必须每次造新对象，
-                浅比较才能正确地判断出「变了」。
-                <strong>反过来，如果你就地改对象，
-                加了 memo 反而会制造 bug。</strong>
+                <code>memo</code> 和「不可变更新」是一对</strong>：你必须每次造新对象，浅比较才能正确地判断出「变了」。
+                <strong>反过来，如果你就地改对象，加了 memo 反而会制造 bug。</strong>
               </p>
               <p>
                 <strong>会追问：</strong>
                 「怎么让 memo 真正生效？」——
-                对象和数组用 <code>useMemo</code>、
-                函数用 <code>useCallback</code>
-                稳住引用。<strong>三个必须配套用</strong>，
-                只加 <code>memo</code> 往往一点用没有
-                （见 #346）。
+                对象和数组用 <code>useMemo</code>、函数用 <code>useCallback</code>
+                稳住引用。<strong>三个必须配套用</strong>，只加 <code>memo</code> 往往一点用没有（见 #346）。
                 <br />
                 「是不是所有组件都该 memo？」——
                 不是。浅比较本身也有成本，
-                <strong>props 多且经常变的组件，
-                加了反而更慢</strong>。
+                <strong>props 多且经常变的组件，加了反而更慢</strong>。
               </p>
             </>
           ),
@@ -2346,9 +2200,7 @@ const onPick = useCallback((id) => pick(id), [pick]);
             <>
               <p>
                 <strong>一句话：</strong>
-                一个<strong>不产生真实 DOM 节点</strong>的容器，
-                用来满足「JSX 必须有单一根节点」的要求，
-                同时不往页面里多塞一层
+                一个<strong>不产生真实 DOM 节点</strong>的容器，用来满足「JSX 必须有单一根节点」的要求，同时不往页面里多塞一层
                 <code>div</code>。
               </p>
               <p>
@@ -2362,10 +2214,7 @@ const onPick = useCallback((id) => pick(id), [pick]);
                 <li>
                   <strong>表格</strong>——
                   <code>&lt;tr&gt;</code> 里套一层
-                  <code>div</code> 是<strong>非法 HTML</strong>：
-                  服务端渲染的 HTML 被浏览器解析时，它会被挪出表格；
-                  客户端由 React 直接创建 DOM 时不会被挪走，
-                  但会触发 validateDOMNesting 警告，布局照样出错。
+                  <code>div</code> 是<strong>非法 HTML</strong>：服务端渲染的 HTML 被浏览器解析时，它会被挪出表格；客户端由 React 直接创建 DOM 时不会被挪走，但会触发 validateDOMNesting 警告，布局照样出错。
                 </li>
                 <li>
                   <strong>Flex / Grid 布局</strong>——
@@ -2374,18 +2223,15 @@ const onPick = useCallback((id) => pick(id), [pick]);
                   <code>flex</code> 属性全失效。
                 </li>
                 <li>
-                  <strong>减少 DOM 层数</strong>，
-                  样式选择器也更好写。
+                  <strong>减少 DOM 层数</strong>，样式选择器也更好写。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>
                 「Fragment 上能加 key 吗？」——
                 <strong>能，但必须用完整写法</strong>
-                <code>&lt;React.Fragment key={"{id}"}&gt;</code>，
-                简写 <code>&lt;&gt;</code> 不支持任何属性。
-                <strong>在列表里渲染多个兄弟元素时就得这么写</strong>，
-                这是简写唯一的限制。
+                <code>&lt;React.Fragment key={"{id}"}&gt;</code>，简写 <code>&lt;&gt;</code> 不支持任何属性。
+                <strong>在列表里渲染多个兄弟元素时就得这么写</strong>，这是简写唯一的限制。
               </p>
             </>
           ),
@@ -2485,8 +2331,7 @@ const onPick = useCallback((id) => pick(id), [pick]);
               <p>
                 <code>withRouter</code>、
                 <code>connect</code>（Redux）、
-                <code>withStyles</code> 都是 HOC。
-                本质就是 #292 的高阶函数用在组件上。
+                <code>withStyles</code> 都是 HOC。本质就是 #292 的高阶函数用在组件上。
               </p>
               <p>
                 <strong>三个必须注意的点（考点在这）：</strong>
@@ -2494,18 +2339,14 @@ const onPick = useCallback((id) => pick(id), [pick]);
               <ul>
                 <li>
                   <strong>要透传 props</strong>——
-                  <code>{"<Comp {...props} />"}</code>，
-                  不然把原来的 props 吞了。
+                  <code>{"<Comp {...props} />"}</code>，不然把原来的 props 吞了。
                 </li>
                 <li>
                   <strong>要拷贝静态方法</strong>——
-                  包一层之后原组件的静态属性丢了
-                  （<code>hoist-non-react-statics</code> 干这事）。
+                  包一层之后原组件的静态属性丢了（<code>hoist-non-react-statics</code> 干这事）。
                 </li>
                 <li>
-                  <strong>ref</strong>—— React 18 及以前不会随 props 透传，
-                  要用 <code>forwardRef</code>；React 19 起 ref 是普通 prop，
-                  透传 props 就够了。
+                  <strong>ref</strong>—— React 18 及以前不会随 props 透传，要用 <code>forwardRef</code>；React 19 起 ref 是普通 prop，透传 props 就够了。
                 </li>
               </ul>
               <p>
@@ -2514,13 +2355,11 @@ const onPick = useCallback((id) => pick(id), [pick]);
               <ul>
                 <li>
                   <strong>wrapper 地狱</strong>——
-                  叠三四层之后 DevTools 里全是嵌套，
-                  难调试。
+                  叠三四层之后 DevTools 里全是嵌套，难调试。
                 </li>
                 <li>
                   <strong>props 来源不明</strong>——
-                  组件里出现一个 <code>user</code> prop，
-                  你不知道是哪个 HOC 注进来的。
+                  组件里出现一个 <code>user</code> prop，你不知道是哪个 HOC 注进来的。
                 </li>
                 <li>
                   <strong>命名冲突</strong>——
@@ -2528,18 +2367,14 @@ const onPick = useCallback((id) => pick(id), [pick]);
                 </li>
               </ul>
               <p>
-                <strong>自定义 hook 解决了全部三条</strong>：
-                平铺、来源显式
-                （<code>const user = useUser()</code>
-                一眼看出来）、
-                名字由你决定。<strong>所以现在优先写 hook。</strong>
+                <strong>自定义 hook 解决了全部三条</strong>：平铺、来源显式（<code>const user = useUser()</code>
+                一眼看出来）、名字由你决定。<strong>所以现在优先写 hook。</strong>
               </p>
               <p>
                 <strong>会追问：</strong>「那 HOC 还有用吗？」——
                 有两个 hook 替代不了的场合：
                 <strong>需要「包裹」渲染结果</strong>
-                （比如给所有页面套一层错误边界或布局）、
-                以及<strong>要改写 props 后再传给一个你无法修改的组件</strong>。
+                （比如给所有页面套一层错误边界或布局）、以及<strong>要改写 props 后再传给一个你无法修改的组件</strong>。
               </p>
             </>
           ),

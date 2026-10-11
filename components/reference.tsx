@@ -68,8 +68,7 @@ export function Reference() {
             <T
               zh={
                 <>
-                  注意两个项目的差别：react-notes-app <strong>没有</strong> test script，
-                  node-subgraph <strong>有</strong>。
+                  注意两个项目的差别：react-notes-app <strong>没有</strong> test script，node-subgraph <strong>有</strong>。
                 </>
               }
               en={
@@ -320,8 +319,7 @@ export function Reference() {
                     <T
                       zh={
                         <>
-                          <strong>module</strong> = 用 ESM（import/export）；
-                          不写 = CommonJS（require）
+                          <strong>module</strong> = 用 ESM（import/export）；不写 = CommonJS（require）
                         </>
                       }
                       en={
@@ -445,8 +443,7 @@ export function Reference() {
               <T
                 zh={
                   <>
-                    subgraph 的 dependencies 里有 <code>dataloader</code>，
-                    而 TODO 里正好要求「用 DataLoader 防 N+1」。
+                    subgraph 的 dependencies 里有 <code>dataloader</code>，而 TODO 里正好要求「用 DataLoader 防 N+1」。
                     <strong>拿到新项目先读 dependencies，特殊的包就是考点。</strong>
                   </>
                 }
@@ -780,8 +777,7 @@ new DataLoader(async keys => {
                     <T
                       zh={
                         <>
-                          「别的 subgraph 给出 id 就能定位同一个我」。
-                          可以复合（<code>&quot;isbn edition&quot;</code>），可以有多个
+                          「别的 subgraph 给出 id 就能定位同一个我」。可以复合（<code>&quot;isbn edition&quot;</code>），可以有多个
                         </>
                       }
                       en={
@@ -808,7 +804,7 @@ new DataLoader(async keys => {
                   <td><code>@shareable</code></td>
                   <td>
                     <T
-                      zh="允许多个 subgraph 定义同一个字段。 本项目 import 了但没用到"
+                      zh="允许多个 subgraph 定义同一个字段。本项目 import 了但没用到"
                       en="Lets several subgraphs define the same field. This project imports it but never uses it"
                     />
                   </td>
@@ -859,8 +855,7 @@ new DataLoader(async keys => {
                     <T
                       zh={
                         <>
-                          来自 <code>@apollo/subgraph</code>。
-                          认识 federation directive，并自动加上面两个字段
+                          来自 <code>@apollo/subgraph</code>。认识 federation directive，并自动加上面两个字段
                         </>
                       }
                       en={
@@ -1169,8 +1164,7 @@ MDC.get("correlationId")`,
                     <T
                       zh={
                         <>
-                          缺 <code>&quot;type&quot;: &quot;module&quot;</code>，
-                          或 jest 缺 <code>--experimental-vm-modules</code>
+                          缺 <code>&quot;type&quot;: &quot;module&quot;</code>，或 jest 缺 <code>--experimental-vm-modules</code>
                         </>
                       }
                       en={
@@ -1189,8 +1183,7 @@ MDC.get("correlationId")`,
                     <T
                       zh={
                         <>
-                          useEffect 依赖里含自己修改的 state；
-                          或 <code>onClick={"{fn()}"}</code> 在渲染时就执行了
+                          useEffect 依赖里含自己修改的 state；或 <code>onClick={"{fn()}"}</code> 在渲染时就执行了
                         </>
                       }
                       en={
@@ -1337,8 +1330,7 @@ MDC.get("correlationId")`,
                     <T
                       zh={
                         <>
-                          resolver 忘了 <code>?? []</code>。会向上冒泡，
-                          可能让整个 <code>data</code> 变 null
+                          resolver 忘了 <code>?? []</code>。会向上冒泡，可能让整个 <code>data</code> 变 null
                         </>
                       }
                       en={
@@ -1463,8 +1455,7 @@ MDC.get("correlationId")`,
                     <T
                       zh={
                         <>
-                          catch 把自己抛的结构化错误重新包装了。
-                          补 <code>if (error instanceof GraphQLError) throw error</code>
+                          catch 把自己抛的结构化错误重新包装了。补 <code>if (error instanceof GraphQLError) throw error</code>
                         </>
                       }
                       en={
@@ -1545,8 +1536,7 @@ MDC.get("correlationId")`,
                     <T
                       zh={
                         <>
-                          自己 catch 了 <code>EntityNotFoundException</code>，
-                          全局处理器收不到
+                          自己 catch 了 <code>EntityNotFoundException</code>，全局处理器收不到
                         </>
                       }
                       en={
@@ -1564,8 +1554,7 @@ MDC.get("correlationId")`,
                     <T
                       zh={
                         <>
-                          <code>@link</code> 的 import 列表里漏了它，
-                          或没用 <code>buildSubgraphSchema</code>
+                          <code>@link</code> 的 import 列表里漏了它，或没用 <code>buildSubgraphSchema</code>
                         </>
                       }
                       en={
@@ -1602,8 +1591,7 @@ MDC.get("correlationId")`,
                 <T
                   zh={
                     <>
-                      <strong>分层。</strong>这个报错来自 npm（命令/目录不对）、
-                      工具（依赖没装）、还是我的代码？
+                      <strong>分层。</strong>这个报错来自 npm（命令/目录不对）、工具（依赖没装）、还是我的代码？
                       <strong>别一看红字就改业务代码。</strong>
                     </>
                   }
@@ -1640,8 +1628,7 @@ MDC.get("correlationId")`,
                 <T
                   zh={
                     <>
-                      <strong>如果没有报错，按症状查表</strong>（见上一节）：
-                      数据对但界面不动 / 组件不显示 / 列表空白 / 字段一直 null /
+                      <strong>如果没有报错，按症状查表</strong>（见上一节）：数据对但界面不动 / 组件不显示 / 列表空白 / 字段一直 null /
                       数据串了 —— 这五种各有固定病因。
                     </>
                   }
@@ -1663,8 +1650,7 @@ MDC.get("correlationId")`,
                     <>
                       <strong>确认代码有没有被执行。</strong>
                       在最可疑的函数第一行放一个 log。
-                      <strong>「日志没打印」和「日志打印了但结果不对」
-                      指向完全不同的方向。</strong>
+                      <strong>「日志没打印」和「日志打印了但结果不对」指向完全不同的方向。</strong>
                     </>
                   }
                   en={
@@ -1685,8 +1671,7 @@ MDC.get("correlationId")`,
                   zh={
                     <>
                       <strong>核对跨模块的名字和签名。</strong>
-                      方法名、context 键名、props 名、参数个数、位置参数 vs 对象参数。
-                      这一步能抓住绝大多数「集成问题」。
+                      方法名、context 键名、props 名、参数个数、位置参数 vs 对象参数。这一步能抓住绝大多数「集成问题」。
                     </>
                   }
                   en={
@@ -1704,8 +1689,7 @@ MDC.get("correlationId")`,
                   zh={
                     <>
                       <strong>回去读契约。</strong>
-                      schema 的可空性、类型定义、README 里的约束、
-                      测试断言的确切字符串。
+                      schema 的可空性、类型定义、README 里的约束、测试断言的确切字符串。
                     </>
                   }
                   en={
@@ -1722,8 +1706,7 @@ MDC.get("correlationId")`,
                   zh={
                     <>
                       <strong>改完必须验证，而且要验到题面那一层。</strong>
-                      测试过 ≠ 做对了 —— 手动造一个测试覆盖不到的场景
-                      （同名数据、多条数据、非法输入、不存在的 id）。
+                      测试过 ≠ 做对了 —— 手动造一个测试覆盖不到的场景（同名数据、多条数据、非法输入、不存在的 id）。
                     </>
                   }
                   en={
@@ -1754,10 +1737,8 @@ MDC.get("correlationId")`,
                 zh={
                   <>
                     ① Java 六个端点全 <code>return null</code>，5 个测试过 3 个。
-                    <br />② subgraph 四个 TODO 全空，10 个测试过 4 个
-                    （其中 3 个是「返回空」的假通过）。
-                    <br />③ React 的删除/编辑测试只有一条数据，
-                    按 title 删、先删再加都能过。
+                    <br />② subgraph 四个 TODO 全空，10 个测试过 4 个（其中 3 个是「返回空」的假通过）。
+                    <br />③ React 的删除/编辑测试只有一条数据，按 title 删、先删再加都能过。
                   </>
                 }
                 en={

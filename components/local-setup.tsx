@@ -75,8 +75,7 @@ export function NoRunnerNote({
                   StackBlitz
                 </a>
                 。<strong>这一页不给编辑器和测试运行器，是故意的</strong> ——
-                考场对准的是真实考试：空文件夹、自己装依赖、自己读报错。
-                想要连好依赖和测试的编辑器，去
+                考场对准的是真实考试：空文件夹、自己装依赖、自己读报错。想要连好依赖和测试的编辑器，去
                 <Link href="/code">Coding 题</Link>，那边有 11
                 道能在浏览器里直接跑。
                 {stackblitz === "node"
@@ -125,11 +124,9 @@ export function NoRunnerNote({
             <>
               不是做不到。<strong>是这一档的意义就在于什么都不给。</strong>
               <Link href="/code">Coding 题</Link>里那 11
-              道浏览器沙箱把文件、依赖、 测试全备好了 ——
-              你只要写函数体。真实考试不是这样：你会拿到一个空文件夹
-              或者一份跑不起来的脚手架，自己{" "}
-              <code className="icode">npm install</code>、自己读报错、
-              自己决定文件放哪。
+              道浏览器沙箱把文件、依赖、测试全备好了 ——
+              你只要写函数体。真实考试不是这样：你会拿到一个空文件夹或者一份跑不起来的脚手架，自己{" "}
+              <code className="icode">npm install</code>、自己读报错、自己决定文件放哪。
             </>
           }
           en={
@@ -172,7 +169,7 @@ export function NoRunnerNote({
           zh={
             <>
               <strong>去哪跑：</strong>本机 + VS Code 最接近真实考试，要先装好
-              Node。 装不了 Node 就用{" "}
+              Node。装不了 Node 就用{" "}
               <a href="https://stackblitz.com" rel="noreferrer" target="_blank">
                 StackBlitz
               </a>
@@ -180,8 +177,7 @@ export function NoRunnerNote({
                 <>
                   {" "}
                   —— 它把 Node 编译进了浏览器，所以这种要{" "}
-                  <code className="icode">npm test</code> 的服务端项目它也能跑
-                  （本站用的 Sandpack 不行，浏览器 iframe 里没有 Node）。
+                  <code className="icode">npm test</code> 的服务端项目它也能跑（本站用的 Sandpack 不行，浏览器 iframe 里没有 Node）。
                 </>
               ) : (
                 <>

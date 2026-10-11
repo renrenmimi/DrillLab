@@ -52,8 +52,7 @@ export const ivReactHooks: Module = {
             <>
               <p>
                 <strong>一句话：</strong>hooks 是一组
-                <code>use</code> 开头的函数，
-                让<strong>函数组件也能有状态和副作用</strong>。
+                <code>use</code> 开头的函数，让<strong>函数组件也能有状态和副作用</strong>。
               </p>
               <p>
                 <strong>解决三个真实痛点（这三条是标准答案）：</strong>
@@ -61,14 +60,11 @@ export const ivReactHooks: Module = {
               <ul>
                 <li>
                   <strong>逻辑复用难。</strong>
-                  以前只有 HOC 和 render props，
-                  两者都会造成 wrapper 嵌套（见 #335）。
-                  自定义 hook 是平的。
+                  以前只有 HOC 和 render props，两者都会造成 wrapper 嵌套（见 #335）。自定义 hook 是平的。
                 </li>
                 <li>
                   <strong>逻辑被生命周期切碎。</strong>
-                  一个「订阅 + 取消订阅」的完整逻辑
-                  被迫拆到两个生命周期方法里；
+                  一个「订阅 + 取消订阅」的完整逻辑被迫拆到两个生命周期方法里；
                   <code>useEffect</code> 让它们写在一起。
                 </li>
                 <li>
@@ -84,8 +80,7 @@ export const ivReactHooks: Module = {
                 <code>useRef</code>、
                 <code>useMemo</code>、
                 <code>useCallback</code>、
-                <code>useReducer</code>；
-                React 18 加了
+                <code>useReducer</code>；React 18 加了
                 <code>useId</code>、
                 <code>useTransition</code>、
                 <code>useDeferredValue</code>、
@@ -97,8 +92,7 @@ export const ivReactHooks: Module = {
               <ol>
                 <li>
                   <strong>只在最顶层调用</strong>——
-                  不能放在 <code>if</code>、循环、
-                  嵌套函数里。
+                  不能放在 <code>if</code>、循环、嵌套函数里。
                 </li>
                 <li>
                   <strong>只在函数组件或自定义 hook 里调用。</strong>
@@ -106,12 +100,7 @@ export const ivReactHooks: Module = {
               </ol>
               <p>
                 <strong>为什么有第一条 —— 这是追问点。</strong>
-                React <strong>不知道你的 hook 叫什么名字</strong>，
-                它是按<strong>调用顺序</strong>把每个 hook 的状态
-                存在一条链表上的。
-                如果 hook 写在 <code>if</code> 里，
-                某次渲染少调了一个，
-                后面所有 hook 的<strong>下标就全错位了</strong>——
+                React <strong>不知道你的 hook 叫什么名字</strong>，它是按<strong>调用顺序</strong>把每个 hook 的状态存在一条链表上的。如果 hook 写在 <code>if</code> 里，某次渲染少调了一个，后面所有 hook 的<strong>下标就全错位了</strong>——
                 <code>useState</code> 会拿到别人的值。
                 <br />
                 <strong>能答出「靠调用顺序而不是名字」就说明真理解了。</strong>
@@ -230,18 +219,15 @@ function Good({ show }) {
             <>
               <p>
                 <strong>一句话：</strong>
-                <strong><code>useMemo</code> 缓存
-                「函数的返回值」，
-                <code>useCallback</code> 缓存
-                「函数本身」。</strong>
+                <strong><code>useMemo</code> 缓存「函数的返回值」，
+                <code>useCallback</code> 缓存「函数本身」。</strong>
                 两者都靠依赖数组决定要不要重算。
               </p>
               <p>
                 实际上 <code>useCallback(fn, deps)</code>
                 完全等价于
                 <code>useMemo(() =&gt; fn, deps)</code>——
-                <strong>useCallback 是 useMemo 的语法糖</strong>。
-                这句能答出来会加分。
+                <strong>useCallback 是 useMemo 的语法糖</strong>。这句能答出来会加分。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -257,8 +243,7 @@ function Good({ show }) {
                       <td><code>useMemo</code></td>
                       <td>计算结果（值 / 对象 / 数组）</td>
                       <td>
-                        ① 计算真的贵（大列表排序过滤）
-                        ② 结果要当 props 传给 memo 组件
+                        ① 计算真的贵（大列表排序过滤）② 结果要当 props 传给 memo 组件
                         ③ 结果要当别的 hook 的依赖
                       </td>
                     </tr>
@@ -277,11 +262,9 @@ function Good({ show }) {
               <p>
                 <strong>什么时候不该用（这半边很多人答不出）：</strong>
                 两者本身<strong>都有成本</strong>——
-                要存旧值、要比较依赖。
-                给一个 <code>a + b</code> 包
+                要存旧值、要比较依赖。给一个 <code>a + b</code> 包
                 <code>useMemo</code> 是纯亏。
-                <strong>「先测量，再优化」</strong>；
-                默认不加，profiler 显示有问题再加。
+                <strong>「先测量，再优化」</strong>；默认不加，profiler 显示有问题再加。
               </p>
               <p>
                 <strong>最常见的误用：</strong>
@@ -295,8 +278,7 @@ function Good({ show }) {
                 它是独立的编译插件（不是 React 19 自带的），能自动插入记忆化，
                 <strong>大部分手写的
                 <code>useMemo</code> /
-                <code>useCallback</code> 将不再必要</strong>。
-                知道这个趋势会显得你在跟进。
+                <code>useCallback</code> 将不再必要</strong>。知道这个趋势会显得你在跟进。
               </p>
             </>
           ),
@@ -410,10 +392,8 @@ const onSave = useCallback(() => save(config), [{ ...config }]);
             <>
               <p>
                 <strong>一句话：</strong>
-                <strong><code>React.memo</code> 是
-                「组件」级的 —— 决定要不要重新渲染整个组件</strong>；
-                <strong><code>useMemo</code> 是
-                「值」级的 —— 决定要不要重新计算一个值</strong>。
+                <strong><code>React.memo</code> 是「组件」级的 —— 决定要不要重新渲染整个组件</strong>；
+                <strong><code>useMemo</code> 是「值」级的 —— 决定要不要重新计算一个值</strong>。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -452,8 +432,7 @@ const onSave = useCallback(() => save(config), [{ ...config }]);
                 <strong>关键：三个必须配套用。</strong>
                 只在子组件上加 <code>React.memo</code>
                 通常<strong>一点效果都没有</strong>——
-                因为父组件每次渲染都会给出新的对象和函数字面量，
-                浅比较必然判定「变了」。
+                因为父组件每次渲染都会给出新的对象和函数字面量，浅比较必然判定「变了」。
                 <strong>必须同时用
                 <code>useMemo</code> 稳住对象、
                 <code>useCallback</code> 稳住函数。</strong>
@@ -462,17 +441,13 @@ const onSave = useCallback(() => save(config), [{ ...config }]);
                 <strong>会追问：</strong>
                 「<code>memo</code> 能拦住 context 变化吗？」——
                 <strong>拦不住</strong>。
-                <code>memo</code> 只比 props，
-                context 走另一条通道。
+                <code>memo</code> 只比 props，context 走另一条通道。
                 <strong>所以 context value 必须
                 <code>useMemo</code></strong>——
-                这正是我们那道主题切换变式题的核心考点，
-                删掉 <code>useMemo</code> 后实测「功能测试全绿、
-                只有引用稳定性那条红」。
+                这正是我们那道主题切换变式题的核心考点，删掉 <code>useMemo</code> 后实测「功能测试全绿、只有引用稳定性那条红」。
                 <br />
                 「<code>children</code> 会破坏 memo 吗？」——
-                会，<code>children</code> 也是 prop，
-                而 JSX 每次都产生新元素对象。
+                会，<code>children</code> 也是 prop，而 JSX 每次都产生新元素对象。
               </p>
             </>
           ),
@@ -553,8 +528,7 @@ const onSave = useCallback(() => save(config), [{ ...config }]);
             <>
               <p>
                 <strong>一句话：</strong>把
-                <strong>「带状态的逻辑」抽出来复用</strong>。
-                命名<strong>必须以 <code>use</code> 开头</strong>。
+                <strong>「带状态的逻辑」抽出来复用</strong>。命名<strong>必须以 <code>use</code> 开头</strong>。
               </p>
               <p>
                 <strong>为什么必须 <code>use</code> 开头</strong>——
@@ -562,39 +536,29 @@ const onSave = useCallback(() => save(config), [{ ...config }]);
               </p>
               <ul>
                 <li>
-                  <strong>ESLint 靠这个前缀识别它是 hook</strong>，
-                  才能检查 hooks 规则
-                  （<code>react-hooks/rules-of-hooks</code>）。
-                  不加前缀，你在里面违规调用 hook 也不会有人警告你。
+                  <strong>ESLint 靠这个前缀识别它是 hook</strong>，才能检查 hooks 规则（<code>react-hooks/rules-of-hooks</code>）。不加前缀，你在里面违规调用 hook 也不会有人警告你。
                 </li>
                 <li>
                   它同时也是给读代码的人的信号：
-                  <strong>这个函数里可能有状态，
-                  所以它有调用位置的限制</strong>。
+                  <strong>这个函数里可能有状态，所以它有调用位置的限制</strong>。
                 </li>
               </ul>
               <p>
                 <strong>关键概念：复用的是逻辑，不是状态。</strong>
-                两个组件各自调 <code>useCounter()</code>，
-                得到的是<strong>两份完全独立的状态</strong>。
-                想共享状态得用 Context 或状态库。
+                两个组件各自调 <code>useCounter()</code>，得到的是<strong>两份完全独立的状态</strong>。想共享状态得用 Context 或状态库。
                 <strong>这一条是高频追问，很多人答错。</strong>
               </p>
               <p>
                 <strong>什么时候该抽：</strong>
                 同一组
                 <code>useState</code> +
-                <code>useEffect</code> 的组合在两处以上出现；
-                或者一个组件里的 effect 逻辑长到
-                让主体读不懂了。
+                <code>useEffect</code> 的组合在两处以上出现；或者一个组件里的 effect 逻辑长到让主体读不懂了。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「自定义 hook 能返回什么？」——
                 随意。
-                <strong>约定是「像 <code>useState</code> 一样返数组」
-                （调用方好重命名）、
-                「三个以上返对象」（不用记顺序）。</strong>
+                <strong>约定是「像 <code>useState</code> 一样返数组」（调用方好重命名）、「三个以上返对象」（不用记顺序）。</strong>
                 <br />
                 「里面能调别的 hook 吗？」——
                 能，这正是它的意义；但同样要遵守两条规则。
@@ -793,8 +757,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
               <p>
                 <strong>先说这一句，再列手段：</strong>
                 <strong>「先用 React DevTools Profiler
-                找出到底哪个组件渲染慢、渲染了多少次，
-                再决定动哪。」</strong>
+                找出到底哪个组件渲染慢、渲染了多少次，再决定动哪。」</strong>
                 上来就背 <code>useMemo</code>
                 会显得像背题。
               </p>
@@ -812,19 +775,16 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
                 <li>
                   <strong>state 下移</strong>——
                   把频繁变的 state 放到
-                  <strong>真正需要它的那个小组件里</strong>，
-                  别提到顶层带着整棵树重渲染。
+                  <strong>真正需要它的那个小组件里</strong>，别提到顶层带着整棵树重渲染。
                   <strong>这招常常比加 memo 有效得多。</strong>
                 </li>
                 <li>
                   <strong>用 <code>children</code> 组合</strong>——
-                  父组件重渲染时，
-                  作为 prop 传进来的 children
+                  父组件重渲染时，作为 prop 传进来的 children
                   <strong>不会重建</strong>。
                 </li>
                 <li>
-                  拆分 Context —— 一个 context 里放太多东西，
-                  改任何一项所有消费者都重渲染。
+                  拆分 Context —— 一个 context 里放太多东西，改任何一项所有消费者都重渲染。
                 </li>
               </ul>
               <p><strong>② 少下载</strong></p>
@@ -862,10 +822,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
               <p>
                 <strong>会追问：</strong>
                 「怎么知道有没有多余渲染？」——
-                Profiler 的「Highlight updates」
-                或者 <code>{'<Profiler onRender>'}</code>；
-                以及注意 <strong>StrictMode 下开发模式会渲染两次</strong>，
-                别把它当成 bug。
+                Profiler 的「Highlight updates」或者 <code>{'<Profiler onRender>'}</code>；以及注意 <strong>StrictMode 下开发模式会渲染两次</strong>，别把它当成 bug。
               </p>
             </>
           ),
@@ -954,8 +911,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
           body: (
             <>
               <p>
-                <strong>一句话：</strong>五种，
-                各有明确的取舍。
+                <strong>一句话：</strong>五种，各有明确的取舍。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -981,8 +937,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
                       <td>行内 <code>style</code></td>
                       <td>动态值最直接</td>
                       <td>
-                        <strong>没有伪类、媒体查询、动画</strong>；
-                        每次渲染新对象
+                        <strong>没有伪类、媒体查询、动画</strong>；每次渲染新对象
                       </td>
                     </tr>
                     <tr>
@@ -1001,20 +956,15 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
               <p>
                 <strong>「动态样式」的推荐做法</strong>——
                 这是加分点：
-                <strong>用 CSS 变量而不是行内 style</strong>。
-                把变量写在行内，
-                真正的样式规则还在 CSS 文件里 ——
+                <strong>用 CSS 变量而不是行内 style</strong>。把变量写在行内，真正的样式规则还在 CSS 文件里 ——
                 这样既能动态，又保留伪类和媒体查询。
                 <strong>本站的深色模式就是这么做的</strong>
-                （切 <code>data-theme</code> 属性，
-                CSS 变量整套换）。
+                （切 <code>data-theme</code> 属性，CSS 变量整套换）。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「行内 style 为什么影响性能？」——
-                每次渲染都创建新对象，
-                会破坏子组件的 <code>memo</code>；
-                而且它不能被浏览器按规则缓存。
+                每次渲染都创建新对象，会破坏子组件的 <code>memo</code>；而且它不能被浏览器按规则缓存。
                 <strong>要用就 <code>useMemo</code> 稳住。</strong>
               </p>
             </>
@@ -1119,8 +1069,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
               <p>
                 <strong>一句话：</strong>核心是
                 <strong>并发渲染（concurrent rendering）</strong>——
-                React 可以中断、暂停、恢复一次渲染，
-                好让高优先级的更新先跑。
+                React 可以中断、暂停、恢复一次渲染，好让高优先级的更新先跑。
               </p>
               <p>
                 <strong>五个具体变化（挑三四个说清就够）：</strong>
@@ -1129,22 +1078,19 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
                 <li>
                   <strong>自动批处理（automatic batching）</strong>——
                   React 17 只在 React 事件回调里批处理，
-                  <code>setTimeout</code>、
-                  Promise、原生事件里的多次
+                  <code>setTimeout</code>、Promise、原生事件里的多次
                   <code>setState</code> 会各触发一次渲染。
                   <strong>18 里全都批处理了。</strong>
                   这是最容易被观察到的变化。
                 </li>
                 <li>
                   <strong><code>useTransition</code></strong>——
-                  把一个更新标记为「不着急」。
-                  典型场景：输入框旁边有个很重的搜索结果列表，
+                  把一个更新标记为「不着急」。典型场景：输入框旁边有个很重的搜索结果列表，
                   <strong>输入保持流畅，列表慢慢跟上</strong>。
                 </li>
                 <li>
                   <strong><code>useDeferredValue</code></strong>——
-                  同一个目的，
-                  但是从「值」的角度：给我一个滞后版本的值。
+                  同一个目的，但是从「值」的角度：给我一个滞后版本的值。
                 </li>
                 <li>
                   <strong>新的 root API</strong>——
@@ -1164,16 +1110,12 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
               <p>
                 <strong>会追问：</strong>
                 「StrictMode 在 18 里有什么变化？」——
-                <strong>会额外「挂载 → 卸载 → 再挂载」一次</strong>，
-                所以 effect 的清理函数会被执行。
+                <strong>会额外「挂载 → 卸载 → 再挂载」一次</strong>，所以 effect 的清理函数会被执行。
                 <strong>这是为了提前暴露「没写清理函数」的组件</strong>
                 （见 #332），为将来的 Offscreen 特性做准备。
                 <br />
                 「升级要注意什么？」——
-                换 <code>createRoot</code>；
-                自动批处理可能让依赖「每次 setState 都立刻渲染」
-                的老代码行为改变
-                （必要时用 <code>flushSync</code> 逃出批处理）。
+                换 <code>createRoot</code>；自动批处理可能让依赖「每次 setState 都立刻渲染」的老代码行为改变（必要时用 <code>flushSync</code> 逃出批处理）。
               </p>
             </>
           ),
@@ -1284,15 +1226,11 @@ function onChange(e) {
               <p>
                 <strong>一句话：</strong>让组件
                 <strong>按需加载</strong>——
-                打包时被切成单独的 chunk，
-                真正渲染到它的时候才下载。
-                必须配 <code>Suspense</code> 给个占位。
+                打包时被切成单独的 chunk，真正渲染到它的时候才下载。必须配 <code>Suspense</code> 给个占位。
               </p>
               <p>
                 <strong>为什么需要：</strong>
-                SPA 默认把全站打成一个包，
-                首屏要下载所有页面的代码
-                （见 #321）。<strong>按路由切分</strong>
+                SPA 默认把全站打成一个包，首屏要下载所有页面的代码（见 #321）。<strong>按路由切分</strong>
                 是收益最大的一刀 ——
                 用户打开首页不该下载「设置页」的代码。
               </p>
@@ -1304,18 +1242,15 @@ function onChange(e) {
                   <code>lazy</code> 的参数必须返回一个
                   <strong>带 <code>default</code> 导出</strong>
                   的 Promise ——
-                  所以配的是 <code>default export</code>；
-                  具名导出要自己包一层。
+                  所以配的是 <code>default export</code>；具名导出要自己包一层。
                 </li>
                 <li>
                   <strong>动态 <code>import()</code>
-                  的路径不能是完全动态的变量</strong>，
-                  打包工具需要在编译期能分析出来。
+                  的路径不能是完全动态的变量</strong>，打包工具需要在编译期能分析出来。
                 </li>
                 <li>
                   <strong>加载失败要有兜底</strong>——
-                  网络断了 chunk 拉不下来，
-                  要用错误边界包住（见 #333）。
+                  网络断了 chunk 拉不下来，要用错误边界包住（见 #333）。
                   <strong>这一点很多人不提，是加分项。</strong>
                 </li>
                 <li>
@@ -1325,10 +1260,8 @@ function onChange(e) {
               <p>
                 <strong>会追问：</strong>
                 「怎么避免切换页面时闪一下 loading？」——
-                <strong>预加载</strong>：鼠标悬停在链接上时
-                就调一次那个 <code>import()</code>
-                （模块会被缓存）。
-                或者用 React 18 的
+                <strong>预加载</strong>：鼠标悬停在链接上时就调一次那个 <code>import()</code>
+                （模块会被缓存）。或者用 React 18 的
                 <code>useTransition</code>
                 让旧页面留在屏幕上直到新页面就绪。
               </p>
@@ -1419,8 +1352,7 @@ const preload = () => import("./pages/Settings");
             <>
               <p>
                 <strong>一句话：</strong>一个
-                <strong>只在开发模式生效</strong>的检查工具组件，
-                通过<strong>故意多做一次</strong>
+                <strong>只在开发模式生效</strong>的检查工具组件，通过<strong>故意多做一次</strong>
                 来暴露不安全的写法。
                 <strong>生产构建里它什么都不做。</strong>
               </p>
@@ -1430,27 +1362,19 @@ const preload = () => import("./pages/Settings");
               <ul>
                 <li>
                   <strong>渲染函数调用两次</strong>——
-                  暴露渲染过程中的副作用
-                  （改了外部变量、直接 mutate props）。
-                  <strong>因为 render 阶段可能被中断重跑
-                  （见 #353），所以它必须是纯的。</strong>
+                  暴露渲染过程中的副作用（改了外部变量、直接 mutate props）。
+                  <strong>因为 render 阶段可能被中断重跑（见 #353），所以它必须是纯的。</strong>
                 </li>
                 <li>
-                  <strong>React 18 起：effect 会
-                  「挂载 → 卸载 → 再挂载」</strong>——
-                  <strong>专门暴露「没写清理函数」的 effect</strong>。
-                  如果你的组件挂两次就出问题
-                  （重复订阅、定时器翻倍），
-                  那就是真 bug。
+                  <strong>React 18 起：effect 会「挂载 → 卸载 → 再挂载」</strong>——
+                  <strong>专门暴露「没写清理函数」的 effect</strong>。如果你的组件挂两次就出问题（重复订阅、定时器翻倍），那就是真 bug。
                 </li>
                 <li>
                   警告废弃 API 和过时的 ref 写法。
                 </li>
               </ul>
               <p>
-                <strong>最重要的一句：
-                「双重渲染导致的问题」不是 StrictMode 的问题，
-                是你的代码的问题。</strong>
+                <strong>最重要的一句：「双重渲染导致的问题」不是 StrictMode 的问题，是你的代码的问题。</strong>
                 很多人第一反应是「关掉它」——
                 正确反应是修好副作用。
               </p>
@@ -1458,19 +1382,15 @@ const preload = () => import("./pages/Settings");
                 <strong>会追问：</strong>
                 「日志被打印两次正常吗？」——
                 开发模式下正常，
-                <strong>因为渲染函数被调了两次</strong>；
-                生产不会。
+                <strong>因为渲染函数被调了两次</strong>；生产不会。
                 <br />
                 「请求被发两次呢？」——
-                开发模式下这是预期行为：StrictMode 让 effect 先挂载、卸载、再挂载，
-                清理写对了也会发两次。
+                开发模式下这是预期行为：StrictMode 让 effect 先挂载、卸载、再挂载，清理写对了也会发两次。
                 <strong>要检查的是结果</strong>：写了 <code>ignore</code> 标志或
-                <code>abort</code> 时，第一次的结果会被丢掉或请求被取消，
-                界面只用第二次的结果；没写清理，才会出现两次结果都写进 state、以及竞态。
+                <code>abort</code> 时，第一次的结果会被丢掉或请求被取消，界面只用第二次的结果；没写清理，才会出现两次结果都写进 state、以及竞态。
                 <strong>我们那道 fetch 变式题里
                 <code>ignore</code> 标志 +
-                <code>abort</code> 的写法，
-                正好让它在 StrictMode 下也表现正确。</strong>
+                <code>abort</code> 的写法，正好让它在 StrictMode 下也表现正确。</strong>
               </p>
             </>
           ),
@@ -1538,8 +1458,7 @@ const preload = () => import("./pages/Settings");
             <>
               <p>
                 <strong>一句话：</strong>一个
-                <strong>能捕获子树渲染错误</strong>的类组件，
-                出错时渲染兜底 UI，
+                <strong>能捕获子树渲染错误</strong>的类组件，出错时渲染兜底 UI，
                 <strong>而不是让整个应用白屏</strong>。
               </p>
               <p>
@@ -1557,13 +1476,11 @@ const preload = () => import("./pages/Settings");
               <ul>
                 <li>
                   <strong>事件处理函数里的错误</strong>——
-                  因为那不在渲染过程中。
-                  要自己 <code>try/catch</code>。
+                  因为那不在渲染过程中。要自己 <code>try/catch</code>。
                 </li>
                 <li>
                   <strong>异步代码里的错误</strong>——
-                  <code>setTimeout</code>、
-                  Promise 回调（和 #310 同一个道理）。
+                  <code>setTimeout</code>、Promise 回调（和 #310 同一个道理）。
                 </li>
                 <li>
                   <strong>服务端渲染</strong>。
@@ -1575,20 +1492,14 @@ const preload = () => import("./pages/Settings");
               <p>
                 <strong>放哪：</strong>
                 <strong>粒度要合适。</strong>
-                只在根节点放一个，
-                一个小组件出错，整页还是没了；
+                只在根节点放一个，一个小组件出错，整页还是没了；
                 <strong>推荐按「独立区块」放</strong>——
-                每个路由页面、
-                每个可独立失败的挂件
-                （侧栏、图表、评论区）。
-                这样一块坏了其他还能用。
+                每个路由页面、每个可独立失败的挂件（侧栏、图表、评论区）。这样一块坏了其他还能用。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「怎么让用户能恢复？」——
-                兜底 UI 里给一个「重试」按钮，
-                把边界的 state 重置
-                （或者换一个 <code>key</code>
+                兜底 UI 里给一个「重试」按钮，把边界的 state 重置（或者换一个 <code>key</code>
                 强制重建子树）。
                 <code>react-error-boundary</code>
                 这个库提供了 <code>resetErrorBoundary</code>。
@@ -1717,8 +1628,7 @@ const preload = () => import("./pages/Settings");
               <p>
                 <strong>一句话：</strong>让 SPA
                 <strong>有「URL」这个概念</strong>——
-                把地址栏和当前渲染哪个组件对应起来，
-                不刷新页面就能切换。
+                把地址栏和当前渲染哪个组件对应起来，不刷新页面就能切换。
               </p>
               <p>
                 <strong>它解决四件事：</strong>
@@ -1737,8 +1647,7 @@ const preload = () => import("./pages/Settings");
                 </li>
                 <li>
                   <strong>嵌套路由</strong>——
-                  布局层和内容层分开
-                  （<code>Outlet</code>）
+                  布局层和内容层分开（<code>Outlet</code>）
                 </li>
               </ul>
               <p>
@@ -1759,15 +1668,11 @@ const preload = () => import("./pages/Settings");
                 <li>
                   <strong>用 <code>Link</code> 不要用
                   <code>&lt;a&gt;</code></strong>——
-                  后者会真的刷新整页，
-                  SPA 的意义就没了。
+                  后者会真的刷新整页，SPA 的意义就没了。
                 </li>
                 <li>
-                  <strong><code>BrowserRouter</code> 需要服务端
-                  把所有路径都回退到
-                  <code>index.html</code></strong>，
-                  否则<strong>刷新子路由会 404</strong>。
-                  没法配服务器就用
+                  <strong><code>BrowserRouter</code> 需要服务端把所有路径都回退到
+                  <code>index.html</code></strong>，否则<strong>刷新子路由会 404</strong>。没法配服务器就用
                   <code>HashRouter</code>。
                   <strong>这题很常问。</strong>
                 </li>
@@ -1779,9 +1684,7 @@ const preload = () => import("./pages/Settings");
               <p>
                 <strong>会追问：</strong>
                 「路由守卫怎么做？」——
-                React Router 没有内置守卫，
-                自己写一个包装组件：
-                没登录就 <code>&lt;Navigate to=&quot;/login&quot; /&gt;</code>。
+                React Router 没有内置守卫，自己写一个包装组件：没登录就 <code>&lt;Navigate to=&quot;/login&quot; /&gt;</code>。
               </p>
             </>
           ),
@@ -1864,21 +1767,18 @@ const preload = () => import("./pages/Settings");
               <ul>
                 <li>
                   <strong>不可变更新。</strong>
-                  永远造新对象/新数组，
-                  不就地改 —— 否则 React
+                  永远造新对象/新数组，不就地改 —— 否则 React
                   比引用发现不了变化，界面不更新。
                   <strong>这是 React 里最常见的 bug 来源。</strong>
                 </li>
                 <li>
                   <strong>能算出来的别放 state。</strong>
-                  派生数据当场算，
-                  不要用 <code>useEffect</code> 同步两份数据 ——
+                  派生数据当场算，不要用 <code>useEffect</code> 同步两份数据 ——
                   同一个事实存两份必然会不一致。
                 </li>
                 <li>
                   <strong>state 放在「刚好够用」的那一层。</strong>
-                  提太高造成 drilling 和多余渲染，
-                  提太低兄弟拿不到。
+                  提太高造成 drilling 和多余渲染，提太低兄弟拿不到。
                 </li>
                 <li>
                   <strong>effect 里建立的东西一定要清理。</strong>
@@ -1901,21 +1801,15 @@ const preload = () => import("./pages/Settings");
               </ul>
               <p>
                 <strong>再补两条工程上的：</strong>
-                组件保持小而专一
-                （一个组件干一件事）；
+                组件保持小而专一（一个组件干一件事）；
                 <strong>用 TypeScript</strong>——
-                props 的形状是组件的契约，
-                写下来比靠记忆可靠。
+                props 的形状是组件的契约，写下来比靠记忆可靠。
               </p>
               <p>
-                <strong>如果面试官想听更具体的</strong>，
-                可以说：
-                「我会开着 <code>eslint-plugin-react-hooks</code>，
+                <strong>如果面试官想听更具体的</strong>，可以说：「我会开着 <code>eslint-plugin-react-hooks</code>，
                 <strong>不用注释关掉
                 <code>exhaustive-deps</code> 警告</strong>——
-                它几乎每次都是对的，
-                想绕过它通常说明该重构了。」
-                这条很能体现实战经验。
+                它几乎每次都是对的，想绕过它通常说明该重构了。」这条很能体现实战经验。
               </p>
             </>
           ),
@@ -2086,35 +1980,27 @@ const preload = () => import("./pages/Settings");
               <p>
                 <strong>一句话（这句最关键）：</strong>
                 <strong>它们解决的不是同一个问题。</strong>
-                Context 是<strong>「传递」</strong>方案
-                （怎么把值送到深处），
-                Redux 是<strong>「状态管理」</strong>方案
-                （状态怎么组织、怎么改、怎么调试）。
+                Context 是<strong>「传递」</strong>方案（怎么把值送到深处），Redux 是<strong>「状态管理」</strong>方案（状态怎么组织、怎么改、怎么调试）。
               </p>
               <p>
                 <strong>「Context 能不能替代 Redux」——
                 严格说，Context + <code>useReducer</code>
-                可以覆盖 Redux 的基本功能，
-                但缺三样东西：</strong>
+                可以覆盖 Redux 的基本功能，但缺三样东西：</strong>
               </p>
               <ul>
                 <li>
                   <strong>没有精细的订阅。</strong>
-                  context 一变，<strong>所有</strong>消费者都重渲染，
-                  哪怕它只用了其中一个字段。
-                  Redux 的 <code>useSelector</code>
+                  context 一变，<strong>所有</strong>消费者都重渲染，哪怕它只用了其中一个字段。Redux 的 <code>useSelector</code>
                   只在<strong>你选的那部分</strong>变化时重渲染。
                   <strong>这是最大的实际差别。</strong>
                 </li>
                 <li>
                   <strong>没有中间件。</strong>
-                  统一处理异步、日志、
-                  持久化都要自己造。
+                  统一处理异步、日志、持久化都要自己造。
                 </li>
                 <li>
                   <strong>没有 DevTools。</strong>
-                  时间旅行、action 记录、
-                  状态 diff 都没有。
+                  时间旅行、action 记录、状态 diff 都没有。
                 </li>
               </ul>
               <div className="table-wrap">
@@ -2157,11 +2043,8 @@ const preload = () => import("./pages/Settings");
                 <strong>纯客户端状态很多项目改用 Zustand / Jotai</strong>
                 （更轻）；
                 <strong>服务端数据用 TanStack Query / SWR</strong>
-                （缓存、去重、重试是它们的本职，
-                Redux 做这个是硬凑）。
-                <strong>Redux 现在的强项是「复杂的、
-                有大量交互逻辑的客户端状态 + 要可追溯调试」</strong>，
-                而且一定要用 Redux Toolkit 而不是手写。
+                （缓存、去重、重试是它们的本职，Redux 做这个是硬凑）。
+                <strong>Redux 现在的强项是「复杂的、有大量交互逻辑的客户端状态 + 要可追溯调试」</strong>，而且一定要用 Redux Toolkit 而不是手写。
               </p>
             </>
           ),
@@ -2264,8 +2147,7 @@ const preload = () => import("./pages/Settings");
               <ul>
                 <li>
                   <strong>store</strong>——
-                  <strong>唯一</strong>的状态容器，
-                  提供 <code>getState</code> /
+                  <strong>唯一</strong>的状态容器，提供 <code>getState</code> /
                   <code>dispatch</code> /
                   <code>subscribe</code>。
                 </li>
@@ -2297,14 +2179,11 @@ const preload = () => import("./pages/Settings");
                 <li>
                   <code>createSlice</code>
                   <strong>一次生成 reducer + action creators +
-                  action types</strong>，
-                  样板代码少一大半。
+                  action types</strong>，样板代码少一大半。
                 </li>
                 <li>
-                  内置 <strong>Immer</strong>，
-                  所以你可以<strong>写起来像在改
-                  <code>state.list.push(x)</code>，
-                  实际产出的是新对象</strong>——
+                  内置 <strong>Immer</strong>，所以你可以<strong>写起来像在改
+                  <code>state.list.push(x)</code>，实际产出的是新对象</strong>——
                   但要注意这只在 RTK 的
                   <code>createSlice</code> / <code>createReducer</code> 里成立。
                 </li>
@@ -2313,18 +2192,13 @@ const preload = () => import("./pages/Settings");
                 </li>
                 <li>
                   <code>createAsyncThunk</code>
-                  管异步的三个状态
-                  （pending / fulfilled / rejected）。
+                  管异步的三个状态（pending / fulfilled / rejected）。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>
                 「为什么必须单向？」——
-                因为<strong>状态变化的路径唯一，
-                所以出 bug 时可以从 action 记录里
-                倒推每一步</strong>。
-                双向绑定的框架里
-                「这个值到底是谁改的」经常查不清。
+                因为<strong>状态变化的路径唯一，所以出 bug 时可以从 action 记录里倒推每一步</strong>。双向绑定的框架里「这个值到底是谁改的」经常查不清。
               </p>
             </>
           ),
@@ -2463,8 +2337,7 @@ dispatch(add({ id: Date.now(), text, done: false }));`, filename: "现在真正�
                   整个应用一个 store。
                   <br />
                   <strong>为什么：</strong>
-                  状态只有一份就不会不一致，
-                  而且<strong>整个应用的状态可以被序列化</strong>——
+                  状态只有一份就不会不一致，而且<strong>整个应用的状态可以被序列化</strong>——
                   这才有了「保存/恢复现场」和 SSR 脱水注水。
                 </li>
                 <li>
@@ -2472,9 +2345,7 @@ dispatch(add({ id: Date.now(), text, done: false }));`, filename: "现在真正�
                   只能通过派发 action 改。
                   <br />
                   <strong>为什么：</strong>
-                  <strong>把「谁能改状态」收窄到一个入口</strong>，
-                  于是所有变化都可以被记录、
-                  可以被拦截、可以被回放。
+                  <strong>把「谁能改状态」收窄到一个入口</strong>，于是所有变化都可以被记录、可以被拦截、可以被回放。
                 </li>
                 <li>
                   <strong>用纯函数（reducer）做修改</strong>——
@@ -2482,35 +2353,27 @@ dispatch(add({ id: Date.now(), text, done: false }));`, filename: "现在真正�
                   <br />
                   <strong>为什么：</strong>
                   纯函数<strong>给定同样的 state 和 action
-                  永远得到同样结果</strong>，
-                  所以能重放、能测试、
+                  永远得到同样结果</strong>，所以能重放、能测试、
                   <strong>时间旅行调试才成立</strong>。
                 </li>
               </ol>
               <p>
-                <strong>这三条是一个整体</strong>：
-                单一数据源让状态可序列化，
-                只读让变化可记录，
-                纯 reducer 让变化可重放 ——
+                <strong>这三条是一个整体</strong>：单一数据源让状态可序列化，只读让变化可记录，纯 reducer 让变化可重放 ——
                 <strong>三者合起来才有 DevTools 的时间旅行。</strong>
                 能把它们串起来讲比一条条背强得多。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「reducer 里能做什么不能做什么？」——
-                <strong>不能</strong>：改传进来的 state、
-                发请求、读
+                <strong>不能</strong>：改传进来的 state、发请求、读
                 <code>Date.now()</code> /
-                <code>Math.random()</code>、
-                派发别的 action。
+                <code>Math.random()</code>、派发别的 action。
                 <strong>这些都放中间件或 action creator 里。</strong>
                 <br />
                 「RTK 里 <code>state.push()</code>
                 违反第 2 条吗？」——
                 不违反。Immer 给的是一个
-                <strong>草稿代理（draft proxy）</strong>，
-                你的修改被记录下来，
-                最终产出的是新对象，原 state 没动。
+                <strong>草稿代理（draft proxy）</strong>，你的修改被记录下来，最终产出的是新对象，原 state 没动。
               </p>
             </>
           ),
@@ -2580,23 +2443,17 @@ dispatch(add({ id: Date.now(), text, done: false }));`, filename: "现在真正�
             <>
               <p>
                 <strong>一句话：</strong>中间件是
-                <strong>夹在「派发 action」和
-                「reducer 收到 action」之间的一层</strong>，
-                能拦截、改写、延迟、
-                甚至吞掉一个 action。
+                <strong>夹在「派发 action」和「reducer 收到 action」之间的一层</strong>，能拦截、改写、延迟、甚至吞掉一个 action。
               </p>
               <p>
                 <strong>签名是三层柯里化</strong>——
                 这个形状本身常被问到：
-                <code>store =&gt; next =&gt; action =&gt; {"{}"}</code>。
-                多个中间件靠 <code>next</code>
+                <code>store =&gt; next =&gt; action =&gt; {"{}"}</code>。多个中间件靠 <code>next</code>
                 串成一条链，<strong>和 Express 的中间件是同一个模式</strong>。
               </p>
               <p>
                 <strong>为什么需要它：</strong>
-                因为<strong>reducer 必须是纯的</strong>，
-                所以异步和副作用无处安放。
-                中间件就是<strong>专门给副作用留的位置</strong>。
+                因为<strong>reducer 必须是纯的</strong>，所以异步和副作用无处安放。中间件就是<strong>专门给副作用留的位置</strong>。
               </p>
               <p>
                 <strong>常见的几个：</strong>
@@ -2605,14 +2462,11 @@ dispatch(add({ id: Date.now(), text, done: false }));`, filename: "现在真正�
                 <li>
                   <strong><code>redux-thunk</code></strong>——
                   让你能 dispatch 一个
-                  <strong>函数</strong>而不只是对象，
-                  在里面做异步。最简单，RTK 默认装。
+                  <strong>函数</strong>而不只是对象，在里面做异步。最简单，RTK 默认装。
                 </li>
                 <li>
                   <strong><code>redux-saga</code></strong>——
-                  用 generator 描述复杂异步流程
-                  （可取消、可重试、能编排多个请求）。
-                  能力强但学习成本高。
+                  用 generator 描述复杂异步流程（可取消、可重试、能编排多个请求）。能力强但学习成本高。
                 </li>
                 <li>
                   <strong><code>redux-logger</code></strong>——
@@ -2623,8 +2477,7 @@ dispatch(add({ id: Date.now(), text, done: false }));`, filename: "现在真正�
                 <strong>会追问：</strong>
                 「thunk 和 saga 怎么选？」——
                 大部分项目 thunk 够了；
-                <strong>只有在需要「取消、去抖、
-                复杂的流程编排」时 saga 才值那份复杂度</strong>。
+                <strong>只有在需要「取消、去抖、复杂的流程编排」时 saga 才值那份复杂度</strong>。
                 <br />
                 「能自己写一个吗？」——
                 能，而且面试常让手写一个 logger。
@@ -2737,8 +2590,7 @@ const fetchUser = (id) => async (dispatch) => {
                 <strong>一句话：</strong>TS 是 JS 的
                 <strong>超集</strong>——
                 加了静态类型，
-                <strong>编译后就是普通 JS，
-                运行时没有任何 TS 的东西</strong>。
+                <strong>编译后就是普通 JS，运行时没有任何 TS 的东西</strong>。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -2774,46 +2626,35 @@ const fetchUser = (id) => async (dispatch) => {
                 </table>
               </div>
               <p>
-                <strong>「运行时没有 TS」这句要强调</strong>，
-                因为它推出两个重要结论：
+                <strong>「运行时没有 TS」这句要强调</strong>，因为它推出两个重要结论：
               </p>
               <ul>
                 <li>
                   <strong>类型不能用来做运行时校验。</strong>
                   接口返回的数据是不是真的符合你写的
-                  <code>interface</code>，
-                  TS <strong>管不了</strong>——
+                  <code>interface</code>，TS <strong>管不了</strong>——
                   要校验得用 zod 这类库。
                   <strong>这是新手最大的误解。</strong>
                 </li>
                 <li>
                   <code>as</code> 断言只是
-                  <strong>「我保证」</strong>，
-                  不做任何检查。滥用 <code>as</code>
+                  <strong>「我保证」</strong>，不做任何检查。滥用 <code>as</code>
                   和 <code>any</code> 等于关掉了 TS。
                 </li>
               </ul>
               <p>
                 <strong>代价（要主动说）：</strong>
-                多一步构建、
-                有学习成本（泛型、
-                条件类型、
+                多一步构建、有学习成本（泛型、条件类型、
                 <code>unknown</code> vs{" "}
-                <code>any</code>）、
-                第三方库缺类型时要自己写声明、
-                复杂类型报错很难读。
+                <code>any</code>）、第三方库缺类型时要自己写声明、复杂类型报错很难读。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「<code>interface</code> 和
                 <code>type</code> 选哪个？」——
                 <code>interface</code>
-                能被<strong>重复声明合并</strong>、
-                更适合描述对象和 class 契约；
-                <code>type</code> 能写联合、
-                交叉、映射、条件类型，能力更全。
-                实践上「对象形状用 interface，
-                其他用 type」，
+                能被<strong>重复声明合并</strong>、更适合描述对象和 class 契约；
+                <code>type</code> 能写联合、交叉、映射、条件类型，能力更全。实践上「对象形状用 interface，其他用 type」，
                 <strong>但团队统一比选哪个更重要</strong>。
               </p>
             </>
@@ -2906,8 +2747,7 @@ const fetchUser = (id) => async (dispatch) => {
               <p>
                 <strong>一句话：</strong>
                 <strong>不运行代码，只靠分析源码</strong>
-                就找出类型不匹配的地方。
-                「静态」的意思就是「在编译期，而非运行期」。
+                就找出类型不匹配的地方。「静态」的意思就是「在编译期，而非运行期」。
               </p>
               <p>
                 <strong>四个具体收益（要给例子，别空谈）：</strong>
@@ -2915,55 +2755,43 @@ const fetchUser = (id) => async (dispatch) => {
               <ul>
                 <li>
                   <strong>错误提前</strong>——
-                  <code>user.nmae</code> 拼错、
-                  忘了处理 <code>null</code>、
-                  给函数传少了参数，
-                  <strong>在编辑器里就红了，
-                  而不是上线后用户报给你</strong>。
+                  <code>user.nmae</code> 拼错、忘了处理 <code>null</code>、给函数传少了参数，
+                  <strong>在编辑器里就红了，而不是上线后用户报给你</strong>。
                 </li>
                 <li>
                   <strong>类型即文档</strong>——
                   函数签名说明了它要什么、给什么。
-                  <strong>而且这份文档不会过期</strong>，
-                  因为改了代码不改类型就编译不过。
+                  <strong>而且这份文档不会过期</strong>，因为改了代码不改类型就编译不过。
                 </li>
                 <li>
                   <strong>重构有底气</strong>——
-                  改一个字段名，
-                  所有受影响的地方都会报错。
-                  <strong>这是 TS 最被低估的价值</strong>，
-                  在大项目里比「防 bug」更实用。
+                  改一个字段名，所有受影响的地方都会报错。
+                  <strong>这是 TS 最被低估的价值</strong>，在大项目里比「防 bug」更实用。
                 </li>
                 <li>
                   <strong>IDE 能力</strong>——
-                  精确补全、跳定义、
-                  安全重命名。
+                  精确补全、跳定义、安全重命名。
                 </li>
               </ul>
               <p>
                 <strong>局限（说出来才显得懂）：</strong>
                 <strong>它只保证「类型对」，不保证「逻辑对」</strong>——
-                类型全过的代码照样能算错工资。
-                而且<strong>它管不到运行时的外部数据</strong>
+                类型全过的代码照样能算错工资。而且<strong>它管不到运行时的外部数据</strong>
                 （见 #355），
                 <strong>所以类型检查不能替代测试</strong>。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「<code>strict</code> 模式开不开？」——
-                <strong>新项目一定开</strong>。
-                最有价值的是
+                <strong>新项目一定开</strong>。最有价值的是
                 <code>strictNullChecks</code>——
-                它把「忘了判空」这一整类
-                运行时错误变成编译错误。
+                它把「忘了判空」这一整类运行时错误变成编译错误。
                 <br />
                 <strong>顺带一个真实例子：</strong>
                 React 那门课的源项目
                 <code>npm run build</code> 就是因为
-                <code>tsc</code> 报了 10 个错误而失败的
-                （测试文件缺 vitest 全局类型）——
-                这说明<strong>类型检查是构建的一部分，
-                不是可选的 lint</strong>。
+                <code>tsc</code> 报了 10 个错误而失败的（测试文件缺 vitest 全局类型）——
+                这说明<strong>类型检查是构建的一部分，不是可选的 lint</strong>。
               </p>
             </>
           ),

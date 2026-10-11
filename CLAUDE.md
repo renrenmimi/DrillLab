@@ -172,6 +172,12 @@ GraphQL Federation 考试 / Spring Boot 控制器 / 前端面试复习 / Cab Boo
   `([A-Za-z0-9,.;:)'"’”])</(strong|code|em)>[ \t]*\n\s*([A-Za-z(])`
   和 `([A-Za-z0-9,.;:)'"’”])[ \t]*\n\s*<(strong|code|em)>([A-Za-z(])`，
   并且**跳过模板字面量**（代码块里插 `{" "}` 会把代码写坏）。
+- **中文这一侧正好相反：中文句子不许在源码里折行。** JSX 把多行文字逐行去掉首尾空白，
+  再用一个空格连起来，所以中文句子在源码里换行，页面上就多一个空格
+  （「单独拿出来， 再配上」）。2026-10 实测全站 2845 处（换行 2835、全角标点后手写的空格 10），
+  已全部接回一行。约定：中文与英文字母、数字之间留空格，「——」两侧留空格，此外中文里不出现空格。
+  `npm run audit:zh`（`scripts/audit-zh-spacing.mjs`，CI 里跑）会报出每一处，
+  修法是把下一行接到上一行末尾。
 
 ## 技术约定
 
@@ -1167,6 +1173,7 @@ recap[]                要点回顾
 ```bash
 npm run typecheck
 npm run lint
+npm run audit:zh       # 中文换行空格，见「文案风格」
 npm run build          # 应预渲染 260 个页面（252 + /plans + /plans/choose + 6 条计划）
                        # 【引导计划的完整性断言在这一步跑】
                        # content/plans-assert.ts 由两个计划页面 import：

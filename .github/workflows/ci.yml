@@ -32,6 +32,10 @@ jobs:
       - name: Bilingual code audit
         run: npm run audit:code
 
+      # 中文句子在源码里换行，页面上就多一个空格 —— 见 scripts/audit-zh-spacing.mjs。
+      - name: Chinese line-break audit
+        run: npm run audit:zh
+
       # Playwright 跑的是 `next start`,所以构建必须在它之前。
       - name: Build
         run: npm run build
