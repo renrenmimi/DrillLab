@@ -506,6 +506,9 @@
   border-bottom: 1px solid var(--rule);
   font-size: var(--fs-body);
   color: var(--ink-2);
+  /* 第三、四级提示是伪代码和局部代码，写成多行字符串。不保留换行的话
+     几行代码会挤成一段，缩进也全丢了。 */
+  white-space: pre-wrap;
 }
 
 .hint-step:last-child {
