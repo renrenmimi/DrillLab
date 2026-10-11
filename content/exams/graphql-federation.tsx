@@ -1053,8 +1053,8 @@ const reviewsMock: MockExam = {
         edit: true,
       },
       { path: "__tests__/resolvers.test.js", role: {
-          zh: "判卷器，14 个测试。原样抄，不要改它",
-          en: "The grader, 14 tests. Copy it verbatim and do not edit it.",
+          zh: "判卷器，14 个测试。原样抄这套模拟考给的那份，不要改它",
+          en: "The grader, 14 tests. Copy the one this mock exam provides verbatim and do not edit it.",
         } },
     ],
     baseline: {
