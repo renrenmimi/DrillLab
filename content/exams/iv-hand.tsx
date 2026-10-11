@@ -81,12 +81,17 @@ const REF_THROTTLE = `export function throttle<T extends (...args: never[]) => v
     const remaining = interval - (now - lastTime);
 
     if (remaining <= 0) {
+      if (timer !== null) {           // 迟到的 trailing 还挂着：它的参数已被这次调用取代，撤掉
+        clearTimeout(timer);
+        timer = null;
+      }
+      lastArgs = null;
       lastTime = now;
       fn(...args);                    // leading：到点了，立刻执行
     } else {
       lastArgs = args;                // 记住窗口内最后一次的参数
       if (timer === null) {
-        timer = setTimeout(() => {    // trailing：窗口结束补一枪
+        timer = setTimeout(() => {    // trailing：窗口结束时再执行一次
           timer = null;
           lastTime = Date.now();
           if (lastArgs !== null) fn(...lastArgs);
@@ -110,6 +115,11 @@ const REF_THROTTLE_EN = `export function throttle<T extends (...args: never[]) =
     const remaining = interval - (now - lastTime);
 
     if (remaining <= 0) {
+      if (timer !== null) {           // a late trailing run is still pending; this call supersedes it
+        clearTimeout(timer);
+        timer = null;
+      }
+      lastArgs = null;
       lastTime = now;
       fn(...args);                    // leading: the window is open, run now
     } else {
@@ -134,6 +144,20 @@ const REF_CLONE_CORE = `export function deepClone<T>(value: T, seen = new WeakMa
 
   if (value instanceof Date) return new Date(value.getTime()) as unknown as T;
 
+  if (value instanceof Map) {
+    const out = new Map<unknown, unknown>();
+    seen.set(obj, out);               // 同样先登记再递归
+    value.forEach((v, k) => out.set(k, deepClone(v, seen)));   // 键保持原引用，值深拷贝
+    return out as unknown as T;
+  }
+
+  if (value instanceof Set) {
+    const out = new Set<unknown>();
+    seen.set(obj, out);
+    value.forEach((v) => out.add(deepClone(v, seen)));
+    return out as unknown as T;
+  }
+
   if (Array.isArray(value)) {
     const out: unknown[] = [];
     seen.set(obj, out);               // 【先登记再递归】—— 循环引用就是靠这一行不爆栈
@@ -156,6 +180,20 @@ const REF_CLONE_CORE_EN = `export function deepClone<T>(value: T, seen = new Wea
   if (seen.has(obj)) return seen.get(obj) as T;   // seen it -> hand back its clone (stops cycles)
 
   if (value instanceof Date) return new Date(value.getTime()) as unknown as T;
+
+  if (value instanceof Map) {
+    const out = new Map<unknown, unknown>();
+    seen.set(obj, out);               // record first, recurse after, as below
+    value.forEach((v, k) => out.set(k, deepClone(v, seen)));   // keys keep their identity; values are cloned deeply
+    return out as unknown as T;
+  }
+
+  if (value instanceof Set) {
+    const out = new Set<unknown>();
+    seen.set(obj, out);
+    value.forEach((v) => out.add(deepClone(v, seen)));
+    return out as unknown as T;
+  }
 
   if (Array.isArray(value)) {
     const out: unknown[] = [];
@@ -188,6 +226,22 @@ const REF_PALL = `export function promiseAll<T>(items: (T | Promise<T>)[]): Prom
       }, reject);                     // 任何一个失败，整体立刻失败
     });
   });
+}
+
+export type Settled<T> =
+  | { status: "fulfilled"; value: T }
+  | { status: "rejected"; reason: unknown };
+
+export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled<T>[]> {
+  // 每一项都包成「永远成功、结果里带 status」的 Promise，再交给 promiseAll
+  return promiseAll(
+    items.map((item) =>
+      Promise.resolve(item).then(
+        (value): Settled<T> => ({ status: "fulfilled", value: value as T }),
+        (reason: unknown): Settled<T> => ({ status: "rejected", reason }),
+      ),
+    ),
+  );
 }`;
 
 const REF_PALL_EN = `export function promiseAll<T>(items: (T | Promise<T>)[]): Promise<T[]> {
@@ -206,6 +260,22 @@ const REF_PALL_EN = `export function promiseAll<T>(items: (T | Promise<T>)[]): P
       }, reject);                     // If any one of them fails, the whole thing fails right away
     });
   });
+}
+
+export type Settled<T> =
+  | { status: "fulfilled"; value: T }
+  | { status: "rejected"; reason: unknown };
+
+export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled<T>[]> {
+  // Wrap every item in a Promise that always succeeds and carries a status, then hand it to promiseAll
+  return promiseAll(
+    items.map((item) =>
+      Promise.resolve(item).then(
+        (value): Settled<T> => ({ status: "fulfilled", value: value as T }),
+        (reason: unknown): Settled<T> => ({ status: "rejected", reason }),
+      ),
+    ),
+  );
 }`;
 
 const REF_EMITTER_CORE = `emit(event: string, ...args: unknown[]): boolean {
@@ -270,6 +340,10 @@ const REF_LRU = `export class LRUCache<K, V> {
       this.map.delete(oldest);
     }
   }
+
+  get size(): number {
+    return this.map.size;
+  }
 }`;
 
 const REF_LRU_EN = `export class LRUCache<K, V> {
@@ -295,6 +369,10 @@ const REF_LRU_EN = `export class LRUCache<K, V> {
       const oldest = this.map.keys().next().value as K;
       this.map.delete(oldest);
     }
+  }
+
+  get size(): number {
+    return this.map.size;
   }
 }`;
 
@@ -442,7 +520,7 @@ export const ivHand: Module = {
                 <code>lastTime</code>，和窗口内最后一次的参数 <code>lastArgs</code>。
               </p>
               <p>
-                <strong>和 debounce 的分界线一句话说死：</strong>
+                <strong>和 debounce 的分界可以用一句话说清：</strong>
                 debounce 在连续事件流里<strong>可能永远不执行</strong>
                 （只要不停手）；throttle <strong>保证按节奏执行</strong>。
                 滚动进度条用 debounce 会直到停下才动 —— 那就是选错了。
@@ -474,7 +552,7 @@ export const ivHand: Module = {
                 arguments, <code>lastArgs</code>.
               </p>
               <p>
-                <strong>The dividing line, said once and hard:</strong> in a continuous
+                <strong>The dividing line, in one sentence:</strong> in a continuous
                 event stream debounce <strong>may never run</strong> (as long as the
                 stream never pauses); throttle <strong>guarantees a steady beat</strong>
                 . A scroll progress bar built on debounce only moves when scrolling
@@ -594,7 +672,7 @@ export const ivHand: Module = {
             { label: "有 timer 状态且先清后设（重新计时）", labelEn: "Keeps a timer, clears it before setting a new one (restarts the clock)", must: "clearTimeout" },
             { label: "用 setTimeout 延迟执行", labelEn: "Uses setTimeout to delay the call", must: "setTimeout\\(" },
             { label: "cancel 里也清 timer", labelEn: "cancel clears the timer too", must: "cancel[\\s\\S]*?clearTimeout" },
-            { label: "没有把 fn 直接同步调用留在外面", labelEn: "No leftover synchronous call to fn at the top level", mustNot: "^\\s*fn\\(\\.\\.\\.args\\);\\s*$" },
+            { label: "没有把 fn 直接同步调用留在外面", labelEn: "No leftover synchronous call to fn at the top level", mustNot: "(debounced\\s*=\\s*\\([^)]*\\)\\s*=>|function\\s+debounced\\s*\\([^)]*\\))\\s*\\{\\s*fn\\(\\.\\.\\.args\\)" },
           ],
           hints: [
             "timer 必须存在返回的函数外面（闭包里），不然每次调用都是新的、清不掉旧的。",
@@ -623,7 +701,7 @@ export const ivHand: Module = {
           prompt: (
             <>
               把「直接透传」的半成品改成真正的 throttle：窗口开头立刻执行，
-              窗口内压住，窗口结束用最后一次的参数补一枪。
+              窗口内压住，窗口结束时用最后一次的参数再执行一次。
             </>
           ),
           promptEn: (
@@ -641,7 +719,7 @@ export const ivHand: Module = {
 ): (...args: Parameters<T>) => void {
   void interval;
   // TODO: 记 lastTime 和一个 trailing timer。
-  //       没到点 -> 存下参数，挂一个「窗口结束时补一枪」的 timer。
+  //       没到点 -> 存下参数，挂一个「窗口结束时再执行一次」的 timer。
   return (...args: Parameters<T>) => {
     fn(...args);
   };
@@ -676,13 +754,13 @@ export const ivHand: Module = {
           ],
           hints: [
             "三个闭包变量：lastTime（上次执行的时间戳）、timer、lastArgs。",
-            "每次调用算 remaining = interval - (Date.now() - lastTime)。remaining <= 0 就立刻执行并更新 lastTime。",
-            "remaining > 0：lastArgs = args；如果 timer 还没挂，setTimeout(补枪, remaining)。",
-            "补枪回调里：timer = null、lastTime = Date.now()、fn(...lastArgs)、lastArgs = null。",
+            "每次调用算 remaining = interval - (Date.now() - lastTime)。remaining <= 0 时，先撤掉还挂着的 trailing 定时器（clearTimeout、lastArgs = null），再立刻执行并更新 lastTime。",
+            "remaining > 0：lastArgs = args；如果 timer 还没挂，setTimeout(补执行, remaining)。",
+            "补执行的回调里：timer = null、lastTime = Date.now()、fn(...lastArgs)、lastArgs = null。",
           ],
           hintsEn: [
             "Three closure variables: lastTime (the timestamp of the last run), timer, and lastArgs.",
-            "On every call compute remaining = interval - (Date.now() - lastTime). If remaining <= 0, run now and update lastTime.",
+            "On every call compute remaining = interval - (Date.now() - lastTime). If remaining <= 0, first cancel any trailing timer still pending (clearTimeout, lastArgs = null), then run now and update lastTime.",
             "If remaining > 0: set lastArgs = args, and if no timer is pending, setTimeout(the trailing run, remaining).",
             "Inside the trailing callback: timer = null, lastTime = Date.now(), fn(...lastArgs), lastArgs = null.",
           ],
@@ -720,7 +798,7 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           ),
           why: (
             <>
-              这是 debounce 手写题挂掉率最高的一个错。<code>timer</code>
+              这是 debounce 手写题里出错率最高的一处。<code>timer</code>
               声明在返回函数<strong>里面</strong>，每次调用都拿到一个全新的
               <code>null</code>，<code>clearTimeout</code> 永远清不到上一次的 ——
               结果是每次调用都各自触发一次，和没写一样。
@@ -808,7 +886,7 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
         "Write curry by hand, so a partly applied function can be reused and does not affect the others",
       ],
       whyForAssessment:
-        "deepClone 是「递归 + 分支 + 防循环」三合一的经典题，面试官用它一次看三个能力。flatten 考递归出口的干净程度。curry 考闭包攒参数 —— 写成共享数组就会在「复用部分应用」这一问上当场翻车。",
+        "deepClone 是「递归 + 分支 + 防循环」三合一的经典题，面试官用它一次看三个能力。flatten 考递归出口的干净程度。curry 考闭包攒参数 —— 写成共享数组，在「复用部分应用」这一问上就会当场出错。",
       whyForAssessmentEn:
         "deepClone packs three things into one classic problem — recursion, type branches, and guarding against cycles — so the interviewer sees three skills at once. flatten tests how cleanly you stop the recursion. curry tests collecting arguments in a closure: write it with one shared array and you fail on the spot when asked to reuse a partly applied function.",
       concepts: [
@@ -878,9 +956,9 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           ),
           code: [
             tested("ts", REF_CLONE_CORE, {
-              filename: "deepClone.ts（核心分支 —— 完整版含 Map/Set，scratchpad vitest 6 / 6）",
+              filename: "deepClone.ts（参考解法 —— scratchpad vitest 6 / 6）",
               filenameEn:
-                "deepClone.ts (the core branches — the full version also handles Map and Set; scratchpad vitest 6 / 6)",
+                "deepClone.ts (reference solution — scratchpad vitest 6 / 6)",
               codeEn: REF_CLONE_CORE_EN,
             }),
           ],
@@ -958,8 +1036,8 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
                 测试里专门有一条抓这个。
               </p>
               <p>
-                <strong>会追问：</strong>「<code>fn.length</code> 有什么坑？」——
-                它数不到默认参数和 rest 参数（<code>(a, b = 1) =&gt; {}</code> 的
+                <strong>会追问：</strong>「<code>fn.length</code> 有什么陷阱？」——
+                它数不到默认参数和 rest 参数（<code>{"(a, b = 1) => {}"}</code> 的
                 length 是 1），所以带默认参数的函数 curry 不动；说得出这一句，
                 这道题就答干净了。
               </p>
@@ -1053,6 +1131,8 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           checks: [
             { label: "用 WeakMap（或 seen）防循环", labelEn: "Uses a WeakMap (or seen) as the cycle guard", must: "seen\\.(has|get|set)" },
             { label: "处理了 Date", labelEn: "Handles Date", must: "instanceof Date" },
+            { label: "处理了 Map", labelEn: "Handles Map", must: "instanceof Map\\b|\\[object Map\\]" },
+            { label: "处理了 Set", labelEn: "Handles Set", must: "instanceof Set\\b|\\[object Set\\]" },
             { label: "区分数组与对象", labelEn: "Tells arrays and objects apart", must: "Array\\.isArray" },
             { label: "没有用 JSON 大法", labelEn: "Does not fall back on the JSON trick", mustNot: "JSON\\.parse" },
             { label: "没有用原生 structuredClone 代劳", labelEn: "Does not let the built-in structuredClone do the work", mustNot: "structuredClone" },
@@ -1070,9 +1150,9 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
             "The plain-object branch: for (const key of Object.keys(value)) out[key] = deepClone(value[key], seen).",
           ],
           solution: tested("ts", REF_CLONE_CORE, {
-            filename: "deepClone.ts（核心 —— 完整版含 Map/Set 分支，vitest 6 / 6）",
+            filename: "deepClone.ts（参考解法，vitest 6 / 6）",
             filenameEn:
-              "deepClone.ts (the core — the full version also has Map and Set branches; vitest 6 / 6)",
+              "deepClone.ts (reference solution, vitest 6 / 6)",
             codeEn: REF_CLONE_CORE_EN,
           }),
         },
@@ -1275,7 +1355,7 @@ const clone = JSON.parse(JSON.stringify(source));
       transfer: [
         {
           signal: "克隆 / 序列化类题目提到「循环引用」",
-          signalEn: "A clone or serialize problem mentions circular references",
+          signalEn: "A clone or serialise problem mentions circular references",
           reachFor: "WeakMap 登记「原对象 → 结果」，先登记再递归",
           reachForEn: "Record source object to result in a WeakMap; record first, then recurse",
         },
@@ -1434,7 +1514,7 @@ const clone = JSON.parse(JSON.stringify(source));
             <>
               <p>
                 <strong>一句话：</strong><code>Map&lt;事件名, 监听器数组&gt;</code>
-                存订阅；唯一的坑在 <code>emit</code> ——
+                存订阅；唯一的陷阱在 <code>emit</code> ——
                 <strong>遍历前先 <code>[...list]</code> 拷贝一份</strong>。
               </p>
               <p>
@@ -1646,8 +1726,8 @@ export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled
             "allSettled: items.map(item => Promise.resolve(item).then(v => ({status:\"fulfilled\",value:v}), r => ({status:\"rejected\",reason:r}))), then hand that to promiseAll.",
           ],
           solution: tested("ts", REF_PALL, {
-            filename: "promiseAll.ts（vitest 6 / 6，allSettled 在完整版里）",
-            filenameEn: "promiseAll.ts (vitest 6 / 6; allSettled is in the full version)",
+            filename: "promiseAll.ts（含 allSettled，vitest 6 / 6）",
+            filenameEn: "promiseAll.ts (allSettled included; vitest 6 / 6)",
             codeEn: REF_PALL_EN,
           }),
         },
@@ -1939,7 +2019,7 @@ items.forEach((item) => {
               <code>Promise.all</code> 的合同是<strong>结果顺序 = 输入顺序</strong>，
               和完成先后无关 —— 调用方靠下标对应输入和输出。push
               版在并发下顺序随机，而且这个 bug 在「恰好都一样快」的本地测试里
-              经常测不出来，上了生产才炸。<strong>永远用
+              经常测不出来，上了生产才出错。<strong>永远用
               <code>results[i] = value</code> 按下标写。</strong>
             </>
           ),
@@ -1987,7 +2067,7 @@ items.forEach((item) => {
       recap: [
         "Promise.all 三件套：下标写入、空数组先判、reject 直接当 then 的第二参 —— 短路失败。",
         "allSettled = 每项包成「永远成功带 status」再交给 all；场景差别要用例子答。",
-        "EventEmitter 唯一的坑：emit 拷贝列表再遍历，once 的自删才不会挤掉邻居。",
+        "EventEmitter 唯一的陷阱：emit 拷贝列表再遍历，once 的自删才不会挤掉邻居。",
         "LRU 用 Map 的插入序：删掉再放回 = 刷新，迭代器第一个键 = 最旧。",
         "教科书版哈希表 + 双向链表是语言无关的答案 —— 两个版本都要会讲。",
       ],

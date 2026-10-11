@@ -265,9 +265,9 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                 filename: "三个阶段的完整顺序",
                 filenameEn: "The full order of the three phases",
                 explanation:
-                  "面试里画得出这个顺序，基本就过了。注意目标元素上的监听器不分捕获/冒泡，按注册顺序执行。",
+                  "面试里画得出这个顺序，基本就过了。注意：现在的浏览器在目标元素上也是先执行捕获监听器、再执行非捕获监听器（旧规范才是按注册顺序），同一组内按注册顺序。",
                 explanationEn:
-                  "If you can draw this order in an interview, that question is handled. One detail: on the target element itself there is no capture or bubble distinction, so those listeners run in the order they were registered.",
+                  "If you can draw this order in an interview, that question is handled. One detail: modern browsers also run capture listeners first on the target itself, then the non-capture ones (registration order applied only under the old spec); within each group, registration order holds.",
               },
             ),
           ],
@@ -374,7 +374,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
   <meta property="og:title" content="the title shown when shared">
   <meta property="og:image" content="https://…/cover.png">
   <title>Page title</title>
-</head>`, filename: "实际会写的那几行" },
+</head>`, filename: "实际会写的那几行", filenameEn: "The lines you would actually write" },
             ),
           ],
         },
@@ -394,7 +394,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               </p>
               <p>
                 <strong>关键是别答成「代码更好看」。</strong>
-                语义化有两个可以量化的真实收益：
+                语义化有两个实在的收益：
               </p>
               <ul>
                 <li>
@@ -404,8 +404,10 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                   一整页 <code>div</code>，读屏软件只能从头念到尾。
                 </li>
                 <li>
-                  <strong>搜索引擎知道哪块是正文。</strong>
-                  <code>main</code> 里的内容权重高于 <code>aside</code>。
+                  <strong>机器更容易认出正文。</strong>
+                  搜索引擎、阅读模式、读屏的「跳到主内容」都依赖
+                  <code>main</code> / <code>article</code> 这类标签
+                  （别说成「main 的排名权重更高」）。
                 </li>
               </ul>
               <p>
@@ -430,7 +432,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
               </p>
               <p>
                 <strong>Do not answer &ldquo;the code looks nicer&rdquo;.</strong>{" "}
-                Semantics buys you two things you can actually measure:
+                Semantics buys you two real benefits:
               </p>
               <ul>
                 <li>
@@ -440,9 +442,11 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                   <code>div</code>s, a screen reader can only read from the top.
                 </li>
                 <li>
-                  <strong>Search engines know which part is the article.</strong>{" "}
-                  Content in <code>main</code> weighs more than content in{" "}
-                  <code>aside</code>.
+                  <strong>Machines can tell where the main content is.</strong>{" "}
+                  Search engines, reader mode and a screen reader&rsquo;s
+                  skip-to-main all rely on tags such as <code>main</code> and{" "}
+                  <code>article</code> (do not claim that <code>main</code> ranks
+                  higher).
                 </li>
               </ul>
               <p>
@@ -495,7 +499,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                 <li>
                   <strong>a11y</strong>：给 <code>img</code> 写
                   <code>alt</code>；表单 <code>label</code> 用
-                  <code>htmlFor</code> 关联到 <code>input</code>；
+                  <code>for</code>（JSX 里写 <code>htmlFor</code>）关联到 <code>input</code>；
                   <strong>保证键盘能 Tab 到所有交互元素</strong>，
                   并且焦点环别用 <code>outline: none</code> 删掉。
                 </li>
@@ -554,7 +558,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                 <li>
                   <strong>a11y</strong>: write <code>alt</code> on images; tie a{" "}
                   <code>label</code> to its <code>input</code> with{" "}
-                  <code>htmlFor</code>;{" "}
+                  <code>for</code> (<code>htmlFor</code> in JSX);{" "}
                   <strong>make sure Tab reaches every interactive element</strong> and
                   do not delete the focus ring with <code>outline: none</code>.
                 </li>
@@ -618,7 +622,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
         "事件三阶段：捕获（外→内）→ 目标 → 冒泡（内→外）；默认监听冒泡。",
         "stopPropagation 管传播，preventDefault 管默认行为，两回事。",
         "meta 里真正重要的是 charset（防乱码）和 viewport（移动端前提）。",
-        "语义化的收益是读屏导航和搜索权重，不是「代码好看」。",
+        "语义化的收益是读屏导航和让机器认出正文，不是「代码好看」。",
         "无障碍 ⊂ 包容性；答题一定要给具体例子和测试工具。",
       ],
       recapEn: [
@@ -626,7 +630,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
         "An event has three phases: capture (outside in), target, then bubbling (inside out); a listener runs in the bubbling phase by default.",
         "stopPropagation stops the event from travelling, preventDefault stops the default action; they are two different things.",
         "The two meta tags that matter are charset, which keeps text from rendering as garbled characters, and viewport, without which mobile layout does not work.",
-        "Semantic elements pay off in screen reader navigation and search ranking, not in tidier code.",
+        "Semantic elements pay off in screen reader navigation and in letting machines find the main content, not in tidier code.",
         "Accessibility is one part of inclusion; always answer with concrete examples and the tools you test with.",
       ],
     },
@@ -788,7 +792,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
 *::before,
 *::after {
   box-sizing: border-box;
-}`, filename: "全局重置" },
+}`, filename: "全局重置", filenameEn: "Global reset" },
             ),
           ],
         },
@@ -1056,7 +1060,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
 
 /* The classic two lines for "fixed width plus fill the rest" */
 .sidebar { flex: 0 0 240px; }   /* never grows, never shrinks, stays 240 */
-.content { flex: 1; }           /* takes everything that is left */`, filename: "实际项目里的分工" },
+.content { flex: 1; }           /* takes everything that is left */`, filename: "实际项目里的分工", filenameEn: "How real projects split the work" },
             ),
           ],
         },
@@ -1103,7 +1107,7 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                 <strong>会追问优先级怎么算</strong>——
                 这才是真考点。按三位数比大小
                 <strong>（id, class, 标签）</strong>，从左往右比，
-                <strong>高位一个也顶不过低位一万个</strong>：
+                <strong>低位一万个也顶不过高位一个</strong>：
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -1345,7 +1349,9 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                 变量被<strong>原生 CSS 自定义属性</strong>
                 （<code>--brand</code>）取代，而且原生的能在运行时改、
                 能被 JS 读写、能跟着主题切换，
-                <strong>比 SCSS 变量更强</strong>（本站的深色模式就是这么做的）。
+                <strong>在多数场景下比 SCSS 变量更灵活</strong>（本站的深色模式就是这么做的）；
+                但 <code>var()</code> 不能写进媒体查询条件和选择器，
+                断点这类值仍要靠 SCSS 变量或构建期常量。
                 嵌套也已经进了 CSS 标准。
                 <br />
                 <strong>剩下真正还有价值的是 mixin 和循环生成</strong>。
@@ -1379,9 +1385,12 @@ outer.addEventListener("click", () => console.log("outer bubble"));
                 you still need it?&rdquo; — honestly, much less. Variables have been
                 superseded by <strong>native CSS custom properties</strong>{" "}
                 (<code>--brand</code>), and the native ones are{" "}
-                <strong>strictly more capable</strong>: they live at runtime, JS can read
-                and write them, and they follow theme switches (this site&rsquo;s dark
-                mode works exactly that way). Nesting has landed in the CSS standard too.
+                <strong>more flexible in most situations</strong>: they live at runtime,
+                JS can read and write them, and they follow theme switches (this
+                site&rsquo;s dark mode works exactly that way); but <code>var()</code>{" "}
+                cannot appear in a media query condition or a selector, so values such
+                as breakpoints still need an SCSS variable or a build-time constant.
+                Nesting has landed in the CSS standard too.
                 <br />
                 <strong>What genuinely remains valuable is mixins and generated
                 loops.</strong> Answering this way shows you know where the boundary is.
@@ -1407,7 +1416,7 @@ $brand: #2b6cb0;
 /* A native custom property is alive at runtime: JS can change it, a theme can override it */
 :root       { --brand: #2b6cb0; }
 [data-theme="dark"] { --brand: #90cdf4; }   /* switching theme changes only this line */
-.btn        { background: var(--brand); }`, filename: "为什么原生变量更强" },
+.btn        { background: var(--brand); }`, filename: "为什么原生变量更灵活", filenameEn: "Why native variables are more flexible" },
             ),
           ],
         },
@@ -1440,7 +1449,7 @@ $brand: #2b6cb0;
                   一不注意就写出 <code>.a .b .c .d span</code>，
                   优先级越滚越高，最后只能靠
                   <code>!important</code> 收场。
-                  <strong>这是预处理器最真实的坑</strong>——
+                  <strong>这是预处理器最常见的陷阱</strong>——
                   实践里一般限制自己不超过三层。
                 </li>
                 <li>
@@ -1525,7 +1534,7 @@ $brand: #2b6cb0;
               <ul>
                 <li>
                   <strong>viewport meta</strong>——
-                  <strong>前提，没有它后面全白干</strong>（见 #381）。
+                  <strong>前提，没有它后面的工作全部无效</strong>（见 #381）。
                 </li>
                 <li>
                   <strong>弹性单位</strong>——
@@ -1642,7 +1651,7 @@ h1 { font-size: clamp(24px, 5vw, 44px); }
 .layout { display: block; }
 @media (min-width: 768px) {
   .layout { display: grid; grid-template-columns: 240px 1fr; }
-}`, filename: "现在真正会写的响应式" },
+}`, filename: "现在真正会写的响应式", filenameEn: "Responsive CSS as it is written today" },
             ),
           ],
         },
@@ -1697,7 +1706,7 @@ h1 { font-size: clamp(24px, 5vw, 44px); }
         "Flex 一维内容驱动，Grid 二维布局驱动；实战是 Grid 搭骨架 + Flex 排内容。",
         "优先级按 (id, class, 标签) 三位比大小，高位压倒低位；同分后写的赢。",
         "@import 会串行请求拖慢首屏，用 link 或构建工具合并。",
-        "SCSS 的变量和嵌套已被原生 CSS 取代，mixin 和循环生成还有价值。",
+        "SCSS 的变量（断点这类值除外）和嵌套已被原生 CSS 取代，mixin 和循环生成还有价值。",
         "响应式四件套：viewport meta、弹性单位、媒体查询、弹性布局；断点按内容定。",
       ],
       recapEn: [
@@ -1706,7 +1715,7 @@ h1 { font-size: clamp(24px, 5vw, 44px); }
         "Flex works in one direction and follows the content; Grid works in two and follows the layout. In practice: Grid for the page frame, Flex for the content inside it.",
         "Specificity compares three numbers, (id, class, tag), from left to right; a higher number wins outright, and on a tie the rule written later wins.",
         "@import makes requests one after another and slows the first paint; use link, or let the build tool merge the files.",
-        "Plain CSS has taken over SCSS variables and nesting; mixins and generating rules in a loop are still worth having.",
+        "Plain CSS has taken over SCSS variables (except values such as breakpoints) and nesting; mixins and generating rules in a loop are still worth having.",
         "Responsive design has four parts: the viewport meta tag, relative units, media queries, and a flexible layout; choose breakpoints by where the content breaks.",
       ],
     },

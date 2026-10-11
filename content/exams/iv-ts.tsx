@@ -226,7 +226,7 @@ updateUser(user, { name: "Ada" });     // ✓ pass only the fields you change
 type UserCardProps = Pick<User, "name" | "role">;
 
 // Omit<T, K>: drop the fields that must not leak out
-type PublicUser = Omit<User, "email">;`, filename: "三个场景各拿哪个" },
+type PublicUser = Omit<User, "email">;`, filename: "三个场景各拿哪个", filenameEn: "Which one to reach for in each of three cases" },
             ),
             demo(
               "ts",
@@ -254,7 +254,7 @@ const themeColor: Record<Theme, string> = {
 
 // An index signature: any string key is "valid"
 const loose: { [key: string]: string } = { light: "#ffffff" };
-loose["drak"];   // The compiler allows it and claims string — at runtime it is undefined`, filename: "Record vs 索引签名" },
+loose["drak"];   // The compiler allows it and claims string — at runtime it is undefined`, filename: "Record vs 索引签名", filenameEn: "Record vs an index signature" },
             ),
           ],
         },
@@ -362,7 +362,7 @@ loose["drak"];   // The compiler allows it and claims string — at runtime it i
                 official <code>Omit</code> constrains K to <code>keyof any</code> —
                 looser than <code>keyof T</code>, so the official one lets you omit a
                 key that does not exist — and it shows you have actually read
-                lib.es5.d.ts. People who memorized the API and people who read the
+                lib.es5.d.ts. People who memorised the API and people who read the
                 implementation part ways on this one question.
               </p>
             </>
@@ -428,7 +428,7 @@ type Draft = MyPartial<User>;
 type Card = MyPick<User, "id" | "name">;
 // { id: number; name: string }
 
-// MyPick<User, "age"> fails on this line, instead of quietly giving a wrong type`, filename: "MyPartial 与 MyPick" },
+// MyPick<User, "age"> fails on this line, instead of quietly giving a wrong type`, filename: "MyPartial 与 MyPick", filenameEn: "MyPartial and MyPick" },
             ),
             demo(
               "ts",
@@ -460,7 +460,7 @@ type NoEmail = MyOmit<User, "email">;
 // { id: number; name: string }
 
 // The built-in Omit has a looser constraint: K extends keyof any (string | number | symbol).
-// So Omit<User, "notAKey"> is allowed, while MyOmit<User, "notAKey"> is an error.`, filename: "追问：Omit 怎么组合出来" },
+// So Omit<User, "notAKey"> is allowed, while MyOmit<User, "notAKey"> is an error.`, filename: "追问：Omit 怎么组合出来", filenameEn: "Follow-up: building Omit from the others" },
             ),
           ],
         },
@@ -508,7 +508,7 @@ type NoEmail = MyOmit<User, "email">;
               <p>
                 <strong>In one line:</strong> all three are conditional types — a
                 ternary at the type level, <code>T extends U ? X : Y</code>. Exclude
-                and Extract filter unions through its distributive behavior; ReturnType
+                and Extract filter unions through its distributive behaviour; ReturnType
                 adds <code>infer</code> to pull the return type out of a function type.
               </p>
               <p>
@@ -578,12 +578,12 @@ type NoA = Exclude<"a" | "b" | "c", "a">;
 
 // One line each, written by hand
 type MyExclude<T, U> = T extends U ? never : T;
-type MyExtract<T, U> = T extends U ? T : never;`, filename: "分配律：过滤联合" },
+type MyExtract<T, U> = T extends U ? T : never;`, filename: "分配律：过滤联合", filenameEn: "Distribution: filtering a union" },
             ),
             demo(
               "ts",
               `// infer R：在匹配的模式里挖一个洞，编译器匹配成功时负责填上
-// （lib.es5.d.ts 里的 ReturnType 就是这么写的）
+// （lib.es5.d.ts 里的 ReturnType 核心就是这一句；官方版还约束了 T extends (...args: any) => any，不匹配的分支写的是 any）
 type MyReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
 
 function getUser() {
@@ -601,7 +601,7 @@ type N = ElementOf<number[]>;        // number
 type S = Unwrap<Promise<string>>;    // string`,
               {
     codeEn: `// infer R: leave a hole in the pattern, and the compiler fills it in when the match succeeds
-// (this is exactly how ReturnType is written in lib.es5.d.ts)
+// (the core of ReturnType in lib.es5.d.ts is this one line; the official one also constrains T extends (...args: any) => any, and its false branch is any)
 type MyReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
 
 function getUser() {
@@ -616,7 +616,7 @@ type ElementOf<T> = T extends (infer E)[] ? E : never;
 type Unwrap<T> = T extends Promise<infer V> ? V : T;
 
 type N = ElementOf<number[]>;        // number
-type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类型拆出来" },
+type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类型拆出来", filenameEn: "infer: pulling out the return type" },
             ),
           ],
         },
@@ -763,7 +763,7 @@ type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类
       objectives: [
         "写出 getProp<T, K extends keyof T>(obj: T, key: K): T[K]，并解释约束和返回类型各解决什么",
         "用判别联合、switch 收窄和 never 兜底写出编译期的穷尽检查",
-        "说清 as 断言为什么是逃生舱：它让编译器闭嘴，不产生任何运行时检查",
+        "说清 as 断言为什么是逃生舱：它只是让编译器不再报错，不产生任何运行时检查",
         "分清 unknown / any / never，并写出 catch (e) 的标准处理",
       ],
       objectivesEn: [
@@ -810,7 +810,7 @@ type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类
               <p>
                 <strong>会追问：</strong>「那写
                 <code>{"(obj: object, key: string): any"}</code> 有什么问题？」——
-                能跑，但传错对象、拼错键、用错返回值，全都要等运行时才炸；
+                能跑，但传错对象、拼错键、用错返回值，全都要等运行时才暴露出来；
                 junior 版和 senior 版的差距就在这。
                 「约束能带默认值吗？」—— 能：
                 <code>{"<T extends object = Record<string, unknown>>"}</code>。
@@ -835,7 +835,7 @@ type S = Unwrap<Promise<string>>;    // string`, filename: "infer：把返回类
                 constraint there is no relationship between K and T, so the compiler
                 cannot prove the key exists on obj, and it rejects the index expression
                 outright. It is the single most common error in generics questions —
-                recognize it and you know a constraint is missing.
+                recognise it and you know a constraint is missing.
               </p>
               <p>
                 <strong>Why return <code>{"T[K]"}</code> rather than any:</strong> T[K]
@@ -895,7 +895,7 @@ const user = { id: 1, name: "Ada", active: true };
 
 const n = getProp(user, "name");     // n has type string
 const a = getProp(user, "active");   // a has type boolean
-// getProp(user, "email");           // ✗ stopped at compile time, no runtime undefined`, filename: "约束前 vs 约束后" },
+// getProp(user, "email");           // ✗ stopped at compile time, no runtime undefined`, filename: "约束前 vs 约束后", filenameEn: "Before and after the constraint" },
             ),
           ],
         },
@@ -925,7 +925,7 @@ const a = getProp(user, "active");   // a has type boolean
               <p>
                 <strong>对比 as 断言：</strong>收窄的每一步都对应一个
                 真实的运行时检查，是「证明」；<code>as</code>
-                不产生任何运行时代码，是「让编译器闭嘴」。
+                不产生任何运行时代码，只是「让编译器不再报错」。
                 <code>{"JSON.parse(...) as Shape"}</code> 能过编译，
                 但值长什么样由运行时说了算，
                 错误被推迟到离出错点很远的地方爆发。
@@ -1037,11 +1037,11 @@ function area(s: Shape): number {
       return exhausted;
     }
   }
-}`, filename: "判别联合与穷尽检查" },
+}`, filename: "判别联合与穷尽检查", filenameEn: "Discriminated unions and exhaustiveness checks" },
             ),
             demo(
               "ts",
-              `// as 是「让编译器闭嘴」，不是「向编译器证明」
+              `// as 只是「让编译器不再报错」，不是「向编译器证明」
 const draft = JSON.parse(localStorage.getItem("draft") ?? "{}") as Shape;
 // 编译器信了。但运行时这里可能是任何东西，错误被推迟到别处爆发
 
@@ -1071,7 +1071,7 @@ function isShape(x: unknown): x is Shape {
 const raw: unknown = JSON.parse(localStorage.getItem("draft") ?? "{}");
 if (isShape(raw)) {
   area(raw);   // ✓ this line is safe because of the runtime check, not because we said so
-}`, filename: "as 是闭嘴，收窄是证明" },
+}`, filename: "as 只消除报错，收窄才是证明", filenameEn: "as only silences the error; narrowing proves it" },
             ),
           ],
         },
@@ -1221,7 +1221,7 @@ if (typeof u === "string") {
 // never: no value is possible — it either throws or is unreachable
 function fail(msg: string): never {
   throw new Error(msg);
-}`, filename: "三个极端" },
+}`, filename: "三个极端", filenameEn: "Three extremes" },
             ),
             demo(
               "ts",
@@ -1247,7 +1247,7 @@ function fail(msg: string): never {
   } else {
     console.error(String(e));    // fallback: JS allows throwing any value, strings included
   }
-}`, filename: "catch (e) 的标准处理" },
+}`, filename: "catch (e) 的标准处理", filenameEn: "The standard way to handle catch (e)" },
             ),
           ],
         },
@@ -1373,7 +1373,7 @@ function fail(msg: string): never {
         "泛型约束一举两得：obj[key] 合法化，返回类型精确到 T[K]。",
         "T[K] 的精确来自 K 被推断成字面量类型，而不是 string。",
         "判别联合 = 同名字段、不同字面量；switch 收窄，default 赋给 never 做穷尽检查。",
-        "as 是闭嘴不是证明：不产生运行时检查，错误被推迟到别处爆发。",
+        "as 只消除报错、不是证明：不产生运行时检查，错误被推迟到别处爆发。",
         "unknown 是顶、never 是底、any 在层级外还会传染；边界一律 unknown。",
         "catch (e) 的 e 是 unknown：instanceof Error 收窄，String(e) 兜底。",
       ],

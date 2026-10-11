@@ -464,7 +464,7 @@ export function useLocalStorage<T>(key: string, initial: T) {
       const raw = window.localStorage.getItem(key);
       return raw === null ? initial : (JSON.parse(raw) as T);
     } catch {
-      return initial;          // 隐私模式 / 脏数据：退回默认值，别让整个组件炸
+      return initial;          // 隐私模式 / 脏数据：退回默认值，别让整个组件崩溃
     }
   });
 
@@ -907,7 +907,7 @@ test("[375] setValue 会同步写回", () => {
   expect(localStorage.getItem("k")).toBe("42");
 });
 
-test("[375] 脏数据不会让组件炸，退回默认值", () => {
+test("[375] 脏数据不会让组件崩溃，退回默认值", () => {
   localStorage.setItem("k", "{不是合法 JSON");
   const { result } = renderHook(() => useLocalStorage("k", "兜底"));
   expect(result.current[0]).toBe("兜底");
@@ -1283,7 +1283,7 @@ test("[378] a newly added card goes into the todo column", async () => {
   expect(screen.getByTestId("count-todo")).toHaveTextContent("3");
 });`;
 
-const C_SLICE = `import { createSlice, nanoid } from "@reduxjs/toolkit";
+const C_SLICE = `import { createSelector, createSlice, nanoid } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 export type Filter = "all" | "active" | "done";
@@ -1333,13 +1333,13 @@ export const selectFilter = (s: { todos: TodosState }) => s.todos.filter;
 export const selectRemaining = (s: { todos: TodosState }) =>
   s.todos.items.filter((t) => !t.done).length;
 
-export const selectVisible = (s: { todos: TodosState }) => {
-  const { items, filter } = s.todos;
-  if (filter === "all") return items;
-  return items.filter((t) => (filter === "done" ? t.done : !t.done));
-};`;
+export const selectVisible = createSelector(
+  [(s: { todos: TodosState }) => s.todos.items, selectFilter],
+  (items, filter) =>
+    filter === "all" ? items : items.filter((t) => (filter === "done" ? t.done : !t.done)),
+);`;
 
-const C_SLICE_EN = `import { createSlice, nanoid } from "@reduxjs/toolkit";
+const C_SLICE_EN = `import { createSelector, createSlice, nanoid } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 export type Filter = "all" | "active" | "done";
@@ -1389,11 +1389,11 @@ export const selectFilter = (s: { todos: TodosState }) => s.todos.filter;
 export const selectRemaining = (s: { todos: TodosState }) =>
   s.todos.items.filter((t) => !t.done).length;
 
-export const selectVisible = (s: { todos: TodosState }) => {
-  const { items, filter } = s.todos;
-  if (filter === "all") return items;
-  return items.filter((t) => (filter === "done" ? t.done : !t.done));
-};`;
+export const selectVisible = createSelector(
+  [(s: { todos: TodosState }) => s.todos.items, selectFilter],
+  (items, filter) =>
+    filter === "all" ? items : items.filter((t) => (filter === "done" ? t.done : !t.done)),
+);`;
 
 const C_STORE = `import { configureStore } from "@reduxjs/toolkit";
 import todos from "./todosSlice";
@@ -2189,8 +2189,9 @@ export const ivCoding: Module = {
                 普通 CRUD 改一个数组，
                 跨列移动要<strong>同时改两个数组</strong>，
                 这一步很多人会写成先删再加两次
-                <code>setState</code>，
-                导致中间态被渲染出来。
+                <code>setState</code> —— React 18 会把两次合并成一次渲染，
+                表面上看不出问题，但逻辑上仍是两个独立操作，
+                中间一旦加校验或提前 return，卡片就会凭空消失。
               </p>
               <p>
                 <strong>怎么用这一节：</strong>
@@ -2236,8 +2237,10 @@ export const ivCoding: Module = {
                 <strong>378 (Kanban) is class 1 leveled up</strong>: plain CRUD changes
                 one array, moving across columns has to{" "}
                 <strong>change two arrays at once</strong>. Plenty of people write that
-                step as delete-then-add with two <code>setState</code> calls, which
-                renders the in-between state.
+                step as delete-then-add with two <code>setState</code> calls. React 18
+                batches them into one render, so nothing looks wrong, but they are still
+                two separate operations, and a check or an early return between them
+                makes the card vanish.
               </p>
               <p>
                 <strong>How to use this lesson:</strong> if you can write Q1, variant 3
@@ -2556,6 +2559,9 @@ export const ivCoding: Module = {
                 <code>role=&quot;tabpanel&quot;</code>，
                 再用 <code>aria-controls</code> 和
                 <code>aria-labelledby</code> 把 tab 和 panel 关联起来。
+                注意：本实现只渲染激活的面板，未激活 tab 的 <code>aria-controls</code>
+                指向的 id 在 DOM 里并不存在；严格的做法是把所有面板都渲染出来、
+                未激活的加 <code>hidden</code>，或者只给激活的 tab 写 <code>aria-controls</code>。
                 <strong>写了这几行，题目就从「能跑」变成「像个前端写的」。</strong>
               </p>
               <p>
@@ -2598,7 +2604,12 @@ export const ivCoding: Module = {
                 <code>role=&quot;tablist&quot;</code> /{" "}
                 <code>role=&quot;tab&quot;</code> + <code>aria-selected</code> /{" "}
                 <code>role=&quot;tabpanel&quot;</code>, then tie tab and panel together
-                with <code>aria-controls</code> and <code>aria-labelledby</code>.{" "}
+                with <code>aria-controls</code> and <code>aria-labelledby</code>. Note
+                that this implementation renders only the active panel, so the{" "}
+                <code>aria-controls</code> of an inactive tab points at an id that is not
+                in the DOM; the strict fix is to render every panel and mark the inactive
+                ones <code>hidden</code>, or to set <code>aria-controls</code> only on the
+                active tab.{" "}
                 <strong>Those few lines turn the answer from &ldquo;it runs&rdquo; into
                 &ldquo;a front-end person wrote this&rdquo;.</strong>
               </p>
@@ -2635,9 +2646,9 @@ export const ivCoding: Module = {
               <p>
                 <strong>为什么用 <code>??</code> 而不是
                 <code>||</code></strong>——
-                这里正好是 #281 讲过的坑：
+                这里正好是 #281 讲过的陷阱：
                 <code>hover</code> 可能是 <code>0</code>
-                （虽然本实现从 1 开始，但如果你支持 0 星就会踩），
+                （虽然本实现从 1 开始，但如果你支持 0 星就会出错），
                 <code>||</code> 会把 <code>0</code> 当成「没 hover」。
                 <strong>用 <code>??</code> 才对，
                 而且 <code>hover</code> 的类型是
@@ -2992,7 +3003,7 @@ useEffect(() => {
             { label: "hover 用 number | null（或初始 null）", labelEn: "hover is number | null (or starts as null)", must: "useState<number \\| null>|useState\\(\\s*null\\s*\\)" },
             { label: "显示值用 ?? 而不是 ||", labelEn: "The shown value uses ?? and not ||", must: "\\?\\?" },
             { label: "没有用 || 做兜底", labelEn: "No || used as the fallback", mustNot: "hover\\s*\\|\\|" },
-            { label: "onMouseLeave 挂在容器上（出现在 map 之前）", labelEn: "onMouseLeave sits on the container, so it appears before the map", must: "onMouseLeave[\\s\\S]{0,400}\\.map\\s*\\(|Array\\.from" },
+            { label: "onMouseLeave 挂在容器上（出现在 map 之前）", labelEn: "onMouseLeave sits on the container, so it appears before the map", must: "onMouseLeave[\\s\\S]{0,400}\\.map\\s*\\(" },
             { label: "用 Array.from 或类似方式渲染 max 颗", labelEn: "Renders max stars with Array.from or something similar", must: "Array\\.from|\\[\\s*\\.\\.\\.\\s*Array" },
             { label: "星星是 button 元素", labelEn: "Each star is a button element", must: "<button" },
             { label: "带 aria-label", labelEn: "Has an aria-label", must: "aria-label" },
@@ -3555,7 +3566,7 @@ test("clicking Play calls audio.play(), clicking again calls pause()", async () 
                   写成 <code>useState(读localStorage())</code>
                   的话，<strong>每次渲染都会读一次
                   localStorage</strong>（虽然结果被丢掉，
-                  但同步 I/O 白花了）。
+                  但同步 I/O 的开销照样付出了）。
                 </li>
                 <li>
                   <strong>错误兜底</strong>——
@@ -3599,7 +3610,7 @@ test("clicking Play calls audio.play(), clicking again calls pause()", async () 
               </p>
               <ul>
                 <li>
-                  <strong>Lazy initialization</strong> —{" "}
+                  <strong>Lazy initialisation</strong> —{" "}
                   <code>useState(() =&gt; ...)</code> takes a <strong>function</strong>,
                   not a value. Write <code>useState(readLocalStorage())</code> and{" "}
                   <strong>every render reads localStorage once</strong> (the result gets
@@ -3706,7 +3717,7 @@ return [value, setValue];        // as const is missing`,
                 <code>removeEventListener</code> directly and assert that the bind count
                 equals the unbind count.{" "}
                 <strong>That is the most direct way to check whether the cleanup
-                function got written</strong>, and more reliable than watching behavior.
+                function got written</strong>, and more reliable than watching behaviour.
               </p>
             </>
           ),
@@ -3759,7 +3770,7 @@ return [value, setValue];        // as const is missing`,
  * 要求：
  *   · 首次渲染时从 localStorage 读，读不到用 initial
  *   · 值变化时写回 localStorage
- *   · localStorage 不可用或存的是脏数据时，不能让组件炸
+ *   · localStorage 不可用或存的是脏数据时，不能让组件崩溃
  *   · 返回 [value, setValue]，类型要是元组
  */
 export function useLocalStorage<T>(key: string, initial: T) {
@@ -3802,7 +3813,7 @@ export function useLocalStorage<T>(key: string, initial: T) {
             { label: "用了 JSON.stringify / JSON.parse", labelEn: "Uses JSON.stringify and JSON.parse", must: "JSON\\.stringify" },
             { label: "effect 依赖里有 key 和 value", labelEn: "The effect dependencies hold key and value", must: "\\[\\s*key\\s*,\\s*value\\s*\\]" },
             { label: "返回值用 as const（元组类型）", labelEn: "The return value uses as const, so the type is a tuple", must: "as const" },
-            { label: "没有把 localStorage 读写放在渲染主体里裸调", labelEn: "No bare localStorage read or write in the render body", mustNot: "^\\s*const\\s+\\w+\\s*=\\s*(window\\.)?localStorage\\.getItem" },
+            { label: "没有把 localStorage 读写放在渲染主体里裸调", labelEn: "No bare localStorage read or write in the render body", mustNot: "^ {2}const\\s+\\w+\\s*=\\s*(window\\.)?localStorage\\.getItem" },
           ],
           hints: [
             "先问自己两个问题：读 localStorage 这件事应该发生几次？如果 localStorage 里存的是一段被人手改坏的 JSON，你的组件会怎样？",
@@ -4180,14 +4191,14 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
                 在这里能具体看到。</strong>
               </p>
               <p>
-                <strong>一个必须知道的坑：
+                <strong>一个必须知道的陷阱：
                 selector 不要返回新对象。</strong>
                 <code>useSelector</code>
                 默认用 <code>===</code> 比较结果，
                 返回 <code>{"{ a, b }"}</code>
                 这样的新对象<strong>每次都不相等</strong>，
                 于是每次 store 有任何变化都重渲染 ——
-                等于优化白做。
+                等于优化没起作用。
                 <br />
                 <strong>解法</strong>：拆成多个
                 <code>useSelector</code>（本实现的做法，最简单），
@@ -4200,7 +4211,8 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
                 是从 <code>items</code> 派生的</strong>，
                 筛选<strong>不改底层数据</strong>——
                 和变式一里「写操作必须作用于完整数据」
-                是同一条规矩。
+                是同一条规矩。它筛选时会生成新数组，所以用
+                <code>createSelector</code> 记忆化，否则同样会落进上面这个陷阱。
                 <strong>测试里专门有一条验证「筛完底层仍是两条」。</strong>
               </p>
             </>
@@ -4225,18 +4237,20 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
                 object.</strong> <code>useSelector</code> compares its result with{" "}
                 <code>===</code> by default, and a fresh object like{" "}
                 <code>{"{ a, b }"}</code> is <strong>never equal</strong>, so any change
-                anywhere in the store re-renders — the optimization cancels itself out.
+                anywhere in the store re-renders — the optimisation cancels itself out.
                 <br />
                 <strong>Fixes</strong>: split it into several{" "}
                 <code>useSelector</code> calls (what this implementation does, and the
-                simplest), memoize with <code>createSelector</code>, or pass{" "}
+                simplest), memoise with <code>createSelector</code>, or pass{" "}
                 <code>shallowEqual</code> as the second argument.
               </p>
               <p>
                 <strong>Note that <code>selectVisible</code> is derived from{" "}
                 <code>items</code></strong>, and filtering{" "}
                 <strong>does not touch the underlying data</strong> — the same rule as
-                &ldquo;writes have to act on the complete data&rdquo; in variant 1.{" "}
+                &ldquo;writes have to act on the complete data&rdquo; in variant 1.
+                Because it builds a new array whenever it filters, it is memoised with{" "}
+                <code>createSelector</code>; otherwise it would fall into the trap above.{" "}
                 <strong>One test is there to verify that after filtering the underlying
                 data still has two entries.</strong>
               </p>
@@ -4261,7 +4275,7 @@ const { visible, remaining } = useSelector((s) => ({
 const visible = useSelector(selectVisible);
 const remaining = useSelector(selectRemaining);`,
               {
-                filename: "useSelector 最常见的性能坑",
+                filename: "useSelector 最常见的性能陷阱",
                 filenameEn: "The most common performance trap with useSelector",
                 codeEn: `// ✗ the selector returns a new object: every store change re-renders
 const { visible, remaining } = useSelector((s) => ({

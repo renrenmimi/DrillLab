@@ -198,8 +198,9 @@ export const ivReactBasics: Module = {
                 <strong>会追问缺点</strong>（一定要准备）：
                 只是个视图库，路由和状态都要自己选，
                 <strong>选型成本高</strong>；
-                性能优化要手动（<code>memo</code> /
-                <code>useMemo</code>，React 19 之前没有自动记忆化）；
+                性能优化默认要手动（<code>memo</code> /
+                <code>useMemo</code>）；自动记忆化要另外接入 React Compiler ——
+                它是独立的编译插件，不是 React 19 自带的；
                 JSX 和 hooks 规则对新手有门槛；
                 <strong>版本迁移的心智负担不小</strong>
                 （class → hooks → Server Components）。
@@ -244,8 +245,9 @@ export const ivReactBasics: Module = {
                 <strong>They will ask for the downsides</strong> (have them ready): it is
                 only a view library, so you pick the router and the state layer yourself
                 — <strong>the cost of those decisions is real</strong>; performance work
-                is manual (<code>memo</code> / <code>useMemo</code>; there was no
-                automatic memoization before React 19); JSX and the hook rules are a
+                is manual by default (<code>memo</code> / <code>useMemo</code>);
+                automatic memoization comes from adding React Compiler, a separate build
+                plugin rather than part of React 19 itself; JSX and the hook rules are a
                 hurdle for beginners; and{" "}
                 <strong>version migrations carry a lot of mental load</strong> (class →
                 hooks → Server Components).
@@ -311,7 +313,7 @@ export const ivReactBasics: Module = {
               </div>
               <p>
                 <strong>怎么答得体面：</strong>
-                别踩一捧一。说
+                不要贬低一方、抬高另一方。说
                 「React 给自由也给选型负担，
                 Angular 给约定也给学习成本；
                 <strong>小而快的项目和需要长期多人维护的大项目，
@@ -542,7 +544,7 @@ const el = React.createElement(
 // Only an expression can go inside {}
 {if (ok) <A />}          // ✗ syntax error
 {ok ? <A /> : null}      // ✓
-{ok && <A />}            // ✓ (careful: 0 does get rendered, see #281)`, filename: "JSX 编译成什么" },
+{ok && <A />}            // ✓ (careful: 0 does get rendered, see #281)`, filename: "JSX 编译成什么", filenameEn: "What JSX compiles to" },
             ),
           ],
         },
@@ -612,7 +614,8 @@ const el = React.createElement(
                 于是<strong>大量误更新</strong>；
                 更糟的是<strong>非受控输入框的内容会串到别的行</strong>，
                 因为 DOM 节点被复用了。
-                <strong>Q1 那道真题里删除笔记的 bug 就是这个。</strong>
+                <strong>Q1 那道真题有删除功能，所以列表必须用 note.id 当 key</strong>——
+                「列表渲染与 key」那一课推演过用 index 会怎样串位。
               </p>
             </>
           ),
@@ -689,8 +692,11 @@ const el = React.createElement(
                 </strong>
                 , because the DOM node got reused.{" "}
                 <strong>
-                  The delete-a-note bug in the real Q1 question is exactly this.
-                </strong>
+                  The real Q1 question has deletion, which is why its list keys on
+                  note.id
+                </strong>{" "}
+                — the lesson on rendering a list and the key prop walks through how the
+                index would put things on the wrong row.
               </p>
             </>
           ),
@@ -884,8 +890,8 @@ const el = React.createElement(
                 「现在还用它们吗？」——
                 这题答得出现状才显得在跟进：
                 新项目多用 <strong>Vite</strong>
-                （开发用原生 ESM + esbuild，
-                生产用 Rollup），
+                （开发用原生 ESM；Vite 7 及以前配 esbuild + Rollup，
+                Vite 8 起统一用 Rolldown；本课源项目用的是 Vite 5），
                 <strong>Babel 常被 esbuild / SWC 取代</strong>
                 （快一个量级）。
                 <strong>Webpack 仍在大量存量项目和
@@ -927,8 +933,9 @@ const el = React.createElement(
               <p>
                 <strong>Follow-up:</strong> &ldquo;Are they still used?&rdquo; — knowing
                 the current state is what shows you keep up: new projects mostly reach for{" "}
-                <strong>Vite</strong> (native ESM plus esbuild in development, Rollup for
-                production), and{" "}
+                <strong>Vite</strong> (native ESM in development; esbuild plus Rollup up
+                to Vite 7, Rolldown from Vite 8; the source project in this course uses
+                Vite 5), and{" "}
                 <strong>Babel is often replaced by esbuild or SWC</strong> — an order of
                 magnitude faster.{" "}
                 <strong>
@@ -1343,7 +1350,10 @@ const el = React.createElement(
                       <td><code>useEffect(fn)</code>（不写依赖数组）</td>
                     </tr>
                     <tr>
-                      <td><code>getSnapshotBeforeUpdate</code></td>
+                      <td>
+                        在 <code>componentDidMount</code> /{" "}
+                        <code>componentDidUpdate</code> 里同步测量 DOM 再改样式
+                      </td>
                       <td>
                         <code>useLayoutEffect</code>
                         （DOM 更新后、浏览器绘制前同步执行）
@@ -1362,6 +1372,9 @@ const el = React.createElement(
                 测量 DOM 再改样式会闪一下</strong>，
                 这种情况要用
                 <code>useLayoutEffect</code>。
+                <br />
+                <code>getSnapshotBeforeUpdate</code> 目前没有对应的 hook，
+                真要用只能写类组件。
               </p>
               <p>
                 <strong>更重要的是别用生命周期的思维写 effect。</strong>
@@ -1419,7 +1432,11 @@ const el = React.createElement(
                       <td><code>useEffect(fn)</code> (no dependency array)</td>
                     </tr>
                     <tr>
-                      <td><code>getSnapshotBeforeUpdate</code></td>
+                      <td>
+                        Measuring the DOM synchronously in{" "}
+                        <code>componentDidMount</code> / <code>componentDidUpdate</code>{" "}
+                        and then restyling
+                      </td>
                       <td>
                         <code>useLayoutEffect</code> (runs synchronously after the DOM
                         updates, before the browser paints)
@@ -1438,6 +1455,9 @@ const el = React.createElement(
                   will flash
                 </strong>
                 ; that case wants <code>useLayoutEffect</code>.
+                <br />
+                <code>getSnapshotBeforeUpdate</code> has no Hook equivalent yet; if you
+                really need it, you still write a class component.
               </p>
               <p>
                 <strong>
@@ -1757,7 +1777,7 @@ function Child({ onChange }) {
 // Compose with children, so the middle layer is not forced to pass things through
 <Layout sidebar={<Nav />}>
   <Article />          {/* Layout does not need to know what props Article wants */}
-</Layout>`, filename: "两种最常用的方式" },
+</Layout>`, filename: "两种最常用的方式", filenameEn: "The two most common ways" },
             ),
           ],
         },
@@ -1952,7 +1972,7 @@ const [text, setText] = useState("");        // note the initial value is "", no
 // Uncontrolled: the value lives in the DOM
 const ref = useRef(null);
 <input ref={ref} defaultValue="initial" />
-<button onClick={() => console.log(ref.current.value)}>Read</button>`, filename: "两种写法" },
+<button onClick={() => console.log(ref.current.value)}>Read</button>`, filename: "两种写法", filenameEn: "Two ways to write it" },
             ),
           ],
         },
@@ -2313,7 +2333,7 @@ const onPick = useCallback((id) => pick(id), [pick]);
 // ✓ keep the references stable, and memo starts to mean something
 const item = useMemo(() => ({ ...raw }), [raw]);
 const onPick = useCallback((id) => pick(id), [pick]);
-<Row item={item} onPick={onPick} />`, filename: "memo 生效的前提" },
+<Row item={item} onPick={onPick} />`, filename: "memo 生效的前提", filenameEn: "What memo needs in order to work" },
             ),
           ],
         },
@@ -2342,8 +2362,10 @@ const onPick = useCallback((id) => pick(id), [pick]);
                 <li>
                   <strong>表格</strong>——
                   <code>&lt;tr&gt;</code> 里套一层
-                  <code>div</code> 是<strong>非法 HTML</strong>，
-                  浏览器会把它挪出去，布局直接坏。
+                  <code>div</code> 是<strong>非法 HTML</strong>：
+                  服务端渲染的 HTML 被浏览器解析时，它会被挪出表格；
+                  客户端由 React 直接创建 DOM 时不会被挪走，
+                  但会触发 validateDOMNesting 警告，布局照样出错。
                 </li>
                 <li>
                   <strong>Flex / Grid 布局</strong>——
@@ -2387,8 +2409,10 @@ const onPick = useCallback((id) => pick(id), [pick]);
               <ul>
                 <li>
                   <strong>Tables</strong> — a <code>div</code> inside a{" "}
-                  <code>&lt;tr&gt;</code> is <strong>invalid HTML</strong>; the browser
-                  hoists it out and the layout breaks on the spot.
+                  <code>&lt;tr&gt;</code> is <strong>invalid HTML</strong>: when
+                  server-rendered HTML is parsed, the browser hoists it out of the table;
+                  when React creates the DOM on the client it stays put, but React warns
+                  (validateDOMNesting) and the layout breaks anyway.
                 </li>
                 <li>
                   <strong>Flex / Grid layouts</strong> — an extra <code>div</code>{" "}
@@ -2442,7 +2466,7 @@ const onPick = useCallback((id) => pick(id), [pick]);
     <dt>{r.term}</dt>
     <dd>{r.desc}</dd>
   </React.Fragment>
-))}`, filename: "Fragment 的两个真实场景" },
+))}`, filename: "Fragment 的两个真实场景", filenameEn: "Two real uses of Fragment" },
             ),
           ],
         },
@@ -2479,8 +2503,9 @@ const onPick = useCallback((id) => pick(id), [pick]);
                   （<code>hoist-non-react-statics</code> 干这事）。
                 </li>
                 <li>
-                  <strong>ref 传不进去</strong>——
-                  要用 <code>forwardRef</code>。
+                  <strong>ref</strong>—— React 18 及以前不会随 props 透传，
+                  要用 <code>forwardRef</code>；React 19 起 ref 是普通 prop，
+                  透传 props 就够了。
                 </li>
               </ul>
               <p>
@@ -2545,8 +2570,9 @@ const onPick = useCallback((id) => pick(id), [pick]);
                   <code>hoist-non-react-statics</code> exists for this).
                 </li>
                 <li>
-                  <strong>Refs do not pass through</strong> — you need{" "}
-                  <code>forwardRef</code>.
+                  <strong>Refs</strong> — up to React 18 they are not forwarded with
+                  the props and you need <code>forwardRef</code>; from React 19 ref is
+                  an ordinary prop, so forwarding the props is enough.
                 </li>
               </ul>
               <p>
@@ -2617,7 +2643,7 @@ function Page() {
   const user = useUser();          // ← it is obvious where user comes from
   if (!user) return <Login />;
   return <Content user={user} />;
-}`, filename: "HOC 与 hook 的对比" },
+}`, filename: "HOC 与 hook 的对比", filenameEn: "HOCs compared with hooks" },
             ),
           ],
         },
