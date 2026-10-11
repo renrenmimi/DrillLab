@@ -205,7 +205,7 @@ export function LocalRunCard({
   commands,
   why,
 }: {
-  commands: { cmd: string; expect: string }[];
+  commands: { cmd: string; expect: string; expectEn?: string }[];
   /** 为什么这道题在浏览器里跑不了。逐题不同，所以是双语字符串而不是固定文案 */
   why: LocalizedString;
 }) {
@@ -217,7 +217,12 @@ export function LocalRunCard({
       <p className="sbx-local-why">
         <Loc v={why} />
       </p>
-      <TerminalCommand steps={commands.map((c) => ({ cmd: c.cmd, out: c.expect }))} />
+      <TerminalCommand
+        steps={commands.map((c) => ({
+          cmd: c.cmd,
+          out: c.expectEn ? { zh: c.expect, en: c.expectEn } : c.expect,
+        }))}
+      />
       <p className="sbx-local-note">
         <T
           zh="跑完自己对一遍期望输出，然后在下面打勾。这里不给假编辑器 —— 装个能跑的样子只会让你以为练过了。"
