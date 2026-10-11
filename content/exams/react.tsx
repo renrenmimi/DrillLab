@@ -239,7 +239,7 @@ const ticketMock: MockExam = {
       { path: "src/components/TicketBoard/index.tsx", role: { zh: "TODO 1–7：三个 state、三个 handler、派生的 visibleTickets", en: "TODO 1–7: three pieces of state, three handlers, and a derived visibleTickets." }, edit: true },
       { path: "src/components/TicketForm/index.tsx", role: { zh: "TODO 8–12：受控输入、双模式按钮、回填", en: "TODO 8–12: controlled inputs, a dual-mode button, and refilling on edit." }, edit: true },
       { path: "src/components/TicketList/index.tsx", role: { zh: "TODO 13：列表与两个按钮", en: "TODO 13: the list and its two buttons." }, edit: true },
-      { path: "src/TicketBoard.test.tsx", role: { zh: "判卷器，五个测试。原样抄下面那份，不要改它", en: "The grader, five tests. Copy it verbatim and do not edit it." }, },
+      { path: "src/TicketBoard.test.tsx", role: { zh: "判卷器，五个测试。原样抄这套模拟考给的那份，不要改它", en: "The grader, five tests. Copy the one this mock exam provides verbatim and do not edit it." }, },
     ],
     baseline: {
       zh: "Tests: 5 failed, 5 total —— 第一条报 Unable to find an element by: [data-testid=\"ticket-subject\"]",

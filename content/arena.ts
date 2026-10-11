@@ -9,15 +9,15 @@
 // 这和全站主线「测试通过 ≠ 做对了」是同一类陷阱，考场就是用来堵它的。
 //
 // 【全部派生，不新写题】
-// 6 道题的来源：
-//   · 4 个现成的 from-scratch 练习（已经有 requirements / fileList /
-//     commands / 四级提示 / 门后答案）
-//   · 2 套模拟考（提示从它的 walkthrough 段落标题派生）
+// 7 道题的来源：
+//   · 5 个现成的 from-scratch 练习（已经有 requirements / fileList /
+//     commands / 四级提示 / 门后答案，中英两份）
+//   · 2 套模拟考（文件清单取自它的 setup.files；四级提示单独写在下面的 MOCK_HINTS）
 // 缺的只是「计时 + 不许看 + 记录尝试」这层壳，那是页面的事，不是内容的事。
 //
 // 【只在服务端 import】
 
-import type { ArenaChallenge, CodeExample, FromScratchExercise, MockExam } from "./types";
+import type { ArenaChallenge, FromScratchExercise, MockExam } from "./types";
 import { EXAMS } from "./exam-list";
 
 /** 每道考场题的时限与场景 —— 时限按源题的实际规模诚实估，不往短了写 */
@@ -39,9 +39,9 @@ const META: Record<string, { minutes: number; scenario: string; scenarioEn: stri
   "g-rebuild-subgraph": {
     minutes: 90,
     scenario:
-      "空文件夹。自己搭一个 Apollo Federation subgraph：写 schema、写四个 resolver、用 DataLoader 防 N+1、错误带上 extensions.code，并让十个测试全过。",
+      "空文件夹。自己搭一个 Apollo Federation subgraph：读 schema（照抄源项目的）、写四个 resolver、用 DataLoader 防 N+1、错误带上 extensions.code，并让十个测试全过。",
     scenarioEn:
-      "An empty folder. Build an Apollo Federation subgraph yourself: write the schema, write the four resolvers, use DataLoader to avoid N+1, put extensions.code on errors, and make all ten tests pass.",
+      "An empty folder. Build an Apollo Federation subgraph yourself: read the schema (copied from the source project), write the four resolvers, use DataLoader to avoid N+1, put extensions.code on errors, and make all ten tests pass.",
   },
   "g-rebuild-controller": {
     minutes: 75,
@@ -73,16 +73,147 @@ const META: Record<string, { minutes: number; scenario: string; scenarioEn: stri
   },
 };
 
-/** 从模拟考的 walkthrough 段落标题派生四级提示 —— 不新写内容 */
-function hintsFromMock(mock: MockExam): [string, string, string, string] {
-  const heads = mock.walkthrough.map((w) => w.heading);
-  const pick = (i: number, fallback: string) => heads[i] ?? fallback;
-  return [
-    `先把题面读完，列出每个任务要动哪几个文件。第一步是：${pick(0, "读清需求")}`,
-    `卡在结构上就回想这一步：${pick(1, "想清楚数据放哪、谁负责改")}`,
-    `具体实现顺序：${pick(2, "一个任务一个任务来，写完一个跑一次测试")}`,
-    `还是过不了就看这一段的思路：${pick(3, "对着测试的断言反推自己漏了什么")}`,
-  ];
+type Hints = [string, string, string, string];
+
+/**
+ * 两套模拟考的四级提示，中英各一份。
+ *
+ * 【为什么手写】这里原来用 walkthrough 的小节标题套固定句式，拼出「第一步是：和真实 Q1 的对应关系」
+ * 这样的句子。考场里看不到 walkthrough 正文，只剩标题，读不成提示，也不递进。
+ * 现在按 from-scratch 那五套的写法：① 思考方向 ② 该动哪里、用什么 ③ 伪代码 ④ 局部代码，
+ * 与 HintPanel 的四级标签一一对应。④ 里的代码逐行取自该模拟考的参考答案。
+ */
+const MOCK_HINTS: Record<string, { zh: Hints; en: Hints }> = {
+  "support-tickets": {
+    zh: [
+      "先别写组件，先回答三个问题：工单列表归哪个组件管？表单怎么知道自己是在新建还是在改派？筛选后的列表要不要单独存一份？然后把 data-testid 和两个按钮的文字（Reassign、Close）抄成一张表 —— 测试就靠它们找元素。",
+      `TicketBoard 放三个 state：tickets、正在改派的那张 ticketToEdit（没有就是 null）、筛选值 filter（"all" 或某个 Priority）；再写三个 handler：提交（Create 与 Save 共用）、Close、Reassign。TicketForm 自己管 subject 与 priority 两个受控输入，用 useEffect 盯住 ticketToEdit 回填或清空。可见列表由 filter 派生，不另开 state。`,
+      `TicketBoard:
+  tickets: Ticket[] = []
+  ticketToEdit: Ticket | null = null
+  filter: "all" | Priority = "all"
+  visibleTickets = filter 为 all 时就是 tickets，否则只留 priority 等于 filter 的
+  handleSubmitTicket(submitted):
+    正在改派 → 用 map 按 id 原位替换 → 再把 ticketToEdit 设回 null
+    否则 → 用展开语法追加到末尾
+  handleClose(id): 用 filter 留下 id 不相等的
+  handleReassign(ticket): 把 ticketToEdit 设成这一张
+TicketForm:
+  subject = ""，priority = "medium"
+  ticketToEdit 变化时：有就回填，没有就清空
+  提交：id 用 ticketToEdit 的，没有才生成新的；提交后清空，priority 回到 medium
+  按钮：subject.trim() 为空时 disabled；文字是 ticketToEdit ? "Save" : "Create"
+TicketList:
+  ul[data-testid=ticket-list] 里每张一个 li（key 用 ticket.id）：subject、priority、Reassign 与 Close 两个按钮`,
+      `// ① 可见列表是派生的；所有写操作都作用于 tickets —— 别拿 visibleTickets 去 setTickets
+const visibleTickets =
+  filter === "all" ? tickets : tickets.filter((t) => t.priority === filter);
+
+// ② 改派：按 id 原位替换，替换完退出改派模式
+setTickets((prev) => prev.map((t) => (t.id === submitted.id ? submitted : t)));
+setTicketToEdit(null);
+
+// ③ TicketForm 提交时复用旧 id
+id: ticketToEdit ? ticketToEdit.id : Date.now(),`,
+    ],
+    en: [
+      "Do not write components yet. Answer three questions first: which component owns the ticket list? How does the form know whether it is creating or reassigning? Does the filtered list need a copy of its own? Then copy the data-testids and the two button texts (Reassign, Close) into a table — the tests find their elements through them.",
+      `TicketBoard holds three pieces of state: tickets, the ticket being reassigned (ticketToEdit, null when there is none), and the filter ("all" or a Priority); then three handlers: submit (shared by Create and Save), Close and Reassign. TicketForm owns its two controlled inputs, subject and priority, and uses useEffect on ticketToEdit to fill them in or clear them. The visible list is derived from the filter, with no state of its own.`,
+      `TicketBoard:
+  tickets: Ticket[] = []
+  ticketToEdit: Ticket | null = null
+  filter: "all" | Priority = "all"
+  visibleTickets = tickets when filter is all, otherwise only those whose priority equals filter
+  handleSubmitTicket(submitted):
+    if reassigning → replace in place by id with map → then set ticketToEdit back to null
+    otherwise → append to the end with the spread syntax
+  handleClose(id): keep the ones whose id is not equal, with filter
+  handleReassign(ticket): set ticketToEdit to this one
+TicketForm:
+  subject = "", priority = "medium"
+  when ticketToEdit changes: fill in if there is one, clear if not
+  on submit: take the id from ticketToEdit and generate one only when there is none; then clear, with priority back to medium
+  button: disabled while subject.trim() is empty; the text is ticketToEdit ? "Save" : "Create"
+TicketList:
+  one li per ticket inside ul[data-testid=ticket-list] (key: ticket.id): subject, priority, and the Reassign and Close buttons`,
+      `// ① The visible list is derived; every write acts on tickets — never setTickets from visibleTickets
+const visibleTickets =
+  filter === "all" ? tickets : tickets.filter((t) => t.priority === filter);
+
+// ② Reassigning: replace in place by id, then leave reassign mode
+setTickets((prev) => prev.map((t) => (t.id === submitted.id ? submitted : t)));
+setTicketToEdit(null);
+
+// ③ TicketForm reuses the old id on submit
+id: ticketToEdit ? ticketToEdit.id : Date.now(),`,
+    ],
+  },
+  "book-reviews": {
+    zh: [
+      "先别动 resolver。先在 schema 上标出四处：两个 reviews 都是 [Review!]!，averageRating 是可空的 Float，reviewer 可空，Book 的 @key 是 isbn 和 edition 两个字段。再给三个数据源各抄一张方法名表（方法名和参数）。每个字段兜底返回什么由可空性决定，调哪个方法、怎么传参由这张表决定。",
+      "全部改动都在 reviewResolvers.js。七个 TODO 照 schema 填：两个 reviews 兜底 []，averageRating 与 reviewer 兜底 null，Book.__resolveReference 两个 key 字段都要留，Query.review 找不到时抛 REVIEW_NOT_FOUND。另有两处现成的代码要修：createReviewerLoader（方法名，以及那个 filter），createReview（数据源键名、insertReview 的调用方式、吞掉结构化错误的 catch、返回值缺 reviewer）。",
+      `Author.reviews(author) → reviewDataSource.fetchByAuthor(author.id)，兜底 []
+Author.averageRating(author) → ratingDataSource.computeAverage(author.id)，用 ?? null 兜底（不能用 ||，0 是合法的平均分）
+Book.__resolveReference(book) → { isbn, edition }，两个都留
+Book.reviews(book) → reviewDataSource.fetchByBook(book.isbn, book.edition)，兜底 []
+Review.reviewer(parent) → loaders.reviewerLoader.load(parent.authorId)，兜底 null
+Query.review(id) → loaders.reviewLoader.load(id)；没有就抛 REVIEW_NOT_FOUND
+Query.reviews(authorId) → 没有 authorId 就抛 INVALID_INPUT；否则 fetchByAuthor，兜底 []
+Mutation.createReview → 校验 → 用 reviewerLoader 查 reviewer → insertReview（五个位置参数）→ 返回 { ...review, reviewer }
+每个 catch → GraphQLError 原样再抛；其他错误带 correlationId 记日志，再包成带 code 的 GraphQLError`,
+      `// ① batch 函数：方法名是 lookupReviewer；不许 filter —— 返回的数组必须与 authorIds 等长、同序
+const reviewers = await Promise.all(
+  authorIds.map(id => reviewerDataSource.lookupReviewer(id))
+);
+return reviewers;
+
+// ② createReview：先查 reviewer（参数里要解构出 loaders），再按五个位置参数插入，最后附到返回值上
+const reviewer = await loaders.reviewerLoader.load(authorId);
+const review = await dataSources.reviewDataSource.insertReview(
+  authorId, isbn, edition, rating, body
+);
+return { ...review, reviewer };
+
+// ③ 每个 catch 的第一行
+if (error instanceof GraphQLError) throw error;`,
+    ],
+    en: [
+      "Leave the resolvers alone for now. First mark four things on the schema: both reviews fields are [Review!]!, averageRating is a nullable Float, reviewer is nullable, and Book's @key is the two fields isbn and edition. Then copy out a method table for each of the three data sources (names and parameters). Nullability decides what each field falls back to; the table decides which method you call and how you pass the arguments.",
+      "Every change is in reviewResolvers.js. Fill the seven TODOs from the schema: both reviews fall back to [], averageRating and reviewer fall back to null, Book.__resolveReference keeps both key fields, and Query.review throws REVIEW_NOT_FOUND when there is no match. Two pieces of existing code also need fixing: createReviewerLoader (the method name, and that filter) and createReview (the data source key name, how insertReview is called, the catch that swallows a structured error, and the reviewer missing from the return value).",
+      `Author.reviews(author) → reviewDataSource.fetchByAuthor(author.id), falling back to []
+Author.averageRating(author) → ratingDataSource.computeAverage(author.id), falling back with ?? null (not ||: 0 is a valid average)
+Book.__resolveReference(book) → { isbn, edition }, keeping both
+Book.reviews(book) → reviewDataSource.fetchByBook(book.isbn, book.edition), falling back to []
+Review.reviewer(parent) → loaders.reviewerLoader.load(parent.authorId), falling back to null
+Query.review(id) → loaders.reviewLoader.load(id); throw REVIEW_NOT_FOUND when there is none
+Query.reviews(authorId) → throw INVALID_INPUT without an authorId; otherwise fetchByAuthor, falling back to []
+Mutation.createReview → validate → look the reviewer up with reviewerLoader → insertReview (five positional arguments) → return { ...review, reviewer }
+every catch → rethrow a GraphQLError as it is; log anything else with the correlationId and wrap it in a GraphQLError with a code`,
+      `// ① The batch function: the method is lookupReviewer, and no filter — the array must be as long as authorIds and in the same order
+const reviewers = await Promise.all(
+  authorIds.map(id => reviewerDataSource.lookupReviewer(id))
+);
+return reviewers;
+
+// ② createReview: look the reviewer up first (destructure loaders from the context), insert with five positional arguments, then attach it
+const reviewer = await loaders.reviewerLoader.load(authorId);
+const review = await dataSources.reviewDataSource.insertReview(
+  authorId, isbn, edition, rating, body
+);
+return { ...review, reviewer };
+
+// ③ The first line of every catch
+if (error instanceof GraphQLError) throw error;`,
+    ],
+  },
+};
+
+function mockHints(mock: MockExam): { zh: Hints; en: Hints } {
+  const h = MOCK_HINTS[mock.id];
+  if (!h) {
+    throw new Error(`[arena] 模拟考 ${mock.id} 没有在 MOCK_HINTS 里写四级提示。`);
+  }
+  return h;
 }
 
 function build(): ArenaChallenge[] {
@@ -117,6 +248,7 @@ function build(): ArenaChallenge[] {
             sourceExerciseId: fs.id,
             sourceExamId: exam.id,
             hints: fs.hints,
+            hintsEn: fs.hintsEn,
             solution: fs.solution,
             explainLessonId: lesson.id,
           });
@@ -157,14 +289,18 @@ function build(): ArenaChallenge[] {
               ...(t.requirementEn ?? []),
             ])
           : undefined,
-        // 模拟考没有 fileList，用 starter 的文件名当清单
-        fileList: mock.starter
-          .filter((c): c is CodeExample & { filename: string } => !!c.filename)
-          .map((c) => ({ path: c.filename, role: "起始文件（考场模式下自己从空文件建）" })),
+        // 模拟考没有 fileList，用它自己 setup 里列的文件（路径 + 中英两版说明）。
+        // 原来拿 starter 代码块的标题拼：那些标题带批注、不是纯路径，还漏了判卷的测试文件
+        fileList: mock.setup.files.map((file) => ({
+          path: file.path,
+          role: file.role.zh,
+          roleEn: file.role.en,
+        })),
         commands: mock.commands ?? [],
         sourceMockId: mock.id,
         sourceExamId: exam.id,
-        hints: hintsFromMock(mock),
+        hints: mockHints(mock).zh,
+        hintsEn: mockHints(mock).en,
         solution: mock.solution,
       });
     }
@@ -189,6 +325,9 @@ for (const a of ARENA) {
   if (a.hints.length !== 4) {
     throw new Error(`[arena] ${a.id} 的提示不是四级递进。`);
   }
+  if (!a.hintsEn || a.hintsEn.length !== 4) {
+    throw new Error(`[arena] ${a.id} 缺四级英文提示 —— 英文界面会整组回落中文。`);
+  }
   if (a.solution.length === 0) {
     throw new Error(`[arena] ${a.id} 没有参考答案 —— 交卷后就没东西可解锁了。`);
   }
@@ -208,19 +347,20 @@ export function arenaById(id: string): ArenaChallenge | undefined {
 }
 
 /**
- * 交卷前能给客户端看的部分 —— **刻意不包含 hints / solution**。
+ * 交卷前能给客户端看的部分 —— **刻意不包含 hints / hintsEn / solution**。
  *
  * /arena/[id]/run 页面只能拿这个。类型上就把答案摘掉，
  * 这样「不小心把答案渲染进 run 页」会变成编译错误，而不是靠人肉 review。
  */
-export type ArenaPublic = Omit<ArenaChallenge, "hints" | "solution">;
+export type ArenaPublic = Omit<ArenaChallenge, "hints" | "hintsEn" | "solution">;
 
 export function arenaPublicById(id: string): ArenaPublic | undefined {
   const a = arenaById(id);
   if (!a) return undefined;
   // 显式解构，别用 delete —— 漏掉一个字段时 TS 会报
-  const { hints: _h, solution: _s, ...pub } = a;
+  const { hints: _h, hintsEn: _he, solution: _s, ...pub } = a;
   void _h;
+  void _he;
   void _s;
   return pub;
 }
