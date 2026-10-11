@@ -517,7 +517,7 @@ export const fedTask2: Module = {
                       <td><code>@RequestBody</code></td>
                       <td>a parameter</td>
                       <td>
-                        Deserializes the JSON request body into this Java object
+                        Deserialises the JSON request body into this Java object
                       </td>
                     </tr>
                     <tr>
@@ -1000,8 +1000,9 @@ public class GlobalExceptionHandler {
                 才会生效。</strong>starter 已经写了：
                 <code>createOrder(@Valid @RequestBody CreateOrderRequest request)</code>。
                 <strong>别删掉那个 <code>@Valid</code></strong> ——
-                删了之后非法请求会带着空 userId 进到 service，
-                400 变成 500。
+                删了之后非法请求会直接进到 service：空 userId 的订单会被照常创建
+                （201，坏数据静默入库），items 为 null 时才会抛
+                NullPointerException 变成 500。
               </p>
               <p>
                 这也是一条设计分工：
@@ -1036,8 +1037,10 @@ public class GlobalExceptionHandler {
                 <strong>
                   Do not delete that <code>@Valid</code>
                 </strong>{" "}
-                — without it a bad request walks into the service with an empty
-                userId, and your 400 turns into a 500.
+                — without it a bad request goes straight into the service: an
+                order with an empty userId is created as normal (201, bad data
+                saved silently), and only a null items list throws a
+                NullPointerException and becomes a 500.
               </p>
               <p>
                 This is also a division of labour:{" "}
@@ -1402,7 +1405,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               <code>{"{id}"}</code> segment, and Spring converts{" "}
               <code>&quot;7&quot;</code> into <code>Long 7L</code> for you.
               <br />
-              <code>@RequestBody</code> deserializes the whole request body
+              <code>@RequestBody</code> deserialises the whole request body
               from JSON into a <code>Map</code>, so{" "}
               <code>statusUpdate.get(&quot;status&quot;)</code> is what gives
               you <code>&quot;SHIPPED&quot;</code>.
@@ -1458,9 +1461,9 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
         "Write a safe string-to-enum conversion in the PATCH endpoint",
       ],
       whyForAssessment:
-        "审计实测：baseline 状态下六个端点全部 return null，五个测试通过了三个。只有 201 和 204 那两条抓住了错。这是整门考试「测试通过 ≠ 做对了」最夸张的一个实例。",
+        "编写本课时实测：baseline 状态下六个端点全部 return null，五个测试通过了三个。只有 201 和 204 那两条抓住了错。这是整门考试「测试通过 ≠ 做对了」最夸张的一个实例。",
       whyForAssessmentEn:
-        "Measured during the audit: in the baseline all six endpoints return null, and three of the five tests pass. Only the 201 check and the 204 check catch a mistake. This is the most extreme example in the whole exam of tests passing while the code is wrong.",
+        "Measured when this lesson was written: in the baseline all six endpoints return null, and three of the five tests pass. Only the 201 check and the 204 check catch a mistake. This is the most extreme example in the whole exam of tests passing while the code is wrong.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/java-service/src/main/java/com/techflow/orders/controller/OrderController.java",
@@ -1542,7 +1545,7 @@ Use the provided \`OrderService\` for business logic.`,
           body: (
             <>
               <p>
-                审计时我在临时目录里跑了 baseline（原封不动的 starter）：
+                编写本课时，在临时目录里跑了一次 baseline（原封不动的 starter）：
               </p>
               <p>
                 <strong>为什么 return null 能过？</strong>
@@ -1562,7 +1565,7 @@ Use the provided \`OrderService\` for business logic.`,
               </p>
               <p>
                 <strong>结论和 Node 那边一样，但更极端：</strong>
-                <strong>三个端点完全没实现，测试却是绿的。</strong>
+                <strong>三个端点完全没实现，它们的测试却是绿的。</strong>
                 如果你只看测试，会以为自己做完了 60%，
                 实际上是 0%。
               </p>
@@ -1571,8 +1574,8 @@ Use the provided \`OrderService\` for business logic.`,
           bodyEn: (
             <>
               <p>
-                During the audit I ran the baseline in a scratch copy — the
-                starter, untouched:
+                When this lesson was written, the baseline was run in a scratch
+                copy — the starter, untouched:
               </p>
               <p>
                 <strong>Why does returning null pass?</strong> Because when a
@@ -1593,8 +1596,8 @@ Use the provided \`OrderService\` for business logic.`,
               <p>
                 <strong>Same lesson as on the Node side, only worse:</strong>{" "}
                 <strong>
-                  three endpoints are not implemented at all and the suite is
-                  green.
+                  three endpoints are not implemented at all, yet their tests
+                  are green.
                 </strong>{" "}
                 Judging by tests alone you would think you were 60% done. You are
                 at 0%.
@@ -1880,7 +1883,7 @@ public ResponseEntity<List<Order>> getAllOrders(
               </p>
               <p>
                 <code>OrderStatus.valueOf(&quot;SHIPPED&quot;)</code> 能转，
-                但有两个坑：
+                但有两个陷阱：
               </p>
               <ul>
                 <li>
@@ -2009,8 +2012,8 @@ public ResponseEntity<Order> updateOrderStatus(
           id: "full-solution",
           heading: "六个端点的完整实现",
           headingEn: "The complete implementation of all six endpoints",
-          lede: "审计实测：这样写之后 5 个测试全过，BUILD SUCCESS。",
-          ledeEn: "Measured during the audit: with this code all 5 tests pass and the build reports BUILD SUCCESS.",
+          lede: "编写本课时实测：这样写之后 5 个测试全过，BUILD SUCCESS。",
+          ledeEn: "Measured when this lesson was written: with this code all 5 tests pass and the build reports BUILD SUCCESS.",
           body: (
             <>
               <p>
@@ -2069,9 +2072,9 @@ INFO c.t.orders.controller.OrderController : DELETE /api/orders/1 correlationId=
 INFO c.t.orders.controller.OrderController : PATCH /api/orders/1/status status=SHIPPED, correlationId=7b441d8d-...
 INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correlationId=3bf0f9c5-...`,
               {
-                filename: "审计时的真实输出（参考解法）",
+                filename: "编写本课时的真实输出（参考解法）",
                 filenameEn:
-                  "The real output from the audit (with the reference answer)",
+                  "The real output measured when this lesson was written (with the reference answer)",
                 codeEn: `$ mvn test
 
 [INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
@@ -2114,7 +2117,9 @@ INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correl
                 </li>
                 <li>
                   ❌ 抓不到：调错了 service 方法
-                  （比如 GET by id 里调了 <code>getAllOrders</code>）、
+                  （比如 <code>{"GET /api/orders/user/{userId}"}</code> 里调了
+                  <code>getAllOrders()</code> —— 两者都返回 <code>List&lt;Order&gt;</code>，
+                  能编译，而这个端点根本没有测试）、
                   可选过滤没实现、PATCH 的非法值没挡、日志没打。
                 </li>
               </ul>
@@ -2126,11 +2131,14 @@ INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correl
               <p>
                 注意 <code>shouldUpdateOrderStatus</code> 那条：
                 <code>when(orderService.updateOrderStatus(1L, OrderStatus.SHIPPED))</code>
-                <strong>指定了确切的枚举值</strong>。
-                如果你的转换写错了（比如没 <code>toUpperCase</code>
-                而客户端传的是小写），mock 不匹配，
-                会返回 <code>null</code> → 依然是 200 → <strong>测试还是过</strong>。
+                <strong>指定了确切的枚举值</strong>，但测试并不检查这个调用是否真的发生。
+                如果转换得出了别的值（比如写死成 <code>OrderStatus.PENDING</code>），
+                mock 不匹配，返回 <code>null</code>，<code>ResponseEntity.ok(null)</code>
+                依然是 200 → <strong>测试还是过</strong>。
                 <strong>又一个抓不到的地方。</strong>
+                至于漏写 <code>toUpperCase</code>：测试发的本来就是大写的
+                <code>SHIPPED</code>，所以它测不到；真实客户端发小写时，
+                <code>valueOf</code> 会直接抛 <code>IllegalArgumentException</code>，连 mock 都到不了。
               </p>
             </>
           ),
@@ -2166,9 +2174,12 @@ INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correl
                   code.
                 </li>
                 <li>
-                  ❌ Missed: calling the wrong service method (GET by id calling{" "}
-                  <code>getAllOrders</code>, say), optional filtering not
-                  implemented, PATCH not blocking bad values, no logging at all.
+                  ❌ Missed: calling the wrong service method (
+                  <code>{"GET /api/orders/user/{userId}"}</code> calling{" "}
+                  <code>getAllOrders()</code>, say — both return{" "}
+                  <code>List&lt;Order&gt;</code>, so it compiles, and that endpoint
+                  has no test at all), optional filtering not implemented, PATCH
+                  not blocking bad values, no logging at all.
                 </li>
               </ul>
               <p>
@@ -2180,12 +2191,18 @@ INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correl
               <p>
                 Look closely at <code>shouldUpdateOrderStatus</code>:{" "}
                 <code>when(orderService.updateOrderStatus(1L, OrderStatus.SHIPPED))</code>{" "}
-                <strong>pins the exact enum value</strong>. If your conversion is
-                wrong (no <code>toUpperCase</code> while the client sends
-                lowercase), the mock does not match, it returns{" "}
-                <code>null</code> → still a 200 →{" "}
+                <strong>pins the exact enum value</strong>, but nothing checks that
+                the call happened. If your conversion produces some other value
+                (hard-coding <code>OrderStatus.PENDING</code>, say), the mock does
+                not match and returns <code>null</code>,{" "}
+                <code>ResponseEntity.ok(null)</code> is still a 200, and{" "}
                 <strong>the test still passes</strong>.{" "}
-                <strong>One more thing it cannot catch.</strong>
+                <strong>One more thing it cannot catch.</strong> As for a missing{" "}
+                <code>toUpperCase</code>: the test already sends upper-case{" "}
+                <code>SHIPPED</code>, so it cannot notice; a real client sending
+                lower case makes <code>valueOf</code> throw{" "}
+                <code>IllegalArgumentException</code> before the mock is ever
+                reached.
               </p>
             </>
           ),
@@ -2390,7 +2407,7 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               只有断言 201 和 204 的那两条抓住了错。
               <br />
               <strong>这是整门考试「测试通过 ≠ 做对了」最夸张的实例：
-              三个端点完全没实现，测试却是绿的。</strong>
+              三个端点完全没实现，它们的测试却是绿的。</strong>
             </>
           ),
           explainEn: (
@@ -2405,7 +2422,7 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
               <strong>
                 This is the most extreme case in the whole exam of a passing
                 test not meaning correct code: three endpoints are not
-                implemented at all and the tests are green.
+                implemented at all, yet their tests are green.
               </strong>
             </>
           ),
@@ -2434,6 +2451,35 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
           template: `@GetMapping("/api/orders/{id}")
 public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
     // 找不到时 service 抛 EntityNotFoundException，交给全局处理器
+    return ResponseEntity.___1___(orderService.getOrderById(id));
+}
+
+@PostMapping("/api/orders")
+public ResponseEntity<Order> createOrder(@Valid @RequestBody CreateOrderRequest request) {
+    Order created = orderService.createOrder(request);
+    return ResponseEntity.status(HttpStatus.___2___).body(created);
+}
+
+@PatchMapping("/api/orders/{id}/status")
+public ResponseEntity<Order> updateOrderStatus(
+        @PathVariable Long id,
+        @RequestBody Map<String, String> statusUpdate) {
+    String raw = statusUpdate.get("status");
+    if (raw == null || raw.isBlank()) {
+        throw new ResponseStatusException(HttpStatus.___3___, "status is required");
+    }
+    OrderStatus status = OrderStatus.___4___(raw.trim().toUpperCase());
+    return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
+}
+
+@DeleteMapping("/api/orders/{id}")
+public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+    orderService.deleteOrder(id);
+    return ResponseEntity.___5___().build();
+}`,
+          templateEn: `@GetMapping("/api/orders/{id}")
+public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    // on a miss the service throws EntityNotFoundException; the global handler takes it
     return ResponseEntity.___1___(orderService.getOrderById(id));
 }
 
@@ -2817,9 +2863,9 @@ try {
 private String correlationId() { return MDC.get("correlationId"); }`,
           ],
           solution: real("java", CONTROLLER_SOLUTION, {
-            filename: "参考答案（审计实测：mvn test 5/5 通过，BUILD SUCCESS）",
+            filename: "参考答案（编写本课时实测：mvn test 5/5 通过，BUILD SUCCESS）",
             filenameEn:
-              "Reference answer (measured in the audit: mvn test 5/5, BUILD SUCCESS)",
+              "Reference answer (measured when this lesson was written: mvn test 5/5, BUILD SUCCESS)",
             codeEn: CONTROLLER_SOLUTION_EN,
             collapsible: true,
           }),
@@ -3696,7 +3742,7 @@ management.endpoints.web.exposure.include=*`,
                 </li>
                 <li>
                   <strong>可观测性。</strong>健康检查分不分
-                  liveness / readiness? 日志格式适合采集吗？
+                  liveness / readiness？日志格式适合采集吗？
                 </li>
                 <li>
                   <strong>配置管理本身。</strong>
@@ -3778,11 +3824,11 @@ management.endpoints.web.exposure.include=*`,
 management.endpoints.web.exposure.include=*
 
 **风险**：这一行把所有 actuator 端点开在业务端口上，包括
-- /actuator/env —— 打印全部环境变量，DB_PASSWORD 直接泄漏
-- /actuator/heapdump —— 可下载堆转储，内存里的凭据和用户数据全在里面
+- /actuator/env —— 列出全部配置键和来源（Spring Boot 3 默认把值遮成 ******）
+- /actuator/heapdump —— 可下载堆转储，DB_PASSWORD 和用户数据都在里面（真正的泄漏点）
 - /actuator/configprops、/actuator/beans —— 暴露完整内部结构
 - /actuator/loggers —— 可写，攻击者能改日志级别（掩盖痕迹或打爆磁盘）
-在 EKS 里如果这个 Service 挂了 Ingress，等于把这些开到公网。
+在 EKS 里如果这个 Service 前面配了 Ingress，等于把这些开到公网。
 
 **修正**
 management.endpoints.web.exposure.include=health,info,prometheus
@@ -3809,21 +3855,25 @@ kubectl describe 就能看到明文，会进 etcd（默认不加密）、
 **修正**
 - 用 AWS Secrets Manager + External Secrets Operator，或
   Secrets Store CSI Driver，把口令以文件形式挂进容器，
-  用 spring.config.import=optional:file:/mnt/secrets/ 读取
+  用 spring.config.import=optional:configtree:/mnt/secrets/ 读取
 - 打开 RDS IAM 认证，用短期 token 替代静态口令（最优）
-- 开启自动轮换，配合 HikariCP 的 max-lifetime 让连接自然更新
+- 开启自动轮换，并让应用能拿到新口令（AWS Secrets Manager JDBC Driver
+  会在认证失败时重新取；max-lifetime 只定期重建连接，本身不换口令）
 - 给 Pod 配最小权限的 IRSA 角色
 
-**理由**：静态长期口令是最难治的一类风险 —— 一旦泄漏无法追溯、
-轮换成本高。挂载文件优于环境变量（不进 /proc/environ、不被子进程继承）；
+**理由**：静态长期口令是最难处理的一类风险 —— 一旦泄漏无法追溯、
+轮换成本高。挂载文件优于环境变量（不进 /proc/environ、不被子进程继承）。
+configtree: 把目录里的每个文件读成一个属性（文件名即属性名，
+名为 DB_PASSWORD 的文件正好满足 \${DB_PASSWORD}）；
+写成 file: 的话，Spring 只会在目录里找 application.properties / .yml。
 IAM 认证彻底消除静态凭据。
 
 
-### 问题 3：没有 TLS，数据库连接也未加密
+### 问题 3：没有 TLS，数据库连接也不保证加密
 
-**风险**：server.port=8080 是纯 HTTP；JDBC URL 没有 sslmode 参数。
-即使在 VPC 内，明文流量也违反多数合规要求（PCI-DSS、HIPAA），
-且无法防御同 VPC 内的横向嗅探。
+**风险**：server.port=8080 是纯 HTTP；JDBC URL 没写 sslmode，驱动默认 prefer：
+不保证加密，也不校验服务器证书。即使在 VPC 内，明文流量也违反多数合规要求
+（PCI-DSS、HIPAA），且无法防御同 VPC 内的横向嗅探。
 
 **修正**
 spring.datasource.url=jdbc:postgresql://\${DB_HOST}:5432/orders?sslmode=verify-full&sslrootcert=/etc/ssl/certs/rds-ca.pem
@@ -3836,7 +3886,7 @@ TLS 终止层，并配 forward-headers-strategy 让应用正确识别原始协�
 证书，防中间人。
 
 
-### 问题 4：连接池、超时、重试全部缺失
+### 问题 4：连接池与超时全部缺失
 
 **风险**：用默认值上生产等于没有容量规划。下游变慢时连接池耗尽，
 线程全部阻塞在等连接，健康检查也超时，k8s 反复重启 Pod —— 雪崩。
@@ -3847,12 +3897,15 @@ spring.datasource.hikari.minimum-idle=2
 spring.datasource.hikari.connection-timeout=3000
 spring.datasource.hikari.max-lifetime=1800000
 spring.datasource.hikari.validation-timeout=1000
-spring.mvc.async.request-timeout=5000
+spring.datasource.hikari.data-source-properties.socketTimeout=5
 
 **理由**：池大小要按「DB 最大连接数 ÷ 副本数」倒推，不是越大越好；
-connection-timeout 短一点，让请求快速失败而不是排队等死
+connection-timeout 短一点，让请求快速失败而不是一直排队等待
 （fail fast 比 fail slow 好）；max-lifetime 小于数据库侧的
-idle timeout，避免用到已被服务端关闭的连接。
+idle timeout，避免用到已被服务端关闭的连接。socketTimeout 是 pgjdbc
+的读超时（单位秒），一条慢查询不会无限期占住连接；
+spring.mvc.async.request-timeout 只管异步请求，对这个同步控制器不起作用。
+重试不在这里配：应放在调用方，带退避，只重试幂等请求。
 
 
 ### 问题 5：没有优雅停机
@@ -3888,8 +3941,8 @@ spring.lifecycle.timeout-per-shutdown-phase=20s
 management.endpoints.web.exposure.include=*
 
 **Risk**: this line opens every actuator endpoint on the business port:
-- /actuator/env — prints all environment variables, so DB_PASSWORD leaks
-- /actuator/heapdump — a downloadable heap dump holding credentials and data
+- /actuator/env — lists every property key and source (Boot 3 masks values as ******)
+- /actuator/heapdump — a downloadable heap dump; DB_PASSWORD and user data are in it
 - /actuator/configprops, /actuator/beans — expose the internal structure
 - /actuator/loggers — writable, so an attacker can hide traces or fill the disk
 In EKS, if this Service sits behind an Ingress, all of that faces the internet.
@@ -3919,21 +3972,25 @@ control with the yaml. Env vars are also visible via /proc/PID/environ.
 **Fix**
 - Use AWS Secrets Manager with External Secrets Operator, or the
   Secrets Store CSI Driver, to mount the password into the container as a file,
-  and read it with spring.config.import=optional:file:/mnt/secrets/
+  and read it with spring.config.import=optional:configtree:/mnt/secrets/
 - Turn on RDS IAM auth and use short-lived tokens instead of a static password
-- Enable automatic rotation; HikariCP max-lifetime then renews connections
+- Enable automatic rotation, and let the app pick up the new password (the AWS Secrets
+  Manager JDBC driver refetches it on an auth failure; max-lifetime does not change it)
 - Give the Pod an IRSA role with least privilege
 
 **Why**: a long-lived static password is the hardest risk to handle: once it
 leaks you cannot trace it, and rotation is expensive. A mounted file beats an
-env var (not in /proc/environ, not inherited). IAM auth removes the secret.
+env var (not in /proc/environ, not inherited). configtree: reads every file in
+the directory as one property (the file name is the property name, so a file
+named DB_PASSWORD satisfies \${DB_PASSWORD}); with file:, Spring would only look
+for application.properties or .yml in that directory. IAM auth removes the secret.
 
 
-### Problem 3: no TLS, and the database connection is not encrypted either
+### Problem 3: no TLS, and the database connection is not guaranteed to be encrypted
 
-**Risk**: server.port=8080 is plain HTTP, and the JDBC URL has no sslmode.
-Even inside a VPC, plaintext traffic breaks most compliance rules (PCI-DSS,
-HIPAA) and does not stop sniffing from elsewhere in the same VPC.
+**Risk**: server.port=8080 is plain HTTP; the JDBC URL sets no sslmode, so the driver
+defaults to prefer: encryption is not guaranteed and the certificate is never checked.
+Plaintext even inside a VPC breaks most compliance rules (PCI-DSS, HIPAA) and is open to sniffing.
 
 **Fix**
 spring.datasource.url=jdbc:postgresql://\${DB_HOST}:5432/orders?sslmode=verify-full&sslrootcert=/etc/ssl/certs/rds-ca.pem
@@ -3946,7 +4003,7 @@ app reads the original protocol (otherwise redirects fall back to http). On the
 database side sslmode=verify-full forces encryption and checks the certificate.
 
 
-### Problem 4: no connection pool settings, no timeouts, no retries
+### Problem 4: no connection pool settings and no timeouts
 
 **Risk**: defaults in production mean no capacity planning. A slow dependency
 empties the pool, blocks threads, times out health checks, and k8s restarts.
@@ -3957,12 +4014,15 @@ spring.datasource.hikari.minimum-idle=2
 spring.datasource.hikari.connection-timeout=3000
 spring.datasource.hikari.max-lifetime=1800000
 spring.datasource.hikari.validation-timeout=1000
-spring.mvc.async.request-timeout=5000
+spring.datasource.hikari.data-source-properties.socketTimeout=5
 
 **Why**: derive the pool size from DB max connections ÷ replica count; bigger
 is not better. A short connection-timeout makes a request fail quickly instead
 of queueing forever. Keep max-lifetime below the database idle timeout so you
-never hand out a connection the server has already closed.
+never hand out a connection the server has already closed. socketTimeout is
+the pgjdbc read timeout (in seconds), so one slow query cannot hold a connection forever;
+spring.mvc.async.request-timeout only covers async requests, not this synchronous controller.
+Retries do not belong here: the caller retries, with backoff, and only idempotent requests.
 
 
 ### Problem 5: no graceful shutdown
@@ -4113,10 +4173,12 @@ management.endpoints.web.exposure.include=*`,
           explain: (
             <>
               <code>include=*</code> 把<strong>所有</strong> actuator
-              端点开在业务端口上，其中 <code>/actuator/env</code>
-              会打印全部环境变量 —— <code>DB_PASSWORD</code> 明文可见；
-              <code>/actuator/heapdump</code> 更彻底，
-              整个堆内存都能下载。
+              端点开在业务端口上。其中 <code>/actuator/heapdump</code>
+              可以直接下载整个堆内存，<code>DB_PASSWORD</code> 和用户数据都在里面；
+              <code>/actuator/env</code> 会列出全部配置键和来源（Spring Boot 3
+              默认把值遮成 <code>******</code>，但只要有人把
+              <code>management.endpoint.env.show-values</code> 改成
+              <code>always</code>，口令就明文可见）。
               <br />
               B 用占位符<strong>本身是对的</strong>（比硬编码好），
               问题在于「谁来设这个变量」，属于凭据管理层面的问题，
@@ -4130,11 +4192,13 @@ management.endpoints.web.exposure.include=*`,
           explainEn: (
             <>
               <code>include=*</code> opens <strong>every</strong> actuator
-              endpoint on the business port, and{" "}
-              <code>/actuator/env</code> prints all environment variables —{" "}
-              <code>DB_PASSWORD</code> in plain text.{" "}
-              <code>/actuator/heapdump</code> is worse still: the whole heap can
-              be downloaded.
+              endpoint on the business port. <code>/actuator/heapdump</code>{" "}
+              lets anyone download the whole heap, <code>DB_PASSWORD</code> and
+              user data included; <code>/actuator/env</code> lists every
+              property key and source (Spring Boot 3 masks the values as{" "}
+              <code>******</code> by default, but the moment someone sets{" "}
+              <code>management.endpoint.env.show-values=always</code>, the
+              password is in plain text).
               <br />
               B, using a placeholder, is <strong>correct in itself</strong> and
               better than hardcoding. The question of who sets that variable is
@@ -4367,14 +4431,14 @@ spring.lifecycle.timeout-per-shutdown-phase=20s`,
         "第 1 题的核心是「Router 的查询计划里 @key 那一步是前置依赖，所以串行」。",
         "缓存答案要包含四件事：缓存键、TTL、主动失效、一致性代价。",
         "第 2 题按六个面扫：暴露面 / 凭据 / 传输 / 资源韧性 / 可观测性 / 配置管理。",
-        "actuator 全开是最严重的（/actuator/env 直接泄漏口令）；server.address=0.0.0.0 在容器里不是问题。",
+        "actuator 全开是最严重的（/actuator/heapdump 能直接下载含口令的堆内存）；server.address=0.0.0.0 在容器里不是问题。",
       ],
       recapEn: [
         "Answer structure: conclusion, then mechanism, then solution, then cost and limits. The last part separates good answers from average ones.",
         "The core of Question 1: in the Router query plan the @key step must finish first, so the calls run one after another.",
         "A caching answer needs four things: the cache key, the TTL, active invalidation, and the consistency cost.",
         "For Question 2, scan six areas: what is exposed, credentials, transport, resource resilience, observability, config management.",
-        "Leaving all of actuator open is the worst problem, because /actuator/env prints the password. server.address=0.0.0.0 is not a problem inside a container.",
+        "Leaving all of actuator open is the worst problem, because /actuator/heapdump hands out a heap dump with the password in it. server.address=0.0.0.0 is not a problem inside a container.",
       ],
     },
   ],

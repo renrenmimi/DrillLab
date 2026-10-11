@@ -56,7 +56,52 @@ type Mutation {
   createReview(authorId: ID!, isbn: String!, edition: Int!, rating: Int!, body: String!): Review!
 }`;
 
+// English side of MOCK_SCHEMA. Same line count as MOCK_SCHEMA; only comments are translated.
+const MOCK_SCHEMA_EN = `extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external"])
+
+# Author is owned by the Catalog subgraph; this subgraph only contributes reviews and averageRating
+type Author @key(fields: "id") {
+  id: ID! @external
+  reviews: [Review!]!
+  averageRating: Float
+}
+
+# Book is not owned here either, and it is located by a composite key
+type Book @key(fields: "isbn edition") {
+  isbn: String! @external
+  edition: Int! @external
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  authorId: ID!
+  isbn: String!
+  edition: Int!
+  rating: Int!
+  body: String!
+  createdAt: String!
+  reviewer: Reviewer
+}
+
+type Reviewer {
+  displayName: String!
+  verified: Boolean!
+}
+
+type Query {
+  review(id: ID!): Review
+  reviews(authorId: ID!): [Review!]!
+}
+
+type Mutation {
+  createReview(authorId: ID!, isbn: String!, edition: Int!, rating: Int!, body: String!): Review!
+}`;
+
 const MOCK_DATASOURCE = `// src/dataSources/reviewDataSource.js  —— PROVIDED，别改
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 class ReviewDataSource {
   constructor() {
@@ -67,25 +112,146 @@ class ReviewDataSource {
         body: '一般', createdAt: '2026-01-05T10:00:00Z' },
       { id: 'rev-3', authorId: 'a-9', isbn: '978-2', edition: 1, rating: 4,
         body: '不错', createdAt: '2026-01-09T10:00:00Z' },
+      { id: 'rev-4', authorId: 'a-3', isbn: '978-2', edition: 1, rating: 2,
+        body: '较差', createdAt: '2026-01-12T10:00:00Z' },
     ];
   }
 
-  async fetchReview(id) { /* 10ms 延迟；找不到返回 undefined */ }
-  async fetchByAuthor(authorId) { /* 10ms 延迟；找不到返回 [] */ }
-  async fetchByBook(isbn, edition) { /* 10ms 延迟；找不到返回 [] */ }
+  // 找不到返回 undefined
+  async fetchReview(id) {
+    await delay(10);
+    return this.reviews.find(r => r.id === id);
+  }
+
+  // 找不到返回 []
+  async fetchByAuthor(authorId) {
+    await delay(10);
+    return this.reviews.filter(r => r.authorId === authorId);
+  }
+
+  // isbn 和 edition 一起筛；找不到返回 []
+  async fetchByBook(isbn, edition) {
+    await delay(10);
+    return this.reviews.filter(r => r.isbn === isbn && r.edition === edition);
+  }
+
+  // 注意：返回的评论不带 reviewer
   async insertReview(authorId, isbn, edition, rating, body) {
-    /* 10ms 延迟。注意：内部会用 reviewer.displayName 写审计日志，
-       所以调用方必须先把 reviewer 查出来附在返回对象上 */
+    await delay(10);
+    const review = {
+      id: \`rev-\${Date.now()}\`, authorId, isbn, edition, rating, body,
+      createdAt: new Date().toISOString()
+    };
+    this.reviews.push(review);
+    return review;
   }
 }
 
+// 只有 a-7 和 a-9 有审阅人资料
+const REVIEWERS = {
+  'a-7': { displayName: 'Ada', verified: true },
+  'a-9': { displayName: 'Lin', verified: false }
+};
+
 class ReviewerDataSource {
-  // 注意方法名不是 getReviewer
-  async lookupReviewer(authorId) { /* 15ms；找不到返回 null */ }
+  // 注意方法名不是 getReviewer；找不到返回 null
+  async lookupReviewer(authorId) {
+    await delay(15);
+    return REVIEWERS[authorId] ?? null;
+  }
 }
 
 class RatingDataSource {
-  async computeAverage(authorId) { /* 20ms；没有评论时返回 null */ }
+  constructor(reviewDataSource = new ReviewDataSource()) {
+    this.reviewDataSource = reviewDataSource;
+  }
+
+  // 没有评论时返回 null
+  async computeAverage(authorId) {
+    await delay(20);
+    const reviews = await this.reviewDataSource.fetchByAuthor(authorId);
+    if (reviews.length === 0) return null;
+    return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+  }
+}
+
+export { ReviewDataSource, ReviewerDataSource, RatingDataSource };`;
+
+// English side of MOCK_DATASOURCE. Same line count as MOCK_DATASOURCE; only comments are translated.
+const MOCK_DATASOURCE_EN = `// src/dataSources/reviewDataSource.js  — PROVIDED, do not change
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+class ReviewDataSource {
+  constructor() {
+    this.reviews = [
+      { id: 'rev-1', authorId: 'a-7', isbn: '978-1', edition: 1, rating: 5,
+        body: '很好', createdAt: '2026-01-02T10:00:00Z' },
+      { id: 'rev-2', authorId: 'a-7', isbn: '978-1', edition: 2, rating: 3,
+        body: '一般', createdAt: '2026-01-05T10:00:00Z' },
+      { id: 'rev-3', authorId: 'a-9', isbn: '978-2', edition: 1, rating: 4,
+        body: '不错', createdAt: '2026-01-09T10:00:00Z' },
+      { id: 'rev-4', authorId: 'a-3', isbn: '978-2', edition: 1, rating: 2,
+        body: '较差', createdAt: '2026-01-12T10:00:00Z' },
+    ];
+  }
+
+  // returns undefined when nothing matches
+  async fetchReview(id) {
+    await delay(10);
+    return this.reviews.find(r => r.id === id);
+  }
+
+  // returns [] when nothing matches
+  async fetchByAuthor(authorId) {
+    await delay(10);
+    return this.reviews.filter(r => r.authorId === authorId);
+  }
+
+  // filters on isbn and edition together; returns [] when nothing matches
+  async fetchByBook(isbn, edition) {
+    await delay(10);
+    return this.reviews.filter(r => r.isbn === isbn && r.edition === edition);
+  }
+
+  // Note: the review it returns has no reviewer attached
+  async insertReview(authorId, isbn, edition, rating, body) {
+    await delay(10);
+    const review = {
+      id: \`rev-\${Date.now()}\`, authorId, isbn, edition, rating, body,
+      createdAt: new Date().toISOString()
+    };
+    this.reviews.push(review);
+    return review;
+  }
+}
+
+// only a-7 and a-9 have a reviewer profile
+const REVIEWERS = {
+  'a-7': { displayName: 'Ada', verified: true },
+  'a-9': { displayName: 'Lin', verified: false }
+};
+
+class ReviewerDataSource {
+  // note the method is not called getReviewer; returns null when nothing matches
+  async lookupReviewer(authorId) {
+    await delay(15);
+    return REVIEWERS[authorId] ?? null;
+  }
+}
+
+class RatingDataSource {
+  constructor(reviewDataSource = new ReviewDataSource()) {
+    this.reviewDataSource = reviewDataSource;
+  }
+
+  // returns null when the author has no reviews
+  async computeAverage(authorId) {
+    await delay(20);
+    const reviews = await this.reviewDataSource.fetchByAuthor(authorId);
+    if (reviews.length === 0) return null;
+    return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+  }
 }
 
 export { ReviewDataSource, ReviewerDataSource, RatingDataSource };`;
@@ -168,7 +334,114 @@ export const resolvers = {
   },
 
   Mutation: {
-    // 提供作参考 —— 但它是坏的
+    // 提供作参考
+    async createReview(_, { authorId, isbn, edition, rating, body }, { dataSources, correlationId }) {
+      try {
+        console.log(\`[\${correlationId}] Creating review for author: \${authorId}\`);
+
+        if (!authorId || !isbn || !body) {
+          throw new GraphQLError('Invalid review input', {
+            extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+          });
+        }
+
+        const review = await dataSources.reviewAPI.insertReview({
+          authorId, isbn, edition, rating, body
+        });
+
+        return review;
+      } catch (error) {
+        console.error(\`[\${correlationId}] Error creating review:\`, error.message);
+        throw new GraphQLError('Failed to create review', {
+          extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId }
+        });
+      }
+    }
+  }
+};
+
+export { createReviewerLoader, createReviewLoader };`;
+
+// English side of MOCK_STARTER. Same line count as MOCK_STARTER; only comments are translated.
+const MOCK_STARTER_EN = `// src/resolvers/reviewResolvers.js  — EDIT THIS
+
+import DataLoader from 'dataloader';
+import { GraphQLError } from 'graphql';
+
+const ErrorCodes = {
+  REVIEW_NOT_FOUND: 'REVIEW_NOT_FOUND',
+  INVALID_INPUT: 'INVALID_INPUT',
+  RATING_ERROR: 'RATING_ERROR',
+  SERVICE_ERROR: 'SERVICE_ERROR'
+};
+
+// batch-load reviewer info by authorId
+function createReviewerLoader(reviewerDataSource) {
+  return new DataLoader(async authorIds => {
+    const reviewers = await Promise.all(
+      authorIds.map(id => reviewerDataSource.getReviewer(id))
+    );
+    // drop the ones with no profile
+    return reviewers.filter(r => r !== null);
+  });
+}
+
+function createReviewLoader(reviewDataSource) {
+  return new DataLoader(async ids => {
+    return Promise.all(ids.map(id => reviewDataSource.fetchReview(id)));
+  });
+}
+
+export const resolvers = {
+  Author: {
+    __resolveReference(author) {
+      return { id: author.id };
+    },
+
+    async reviews(author, _, { dataSources, loaders, correlationId }) {
+      // TODO 1: fetch every review by this author. Mind the nullability in the schema
+      return [];
+    },
+
+    async averageRating(author, _, { dataSources, correlationId }) {
+      // TODO 2: compute the average with RatingDataSource. Note that this field is nullable
+      return null;
+    }
+  },
+
+  Book: {
+    __resolveReference(book) {
+      // TODO 3: Book uses a composite key (isbn + edition) — work out what to return here
+      return null;
+    },
+
+    async reviews(book, _, { dataSources, correlationId }) {
+      // TODO 4: fetch the reviews of this edition of this book
+      return [];
+    }
+  },
+
+  Review: {
+    async reviewer(parent, _, { dataSources, loaders, correlationId }) {
+      // TODO 5: fetch the reviewer through DataLoader to avoid N+1. Nullable
+      return null;
+    }
+  },
+
+  Query: {
+    async review(_, { id }, { dataSources, loaders, correlationId }) {
+      // TODO 6: use DataLoader; throw a structured error when nothing is found
+      return null;
+    },
+
+    async reviews(_, { authorId }, { dataSources, correlationId }) {
+      // TODO 7: validate authorId; mind the nullability
+      return [];
+    }
+  },
+
+  Mutation: {
+    // provided for reference
     async createReview(_, { authorId, isbn, edition, rating, body }, { dataSources, correlationId }) {
       try {
         console.log(\`[\${correlationId}] Creating review for author: \${authorId}\`);
@@ -329,6 +602,140 @@ describe('Review Resolvers', () => {
   });
 });`;
 
+// English side of MOCK_TESTS. Same line count as MOCK_TESTS; only comments are translated.
+const MOCK_TESTS_EN = `import { describe, it, expect, beforeEach } from '@jest/globals';
+import { resolvers, createReviewerLoader, createReviewLoader } from '../src/resolvers/reviewResolvers.js';
+import { ReviewDataSource, ReviewerDataSource, RatingDataSource } from '../src/dataSources/reviewDataSource.js';
+
+describe('Review Resolvers', () => {
+  let dataSources, loaders, context;
+
+  beforeEach(() => {
+    dataSources = {
+      reviewDataSource: new ReviewDataSource(),
+      reviewerDataSource: new ReviewerDataSource(),
+      ratingDataSource: new RatingDataSource()
+    };
+    loaders = {
+      reviewerLoader: createReviewerLoader(dataSources.reviewerDataSource),
+      reviewLoader: createReviewLoader(dataSources.reviewDataSource)
+    };
+    context = { dataSources, loaders, correlationId: 'test-cid' };
+  });
+
+  describe('Author.reviews', () => {
+    it('returns reviews for an author', async () => {
+      const reviews = await resolvers.Author.reviews({ id: 'a-7' }, {}, context);
+      expect(Array.isArray(reviews)).toBe(true);
+      expect(reviews.length).toBe(2);
+      expect(reviews[0]).toHaveProperty('authorId', 'a-7');
+    });
+
+    it('returns empty array for author with no reviews', async () => {
+      const reviews = await resolvers.Author.reviews({ id: 'a-999' }, {}, context);
+      expect(reviews).toEqual([]);
+    });
+  });
+
+  describe('Author.averageRating', () => {
+    it('returns a number for an author with reviews', async () => {
+      const avg = await resolvers.Author.averageRating({ id: 'a-7' }, {}, context);
+      expect(typeof avg).toBe('number');
+    });
+
+    it('returns null for an author with no reviews', async () => {
+      const avg = await resolvers.Author.averageRating({ id: 'a-999' }, {}, context);
+      expect(avg).toBeNull();
+    });
+  });
+
+  describe('Book entity', () => {
+    it('__resolveReference keeps both key fields', () => {
+      const ref = resolvers.Book.__resolveReference({
+        __typename: 'Book', isbn: '978-1', edition: 2
+      });
+      expect(ref).toEqual({ isbn: '978-1', edition: 2 });
+    });
+
+    it('Book.reviews filters by isbn AND edition', async () => {
+      const reviews = await resolvers.Book.reviews(
+        { isbn: '978-1', edition: 2 }, {}, context
+      );
+      expect(reviews.length).toBe(1);
+      expect(reviews[0].id).toBe('rev-2');
+    });
+  });
+
+  describe('Review.reviewer', () => {
+    it('returns reviewer info', async () => {
+      const r = await resolvers.Review.reviewer({ authorId: 'a-7' }, {}, context);
+      expect(r).toHaveProperty('displayName');
+    });
+
+    it('returns null when reviewer is unknown', async () => {
+      const r = await resolvers.Review.reviewer({ authorId: 'a-999' }, {}, context);
+      expect(r).toBeNull();
+    });
+  });
+
+  describe('Query.reviews', () => {
+    it('returns reviews for an author', async () => {
+      const reviews = await resolvers.Query.reviews({}, { authorId: 'a-9' }, context);
+      expect(reviews.length).toBe(1);
+    });
+
+    it('returns empty array for unknown author', async () => {
+      const reviews = await resolvers.Query.reviews({}, { authorId: 'a-999' }, context);
+      expect(reviews).toEqual([]);
+    });
+  });
+
+  describe('DataLoader contract', () => {
+    it('reviewerLoader keeps length and order aligned with keys', async () => {
+      // a-999 has no profile -> that slot must be null; it must not be filtered out
+      const results = await Promise.all(
+        ['a-7', 'a-999', 'a-9'].map(id => loaders.reviewerLoader.load(id))
+      );
+      expect(results.length).toBe(3);
+      expect(results[1]).toBeNull();
+      expect(results[2]).not.toBeNull();
+    });
+  });
+
+  describe('Mutation.createReview', () => {
+    it('creates a review with reviewer attached', async () => {
+      const review = await resolvers.Mutation.createReview({}, {
+        authorId: 'a-7', isbn: '978-3', edition: 1, rating: 5, body: '新评论'
+      }, context);
+      expect(review.id).toBeDefined();
+      expect(review.reviewer).toBeDefined();
+      expect(review.reviewer.displayName).toBeDefined();
+    });
+  });
+
+  describe('Error handling', () => {
+    it('returns INVALID_INPUT for empty body', async () => {
+      try {
+        await resolvers.Mutation.createReview({}, {
+          authorId: 'a-7', isbn: '978-3', edition: 1, rating: 5, body: ''
+        }, context);
+        throw new Error('Should have thrown');
+      } catch (error) {
+        expect(error.extensions.code).toBe('INVALID_INPUT');
+      }
+    });
+
+    it('returns REVIEW_NOT_FOUND for unknown id', async () => {
+      try {
+        await resolvers.Query.review({}, { id: 'rev-999' }, context);
+        throw new Error('Should have thrown');
+      } catch (error) {
+        expect(error.extensions.code).toBe('REVIEW_NOT_FOUND');
+      }
+    });
+  });
+});`;
+
 const MOCK_SOLUTION = `import DataLoader from 'dataloader';
 import { GraphQLError } from 'graphql';
 
@@ -443,10 +850,140 @@ export const resolvers = {
         });
       }
 
-      // insertReview 内部要用 reviewer.displayName 写审计日志 -> 先查出来附上
+      // insertReview 只返回评论本身；测试要求返回值带 reviewer -> 先查出来，最后附上
       const reviewer = await loaders.reviewerLoader.load(authorId);
 
       // FIX：键名是 reviewDataSource（不是 reviewAPI）；签名是五个位置参数
+      const review = await dataSources.reviewDataSource.insertReview(
+        authorId, isbn, edition, rating, body
+      );
+
+      return { ...review, reviewer };
+    }, { code: ErrorCodes.SERVICE_ERROR, message: 'Failed to create review' })
+  }
+};
+
+export { createReviewerLoader, createReviewLoader };`;
+
+// English side of MOCK_SOLUTION. Same line count as MOCK_SOLUTION; only comments are translated.
+const MOCK_SOLUTION_EN = `import DataLoader from 'dataloader';
+import { GraphQLError } from 'graphql';
+
+const ErrorCodes = {
+  REVIEW_NOT_FOUND: 'REVIEW_NOT_FOUND',
+  INVALID_INPUT: 'INVALID_INPUT',
+  RATING_ERROR: 'RATING_ERROR',
+  SERVICE_ERROR: 'SERVICE_ERROR'
+};
+
+// FIX: the method is lookupReviewer, and never filter (length and order are a hard contract)
+function createReviewerLoader(reviewerDataSource) {
+  return new DataLoader(async authorIds => {
+    console.log(\`[DataLoader] Batching \${authorIds.length} reviewer lookups\`);
+    const reviewers = await Promise.all(
+      authorIds.map(id => reviewerDataSource.lookupReviewer(id))
+    );
+    return reviewers;
+  });
+}
+
+function createReviewLoader(reviewDataSource) {
+  return new DataLoader(async ids => {
+    console.log(\`[DataLoader] Batching \${ids.length} review fetches\`);
+    return Promise.all(ids.map(id => reviewDataSource.fetchReview(id)));
+  });
+}
+
+/** One error wrapper for all seven resolvers: let structured errors through, wrap the rest */
+function wrap(fn, { code, message }) {
+  return async (...args) => {
+    const ctx = args[2];
+    try {
+      return await fn(...args);
+    } catch (error) {
+      if (error instanceof GraphQLError) throw error;
+      console.error(\`[\${ctx.correlationId}] \${message}:\`, error.message);
+      throw new GraphQLError(message, {
+        extensions: { code, correlationId: ctx.correlationId, originalError: error.message }
+      });
+    }
+  };
+}
+
+export const resolvers = {
+  Author: {
+    __resolveReference(author) {
+      return { id: author.id };
+    },
+
+    reviews: wrap(async (author, _, { dataSources, correlationId }) => {
+      console.log(\`[\${correlationId}] Author.reviews authorId: \${author.id}\`);
+      const reviews = await dataSources.reviewDataSource.fetchByAuthor(author.id);
+      return reviews ?? [];                       // schema: [Review!]!
+    }, { code: ErrorCodes.SERVICE_ERROR, message: 'Failed to fetch reviews for author' }),
+
+    averageRating: wrap(async (author, _, { dataSources }) => {
+      const avg = await dataSources.ratingDataSource.computeAverage(author.id);
+      return avg ?? null;      // nullable scalar: not ||, because 0 is a valid value
+    }, { code: ErrorCodes.RATING_ERROR, message: 'Failed to compute average rating' })
+  },
+
+  Book: {
+    // composite key: keep both fields
+    __resolveReference(book) {
+      return { isbn: book.isbn, edition: book.edition };
+    },
+
+    reviews: wrap(async (book, _, { dataSources }) => {
+      const reviews = await dataSources.reviewDataSource.fetchByBook(book.isbn, book.edition);
+      return reviews ?? [];
+    }, { code: ErrorCodes.SERVICE_ERROR, message: 'Failed to fetch reviews for book' })
+  },
+
+  Review: {
+    reviewer: wrap(async (parent, _, { loaders }) => {
+      const reviewer = await loaders.reviewerLoader.load(parent.authorId);
+      return reviewer ?? null;                    // nullable
+    }, { code: ErrorCodes.SERVICE_ERROR, message: 'Failed to fetch reviewer' })
+  },
+
+  Query: {
+    review: wrap(async (_, { id }, { loaders, correlationId }) => {
+      const review = await loaders.reviewLoader.load(id);
+      if (!review) {
+        throw new GraphQLError(\`Review not found: \${id}\`, {
+          extensions: { code: ErrorCodes.REVIEW_NOT_FOUND, correlationId, reviewId: id }
+        });
+      }
+      return review;
+    }, { code: ErrorCodes.SERVICE_ERROR, message: 'Failed to fetch review' }),
+
+    reviews: wrap(async (_, { authorId }, { dataSources, correlationId }) => {
+      if (!authorId) {
+        throw new GraphQLError('authorId is required', {
+          extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+        });
+      }
+      const reviews = await dataSources.reviewDataSource.fetchByAuthor(authorId);
+      return reviews ?? [];
+    }, { code: ErrorCodes.SERVICE_ERROR, message: 'Failed to fetch reviews' })
+  },
+
+  Mutation: {
+    createReview: wrap(async (_, { authorId, isbn, edition, rating, body },
+                              { dataSources, loaders, correlationId }) => {
+      console.log(\`[\${correlationId}] Creating review for author: \${authorId}\`);
+
+      if (!authorId || !isbn || !body) {
+        throw new GraphQLError('Invalid review input', {
+          extensions: { code: ErrorCodes.INVALID_INPUT, correlationId }
+        });
+      }
+
+      // insertReview returns only the review; the test wants reviewer on the result -> look it up, attach it at the end
+      const reviewer = await loaders.reviewerLoader.load(authorId);
+
+      // FIX: the key is reviewDataSource (not reviewAPI); the signature takes five positional arguments
       const review = await dataSources.reviewDataSource.insertReview(
         authorId, isbn, edition, rating, body
       );
@@ -573,7 +1110,7 @@ const reviewsMock: MockExam = {
       requirement: [
         'Book.__resolveReference：Book 的 @key 是 "isbn edition" 两个字段，返回的对象必须同时保留这两个',
         "Book.reviews：必须同时按 isbn 和 edition 过滤 —— 只按 isbn 会把其他版本的评论混进来",
-        "注意 edition 是 Int、isbn 是 String，别把类型搞混",
+        "注意 edition 是 Int、isbn 是 String，别把两者的类型弄错",
       ],
       requirementEn: [
         "Book.__resolveReference: the @key on Book is the two fields \"isbn edition\", so the object you return has to keep both",
@@ -674,12 +1211,12 @@ const reviewsMock: MockExam = {
       requirement: [
         "它注释说「提供作参考」，但它是坏的 —— 自己找出并修好全部问题",
         "至少有三处：数据源键名、insertReview 的调用方式、以及 catch 吞掉结构化错误",
-        "还有一处最隐蔽：insertReview 内部要用 reviewer.displayName 写审计日志，所以传进去之前必须先把 reviewer 查出来附上",
+        "还有一处最隐蔽：测试直接调用 resolvers.Mutation.createReview，并断言返回对象上有 reviewer.displayName；insertReview 只返回评论本身，所以要先用 reviewerLoader 查出 reviewer，再附到返回值上",
       ],
       requirementEn: [
         "Its comment says it is provided for reference, but it is broken — find and fix everything wrong with it",
         "There are at least three: the data source key name, the way insertReview is called, and a catch that swallows a structured error",
-        "One more is the least obvious: insertReview writes an audit log using reviewer.displayName, so the reviewer has to be looked up and attached before it is passed in",
+        "One more is the least obvious: the test calls resolvers.Mutation.createReview directly and asserts that the returned object carries reviewer.displayName. insertReview returns only the review itself, so look the reviewer up with reviewerLoader first and attach it to the return value",
       ],
       rubric: [
         {
@@ -694,8 +1231,8 @@ const reviewsMock: MockExam = {
         },
         {
           points: 8,
-          label: "创建前先查出 reviewer 并附上（本题最隐蔽的一处）",
-          labelEn: "The reviewer is looked up and attached before creating, the least obvious part of this task",
+          label: "查出 reviewer 并附到返回值上（本题最隐蔽的一处）",
+          labelEn: "The reviewer is looked up and attached to the return value, the least obvious part of this task",
         },
         {
           points: 6,
@@ -711,12 +1248,12 @@ const reviewsMock: MockExam = {
       requirement: [
         "npm test 全部 14 个测试通过",
         "自己写一个 verify 脚本：查 _service 的 SDL、用 _entities 分别解析 Author 和 Book（后者要传两个 key 字段）",
-        "在日志里确认 reviewerLoader 的批量合并真的发生了（一行 Batching，N 大于 1）",
+        "在日志里确认 reviewerLoader 的批量合并真的发生了（一行 Batching，N 大于 1）。同一个列表里有不同作者的评论，N 才会大于 1：数据里 978-2 第 1 版有两位作者的评论",
       ],
       requirementEn: [
         "All 14 tests pass under npm test",
         "Write a verify script yourself: read the SDL from _service, and resolve Author and Book separately through _entities (the second one takes two key fields)",
-        "Confirm in the log that reviewerLoader really did batch (one Batching line, with N greater than 1)",
+        "Confirm in the log that reviewerLoader really did batch (one Batching line, with N greater than 1). N only goes above 1 when one list holds reviews by different authors: in the data, edition 1 of 978-2 has reviews by two authors",
       ],
       rubric: [
         {
@@ -741,6 +1278,7 @@ const reviewsMock: MockExam = {
     demo("graphql", MOCK_SCHEMA, {
       filename: "src/schema.graphql（PROVIDED —— 精读它，可空性决定你的兜底策略）",
       filenameEn: "src/schema.graphql (PROVIDED — read it closely; nullability decides your fallback)",
+      codeEn: MOCK_SCHEMA_EN,
       collapsible: true,
       explanation:
         "四处先标出来：Author.reviews 和 Book.reviews 都是 [Review!]!（双重非空）；Author.averageRating 是 Float（可空）；Review.reviewer 可空；Book 的 @key 是两个字段。",
@@ -750,6 +1288,7 @@ const reviewsMock: MockExam = {
     demo("js", MOCK_DATASOURCE, {
       filename: "src/dataSources/reviewDataSource.js（PROVIDED —— 抄一张方法名表）",
       filenameEn: "src/dataSources/reviewDataSource.js (PROVIDED — copy out a table of method names)",
+      codeEn: MOCK_DATASOURCE_EN,
       collapsible: true,
       explanation:
         "真实方法名：fetchReview / fetchByAuthor / fetchByBook / insertReview / lookupReviewer / computeAverage。starter 里有一处调了不存在的方法。",
@@ -759,6 +1298,7 @@ const reviewsMock: MockExam = {
     tested("js", MOCK_STARTER, {
       filename: "src/resolvers/reviewResolvers.js（EDIT THIS —— 7 个 TODO + 6 处埋雷）",
       filenameEn: "src/resolvers/reviewResolvers.js (EDIT THIS — 7 TODOs plus 6 planted bugs)",
+      codeEn: MOCK_STARTER_EN,
       collapsible: true,
       explanation:
         "这是 DrillLab 自出的模拟题，不是源项目内容。六处埋雷没有任何标注 —— 和真实考试一样，只有 README 里那句「可能存在集成问题」。",
@@ -769,7 +1309,8 @@ const reviewsMock: MockExam = {
   tests: [
     tested("js", MOCK_TESTS, {
       filename: "__tests__/resolvers.test.js（判卷器，14 个测试）",
-      filenameEn: "__tests__/resolvers.test.js (the marker, 14 tests)",
+      filenameEn: "__tests__/resolvers.test.js (the grader, 14 tests)",
+      codeEn: MOCK_TESTS_EN,
       collapsible: true,
       explanation:
         "比真实项目多了三条针对性测试：averageRating 的 toBeNull、Book.__resolveReference 的两个 key 字段、以及 reviewerLoader 的长度/顺序契约。这三条正是真实项目测不到但你该会的地方。",
@@ -1192,12 +1733,12 @@ return avg || null;`,
             。
           </p>
           <p>
-            <strong>所以这一条不是「静默串数据」，是「整批炸掉」</strong> ——
-            那条测试挂在这个 TypeError 上，不是挂在某个字段对不上。
+            <strong>所以这一条不是「静默串数据」，而是「整批失败」</strong> ——
+            那条测试是因为这个 TypeError 而失败的，不是因为某个字段对不上。
             <strong>真正会静默串数据的是另一种写法：长度对、顺序错。</strong>
-            实测 batch 函数返回 <code>rows.reverse()</code>（长度没变）时，
-            <code>load(&apos;a-9&apos;)</code> 拿到的是 a-999 的行，
-            <code>load(&apos;a-999&apos;)</code> 拿到 a-9 的行，
+            同样这三个 key，batch 函数如果返回 <code>reviewers.reverse()</code>（长度没变），
+            <code>load(&apos;a-7&apos;)</code> 拿到的是 a-9 的资料，
+            <code>load(&apos;a-9&apos;)</code> 拿到 a-7 的资料（a-999 在正中间，位置没动），
             <strong>一声不响</strong>。契约是「长度相同 <em>且</em> 顺序一致」，
             两条里长度那条有人替你查，顺序那条没人查。
           </p>
@@ -1241,10 +1782,11 @@ return avg || null;`,
               The version that really does cross data silently is a different one: right
               length, wrong order.
             </strong>{" "}
-            Measured: when the batch function returns <code>rows.reverse()</code> (length
-            unchanged), <code>load(&apos;a-9&apos;)</code> gets a-999&rsquo;s row and{" "}
-            <code>load(&apos;a-999&apos;)</code> gets a-9&rsquo;s row,{" "}
-            <strong>without a sound</strong>. The contract is &ldquo;same length{" "}
+            With the same three keys, if the batch function returns{" "}
+            <code>reviewers.reverse()</code> (length unchanged),{" "}
+            <code>load(&apos;a-7&apos;)</code> gets a-9&rsquo;s profile and{" "}
+            <code>load(&apos;a-9&apos;)</code> gets a-7&rsquo;s (a-999 sits in the
+            middle and does not move), <strong>without a sound</strong>. The contract is &ldquo;same length{" "}
             <em>and</em> same order&rdquo;; someone checks the length for you, nobody
             checks the order.
           </p>
@@ -1302,14 +1844,15 @@ function createReviewerLoader(reviewerDataSource) {
           <p>
             第三处是<strong>「缺一个字段」</strong>模式的变体。
             真实项目里是 <code>OrderItemInput</code> 缺 <code>price</code>；
-            这里是 <code>insertReview</code> 内部要用{" "}
-            <code>reviewer.displayName</code> 写审计日志，
-            但 mutation 的参数里没有 reviewer。
+            这里是测试直接调用 <code>resolvers.Mutation.createReview</code>，
+            并断言返回对象上有 <code>reviewer.displayName</code>，
+            而 <code>insertReview</code> 只返回评论本身，mutation 的参数里也没有 reviewer。
           </p>
           <p>
-            <strong>所以必须先把 reviewer 查出来附上。</strong>
+            <strong>所以要先用 reviewerLoader 查出 reviewer，再附到返回值上。</strong>
             测试用 <code>expect(review.reviewer.displayName).toBeDefined()</code>{" "}
-            查它。
+            查它。经 GraphQL 执行时，<code>Review.reviewer</code> 的字段 resolver
+            会自己去取；这一步是为了让直接调用 resolver 的调用方也拿到完整对象。
           </p>
           <p>
             第四处在 <code>catch</code> 里，也是 rubric 里单独占 6 分的那条：
@@ -1318,7 +1861,7 @@ function createReviewerLoader(reviewerDataSource) {
             <code>INVALID_INPUT</code>
             <strong>刚出门就被自己的 catch 改名了</strong>。
             测试 <code>expect(error.extensions.code).toBe(&apos;INVALID_INPUT&apos;)</code>{" "}
-            因此挂掉。
+            因此失败。
             <strong>
               修法是 catch 第一行先放行已经结构化的 <code>GraphQLError</code>。
             </strong>
@@ -1343,14 +1886,22 @@ function createReviewerLoader(reviewerDataSource) {
             The third is a variant of the{" "}
             <strong>&ldquo;one field is missing&rdquo;</strong> pattern. In the real
             project it was <code>OrderItemInput</code> missing{" "}
-            <code>price</code>; here <code>insertReview</code> uses{" "}
-            <code>reviewer.displayName</code> internally to write the audit log, but
-            the mutation arguments carry no reviewer.
+            <code>price</code>; here the test calls{" "}
+            <code>resolvers.Mutation.createReview</code> directly and asserts that the
+            returned object carries <code>reviewer.displayName</code>, while{" "}
+            <code>insertReview</code> returns only the review itself and the mutation
+            arguments carry no reviewer.
           </p>
           <p>
-            <strong>So you have to look the reviewer up first and attach it.</strong>{" "}
+            <strong>
+              So look the reviewer up with reviewerLoader first and attach it to the
+              return value.
+            </strong>{" "}
             The test checks it with{" "}
-            <code>expect(review.reviewer.displayName).toBeDefined()</code>.
+            <code>expect(review.reviewer.displayName).toBeDefined()</code>. Through
+            real GraphQL execution the <code>Review.reviewer</code> field resolver
+            would fetch it on its own; this step makes a direct call return the
+            complete object.
           </p>
           <p>
             The fourth one lives in the <code>catch</code>, and it is the line worth 6
@@ -1417,7 +1968,7 @@ function createReviewerLoader(reviewerDataSource) {
             </li>
           </ol>
           <p>
-            第 2、5、8 条是这道题独有的陷阱，也是最能区分「理解了」和「照抄了」的三条。
+            第 2、3、5 条是这道题独有的陷阱，也是最能区分「理解了」和「照抄了」的三条。
           </p>
         </>
       ),
@@ -1464,7 +2015,7 @@ function createReviewerLoader(reviewerDataSource) {
             </li>
           </ol>
           <p>
-            Items 2, 5 and 8 are the traps unique to this paper, and the three that
+            Items 2, 3 and 5 are the traps unique to this paper, and the three that
             best separate understanding from copying.
           </p>
         </>
@@ -1475,6 +2026,7 @@ function createReviewerLoader(reviewerDataSource) {
     tested("js", MOCK_SOLUTION, {
       filename: "src/resolvers/reviewResolvers.js（参考答案）",
       filenameEn: "src/resolvers/reviewResolvers.js (reference answer)",
+      codeEn: MOCK_SOLUTION_EN,
       collapsible: true,
       explanation:
         "这份答案多了一个 wrap 高阶函数，把「catch 里放行 GraphQLError 再包装」这段重复逻辑抽掉了。真实考试里写不写都行 —— 但如果你自己想到了这一步，说明你真的理解了那个模式，而不是在复制粘贴。",
@@ -1525,57 +2077,79 @@ const fedExam: Exam = {
   checklist: [
     {
       task: "Task 1 · User.orders",
+      taskEn: "Task 1 · User.orders",
       covered: "完整讲解 + entity 数据流图 + 填空 + L3 自写 + 从零重写",
+      coveredEn: "Full walkthrough + entity data-flow diagram + fill-in-the-blank + L3 write-a-block + rebuild from scratch",
       tested: true,
     },
     {
       task: "Task 1 · Order.shippingInfo（要求用 DataLoader）",
+      taskEn: "Task 1 · Order.shippingInfo (DataLoader required)",
       covered: "N+1 与 DataLoader 专章 + 填空 + Debug Lab",
+      coveredEn: "A lesson on N+1 and DataLoader + fill-in-the-blank + Debug Lab",
       tested: true,
     },
     {
       task: "Task 1 · Query.orders",
+      taskEn: "Task 1 · Query.orders",
       covered: "与 Query.order 对比讲解 + 填空 + L3 自写",
+      coveredEn: "Explained side by side with Query.order + fill-in-the-blank + L3 write-a-block",
       tested: true,
     },
     {
       task: "Task 1 · Query.order（README 没提、也没有测试）",
+      taskEn: "Task 1 · Query.order (not in the README, and no test)",
       covered: "专门指出并完整实现，用上了给好的 ORDER_NOT_FOUND",
+      coveredEn: "Pointed out explicitly and implemented in full, using the ORDER_NOT_FOUND code already provided",
       tested: false,
     },
     {
       task: "埋雷 1 · createOrderLoader 调了不存在的 getOrderById",
+      taskEn: "Planted bug 1 · createOrderLoader calls getOrderById, which does not exist",
       covered: "DataLoader 那节点出 + 独立 Debug Lab",
+      coveredEn: "Pointed out in the DataLoader lesson + a Debug Lab of its own",
       tested: true,
     },
     {
       task: "埋雷 2 · createOrder 用了不存在的 orderAPI、签名错、缺 price",
+      taskEn: "Planted bug 2 · createOrder uses orderAPI, which does not exist, the wrong signature, and no price",
       covered: "埋雷专章逐条拆解 + Debug Lab",
+      coveredEn: "Taken apart point by point in the planted-bugs lesson + Debug Lab",
       tested: true,
     },
     {
       task: "埋雷 3 · catch 把 INVALID_INPUT 吞成 SERVICE_ERROR",
+      taskEn: "Planted bug 3 · catch turns INVALID_INPUT into SERVICE_ERROR",
       covered: "贯穿四个 resolver 的模式讲解 + 独立 Debug Lab",
+      coveredEn: "The pattern explained across all four resolvers + a Debug Lab of its own",
       tested: true,
     },
     {
       task: "Task 2 · 六个 Spring 端点（含 201 / 204 / 400 / 404）",
+      taskEn: "Task 2 · the six Spring endpoints (including 201 / 204 / 400 / 404)",
       covered: "Spring 基础 + 逐端点讲解 + 填空 + L3 自写 + 从零重写",
+      coveredEn: "Spring basics + an endpoint-by-endpoint walkthrough + fill-in-the-blank + L3 write-a-block + rebuild from scratch",
       tested: true,
     },
     {
       task: "Task 2 · 六个端点全 return null 也能过 3/5 测试",
+      taskEn: "Task 2 · all six endpoints returning null still pass 3 of the 5 tests",
       covered: "实测数据 + 手动 curl 自检清单 + Debug Lab",
+      coveredEn: "Measured results + a manual curl checklist + Debug Lab",
       tested: true,
     },
     {
       task: "书面题 1 · User subgraph 高延迟的影响与缓存策略",
+      taskEn: "Written question 1 · what a slow User subgraph does to the rest, and a caching strategy",
       covered: "传导路径分析 + 完整参考答案 + 答题结构模板",
+      coveredEn: "How the delay spreads + a full reference answer + a template for structuring the answer",
       tested: false,
     },
     {
       task: "书面题 2 · application.properties 的生产隐患",
+      taskEn: "Written question 2 · the production risks in application.properties",
       covered: "六面排查清单 + 六个问题的完整参考答案 + L3 练习",
+      coveredEn: "A six-area checklist + full reference answers for six problems + an L3 exercise",
       tested: false,
     },
   ],
