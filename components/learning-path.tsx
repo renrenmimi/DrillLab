@@ -229,8 +229,7 @@ export function LearningPath() {
               zh={
                 <>
                   课文只是「题目背后的讲解」。真正的验收在
-                  <Link href="/arena">考场</Link>：空文件夹、计时、没有提示按钮。
-                  想先热手就去<Link href="/practice">练习</Link>。
+                  <Link href="/arena">考场</Link>：空文件夹、计时、没有提示按钮。想先热手就去<Link href="/practice">练习</Link>。
                 </>
               }
               en={

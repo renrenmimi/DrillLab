@@ -389,8 +389,7 @@ export const fedTask2: Module = {
                       <td><code>@RestController</code></td>
                       <td>类上</td>
                       <td>
-                        「这个类的方法返回值直接当 HTTP 响应体（JSON）」，
-                        不是返回视图名
+                        「这个类的方法返回值直接当 HTTP 响应体（JSON）」，不是返回视图名
                       </td>
                     </tr>
                     <tr>
@@ -567,13 +566,11 @@ export const fedTask2: Module = {
                 看 starter 里已经给好的这几行：
               </p>
               <p>
-                这是<strong>构造器注入（constructor injection）</strong>。
-                流程是：
+                这是<strong>构造器注入（constructor injection）</strong>。流程是：
               </p>
               <ol>
                 <li>
-                  <code>OrderService</code> 类上有 <code>@Service</code>，
-                  所以 Spring 启动时会创建它的实例并管起来。
+                  <code>OrderService</code> 类上有 <code>@Service</code>，所以 Spring 启动时会创建它的实例并管起来。
                 </li>
                 <li>
                   <code>OrderController</code> 的构造器需要一个
@@ -705,8 +702,7 @@ public OrderController(OrderService orderService) {
                 </table>
               </div>
               <p>
-                <strong>注意第二列的 <code>void</code> 和第三列那三个
-                「抛异常」。</strong>它们直接决定了你的端点该怎么写：
+                <strong>注意第二列的 <code>void</code> 和第三列那三个「抛异常」。</strong>它们直接决定了你的端点该怎么写：
               </p>
               <ul>
                 <li>
@@ -715,15 +711,12 @@ public OrderController(OrderService orderService) {
                 </li>
                 <li>
                   三个会抛 <code>EntityNotFoundException</code> 的方法 →
-                  <strong>你不要 try/catch 它</strong>，
-                  让它冒到全局处理器去（下一段说为什么）。
+                  <strong>你不要 try/catch 它</strong>，让它冒到全局处理器去（下一段说为什么）。
                 </li>
               </ul>
               <p>
-                <code>OrderService</code> 里还有一些你不需要管的东西：
-                Micrometer 的计数器（<code>orders.created</code>、
-                <code>orders.retrieved</code>）和 Timer、
-                以及从 MDC 里读 correlationId 打日志。
+                <code>OrderService</code> 里还有一些你不需要管的东西：Micrometer 的计数器（<code>orders.created</code>、
+                <code>orders.retrieved</code>）和 Timer、以及从 MDC 里读 correlationId 打日志。
                 <strong>这些说明这个项目在演示「可观测性」这个主题</strong>——
                 所以你的控制器里也该打日志、也该带 correlationId。
               </p>
@@ -862,15 +855,12 @@ public void deleteOrder(Long id) {
             <>
               <p>
                 <code>@RestControllerAdvice</code> 标记的类是
-                <strong>全局异常处理器</strong>。任何控制器方法抛出的异常，
-                如果这里有对应的 <code>@ExceptionHandler</code>，
-                就由它来转成 HTTP 响应。
+                <strong>全局异常处理器</strong>。任何控制器方法抛出的异常，如果这里有对应的 <code>@ExceptionHandler</code>，就由它来转成 HTTP 响应。
               </p>
               <p>项目里给好了两个：</p>
               <ul>
                 <li>
-                  <code>EntityNotFoundException</code> → <strong>404</strong>，
-                  响应体是 <code>{"{ timestamp, status, message }"}</code>。
+                  <code>EntityNotFoundException</code> → <strong>404</strong>，响应体是 <code>{"{ timestamp, status, message }"}</code>。
                 </li>
                 <li>
                   <code>MethodArgumentNotValidException</code>
@@ -880,21 +870,16 @@ public void deleteOrder(Long id) {
               </ul>
               <p>
                 <strong>所以控制器里正确的做法是：什么都不做。</strong>
-                直接 <code>return ResponseEntity.ok(orderService.getOrderById(id))</code>。
-                找不到时 service 抛异常，异常冒出控制器，
-                被全局处理器接住转成 404。
+                直接 <code>return ResponseEntity.ok(orderService.getOrderById(id))</code>。找不到时 service 抛异常，异常冒出控制器，被全局处理器接住转成 404。
               </p>
               <p>
                 <strong>如果你自己 try/catch 会怎样？</strong>
-                异常被你吞掉了，全局处理器永远收不到，
-                于是 404 变成 200（返回 null body）或 500。
+                异常被你吞掉了，全局处理器永远收不到，于是 404 变成 200（返回 null body）或 500。
                 <strong>你把项目已经做好的事情弄坏了。</strong>
               </p>
               <p>
-                这是一条通用原则：<strong>有全局异常处理器的项目，
-                控制器里不要写 try/catch</strong>——
-                除非你要把某个异常转成<strong>不同的</strong>状态码。
-                （下一节 PATCH 端点里那个 <code>ResponseStatusException</code>
+                这是一条通用原则：<strong>有全局异常处理器的项目，控制器里不要写 try/catch</strong>——
+                除非你要把某个异常转成<strong>不同的</strong>状态码。（下一节 PATCH 端点里那个 <code>ResponseStatusException</code>
                 就属于这种例外情况。）
               </p>
             </>
@@ -1000,14 +985,12 @@ public class GlobalExceptionHandler {
                 才会生效。</strong>starter 已经写了：
                 <code>createOrder(@Valid @RequestBody CreateOrderRequest request)</code>。
                 <strong>别删掉那个 <code>@Valid</code></strong> ——
-                删了之后非法请求会直接进到 service：空 userId 的订单会被照常创建
-                （201，坏数据静默入库），items 为 null 时才会抛
+                删了之后非法请求会直接进到 service：空 userId 的订单会被照常创建（201，坏数据静默入库），items 为 null 时才会抛
                 NullPointerException 变成 500。
               </p>
               <p>
                 这也是一条设计分工：
-                <strong>格式校验交给 Bean Validation，
-                业务校验（比如「这个用户被冻结了」）才写在代码里。</strong>
+                <strong>格式校验交给 Bean Validation，业务校验（比如「这个用户被冻结了」）才写在代码里。</strong>
               </p>
             </>
           ),
@@ -1090,12 +1073,9 @@ public class OrderItemRequest {
                 <code>X-Correlation-ID</code>，没有就生成一个 UUID</strong>。
               </p>
               <p>
-                区别在于存放位置。Node 那边放进 <code>context</code> 手动往下传；
-                Java 这边放进 <strong>MDC（Mapped Diagnostic Context）</strong>——
-                一个和当前线程绑定的键值存储。
-                这样同一个线程里<strong>任何地方</strong>都能
-                <code>MDC.get(&quot;correlationId&quot;)</code> 取到，
-                不需要一层层传参。
+                区别在于存放位置。Node 那边放进 <code>context</code> 手动往下传；Java 这边放进 <strong>MDC（Mapped Diagnostic Context）</strong>——
+                一个和当前线程绑定的键值存储。这样同一个线程里<strong>任何地方</strong>都能
+                <code>MDC.get(&quot;correlationId&quot;)</code> 取到，不需要一层层传参。
               </p>
               <p>
                 注意 <code>finally</code> 里的 <code>MDC.remove</code> ——
@@ -1106,8 +1086,7 @@ public class OrderItemRequest {
               <p>
                 <strong>你要做的：</strong>在六个端点里
                 <code>logger.info(...)</code> 时带上
-                <code>MDC.get(&quot;correlationId&quot;)</code>。
-                第一个 TODO 明确写了
+                <code>MDC.get(&quot;correlationId&quot;)</code>。第一个 TODO 明确写了
                 <em>with structured logging</em>。
               </p>
             </>
@@ -1217,22 +1196,18 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
                   <strong><code>java-service/orders.db</code></strong> ——
                   一个数据库文件。但 <code>pom.xml</code> 里
                   <strong>没有任何 JDBC 或 JPA 依赖</strong>
-                  （只有 web / validation / actuator / test），
-                  代码里也没有一处引用它。
-                  数据实际来自 <code>InMemoryOrderRepository</code>
+                  （只有 web / validation / actuator / test），代码里也没有一处引用它。数据实际来自 <code>InMemoryOrderRepository</code>
                   （一个 <code>ConcurrentHashMap</code>）。
                   <strong>看到 .db 就去配数据源，纯浪费时间。</strong>
                 </li>
                 <li>
                   <strong><code>MetricsConfig.java</code></strong> ——
-                  一个空的 <code>@Configuration</code> 类，里面什么都没有。
-                  计数器实际是在 <code>OrderService</code> 的构造器里建的。
+                  一个空的 <code>@Configuration</code> 类，里面什么都没有。计数器实际是在 <code>OrderService</code> 的构造器里建的。
                 </li>
               </ul>
               <p>
                 判断方法和 Node 那边一样：
-                <strong>顺着依赖和引用找。没被 import、
-                没被注入、没在配置里出现，就跟这次任务无关。</strong>
+                <strong>顺着依赖和引用找。没被 import、没被注入、没在配置里出现，就跟这次任务无关。</strong>
               </p>
             </>
           ),
@@ -1285,8 +1260,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
             <p>
               <code>getOrderById</code> 端点里，
               <code>orderService.getOrderById(id)</code> 找不到时会抛
-              <code>EntityNotFoundException</code>。
-              控制器应该怎么写？
+              <code>EntityNotFoundException</code>。控制器应该怎么写？
             </p>
           ),
           promptEn: (
@@ -1313,8 +1287,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               <br />
               B 虽然结果也是 404，但<strong>响应体丢了</strong>
               （全局处理器返回的是
-              <code>{"{ timestamp, status, message }"}</code>），
-              而且重复实现了已有的能力。
+              <code>{"{ timestamp, status, message }"}</code>），而且重复实现了已有的能力。
               <br />
               C 是最糟的 —— 404 变成 200。
               <br />
@@ -1350,8 +1323,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
           prompt: (
             <p>
               请求是{" "}
-              <code>PATCH /api/orders/7/status</code>，
-              body 是 <code>{'{"status":"SHIPPED"}'}</code>。
+              <code>PATCH /api/orders/7/status</code>，body 是 <code>{'{"status":"SHIPPED"}'}</code>。
               <br />
               方法签名是{" "}
               <code>
@@ -1393,8 +1365,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
               才是 <code>&quot;SHIPPED&quot;</code>。
               <br />
               注意它是 <strong>Map 而不是 DTO</strong> ——
-              所以<strong>没有 Bean Validation 保护</strong>，
-              下一节会讲这意味着你必须自己校验。
+              所以<strong>没有 Bean Validation 保护</strong>，下一节会讲这意味着你必须自己校验。
             </>
           ),
           explainEn: (
@@ -1486,8 +1457,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
             <>
               <p>README 里 Task 2 的原文：</p>
               <p>
-                六个端点，六个 <code>{"// TODO"}</code>，
-                六个 <code>return null</code>。
+                六个端点，六个 <code>{"// TODO"}</code>，六个 <code>return null</code>。
                 <strong>业务逻辑一行都不用你写</strong>——
                 全在 <code>OrderService</code> 里。
               </p>
@@ -1549,25 +1519,20 @@ Use the provided \`OrderService\` for business logic.`,
               </p>
               <p>
                 <strong>为什么 return null 能过？</strong>
-                因为 Spring 里，控制器方法返回 <code>null</code> 时，
-                框架认为「你已经自己处理完响应了」，
-                于是返回一个 <strong>200 OK + 空 body</strong>。
+                因为 Spring 里，控制器方法返回 <code>null</code> 时，框架认为「你已经自己处理完响应了」，于是返回一个 <strong>200 OK + 空 body</strong>。
               </p>
               <p>
                 而那三个通过的测试断言的是 <code>status().isOk()</code> ——
                 也就是 200。<strong>正好符合。</strong>
               </p>
               <p>
-                只有两条测试断言了非 200 的状态码
-                （<code>isCreated()</code> = 201、
-                <code>isNoContent()</code> = 204），
-                所以只有它们抓住了错。
+                只有两条测试断言了非 200 的状态码（<code>isCreated()</code> = 201、
+                <code>isNoContent()</code> = 204），所以只有它们抓住了错。
               </p>
               <p>
                 <strong>结论和 Node 那边一样，但更极端：</strong>
                 <strong>三个端点完全没实现，它们的测试却是绿的。</strong>
-                如果你只看测试，会以为自己做完了 60%，
-                实际上是 0%。
+                如果你只看测试，会以为自己做完了 60%，实际上是 0%。
               </p>
             </>
           ),
@@ -1678,8 +1643,7 @@ Use the provided \`OrderService\` for business logic.`,
                       <td><strong>400 Bad Request</strong></td>
                       <td>请求本身不合法</td>
                       <td>
-                        POST（Bean Validation 自动）、
-                        PATCH（status 非法，<strong>要你写</strong>）
+                        POST（Bean Validation 自动）、PATCH（status 非法，<strong>要你写</strong>）
                       </td>
                       <td>
                         <code>
@@ -1692,8 +1656,7 @@ Use the provided \`OrderService\` for business logic.`,
                       <td><strong>404 Not Found</strong></td>
                       <td>目标不存在</td>
                       <td>
-                        GET by id、PATCH、DELETE
-                        （全局处理器自动）
+                        GET by id、PATCH、DELETE（全局处理器自动）
                       </td>
                       <td>不写 —— 让 service 的异常冒出去</td>
                     </tr>
@@ -1703,13 +1666,11 @@ Use the provided \`OrderService\` for business logic.`,
               <p>
                 <strong>201 和 204 是这道题的分水岭。</strong>
                 它们也是最容易忘的 —— 因为
-                <code>ResponseEntity.ok()</code> 用惯了，
-                手会自动打出来。
+                <code>ResponseEntity.ok()</code> 用惯了，手会自动打出来。
               </p>
               <p>
                 记一个判据：
-                <strong>「有东西返回吗？」没有 → 204。
-                「是新造了一个资源吗？」是 → 201。</strong>
+                <strong>「有东西返回吗？」没有 → 204。「是新造了一个资源吗？」是 → 201。</strong>
               </p>
             </>
           ),
@@ -1801,17 +1762,14 @@ Use the provided \`OrderService\` for business logic.`,
               <p>
                 第一个端点的签名里有一个
                 <code>@RequestParam(required = false) String userId</code>。
-                <strong>这个参数是提示</strong>：
-                它要求你实现「可选过滤」。
+                <strong>这个参数是提示</strong>：它要求你实现「可选过滤」。
               </p>
               <p>
-                <code>?userId=123</code> 传了 → 只返回那个用户的订单。
-                没传（<code>userId</code> 是 <code>null</code>）→ 返回全部。
+                <code>?userId=123</code> 传了 → 只返回那个用户的订单。没传（<code>userId</code> 是 <code>null</code>）→ 返回全部。
               </p>
               <p>
                 <strong>注意要同时判断 null 和空白。</strong>
-                <code>?userId=</code> 这种写法会让 userId 是空字符串
-                而不是 null，用 <code>isBlank()</code> 一起挡掉。
+                <code>?userId=</code> 这种写法会让 userId 是空字符串而不是 null，用 <code>isBlank()</code> 一起挡掉。
               </p>
               <p>
                 TODO 原文写的是
@@ -1876,49 +1834,38 @@ public ResponseEntity<List<Order>> getAllOrders(
           body: (
             <>
               <p>
-                请求体是 <code>{'{"status":"SHIPPED"}'}</code>，
-                但 <code>orderService.updateOrderStatus</code>
-                需要的是 <code>OrderStatus</code> 枚举。
-                所以必须转换。
+                请求体是 <code>{'{"status":"SHIPPED"}'}</code>，但 <code>orderService.updateOrderStatus</code>
+                需要的是 <code>OrderStatus</code> 枚举。所以必须转换。
               </p>
               <p>
-                <code>OrderStatus.valueOf(&quot;SHIPPED&quot;)</code> 能转，
-                但有两个陷阱：
+                <code>OrderStatus.valueOf(&quot;SHIPPED&quot;)</code> 能转，但有两个陷阱：
               </p>
               <ul>
                 <li>
                   <strong><code>valueOf</code> 大小写敏感。</strong>
                   <code>valueOf(&quot;shipped&quot;)</code> 会抛
-                  <code>IllegalArgumentException</code>。
-                  所以要 <code>toUpperCase()</code>。
+                  <code>IllegalArgumentException</code>。所以要 <code>toUpperCase()</code>。
                 </li>
                 <li>
                   <strong>非法值会抛异常。</strong>
                   <code>valueOf(&quot;FLYING&quot;)</code> 抛
-                  <code>IllegalArgumentException</code>，
-                  而<strong>全局处理器没有处理它</strong>——
-                  所以会变成 <strong>500</strong>。
-                  但语义上这是客户端的错，应该是 <strong>400</strong>。
+                  <code>IllegalArgumentException</code>，而<strong>全局处理器没有处理它</strong>——
+                  所以会变成 <strong>500</strong>。但语义上这是客户端的错，应该是 <strong>400</strong>。
                 </li>
               </ul>
               <p>
                 <strong>这里是本题唯一该写 try/catch 的地方</strong>——
-                因为要把一种异常转成<strong>不同的</strong>状态码。
-                用 <code>ResponseStatusException</code> 最省事：
-                它是 Spring 提供的「带状态码的异常」，
-                不需要额外的 handler。
+                因为要把一种异常转成<strong>不同的</strong>状态码。用 <code>ResponseStatusException</code> 最省事：它是 Spring 提供的「带状态码的异常」，不需要额外的 handler。
               </p>
               <p>
                 <strong>还要挡住 status 缺失的情况。</strong>
                 <code>{"{}"}</code> 这种 body 会让
                 <code>statusUpdate.get(&quot;status&quot;)</code> 返回 null，
-                <code>null.trim()</code> 直接 NPE → 500。
-                同样应该是 400。
+                <code>null.trim()</code> 直接 NPE → 500。同样应该是 400。
               </p>
               <p>
                 <strong>这两条测试都没查。</strong>
-                测试只发了合法的 <code>SHIPPED</code>。
-                但它们是明显的正确性问题 —— 人工 review 会看。
+                测试只发了合法的 <code>SHIPPED</code>。但它们是明显的正确性问题 —— 人工 review 会看。
               </p>
             </>
           ),
@@ -2026,8 +1973,7 @@ public ResponseEntity<Order> updateOrderStatus(
                 需要新增的 import：<code>OrderStatus</code>、
                 <code>Logger</code> / <code>LoggerFactory</code>、
                 <code>MDC</code>、<code>HttpStatus</code>、
-                <code>ResponseStatusException</code>。
-                starter 里没有它们。
+                <code>ResponseStatusException</code>。starter 里没有它们。
               </p>
             </>
           ),
@@ -2097,43 +2043,34 @@ INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correl
             <>
               <p>
                 <code>@WebMvcTest(OrderController.class)</code> 的意思是
-                <strong>「只启动 Web 层，只加载这一个控制器」</strong>。
-                不会启动完整的 Spring 应用、不会加载 service 和 repository。
+                <strong>「只启动 Web 层，只加载这一个控制器」</strong>。不会启动完整的 Spring 应用、不会加载 service 和 repository。
               </p>
               <p>
                 <code>@MockBean OrderService</code> 用一个
-                <strong>假的</strong> OrderService 替换真的。
-                所以 <code>when(orderService.getAllOrders()).thenReturn(List.of())</code>
+                <strong>假的</strong> OrderService 替换真的。所以 <code>when(orderService.getAllOrders()).thenReturn(List.of())</code>
                 这一行是在说「如果被调用了，就返回空列表」。
               </p>
               <p>
                 <strong>这意味着测试完全不验证业务逻辑</strong>——
-                它只验证<strong>「路由对不对、状态码对不对」</strong>。
-                所以：
+                它只验证<strong>「路由对不对、状态码对不对」</strong>。所以：
               </p>
               <ul>
                 <li>
                   ✅ 能抓住：路径写错、HTTP 方法写错、状态码写错。
                 </li>
                 <li>
-                  ❌ 抓不到：调错了 service 方法
-                  （比如 <code>{"GET /api/orders/user/{userId}"}</code> 里调了
-                  <code>getAllOrders()</code> —— 两者都返回 <code>List&lt;Order&gt;</code>，
-                  能编译，而这个端点根本没有测试）、
-                  可选过滤没实现、PATCH 的非法值没挡、日志没打。
+                  ❌ 抓不到：调错了 service 方法（比如 <code>{"GET /api/orders/user/{userId}"}</code> 里调了
+                  <code>getAllOrders()</code> —— 两者都返回 <code>List&lt;Order&gt;</code>，能编译，而这个端点根本没有测试）、可选过滤没实现、PATCH 的非法值没挡、日志没打。
                 </li>
               </ul>
               <p>
                 <code>MockMvc</code> 是「不起真实服务器的 HTTP 客户端」——
-                它直接把请求喂给 Spring 的 DispatcherServlet，
-                所以跑得很快（整个测试 2 秒）。
+                它直接把请求喂给 Spring 的 DispatcherServlet，所以跑得很快（整个测试 2 秒）。
               </p>
               <p>
                 注意 <code>shouldUpdateOrderStatus</code> 那条：
                 <code>when(orderService.updateOrderStatus(1L, OrderStatus.SHIPPED))</code>
-                <strong>指定了确切的枚举值</strong>，但测试并不检查这个调用是否真的发生。
-                如果转换得出了别的值（比如写死成 <code>OrderStatus.PENDING</code>），
-                mock 不匹配，返回 <code>null</code>，<code>ResponseEntity.ok(null)</code>
+                <strong>指定了确切的枚举值</strong>，但测试并不检查这个调用是否真的发生。如果转换得出了别的值（比如写死成 <code>OrderStatus.PENDING</code>），mock 不匹配，返回 <code>null</code>，<code>ResponseEntity.ok(null)</code>
                 依然是 200 → <strong>测试还是过</strong>。
                 <strong>又一个抓不到的地方。</strong>
                 至于漏写 <code>toUpperCase</code>：测试发的本来就是大写的
@@ -2228,8 +2165,7 @@ INFO c.t.orders.controller.OrderController : POST /api/orders userId=123, correl
                 <code>mvn spring-boot:run</code> 起服务，然后用 curl：
               </p>
               <p>
-                <strong>第 4 条和第 5 条测试完全没覆盖</strong>，
-                但它们是这个端点该有的行为。
+                <strong>第 4 条和第 5 条测试完全没覆盖</strong>，但它们是这个端点该有的行为。
               </p>
             </>
           ),
@@ -2328,8 +2264,7 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
           level: 1,
           prompt: (
             <p>
-              <code>POST /api/orders</code> 成功创建了一个订单。
-              该返回哪个状态码，怎么写？
+              <code>POST /api/orders</code> 成功创建了一个订单。该返回哪个状态码，怎么写？
             </p>
           ),
           promptEn: (
@@ -2347,14 +2282,12 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
           answer: ["b"],
           explain: (
             <>
-              <strong>201 Created</strong> 是「创建成功」的标准状态码。
-              测试直接断言 <code>status().isCreated()</code>。
+              <strong>201 Created</strong> 是「创建成功」的标准状态码。测试直接断言 <code>status().isCreated()</code>。
               <br />
               A 是最常见的错法 —— <code>ResponseEntity.ok()</code>
               用惯了，手会自动打出来。<strong>这条测试就是专门抓它的。</strong>
               <br />
-              C 是 DELETE 用的；D（202 Accepted）表示「已收到，稍后处理」，
-              用于异步场景。
+              C 是 DELETE 用的；D（202 Accepted）表示「已收到，稍后处理」，用于异步场景。
             </>
           ),
           explainEn: (
@@ -2380,8 +2313,7 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
           level: 1,
           prompt: (
             <p>
-              baseline 状态下六个端点全是 <code>return null</code>，
-              五个测试却通过了三个。为什么？
+              baseline 状态下六个端点全是 <code>return null</code>，五个测试却通过了三个。为什么？
             </p>
           ),
           promptEn: (
@@ -2399,15 +2331,12 @@ curl -i -s -H 'X-Correlation-ID: my-trace-1' localhost:8080/api/orders`,
           answer: ["b"],
           explain: (
             <>
-              控制器方法返回 <code>null</code> 时，Spring 认为
-              「响应已经被你自己处理了」，于是给出
+              控制器方法返回 <code>null</code> 时，Spring 认为「响应已经被你自己处理了」，于是给出
               <strong>200 OK + 空 body</strong>。
               <br />
-              三条断言 <code>isOk()</code> 的测试恰好符合。
-              只有断言 201 和 204 的那两条抓住了错。
+              三条断言 <code>isOk()</code> 的测试恰好符合。只有断言 201 和 204 的那两条抓住了错。
               <br />
-              <strong>这是整门考试「测试通过 ≠ 做对了」最夸张的实例：
-              三个端点完全没实现，它们的测试却是绿的。</strong>
+              <strong>这是整门考试「测试通过 ≠ 做对了」最夸张的实例：三个端点完全没实现，它们的测试却是绿的。</strong>
             </>
           ),
           explainEn: (
@@ -2518,9 +2447,7 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   <br />
                   注意这里<strong>不需要</strong>处理找不到的情况：
                   <code>orderService.getOrderById</code> 会抛
-                  <code>EntityNotFoundException</code>，
-                  由 <code>GlobalExceptionHandler</code> 转成 404。
-                  自己 try/catch 反而会破坏它。
+                  <code>EntityNotFoundException</code>，由 <code>GlobalExceptionHandler</code> 转成 404。自己 try/catch 反而会破坏它。
                 </>
               ),
               whyEn: (
@@ -2547,8 +2474,7 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   <code>CREATED</code> —— 201。
                   <br />
                   <strong>这是本题两个被测试抓住的错之一。</strong>
-                  baseline 里 <code>return null</code> 给出 200，
-                  测试报
+                  baseline 里 <code>return null</code> 给出 200，测试报
                   <code>Status expected:&lt;201&gt; but was:&lt;200&gt;</code>。
                 </>
               ),
@@ -2574,13 +2500,10 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                 "A required field is missing from the request body. Whose fault is that?",
               why: (
                 <>
-                  <code>BAD_REQUEST</code> —— 400。客户端没给 status，
-                  是请求本身的问题。
+                  <code>BAD_REQUEST</code> —— 400。客户端没给 status，是请求本身的问题。
                   <br />
                   <strong>不写这个判断会怎样？</strong>
-                  <code>null.trim()</code> 抛 NPE，
-                  全局处理器没处理 NPE → <strong>500</strong>。
-                  把客户端的错报成服务器的错。
+                  <code>null.trim()</code> 抛 NPE，全局处理器没处理 NPE → <strong>500</strong>。把客户端的错报成服务器的错。
                   <br />
                   测试没查这个，但它是明显的正确性问题。
                 </>
@@ -2609,10 +2532,8 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                 "The static method a Java enum provides for turning a string into an enum value.",
               why: (
                 <>
-                  <code>valueOf</code>。<strong>它大小写敏感</strong>，
-                  所以前面要 <code>toUpperCase()</code>；
-                  <strong>非法值会抛 IllegalArgumentException</strong>，
-                  所以真实答案里还包了一层 try/catch 转成 400。
+                  <code>valueOf</code>。<strong>它大小写敏感</strong>，所以前面要 <code>toUpperCase()</code>；
+                  <strong>非法值会抛 IllegalArgumentException</strong>，所以真实答案里还包了一层 try/catch 转成 400。
                   <br />
                   这一处是全题唯一该写 try/catch 的地方 ——
                   因为要把一种异常转成<strong>不同的</strong>状态码。
@@ -2649,8 +2570,7 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
                   <br />
                   <strong>这是本题第二个被测试抓住的错。</strong>
                   测试报
-                  <code>Status expected:&lt;204&gt; but was:&lt;200&gt;</code>。
-                  注意后面还要 <code>.build()</code> ——
+                  <code>Status expected:&lt;204&gt; but was:&lt;200&gt;</code>。注意后面还要 <code>.build()</code> ——
                   <code>noContent()</code> 返回的是 builder。
                 </>
               ),
@@ -2682,8 +2602,7 @@ public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
           level: 3,
           prompt: (
             <p>
-              六个端点一起写。业务逻辑全部调 <code>orderService</code>，
-              你负责选对状态码、处理可选参数、转 enum、打日志。
+              六个端点一起写。业务逻辑全部调 <code>orderService</code>，你负责选对状态码、处理可选参数、转 enum、打日志。
             </p>
           ),
           promptEn: (
@@ -2878,8 +2797,7 @@ private String correlationId() { return MDC.get("correlationId"); }`,
           level: 3,
           prompt: (
             <p>
-              五个测试全过。但手动 curl 一个不存在的 id，
-              得到 200 和一个空 body。期望是 404 加一段 JSON。
+              五个测试全过。但手动 curl 一个不存在的 id，得到 200 和一个空 body。期望是 404 加一段 JSON。
             </p>
           ),
           promptEn: (
@@ -2993,25 +2911,17 @@ public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
               </p>
               <p>
                 <strong>选项 B 为什么也不够好？</strong>
-                <code>ResponseEntity.notFound().build()</code> 状态码是对的（404），
-                但<strong>响应体丢了</strong>。
-                全局处理器返回的是
-                <code>{"{ timestamp, status, message }"}</code>，
-                客户端靠 message 定位问题。而且这等于重复实现了已有的能力 ——
+                <code>ResponseEntity.notFound().build()</code> 状态码是对的（404），但<strong>响应体丢了</strong>。全局处理器返回的是
+                <code>{"{ timestamp, status, message }"}</code>，客户端靠 message 定位问题。而且这等于重复实现了已有的能力 ——
                 以后 404 的格式要改，就得改两处。
               </p>
               <p>
-                <strong>通用原则：项目里有全局异常处理器时，
-                控制器不要 try/catch</strong>，
-                除非你要把某个异常转成<strong>不同的</strong>状态码
-                （比如 PATCH 里把 <code>IllegalArgumentException</code>
+                <strong>通用原则：项目里有全局异常处理器时，控制器不要 try/catch</strong>，除非你要把某个异常转成<strong>不同的</strong>状态码（比如 PATCH 里把 <code>IllegalArgumentException</code>
                 转成 400）。
               </p>
               <p>
                 <strong>注意这个 bug 测试完全抓不到</strong>——
-                测试里 <code>orderService</code> 是 mock 的，
-                永远不会抛 <code>EntityNotFoundException</code>。
-                只有手动 curl 才能发现。
+                测试里 <code>orderService</code> 是 mock 的，永远不会抛 <code>EntityNotFoundException</code>。只有手动 curl 才能发现。
               </p>
             </>
           ),
@@ -3074,12 +2984,10 @@ return ResponseEntity.ok(orderService.createOrder(request));`,
           ),
           why: (
             <>
-              创建资源应该返回 <strong>201 Created</strong>。
-              这是被测试抓住的两个错之一：
+              创建资源应该返回 <strong>201 Created</strong>。这是被测试抓住的两个错之一：
               <code>Status expected:&lt;201&gt; but was:&lt;200&gt;</code>。
               <br />
-              <code>ResponseEntity.ok()</code> 是肌肉记忆，
-              写 REST 时要专门停一下问「这是创建吗？」
+              <code>ResponseEntity.ok()</code> 是肌肉记忆，写 REST 时要专门停一下问「这是创建吗？」
             </>
           ),
           whyEn: (
@@ -3149,8 +3057,7 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
               <code>IllegalArgumentException</code> → 500。
               <br />
               两种都该是 <strong>400</strong>。
-              <strong>测试查不到</strong>（它只发合法的 SHIPPED），
-              但这是明显的正确性问题。
+              <strong>测试查不到</strong>（它只发合法的 SHIPPED），但这是明显的正确性问题。
             </>
           ),
           whyEn: (
@@ -3190,12 +3097,9 @@ public ResponseEntity<List<Order>> getAllOrders(
           ),
           why: (
             <>
-              签名里有这个参数<strong>就是在要求你用它</strong>。
-              TODO 原文还写了 <em>request validation</em>。
+              签名里有这个参数<strong>就是在要求你用它</strong>。TODO 原文还写了 <em>request validation</em>。
               <br />
-              测试的 <code>get(&quot;/api/orders&quot;)</code> 不带参数，
-              所以<strong>抓不到</strong>。
-              但人工 review 会看到「收了一个参数却没用」。
+              测试的 <code>get(&quot;/api/orders&quot;)</code> 不带参数，所以<strong>抓不到</strong>。但人工 review 会看到「收了一个参数却没用」。
             </>
           ),
           whyEn: (
@@ -3296,8 +3200,7 @@ export const fedWritten: Module = {
           body: (
             <>
               <p>
-                书面题的评分点通常是<strong>「有没有覆盖到关键面」</strong>，
-                而不是文采。所以用固定结构写，最不容易漏：
+                书面题的评分点通常是<strong>「有没有覆盖到关键面」</strong>，而不是文采。所以用固定结构写，最不容易漏：
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -3331,8 +3234,7 @@ export const fedWritten: Module = {
                 </table>
               </div>
               <p>
-                最后那一段是关键。<strong>只说方案的人像是背过；
-                能说出代价的人像是用过。</strong>
+                最后那一段是关键。<strong>只说方案的人像是背过；能说出代价的人像是用过。</strong>
               </p>
             </>
           ),
@@ -3405,8 +3307,7 @@ export const fedWritten: Module = {
                 <strong>② 给一种缓存策略</strong>缓解性能问题。
               </p>
               <p>
-                注意题面用的词是 <em>dependent subgraphs</em>。
-                这里有个需要说清的细节：
+                注意题面用的词是 <em>dependent subgraphs</em>。这里有个需要说清的细节：
                 <strong>subgraph 之间通常并不直接互相调用</strong>——
                 它们都由 Router 编排。所以「影响」的准确传导路径是：
               </p>
@@ -3502,9 +3403,7 @@ Every query slows down, even the ones that never touch User`,
               <p>
                 下面这份按「结论 → 机制 → 方案 → 代价」写。
                 <strong>标为 DrillLab 自出</strong>——
-                原项目的 <code>QUESTIONS.md</code> 里答案区是空的
-                （<code>[Write answer here]</code>），
-                没有官方答案可对照。
+                原项目的 <code>QUESTIONS.md</code> 里答案区是空的（<code>[Write answer here]</code>），没有官方答案可对照。
               </p>
             </>
           ),
@@ -3638,9 +3537,7 @@ Router entity caching, with Redis behind it):
             <>
               <p>
                 题目给了一段部署到 AWS EKS 的
-                <code>application.properties</code>，
-                要求指出<strong>至少三个</strong>生产/安全问题，
-                每个都说明风险并给出修正配置与理由。
+                <code>application.properties</code>，要求指出<strong>至少三个</strong>生产/安全问题，每个都说明风险并给出修正配置与理由。
               </p>
               <p>
                 <strong>注意题面给的片段和项目里真实的文件不一样。</strong>
@@ -3725,20 +3622,16 @@ management.endpoints.web.exposure.include=*`,
             <>
               <ol>
                 <li>
-                  <strong>暴露面。</strong>哪些端点被公开了？
-                  actuator 全开是最典型的问题。
+                  <strong>暴露面。</strong>哪些端点被公开了？actuator 全开是最典型的问题。
                 </li>
                 <li>
-                  <strong>凭据管理。</strong>口令从哪来？
-                  环境变量算及格，但不算好。
+                  <strong>凭据管理。</strong>口令从哪来？环境变量算及格，但不算好。
                 </li>
                 <li>
-                  <strong>传输安全。</strong>有 TLS 吗？
-                  数据库连接加密了吗？
+                  <strong>传输安全。</strong>有 TLS 吗？数据库连接加密了吗？
                 </li>
                 <li>
-                  <strong>资源与韧性。</strong>连接池、超时、重试、
-                  优雅停机 —— 一个都没配。
+                  <strong>资源与韧性。</strong>连接池、超时、重试、优雅停机 —— 一个都没配。
                 </li>
                 <li>
                   <strong>可观测性。</strong>健康检查分不分
@@ -3746,14 +3639,12 @@ management.endpoints.web.exposure.include=*`,
                 </li>
                 <li>
                   <strong>配置管理本身。</strong>
-                  所有环境共用一个 properties 文件？
-                  没有 profile 隔离？
+                  所有环境共用一个 properties 文件？没有 profile 隔离？
                 </li>
               </ol>
               <p>
                 <strong>题目只要三个，但列五六个更好</strong>——
-                只要每个都写清「风险 → 修正 → 理由」，
-                不会因为写多而扣分。
+                只要每个都写清「风险 → 修正 → 理由」，不会因为写多而扣分。
               </p>
             </>
           ),
@@ -3803,8 +3694,7 @@ management.endpoints.web.exposure.include=*`,
           body: (
             <>
               <p>
-                同样按结构写，每个问题一小节。
-                下面列了六个，前三个是最该写的。
+                同样按结构写，每个问题一小节。下面列了六个，前三个是最该写的。
               </p>
             </>
           ),
@@ -4068,25 +3958,21 @@ Secret and never enters the image. Add a prod-profile config check step in CI.
                 </li>
                 <li>
                   <strong>按严重性排序。</strong>
-                  把 actuator 全开放在第一个 —— 它是唯一能直接
-                  导致口令泄漏的。评分的人可能只认真看前两条。
+                  把 actuator 全开放在第一个 —— 它是唯一能直接导致口令泄漏的。评分的人可能只认真看前两条。
                 </li>
                 <li>
                   <strong>承认某些「问题」其实是合理设计。</strong>
                   <code>server.address=0.0.0.0</code> 在容器里
-                  <strong>是必须的</strong>（不然 Pod 外面连不上）。
-                  把它当成安全问题反而暴露了对容器网络的不理解。
+                  <strong>是必须的</strong>（不然 Pod 外面连不上）。把它当成安全问题反而暴露了对容器网络的不理解。
                   <strong>能指出「这一条不是问题」是加分的。</strong>
                 </li>
                 <li>
                   <strong>每条都写「理由」。</strong>
-                  题目原文明确要求 <em>with justification</em>。
-                  只给配置不给理由会丢分。
+                  题目原文明确要求 <em>with justification</em>。只给配置不给理由会丢分。
                 </li>
                 <li>
                   <strong>别写空话。</strong>
-                  「要遵循最佳实践」「要加强安全意识」这类句子零分，
-                  而且会稀释真正有内容的部分。
+                  「要遵循最佳实践」「要加强安全意识」这类句子零分，而且会稀释真正有内容的部分。
                 </li>
               </ul>
             </>
@@ -4180,9 +4066,7 @@ management.endpoints.web.exposure.include=*`,
               <code>management.endpoint.env.show-values</code> 改成
               <code>always</code>，口令就明文可见）。
               <br />
-              B 用占位符<strong>本身是对的</strong>（比硬编码好），
-              问题在于「谁来设这个变量」，属于凭据管理层面的问题，
-              不是这一行本身。
+              B 用占位符<strong>本身是对的</strong>（比硬编码好），问题在于「谁来设这个变量」，属于凭据管理层面的问题，不是这一行本身。
               <br />
               <strong>A 在容器里是必须的</strong>——
               不绑 0.0.0.0，Pod 外面根本连不上。
@@ -4222,9 +4106,7 @@ management.endpoints.web.exposure.include=*`,
           prompt: (
             <p>
               客户端查{" "}
-              <code>{"{ user(id:\"1\") { name orders { id } } }"}</code>。
-              Accounts subgraph 要 500ms，Orders subgraph 只要 10ms。
-              总延迟大约是多少，为什么？
+              <code>{"{ user(id:\"1\") { name orders { id } } }"}</code>。Accounts subgraph 要 500ms，Orders subgraph 只要 10ms。总延迟大约是多少，为什么？
             </p>
           ),
           promptEn: (
@@ -4244,14 +4126,11 @@ management.endpoints.web.exposure.include=*`,
           answer: ["b"],
           explain: (
             <>
-              Router 的查询计划里，这两步<strong>有依赖关系</strong>：
-              要向 Orders 发
-              <code>_entities(representations: [{'{ __typename: "User", id }'}])</code>，
-              必须先从 Accounts 拿到那个 <code>id</code>。
+              Router 的查询计划里，这两步<strong>有依赖关系</strong>：要向 Orders 发
+              <code>_entities(representations: [{'{ __typename: "User", id }'}])</code>，必须先从 Accounts 拿到那个 <code>id</code>。
               <strong>所以不能并行。</strong>
               <br />
-              A 的情况只在「两个 subgraph 的字段互不依赖」时成立
-              （比如同时查 <code>user</code> 和 <code>topProducts</code>）。
+              A 的情况只在「两个 subgraph 的字段互不依赖」时成立（比如同时查 <code>user</code> 和 <code>topProducts</code>）。
               <br />
               这个「串行依赖」就是第 1 题要你解释的核心机制。
             </>
@@ -4281,9 +4160,7 @@ management.endpoints.web.exposure.include=*`,
           level: 3,
           prompt: (
             <p>
-              针对 <code>management.endpoints.web.exposure.include=*</code>，
-              写出修正后的配置。至少要做到：白名单、管理端口分离、
-              health 不泄漏细节、支持 k8s 探针。
+              针对 <code>management.endpoints.web.exposure.include=*</code>，写出修正后的配置。至少要做到：白名单、管理端口分离、health 不泄漏细节、支持 k8s 探针。
             </p>
           ),
           promptEn: (

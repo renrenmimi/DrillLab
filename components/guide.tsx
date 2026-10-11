@@ -47,8 +47,7 @@ export function Guide() {
             zh={
               <>
                 <strong>不想读整页也行。</strong>顶栏那四项就是这个站的四种用法 ——
-                学课程 / 背知识点 / 做练习 / 模拟考试。挑一个点进去，左边那栏
-                会告诉你在这件事里你在哪、下一步是什么。
+                学课程 / 背知识点 / 做练习 / 模拟考试。挑一个点进去，左边那栏会告诉你在这件事里你在哪、下一步是什么。
               </>
             }
             en={
@@ -71,11 +70,9 @@ export function Guide() {
             <T
               zh={
                 <>
-                  材料一共这么多：{NAV.length} 门课、{totalLessons} 节课文
-                  （约 {Math.round(totalMinutes / 60)} 小时）、{totalExercises} 个课内练习、
+                  材料一共这么多：{NAV.length} 门课、{totalLessons} 节课文（约 {Math.round(totalMinutes / 60)} 小时）、{totalExercises} 个课内练习、
                   {DRILLS.length} 道面试问答、{CODING.length} 道 coding 题、
-                  {ARENA.length} 道计时考场题。它们按「你想做哪一类事」分成四项，
-                  就是顶栏那四个：
+                  {ARENA.length} 道计时考场题。它们按「你想做哪一类事」分成四项，就是顶栏那四个：
                 </>
               }
               en={
@@ -121,9 +118,7 @@ export function Guide() {
             <T
               zh={
                 <>
-                  「做练习」里还有两档（课内练习 / 整套 Coding 题），
-                  「模拟考试」里还有两种（从零重写 / 模拟考）。
-                  区分它们的不是题型，还是<strong>给你多少东西</strong>：
+                  「做练习」里还有两档（课内练习 / 整套 Coding 题），「模拟考试」里还有两种（从零重写 / 模拟考）。区分它们的不是题型，还是<strong>给你多少东西</strong>：
                 </>
               }
               en={
@@ -172,8 +167,7 @@ export function Guide() {
               <T
                 zh={
                   <>
-                    <Link href="/drill">{DRILLS.length} 道问答</Link>用嘴答，答完自评
-                    「会 / 模糊 / 不会」—— 自评结果直接决定
+                    <Link href="/drill">{DRILLS.length} 道问答</Link>用嘴答，答完自评「会 / 模糊 / 不会」—— 自评结果直接决定
                     <Link href="/drill/session">抽认卡</Link>下一轮先抽谁。
                   </>
                 }
@@ -214,8 +208,7 @@ export function Guide() {
               <T
                 zh={
                   <>
-                    <Link href="/arena">{ARENA.length} 道</Link>：空文件夹、计时、
-                    没有提示按钮、答案锁到交卷。
+                    <Link href="/arena">{ARENA.length} 道</Link>：空文件夹、计时、没有提示按钮、答案锁到交卷。
                     <strong>这一档才是真实考试的样子</strong> ——
                     前三档跑绿了不代表空手能做出来。
                   </>
@@ -234,9 +227,7 @@ export function Guide() {
             <T
               zh={
                 <>
-                  首页那四块会跟着你的进度变 —— 还没到时候的会写着「课程走完一门再来刷」，
-                  到了就变成「可以开始了」。<strong>但四个入口一直都能点</strong>，
-                  有基础的人第一天就想去考场，不该被挡。
+                  首页那四块会跟着你的进度变 —— 还没到时候的会写着「课程走完一门再来刷」，到了就变成「可以开始了」。<strong>但四个入口一直都能点</strong>，有基础的人第一天就想去考场，不该被挡。
                 </>
               }
               en={
@@ -277,8 +268,7 @@ export function Guide() {
                     <T
                       zh={
                         <>
-                          <Link href="/drill/session">抽认卡</Link>。只出问题，
-                          心里答完再翻面。手机上就能刷。
+                          <Link href="/drill/session">抽认卡</Link>。只出问题，心里答完再翻面。手机上就能刷。
                         </>
                       }
                       en={
@@ -309,9 +299,7 @@ export function Guide() {
                     <T
                       zh={
                         <>
-                          一道 <Link href="/code">coding 题</Link>写到全绿，
-                          或者一道<Link href="/arena">考场题</Link>。
-                          考场题别切成两半做 —— 中断一次，计时就没意义了。
+                          一道 <Link href="/code">coding 题</Link>写到全绿，或者一道<Link href="/arena">考场题</Link>。考场题别切成两半做 —— 中断一次，计时就没意义了。
                         </>
                       }
                       en={
@@ -331,8 +319,7 @@ export function Guide() {
             <T
               zh={
                 <>
-                  <strong>进度存在这台机器的浏览器里</strong>（localStorage），
-                  不需要登录，也不会同步到别的设备。换电脑要从头记。
+                  <strong>进度存在这台机器的浏览器里</strong>（localStorage），不需要登录，也不会同步到别的设备。换电脑要从头记。
                 </>
               }
               en={
@@ -354,8 +341,7 @@ export function Guide() {
             <T
               zh={
                 <>
-                  这一周<strong>不要再读新课文</strong>。新知识这时候进不去，
-                  而且会挤掉你本来能拿到的分。按这个顺序：
+                  这一周<strong>不要再读新课文</strong>。新知识这时候进不去，而且会挤掉你本来能拿到的分。按这个顺序：
                 </>
               }
               en={
@@ -388,8 +374,7 @@ export function Guide() {
               <T
                 zh={
                   <>
-                    <strong>缺口回填。</strong>卡在哪一步，就回去看那道题
-                    「展开讲解」引用的那一节 —— 是同一份内容，不是另写的摘要。
+                    <strong>缺口回填。</strong>卡在哪一步，就回去看那道题「展开讲解」引用的那一节 —— 是同一份内容，不是另写的摘要。
                   </>
                 }
                 en={
@@ -405,8 +390,7 @@ export function Guide() {
                 zh={
                   <>
                     <strong>抽认卡只抽「模糊 + 不会」。</strong>
-                    <Link href="/drill/session">抽认卡</Link>的范围选择里有这一档，
-                    考前一晚就抽这一堆。
+                    <Link href="/drill/session">抽认卡</Link>的范围选择里有这一档，考前一晚就抽这一堆。
                   </>
                 }
                 en={
@@ -449,8 +433,7 @@ export function Guide() {
                 zh={
                   <>
                     <strong>练习的「检查」不是跑代码</strong> ——
-                    它是正则匹配（去掉注释后再匹配），能判「你有没有用 filter 而不是 push」，
-                    判不了「你写的到底跑不跑得通」。
+                    它是正则匹配（去掉注释后再匹配），能判「你有没有用 filter 而不是 push」，判不了「你写的到底跑不跑得通」。
                     <strong>真跑测试的只有 <Link href="/code">/code</Link> 里那 {sandboxCount} 道。</strong>
                   </>
                 }
@@ -472,8 +455,7 @@ export function Guide() {
                 zh={
                   <>
                     <strong>考场和模拟考故意不给运行环境。</strong>
-                    不是做不到 —— 是给了就把最高那一档删掉了。自己搭环境本身就是考点，
-                    所以那两个页面把命令、文件树、该看到什么输出都写死了。
+                    不是做不到 —— 是给了就把最高那一档删掉了。自己搭环境本身就是考点，所以那两个页面把命令、文件树、该看到什么输出都写死了。
                   </>
                 }
                 en={
@@ -490,8 +472,7 @@ export function Guide() {
               <T
                 zh={
                   <>
-                    <strong>沙箱需要联网</strong>（打包器在 CodeSandbox 的远程服务上）。
-                    断网时页面会退回「本机跑」卡片，命令照样给全。
+                    <strong>沙箱需要联网</strong>（打包器在 CodeSandbox 的远程服务上）。断网时页面会退回「本机跑」卡片，命令照样给全。
                   </>
                 }
                 en={
@@ -508,8 +489,7 @@ export function Guide() {
                 zh={
                   <>
                     <strong>界面是双语的，内容大部分只有中文。</strong>
-                    {totalExercises} 个练习的题面和提示、讲解段的标题都还是中文；
-                    英文完整的是八股答案（面试官念的是英文）和每段讲解的正文。
+                    {totalExercises} 个练习的题面和提示、讲解段的标题都还是中文；英文完整的是八股答案（面试官念的是英文）和每段讲解的正文。
                   </>
                 }
                 en={

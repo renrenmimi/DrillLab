@@ -427,8 +427,7 @@ export const ivHand: Module = {
             <>
               <p>
                 <strong>一句话：</strong>debounce 的语义是<strong>「等你停手」</strong>
-                —— 连续调用只在最后一次之后 delay 毫秒执行一次。
-                典型场景：搜索框输入（停止输入才发请求）、窗口 resize 结束后重排。
+                —— 连续调用只在最后一次之后 delay 毫秒执行一次。典型场景：搜索框输入（停止输入才发请求）、窗口 resize 结束后重排。
               </p>
               <p>
                 实现只有三个关键决定：
@@ -449,8 +448,7 @@ export const ivHand: Module = {
               </ul>
               <p>
                 <strong>会追问：</strong>「加一个 leading 选项怎么改？」——
-                进来时 timer 为空且 leading 为真，先立刻执行一次，
-                再设一个只负责「解锁」的 timer。追问的追问：「cancel 和
+                进来时 timer 为空且 leading 为真，先立刻执行一次，再设一个只负责「解锁」的 timer。追问的追问：「cancel 和
                 flush 有什么区别」—— cancel 丢弃挂着的调用，flush 立刻执行它。
               </p>
             </>
@@ -509,26 +507,20 @@ export const ivHand: Module = {
             <>
               <p>
                 <strong>一句话：</strong>throttle 的语义是<strong>「匀速放行」</strong>
-                —— 调用再密，每 interval 毫秒最多执行一次。典型场景：滚动位置上报、
-                拖拽跟随、按住按钮连点。
+                —— 调用再密，每 interval 毫秒最多执行一次。典型场景：滚动位置上报、拖拽跟随、按住按钮连点。
               </p>
               <p>
-                标准版是 <strong>leading + trailing</strong>：窗口开头立刻执行一次
-                （用户第一下操作马上有反馈），窗口里被压掉的调用，
-                在窗口结束时用<strong>最后一次的参数</strong>补执行一枪
-                （不丢最终状态）。所以要存两样东西：上次执行的时间戳
+                标准版是 <strong>leading + trailing</strong>：窗口开头立刻执行一次（用户第一下操作马上有反馈），窗口里被压掉的调用，在窗口结束时用<strong>最后一次的参数</strong>补执行一枪（不丢最终状态）。所以要存两样东西：上次执行的时间戳
                 <code>lastTime</code>，和窗口内最后一次的参数 <code>lastArgs</code>。
               </p>
               <p>
                 <strong>和 debounce 的分界可以用一句话说清：</strong>
                 debounce 在连续事件流里<strong>可能永远不执行</strong>
-                （只要不停手）；throttle <strong>保证按节奏执行</strong>。
-                滚动进度条用 debounce 会直到停下才动 —— 那就是选错了。
+                （只要不停手）；throttle <strong>保证按节奏执行</strong>。滚动进度条用 debounce 会直到停下才动 —— 那就是选错了。
               </p>
               <p>
                 <strong>会追问：</strong>「用 setTimeout 一个变量能不能写？」——
-                能写 leading-only 或 trailing-only 的简版；两头都要就得
-                时间戳 + timer 双状态。「CSS 里有类似的东西吗」——
+                能写 leading-only 或 trailing-only 的简版；两头都要就得时间戳 + timer 双状态。「CSS 里有类似的东西吗」——
                 没有直接等价物，但 <code>scroll</code> 事件配
                 <code>IntersectionObserver</code> 常常能把节流的需求整个消掉。
               </p>
@@ -616,8 +608,7 @@ export const ivHand: Module = {
           titleEn: "Write debounce by hand (with cancel)",
           prompt: (
             <>
-              把「每次都立刻调用」的半成品改成真正的 debounce：
-              连续调用只在停手 delay 毫秒后执行最后一次，
+              把「每次都立刻调用」的半成品改成真正的 debounce：连续调用只在停手 delay 毫秒后执行最后一次，
               <code>cancel()</code> 能取消挂着的那次。
             </>
           ),
@@ -700,8 +691,7 @@ export const ivHand: Module = {
           titleEn: "Write throttle by hand (leading + trailing)",
           prompt: (
             <>
-              把「直接透传」的半成品改成真正的 throttle：窗口开头立刻执行，
-              窗口内压住，窗口结束时用最后一次的参数再执行一次。
+              把「直接透传」的半成品改成真正的 throttle：窗口开头立刻执行，窗口内压住，窗口结束时用最后一次的参数再执行一次。
             </>
           ),
           promptEn: (
@@ -899,16 +889,14 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
             <>
               <p>
                 <strong>一句话：</strong>按类型分支递归克隆；每造出一个新容器，
-                <strong>立刻</strong>在 <code>WeakMap</code> 里登记
-                「原对象 → 它的克隆」，循环引用一进来就直接还登记过的克隆 ——
+                <strong>立刻</strong>在 <code>WeakMap</code> 里登记「原对象 → 它的克隆」，循环引用一进来就直接还登记过的克隆 ——
                 这就是不爆栈的全部原理。
               </p>
               <p>
                 分支顺序：原始值和 <code>null</code> 原样返回 →
                 查 <code>seen</code> → <code>Date</code> → <code>Map</code> /
                 <code>Set</code> → 数组 → 普通对象。
-                <strong>「先登记再递归子节点」的次序不能反</strong>：
-                反了，<code>a.self = a</code> 这种结构会在登记之前就递归回自己。
+                <strong>「先登记再递归子节点」的次序不能反</strong>：反了，<code>a.self = a</code> 这种结构会在登记之前就递归回自己。
               </p>
               <p>
                 <strong>会追问（必问）：</strong>「为什么不用
@@ -971,21 +959,17 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           body: (
             <>
               <p>
-                <strong>一句话：</strong>遍历数组，遇到「是数组且 depth &gt; 0」
-                就递归展开（depth 减一），否则原样收进结果 ——
+                <strong>一句话：</strong>遍历数组，遇到「是数组且 depth &gt; 0」就递归展开（depth 减一），否则原样收进结果 ——
                 <code>depth</code> 本身就是递归的出口。
               </p>
               <p>
-                两个语义细节要和原生 <code>Array.prototype.flat</code> 对齐，
-                面试官就在这两处等你：<strong>默认 depth 是 1</strong>（不是
+                两个语义细节要和原生 <code>Array.prototype.flat</code> 对齐，面试官就在这两处等你：<strong>默认 depth 是 1</strong>（不是
                 Infinity），<strong>depth 0 返回浅拷贝</strong>（不是原数组的引用
                 —— 不改输入是底线）。
               </p>
               <p>
                 <strong>会追问：</strong>「不用递归写一遍」—— 用栈：
-                <code>{"[...arr.map(v => [v, depth])]"}</code> 形式的工作栈，
-                弹出时是数组且层数没用完就把子项带着层数压回去。
-                递归版清晰、迭代版不吃调用栈，说得出取舍就够了。
+                <code>{"[...arr.map(v => [v, depth])]"}</code> 形式的工作栈，弹出时是数组且层数没用完就把子项带着层数压回去。递归版清晰、迭代版不吃调用栈，说得出取舍就够了。
               </p>
             </>
           ),
@@ -1032,14 +1016,12 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
                 <code>add1(2, 3)</code> 和 <code>add1(10, 20)</code>
                 必须都从 <code>[1]</code> 出发。push 版第一次调用后共享数组变成
                 <code>[1, 2, 3]</code>，第二次 <code>add1(10, 20)</code>
-                实际拿到五个参数 —— <strong>部分应用被污染了</strong>。
-                测试里专门有一条抓这个。
+                实际拿到五个参数 —— <strong>部分应用被污染了</strong>。测试里专门有一条抓这个。
               </p>
               <p>
                 <strong>会追问：</strong>「<code>fn.length</code> 有什么陷阱？」——
                 它数不到默认参数和 rest 参数（<code>{"(a, b = 1) => {}"}</code> 的
-                length 是 1），所以带默认参数的函数 curry 不动；说得出这一句，
-                这道题就答干净了。
+                length 是 1），所以带默认参数的函数 curry 不动；说得出这一句，这道题就答干净了。
               </p>
             </>
           ),
@@ -1164,8 +1146,7 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           titleEn: "Write flatten by hand (depth behaves like the built-in flat)",
           prompt: (
             <>
-              把「只做浅拷贝」的半成品写成真正的 flatten：默认压一层，
-              depth 控制层数，Infinity 全压平，不改输入。
+              把「只做浅拷贝」的半成品写成真正的 flatten：默认压一层，depth 控制层数，Infinity 全压平，不改输入。
               <strong>不许调用原生 <code>.flat()</code>。</strong>
             </>
           ),
@@ -1248,8 +1229,7 @@ export function debounce(fn: (...a: unknown[]) => void, delay: number) {
           prompt: (
             <>
               把「直接返回 fn」的半成品写成真正的 curry：参数攒够
-              <code>fn.length</code> 就执行，可任意分组，
-              部分应用复用互不污染。
+              <code>fn.length</code> 就执行，可任意分组，部分应用复用互不污染。
             </>
           ),
           promptEn: (
@@ -1334,10 +1314,8 @@ const clone = JSON.parse(JSON.stringify(source));
           ),
           why: (
             <>
-              这个写法在面试里不是「简洁的答案」，是<strong>暴露你没写过深拷贝</strong>。
-              它的每一条代价都可能在生产里变成静默数据损坏 —— 尤其是
-              <code>undefined</code> 键消失和 <code>Date</code> 变字符串这两条，
-              坏了都没报错。练习的检查器直接把它列为禁用写法。
+              这个写法在面试里不是「简洁的答案」，是<strong>暴露你没写过深拷贝</strong>。它的每一条代价都可能在生产里变成静默数据损坏 —— 尤其是
+              <code>undefined</code> 键消失和 <code>Date</code> 变字符串这两条，坏了都没报错。练习的检查器直接把它列为禁用写法。
             </>
           ),
           whyEn: (
@@ -1424,9 +1402,7 @@ const clone = JSON.parse(JSON.stringify(source));
           body: (
             <>
               <p>
-                <strong>一句话：</strong>结果数组按<strong>输入下标</strong>写入
-                （<code>results[i] = value</code>，不是 push），
-                一个计数器数还剩几个没完成，归零时 resolve ——
+                <strong>一句话：</strong>结果数组按<strong>输入下标</strong>写入（<code>results[i] = value</code>，不是 push），一个计数器数还剩几个没完成，归零时 resolve ——
                 <strong>顺序由输入决定，不是完成先后</strong>。
               </p>
               <p>
@@ -1434,8 +1410,7 @@ const clone = JSON.parse(JSON.stringify(source));
               </p>
               <ul>
                 <li>
-                  <strong>空数组立刻 resolve。</strong>计数器从 0 开始等归零，
-                  会等一个永远不来的事件 —— 先判空。
+                  <strong>空数组立刻 resolve。</strong>计数器从 0 开始等归零，会等一个永远不来的事件 —— 先判空。
                 </li>
                 <li>
                   <strong>混普通值。</strong>每一项先 <code>Promise.resolve(item)</code>
@@ -1448,12 +1423,9 @@ const clone = JSON.parse(JSON.stringify(source));
                 </li>
               </ul>
               <p>
-                <strong>allSettled 就是一层变换：</strong>把每一项包成
-                「永远成功、结果里带 <code>status</code>」的 Promise，
-                再交给自己写的 <code>promiseAll</code>。
+                <strong>allSettled 就是一层变换：</strong>把每一项包成「永远成功、结果里带 <code>status</code>」的 Promise，再交给自己写的 <code>promiseAll</code>。
                 <strong>会追问：</strong>「all 和 allSettled 各用在哪」——
-                结果互相依赖、缺一不可用 all（一败即停止等待）；
-                各自独立、要逐个报告成败用 allSettled（比如批量上传的结果面板）。
+                结果互相依赖、缺一不可用 all（一败即停止等待）；各自独立、要逐个报告成败用 allSettled（比如批量上传的结果面板）。
               </p>
             </>
           ),
@@ -1518,12 +1490,10 @@ const clone = JSON.parse(JSON.stringify(source));
                 <strong>遍历前先 <code>[...list]</code> 拷贝一份</strong>。
               </p>
               <p>
-                为什么：<code>once</code> 的实现是包一层 wrapper，
-                触发时先 <code>off</code> 掉自己再调原函数。如果 emit
+                为什么：<code>once</code> 的实现是包一层 wrapper，触发时先 <code>off</code> 掉自己再调原函数。如果 emit
                 直接遍历原数组，wrapper 自删会让数组当场缩短，
                 <strong>它旁边的监听器被跳过</strong> ——
-                测试里「once 不挤掉邻居」那条抓的就是这个。
-                这是「遍历中修改集合」这个通用陷阱在面试题里的标准形态。
+                测试里「once 不挤掉邻居」那条抓的就是这个。这是「遍历中修改集合」这个通用陷阱在面试题里的标准形态。
               </p>
               <p>
                 <strong>会追问：</strong>「off 传的函数和 on 的不是同一个引用怎么办」
@@ -1583,8 +1553,7 @@ const clone = JSON.parse(JSON.stringify(source));
           body: (
             <>
               <p>
-                <strong>一句话：</strong>JS 的 <code>Map</code> 按插入序遍历，
-                所以「删掉再放回 = 挪到最新那头」「迭代器第一个键 = 最旧的那条」——
+                <strong>一句话：</strong>JS 的 <code>Map</code> 按插入序遍历，所以「删掉再放回 = 挪到最新那头」「迭代器第一个键 = 最旧的那条」——
                 两条性质拼起来，LRU 十五行写完，<strong>不需要手搓双向链表</strong>。
               </p>
               <p>
@@ -1595,10 +1564,7 @@ const clone = JSON.parse(JSON.stringify(source));
               <p>
                 <strong>会追问（区分 senior 的一问）：</strong>
                 「教科书版为什么用哈希表 + 双向链表？」——
-                因为那是语言无关的答案：O(1) 查找靠哈希表，O(1) 挪位和淘汰靠链表。
-                JS 的 Map 恰好把两者捏在一起了（规范保证插入序）。
-                能先给 Map 版、再讲清教科书版的数据结构原理，
-                比只会背链表版强得多 —— 这说明你知道自己在用什么。
+                因为那是语言无关的答案：O(1) 查找靠哈希表，O(1) 挪位和淘汰靠链表。JS 的 Map 恰好把两者捏在一起了（规范保证插入序）。能先给 Map 版、再讲清教科书版的数据结构原理，比只会背链表版强得多 —— 这说明你知道自己在用什么。
               </p>
             </>
           ),
@@ -1739,8 +1705,7 @@ export function promiseAllSettled<T>(items: (T | Promise<T>)[]): Promise<Settled
           titleEn: "Write an EventEmitter by hand",
           prompt: (
             <>
-              把空骨架填成完整的 EventEmitter：on / off / once / emit。
-              重点：once 触发时不能挤掉同一事件的其他监听器。
+              把空骨架填成完整的 EventEmitter：on / off / once / emit。重点：once 触发时不能挤掉同一事件的其他监听器。
             </>
           ),
           promptEn: (
@@ -1893,8 +1858,7 @@ export class EventEmitter {
           titleEn: "Write an LRUCache by hand (use a Map, no linked list)",
           prompt: (
             <>
-              把「什么都没存」的骨架写成真正的 LRU：超容量淘汰最久未使用，
-              get 和 put 都要刷新「最近用过」。
+              把「什么都没存」的骨架写成真正的 LRU：超容量淘汰最久未使用，get 和 put 都要刷新「最近用过」。
             </>
           ),
           promptEn: (
@@ -2016,10 +1980,8 @@ items.forEach((item) => {
           ),
           why: (
             <>
-              <code>Promise.all</code> 的合同是<strong>结果顺序 = 输入顺序</strong>，
-              和完成先后无关 —— 调用方靠下标对应输入和输出。push
-              版在并发下顺序随机，而且这个 bug 在「恰好都一样快」的本地测试里
-              经常测不出来，上了生产才出错。<strong>永远用
+              <code>Promise.all</code> 的合同是<strong>结果顺序 = 输入顺序</strong>，和完成先后无关 —— 调用方靠下标对应输入和输出。push
+              版在并发下顺序随机，而且这个 bug 在「恰好都一样快」的本地测试里经常测不出来，上了生产才出错。<strong>永远用
               <code>results[i] = value</code> 按下标写。</strong>
             </>
           ),

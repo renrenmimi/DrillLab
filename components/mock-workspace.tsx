@@ -52,12 +52,9 @@ export function MockList() {
               }
               zh={
                 <>
-                  它们<strong>不是</strong>源项目里的内容，也不是任何真实考题。
-                  它们的作用是「换一个场景考同样的东西」。
+                  它们<strong>不是</strong>源项目里的内容，也不是任何真实考题。它们的作用是「换一个场景考同样的东西」。
                   <br />
-                  两套模拟题的参考答案都在本机跑通过自己的测试：
-                  React 那套 5/5，Federation 那套 14/14。
-                  starter 状态下的基线实测是 5 failed / 5 total 和 10 failed / 4 passed。
+                  两套模拟题的参考答案都在本机跑通过自己的测试：React 那套 5/5，Federation 那套 14/14。starter 状态下的基线实测是 5 failed / 5 total 和 10 failed / 4 passed。
                 </>
               }
             />

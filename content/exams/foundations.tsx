@@ -167,17 +167,14 @@ const foundations: Exam = {
                 <>
                   <p>
                     你在浏览器控制台里写 <code>alert(&quot;hi&quot;)</code>，能弹窗，是因为浏览器给
-                    JavaScript 提供了 <code>window</code>、<code>document</code> 这些东西。
-                    JavaScript 本身并不知道什么叫「网页」。
+                    JavaScript 提供了 <code>window</code>、<code>document</code> 这些东西。JavaScript 本身并不知道什么叫「网页」。
                   </p>
                   <p>
-                    <strong>Node.js</strong> 做的事情是：把 Chrome 浏览器使用的 JavaScript 引擎 V8 单独拿出来，
-                    再配上「读文件」「起服务器」「读环境变量」这类本机能力。于是 JavaScript
+                    <strong>Node.js</strong> 做的事情是：把 Chrome 浏览器使用的 JavaScript 引擎 V8 单独拿出来，再配上「读文件」「起服务器」「读环境变量」这类本机能力。于是 JavaScript
                     可以在终端里直接运行：
                   </p>
                   <p>
-                    这就是为什么两个 assessment 都需要 Node —— React 项目要靠 Node 跑构建工具
-                    （Vite）和测试（Vitest）；GraphQL subgraph 本身就是一个跑在 Node 上的服务器。
+                    这就是为什么两个 assessment 都需要 Node —— React 项目要靠 Node 跑构建工具（Vite）和测试（Vitest）；GraphQL subgraph 本身就是一个跑在 Node 上的服务器。
                   </p>
                 </>
               ),
@@ -233,9 +230,7 @@ node -e "console.log(1 + 1)"
               body: (
                 <>
                   <p>
-                    React 是别人写的。Vite 是别人写的。Apollo Server 是别人写的。
-                    你不需要自己实现它们，只需要在 <code>package.json</code> 里声明「我要用这些」，
-                    然后让 npm 去下载。每一个这样的第三方包，叫一个
+                    React 是别人写的。Vite 是别人写的。Apollo Server 是别人写的。你不需要自己实现它们，只需要在 <code>package.json</code> 里声明「我要用这些」，然后让 npm 去下载。每一个这样的第三方包，叫一个
                     <strong>依赖（dependency）</strong>。
                   </p>
                   <p>
@@ -244,9 +239,7 @@ node -e "console.log(1 + 1)"
                     统统摊在 <code>node_modules/</code> 这个文件夹里。
                   </p>
                   <p>
-                    所以 <code>node_modules</code> 动辄几万个文件是正常的。它是<strong>下载产物</strong>，
-                    不是你的代码 —— 这也是为什么它几乎永远出现在 <code>.gitignore</code> 里：
-                    别人拿到你的 <code>package.json</code>，自己 <code>npm install</code>
+                    所以 <code>node_modules</code> 动辄几万个文件是正常的。它是<strong>下载产物</strong>，不是你的代码 —— 这也是为什么它几乎永远出现在 <code>.gitignore</code> 里：别人拿到你的 <code>package.json</code>，自己 <code>npm install</code>
                     就能装出一份一样的，不需要你把它传上去。
                   </p>
                 </>
@@ -305,16 +298,11 @@ npm install
                 <>
                   <p>
                     看 <code>react-notes-app/package.json</code> 里的这行：
-                    <code>&quot;react&quot;: &quot;^18.3.1&quot;</code>。
-                    那个 <code>^</code> 的意思是「18.3.1 或者更新的 18.x 都行」。
-                    今天装是 18.3.1，半年后装可能变成 18.3.9。
+                    <code>&quot;react&quot;: &quot;^18.3.1&quot;</code>。那个 <code>^</code> 的意思是「18.3.1 或者更新的 18.x 都行」。今天装是 18.3.1，半年后装可能变成 18.3.9。
                   </p>
                   <p>
-                    这对考试是灾难：同一份代码，你机器上跑得过，判卷机器上却因为版本不同而失败。
-                    所以 npm 在第一次安装时会生成 <strong>lockfile</strong>
-                    （<code>package-lock.json</code>），把「实际装的到底是哪个版本、从哪下的、
-                    校验和是多少」一条条记下来。下一次 <code>npm install</code>，
-                    只要 lockfile 在，就照它装，不再重新解析版本范围。
+                    这对考试是灾难：同一份代码，你机器上跑得过，判卷机器上却因为版本不同而失败。所以 npm 在第一次安装时会生成 <strong>lockfile</strong>
+                    （<code>package-lock.json</code>），把「实际装的到底是哪个版本、从哪下的、校验和是多少」一条条记下来。下一次 <code>npm install</code>，只要 lockfile 在，就照它装，不再重新解析版本范围。
                   </p>
                   <p>
                     由此得出三条实操规矩：
@@ -383,20 +371,17 @@ npm install
               body: (
                 <>
                   <p>
-                    区别只有一句话：<strong>产品跑起来之后还需要的，放 dependencies;
-                    只在开发和构建时需要的，放 devDependencies。</strong>
+                    区别只有一句话：<strong>产品跑起来之后还需要的，放 dependencies;只在开发和构建时需要的，放 devDependencies。</strong>
                   </p>
                   <p>
                     拿 <code>react-notes-app</code> 举例。<code>react</code> 和 <code>react-dom</code>
-                    在 dependencies 里 —— 用户打开页面时，这些代码要在浏览器里跑。
-                    而 <code>vite</code>、<code>typescript</code>、<code>vitest</code>、
+                    在 dependencies 里 —— 用户打开页面时，这些代码要在浏览器里跑。而 <code>vite</code>、<code>typescript</code>、<code>vitest</code>、
                     <code>@testing-library/react</code> 全在 devDependencies 里 ——
                     它们负责把代码打包、检查类型、跑测试，打包完成后就没它们的事了。
                   </p>
                   <p>
                     <code>@types/react</code> 这种 <code>@types/</code> 开头的包也在
-                    devDependencies：它们只包含类型信息，给 TypeScript 编译器看，
-                    编译完就消失，一行都不会进到浏览器里。
+                    devDependencies：它们只包含类型信息，给 TypeScript 编译器看，编译完就消失，一行都不会进到浏览器里。
                   </p>
                 </>
               ),
@@ -435,9 +420,7 @@ npm install
                 <p>
                   编写本课时，<code>node-subgraph</code> 目录里<strong>原本没有</strong>
                   <code>node_modules</code>，也没有 lockfile。也就是说这个 subgraph
-                  在拿到手的那一刻是跑不了测试的 —— 必须先 <code>npm install</code>。
-                  如果你上手就去改 resolver，然后困惑「为什么 npm test 说找不到 jest」，
-                  那就是漏了这一步。
+                  在拿到手的那一刻是跑不了测试的 —— 必须先 <code>npm install</code>。如果你上手就去改 resolver，然后困惑「为什么 npm test 说找不到 jest」，那就是漏了这一步。
                 </p>
               ),
               bodyEn: (
@@ -482,10 +465,7 @@ npm install
               answer: ["b"],
               explain: (
                 <>
-                  vitest 是测试运行器，只在开发/验证阶段用，打包出去的产品里不需要它，
-                  所以在 <code>devDependencies</code>。同理还有 vite、typescript、
-                  jsdom、tsx 和三个 <code>@testing-library/*</code>。
-                  这个项目的 <code>dependencies</code> 里只有两个东西：react 和 react-dom。
+                  vitest 是测试运行器，只在开发/验证阶段用，打包出去的产品里不需要它，所以在 <code>devDependencies</code>。同理还有 vite、typescript、jsdom、tsx 和三个 <code>@testing-library/*</code>。这个项目的 <code>dependencies</code> 里只有两个东西：react 和 react-dom。
                 </>
               ),
               explainEn: (
@@ -525,8 +505,7 @@ npm install
                   <code>npm install</code> 会照着已有 lockfile 装，是安全的；
                   <code>npm ci</code> 更严格，完全按 lockfile 来，装之前先清空
                   <code>node_modules</code> —— CI 上常用。
-                  <code>pnpm install</code> 会生成 <code>pnpm-lock.yaml</code>，
-                  于是项目里出现两个互相矛盾的 lockfile。删 lockfile 则直接放弃了版本锁定。
+                  <code>pnpm install</code> 会生成 <code>pnpm-lock.yaml</code>，于是项目里出现两个互相矛盾的 lockfile。删 lockfile 则直接放弃了版本锁定。
                 </>
               ),
               explainEn: (
@@ -778,14 +757,10 @@ npm install
               body: (
                 <>
                   <p>
-                    这一份多出 <code>main</code>（包的入口文件）、<code>description</code>，
-                    以及最要紧的一处：<strong>jest 的配置直接内嵌在 package.json 里</strong>，
-                    没有单独的 <code>jest.config.js</code>。
+                    这一份多出 <code>main</code>（包的入口文件）、<code>description</code>，以及最要紧的一处：<strong>jest 的配置直接内嵌在 package.json 里</strong>，没有单独的 <code>jest.config.js</code>。
                   </p>
                   <p>
-                    这一点很容易让人出错 —— 你在项目里翻半天找不到测试配置文件，
-                    以为项目没配好，其实它就在 <code>package.json</code> 的最后几行。
-                    很多工具（jest、prettier、babel，以及旧版 ESLint 的 eslintConfig）都支持这种内嵌写法。
+                    这一点很容易让人出错 —— 你在项目里翻半天找不到测试配置文件，以为项目没配好，其实它就在 <code>package.json</code> 的最后几行。很多工具（jest、prettier、babel，以及旧版 ESLint 的 eslintConfig）都支持这种内嵌写法。
                   </p>
                 </>
               ),
@@ -822,26 +797,22 @@ npm install
                 <>
                   <ol>
                     <li>
-                      <strong>先看 scripts。</strong>这决定了你能跑什么命令。
-                      有 <code>dev</code> 就说明能起开发服务器，有 <code>test</code>
+                      <strong>先看 scripts。</strong>这决定了你能跑什么命令。有 <code>dev</code> 就说明能起开发服务器，有 <code>test</code>
                       就说明能跑测试，没有 <code>test</code> 就得自己想办法（下一节讲）。
                     </li>
                     <li>
-                      <strong>再看 dependencies。</strong>看见 <code>react</code> 就知道是前端；
-                      看见 <code>@apollo/server</code> + <code>@apollo/subgraph</code>
+                      <strong>再看 dependencies。</strong>看见 <code>react</code> 就知道是前端；看见 <code>@apollo/server</code> + <code>@apollo/subgraph</code>
                       就知道是 GraphQL 联邦的一个 subgraph；看见 <code>dataloader</code>
                       就知道这题大概会考批量加载。
                     </li>
                     <li>
                       <strong>最后看 type 和内嵌配置。</strong>
-                      <code>&quot;type&quot;: &quot;module&quot;</code> 决定 import 的写法，
-                      内嵌的 jest/eslint 配置决定测试怎么被发现。
+                      <code>&quot;type&quot;: &quot;module&quot;</code> 决定 import 的写法，内嵌的 jest/eslint 配置决定测试怎么被发现。
                     </li>
                   </ol>
                   <p>
                     第 2 步尤其重要：<strong>依赖清单本身就在泄题。</strong>
-                    subgraph 的 dependencies 里明摆着一个 <code>dataloader</code>，
-                    而 starter 代码里正好有个 TODO 写着「用 DataLoader 防 N+1」——
+                    subgraph 的 dependencies 里明摆着一个 <code>dataloader</code>，而 starter 代码里正好有个 TODO 写着「用 DataLoader 防 N+1」——
                     这不是巧合。
                   </p>
                 </>
@@ -889,8 +860,7 @@ npm install
               level: 2,
               prompt: (
                 <p>
-                  下面是 <code>node-subgraph/package.json</code> 的骨架，挖掉了三个决定项目行为的值。
-                  照真实文件补回来。
+                  下面是 <code>node-subgraph/package.json</code> 的骨架，挖掉了三个决定项目行为的值。照真实文件补回来。
                 </p>
               ),
               promptEn: (
@@ -927,9 +897,7 @@ npm install
                   hintEn: "This value is what lets the source use import instead of require.",
                   why: (
                     <>
-                      <code>&quot;type&quot;: &quot;module&quot;</code> 让 Node 把 .js 当 ES Module 解析。
-                      这也是为什么 <code>index.js</code> 里能直接写 <code>import ... from</code>，
-                      以及为什么跑 jest 需要 <code>--experimental-vm-modules</code>。
+                      <code>&quot;type&quot;: &quot;module&quot;</code> 让 Node 把 .js 当 ES Module 解析。这也是为什么 <code>index.js</code> 里能直接写 <code>import ... from</code>，以及为什么跑 jest 需要 <code>--experimental-vm-modules</code>。
                     </>
                   ),
                   whyEn: (
@@ -949,8 +917,7 @@ npm install
                   hintEn: "The test runner of this project. devDependencies tells you which one.",
                   why: (
                     <>
-                      subgraph 用的是 <strong>jest</strong>（React 那边用的是 vitest，别混）。
-                      前面那个 <code>NODE_OPTIONS=--experimental-vm-modules</code> 是为了让
+                      subgraph 用的是 <strong>jest</strong>（React 那边用的是 vitest，别混）。前面那个 <code>NODE_OPTIONS=--experimental-vm-modules</code> 是为了让
                       jest 能处理 ES Module —— 少了它，jest 一遇到 <code>import</code> 就报错。
                     </>
                   ),
@@ -1083,9 +1050,7 @@ npm install
               body: (
                 <>
                   <p>
-                    <code>&quot;dev&quot;: &quot;vite&quot;</code> 的意思不是「npm 认识 vite」，
-                    而是：npm 把 <code>node_modules/.bin</code> 临时加进 <code>PATH</code>，
-                    然后执行 <code>vite</code> 这个命令。而 <code>node_modules/.bin/vite</code>
+                    <code>&quot;dev&quot;: &quot;vite&quot;</code> 的意思不是「npm 认识 vite」，而是：npm 把 <code>node_modules/.bin</code> 临时加进 <code>PATH</code>，然后执行 <code>vite</code> 这个命令。而 <code>node_modules/.bin/vite</code>
                     正是 <code>npm install</code> 时，vite 这个包自己放进去的可执行文件。
                   </p>
                   <p>
@@ -1145,10 +1110,7 @@ npm run q2      # → tsx q2/demo.ts        run a TypeScript file directly with 
                   </p>
                   <p>
                     其他名字都必须写 <code>run</code>。<code>npm build</code> 不会跑你的
-                    build script —— 实测它直接报 <code>Unknown command: &quot;build&quot;</code>，
-                    下面还跟一句 <code>Did you mean this? npm run build</code>。
-                    npm 把答案告诉你了，照着写 <code>npm run build</code> 就行。
-                    这是新手最常见的困惑之一。
+                    build script —— 实测它直接报 <code>Unknown command: &quot;build&quot;</code>，下面还跟一句 <code>Did you mean this? npm run build</code>。npm 把答案告诉你了，照着写 <code>npm run build</code> 就行。这是新手最常见的困惑之一。
                   </p>
                   <p>
                     但「能省掉 run」不代表「这个 script 一定存在」。这就是下一段要讲的陷阱。
@@ -1203,8 +1165,7 @@ npm run q2      # → tsx q2/demo.ts        run a TypeScript file directly with 
                     </li>
                     <li>
                       自己往 package.json 里加一条
-                      <code>&quot;test&quot;: &quot;vitest run&quot;</code>。
-                      考试时要谨慎 —— 除非题目允许你改配置，否则用 npx 更安全。
+                      <code>&quot;test&quot;: &quot;vitest run&quot;</code>。考试时要谨慎 —— 除非题目允许你改配置，否则用 npx 更安全。
                     </li>
                   </ul>
                 </>
@@ -1286,8 +1247,7 @@ $ npx vitest run
                     </li>
                   </ol>
                   <p>
-                    新手最容易犯的错是<strong>看到红字就开始改业务代码</strong>，
-                    而错误其实在第 1 层或第 2 层。先分层，再动手。
+                    新手最容易犯的错是<strong>看到红字就开始改业务代码</strong>，而错误其实在第 1 层或第 2 层。先分层，再动手。
                   </p>
                 </>
               ),
@@ -1348,8 +1308,7 @@ $ npx vitest run
                     include 了（含测试文件），但既没配
                     <code>&quot;types&quot;: [&quot;vitest/globals&quot;]</code>
                     也没装 <code>@types/jest</code>。
-                    <strong>这是脚手架自带的配置缺陷。</strong>你的任务是认出它，
-                    而不是花两小时怀疑自己的 React 写错了。
+                    <strong>这是脚手架自带的配置缺陷。</strong>你的任务是认出它，而不是花两小时怀疑自己的 React 写错了。
                   </p>
                 </>
               ),
@@ -1386,8 +1345,7 @@ $ npx vitest run
               level: 1,
               prompt: (
                 <p>
-                  你在 <code>react-notes-app/</code> 目录下，想跑那 4 个判卷测试。
-                  package.json 的 scripts 只有 <code>dev</code>、<code>build</code>、
+                  你在 <code>react-notes-app/</code> 目录下，想跑那 4 个判卷测试。package.json 的 scripts 只有 <code>dev</code>、<code>build</code>、
                   <code>q2</code>。下面哪个命令能跑起来？
                 </p>
               ),
@@ -1408,9 +1366,7 @@ $ npx vitest run
               answer: ["c"],
               explain: (
                 <>
-                  A 和 B 是同一件事，都会报 <code>Missing script: &quot;test&quot;</code>。
-                  D 跑的是构建，而且在这个项目里因为 tsc 报错会直接失败。
-                  只有 C 能跑 —— npx 直接执行 <code>node_modules/.bin/vitest</code>，{" "}
+                  A 和 B 是同一件事，都会报 <code>Missing script: &quot;test&quot;</code>。D 跑的是构建，而且在这个项目里因为 tsc 报错会直接失败。只有 C 能跑 —— npx 直接执行 <code>node_modules/.bin/vitest</code>，{" "}
                   <code>run</code> 表示跑一次就退出。
                 </>
               ),
@@ -1445,8 +1401,7 @@ $ npx vitest run
               answer: ["a", "b", "c"],
               explain: (
                 <>
-                  先排除「命令没跑起来」（npm 层），再排除「工具没装」（依赖层），
-                  最后才看代码。顺序反了就会出现「花两小时改 React，结果是没装依赖」这种事。
+                  先排除「命令没跑起来」（npm 层），再排除「工具没装」（依赖层），最后才看代码。顺序反了就会出现「花两小时改 React，结果是没装依赖」这种事。
                 </>
               ),
               explainEn: (
@@ -1547,14 +1502,11 @@ $ npx vitest run
               body: (
                 <>
                   <p>
-                    这个项目不大，一屏能看完。下面每一行都真实存在
-                    （<code>node_modules</code> 和 lockfile 省略）：
+                    这个项目不大，一屏能看完。下面每一行都真实存在（<code>node_modules</code> 和 lockfile 省略）：
                   </p>
                   <p>
                     要注意它有<strong>两道互不相干的题</strong>：{" "}
-                    <code>src/</code> 是 Q1（React 界面），<code>q2/</code> 是 Q2
-                    （纯 TypeScript 的异步调度器，完全不涉及 React）。
-                    很多人一开始会以为 q2 是 src 的一部分，白花时间找关联。
+                    <code>src/</code> 是 Q1（React 界面），<code>q2/</code> 是 Q2（纯 TypeScript 的异步调度器，完全不涉及 React）。很多人一开始会以为 q2 是 src 的一部分，白花时间找关联。
                   </p>
                 </>
               ),
@@ -1654,10 +1606,7 @@ $ npx vitest run
                   </ol>
                   <p>
                     <strong>为什么要知道这条链？</strong>因为它决定了「state 应该放在哪」。
-                    <code>NoteForm</code> 和 <code>NoteTable</code> 是兄弟，
-                    它们没法直接互相通话。要让「表单提交」影响「表格内容」，
-                    数据只能放在它们共同的父亲 <code>NoteManager</code> 里。
-                    这是 Q1 三道题的全部结构基础。
+                    <code>NoteForm</code> 和 <code>NoteTable</code> 是兄弟，它们没法直接互相通话。要让「表单提交」影响「表格内容」，数据只能放在它们共同的父亲 <code>NoteManager</code> 里。这是 Q1 三道题的全部结构基础。
                   </p>
                 </>
               ),
@@ -1729,8 +1678,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 <>
                   <p>
                     这个项目的 README 标了三个 EDIT THIS：<strong>两个代码文件</strong>
-                    （orderResolvers.js、OrderController.java）和写书面答案的 QUESTIONS.md。
-                    其余全是 PROVIDED（给好了，别动）。
+                    （orderResolvers.js、OrderController.java）和写书面答案的 QUESTIONS.md。其余全是 PROVIDED（给好了，别动）。
                   </p>
                 </>
               ),
@@ -1814,10 +1762,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   <ul>
                     <li>
                       <strong><code>java-service/orders.db</code></strong> ——
-                      一个数据库文件。但 <code>pom.xml</code> 里<strong>没有任何 JDBC 或 JPA 依赖</strong>，
-                      代码里也没有一处引用它。数据实际来自
-                      <code>InMemoryOrderRepository</code>（一个内存 HashMap）。
-                      看到 .db 就去配数据源，是纯浪费时间。
+                      一个数据库文件。但 <code>pom.xml</code> 里<strong>没有任何 JDBC 或 JPA 依赖</strong>，代码里也没有一处引用它。数据实际来自
+                      <code>InMemoryOrderRepository</code>（一个内存 HashMap）。看到 .db 就去配数据源，是纯浪费时间。
                     </li>
                     <li>
                       <strong>schema 里的 <code>@shareable</code></strong> ——
@@ -1835,8 +1781,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   </ul>
                   <p>
                     判断方法很朴素：<strong>顺着依赖和引用找。</strong>
-                    一个文件如果没有被 import、没有被注入、没有在配置里出现，
-                    它就跟这次任务无关。
+                    一个文件如果没有被 import、没有被注入、没有在配置里出现，它就跟这次任务无关。
                   </p>
                 </>
               ),
@@ -1885,8 +1830,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               prompt: (
                 <p>
                   Q1 要求「表单提交后，新笔记出现在表格里」。表单是
-                  <code>NoteForm</code>，表格是 <code>NoteTable</code>，两者是兄弟。
-                  那份笔记列表数据应该存在哪个组件里？
+                  <code>NoteForm</code>，表格是 <code>NoteTable</code>，两者是兄弟。那份笔记列表数据应该存在哪个组件里？
                 </p>
               ),
               promptEn: (
@@ -1906,11 +1850,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               answer: ["c"],
               explain: (
                 <>
-                  React 的数据是<strong>单向往下流</strong>的：父组件可以把数据传给子组件，
-                  兄弟之间不能直接传。<code>NoteForm</code> 和 <code>NoteTable</code>
+                  React 的数据是<strong>单向往下流</strong>的：父组件可以把数据传给子组件，兄弟之间不能直接传。<code>NoteForm</code> 和 <code>NoteTable</code>
                   都需要碰这份列表，那它就必须放在两者共同的父组件
-                  <code>NoteManager</code> 里 —— 这叫<strong>状态提升
-                  （lifting state up）</strong>。真实项目里 <code>notes</code>
+                  <code>NoteManager</code> 里 —— 这叫<strong>状态提升（lifting state up）</strong>。真实项目里 <code>notes</code>
                   和 <code>noteToEdit</code> 两个 state 就都在 NoteManager。
                 </>
               ),
@@ -1949,8 +1891,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               explain: (
                 <>
                   <code>orders.db</code> 没有被任何代码引用，pom.xml 里也没有数据库依赖 ——
-                  纯干扰项。另外三个都是必读：dataSource 决定你能调哪些方法、
-                  OrderService 提供全部业务逻辑、schema.graphql 决定 resolver 要返回什么形状。
+                  纯干扰项。另外三个都是必读：dataSource 决定你能调哪些方法、OrderService 提供全部业务逻辑、schema.graphql 决定 resolver 要返回什么形状。
                 </>
               ),
               explainEn: (
@@ -2062,17 +2003,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                     先看这两段的区别：
                   </p>
                   <p>
-                    左边 <code>push</code> 是<strong>改动原数组</strong>。数组变长了，
-                    但它还是<strong>同一个数组</strong> —— 内存里同一个地址。
-                    右边的展开语法造了一个<strong>全新的数组</strong>，
-                    内容是「旧的所有元素 + 新元素」。
+                    左边 <code>push</code> 是<strong>改动原数组</strong>。数组变长了，但它还是<strong>同一个数组</strong> —— 内存里同一个地址。右边的展开语法造了一个<strong>全新的数组</strong>，内容是「旧的所有元素 + 新元素」。
                   </p>
                   <p>
-                    React 在 <code>setState</code> 之后会做一次判断：
-                    新值和旧值<strong>是不是同一个对象</strong>?
-                    如果是同一个，它就认为「没变化」，直接跳过重新渲染。
-                    <code>push</code> 之后新旧是同一个数组，React 看不出变化，
-                    界面就不更新 —— 数据其实变了，屏幕上却没反应。这是新手最常见的 bug。
+                    React 在 <code>setState</code> 之后会做一次判断：新值和旧值<strong>是不是同一个对象</strong>?如果是同一个，它就认为「没变化」，直接跳过重新渲染。
+                    <code>push</code> 之后新旧是同一个数组，React 看不出变化，界面就不更新 —— 数据其实变了，屏幕上却没反应。这是新手最常见的 bug。
                   </p>
                   <p>
                     所以规矩是：<strong>永远造新的，不改旧的。</strong>
@@ -2135,8 +2070,7 @@ setNotes([...notes, newNote]);`,
               body: (
                 <>
                   <p>
-                    这三段是从 <code>NoteManager</code> 里摘出来的（只调整了换行），
-                    也就是这道题的标准答案：
+                    这三段是从 <code>NoteManager</code> 里摘出来的（只调整了换行），也就是这道题的标准答案：
                   </p>
                   <p>
                     注意三处细节：
@@ -2144,19 +2078,15 @@ setNotes([...notes, newNote]);`,
                   <ul>
                     <li>
                       <strong><code>setNotes(prev =&gt; ...)</code></strong> ——
-                      传的是个函数，拿到的 <code>prev</code> 是「此刻最新的」值。
-                      比直接用外面的 <code>notes</code> 变量安全（后面 useState 那节细讲）。
+                      传的是个函数，拿到的 <code>prev</code> 是「此刻最新的」值。比直接用外面的 <code>notes</code> 变量安全（后面 useState 那节细讲）。
                     </li>
                     <li>
                       <strong>删除用 <code>!==</code> 而不是 <code>===</code></strong> ——
-                      <code>filter</code> 保留的是「返回 true 的元素」，
-                      所以条件要写「不是要删的那个」。
+                      <code>filter</code> 保留的是「返回 true 的元素」，所以条件要写「不是要删的那个」。
                     </li>
                     <li>
                       <strong>更新用 <code>map</code> 而不是「先删再加」</strong> ——
-                      <code>map</code> 逐个走过每个元素，是目标就换成新的、不是就原样保留。
-                      这样<strong>顺序不变</strong>。而「先 filter 掉再 push 新的」会把这条
-                      挪到末尾 —— 题目明确要求「原位置更新」，那样就错了。
+                      <code>map</code> 逐个走过每个元素，是目标就换成新的、不是就原样保留。这样<strong>顺序不变</strong>。而「先 filter 掉再 push 新的」会把这条挪到末尾 —— 题目明确要求「原位置更新」，那样就错了。
                     </li>
                   </ul>
                 </>
@@ -2361,15 +2291,12 @@ async getOrdersByUserId(userId) {
               body: (
                 <>
                   <p>
-                    数组用 <code>[...arr, x]</code>，对象用 <code>{"{...obj, key: v}"}</code>。
-                    后面的键会覆盖前面的（见下面第一段代码）。
+                    数组用 <code>[...arr, x]</code>，对象用 <code>{"{...obj, key: v}"}</code>。后面的键会覆盖前面的（见下面第一段代码）。
                   </p>
                   <p>
                     这个写法在 Federation 那道题里有实际用途：
                     <code>createOrder</code> 收到的 item 只有
-                    <code>productId</code> 和 <code>quantity</code>，
-                    需要补上 <code>price</code> 才能算总价。参考解法里把两个字段显式写了出来；
-                    写成 <code>{"({ ...item, price: await … })"}</code> 效果相同。
+                    <code>productId</code> 和 <code>quantity</code>，需要补上 <code>price</code> 才能算总价。参考解法里把两个字段显式写了出来；写成 <code>{"({ ...item, price: await … })"}</code> 效果相同。
                   </p>
                 </>
               ),
@@ -2442,10 +2369,8 @@ const pricedItems = await Promise.all(
                     你会在两个考试的每一个组件和 resolver 里看到它：
                   </p>
                   <p>
-                    <code>{"{ onSubmit, noteToEdit }"}</code> 写在函数参数位置，
-                    意思是「传进来的那个对象里，把 <code>onSubmit</code> 和
-                    <code>noteToEdit</code> 这两个键取出来当局部变量」。
-                    resolver 的第三个参数 context 也是这么拆的。
+                    <code>{"{ onSubmit, noteToEdit }"}</code> 写在函数参数位置，意思是「传进来的那个对象里，把 <code>onSubmit</code> 和
+                    <code>noteToEdit</code> 这两个键取出来当局部变量」。resolver 的第三个参数 context 也是这么拆的。
                   </p>
                 </>
               ),
@@ -2496,8 +2421,7 @@ async orders(user, _, { dataSources, loaders, correlationId }) { ... }`,
               level: 2,
               prompt: (
                 <p>
-                  这是 <code>NoteManager</code> 里三个 handler 的真实代码，
-                  挖掉了决定行为的关键词。想清楚每个操作要「保留多少条」再填。
+                  这是 <code>NoteManager</code> 里三个 handler 的真实代码，挖掉了决定行为的关键词。想清楚每个操作要「保留多少条」再填。
                 </p>
               ),
               promptEn: (
@@ -2535,9 +2459,7 @@ const handleDelete = (id: number) => {
                   hintEn: "The task says update in place, so the result must have the same length and the same order.",
                   why: (
                     <>
-                      <code>map</code> 保持长度和顺序不变，逐个决定「这一项换不换」。
-                      如果用 <code>filter</code> 删掉旧的再 push 新的，顺序就变了，
-                      题目要求的「原位置更新」就没做到。
+                      <code>map</code> 保持长度和顺序不变，逐个决定「这一项换不换」。如果用 <code>filter</code> 删掉旧的再 push 新的，顺序就变了，题目要求的「原位置更新」就没做到。
                     </>
                   ),
                   whyEn: (
@@ -2557,8 +2479,7 @@ const handleDelete = (id: number) => {
                   hintEn: "Keep every old item and put the new one after them.",
                   why: (
                     <>
-                      <code>[...prev, submittedNote]</code> 造了一个新数组，
-                      内容是旧的全部加上新的一条。<strong>必须是新数组</strong> ——
+                      <code>[...prev, submittedNote]</code> 造了一个新数组，内容是旧的全部加上新的一条。<strong>必须是新数组</strong> ——
                       如果写 <code>prev.push(...)</code>，React 会认为值没变、不重新渲染。
                     </>
                   ),
@@ -2594,10 +2515,7 @@ const handleDelete = (id: number) => {
                   why: (
                     <>
                       要删掉 id 相等的那条，就得<strong>保留</strong>不相等的 ——
-                      所以是 <code>!==</code>。写成 <code>===</code> 的结果是
-                      「只留下要删的那一条」，正好反了。
-                      另外这里必须按 <code>id</code> 比，不能按 title 比：
-                      题目原文写的是「该行<strong>按 id</strong> 被移除」。
+                      所以是 <code>!==</code>。写成 <code>===</code> 的结果是「只留下要删的那一条」，正好反了。另外这里必须按 <code>id</code> 比，不能按 title 比：题目原文写的是「该行<strong>按 id</strong> 被移除」。
                     </>
                   ),
                   whyEn: (
@@ -2622,8 +2540,7 @@ const handleDelete = (id: number) => {
               level: 2,
               prompt: (
                 <p>
-                  这一类 bug 最难查，因为<strong>它不报错</strong>。
-                  先看现象，判断类型，再找病灶 —— 别跳步。
+                  这一类 bug 最难查，因为<strong>它不报错</strong>。先看现象，判断类型，再找病灶 —— 别跳步。
                 </p>
               ),
               promptEn: (
@@ -2689,14 +2606,11 @@ notes.length after : 1     ← the data really did go in
                 <>
                   <p>
                     <code>push</code> 修改了原数组本身。虽然内容变了，但
-                    <code>notes</code> 仍然指向<strong>同一个数组对象</strong>。
-                    React 在 <code>setNotes(notes)</code> 之后做的是一次「是不是同一个东西」
-                    的比较，发现「是同一个」，于是判断「状态没变」，跳过重新渲染。
+                    <code>notes</code> 仍然指向<strong>同一个数组对象</strong>。React 在 <code>setNotes(notes)</code> 之后做的是一次「是不是同一个东西」的比较，发现「是同一个」，于是判断「状态没变」，跳过重新渲染。
                   </p>
                   <p>
                     这类 bug 特别难查，因为<strong>没有任何报错</strong>，{" "}
-                    <code>console.log</code> 还告诉你数据是对的。
-                    记住这个特征：<strong>数据对了但界面不动 → 九成是改了原对象。</strong>
+                    <code>console.log</code> 还告诉你数据是对的。记住这个特征：<strong>数据对了但界面不动 → 九成是改了原对象。</strong>
                   </p>
                 </>
               ),
@@ -2880,8 +2794,7 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
               body: (
                 <>
                   <p>
-                    <strong>Promise</strong> 代表一件「现在还没完成、以后会有结果」的事。
-                    三种状态：
+                    <strong>Promise</strong> 代表一件「现在还没完成、以后会有结果」的事。三种状态：
                   </p>
                   <ul>
                     <li><strong>pending</strong> —— 还在做</li>
@@ -2892,8 +2805,7 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
                     一旦从 pending 变成后两者之一，就<strong>永久定下来</strong>，不会再变。
                   </p>
                   <p>
-                    <code>await</code> 的作用是：「在这里等着，直到这个 Promise 定下来」。
-                    成功就把值交给你，失败就<strong>抛出异常</strong>（所以要用
+                    <code>await</code> 的作用是：「在这里等着，直到这个 Promise 定下来」。成功就把值交给你，失败就<strong>抛出异常</strong>（所以要用
                     <code>try/catch</code> 接）。<code>await</code> 只能写在
                     <code>async</code> 函数里（ES 模块的顶层也可以，但考试代码里基本用不到）。
                   </p>
@@ -2959,13 +2871,10 @@ setNotes((prev) => prev.filter((note) => note.id === id));`,
                   <p>看 Q2 的类型定义：</p>
                   <p>
                     <code>Task&lt;T&gt;</code> 是 <strong>一个函数</strong>：{" "}
-                    <code>() =&gt; Promise&lt;T&gt;</code>。
-                    不是 Promise，是「调用之后才产生 Promise 的函数」。
+                    <code>() =&gt; Promise&lt;T&gt;</code>。不是 Promise，是「调用之后才产生 Promise 的函数」。
                   </p>
                   <p>
-                    这个区分为什么是整道题的关键？因为<strong>拿到 Promise 的时候，
-                    产生它的那项工作已经开始了，没法让它暂停。</strong>如果 <code>tasks</code> 是一堆 Promise，
-                    那它们在你拿到手之前就已经全部并发跑起来了，「并发上限」根本无从谈起。
+                    这个区分为什么是整道题的关键？因为<strong>拿到 Promise 的时候，产生它的那项工作已经开始了，没法让它暂停。</strong>如果 <code>tasks</code> 是一堆 Promise，那它们在你拿到手之前就已经全部并发跑起来了，「并发上限」根本无从谈起。
                   </p>
                   <p>
                     正因为它们是<strong>函数</strong>，你才能控制「什么时候调用」——
@@ -3062,13 +2971,10 @@ await task();    // ✓ right: call it first, then wait for what it returns`,
                     </table>
                   </div>
                   <p>
-                    两个都<strong>保证顺序与输入一致</strong> —— 哪个先完成不影响结果数组的位置。
-                    这一点很多人以为是「谁先完成谁在前」，是错的。
+                    两个都<strong>保证顺序与输入一致</strong> —— 哪个先完成不影响结果数组的位置。这一点很多人以为是「谁先完成谁在前」，是错的。
                   </p>
                   <p>
-                    Q2 的要求原文是「The runner NEVER throws, even if some tasks reject」，
-                    也就是 <code>allSettled</code> 的语义，再加一个并发上限。
-                    而 <code>Promise.all</code> 在两个考试里也真实出现了 ——
+                    Q2 的要求原文是「The runner NEVER throws, even if some tasks reject」，也就是 <code>allSettled</code> 的语义，再加一个并发上限。而 <code>Promise.all</code> 在两个考试里也真实出现了 ——
                     subgraph 的 DataLoader 批量函数就用它同时取多条物流信息（createOrderLoader 也是同样写法，用来取订单）。
                   </p>
                 </>
@@ -3172,14 +3078,11 @@ await task();    // ✓ right: call it first, then wait for what it returns`,
                     <li><code>await Promise.all(workers)</code> 等所有 worker 收工。</li>
                   </ol>
                   <p>
-                    同时在跑的永远只有 <code>limit</code> 个 worker，所以并发数天然不会超。
-                    结果按 <code>results[i]</code> 的下标写回，所以<strong>顺序自动是对的</strong>，
-                    不需要额外排序。
+                    同时在跑的永远只有 <code>limit</code> 个 worker，所以并发数天然不会超。结果按 <code>results[i]</code> 的下标写回，所以<strong>顺序自动是对的</strong>，不需要额外排序。
                   </p>
                   <p>
                     实测这个思路在项目里的输出（<code>npm run q2</code>）：
-                    <code>running now</code> 始终 ≤ 2，最终 6 条结果顺序与输入一致，
-                    第 3 个任务以 <code>rejected</code> 出现。完整实现在 React 那门课的
+                    <code>running now</code> 始终 ≤ 2，最终 6 条结果顺序与输入一致，第 3 个任务以 <code>rejected</code> 出现。完整实现在 React 那门课的
                     Q2 那一节。
                   </p>
                 </>
@@ -3264,8 +3167,7 @@ task 6 DONE    (running now: 0)`,
               body: (
                 <>
                   <p>
-                    <code>await</code> 遇到 rejected 会<strong>抛异常</strong>，
-                    行为和 <code>throw</code> 一样。所以要接住它，就用普通的
+                    <code>await</code> 遇到 rejected 会<strong>抛异常</strong>，行为和 <code>throw</code> 一样。所以要接住它，就用普通的
                     <code>try/catch</code>：
                   </p>
                   <p>
@@ -3319,8 +3221,7 @@ task 6 DONE    (running now: 0)`,
               prompt: (
                 <p>
                   Q2 的要求原文：「The runner NEVER throws, even if some tasks reject.
-                  It resolves with an array of results IN THE SAME ORDER as tasks.」
-                  这描述的是哪个内置方法的语义？
+                  It resolves with an array of results IN THE SAME ORDER as tasks.」这描述的是哪个内置方法的语义？
                 </p>
               ),
               promptEn: (
@@ -3340,11 +3241,9 @@ task 6 DONE    (running now: 0)`,
               answer: ["b"],
               explain: (
                 <>
-                  「有失败也不抛、把每个结果按 fulfilled/rejected 记下来、顺序与输入一致」
-                  就是 <code>allSettled</code>。<code>all</code> 会在第一个失败时整体 reject。
+                  「有失败也不抛、把每个结果按 fulfilled/rejected 记下来、顺序与输入一致」就是 <code>allSettled</code>。<code>all</code> 会在第一个失败时整体 reject。
                   <code>race</code> 返回最先定下来的那一个，<code>any</code>
-                  返回最先成功的那一个 —— 都不是这题要的。
-                  Q2 的注释里也直接写了：<em>This mimics Promise.allSettled, but with a
+                  返回最先成功的那一个 —— 都不是这题要的。Q2 的注释里也直接写了：<em>This mimics Promise.allSettled, but with a
                   concurrency throttle.</em>
                 </>
               ),
@@ -3369,9 +3268,7 @@ task 6 DONE    (running now: 0)`,
               level: 1,
               prompt: (
                 <p>
-                  <code>Task&lt;T&gt; = () =&gt; Promise&lt;T&gt;</code>。
-                  如果题目改成传一个 <code>Promise&lt;T&gt;[]</code> 进来，
-                  会出什么问题？
+                  <code>Task&lt;T&gt; = () =&gt; Promise&lt;T&gt;</code>。如果题目改成传一个 <code>Promise&lt;T&gt;[]</code> 进来，会出什么问题？
                 </p>
               ),
               promptEn: (
@@ -3391,8 +3288,7 @@ task 6 DONE    (running now: 0)`,
               explain: (
                 <>
                   Promise 代表一项已经开始的工作，没有暂停键。
-                  <code>[fetch(a), fetch(b), fetch(c)]</code> 这个数组一写出来，
-                  三个请求就已经同时发出去了。要控制并发，就必须控制
+                  <code>[fetch(a), fetch(b), fetch(c)]</code> 这个数组一写出来，三个请求就已经同时发出去了。要控制并发，就必须控制
                   <strong>「什么时候开始」</strong>，所以传进来的必须是
                   <strong>还没调用的函数</strong>。这是整道题的设计核心。
                 </>
@@ -3417,8 +3313,7 @@ task 6 DONE    (running now: 0)`,
               level: 2,
               prompt: (
                 <p>
-                  这是 subgraph 里真实的 DataLoader 批量加载函数。
-                  两个空都关系到「异步 + 数组」的固定套路。
+                  这是 subgraph 里真实的 DataLoader 批量加载函数。两个空都关系到「异步 + 数组」的固定套路。
                 </p>
               ),
               promptEn: (
@@ -3448,9 +3343,7 @@ task 6 DONE    (running now: 0)`,
                   hintEn: "You wait for a whole batch of Promises, and here any failure should be allowed to surface.",
                   why: (
                     <>
-                      <code>Promise.all</code>。DataLoader 的批量函数需要返回一个
-                      「和入参 keys 一样长、顺序一致」的数组，<code>all</code> 正好保证这两点。
-                      这里不用 allSettled —— 数据源出错就应该让错误冒出去，由 resolver 的
+                      <code>Promise.all</code>。DataLoader 的批量函数需要返回一个「和入参 keys 一样长、顺序一致」的数组，<code>all</code> 正好保证这两点。这里不用 allSettled —— 数据源出错就应该让错误冒出去，由 resolver 的
                       try/catch 处理。
                     </>
                   ),
@@ -3474,8 +3367,7 @@ task 6 DONE    (running now: 0)`,
                     <>
                       <code>map</code>。一个 id 对一个 Promise，长度和顺序都不变 ——
                       这是 DataLoader 的硬要求，它靠<strong>位置</strong>把结果分发回各个
-                      <code>load()</code> 调用方。如果你在这里用了 filter，或者调换了顺序，
-                      就会出现「A 拿到了 B 的数据」这种极难查的 bug。
+                      <code>load()</code> 调用方。如果你在这里用了 filter，或者调换了顺序，就会出现「A 拿到了 B 的数据」这种极难查的 bug。
                     </>
                   ),
                   whyEn: (
@@ -3569,8 +3461,7 @@ task 6 DONE    (running now: 0)`,
               body: (
                 <>
                   <p>
-                    <code>export default X</code> 是「这个模块的主角是 X」，
-                    一个文件只能有一个。import 它的时候<strong>名字随你起</strong>：
+                    <code>export default X</code> 是「这个模块的主角是 X」，一个文件只能有一个。import 它的时候<strong>名字随你起</strong>：
                   </p>
                   <p>
                     <code>export const A</code> / <code>export function B</code>
@@ -3578,9 +3469,7 @@ task 6 DONE    (running now: 0)`,
                     <strong>名字必须对上</strong>，而且要用花括号。
                   </p>
                   <p>
-                    React 考试的组件都是 default 导出（<code>export default NoteManager</code>），
-                    而 subgraph 的 resolver 是具名导出
-                    （<code>export const resolvers</code>）—— 所以 import 的写法不同。
+                    React 考试的组件都是 default 导出（<code>export default NoteManager</code>），而 subgraph 的 resolver 是具名导出（<code>export const resolvers</code>）—— 所以 import 的写法不同。
                   </p>
                 </>
               ),
@@ -3667,14 +3556,11 @@ import {
                     <strong>带了 <code>.js</code>。</strong>
                   </p>
                   <p>
-                    在 CommonJS（<code>require</code>）时代，Node 会帮你猜：
-                    你写 <code>./foo</code>，它会依次试 <code>./foo.js</code>、
-                    <code>./foo/index.js</code>。原生 ESM <strong>取消了这个猜测</strong>，
-                    路径必须写完整。
+                    在 CommonJS（<code>require</code>）时代，Node 会帮你猜：你写 <code>./foo</code>，它会依次试 <code>./foo.js</code>、
+                    <code>./foo/index.js</code>。原生 ESM <strong>取消了这个猜测</strong>，路径必须写完整。
                   </p>
                   <p>
-                    漏了会得到这个报错 —— 而它长得像「文件不存在」，
-                    容易让人去怀疑路径打错了：
+                    漏了会得到这个报错 —— 而它长得像「文件不存在」，容易让人去怀疑路径打错了：
                   </p>
                   <p>
                     而 React 那个项目里 <code>import App from &quot;./App&quot;</code>
@@ -3739,18 +3625,14 @@ Did you mean to import "./resolvers/orderResolvers.js"?`,
                 <>
                   <p>
                     <code>import type {"{ Note }"} from &quot;../../types/Note&quot;</code>
-                    这个写法在告诉编译器：「我只需要 <code>Note</code> 这个<strong>类型</strong>，
-                    编译完请把这行整个删掉」。
+                    这个写法在告诉编译器：「我只需要 <code>Note</code> 这个<strong>类型</strong>，编译完请把这行整个删掉」。
                   </p>
                   <p>
                     为什么要区分？因为 <code>type Note = {"{...}"}</code> 这种类型别名
-                    <strong>在运行时根本不存在</strong> —— TypeScript 编译后类型全被擦掉了。
-                    如果用普通 <code>import</code>，某些配置下打包器会保留这行 import,
-                    然后在运行时去找一个不存在的导出。
+                    <strong>在运行时根本不存在</strong> —— TypeScript 编译后类型全被擦掉了。如果用普通 <code>import</code>，某些配置下打包器会保留这行 import,然后在运行时去找一个不存在的导出。
                   </p>
                   <p>
-                    实用规则：<strong>导入的是类型就写 <code>import type</code>，
-                    导入的是能跑的东西（函数、组件、常量）就写普通 <code>import</code>。</strong>
+                    实用规则：<strong>导入的是类型就写 <code>import type</code>，导入的是能跑的东西（函数、组件、常量）就写普通 <code>import</code>。</strong>
                     真实项目里两种都有：
                   </p>
                 </>
@@ -3800,15 +3682,12 @@ import type { Note } from "../../types/Note";        // the type only`,
                   <p>回头看那条 script:</p>
                   <p>
                     Jest 诞生于 CommonJS 时代，原生 ESM 支持至今还是实验性的。
-                    <code>NODE_OPTIONS=--experimental-vm-modules</code> 就是打开那个开关。
-                    少了它，jest 一遇到 <code>import</code> 就报
+                    <code>NODE_OPTIONS=--experimental-vm-modules</code> 就是打开那个开关。少了它，jest 一遇到 <code>import</code> 就报
                     <code>Cannot use import statement outside a module</code>。
                   </p>
                   <p>
                     另外 <code>package.json</code> 里内嵌的 jest 配置有
-                    <code>&quot;transform&quot;: {"{}"}</code> —— 空对象，
-                    意思是「不做任何转译」。因为源码本来就是标准 ESM,
-                    不需要 Babel 把它转成 CommonJS。
+                    <code>&quot;transform&quot;: {"{}"}</code> —— 空对象，意思是「不做任何转译」。因为源码本来就是标准 ESM,不需要 Babel 把它转成 CommonJS。
                   </p>
                   <p>
                     这些不需要你去改。但需要你<strong>认出来</strong> ——
@@ -3873,8 +3752,7 @@ import type { Note } from "../../types/Note";        // the type only`,
               level: 2,
               prompt: (
                 <p>
-                  你在 <code>node-subgraph/</code> 里跑 <code>npm start</code>，
-                  服务器起不来。报错很长，但关键信息只有两行。
+                  你在 <code>node-subgraph/</code> 里跑 <code>npm start</code>，服务器起不来。报错很长，但关键信息只有两行。
                 </p>
               ),
               promptEn: (
@@ -3931,14 +3809,12 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
               rootCause: (
                 <>
                   <p>
-                    <code>package.json</code> 里写了 <code>&quot;type&quot;: &quot;module&quot;</code>，
-                    所以 Node 用原生 ESM 规则解析。原生 ESM
+                    <code>package.json</code> 里写了 <code>&quot;type&quot;: &quot;module&quot;</code>，所以 Node 用原生 ESM 规则解析。原生 ESM
                     <strong>不做扩展名猜测</strong>，相对路径必须写完整。
                   </p>
                   <p>
                     第 1 行能跑是因为它写了 <code>.js</code>。这也是排查技巧：
-                    <strong>同一个文件里，对比一下能跑的那些 import 和报错的这个，
-                    差别往往一眼就看出来。</strong>
+                    <strong>同一个文件里，对比一下能跑的那些 import 和报错的这个，差别往往一眼就看出来。</strong>
                   </p>
                 </>
               ),
@@ -4068,22 +3944,17 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
               body: (
                 <>
                   <p>
-                    读一个陌生项目，<strong>先找类型定义</strong>。
-                    它比任何 README 都准确 —— README 会过时，类型不会
-                    （改了类型不匹配的代码，编译器立刻报错）。
+                    读一个陌生项目，<strong>先找类型定义</strong>。它比任何 README 都准确 —— README 会过时，类型不会（改了类型不匹配的代码，编译器立刻报错）。
                   </p>
                   <p>
                     这 3 行告诉了你几件关键的事：
                   </p>
                   <ul>
                     <li>
-                      <code>id</code> 是 <strong><code>number</code></strong>，不是 string。
-                      所以后面比较要写 <code>note.id !== id</code>，
-                      而项目里生成 id 用的是 <code>Date.now()</code>（返回数字）。
+                      <code>id</code> 是 <strong><code>number</code></strong>，不是 string。所以后面比较要写 <code>note.id !== id</code>，而项目里生成 id 用的是 <code>Date.now()</code>（返回数字）。
                     </li>
                     <li>
-                      三个字段<strong>都是必填</strong>（没有 <code>?</code>）。
-                      所以你构造一个新 Note 时，三个都得给，少一个编译不过。
+                      三个字段<strong>都是必填</strong>（没有 <code>?</code>）。所以你构造一个新 Note 时，三个都得给，少一个编译不过。
                     </li>
                     <li>没有 <code>createdAt</code>、没有 <code>done</code> —— 别自己加字段。</li>
                   </ul>
@@ -4134,9 +4005,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
               body: (
                 <>
                   <p>
-                    <code>Note</code> 用的是 <code>type</code>，
-                    而 <code>NoteFormProps</code> 用的是 <code>interface</code>。
-                    这不是随便选的，但也不是必须这么选 —— 大多数情况下两者可以互换。
+                    <code>Note</code> 用的是 <code>type</code>，而 <code>NoteFormProps</code> 用的是 <code>interface</code>。这不是随便选的，但也不是必须这么选 —— 大多数情况下两者可以互换。
                   </p>
                   <div className="table-wrap">
                     <table className="table">
@@ -4173,8 +4042,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   </div>
                   <p>
                     实用建议：<strong>照项目里已有的风格写。</strong>
-                    考试不会因为你用 type 还是 interface 扣分，但风格不一致会让人皱眉。
-                    Q2 那边就必须用 <code>type</code> —— 因为
+                    考试不会因为你用 type 还是 interface 扣分，但风格不一致会让人皱眉。Q2 那边就必须用 <code>type</code> —— 因为
                     <code>SettledResult</code> 是个联合类型，interface 做不到。
                   </p>
                 </>
@@ -4272,23 +4140,18 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                 <>
                   <p>
                     <code>react-notes-app/tsconfig.json</code> 里写了
-                    <code>&quot;strict&quot;: true</code>。它是一个开关包，一次打开好几项检查。
-                    对你影响最大的两项：
+                    <code>&quot;strict&quot;: true</code>。它是一个开关包，一次打开好几项检查。对你影响最大的两项：
                   </p>
                   <ul>
                     <li>
                       <strong><code>strictNullChecks</code></strong> ——
-                      <code>null</code> 和 <code>undefined</code> 不再能随便赋给别的类型。
-                      所以 <code>noteToEdit</code> 必须明确写成 <code>Note | null</code>，
-                      而且用它之前必须先判断。这就是为什么真实代码里到处是
+                      <code>null</code> 和 <code>undefined</code> 不再能随便赋给别的类型。所以 <code>noteToEdit</code> 必须明确写成 <code>Note | null</code>，而且用它之前必须先判断。这就是为什么真实代码里到处是
                       <code>if (noteToEdit)</code>。
                     </li>
                     <li>
                       <strong><code>noImplicitAny</code></strong> ——
                       推断不出类型的参数不许留空。所以<strong>单独定义</strong>的处理函数要写
-                      <code>(event: React.FormEvent&lt;HTMLFormElement&gt;)</code>；
-                      直接写在 JSX 属性里的回调（如 <code>{"onChange={(e) => …}"}</code>）
-                      能从上下文推断出类型，只写 <code>(e)</code> 就行。
+                      <code>(event: React.FormEvent&lt;HTMLFormElement&gt;)</code>；直接写在 JSX 属性里的回调（如 <code>{"onChange={(e) => …}"}</code>）能从上下文推断出类型，只写 <code>(e)</code> 就行。
                     </li>
                   </ul>
                   <p>
@@ -4359,8 +4222,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
               level: 2,
               prompt: (
                 <p>
-                  这是 <code>NoteTable</code> 真实的 props 类型。
-                  三个空：一个数组类型、一个函数类型的参数、一个函数类型的返回值。
+                  这是 <code>NoteTable</code> 真实的 props 类型。三个空：一个数组类型、一个函数类型的参数、一个函数类型的返回值。
                 </p>
               ),
               promptEn: (
@@ -4386,9 +4248,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   hintEn: "A whole list of notes.",
                   why: (
                     <>
-                      <code>Note[]</code> 就是「Note 组成的数组」。
-                      也可以写 <code>Array&lt;Note&gt;</code>，含义完全一样，
-                      但这个项目里统一用 <code>Note[]</code> 这种写法。
+                      <code>Note[]</code> 就是「Note 组成的数组」。也可以写 <code>Array&lt;Note&gt;</code>，含义完全一样，但这个项目里统一用 <code>Note[]</code> 这种写法。
                     </>
                   ),
                   whyEn: (
@@ -4408,8 +4268,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   why: (
                     <>
                       <code>number</code>。因为 <code>Note.id</code> 是
-                      <code>number</code>（项目里用 <code>Date.now()</code> 生成）。
-                      写成 <code>string</code> 的话，<code>NoteItem</code> 里
+                      <code>number</code>（项目里用 <code>Date.now()</code> 生成）。写成 <code>string</code> 的话，<code>NoteItem</code> 里
                       <code>onDelete(note.id)</code> 就会报类型不匹配。
                       <strong>这也说明为什么要先读类型定义</strong> ——
                       它把整条链上的类型都决定了。
@@ -4435,9 +4294,7 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                   hintEn: "This callback does not have to return anything.",
                   why: (
                     <>
-                      <code>void</code> 表示「没有返回值」。
-                      事件回调几乎都是 <code>void</code> —— 调用它是为了产生副作用
-                      （改 state），不是为了拿返回值。
+                      <code>void</code> 表示「没有返回值」。事件回调几乎都是 <code>void</code> —— 调用它是为了产生副作用（改 state），不是为了拿返回值。
                     </>
                   ),
                   whyEn: (
@@ -4544,19 +4401,13 @@ import { OrderDataSource } from './dataSources/orderDataSource.js';`,
                 <>
                   <p>
                     <code>useState</code> 是 React 提供的函数，它不可能知道你要存什么 ——
-                    可能是数字、可能是字符串、可能是笔记数组。
-                    所以它的类型定义留了一个洞，写成 <code>useState&lt;S&gt;</code>。
-                    你调用时用尖括号把洞填上：
+                    可能是数字、可能是字符串、可能是笔记数组。所以它的类型定义留了一个洞，写成 <code>useState&lt;S&gt;</code>。你调用时用尖括号把洞填上：
                   </p>
                   <p>
-                    为什么第一个必须显式写 <code>&lt;Note[]&gt;</code>?
-                    因为初始值是 <code>[]</code> —— 一个空数组，
-                    TypeScript 从它身上只能推断出「某种数组」，不知道装什么。
-                    不写的话后面 <code>setNotes([...prev, note])</code> 就会报类型错。
+                    为什么第一个必须显式写 <code>&lt;Note[]&gt;</code>?因为初始值是 <code>[]</code> —— 一个空数组，TypeScript 从它身上只能推断出「某种数组」，不知道装什么。不写的话后面 <code>setNotes([...prev, note])</code> 就会报类型错。
                   </p>
                   <p>
-                    而第三个 <code>useState(&quot;&quot;)</code> 不用写，
-                    因为初始值 <code>&quot;&quot;</code> 已经把类型说清楚了：<code>string</code>。
+                    而第三个 <code>useState(&quot;&quot;)</code> 不用写，因为初始值 <code>&quot;&quot;</code> 已经把类型说清楚了：<code>string</code>。
                     <strong>规则：推断得出来就别写，推断不出来才写。</strong>
                   </p>
                 </>
@@ -4635,9 +4486,7 @@ export async function runTasks<T>(
                     <li><strong>说明</strong> —— 人话描述，而且这条还带了修复建议</li>
                   </ol>
                   <p>
-                    <strong>先看第一条错误，再看后面几条是不是同一个原因。</strong>TypeScript 的报错常常会连锁：
-                    一个类型错了，后面用到它的地方全跟着报，修掉第一条，后面的可能自己就没了；
-                    本例的 10 条则是同出一因 —— 缺了 vitest/globals 的类型。
+                    <strong>先看第一条错误，再看后面几条是不是同一个原因。</strong>TypeScript 的报错常常会连锁：一个类型错了，后面用到它的地方全跟着报，修掉第一条，后面的可能自己就没了；本例的 10 条则是同出一因 —— 缺了 vitest/globals 的类型。
                   </p>
                 </>
               ),
@@ -4714,16 +4563,13 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
                   <p>
                     根因：<code>tsconfig.json</code> 的
                     <code>include: [&quot;src&quot;, &quot;q2&quot;]</code>
-                    把测试文件也纳入了类型检查，但没有任何地方告诉 tsc
-                    「这些全局变量存在」。缺的是
+                    把测试文件也纳入了类型检查，但没有任何地方告诉 tsc「这些全局变量存在」。缺的是
                     <code>&quot;types&quot;: [&quot;vitest/globals&quot;]</code>
                     （或者在测试文件里显式 import）。
                   </p>
                   <p>
                     <strong>考场上该怎么办？</strong>
-                    <code>npm run build</code> 失败但 <code>npx vitest run</code> 全过时，
-                    先确认失败发生在 <code>tsc</code> 那一步、而且只涉及测试文件的全局名字。
-                    确认之后：继续用 vitest 验证你的实现，并在提交说明里点出这个配置问题。
+                    <code>npm run build</code> 失败但 <code>npx vitest run</code> 全过时，先确认失败发生在 <code>tsc</code> 那一步、而且只涉及测试文件的全局名字。确认之后：继续用 vitest 验证你的实现，并在提交说明里点出这个配置问题。
                     <strong>把它当成一个观察记下来，而不是当成一个要你修的任务</strong> ——
                     题目没有要求你改配置，而擅自改 tsconfig 有可能影响判卷。
                   </p>
@@ -4912,9 +4758,7 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
                 <p>
                   你刚 clone 好 react-notes-app，一行代码都还没写，先跑了
                   <code>npm run build</code>，得到 10 个错误（TS2582 找不到
-                  <code>test</code>、TS2304 找不到 <code>expect</code>）。
-                  同时 <code>npx vitest run</code> 显示 4 个测试全过。
-                  最合理的判断是？
+                  <code>test</code>、TS2304 找不到 <code>expect</code>）。同时 <code>npx vitest run</code> 显示 4 个测试全过。最合理的判断是？
                 </p>
               ),
               promptEn: (
@@ -4935,10 +4779,7 @@ src/NoteManager.test.tsx(14,1): error TS2582: Cannot find name 'test'.
               answer: ["c"],
               explain: (
                 <>
-                  三条证据指向同一个结论：报错全在测试文件、报的是测试框架注入的全局名字、
-                  而测试本身跑得过。这说明<strong>逻辑没问题，是类型配置缺了一块</strong>。
-                  继续用 <code>npx vitest run</code> 验证实现即可，
-                  并把这个配置问题作为观察记下来 —— 别去改业务代码，也别贸然改 tsconfig。
+                  三条证据指向同一个结论：报错全在测试文件、报的是测试框架注入的全局名字、而测试本身跑得过。这说明<strong>逻辑没问题，是类型配置缺了一块</strong>。继续用 <code>npx vitest run</code> 验证实现即可，并把这个配置问题作为观察记下来 —— 别去改业务代码，也别贸然改 tsconfig。
                 </>
               ),
               explainEn: (
@@ -5012,10 +4853,7 @@ export type Task<T> = () => ___3___<T>;`,
                   hintEn: "How do you say \"no note is being edited right now\"?",
                   why: (
                     <>
-                      <code>null</code>。<code>Note | null</code> 表达的是
-                      「要么正在编辑某条笔记，要么什么都没在编辑」。
-                      strict 模式下这个 <code>| null</code> 必须写出来，
-                      而且用 <code>noteToEdit</code> 之前必须先判断 ——
+                      <code>null</code>。<code>Note | null</code> 表达的是「要么正在编辑某条笔记，要么什么都没在编辑」。strict 模式下这个 <code>| null</code> 必须写出来，而且用 <code>noteToEdit</code> 之前必须先判断 ——
                       真实代码里的 <code>if (noteToEdit)</code> 就是为此。
                     </>
                   ),
@@ -5038,8 +4876,7 @@ export type Task<T> = () => ___3___<T>;`,
                   why: (
                     <>
                       <code>Promise</code>。<code>Task&lt;T&gt; = () =&gt; Promise&lt;T&gt;</code>
-                      的意思是：一个不接参数的函数，调用它会得到一个「以后会给你 T」的 Promise。
-                      注意<strong>它本身不是 Promise</strong> ——
+                      的意思是：一个不接参数的函数，调用它会得到一个「以后会给你 T」的 Promise。注意<strong>它本身不是 Promise</strong> ——
                       这个区分是 Q2 能实现并发控制的前提。
                     </>
                   ),

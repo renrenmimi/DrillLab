@@ -145,8 +145,7 @@ export function Ladder({ current }: { current: LadderStep }) {
             zh={
               <>
                 往右一格，帮你的东西就少一样。<strong>只有最右边那格对准真实考试</strong>——
-                前三格跑绿了不代表空手能做出来。
-                两套<Link href="/mock">模拟考</Link>就在考场的 {ARENA.length} 道里。
+                前三格跑绿了不代表空手能做出来。两套<Link href="/mock">模拟考</Link>就在考场的 {ARENA.length} 道里。
               </>
             }
             en={

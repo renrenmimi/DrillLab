@@ -56,50 +56,40 @@ export const ivJsAsync: Module = {
               </p>
               <ul>
                 <li>
-                  <strong>封装</strong>—— 内部细节藏起来，
-                  只暴露必要的接口。JS 里用闭包或
+                  <strong>封装</strong>—— 内部细节藏起来，只暴露必要的接口。JS 里用闭包或
                   <code>#private</code> 字段实现。
                 </li>
                 <li>
                   <strong>继承</strong>—— 子类复用父类的能力。
                 </li>
                 <li>
-                  <strong>多态</strong>—— 同一个方法名，
-                  不同对象有不同行为。
+                  <strong>多态</strong>—— 同一个方法名，不同对象有不同行为。
                 </li>
                 <li>
-                  <strong>抽象</strong>—— 只关心「能做什么」，
-                  不关心「怎么做的」。
+                  <strong>抽象</strong>—— 只关心「能做什么」，不关心「怎么做的」。
                 </li>
               </ul>
               <p>
                 <strong>JS 的特别之处（这才是考点）：</strong>
-                它是<strong>基于原型（prototype）的</strong>，
-                不是基于类的。
+                它是<strong>基于原型（prototype）的</strong>，不是基于类的。
                 <code>class</code> 是 ES6 加的，
                 <strong>主要是原型继承的语法糖</strong>
                 （但 <code>#private</code> 字段、必须用 <code>new</code> 调用、
-                <code>super</code> 这些是原型写法做不到的），
-                底下还是原型链 ——
+                <code>super</code> 这些是原型写法做不到的），底下还是原型链 ——
                 <code>class A extends B</code> 编译后就是设置
                 <code>A.prototype.__proto__ = B.prototype</code>。
               </p>
               <p>
                 <strong>原型链一句话：</strong>
                 访问一个属性时，对象自己没有就去
-                <code>__proto__</code> 上找，
-                一层层往上直到 <code>null</code>。
-                <strong>和作用域链是一个套路，
-                只是一个查变量、一个查属性。</strong>
+                <code>__proto__</code> 上找，一层层往上直到 <code>null</code>。
+                <strong>和作用域链是一个套路，只是一个查变量、一个查属性。</strong>
               </p>
               <p>
                 <strong>会追问：</strong>
                 「React 为什么从 class 转向函数组件？」——
-                因为 UI 更适合用「输入 → 输出」来描述，
-                而不是「一个有生命周期的对象」；
-                而且 class 里 <code>this</code>
-                的绑定问题、逻辑按生命周期而不是按关注点拆分，
-                都是实际痛点（见 #322）。
+                因为 UI 更适合用「输入 → 输出」来描述，而不是「一个有生命周期的对象」；而且 class 里 <code>this</code>
+                的绑定问题、逻辑按生命周期而不是按关注点拆分，都是实际痛点（见 #322）。
               </p>
             </>
           ),
@@ -209,8 +199,7 @@ new Dog("x") instanceof Animal;                              // true`,
             <>
               <p>
                 <strong>一句话：</strong>
-                <code>this</code> 是<strong>调用时决定的</strong>，
-                不是定义时。看<strong>「谁调用的」</strong>。
+                <code>this</code> 是<strong>调用时决定的</strong>，不是定义时。看<strong>「谁调用的」</strong>。
               </p>
               <p>
                 <strong>四条规则，按优先级从高到低</strong>——
@@ -234,27 +223,21 @@ new Dog("x") instanceof Animal;                              // true`,
                   （<strong>看点号左边</strong>）。
                 </li>
                 <li>
-                  <strong>默认绑定</strong>—— 都不满足时，
-                  严格模式下是 <code>undefined</code>，
-                  否则是 <code>window</code> / <code>global</code>。
+                  <strong>默认绑定</strong>—— 都不满足时，严格模式下是 <code>undefined</code>，否则是 <code>window</code> / <code>global</code>。
                 </li>
               </ol>
               <p>
                 <strong>箭头函数是例外，它不参与这四条</strong>——
-                它<strong>没有自己的 <code>this</code></strong>，
-                用的是定义时外层作用域的 <code>this</code>，
-                而且 <code>call</code> / <code>bind</code>
+                它<strong>没有自己的 <code>this</code></strong>，用的是定义时外层作用域的 <code>this</code>，而且 <code>call</code> / <code>bind</code>
                 <strong>改不了它</strong>。
               </p>
               <p>
                 <strong>最经典的陷阱：隐式丢失。</strong>
                 <code>const fn = obj.method</code> 之后单独调
                 <code>fn()</code>，点号没了，
-                <code>this</code> 就丢了。
-                把方法当回调传出去（
+                <code>this</code> 就丢了。把方法当回调传出去（
                 <code>setTimeout(obj.method)</code>、
-                <code>onClick={"{this.handle}"}</code>）
-                都是这个问题 ——
+                <code>onClick={"{this.handle}"}</code>）都是这个问题 ——
                 <strong>这就是 React 类组件必须在构造器里
                 <code>bind</code> 的原因</strong>。
               </p>
@@ -262,8 +245,7 @@ new Dog("x") instanceof Animal;                              // true`,
                 <strong>会追问：</strong>
                 「DOM 事件回调里 <code>this</code> 是什么？」——
                 普通函数是<strong>绑定事件的那个元素</strong>
-                （等于 <code>e.currentTarget</code>），
-                箭头函数则是外层的 <code>this</code>。
+                （等于 <code>e.currentTarget</code>），箭头函数则是外层的 <code>this</code>。
               </p>
             </>
           ),
@@ -446,15 +428,13 @@ class Btn extends React.Component {
               </p>
               <ul>
                 <li>
-                  <strong>能预置参数</strong>—— 所以它就是偏函数
-                  （见 #299）。
+                  <strong>能预置参数</strong>—— 所以它就是偏函数（见 #299）。
                 </li>
                 <li>
                   <strong>绑过一次就锁死了</strong>——
                   再 <code>bind</code> 或 <code>call</code>
                   都改不回来。
-                  <strong>但 <code>new</code> 能突破它</strong>，
-                  因为 <code>new</code> 优先级最高。
+                  <strong>但 <code>new</code> 能突破它</strong>，因为 <code>new</code> 优先级最高。
                 </li>
               </ul>
               <p>
@@ -681,9 +661,7 @@ Function.prototype.myBind = function (ctx, ...preset) {
             <>
               <p>
                 <strong>一句话：</strong>JS
-                <strong>只有一个主线程</strong>，
-                事件循环负责在「调用栈空了」的时候，
-                从任务队列里取下一个任务放上去执行。
+                <strong>只有一个主线程</strong>，事件循环负责在「调用栈空了」的时候，从任务队列里取下一个任务放上去执行。
               </p>
               <p>
                 <strong>完整的一轮（这段是标准答案）：</strong>
@@ -706,38 +684,29 @@ Function.prototype.myBind = function (ctx, ...preset) {
                 <code>MutationObserver</code>。
                 <br />
                 <strong>谁是宏任务：</strong>
-                <code>setTimeout</code> / <code>setInterval</code>、
-                DOM 事件回调、网络回调、
+                <code>setTimeout</code> / <code>setInterval</code>、DOM 事件回调、网络回调、
                 <code>requestAnimationFrame</code>
                 （严格说它在渲染前，单独一档）。
               </p>
               <p>
                 <strong>一句话记住优先级：
                 <code>Promise</code> 一定比
-                <code>setTimeout</code> 先跑</strong>，
-                即使 <code>setTimeout(…, 0)</code>。
+                <code>setTimeout</code> 先跑</strong>，即使 <code>setTimeout(…, 0)</code>。
               </p>
               <p>
                 <strong>会追问：</strong>
-                「异步是谁做的？」—— 不是引擎，
-                是<strong>宿主环境</strong>（浏览器的 Web API /
-                Node 的 libuv）。引擎只管执行 JS。
-                这条和 #276 是一组。
+                「异步是谁做的？」—— 不是引擎，是<strong>宿主环境</strong>（浏览器的 Web API /
+                Node 的 libuv）。引擎只管执行 JS。这条和 #276 是一组。
                 <br />
                 「<code>setTimeout(fn, 0)</code>
                 真的 0 毫秒吗？」——
-                不是「立刻」：它要等当前同步代码和全部微任务跑完、主线程空出来才轮到；
-                另外定时器嵌套超过 5 层后，浏览器会把延迟钳到至少 4ms。
+                不是「立刻」：它要等当前同步代码和全部微任务跑完、主线程空出来才轮到；另外定时器嵌套超过 5 层后，浏览器会把延迟钳到至少 4ms。
                 <strong>所以它只是「尽快，但不是现在」。</strong>
               </p>
               <p>
-                <strong>Node 的差别</strong>（问到就是加分）：
-                Node 的宏任务分了六个阶段
-                （timers / pending / poll / check / close…），
-                <code>setImmediate</code> 在 check 阶段；
-                CommonJS 里 <code>process.nextTick</code> 队列
-                <strong>先于 Promise 微任务</strong>，
-                ES 模块的顶层代码里则是 Promise 先执行。
+                <strong>Node 的差别</strong>（问到就是加分）：Node 的宏任务分了六个阶段（timers / pending / poll / check / close…），
+                <code>setImmediate</code> 在 check 阶段；CommonJS 里 <code>process.nextTick</code> 队列
+                <strong>先于 Promise 微任务</strong>，ES 模块的顶层代码里则是 Promise 先执行。
               </p>
             </>
           ),
@@ -867,10 +836,8 @@ console.log("6 sync");
               <p>
                 <strong>一句话：</strong><code>async/await</code>
                 是 Promise 的<strong>语法糖</strong>——
-                同一套机制，但把「链式回调」写成了
-                「像同步一样往下读」。
-                <strong><code>async</code> 函数
-                永远返回一个 Promise。</strong>
+                同一套机制，但把「链式回调」写成了「像同步一样往下读」。
+                <strong><code>async</code> 函数永远返回一个 Promise。</strong>
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -917,20 +884,15 @@ console.log("6 sync");
                 </table>
               </div>
               <p>
-                <strong>那个「容易写成串行」的陷阱值得单独说</strong>：
-                两个互不依赖的请求，
-                写成两行 <code>await</code>
-                就变成了「等第一个回来再发第二个」，
-                总耗时是两者之和。
+                <strong>那个「容易写成串行」的陷阱值得单独说</strong>：两个互不依赖的请求，写成两行 <code>await</code>
+                就变成了「等第一个回来再发第二个」，总耗时是两者之和。
                 <strong>正确做法是先都发出去，再一起
                 <code>await Promise.all</code></strong>。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「什么时候还是用 <code>.then</code> 更好？」——
-                只需要一步、不需要中间变量时；
-                或者<strong>要故意不等</strong>（fire and forget）。
-                另外 <code>.then</code>
+                只需要一步、不需要中间变量时；或者<strong>要故意不等</strong>（fire and forget）。另外 <code>.then</code>
                 在需要把 Promise 存起来传递时更自然。
               </p>
             </>
@@ -1052,9 +1014,7 @@ const posts = await fetchPosts(user.id);   // user.id has to exist first`,
           body: (
             <>
               <p>
-                <strong>一句话：</strong>异步一步依赖上一步时，
-                回调套回调，缩进越来越深，
-                形成一个横着的三角形 ——
+                <strong>一句话：</strong>异步一步依赖上一步时，回调套回调，缩进越来越深，形成一个横着的三角形 ——
                 也叫「厄运金字塔」。
               </p>
               <p>
@@ -1063,32 +1023,26 @@ const posts = await fetchPosts(user.id);   // user.id has to exist first`,
               <ul>
                 <li>
                   <strong>错误处理要写 n 遍。</strong>
-                  每一层都得判 <code>if (err)</code>，
-                  漏一个就静默失败。
+                  每一层都得判 <code>if (err)</code>，漏一个就静默失败。
                 </li>
                 <li>
                   <strong>没法组合。</strong>
                   想改成「这两步并行」几乎要重写。
                 </li>
                 <li>
-                  <strong>控制流全靠缩进表达</strong>，
-                  加一步要改一堆括号。
+                  <strong>控制流全靠缩进表达</strong>，加一步要改一堆括号。
                 </li>
               </ul>
               <p>
                 <strong>怎么解，按历史顺序：</strong>
-                命名函数拆平 → Promise 链
-                （把嵌套变成链式，错误集中到一个
+                命名函数拆平 → Promise 链（把嵌套变成链式，错误集中到一个
                 <code>.catch</code>）→
                 <code>async/await</code>（彻底变线性）。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「Promise 解决了回调地狱的哪个问题？」——
-                <strong>主要是「错误处理」和「组合」</strong>，
-                缩进只是顺带。
-                能这么答说明你理解本质，
-                而不是「Promise 让代码变平了」这种表面回答。
+                <strong>主要是「错误处理」和「组合」</strong>，缩进只是顺带。能这么答说明你理解本质，而不是「Promise 让代码变平了」这种表面回答。
               </p>
             </>
           ),
@@ -1195,9 +1149,7 @@ try {
             <>
               <p>
                 <strong>一句话：</strong>
-                <strong>无论成功还是失败都会执行</strong>，
-                用来做收尾 —— 关 loading、
-                释放资源、上报耗时。
+                <strong>无论成功还是失败都会执行</strong>，用来做收尾 —— 关 loading、释放资源、上报耗时。
               </p>
               <p>
                 <strong>三个性质要说清：</strong>
@@ -1209,9 +1161,7 @@ try {
                 </li>
                 <li>
                   <strong>透传</strong>—— 它把原来的值或错误
-                  <strong>原样往下传</strong>，
-                  不影响链的状态。
-                  所以 <code>finally</code> 里 <code>return</code>
+                  <strong>原样往下传</strong>，不影响链的状态。所以 <code>finally</code> 里 <code>return</code>
                   一个值<strong>不会改变结果</strong>。
                 </li>
                 <li>
@@ -1220,10 +1170,8 @@ try {
                 </li>
               </ul>
               <p>
-                <strong>为什么这题值得问：</strong>因为它对应一个
-                真实 bug —— 只在成功路径里
-                <code>setLoading(false)</code>，
-                出错时界面就永远卡在 Loading。
+                <strong>为什么这题值得问：</strong>因为它对应一个真实 bug —— 只在成功路径里
+                <code>setLoading(false)</code>，出错时界面就永远卡在 Loading。
                 <strong>我们那道 fetch 变式题的常见错误里就有这一条。</strong>
               </p>
               <p>
@@ -1341,8 +1289,7 @@ Promise.resolve(1).finally(() => { throw new Error("x"); }).catch(e => console.l
             <>
               <p>
                 <strong>一句话：</strong>同步用
-                <code>try/catch</code>，
-                Promise 用 <code>.catch()</code>，
+                <code>try/catch</code>，Promise 用 <code>.catch()</code>，
                 <code>async/await</code> 用
                 <code>try/catch</code>；
                 <strong>最上层要有兜底</strong>。
@@ -1352,8 +1299,7 @@ Promise.resolve(1).finally(() => { throw new Error("x"); }).catch(e => console.l
                 <code>try/catch</code>
                 抓不到「回调里」的异步错误。</strong>
                 因为 <code>setTimeout</code>
-                的回调是在<strong>另一轮事件循环</strong>里执行的，
-                那时 <code>try</code> 块早就出栈了。
+                的回调是在<strong>另一轮事件循环</strong>里执行的，那时 <code>try</code> 块早就出栈了。
               </p>
               <p>
                 <strong>四个层次的实践：</strong>
@@ -1362,28 +1308,20 @@ Promise.resolve(1).finally(() => { throw new Error("x"); }).catch(e => console.l
                 <li>
                   <strong>该抛就抛</strong>——
                   别把错误吞掉换成
-                  <code>return null</code>，
-                  调用方无法区分「没有」和「出错了」。
+                  <code>return null</code>，调用方无法区分「没有」和「出错了」。
                 </li>
                 <li>
-                  <strong>抛 <code>Error</code> 对象</strong>，
-                  别抛字符串 —— 否则没有堆栈。
-                  需要区分类型就
+                  <strong>抛 <code>Error</code> 对象</strong>，别抛字符串 —— 否则没有堆栈。需要区分类型就
                   <code>class NotFoundError extends Error</code>。
                 </li>
                 <li>
-                  <strong>只在能处理的地方 catch</strong>。
-                  catch 了却什么都不做（
-                  <code>{"catch (e) {}"}</code>）
-                  是最坏的写法。
+                  <strong>只在能处理的地方 catch</strong>。catch 了却什么都不做（
+                  <code>{"catch (e) {}"}</code>）是最坏的写法。
                 </li>
                 <li>
                   <strong>兜底</strong>——
                   浏览器 <code>window.onerror</code> +
-                  <code>unhandledrejection</code>；
-                  Node <code>process.on(&quot;uncaughtException&quot;)</code>；
-                  React 用<strong>错误边界</strong>（见 #333）；
-                  Express 用<strong>错误中间件</strong>。
+                  <code>unhandledrejection</code>；Node <code>process.on(&quot;uncaughtException&quot;)</code>；React 用<strong>错误边界</strong>（见 #333）；Express 用<strong>错误中间件</strong>。
                 </li>
               </ul>
               <p>
@@ -1391,9 +1329,7 @@ Promise.resolve(1).finally(() => { throw new Error("x"); }).catch(e => console.l
                 「fetch 的错误怎么处理？」——
                 <strong>陷阱题</strong>。
                 <code>fetch</code> 只在网络层失败时 reject，
-                <strong>404 / 500 是 resolve 的</strong>，
-                必须自己检查 <code>res.ok</code>。
-                这也是 React 那门课里 fetch 变式题的第一个考点。
+                <strong>404 / 500 是 resolve 的</strong>，必须自己检查 <code>res.ok</code>。这也是 React 那门课里 fetch 变式题的第一个考点。
               </p>
             </>
           ),
@@ -1520,14 +1456,12 @@ window.addEventListener("unhandledrejection", (e) => report(e.reason));`,
             <>
               <p>
                 <strong>一句话（按历史讲最清楚）：</strong>
-                回调 → Promise → async/await，
-                外加事件和 <code>for await…of</code>
+                回调 → Promise → async/await，外加事件和 <code>for await…of</code>
                 处理流式数据。
               </p>
               <p>
                 <strong>但这题真正的考点是
-                Promise 的四个静态方法怎么选</strong>，
-                一定会追问：
+                Promise 的四个静态方法怎么选</strong>，一定会追问：
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -1550,27 +1484,23 @@ window.addEventListener("unhandledrejection", (e) => report(e.reason));`,
                     <tr>
                       <td><code>allSettled</code></td>
                       <td>
-                        <strong>全部结束</strong>就成功，
-                        不管成败
+                        <strong>全部结束</strong>就成功，不管成败
                       </td>
                       <td>
-                        批量操作，要知道每一个的结果
-                        （批量上传，报告哪几个失败了）
+                        批量操作，要知道每一个的结果（批量上传，报告哪几个失败了）
                       </td>
                     </tr>
                     <tr>
                       <td><code>race</code></td>
                       <td>
-                        <strong>第一个结束的</strong>说话，
-                        成功失败都算
+                        <strong>第一个结束的</strong>说话，成功失败都算
                       </td>
                       <td>超时控制</td>
                     </tr>
                     <tr>
                       <td><code>any</code></td>
                       <td>
-                        <strong>第一个成功的</strong>，
-                        全失败才失败
+                        <strong>第一个成功的</strong>，全失败才失败
                       </td>
                       <td>多个镜像源取最快能用的那个</td>
                     </tr>
@@ -1578,23 +1508,17 @@ window.addEventListener("unhandledrejection", (e) => report(e.reason));`,
                 </table>
               </div>
               <p>
-                <strong><code>all</code> 的陷阱</strong>：
-                它是 fail-fast 的 ——
+                <strong><code>all</code> 的陷阱</strong>：它是 fail-fast 的 ——
                 一个失败，其他已经在飞的请求
-                <strong>不会被取消</strong>，
-                而且你拿不到其他的结果。
-                「批量操作要逐个报告」的场景该用
+                <strong>不会被取消</strong>，而且你拿不到其他的结果。「批量操作要逐个报告」的场景该用
                 <code>allSettled</code>。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「怎么给一个请求加超时？」——
                 <code>Promise.race</code>
-                配一个定时 reject 的 Promise；
-                更好的是用 <code>AbortController</code>，
-                因为它能<strong>真的把请求掐掉</strong>，
-                <code>race</code> 只是不等了。
-                这两个的区别在我们那道 fetch 变式题里也讲过。
+                配一个定时 reject 的 Promise；更好的是用 <code>AbortController</code>，因为它能<strong>真的把请求掐掉</strong>，
+                <code>race</code> 只是不等了。这两个的区别在我们那道 fetch 变式题里也讲过。
               </p>
             </>
           ),
@@ -1825,34 +1749,23 @@ await fetch(url, { signal: c.signal });`,
             <>
               <p>
                 <strong>一句话：</strong>DOM 是浏览器把 HTML
-                解析成的<strong>一棵对象树</strong>，
-                每个标签是一个节点；
-                DOM 事件是这棵树上发生的事情
-                （点击、输入、加载完成），
-                你可以注册函数去响应。
+                解析成的<strong>一棵对象树</strong>，每个标签是一个节点；DOM 事件是这棵树上发生的事情（点击、输入、加载完成），你可以注册函数去响应。
               </p>
               <p>
                 <strong>关键概念要点清：</strong>
-                DOM <strong>不是 HTML 本身</strong>，
-                也<strong>不属于 JavaScript 语言</strong>——
-                它是浏览器提供的 API（Web API）。
-                所以 Node 里没有 <code>document</code>。
-                这条和 #276 是一组。
+                DOM <strong>不是 HTML 本身</strong>，也<strong>不属于 JavaScript 语言</strong>——
+                它是浏览器提供的 API（Web API）。所以 Node 里没有 <code>document</code>。这条和 #276 是一组。
               </p>
               <p>
                 <strong>为什么「操作 DOM 慢」：</strong>
                 不是读写属性本身慢，而是它可能触发
                 <strong>重排（reflow）和重绘（repaint）</strong>——
-                浏览器要重新计算布局、重新画。
-                在循环里反复读 <code>offsetHeight</code>
+                浏览器要重新计算布局、重新画。在循环里反复读 <code>offsetHeight</code>
                 再改样式，会造成
-                <strong>强制同步布局（layout thrashing）</strong>，
-                这才是真正的性能杀手。
+                <strong>强制同步布局（layout thrashing）</strong>，这才是真正的性能杀手。
               </p>
               <p>
-                <strong>这直接解释了虚拟 DOM 的价值</strong>（见 #330）：
-                它把多次操作合并成一次，
-                并且尽量只改变化的部分。
+                <strong>这直接解释了虚拟 DOM 的价值</strong>（见 #330）：它把多次操作合并成一次，并且尽量只改变化的部分。
               </p>
               <p>
                 <strong>会追问：</strong>
@@ -1862,8 +1775,7 @@ await fetch(url, { signal: c.signal });`,
                 <strong>真正被点的那个元素</strong>，
                 <code>currentTarget</code> 是
                 <strong>当前监听器挂在哪个元素上</strong>。
-                <strong>事件委托全靠这个区别</strong>，
-                下一题就是。
+                <strong>事件委托全靠这个区别</strong>，下一题就是。
               </p>
             </>
           ),
@@ -1922,8 +1834,7 @@ await fetch(url, { signal: c.signal });`,
                 <strong>传播是浏览器的机制</strong>
                 （捕获 → 目标 → 冒泡，见 #380）；
                 <strong>委托是我们利用这个机制的技巧</strong>——
-                把监听器挂在父元素上，
-                通过 <code>e.target</code> 判断实际点了哪个子元素。
+                把监听器挂在父元素上，通过 <code>e.target</code> 判断实际点了哪个子元素。
               </p>
               <p>
                 <strong>委托解决两个问题：</strong>
@@ -1931,41 +1842,32 @@ await fetch(url, { signal: c.signal });`,
               <ul>
                 <li>
                   <strong>监听器数量</strong>——
-                  1000 行的表格挂 1000 个监听器，
-                  内存和绑定开销都很可观；委托只要 1 个。
+                  1000 行的表格挂 1000 个监听器，内存和绑定开销都很可观；委托只要 1 个。
                 </li>
                 <li>
                   <strong>动态元素</strong>——
                   后来才插进来的子元素
-                  <strong>自动就有了行为</strong>，
-                  不用重新绑定。这一条往往更实用。
+                  <strong>自动就有了行为</strong>，不用重新绑定。这一条往往更实用。
                 </li>
               </ul>
               <p>
                 <strong>写法的关键是 <code>e.target.closest()</code></strong>——
                 因为用户可能点在按钮里的
-                <code>&lt;span&gt;</code> 上，
-                直接比 <code>e.target.matches()</code> 会漏。
+                <code>&lt;span&gt;</code> 上，直接比 <code>e.target.matches()</code> 会漏。
               </p>
               <p>
                 <strong>会追问（重点）：</strong>
                 「React 的事件是委托的吗？」——
-                <strong>是</strong>，而且这是它的核心设计：
-                React 把事件统一挂在
-                <strong>根容器</strong>上
-                （React 17 之前挂在 <code>document</code>，
-                17 之后挂到 root 节点，
-                <strong>这是为了支持一个页面里多个 React 版本共存</strong>），
-                然后用<strong>合成事件（SyntheticEvent）</strong>
+                <strong>是</strong>，而且这是它的核心设计：React 把事件统一挂在
+                <strong>根容器</strong>上（React 17 之前挂在 <code>document</code>，17 之后挂到 root 节点，
+                <strong>这是为了支持一个页面里多个 React 版本共存</strong>），然后用<strong>合成事件（SyntheticEvent）</strong>
                 模拟一套跨浏览器一致的事件系统。
                 <br />
                 <strong>推论</strong>：React 17 起，
                 <code>e.stopPropagation()</code>
-                拦得住 React 组件之间的传播，
-                也拦得住挂在 root 之外（<code>document</code>、<code>window</code>）的原生监听器；
+                拦得住 React 组件之间的传播，也拦得住挂在 root 之外（<code>document</code>、<code>window</code>）的原生监听器；
                 <strong>拦不住的是挂在目标和 root 之间的原生监听器</strong>——
-                它们在事件冒到 root 之前就执行完了。
-                这个点答出来会很加分。
+                它们在事件冒到 root 之前就执行完了。这个点答出来会很加分。
               </p>
             </>
           ),
@@ -2072,12 +1974,10 @@ table.addEventListener("click", (e) => {
           body: (
             <>
               <p>
-                <strong>一句话：</strong>2015 年那一版改动最大，
-                十来个东西<strong>今天天天在用</strong>。
+                <strong>一句话：</strong>2015 年那一版改动最大，十来个东西<strong>今天天天在用</strong>。
               </p>
               <p>
-                <strong>按重要性排（面试挑五六个说清就够，
-                别背清单）：</strong>
+                <strong>按重要性排（面试挑五六个说清就够，别背清单）：</strong>
               </p>
               <ul>
                 <li>
@@ -2125,18 +2025,14 @@ table.addEventListener("click", (e) => {
                 <strong>会追问：</strong>
                 「ES6 之后还有什么好用的？」——
                 这题答得出来会显得你在跟进：
-                <code>async/await</code>（ES2017）、
-                可选链 <code>?.</code> 和空值合并
+                <code>async/await</code>（ES2017）、可选链 <code>?.</code> 和空值合并
                 <code>??</code>（ES2020）、
                 <code>Object.entries</code>（ES2017）、
                 <code>Array.flat</code>（ES2019）、
-                <code>at(-1)</code>（ES2022）；
-                另外 <code>structuredClone</code> 也常被提到，
-                但它是浏览器和 Node 提供的 Web API，不属于 ECMAScript。
+                <code>at(-1)</code>（ES2022）；另外 <code>structuredClone</code> 也常被提到，但它是浏览器和 Node 提供的 Web API，不属于 ECMAScript。
                 <br />
                 <strong>可选链和 <code>??</code>
-                这两个尤其值得提</strong>，
-                因为它们直接减少了大量防御式代码。
+                这两个尤其值得提</strong>，因为它们直接减少了大量防御式代码。
               </p>
             </>
           ),
@@ -2220,8 +2116,7 @@ table.addEventListener("click", (e) => {
               <p>
                 <strong>一句话：</strong>语言内置的模块系统 ——
                 <code>export</code> 导出、
-                <code>import</code> 导入，
-                每个文件一个作用域，
+                <code>import</code> 导入，每个文件一个作用域，
                 <strong>在编译期就能确定依赖关系</strong>。
               </p>
               <p>
@@ -2276,29 +2171,19 @@ table.addEventListener("click", (e) => {
               </div>
               <p>
                 <strong>「编译期确定依赖」为什么重要？</strong>
-                因为打包工具能在不运行代码的情况下
-                知道谁用了什么，
-                于是能<strong>删掉没用到的导出</strong>
-                （tree shaking）、
-                能做代码分割。
-                <strong>这是 ESM 最大的实际价值</strong>，
-                不是语法更好看。
+                因为打包工具能在不运行代码的情况下知道谁用了什么，于是能<strong>删掉没用到的导出</strong>
+                （tree shaking）、能做代码分割。
+                <strong>这是 ESM 最大的实际价值</strong>，不是语法更好看。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「具名导出和默认导出怎么选？」——
-                默认导出对重命名没有约束
-                （import 时可以叫任何名字），
-                不利于搜索和自动补全；
-                <strong>具名导出更利于 tree shaking 和重构</strong>。
-                实践上「一个文件一个主体」用 default，
-                工具函数集合用具名。
+                默认导出对重命名没有约束（import 时可以叫任何名字），不利于搜索和自动补全；
+                <strong>具名导出更利于 tree shaking 和重构</strong>。实践上「一个文件一个主体」用 default，工具函数集合用具名。
                 <br />
                 「Node 里怎么用 ESM？」——
                 <code>package.json</code> 里
-                <code>{'"type": "module"'}</code>，
-                或者文件名用 <code>.mjs</code>。
-                这就是 Federation 那门课里
+                <code>{'"type": "module"'}</code>，或者文件名用 <code>.mjs</code>。这就是 Federation 那门课里
                 Jest 需要
                 <code>--experimental-vm-modules</code> 的原因。
               </p>
@@ -2411,8 +2296,7 @@ table.addEventListener("click", (e) => {
             <>
               <p>
                 <strong>一句话：</strong>Node 的
-                <strong>包管理器 + 全球最大的包仓库</strong>。
-                它负责装依赖、锁版本、跑脚本。
+                <strong>包管理器 + 全球最大的包仓库</strong>。它负责装依赖、锁版本、跑脚本。
               </p>
               <p>
                 <strong>三件核心事：</strong>
@@ -2421,20 +2305,17 @@ table.addEventListener("click", (e) => {
                 <li>
                   <strong>装依赖</strong>——
                   读 <code>package.json</code> 的
-                  <code>dependencies</code>，
-                  递归下载到 <code>node_modules</code>。
+                  <code>dependencies</code>，递归下载到 <code>node_modules</code>。
                 </li>
                 <li>
                   <strong>锁版本</strong>——
                   <code>package-lock.json</code>
-                  记下<strong>每一个包的确切版本和哈希</strong>，
-                  保证队友和 CI 装出来的一模一样。
+                  记下<strong>每一个包的确切版本和哈希</strong>，保证队友和 CI 装出来的一模一样。
                   <strong>它必须提交到版本库。</strong>
                 </li>
                 <li>
                   <strong>跑脚本</strong>——
-                  <code>npm run dev</code>，
-                  而且会把
+                  <code>npm run dev</code>，而且会把
                   <code>node_modules/.bin</code>
                   加到 PATH，所以能直接写
                   <code>vitest</code> 而不用写全路径。
@@ -2447,10 +2328,7 @@ table.addEventListener("click", (e) => {
                 <li>
                   <strong><code>dependencies</code> vs{" "}
                   <code>devDependencies</code></strong>——
-                  前者是<strong>运行时需要</strong>的
-                  （React），后者只在<strong>开发和构建时</strong>需要
-                  （TypeScript、测试框架、打包工具）。
-                  生产安装可以用
+                  前者是<strong>运行时需要</strong>的（React），后者只在<strong>开发和构建时</strong>需要（TypeScript、测试框架、打包工具）。生产安装可以用
                   <code>npm ci --omit=dev</code> 跳过后者。
                 </li>
                 <li>
@@ -2458,8 +2336,7 @@ table.addEventListener("click", (e) => {
                   <code>npm ci</code></strong>——
                   <code>install</code> 会在需要时
                   <strong>更新 lock 文件</strong>；
-                  <code>ci</code> <strong>严格按 lock 装</strong>，
-                  对不上就直接报错。
+                  <code>ci</code> <strong>严格按 lock 装</strong>，对不上就直接报错。
                   <strong>CI 里应该用 <code>ci</code></strong>。
                 </li>
               </ul>
@@ -2467,12 +2344,9 @@ table.addEventListener("click", (e) => {
                 <strong>会追问：</strong>
                 「<code>^1.2.3</code> 和
                 <code>~1.2.3</code> 什么区别？」——
-                <code>^</code> 允许小版本和补丁升级
-                （<code>&lt;2.0.0</code>），
-                <code>~</code> 只允许补丁
-                （<code>&lt;1.3.0</code>）。
-                <strong>正是因为 <code>^</code> 的存在，
-                lock 文件才必不可少</strong>——
+                <code>^</code> 允许小版本和补丁升级（<code>&lt;2.0.0</code>），
+                <code>~</code> 只允许补丁（<code>&lt;1.3.0</code>）。
+                <strong>正是因为 <code>^</code> 的存在，lock 文件才必不可少</strong>——
                 否则不同时间装出来的版本会不同。
               </p>
             </>
@@ -2557,10 +2431,7 @@ table.addEventListener("click", (e) => {
             <>
               <p>
                 <strong>一句话：</strong>从入口出发
-                <strong>递归分析所有 import，
-                建出一张依赖图</strong>，
-                路上用 loader 把各种文件转成 JS，
-                最后按规则打成若干个 bundle。
+                <strong>递归分析所有 import，建出一张依赖图</strong>，路上用 loader 把各种文件转成 JS，最后按规则打成若干个 bundle。
               </p>
               <p>
                 <strong>四个核心概念（必答）：</strong>
@@ -2570,8 +2441,7 @@ table.addEventListener("click", (e) => {
                   <strong>entry</strong>—— 从哪开始找依赖。
                 </li>
                 <li>
-                  <strong>output</strong>—— 打到哪里、叫什么名
-                  （带 <code>[contenthash]</code> 做缓存）。
+                  <strong>output</strong>—— 打到哪里、叫什么名（带 <code>[contenthash]</code> 做缓存）。
                 </li>
                 <li>
                   <strong>loader</strong>——
@@ -2579,38 +2449,23 @@ table.addEventListener("click", (e) => {
                   <code>babel-loader</code> 转 JSX 和新语法、
                   <code>css-loader</code> 让 CSS 能被
                   <code>import</code>。
-                  <strong>loader 是从右到左（从下到上）执行的</strong>，
-                  这个细节常问。
+                  <strong>loader 是从右到左（从下到上）执行的</strong>，这个细节常问。
                 </li>
                 <li>
                   <strong>plugin</strong>——
-                  在构建生命周期的各个钩子上干活，
-                  能力比 loader 大得多
-                  （生成 HTML、抽 CSS、压缩、分析体积）。
+                  在构建生命周期的各个钩子上干活，能力比 loader 大得多（生成 HTML、抽 CSS、压缩、分析体积）。
                 </li>
               </ul>
               <p>
                 <strong>为什么需要打包（这才是问题的本质）：</strong>
-                浏览器早期不支持模块、
-                不认识 JSX 和 TS、
-                请求数多会慢；
-                打包解决的是<strong>模块化、转译、
-                合并压缩、以及 tree shaking</strong>。
+                浏览器早期不支持模块、不认识 JSX 和 TS、请求数多会慢；打包解决的是<strong>模块化、转译、合并压缩、以及 tree shaking</strong>。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「Vite 为什么快？」——
-                这题现在很常问。
-                开发时 Vite <strong>不打包</strong>，
-                直接用浏览器原生 ESM 按需提供模块，
-                所以启动是<strong>常数时间</strong>，
-                不随项目变大而变慢；
-                Vite 7 及以前，依赖预构建用 esbuild（Go 写的，快一个量级）、
-                生产打包用 Rollup；Vite 8 起两者统一换成 Rust 写的 Rolldown。
-                不管哪一版，「开发时不打包、按需转换」这一点不变。
+                这题现在很常问。开发时 Vite <strong>不打包</strong>，直接用浏览器原生 ESM 按需提供模块，所以启动是<strong>常数时间</strong>，不随项目变大而变慢；Vite 7 及以前，依赖预构建用 esbuild（Go 写的，快一个量级）、生产打包用 Rollup；Vite 8 起两者统一换成 Rust 写的 Rolldown。不管哪一版，「开发时不打包、按需转换」这一点不变。
                 <br />
-                <strong>Webpack 是「先全量打包再服务」，
-                Vite 是「先服务再按需转换」</strong>——
+                <strong>Webpack 是「先全量打包再服务」，Vite 是「先服务再按需转换」</strong>——
                 这一句就说到了根本区别。
               </p>
             </>
@@ -2686,9 +2541,7 @@ table.addEventListener("click", (e) => {
             <>
               <p>
                 <strong>一句话：</strong>
-                <code>fetch</code> 是<strong>浏览器内置</strong>的，
-                很基础；<code>axios</code> 是第三方库，
-                把常用的事都替你做了。
+                <code>fetch</code> 是<strong>浏览器内置</strong>的，很基础；<code>axios</code> 是第三方库，把常用的事都替你做了。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -2708,8 +2561,7 @@ table.addEventListener("click", (e) => {
                     <tr>
                       <td>4xx / 5xx</td>
                       <td>
-                        <strong>不 reject</strong>，
-                        要自己查 <code>res.ok</code>
+                        <strong>不 reject</strong>，要自己查 <code>res.ok</code>
                       </td>
                       <td><strong>自动抛错</strong></td>
                     </tr>
@@ -2742,27 +2594,21 @@ table.addEventListener("click", (e) => {
                 </table>
               </div>
               <p>
-                <strong>「404 不 reject」是这题的核心考点</strong>，
-                也是真实 bug 的来源：不查
+                <strong>「404 不 reject」是这题的核心考点</strong>，也是真实 bug 的来源：不查
                 <code>res.ok</code> 就会把错误页当数据渲染。
-                <strong>从 axios 转过来的人最容易漏这一条</strong>，
-                因为 axios 会自己抛。
+                <strong>从 axios 转过来的人最容易漏这一条</strong>，因为 axios 会自己抛。
               </p>
               <p>
                 <strong>怎么选：</strong>
-                简单项目、在意包体积、
-                或者只发几个请求 → <code>fetch</code>
-                包一个自己的小 wrapper；
-                需要拦截器 / 统一错误处理 /
+                简单项目、在意包体积、或者只发几个请求 → <code>fetch</code>
+                包一个自己的小 wrapper；需要拦截器 / 统一错误处理 /
                 上传进度，或者要兼容老 Node → <code>axios</code>。
                 <br />
                 <strong>更常见的现实答案</strong>：用
                 <strong>TanStack Query / SWR</strong>
-                管缓存和请求状态，
-                底下用哪个都行 —— 因为
+                管缓存和请求状态，底下用哪个都行 —— 因为
                 <code>fetch</code> 和 <code>axios</code>
-                都不管缓存、去重、重试。
-                能这么答说明你想过分层。
+                都不管缓存、去重、重试。能这么答说明你想过分层。
               </p>
             </>
           ),

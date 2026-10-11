@@ -71,8 +71,7 @@ const EDIT_FLOW = (
             zh={
               <>
                 用户点了 B 那一行的 Edit。<code>NoteItem</code> 调用{" "}
-                <code>onEdit(note)</code>，<strong>传的是整条 note</strong>，
-                不是 id —— 因为下游要用它的 title 和 content 回填。
+                <code>onEdit(note)</code>，<strong>传的是整条 note</strong>，不是 id —— 因为下游要用它的 title 和 content 回填。
               </>
             }
             en={
@@ -114,8 +113,7 @@ const EDIT_FLOW = (
             zh={
               <>
                 重新渲染，<code>NoteForm</code> 收到新的 <code>noteToEdit</code>。
-                <strong>注意：按钮文字这一瞬间就变成 Update 了</strong>，
-                因为它是渲染时直接读 prop 算的。但输入框<strong>还是空的</strong> ——
+                <strong>注意：按钮文字这一瞬间就变成 Update 了</strong>，因为它是渲染时直接读 prop 算的。但输入框<strong>还是空的</strong> ——
                 回填是下一步的事。
               </>
             }
@@ -138,9 +136,7 @@ const EDIT_FLOW = (
           <T
             zh={
               <>
-                渲染完成后 <code>useEffect(fn, [noteToEdit])</code> 触发，
-                把 B 的 title 和 content 写进 <code>NoteForm</code> 自己的两个 state。
-                输入框这才显示出内容。
+                渲染完成后 <code>useEffect(fn, [noteToEdit])</code> 触发，把 B 的 title 和 content 写进 <code>NoteForm</code> 自己的两个 state。输入框这才显示出内容。
               </>
             }
             en={
@@ -162,8 +158,7 @@ const EDIT_FLOW = (
               <>
                 用户改完点 Update。<code>handleSubmit</code> 构造新 note 时用了{" "}
                 <code>id: noteToEdit ? noteToEdit.id : Date.now()</code> ——
-                <strong>复用旧 id 是整道题的关键</strong>。新建 id 的话，
-                下一步就会变成「插入一条新的」而不是「更新」。
+                <strong>复用旧 id 是整道题的关键</strong>。新建 id 的话，下一步就会变成「插入一条新的」而不是「更新」。
               </>
             }
             en={
@@ -185,10 +180,7 @@ const EDIT_FLOW = (
           <T
             zh={
               <>
-                <code>handleSubmitNote</code> 走 <code>noteToEdit</code> 为真的分支，
-                用 <code>map</code> 就地替换 —— <strong>B2 还在第二位</strong>。
-                然后 <code>setNoteToEdit(null)</code> 退出编辑模式，
-                effect 的 else 分支清空表单，按钮变回 Add。一圈闭合。
+                <code>handleSubmitNote</code> 走 <code>noteToEdit</code> 为真的分支，用 <code>map</code> 就地替换 —— <strong>B2 还在第二位</strong>。然后 <code>setNoteToEdit(null)</code> 退出编辑模式，effect 的 else 分支清空表单，按钮变回 Add。一圈闭合。
               </>
             }
             en={
@@ -264,8 +256,7 @@ export const reactQ1: Module = {
           body: (
             <>
               <p>
-                这是 <code>react-notes-app/README.md</code> 里 Q1 部分的原文，
-                一个字没改：
+                这是 <code>react-notes-app/README.md</code> 里 Q1 部分的原文，一个字没改：
               </p>
             </>
           ),
@@ -330,8 +321,7 @@ Rule:  do not change any data-testid.`,
                     <tr>
                       <td>「<strong>按 id</strong> 被移除」</td>
                       <td>
-                        比较的依据必须是 id，不是 title、不是下标。
-                        同名笔记只删对的那条。
+                        比较的依据必须是 id，不是 title、不是下标。同名笔记只删对的那条。
                       </td>
                       <td><code>filter(n =&gt; n.id !== id)</code></td>
                     </tr>
@@ -364,8 +354,7 @@ Rule:  do not change any data-testid.`,
               <p>
                 <strong>「按 id」和「原位置」是这道题真正的分水岭。</strong>
                 两个要求都指向同一件事：出题人想看你会不会用
-                <code>filter</code> 和 <code>map</code> 精确操作数组，
-                而不是用「删掉再塞回去」这种取巧的写法。
+                <code>filter</code> 和 <code>map</code> 精确操作数组，而不是用「删掉再塞回去」这种取巧的写法。
               </p>
             </>
           ),
@@ -440,8 +429,7 @@ Rule:  do not change any data-testid.`,
           body: (
             <>
               <p>
-                项目里一共 6 个 <code>data-testid</code>，
-                测试全靠它们定位元素：
+                项目里一共 6 个 <code>data-testid</code>，测试全靠它们定位元素：
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -492,8 +480,7 @@ Rule:  do not change any data-testid.`,
               <ol>
                 <li>
                   <strong>不能改字符串。</strong>
-                  <code>form-input</code> 改成 <code>title-input</code>，
-                  测试 <code>getByTestId(&quot;form-input&quot;)</code> 直接抛错。
+                  <code>form-input</code> 改成 <code>title-input</code>，测试 <code>getByTestId(&quot;form-input&quot;)</code> 直接抛错。
                 </li>
                 <li>
                   <strong>不能让元素条件性消失。</strong>
@@ -505,8 +492,7 @@ Rule:  do not change any data-testid.`,
                   <strong>行内按钮的文字也是隐性契约。</strong>
                   测试用 <code>getByRole(&quot;button&quot;, {"{ name: \"Delete\" }"})</code>
                   定位，所以 <code>Delete</code> / <code>Edit</code>
-                  这两个词也不能改（改成 Remove 就找不到了）。
-                  这一条 README <strong>没写</strong>，只能从测试里读出来。
+                  这两个词也不能改（改成 Remove 就找不到了）。这一条 README <strong>没写</strong>，只能从测试里读出来。
                 </li>
               </ol>
             </>
@@ -603,9 +589,7 @@ Rule:  do not change any data-testid.`,
               </p>
               <p>
                 本机实测的结果如下 —— 注意这是
-                <strong>项目当前磁盘状态</strong>的结果。
-                如果你拿到的是挖空版（TODO 还在），
-                这里会看到 3 个失败、1 个通过（只有 disabled 那条会过）。
+                <strong>项目当前磁盘状态</strong>的结果。如果你拿到的是挖空版（TODO 还在），这里会看到 3 个失败、1 个通过（只有 disabled 那条会过）。
               </p>
             </>
           ),
@@ -691,8 +675,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               </ul>
               <p>
                 下面是这个文件的完整最终形态（也就是参考答案）。
-                <strong>先别细看</strong> —— 接下来三节会一题一题推导出来。
-                现在只要看清「结构长什么样」。
+                <strong>先别细看</strong> —— 接下来三节会一题一题推导出来。现在只要看清「结构长什么样」。
               </p>
             </>
           ),
@@ -736,8 +719,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           level: 1,
           prompt: (
             <p>
-              README 只说了「不得修改任何 data-testid」。
-              下面哪些改动<strong>也会</strong>让现有测试失败？（多选）
+              README 只说了「不得修改任何 data-testid」。下面哪些改动<strong>也会</strong>让现有测试失败？（多选）
             </p>
           ),
           promptEn: (
@@ -773,8 +755,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               定位，改了文字就找不到。
               <br />
               C —— 第 3 个测试删除后还要断言{" "}
-              <code>getByTestId(&quot;notes-list&quot;)</code>，
-              元素消失会直接抛错。<strong>testid 元素的存在性也是契约。</strong>
+              <code>getByTestId(&quot;notes-list&quot;)</code>，元素消失会直接抛错。<strong>testid 元素的存在性也是契约。</strong>
               <br />
               D —— 第 4 个测试显式断言{" "}
               <code>toHaveTextContent(&quot;Update&quot;)</code>。
@@ -810,8 +791,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           level: 1,
           prompt: (
             <p>
-              README 的三个 Task 里没提到某个要求，
-              但四个测试里有一条专门在查它。是哪个？
+              README 的三个 Task 里没提到某个要求，但四个测试里有一条专门在查它。是哪个？
             </p>
           ),
           promptEn: (
@@ -834,11 +814,9 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           explain: (
             <>
               第 2 个测试 <code>submit button disabled when inputs empty</code>{" "}
-              断言初始渲染时提交按钮是 disabled 的。
-              README 三个 Task 一个字都没提这件事。
+              断言初始渲染时提交按钮是 disabled 的。README 三个 Task 一个字都没提这件事。
               <br />
-              <strong>教训：README 是要求的一部分，测试是要求的另一部分。
-              两边都要读。</strong>A、C、D 都是题目和测试里都没有的 ——
+              <strong>教训：README 是要求的一部分，测试是要求的另一部分。两边都要读。</strong>A、C、D 都是题目和测试里都没有的 ——
               自己加这些功能不加分，还可能破坏测试。
             </>
           ),
@@ -893,8 +871,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
               才动手写 → 最后测试 + 手动验证。
               <br />
               <strong>最后那步「手动点一遍」不能省</strong> ——
-              测试只有一条数据，测不出「原位置更新」和「按 id 删除」，
-              这两个恰恰是题目明确要求的。
+              测试只有一条数据，测不出「原位置更新」和「按 id 删除」，这两个恰恰是题目明确要求的。
             </>
           ),
           explainEn: (
@@ -921,11 +898,9 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           body: (
             <p>
               编写本课时发现：<code>react-notes-app/src/components/</code> 里
-              <strong>一个 TODO 都不剩</strong>，三个任务已经全部实现，
-              4 个测试全过。README 说「按代码里的 TODO 完成」，但那些 TODO
+              <strong>一个 TODO 都不剩</strong>，三个任务已经全部实现，4 个测试全过。README 说「按代码里的 TODO 完成」，但那些 TODO
               已经被填掉了。<br />
-              所以接下来三节的做法是：<strong>把这份答案当成参考解法来推导</strong>，
-              而不是让你去项目里找 TODO。想真正练手，走本课程最后（第 6 部分）的
+              所以接下来三节的做法是：<strong>把这份答案当成参考解法来推导</strong>，而不是让你去项目里找 TODO。想真正练手，走本课程最后（第 6 部分）的
               <strong>「从零重写」</strong>—— 那里会给你空白起点。
             </p>
           ),
@@ -1034,8 +1009,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
                 <li>这条 note 出现在表格里，<strong>原有的都还在</strong>。</li>
               </ol>
               <p>
-                第 2 件事<strong>已经由 NoteForm 做完了</strong>（上一模块读过它）。
-                所以你要写的只有第 3 件事。
+                第 2 件事<strong>已经由 NoteForm 做完了</strong>（上一模块读过它）。所以你要写的只有第 3 件事。
               </p>
             </>
           ),
@@ -1116,25 +1090,18 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           body: (
             <>
               <p>
-                <code>handleSubmit</code>（在 <code>NoteForm</code> 里）
-                做了这几件事，其中第 3 步就是构造 note：
+                <code>handleSubmit</code>（在 <code>NoteForm</code> 里）做了这几件事，其中第 3 步就是构造 note：
               </p>
               <p>
-                注意 <code>id: noteToEdit ? noteToEdit.id : Date.now()</code>：
-                新增时 <code>noteToEdit</code> 是 <code>null</code>，
-                所以走 <code>Date.now()</code> —— 当前毫秒时间戳，
-                作为 id 一般够用：人手点不出同一毫秒；但测试代码连续添加两条时可能落在同一毫秒而撞号
-                （本站在浏览器沙箱里实测撞过），写测试时要留意。
+                注意 <code>id: noteToEdit ? noteToEdit.id : Date.now()</code>：新增时 <code>noteToEdit</code> 是 <code>null</code>，所以走 <code>Date.now()</code> —— 当前毫秒时间戳，作为 id 一般够用：人手点不出同一毫秒；但测试代码连续添加两条时可能落在同一毫秒而撞号（本站在浏览器沙箱里实测撞过），写测试时要留意。
               </p>
               <p>
-                还有 <code>.trim()</code>：前后空格被去掉了。
-                所以传到 <code>NoteManager</code> 的一定是干净的数据 ——
+                还有 <code>.trim()</code>：前后空格被去掉了。所以传到 <code>NoteManager</code> 的一定是干净的数据 ——
                 你不需要再校验一遍。
               </p>
               <p>
                 然后 <code>onSubmit(newNote)</code> 把它交出去。
-                <strong>这个 onSubmit 是从 props 来的</strong>，
-                而 <code>NoteManager</code> 传给它的正是
+                <strong>这个 onSubmit 是从 props 来的</strong>，而 <code>NoteManager</code> 传给它的正是
                 <code>handleSubmitNote</code>：
               </p>
             </>
@@ -1224,9 +1191,7 @@ onSubmit(newNote);`,
                   "能不能直接改旧数组？—— 不能。React 靠「是不是同一个对象」判断变化。",
               ]} />
               <p>
-                第 3 个问题的答案「旧的全部保留，末尾多一条」，
-                翻译成代码就是 <code>[...prev, submittedNote]</code>。
-                展开语法把旧数组的每个元素铺开，后面接上新的。
+                第 3 个问题的答案「旧的全部保留，末尾多一条」，翻译成代码就是 <code>[...prev, submittedNote]</code>。展开语法把旧数组的每个元素铺开，后面接上新的。
               </p>
             </>
           ),
@@ -1260,15 +1225,11 @@ onSubmit(newNote);`,
               </p>
               <p>
                 <strong>第二步：改成函数式更新。</strong>
-                <code>setNotes([...notes, submittedNote])</code> 也能过测试，
-                但项目里统一用 <code>prev</code> 形式。理由在第 1 部分 useState 那一节讲过：
-                连续调用时不会拿到过期的值。
+                <code>setNotes([...notes, submittedNote])</code> 也能过测试，但项目里统一用 <code>prev</code> 形式。理由在第 1 部分 useState 那一节讲过：连续调用时不会拿到过期的值。
               </p>
               <p>
                 <strong>第三步：给编辑留位置。</strong>
-                Task 3 会在这个函数里加一个分支。
-                所以最终形态是 <code>if (noteToEdit) {"{...}"} else {"{ 新增 }"}</code>。
-                现在先只写 else 那半边。
+                Task 3 会在这个函数里加一个分支。所以最终形态是 <code>if (noteToEdit) {"{...}"} else {"{ 新增 }"}</code>。现在先只写 else 那半边。
               </p>
             </>
           ),
@@ -1344,17 +1305,14 @@ const handleSubmitNote = (submittedNote: Note) => {
               <p>逐段看这一行 <code>setNotes((prev) =&gt; [...prev, submittedNote])</code>：</p>
               <ul>
                 <li>
-                  <code>setNotes(...)</code> —— 唯一合法的修改途径。
-                  调用它 = 告诉 React「值变了，请重新渲染」。
+                  <code>setNotes(...)</code> —— 唯一合法的修改途径。调用它 = 告诉 React「值变了，请重新渲染」。
                 </li>
                 <li>
-                  <code>(prev) =&gt; ...</code> —— 函数式更新。
-                  React 会把「此刻最新的 notes」作为 <code>prev</code> 传进来。
+                  <code>(prev) =&gt; ...</code> —— 函数式更新。React 会把「此刻最新的 notes」作为 <code>prev</code> 传进来。
                 </li>
                 <li>
                   <code>[...prev, submittedNote]</code> —— 一个
-                  <strong>全新的数组</strong>。旧元素逐个铺开，新的接在末尾。
-                  因为是新数组，React 能看出变化。
+                  <strong>全新的数组</strong>。旧元素逐个铺开，新的接在末尾。因为是新数组，React 能看出变化。
                 </li>
               </ul>
               <p>
@@ -1405,16 +1363,13 @@ const handleSubmitNote = (submittedNote: Note) => {
             <>
               <p>
                 <code>userEvent.type</code> 模拟真人打字（一个字符一个字符触发
-                onChange），<code>userEvent.click</code> 模拟点击。
-                最后断言 <code>notes-list</code> 这个元素的文字内容里含
+                onChange），<code>userEvent.click</code> 模拟点击。最后断言 <code>notes-list</code> 这个元素的文字内容里含
                 <code>My Title</code>。
               </p>
               <p>
                 <strong>注意这个测试的宽松之处：</strong>
                 它只检查「文字出现了」。所以就算你把新笔记加在
-                <strong>开头</strong>（<code>[submittedNote, ...prev]</code>），
-                这个测试照样过。但题目说的是「进入表格」，
-                常规理解是追加到末尾 —— 而且真实答案就是追加。
+                <strong>开头</strong>（<code>[submittedNote, ...prev]</code>），这个测试照样过。但题目说的是「进入表格」，常规理解是追加到末尾 —— 而且真实答案就是追加。
                 <strong>别因为测试宽松就随便写。</strong>
               </p>
             </>
@@ -1490,11 +1445,7 @@ const handleSubmitNote = (submittedNote: Note) => {
               hintEn: "The parameter of the functional-update callback. React hands the latest value to it.",
               why: (
                 <>
-                  <code>prev</code>（这里按项目写法填 <code>prev</code>；真实代码里名字随你起，
-                  这道填空只接受 <code>prev</code> / <code>prevNotes</code> / <code>p</code>）。
-                  它是 React 交给你的「此刻最新的 notes」。
-                  用它而不是直接用外层的 <code>notes</code> 变量，
-                  可以避免拿到过期快照。
+                  <code>prev</code>（这里按项目写法填 <code>prev</code>；真实代码里名字随你起，这道填空只接受 <code>prev</code> / <code>prevNotes</code> / <code>p</code>）。它是 React 交给你的「此刻最新的 notes」。用它而不是直接用外层的 <code>notes</code> 变量，可以避免拿到过期快照。
                 </>
               ),
               whyEn: (
@@ -1520,8 +1471,7 @@ const handleSubmitNote = (submittedNote: Note) => {
                   <br />
                   <strong>写成 <code>prev</code>（不带三个点）会怎样？</strong>
                   结果是 <code>[[旧数组], 新note]</code> —— 一个嵌套数组，
-                  <code>map</code> 时会渲染出乱七八糟的东西，
-                  TypeScript 也会报类型错。
+                  <code>map</code> 时会渲染出乱七八糟的东西，TypeScript 也会报类型错。
                 </>
               ),
               whyEn: (
@@ -1550,8 +1500,7 @@ const handleSubmitNote = (submittedNote: Note) => {
           level: 3,
           prompt: (
             <p>
-              只给你函数签名和要求。自己写完整实现。
-              写完点「检查我的代码」，它会用文本规则检查你有没有犯这些常见错误。
+              只给你函数签名和要求。自己写完整实现。写完点「检查我的代码」，它会用文本规则检查你有没有犯这些常见错误。
             </p>
           ),
           promptEn: (
@@ -1699,10 +1648,8 @@ setNotes((prev) => [prev, submittedNote]);`,
           ),
           why: (
             <>
-              这会造出 <code>[[...旧数组], 新note]</code> —— 一个嵌套数组。
-              TypeScript 会报 TS2345，展开后能看到
-              <code>Type &apos;Note | Note[]&apos; is not assignable to type &apos;Note&apos;</code>。
-              好在这个错编译期就被抓到了。
+              这会造出 <code>[[...旧数组], 新note]</code> —— 一个嵌套数组。TypeScript 会报 TS2345，展开后能看到
+              <code>Type &apos;Note | Note[]&apos; is not assignable to type &apos;Note&apos;</code>。好在这个错编译期就被抓到了。
             </>
           ),
           whyEn: (
@@ -1730,11 +1677,7 @@ const handleSubmitNote = (submittedNote: Note) => {
           ),
           why: (
             <>
-              <code>NoteForm</code> 已经给好 id 了，这里再造一个纯属多余。
-              更要紧的是<strong>别把这个习惯带进 Task 3</strong>：
-              编辑分支里如果也写 <code>{"{ ...submittedNote, id: Date.now() }"}</code> 再去 map，
-              新 id 跟谁都对不上，<code>map</code> 找不到匹配项，
-              更新静默失败（列表毫无变化）。
+              <code>NoteForm</code> 已经给好 id 了，这里再造一个纯属多余。更要紧的是<strong>别把这个习惯带进 Task 3</strong>：编辑分支里如果也写 <code>{"{ ...submittedNote, id: Date.now() }"}</code> 再去 map，新 id 跟谁都对不上，<code>map</code> 找不到匹配项，更新静默失败（列表毫无变化）。
             </>
           ),
           whyEn: (
@@ -1922,8 +1865,7 @@ onDelete: (id: number) => void;`,
               ]} />
               <p>
                 最后一问是这道题唯一会绕人的地方。
-                <code>filter</code> 的语义是<strong>「留下」</strong>，不是「删掉」。
-                所以要删 id 相等的那条，条件必须写成
+                <code>filter</code> 的语义是<strong>「留下」</strong>，不是「删掉」。所以要删 id 相等的那条，条件必须写成
                 <strong>「保留 id 不相等的」</strong>。
               </p>
             </>
@@ -1957,20 +1899,15 @@ onDelete: (id: number) => void;`,
               <ul>
                 <li>
                   <code>prev.filter(...)</code> ——
-                  <code>filter</code> 永远返回<strong>新数组</strong>，
-                  原数组一动不动。所以不可变更新自动满足，
-                  不需要额外套展开语法。
+                  <code>filter</code> 永远返回<strong>新数组</strong>，原数组一动不动。所以不可变更新自动满足，不需要额外套展开语法。
                 </li>
                 <li>
                   <code>(note) =&gt; note.id !== id</code> ——
-                  对每一条问一句「你的 id 是不是要删的那个？
-                  不是 → 留下」。
+                  对每一条问一句「你的 id 是不是要删的那个？不是 → 留下」。
                 </li>
                 <li>
-                  没有 <code>if</code> 判断「找不到怎么办」。
-                  不需要 —— 如果没有匹配的 id，
-                  <code>filter</code> 就原样返回一份全留的新数组，
-                  界面无变化。这是合理行为。
+                  没有 <code>if</code> 判断「找不到怎么办」。不需要 —— 如果没有匹配的 id，
+                  <code>filter</code> 就原样返回一份全留的新数组，界面无变化。这是合理行为。
                 </li>
               </ul>
             </>
@@ -2037,14 +1974,11 @@ onDelete: (id: number) => void;`,
               </ul>
               <p>
                 <strong>所以：不要用「测试过了」当作「做对了」的证据。</strong>
-                这道题的正确性判据是 README 里那句「按 id」，
-                以及你自己在 <code>npm run dev</code> 里加三条同名笔记
-                手动点一遍的结果。
+                这道题的正确性判据是 README 里那句「按 id」，以及你自己在 <code>npm run dev</code> 里加三条同名笔记手动点一遍的结果。
               </p>
               <p>
                 这个道理在 Federation 那门考试里会以更夸张的形式重现 ——
-                那边有六个端点<strong>全部返回 null</strong>，
-                测试照样过了三个。
+                那边有六个端点<strong>全部返回 null</strong>，测试照样过了三个。
               </p>
             </>
           ),
@@ -2115,20 +2049,17 @@ onDelete: (id: number) => void;`,
               <ol>
                 <li><code>npm run dev</code>，打开浏览器。</li>
                 <li>
-                  加<strong>三条标题完全相同</strong>的笔记，
-                  内容分别写 1、2、3。
+                  加<strong>三条标题完全相同</strong>的笔记，内容分别写 1、2、3。
                 </li>
                 <li>点<strong>中间那条</strong>的 Delete。</li>
                 <li>
-                  <strong>正确</strong>：只有内容为 2 的那条消失，
-                  1 和 3 还在，顺序不变。<br />
+                  <strong>正确</strong>：只有内容为 2 的那条消失，1 和 3 还在，顺序不变。<br />
                   <strong>如果按 title 删</strong>：三条全没了。<br />
                   <strong>如果按下标删</strong>：可能删错行。
                 </li>
               </ol>
               <p>
-                这种「手动造一个测试覆盖不到的场景」的能力，
-                比会写 filter 值钱得多。
+                这种「手动造一个测试覆盖不到的场景」的能力，比会写 filter 值钱得多。
               </p>
             </>
           ),
@@ -2182,8 +2113,7 @@ onDelete: (id: number) => void;`,
               hintEn: "Deleting means the result can get shorter. Which method does that?",
               why: (
                 <>
-                  <code>filter</code>。三个常用方法里只有它会改变长度，
-                  而且它返回<strong>新数组</strong>，天然满足不可变更新。
+                  <code>filter</code>。三个常用方法里只有它会改变长度，而且它返回<strong>新数组</strong>，天然满足不可变更新。
                   <br />
                   <code>map</code> 长度不变（会剩下一个 undefined 洞），
                   <code>splice</code> 会修改原数组（React 看不出变化）。
@@ -2210,10 +2140,7 @@ onDelete: (id: number) => void;`,
               hintEn: "The task says: the row is removed by ___.",
               why: (
                 <>
-                  <code>id</code>。题目明确写了「按 id」。
-                  用 <code>title</code> 会把同名笔记一起删掉；
-                  而且 <code>handleDelete</code> 的参数只有 id，
-                  你根本拿不到 title。
+                  <code>id</code>。题目明确写了「按 id」。用 <code>title</code> 会把同名笔记一起删掉；而且 <code>handleDelete</code> 的参数只有 id，你根本拿不到 title。
                 </>
               ),
               whyEn: (
@@ -2234,14 +2161,10 @@ onDelete: (id: number) => void;`,
               hintEn: "filter keeps the elements whose callback returns true. To drop the equal one, you keep the...",
               why: (
                 <>
-                  <code>!==</code>。<code>filter</code> 的语义是「留下」。
-                  要删掉 id 相等的那条，就得<strong>保留不相等的</strong>。
+                  <code>!==</code>。<code>filter</code> 的语义是「留下」。要删掉 id 相等的那条，就得<strong>保留不相等的</strong>。
                   <br />
-                  写成 <code>===</code> 的效果是<strong>只留下要删的那一条</strong>，
-                  其余全被删掉 —— 而第 3 个测试断言的正是「删完之后不含
-                  ToDelete」，所以<strong>这条会红</strong>，
-                  而且报错会指向断言而不是指向你的 <code>filter</code>。
-                  总之：<code>filter</code> 想着「留谁」，别想着「删谁」。
+                  写成 <code>===</code> 的效果是<strong>只留下要删的那一条</strong>，其余全被删掉 —— 而第 3 个测试断言的正是「删完之后不含
+                  ToDelete」，所以<strong>这条会红</strong>，而且报错会指向断言而不是指向你的 <code>filter</code>。总之：<code>filter</code> 想着「留谁」，别想着「删谁」。
                 </>
               ),
               whyEn: (
@@ -2349,8 +2272,7 @@ const handleDelete = (id: number) => {
           level: 2,
           prompt: (
             <p>
-              测试全过，但手动测试时发现：三条标题相同的笔记，
-              点其中一条的 Delete，三条一起消失。
+              测试全过，但手动测试时发现：三条标题相同的笔记，点其中一条的 Delete，三条一起消失。
             </p>
           ),
           promptEn: (
@@ -2430,22 +2352,16 @@ const handleDelete = (id: number) => {
           rootCause: (
             <>
               <p>
-                <code>title</code> 不唯一，<code>id</code> 才唯一。
-                按 title 过滤会把所有同名笔记一起清掉。
-                中间那两行 <code>find</code> 完全是多余的绕路 ——
+                <code>title</code> 不唯一，<code>id</code> 才唯一。按 title 过滤会把所有同名笔记一起清掉。中间那两行 <code>find</code> 完全是多余的绕路 ——
                 <strong>参数里已经给了 id，直接用就行。</strong>
               </p>
               <p>
                 <strong>这道题最重要的一点：测试是全过的。</strong>
-                因为测试里只有一条数据，同名场景根本不存在。
-                能发现这个 bug 的唯一途径是
-                <strong>读懂题目里「按 id」三个字</strong>，
-                或者自己手动造一个同名场景。
+                因为测试里只有一条数据，同名场景根本不存在。能发现这个 bug 的唯一途径是
+                <strong>读懂题目里「按 id」三个字</strong>，或者自己手动造一个同名场景。
               </p>
               <p>
-                选项 D（<code>findIndex</code> + <code>splice</code>）
-                也是错的：<code>splice</code> 修改原数组，
-                React 看不出变化，界面不会更新。
+                选项 D（<code>findIndex</code> + <code>splice</code>）也是错的：<code>splice</code> 修改原数组，React 看不出变化，界面不会更新。
               </p>
             </>
           ),
@@ -2608,9 +2524,7 @@ const handleDelete = (id: number) => {
                 </table>
               </div>
               <p>
-                所以真正要你写的只有三处，全在 <code>NoteManager</code> 里。
-                但<strong>你必须读懂已给好的那三处</strong>，
-                否则不知道自己写的东西为什么能生效。
+                所以真正要你写的只有三处，全在 <code>NoteManager</code> 里。但<strong>你必须读懂已给好的那三处</strong>，否则不知道自己写的东西为什么能生效。
               </p>
             </>
           ),
@@ -2683,9 +2597,7 @@ const handleDelete = (id: number) => {
           body: (
             <>
               <p>
-                <code>noteToEdit: Note | null</code> 只是一个「当前正在编辑哪条」
-                的记录。但因为它被向下传给了 <code>NoteForm</code>，
-                它同时成了四件事的开关：
+                <code>noteToEdit: Note | null</code> 只是一个「当前正在编辑哪条」的记录。但因为它被向下传给了 <code>NoteForm</code>，它同时成了四件事的开关：
               </p>
               <ol>
                 <li>
@@ -2694,8 +2606,7 @@ const handleDelete = (id: number) => {
                 </li>
                 <li>
                   <strong>按钮文字</strong> ——
-                  非 null 就是 Update。<strong>这个是渲染时同步算的</strong>，
-                  所以点 Edit 的那一瞬间文字就变了。
+                  非 null 就是 Update。<strong>这个是渲染时同步算的</strong>，所以点 Edit 的那一瞬间文字就变了。
                 </li>
                 <li>
                   <strong>提交时的 id</strong> ——
@@ -2708,8 +2619,7 @@ const handleDelete = (id: number) => {
                 </li>
               </ol>
               <p>
-                所以 <code>setNoteToEdit(null)</code> 这一行也同时做了四件事的收尾：
-                清空表单、按钮变回 Add、下次提交生成新 id、下次提交走追加分支。
+                所以 <code>setNoteToEdit(null)</code> 这一行也同时做了四件事的收尾：清空表单、按钮变回 Add、下次提交生成新 id、下次提交走追加分支。
                 <strong>漏了这一行，症状是「更新成功了，表单也清空了，但按钮还写着
                 Update；再输入内容提交，又会去更新同一条，而不是新增」。</strong>
               </p>
@@ -2762,8 +2672,7 @@ const handleDelete = (id: number) => {
           body: (
             <>
               <p>
-                下面这张图把从「点 Edit」到「列表就地更新」的六步拆开了。
-                特别注意第 3 步和第 4 步的<strong>时间差</strong> ——
+                下面这张图把从「点 Edit」到「列表就地更新」的六步拆开了。特别注意第 3 步和第 4 步的<strong>时间差</strong> ——
                 按钮文字先变，输入框后填。
               </p>
               {EDIT_FLOW}
@@ -2791,16 +2700,12 @@ const handleDelete = (id: number) => {
             <>
               <p>
                 <code>NoteForm</code> 里那行
-                <code>id: noteToEdit ? noteToEdit.id : Date.now()</code>：
-                编辑时复用旧 id，新增时生成新 id。
+                <code>id: noteToEdit ? noteToEdit.id : Date.now()</code>：编辑时复用旧 id，新增时生成新 id。
               </p>
               <p>
                 <strong>为什么关键？</strong>
                 因为 <code>handleSubmitNote</code> 的 map 分支靠 id 找那一条：
-                <code>note.id === submittedNote.id ? submittedNote : note</code>。
-                如果提交上来的 note 带着一个<strong>全新的 id</strong>，
-                那 map 会走完整个数组、一个都匹配不上、
-                原样返回一份完全一样的新数组。
+                <code>note.id === submittedNote.id ? submittedNote : note</code>。如果提交上来的 note 带着一个<strong>全新的 id</strong>，那 map 会走完整个数组、一个都匹配不上、原样返回一份完全一样的新数组。
               </p>
               <p>
                 <strong>症状：点 Update 之后什么都没发生。</strong>
@@ -2808,9 +2713,7 @@ const handleDelete = (id: number) => {
                 既没出现 &quot;New&quot;，&quot;Old&quot; 也还在。
               </p>
               <p>
-                这也解释了 Task 1 那节提到的一个陷阱：
-                如果你在 <code>handleSubmitNote</code> 里自己给 note 重新生成 id，
-                Task 1 照样能过，但 Task 3 会静默失败。
+                这也解释了 Task 1 那节提到的一个陷阱：如果你在 <code>handleSubmitNote</code> 里自己给 note 重新生成 id，Task 1 照样能过，但 Task 3 会静默失败。
                 <strong>两道题共享一个函数，一处多余的改动会跨题传染。</strong>
               </p>
             </>
@@ -2855,19 +2758,15 @@ const handleDelete = (id: number) => {
           body: (
             <>
               <p>
-                题目写的是「<strong>原位置</strong>更新」。
-                对比两种写法在三条笔记上的行为：
+                题目写的是「<strong>原位置</strong>更新」。对比两种写法在三条笔记上的行为：
               </p>
               <p>
                 <strong>而第 4 个测试查不出这个区别</strong> ——
-                它只有一条数据，谈不上顺序。
-                所以这又是一处「测试过了但没做对」。
-                判据只有 README 里那三个字。
+                它只有一条数据，谈不上顺序。所以这又是一处「测试过了但没做对」。判据只有 README 里那三个字。
               </p>
               <p>
                 <code>map</code> 的三元表达式读起来就是题目本身：
-                <strong>「是那一条就换成新的，不是就原样留着」</strong>。
-                长度不变、顺序不变，这正是「原位置」的定义。
+                <strong>「是那一条就换成新的，不是就原样留着」</strong>。长度不变、顺序不变，这正是「原位置」的定义。
               </p>
             </>
           ),
@@ -2947,9 +2846,7 @@ const handleDelete = (id: number) => {
           body: (
             <>
               <p>
-                <code>handleEdit</code> 只有一行 —— 它<strong>不碰 notes</strong>，
-                因为编辑还没提交，列表不该变。这一点值得强调：
-                新手容易在 <code>handleEdit</code> 里就开始改列表。
+                <code>handleEdit</code> 只有一行 —— 它<strong>不碰 notes</strong>，因为编辑还没提交，列表不该变。这一点值得强调：新手容易在 <code>handleEdit</code> 里就开始改列表。
               </p>
               <p>
                 <code>handleSubmitNote</code> 现在两个分支都齐了：
@@ -3014,8 +2911,7 @@ const handleEdit = (note: Note) => {
                   所以按钮文字不能改。
                 </li>
                 <li>
-                  8 行：断言按钮文字变成 <code>Update</code>。
-                  这条直接验证「按钮变 Update」。
+                  8 行：断言按钮文字变成 <code>Update</code>。这条直接验证「按钮变 Update」。
                 </li>
                 <li>
                   10–12 行：<code>clear</code> 标题输入框再打 <code>New</code>。
@@ -3023,8 +2919,7 @@ const handleEdit = (note: Note) => {
                   <code>c1</code> 回填进去，content 为空、按钮禁用，提交不会发生，第 15 行就会失败。
                 </li>
                 <li>
-                  15–16 行：断言列表里有 <code>New</code> 且没有 <code>Old</code>。
-                  这验证「替换而不是新增」—— 如果你写成追加，
+                  15–16 行：断言列表里有 <code>New</code> 且没有 <code>Old</code>。这验证「替换而不是新增」—— 如果你写成追加，
                   <code>Old</code> 还在，第二条断言就失败。
                 </li>
               </ol>
@@ -3139,11 +3034,9 @@ const handleEdit = (note: Note) => {
               hintEn: "The update has to happen in place — neither the length nor the order may change.",
               why: (
                 <>
-                  <code>map</code>。它长度不变、顺序不变，
-                  逐个决定「这一项换不换」。这正是「原位置更新」的定义。
+                  <code>map</code>。它长度不变、顺序不变，逐个决定「这一项换不换」。这正是「原位置更新」的定义。
                   <br />
-                  用 <code>filter</code> + 追加也能让测试过，
-                  但被编辑的那条会跳到末尾，违反题目要求。
+                  用 <code>filter</code> + 追加也能让测试过，但被编辑的那条会跳到末尾，违反题目要求。
                 </>
               ),
               whyEn: (
@@ -3166,8 +3059,7 @@ const handleEdit = (note: Note) => {
               why: (
                 <>
                   <code>===</code>。和 <code>filter</code> 那题正好相反 ——
-                  <code>map</code> 的三元判断问的是「这条是不是我要换的那条」，
-                  所以用等号。
+                  <code>map</code> 的三元判断问的是「这条是不是我要换的那条」，所以用等号。
                   <br />
                   <strong>filter 想「留谁」用 !==，map 想「换谁」用 ===。</strong>
                 </>
@@ -3194,8 +3086,7 @@ const handleEdit = (note: Note) => {
               hintEn: "When it matches, replace it with... what?",
               why: (
                 <>
-                  <code>submittedNote</code> —— 提交上来的新版本。
-                  它带着<strong>和旧的一样的 id</strong>
+                  <code>submittedNote</code> —— 提交上来的新版本。它带着<strong>和旧的一样的 id</strong>
                   （NoteForm 复用了），所以替换后 map 依然能找到它。
                 </>
               ),
@@ -3218,14 +3109,10 @@ const handleEdit = (note: Note) => {
                 <>
                   <code>setNoteToEdit(null)</code>。这一行同时做了四件事的收尾：
                   <br />
-                  ① effect 的 else 分支触发，清空表单；
-                  ② 按钮文字变回 Add；
-                  ③ 下次提交会生成新 id；
-                  ④ 下次提交走追加分支。
+                  ① effect 的 else 分支触发，清空表单；② 按钮文字变回 Add；③ 下次提交会生成新 id；④ 下次提交走追加分支。
                   <br />
                   <strong>漏了它，第 4 个测试依然会通过</strong>
-                  （它没检查提交后的状态），但行为明显是坏的：
-                  表单虽然会被 NoteForm 清空，按钮却还写着 Update，再提交还是更新同一条，而不是新增。
+                  （它没检查提交后的状态），但行为明显是坏的：表单虽然会被 NoteForm 清空，按钮却还写着 Update，再提交还是更新同一条，而不是新增。
                 </>
               ),
               whyEn: (
@@ -3257,8 +3144,7 @@ const handleEdit = (note: Note) => {
           prompt: (
             <p>
               把 <code>handleEdit</code> 和 <code>handleSubmitNote</code>
-              两个函数完整写出来（含 Task 1 的分支）。
-              这是 Q1 的完整答案，写对了这道题就通了。
+              两个函数完整写出来（含 Task 1 的分支）。这是 Q1 的完整答案，写对了这道题就通了。
             </p>
           ),
           promptEn: (
@@ -3386,9 +3272,7 @@ const handleEdit = (note: Note) => {
           level: 3,
           prompt: (
             <p>
-              点 Edit，输入框正常回填，按钮变成 Update。
-              改完内容点 Update —— 表单被清空、按钮回到 Add，看起来像提交成功了，
-              可<strong>列表一点变化都没有</strong>。控制台干净。
+              点 Edit，输入框正常回填，按钮变成 Update。改完内容点 Update —— 表单被清空、按钮回到 Add，看起来像提交成功了，可<strong>列表一点变化都没有</strong>。控制台干净。
             </p>
           ),
           promptEn: (
@@ -3503,25 +3387,18 @@ const handleEdit = (note: Note) => {
             <>
               <p>
                 <code>NoteForm</code> 在编辑时<strong>特意复用了旧 id</strong>
-                （<code>id: noteToEdit ? noteToEdit.id : Date.now()</code>），
-                就是为了让下游的 map 能找到目标。
-                第 2 行的 <code>id: Date.now()</code> 把这份苦心覆盖掉了。
+                （<code>id: noteToEdit ? noteToEdit.id : Date.now()</code>），就是为了让下游的 map 能找到目标。第 2 行的 <code>id: Date.now()</code> 把这份苦心覆盖掉了。
               </p>
               <p>
                 于是 map 遍历整个数组，拿着一个全新的 id 去比，
-                <strong>一个都匹配不上</strong>，原样返回一份内容相同的新数组。
-                React 确实重新渲染了（数组是新的），但内容没变，
-                所以列表上看不出任何变化。
+                <strong>一个都匹配不上</strong>，原样返回一份内容相同的新数组。React 确实重新渲染了（数组是新的），但内容没变，所以列表上看不出任何变化。
               </p>
               <p>
-                <strong>注意表单清空、按钮复原都正常</strong>，这正是它迷惑人的地方：
-                界面像是提交成功了，只有列表没变。
+                <strong>注意表单清空、按钮复原都正常</strong>，这正是它迷惑人的地方：界面像是提交成功了，只有列表没变。
               </p>
               <p>
-                <strong>最值得记的一点：这个 bug 只有 Task 3 会挂，
-                Task 1 完全正常。</strong>
-                因为新增时本来就要新 id。<strong>两道题共用一个函数，
-                一处「看起来无害」的多余改动会跨题传染。</strong>
+                <strong>最值得记的一点：这个 bug 只有 Task 3 会挂，Task 1 完全正常。</strong>
+                因为新增时本来就要新 id。<strong>两道题共用一个函数，一处「看起来无害」的多余改动会跨题传染。</strong>
                 改共享代码时，要把所有分支都想一遍。
               </p>
             </>
@@ -3583,9 +3460,7 @@ const handleEdit = (note: Note) => {
           ),
           why: (
             <>
-              点 Edit 只是「进入编辑状态」，用户还没提交，
-              甚至可能改完就放弃了。这里把它删掉，
-              等于「点 Edit 就丢数据」。
+              点 Edit 只是「进入编辑状态」，用户还没提交，甚至可能改完就放弃了。这里把它删掉，等于「点 Edit 就丢数据」。
               <strong>handleEdit 唯一的职责是 setNoteToEdit。</strong>
             </>
           ),
@@ -3617,9 +3492,7 @@ if (noteToEdit) {
           why: (
             <>
               <strong>第 4 个测试照样会过</strong> ——
-              它在提交后只检查了列表内容，没检查表单和按钮。
-              但行为是坏的：表单虽然会被 NoteForm 清空，按钮却还写着 Update，
-              再点一次提交还是在更新同一条，而不是新增。
+              它在提交后只检查了列表内容，没检查表单和按钮。但行为是坏的：表单虽然会被 NoteForm 清空，按钮却还写着 Update，再点一次提交还是在更新同一条，而不是新增。
               <br />
               题目原文有「退出编辑模式」四个字，这是明确要求。
             </>
@@ -3779,16 +3652,14 @@ if (noteToEdit) {
               <p>
                 <strong><code>vite.config.ts</code></strong> ——
                 vitest 的配置<strong>内联在 vite 配置里</strong>
-                （不是单独的 <code>vitest.config.ts</code>）。
-                两个关键项：<code>environment: &quot;jsdom&quot;</code>
+                （不是单独的 <code>vitest.config.ts</code>）。两个关键项：<code>environment: &quot;jsdom&quot;</code>
                 （在 Node 里模拟一个浏览器 DOM，这样 React 才有东西可渲染）、
                 <code>globals: true</code>（让 <code>test</code> /
                 <code>expect</code> 变成全局变量，不用 import）。
               </p>
               <p>
                 <strong><code>vitest.setup.ts</code></strong> ——
-                只有一行 <code>import &quot;@testing-library/jest-dom&quot;</code>。
-                它给 <code>expect</code> 加了一批 DOM 专用断言：
+                只有一行 <code>import &quot;@testing-library/jest-dom&quot;</code>。它给 <code>expect</code> 加了一批 DOM 专用断言：
                 <code>toBeDisabled()</code>、<code>toHaveTextContent()</code>。
                 <strong>没有它，那两个断言方法就不存在。</strong>
               </p>
@@ -3796,11 +3667,8 @@ if (noteToEdit) {
                 顺带回答上一门课那个问题：
                 <code>globals: true</code> 让 <code>test</code> 在<strong>运行时</strong>
                 存在，但 TypeScript <strong>编译时</strong>并不知道 ——
-                这正是 <code>npm run build</code> 报 10 个类型错误
-                （找不到 <code>test</code> / <code>expect</code>）的原因。
-                要修需要在 tsconfig 里加
-                <code>&quot;types&quot;: [&quot;vitest/globals&quot;]</code>，
-                但题目没让你改配置。
+                这正是 <code>npm run build</code> 报 10 个类型错误（找不到 <code>test</code> / <code>expect</code>）的原因。要修需要在 tsconfig 里加
+                <code>&quot;types&quot;: [&quot;vitest/globals&quot;]</code>，但题目没让你改配置。
               </p>
             </>
           ),
@@ -3893,12 +3761,9 @@ export default defineConfig({
                 </table>
               </div>
               <p>
-                <strong>注意每个测试都 render 的是 <code>NoteManager</code>，
-                不是单独测 <code>NoteForm</code>。</strong>
+                <strong>注意每个测试都 render 的是 <code>NoteManager</code>，不是单独测 <code>NoteForm</code>。</strong>
                 这意味着任何一环断掉都会让测试挂 ——
-                受控输入没接好、props 名字对不上、handler 写错，
-                全都表现为「同一个测试失败」。
-                所以失败时要顺着整条链查，不能只盯一个文件。
+                受控输入没接好、props 名字对不上、handler 写错，全都表现为「同一个测试失败」。所以失败时要顺着整条链查，不能只盯一个文件。
               </p>
             </>
           ),
@@ -3951,28 +3816,22 @@ export default defineConfig({
             <>
               <p>
                 <strong><code>getByTestId(&quot;form-input&quot;)</code></strong> ——
-                按 <code>data-testid</code> 属性找。
-                最稳，因为 testid 是专门为测试加的，不会因为文案改动而变。
+                按 <code>data-testid</code> 属性找。最稳，因为 testid 是专门为测试加的，不会因为文案改动而变。
                 <strong>代价是它跟实现绑死了</strong> ——
                 这也是 README 要求「不得修改任何 data-testid」的原因。
               </p>
               <p>
                 <strong><code>getByRole(&quot;button&quot;, {"{ name: \"Delete\" }"})</code></strong> ——
-                按「无障碍角色 + 可见名称」找，也就是
-                「一个按钮，上面写着 Delete」。
-                这更接近真人的找法（用户是靠看文字找按钮的）。
+                按「无障碍角色 + 可见名称」找，也就是「一个按钮，上面写着 Delete」。这更接近真人的找法（用户是靠看文字找按钮的）。
                 <strong>代价是文案变了就找不到。</strong>
               </p>
               <p>
-                这个项目里，表单元素用 testid（它们没有可见文字），
-                行内的 Edit / Delete 按钮用 role + name（它们没有 testid）。
-                <strong>两种方式各自绑定了不同的东西，
-                所以 testid 和按钮文字都不能改。</strong>
+                这个项目里，表单元素用 testid（它们没有可见文字），行内的 Edit / Delete 按钮用 role + name（它们没有 testid）。
+                <strong>两种方式各自绑定了不同的东西，所以 testid 和按钮文字都不能改。</strong>
               </p>
               <p>
                 另外记一个特性：<code>getBy*</code> 系列
-                <strong>找不到就抛错，找到多个也抛错</strong>。
-                后半条解释了为什么测试里每次只放一条数据 ——
+                <strong>找不到就抛错，找到多个也抛错</strong>。后半条解释了为什么测试里每次只放一条数据 ——
                 两条数据就有两个 Delete 按钮，
                 <code>getByRole</code> 会因为「找到多个」而失败。
               </p>
@@ -4021,23 +3880,19 @@ export default defineConfig({
           body: (
             <>
               <p>
-                <code>userEvent</code> 的每个方法都返回 Promise。
-                因为它模拟的是<strong>真人操作</strong>：
+                <code>userEvent</code> 的每个方法都返回 Promise。因为它模拟的是<strong>真人操作</strong>：
                 <code>type(&quot;My Title&quot;)</code> 会一个字符一个字符地触发
                 <code>keydown</code> / <code>keypress</code> /
-                <code>input</code> / <code>keyup</code>，
-                每个字符之间还有微小的间隔。
+                <code>input</code> / <code>keyup</code>，每个字符之间还有微小的间隔。
               </p>
               <p>
                 更重要的是：React 的 state 更新和重新渲染是
                 <strong>异步批处理</strong>的。
-                <code>await</code> 保证「等这次操作引发的所有渲染都结束了」
-                再往下走。
+                <code>await</code> 保证「等这次操作引发的所有渲染都结束了」再往下走。
               </p>
               <p>
                 <strong>漏了 await 会怎样？</strong>
-                断言会在渲染完成之前执行，看到的是旧界面，
-                于是报「找不到 My Title」——
+                断言会在渲染完成之前执行，看到的是旧界面，于是报「找不到 My Title」——
                 但你的代码其实是对的。这是最容易误导人的一类测试失败。
               </p>
             </>
@@ -4100,8 +3955,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
           body: (
             <>
               <p>
-                四个测试合起来覆盖了「能不能跑通」，
-                但漏掉了三条题目明确要求的东西：
+                四个测试合起来覆盖了「能不能跑通」，但漏掉了三条题目明确要求的东西：
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -4211,8 +4065,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
           level: 1,
           prompt: (
             <p>
-              下面哪个 <code>handleDelete</code> 能让四个测试<strong>全部通过</strong>，
-              但明显违反题目要求？
+              下面哪个 <code>handleDelete</code> 能让四个测试<strong>全部通过</strong>，但明显违反题目要求？
             </p>
           ),
           promptEn: (
@@ -4269,11 +4122,8 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
           prompt: (
             <p>
               你写的 <code>handleSubmitNote</code> 是{" "}
-              <code>setNotes((prev) =&gt; [...prev, submittedNote])</code>，
-              但自己加的测试报「找不到 My Title」。
-              测试代码是{" "}
-              <code>userEvent.click(btn); expect(list).toHaveTextContent(&quot;My Title&quot;)</code>。
-              最可能的原因？
+              <code>setNotes((prev) =&gt; [...prev, submittedNote])</code>，但自己加的测试报「找不到 My Title」。测试代码是{" "}
+              <code>userEvent.click(btn); expect(list).toHaveTextContent(&quot;My Title&quot;)</code>。最可能的原因？
             </p>
           ),
           promptEn: (
@@ -4299,16 +4149,11 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
           answer: ["b"],
           explain: (
             <>
-              <code>userEvent</code> 的方法都返回 Promise，
-              而且 React 的渲染是异步批处理的。
-              漏了 <code>await</code>，断言会在界面更新之前执行，
-              看到的是旧 DOM。
+              <code>userEvent</code> 的方法都返回 Promise，而且 React 的渲染是异步批处理的。漏了 <code>await</code>，断言会在界面更新之前执行，看到的是旧 DOM。
               <br />
               <strong>特征是「实现看起来完全正确，但测试说找不到」</strong>——
-              遇到这种情况先数 await。
-              （C 也会导致失败，但报错会是
-              <code>Unable to find an element by: [data-testid=...]</code>，
-              指向元素而不是文字内容。）
+              遇到这种情况先数 await。（C 也会导致失败，但报错会是
+              <code>Unable to find an element by: [data-testid=...]</code>，指向元素而不是文字内容。）
             </>
           ),
           explainEn: (
@@ -4337,9 +4182,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
           level: 3,
           prompt: (
             <p>
-              现有测试测不出「按 id 删除」。写一个新测试：
-              添加<strong>两条同名</strong>笔记，删掉其中一条，
-              断言另一条还在。
+              现有测试测不出「按 id 删除」。写一个新测试：添加<strong>两条同名</strong>笔记，删掉其中一条，断言另一条还在。
               <br />
               <span className="dimmer">
                 提示：两条数据时页面上有两个 Delete 按钮，

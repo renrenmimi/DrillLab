@@ -528,9 +528,7 @@ const ticketMock: MockExam = {
           </div>
           <p>
             <strong>这就是「题型迁移」的真实样子。</strong>
-            换了业务名词、换了一个控件类型、加了一个功能点，
-            但底下那七件事一件都没变。 如果你在真实 Q1 里靠背答案过关，这道题会很难；
-            如果你理解了「谁持有数据、怎么不可变更新、什么该派生」， 这道题只是换了几个变量名。
+            换了业务名词、换了一个控件类型、加了一个功能点，但底下那七件事一件都没变。如果你在真实 Q1 里靠背答案过关，这道题会很难；如果你理解了「谁持有数据、怎么不可变更新、什么该派生」，这道题只是换了几个变量名。
           </p>
         </>
       ),
@@ -617,16 +615,14 @@ const ticketMock: MockExam = {
           <ul>
             <li>
               <strong>类型断言。</strong>
-              <code>e.target.value</code> 的类型是 <code>string</code>，
-              但 state 的类型是 <code>Priority</code>
-              （<code>&quot;low&quot; | &quot;medium&quot; | &quot;high&quot;</code>）。
-              strict 模式下需要 <code>as Priority</code>。 这是这道题里唯一会让人卡一下的类型问题。
+              <code>e.target.value</code> 的类型是 <code>string</code>，但 state 的类型是 <code>Priority</code>
+              （<code>&quot;low&quot; | &quot;medium&quot; | &quot;high&quot;</code>）。strict 模式下需要 <code>as Priority</code>。这是这道题里唯一会让人卡一下的类型问题。
             </li>
             <li>
               <strong>
                 用 <code>value</code> 而不是给 option 加 <code>selected</code>。
               </strong>
-              React 里控制选中项是 select 的 <code>value</code>， 不是 option 的
+              React 里控制选中项是 select 的 <code>value</code>，不是 option 的
               <code>selected</code> 属性。
             </li>
           </ul>
@@ -694,20 +690,18 @@ const ticketMock: MockExam = {
           <p>
             很多人会开两个 state：<code>filter</code> 和
             <code>filteredTickets</code>，然后用 <code>useEffect</code>
-            让后者跟着前者变。<strong>这是错的</strong> —— 同一个事实存了两份，
-            还多了一次不必要的渲染。
+            让后者跟着前者变。<strong>这是错的</strong> —— 同一个事实存了两份，还多了一次不必要的渲染。
           </p>
           <p>
             正解是<strong>一个 state 存条件，可见列表当场算</strong>：
           </p>
           <p>
             <strong>
-              关键点：删除和编辑操作的是 <code>tickets</code>（原始数据）， 不是
+              关键点：删除和编辑操作的是 <code>tickets</code>（原始数据），不是
               <code>visibleTickets</code>。
             </strong>
-            因为 handler 收到的是 id，而 id 在原始数据里一定找得到。 如果你在筛选态下用
-            <code>visibleTickets</code> 去做 <code>setTickets</code>，
-            会把被筛掉的数据全丢了 —— 这是本题最容易犯的错，rubric 里专门留了 4 分给它。
+            因为 handler 收到的是 id，而 id 在原始数据里一定找得到。如果你在筛选态下用
+            <code>visibleTickets</code> 去做 <code>setTickets</code>，会把被筛掉的数据全丢了 —— 这是本题最容易犯的错，rubric 里专门留了 4 分给它。
           </p>
         </>
       ),

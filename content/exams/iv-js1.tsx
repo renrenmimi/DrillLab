@@ -52,33 +52,25 @@ export const ivJsCore: Module = {
             <>
               <p>
                 <strong>一句话：</strong>引擎是<strong>把 JS 源码变成机器能执行的东西</strong>
-                的那个程序。Chrome / Node 用 V8，Firefox 用 SpiderMonkey，
-                Safari 用 JavaScriptCore。
+                的那个程序。Chrome / Node 用 V8，Firefox 用 SpiderMonkey，Safari 用 JavaScriptCore。
               </p>
               <p>
                 <strong>大致流程：</strong>
                 源码 → 解析成 AST → 生成字节码 →
-                <strong>解释器先跑起来</strong>，
-                同时监控哪段代码被反复执行（热点），
-                把热点交给 <strong>JIT 编译器</strong>编译成机器码。
-                这套「先解释、后即时编译」的做法让 JS 既能马上启动、
-                又能在热点上接近原生速度。
+                <strong>解释器先跑起来</strong>，同时监控哪段代码被反复执行（热点），把热点交给 <strong>JIT 编译器</strong>编译成机器码。这套「先解释、后即时编译」的做法让 JS 既能马上启动、又能在热点上接近原生速度。
               </p>
               <p>
                 <strong>会追问：</strong>「引擎和运行时（runtime）什么区别？」
-                —— 这是真考点。引擎<strong>只管执行 JS 语言本身</strong>，
-                它<strong>不认识</strong> <code>setTimeout</code>、
+                —— 这是真考点。引擎<strong>只管执行 JS 语言本身</strong>，它<strong>不认识</strong> <code>setTimeout</code>、
                 <code>fetch</code>、<code>document</code>、
                 <code>fs</code>—— 这些都是宿主环境（浏览器 / Node）提供的 API。
                 <br />
-                所以「事件循环属于引擎吗？」答案是<strong>不属于</strong>，
-                它是运行时的一部分（见 #305）。这个区分答对了很加分。
+                所以「事件循环属于引擎吗？」答案是<strong>不属于</strong>，它是运行时的一部分（见 #305）。这个区分答对了很加分。
               </p>
               <p>
                 <strong>还会追问内存：</strong>引擎管两块 ——
                 <strong>调用栈</strong>（执行上下文、原始值）和
-                <strong>堆</strong>（对象、数组、函数）。
-                这正好对应下一题。
+                <strong>堆</strong>（对象、数组、函数）。这正好对应下一题。
               </p>
             </>
           ),
@@ -128,23 +120,17 @@ export const ivJsCore: Module = {
             <>
               <p>
                 <strong>一句话：</strong>Read-Eval-Print-Loop ——
-                读一行、求值、打印结果、再等下一行。
-                终端里敲 <code>node</code> 回车进去的那个交互环境，
-                以及浏览器 DevTools 的 Console，都是 REPL。
+                读一行、求值、打印结果、再等下一行。终端里敲 <code>node</code> 回车进去的那个交互环境，以及浏览器 DevTools 的 Console，都是 REPL。
               </p>
               <p>
                 <strong>用来干什么：</strong>
-                验证一小段语法、试一个 API 的返回值、
-                快速算个东西。<strong>不适合写多行逻辑</strong>——
+                验证一小段语法、试一个 API 的返回值、快速算个东西。<strong>不适合写多行逻辑</strong>——
                 改一行要重敲一遍。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「在 REPL 里 <code>let x = 1</code> 会打印什么？」——
-                <code>undefined</code>。
-                因为它打印的是<strong>表达式的值</strong>，
-                而变量声明语句的值就是 <code>undefined</code>。
-                这个小细节能看出你是不是真用过。
+                <code>undefined</code>。因为它打印的是<strong>表达式的值</strong>，而变量声明语句的值就是 <code>undefined</code>。这个小细节能看出你是不是真用过。
               </p>
             </>
           ),
@@ -180,8 +166,7 @@ export const ivJsCore: Module = {
           body: (
             <>
               <p>
-                <strong>一句话：</strong>原始值<strong>存在栈上、直接存值</strong>；
-                引用值<strong>存在堆上、栈上只存一个地址</strong>。
+                <strong>一句话：</strong>原始值<strong>存在栈上、直接存值</strong>；引用值<strong>存在堆上、栈上只存一个地址</strong>。
               </p>
               <p>
                 <strong>七种原始类型</strong>（背下来，会让你数）：
@@ -190,10 +175,8 @@ export const ivJsCore: Module = {
                 <code>null</code>、<code>symbol</code>、
                 <code>bigint</code>。
                 <br />
-                <strong>其余全是引用类型</strong>：
-                对象、数组、函数、<code>Date</code>、
-                <code>Map</code>、<code>Set</code>、正则……
-                （数组和函数本质都是对象）。
+                <strong>其余全是引用类型</strong>：对象、数组、函数、<code>Date</code>、
+                <code>Map</code>、<code>Set</code>、正则……（数组和函数本质都是对象）。
               </p>
               <p>
                 <strong>栈 / 堆是便于理解的模型</strong>（规范并不规定，V8
@@ -207,27 +190,22 @@ export const ivJsCore: Module = {
                   是<strong>返回新字符串</strong>，原来那个没动。
                 </li>
                 <li>
-                  <strong>比较</strong>—— 原始值比<strong>值</strong>，
-                  引用值比<strong>地址</strong>。所以
+                  <strong>比较</strong>—— 原始值比<strong>值</strong>，引用值比<strong>地址</strong>。所以
                   <code>{"{} === {}"}</code> 是 <code>false</code>，
                   <code>{"[1] === [1]"}</code> 也是 <code>false</code>。
                 </li>
                 <li>
-                  <strong>赋值</strong>—— 原始值复制一份；
-                  引用值只复制地址，<strong>两个变量指向同一个对象</strong>。
-                  这就是 #284。
+                  <strong>赋值</strong>—— 原始值复制一份；引用值只复制地址，<strong>两个变量指向同一个对象</strong>。这就是 #284。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>
                 「<code>typeof null</code> 是什么？」——
-                <code>{'"object"'}</code>，这是个<strong>沿用了 30 年的 bug</strong>，
-                因为兼容性一直没修。判断 null 要用
+                <code>{'"object"'}</code>，这是个<strong>沿用了 30 年的 bug</strong>，因为兼容性一直没修。判断 null 要用
                 <code>x === null</code>。
                 <br />
                 「怎么可靠地判断数组？」——
-                <code>Array.isArray(x)</code>，
-                别用 <code>typeof</code>（会得到 <code>{'"object"'}</code>）。
+                <code>Array.isArray(x)</code>，别用 <code>typeof</code>（会得到 <code>{'"object"'}</code>）。
               </p>
             </>
           ),
@@ -377,22 +355,17 @@ console.log(Array.isArray([]));  // true  ← use this to test for an array`,
                 </table>
               </div>
               <p>
-                <strong>隐式转换的两条核心规则</strong>（记住这两条，
-                大部分怪题就能推出来）：
+                <strong>隐式转换的两条核心规则</strong>（记住这两条，大部分怪题就能推出来）：
               </p>
               <ul>
                 <li>
-                  <strong><code>+</code> 只要有一边是字符串，就变成拼接</strong>；
-                  其他算术运算符（<code>-</code>、<code>*</code>、
-                  <code>/</code>）一律转成数字。
-                  所以 <code>1 + &quot;1&quot; === &quot;11&quot;</code>
+                  <strong><code>+</code> 只要有一边是字符串，就变成拼接</strong>；其他算术运算符（<code>-</code>、<code>*</code>、
+                  <code>/</code>）一律转成数字。所以 <code>1 + &quot;1&quot; === &quot;11&quot;</code>
                   而 <code>&quot;3&quot; - 1 === 2</code>。
                 </li>
                 <li>
                   <strong>对象参与运算时先 <code>valueOf()</code>
-                  再 <code>toString()</code></strong>。
-                  数组的 <code>toString()</code> 是元素 join 逗号，
-                  所以 <code>[] + []</code> 得到空字符串，
+                  再 <code>toString()</code></strong>。数组的 <code>toString()</code> 是元素 join 逗号，所以 <code>[] + []</code> 得到空字符串，
                   <code>{"[] + {}"}</code> 得到
                   <code>&quot;[object Object]&quot;</code>。
                 </li>
@@ -412,8 +385,7 @@ console.log(Array.isArray([]));  // true  ← use this to test for an array`,
                 <code>parseInt(&quot;42px&quot;)</code> 得 <code>42</code>
                 （从头读到读不动为止），
                 <code>Number(&quot;42px&quot;)</code> 得 <code>NaN</code>
-                （整体不合法就失败）。
-                所以校验用户输入该用 <code>Number</code>，
+                （整体不合法就失败）。所以校验用户输入该用 <code>Number</code>，
                 <code>parseInt</code> 会把脏数据悄悄放过去。
               </p>
             </>
@@ -568,8 +540,7 @@ Number(" ")      // 0   ← whitespace is 0 too, so validate input carefully`,
               <ul>
                 <li>
                   <code>null == undefined</code> 是
-                  <strong><code>true</code></strong>，
-                  但它们和其他任何值都不 <code>==</code>
+                  <strong><code>true</code></strong>，但它们和其他任何值都不 <code>==</code>
                   （包括 <code>0</code> 和 <code>&quot;&quot;</code>）。
                 </li>
                 <li>
@@ -577,8 +548,7 @@ Number(" ")      // 0   ← whitespace is 0 too, so validate input carefully`,
                 </li>
                 <li>
                   <strong>布尔参与 → 布尔先转数字</strong>
-                  （<code>true</code>→1，<code>false</code>→0）。
-                  这就是 <code>[] == false</code> 为 <code>true</code> 的原因：
+                  （<code>true</code>→1，<code>false</code>→0）。这就是 <code>[] == false</code> 为 <code>true</code> 的原因：
                   <code>[]</code>→<code>&quot;&quot;</code>→<code>0</code>，
                   <code>false</code>→<code>0</code>。
                 </li>
@@ -595,8 +565,7 @@ Number(" ")      // 0   ← whitespace is 0 too, so validate input carefully`,
               <p>
                 <strong>会追问：</strong>「<code>NaN === NaN</code>？」——
                 <code>false</code>，<code>NaN</code>
-                <strong>和自己都不相等</strong>。
-                判断要用 <code>Number.isNaN(x)</code>
+                <strong>和自己都不相等</strong>。判断要用 <code>Number.isNaN(x)</code>
                 （别用全局 <code>isNaN</code>，它会先做隐式转换，
                 <code>isNaN(&quot;abc&quot;)</code> 是 <code>true</code>）。
                 <br />
@@ -709,14 +678,12 @@ Object.is(NaN, NaN) // true  ← React uses this to decide whether state changed
               <p>
                 <strong>一句话：</strong>
                 <code>&amp;&amp;</code> 和 <code>||</code>
-                <strong>结果一旦确定就不再算右边</strong>，
-                而且它们<strong>返回的是操作数本身，不是布尔值</strong>。
+                <strong>结果一旦确定就不再算右边</strong>，而且它们<strong>返回的是操作数本身，不是布尔值</strong>。
               </p>
               <ul>
                 <li>
                   <code>a &amp;&amp; b</code>——
-                  a 为假就返回 a，否则返回 b。「都真才真」，
-                  所以遇到假就可以收工。
+                  a 为假就返回 a，否则返回 b。「都真才真」，所以遇到假就可以收工。
                 </li>
                 <li>
                   <code>a || b</code>——
@@ -741,10 +708,8 @@ Object.is(NaN, NaN) // true  ← React uses this to decide whether state changed
                 <code>{"{loading && <Spinner />}"}</code>。
                 <strong>陷阱在这儿</strong>：如果左边是
                 <code>list.length</code> 而列表为空，
-                <code>0 &amp;&amp; …</code> 返回 <code>0</code>，
-                而 React <strong>会把 <code>0</code> 渲染出来</strong>——
-                页面上凭空多一个「0」。
-                所以要写成 <code>list.length &gt; 0 &amp;&amp; …</code>。
+                <code>0 &amp;&amp; …</code> 返回 <code>0</code>，而 React <strong>会把 <code>0</code> 渲染出来</strong>——
+                页面上凭空多一个「0」。所以要写成 <code>list.length &gt; 0 &amp;&amp; …</code>。
               </p>
             </>
           ),
@@ -848,8 +813,7 @@ count ?? 10                 // 0   ✓
                 <strong>一句话：</strong>
                 <code>var</code> 是函数作用域、会提升成
                 <code>undefined</code>、能重复声明；
-                <code>let</code> / <code>const</code> 是块作用域、
-                有 TDZ、不能重复声明；
+                <code>let</code> / <code>const</code> 是块作用域、有 TDZ、不能重复声明；
                 <code>const</code> 还不能重新赋值。
               </p>
               <div className="table-wrap">
@@ -899,29 +863,21 @@ count ?? 10                 // 0   ✓
               <p>
                 <strong>TDZ（暂时性死区）</strong>是
                 <code>let</code> / <code>const</code>
-                「从块开始到声明那一行」之间的区域。
-                变量确实被提升了，
-                <strong>但被标记为「还不能用」</strong>，
-                所以访问会抛错而不是给 <code>undefined</code>。
-                这是刻意设计的 —— 让错误早暴露。
+                「从块开始到声明那一行」之间的区域。变量确实被提升了，
+                <strong>但被标记为「还不能用」</strong>，所以访问会抛错而不是给 <code>undefined</code>。这是刻意设计的 —— 让错误早暴露。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「<code>const</code> 的对象能改属性吗？」——
                 <strong>能</strong>。<code>const</code> 锁的是
-                <strong>绑定</strong>（这个名字不能再指向别的东西），
-                不是<strong>值</strong>。
-                想冻结内容用 <code>Object.freeze()</code>。
+                <strong>绑定</strong>（这个名字不能再指向别的东西），不是<strong>值</strong>。想冻结内容用 <code>Object.freeze()</code>。
               </p>
               <p>
                 <strong>还会追问循环那道经典题</strong>——
                 <code>for (var i…)</code> 配
                 <code>setTimeout</code> 会打出三个 3，
-                <code>let</code> 会打出 0 1 2。
-                因为 <code>let</code>
-                <strong>每次迭代都创建一个新的绑定</strong>，
-                而 <code>var</code> 全程只有一个 <code>i</code>。
-                这题和闭包（#298）连着考。
+                <code>let</code> 会打出 0 1 2。因为 <code>let</code>
+                <strong>每次迭代都创建一个新的绑定</strong>，而 <code>var</code> 全程只有一个 <code>i</code>。这题和闭包（#298）连着考。
               </p>
             </>
           ),
@@ -1059,8 +1015,7 @@ o = { n: 3 };     // ✗ TypeError: Assignment to constant variable`,
               <p>
                 <strong>一句话（这句要说准）：</strong>
                 JavaScript <strong>永远是按值传递</strong>——
-                只是当值是对象时，<strong>传的那个「值」是一个地址</strong>。
-                严格说叫 <strong>pass by sharing</strong>。
+                只是当值是对象时，<strong>传的那个「值」是一个地址</strong>。严格说叫 <strong>pass by sharing</strong>。
               </p>
               <p>
                 为什么这个说法重要？因为它一句话解释了两个看似矛盾的现象：
@@ -1073,8 +1028,7 @@ o = { n: 3 };     // ✗ TypeError: Assignment to constant variable`,
                 <li>
                   函数里 <code>obj = {"{ n: 2 }"}</code>
                   <strong>外面不变</strong>—— 因为你只是让
-                  <strong>函数内部那个参数变量</strong>指向了新对象，
-                  外面的变量还指着旧的。
+                  <strong>函数内部那个参数变量</strong>指向了新对象，外面的变量还指着旧的。
                 </li>
               </ul>
               <p>
@@ -1084,17 +1038,14 @@ o = { n: 3 };     // ✗ TypeError: Assignment to constant variable`,
                 <strong>会追问：</strong>「怎么避免改到外面？」——
                 先复制。<code>{"{ ...obj }"}</code> /
                 <code>arr.slice()</code> 是<strong>浅拷贝</strong>
-                （只复制一层，嵌套对象还是共享）；
-                深拷贝用 <code>structuredClone(obj)</code>
-                （现代浏览器和 Node 17+ 原生支持，
-                比 <code>JSON.parse(JSON.stringify())</code> 强 ——
+                （只复制一层，嵌套对象还是共享）；深拷贝用 <code>structuredClone(obj)</code>
+                （现代浏览器和 Node 17+ 原生支持，比 <code>JSON.parse(JSON.stringify())</code> 强 ——
                 后者会丢掉 <code>undefined</code>、函数、
                 <code>Date</code> 会变字符串、还处理不了循环引用）。
               </p>
               <p>
                 <strong>这题和 React 直接相关：</strong>
-                React 判断 state 变没变是比引用，
-                所以「改了对象属性但界面不动」就是这个原理 ——
+                React 判断 state 变没变是比引用，所以「改了对象属性但界面不动」就是这个原理 ——
                 必须造新对象。
               </p>
             </>
@@ -1193,8 +1144,7 @@ const c = structuredClone(a);   // a deep copy, so nested objects are separate t
             <>
               <p>
                 <strong>一句话：</strong><code>Set</code>
-                <strong>元素唯一、查找是 O(1)、没有下标</strong>；
-                数组允许重复、有顺序和下标、
+                <strong>元素唯一、查找是 O(1)、没有下标</strong>；数组允许重复、有顺序和下标、
                 <code>includes</code> 是 O(n)。
               </p>
               <div className="table-wrap">
@@ -1238,20 +1188,16 @@ const c = structuredClone(a);   // a deep copy, so nested objects are separate t
               <p>
                 <strong>什么时候用 Set：</strong>
                 去重、以及<strong>在循环里反复判断「见过没有」</strong>——
-                后者是性能差别最大的场景，
-                数组的 <code>includes</code> 会让复杂度从 O(n) 变 O(n²)。
+                后者是性能差别最大的场景，数组的 <code>includes</code> 会让复杂度从 O(n) 变 O(n²)。
               </p>
               <p>
                 <strong>会追问：</strong>「Set 去重能去掉重复的对象吗？」——
                 <strong>不能</strong>。Set 用的是
-                <code>SameValueZero</code>（≈<code>===</code>），
-                两个内容一样的对象是不同的引用。
-                要按内容去重得自己用
+                <code>SameValueZero</code>（≈<code>===</code>），两个内容一样的对象是不同的引用。要按内容去重得自己用
                 <code>Map</code> 按某个 key 存。
                 <br />
                 「<code>NaN</code> 呢？」—— Set 里
-                <code>NaN</code> 只会存一个，
-                这是 <code>SameValueZero</code>
+                <code>NaN</code> 只会存一个，这是 <code>SameValueZero</code>
                 和 <code>===</code> 唯一的差别。
               </p>
             </>
@@ -1374,9 +1320,7 @@ const deduped = [...byId.values()];`,
               <p>
                 <strong>一句话：</strong><code>Map</code>
                 的<strong>键可以是任何类型</strong>、
-                <strong>保证插入顺序</strong>、有 <code>size</code>、
-                能直接遍历；对象的键只能是字符串或 symbol，
-                而且带着一条原型链。
+                <strong>保证插入顺序</strong>、有 <code>size</code>、能直接遍历；对象的键只能是字符串或 symbol，而且带着一条原型链。
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -1429,31 +1373,21 @@ const deduped = [...byId.values()];`,
               </p>
               <ul>
                 <li>
-                  <strong>用 Object</strong>：结构固定的记录
-                  （一个用户、一份配置），要 JSON 序列化，
-                  字段名写死在代码里。
+                  <strong>用 Object</strong>：结构固定的记录（一个用户、一份配置），要 JSON 序列化，字段名写死在代码里。
                 </li>
                 <li>
-                  <strong>用 Map</strong>：键是动态的、会频繁增删、
-                  数量大、键不是字符串。
+                  <strong>用 Map</strong>：键是动态的、会频繁增删、数量大、键不是字符串。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>
-                「拿对象当字典有什么风险？」—— 有两个。
-                ①继承来的键：空对象也「有」<code>toString</code>、
+                「拿对象当字典有什么风险？」—— 有两个。①继承来的键：空对象也「有」<code>toString</code>、
                 <code>constructor</code>，<code>if (dict[key])</code> 遇到用户输入
-                <code>&quot;constructor&quot;</code> 会误判成存在
-                （用 <code>Object.hasOwn</code> 判断）；
-                ②原型污染：键来自用户输入时，
-                <code>dict[&quot;__proto__&quot;] = …</code> 改的是对象的原型，
-                递归合并时还能改到 <code>Object.prototype</code>，影响全局。
-                <strong>Map 两个问题都没有</strong>，
-                非要用对象就 <code>Object.create(null)</code>。
+                <code>&quot;constructor&quot;</code> 会误判成存在（用 <code>Object.hasOwn</code> 判断）；②原型污染：键来自用户输入时，
+                <code>dict[&quot;__proto__&quot;] = …</code> 改的是对象的原型，递归合并时还能改到 <code>Object.prototype</code>，影响全局。
+                <strong>Map 两个问题都没有</strong>，非要用对象就 <code>Object.create(null)</code>。
                 <br />
-                「<code>WeakMap</code> 呢？」—— 键必须是对象，
-                而且<strong>不阻止垃圾回收</strong>。
-                适合给对象挂额外数据又不想造成内存泄漏。
+                「<code>WeakMap</code> 呢？」—— 键必须是对象，而且<strong>不阻止垃圾回收</strong>。适合给对象挂额外数据又不想造成内存泄漏。
               </p>
             </>
           ),
@@ -1698,8 +1632,7 @@ JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
                 <code>Function</code> 构造器、以及对象/类里的方法简写。
               </p>
               <p>
-                <strong>但面试真正想听的是它们的差别</strong>，
-                尤其是前三种：
+                <strong>但面试真正想听的是它们的差别</strong>，尤其是前三种：
               </p>
               <div className="table-wrap">
                 <table className="table">
@@ -1739,18 +1672,13 @@ JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
               </div>
               <p>
                 <strong>箭头函数不是「更短的 function」</strong>——
-                它没有自己的 <code>this</code>、
-                没有 <code>arguments</code>、
-                不能当构造器、没有 <code>prototype</code>。
-                所以<strong>对象方法里想用
+                它没有自己的 <code>this</code>、没有 <code>arguments</code>、不能当构造器、没有 <code>prototype</code>。所以<strong>对象方法里想用
                 <code>this</code> 指向该对象，就不能用箭头函数</strong>。
               </p>
               <p>
                 <strong>会追问：</strong>
                 「<code>Function</code> 构造器为什么不用？」——
-                它接收字符串当函数体，相当于 <code>eval</code>：
-                有注入风险、拿不到闭包、
-                而且引擎没法优化。
+                它接收字符串当函数体，相当于 <code>eval</code>：有注入风险、拿不到闭包、而且引擎没法优化。
                 <strong>知道它存在但说明不该用</strong>就是正确答案。
               </p>
             </>
@@ -1869,20 +1797,16 @@ const obj = {
               <p>
                 <strong>一句话：</strong>「一等」说的是
                 <strong>函数和普通值地位相同</strong>——
-                能赋给变量、能当参数传、能当返回值、
-                能放进数组和对象。
+                能赋给变量、能当参数传、能当返回值、能放进数组和对象。
               </p>
               <p>
                 <strong>这是语言的性质，不是某个函数的性质。</strong>
-                说「JavaScript 有一等函数」是对的，
-                说「这是一个一等函数」就怪了。
+                说「JavaScript 有一等函数」是对的，说「这是一个一等函数」就怪了。
               </p>
               <p>
                 <strong>为什么重要：</strong>
-                一等函数是<strong>回调、高阶函数、闭包、
-                函数式编程的前提</strong>。
-                <code>arr.map(fn)</code> 之所以能写，
-                就是因为 <code>fn</code> 可以当参数。
+                一等函数是<strong>回调、高阶函数、闭包、函数式编程的前提</strong>。
+                <code>arr.map(fn)</code> 之所以能写，就是因为 <code>fn</code> 可以当参数。
               </p>
               <p>
                 <strong>会追问：</strong>下面三题连着问 ——
@@ -1941,9 +1865,7 @@ const obj = {
               </p>
               <p>
                 这个词单独考的时候很少，
-                <strong>它存在的意义就是和「高阶」形成对照</strong>。
-                答题时一句话说完，然后主动接到高阶函数上，
-                显得你知道这三题是一组。
+                <strong>它存在的意义就是和「高阶」形成对照</strong>。答题时一句话说完，然后主动接到高阶函数上，显得你知道这三题是一组。
               </p>
             </>
           ),
@@ -1994,16 +1916,11 @@ const obj = {
                 <code>bind</code>（返回函数）。
               </p>
               <p>
-                <strong>返回函数那一类才是考点</strong>，
-                因为它是柯里化、防抖节流、
-                和 React HOC 的共同底子：
+                <strong>返回函数那一类才是考点</strong>，因为它是柯里化、防抖节流、和 React HOC 的共同底子：
               </p>
               <p>
                 <strong>会追问：</strong>「写一个防抖」——
-                这是最常见的现场编码题，
-                本质就是「返回一个函数 + 闭包记住 timer」。
-                注意<strong>清理和 <code>this</code> 转发</strong>，
-                很多人会漏。
+                这是最常见的现场编码题，本质就是「返回一个函数 + 闭包记住 timer」。注意<strong>清理和 <code>this</code> 转发</strong>，很多人会漏。
               </p>
             </>
           ),
@@ -2100,23 +2017,19 @@ const withLogger = (Comp) => (props) => {
             <>
               <p>
                 <strong>一句话：两个条件。</strong>
-                ① <strong>同样的输入永远给同样的输出</strong>；
-                ② <strong>没有副作用</strong>（不改外部变量、
-                不改参数、不发请求、不写 DOM、不打日志）。
+                ① <strong>同样的输入永远给同样的输出</strong>；② <strong>没有副作用</strong>（不改外部变量、不改参数、不发请求、不写 DOM、不打日志）。
               </p>
               <p>
                 <strong>不纯的常见来源：</strong>
                 <code>Math.random()</code>、
-                <code>new Date()</code>、
-                读写全局变量、
+                <code>new Date()</code>、读写全局变量、
                 <code>arr.push()</code> 改了传进来的数组、
                 <code>console.log</code>。
               </p>
               <p>
                 <strong>为什么面试爱问：</strong>纯函数
                 <strong>好测</strong>（给输入断输出，不用搭环境）、
-                <strong>好缓存</strong>（输入一样就能复用结果，
-                这就是 memoization）、
+                <strong>好缓存</strong>（输入一样就能复用结果，这就是 memoization）、
                 <strong>好并发</strong>（没有共享状态就没有竞争）。
               </p>
               <p>
@@ -2125,23 +2038,20 @@ const withLogger = (Comp) => (props) => {
               <ul>
                 <li>
                   <strong>组件的渲染函数必须是纯的</strong>——
-                  同样的 props 和 state 要渲染出同样的 UI。
-                  这是 StrictMode 故意渲染两次能发现问题的原因（见 #332）。
+                  同样的 props 和 state 要渲染出同样的 UI。这是 StrictMode 故意渲染两次能发现问题的原因（见 #332）。
                 </li>
                 <li>
                   <strong>Redux 的 reducer 必须是纯的</strong>——
                   不然时间旅行调试和重放就不成立（见 #352）。
                 </li>
                 <li>
-                  <strong>不可变更新</strong>之所以是铁律，
-                  就是因为「改传进来的数组」会让函数不纯。
+                  <strong>不可变更新</strong>之所以是铁律，就是因为「改传进来的数组」会让函数不纯。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>
                 「那副作用写哪？」—— React 里写
-                <code>useEffect</code>，
-                Redux 里写中间件（thunk / saga）。
+                <code>useEffect</code>，Redux 里写中间件（thunk / saga）。
                 <strong>把纯逻辑和副作用分开</strong>是这套设计的核心。
               </p>
             </>
@@ -2246,8 +2156,7 @@ const tax = (n, rate) => n * rate;`,
             <>
               <p>
                 <strong>一句话：</strong>开启严格模式 ——
-                把一批「静默出错」的写法变成<strong>直接抛错</strong>，
-                并禁掉一些历史包袱。
+                把一批「静默出错」的写法变成<strong>直接抛错</strong>，并禁掉一些历史包袱。
               </p>
               <p>
                 <strong>具体管四件事（记两三条就够答）：</strong>
@@ -2255,15 +2164,12 @@ const tax = (n, rate) => n * rate;`,
               <ul>
                 <li>
                   <strong>禁止隐式全局变量。</strong>
-                  <code>x = 1</code> 忘了 <code>let</code>，
-                  非严格下会悄悄挂到 <code>window</code>，
-                  严格下抛 <code>ReferenceError</code>。
+                  <code>x = 1</code> 忘了 <code>let</code>，非严格下会悄悄挂到 <code>window</code>，严格下抛 <code>ReferenceError</code>。
                   <strong>这是它最大的价值。</strong>
                 </li>
                 <li>
                   <strong>函数里的 <code>this</code> 是
-                  <code>undefined</code></strong>，
-                  而不是 <code>window</code>——
+                  <code>undefined</code></strong>，而不是 <code>window</code>——
                   能让「忘了 bind」当场暴露。
                 </li>
                 <li>
@@ -2278,16 +2184,13 @@ const tax = (n, rate) => n * rate;`,
               <p>
                 <strong>会追问：</strong>
                 「现在还要手写吗？」—— <strong>基本不用了</strong>：
-                <strong>ES 模块和 class 内部自动就是严格模式</strong>。
-                所以只有写老式 <code>&lt;script&gt;</code>
-                或 CommonJS 时才需要手写。
-                能答出这条说明你知道现状。
+                <strong>ES 模块和 class 内部自动就是严格模式</strong>。所以只有写老式 <code>&lt;script&gt;</code>
+                或 CommonJS 时才需要手写。能答出这条说明你知道现状。
               </p>
               <p>
                 <strong>顺带一个真实关联：</strong>
                 这就是「<code>Object.freeze</code> 之后修改会抛错」的原因
-                —— 非严格模式下它只是静默失败。
-                我们的评论树那道题就是靠这个来验证不可变性的。
+                —— 非严格模式下它只是静默失败。我们的评论树那道题就是靠这个来验证不可变性的。
               </p>
             </>
           ),
@@ -2372,8 +2275,7 @@ const tax = (n, rate) => n * rate;`,
                   <code>var</code> 无视它。
                 </li>
                 <li>
-                  <strong>模块</strong>—— 每个 ES 模块文件自己一个作用域，
-                  顶层声明<strong>不会污染全局</strong>。
+                  <strong>模块</strong>—— 每个 ES 模块文件自己一个作用域，顶层声明<strong>不会污染全局</strong>。
                 </li>
               </ul>
               <p>
@@ -2386,8 +2288,7 @@ const tax = (n, rate) => n * rate;`,
                 「函数作用域和块作用域差在哪，举个例子？」——
                 <code>if</code> 里 <code>var</code> 声明的变量
                 <strong>出了 if 还能访问</strong>，
-                <code>let</code> 就不能。
-                这是把老代码从 <code>var</code>
+                <code>let</code> 就不能。这是把老代码从 <code>var</code>
                 改成 <code>let</code> 时最常见的破坏点。
               </p>
             </>
@@ -2467,9 +2368,7 @@ const tax = (n, rate) => n * rate;`,
           body: (
             <>
               <p>
-                <strong>一句话：</strong>编译阶段引擎会先扫一遍，
-                把<strong>声明</strong>登记到作用域里，
-                所以「在声明之前引用」不一定报错 ——
+                <strong>一句话：</strong>编译阶段引擎会先扫一遍，把<strong>声明</strong>登记到作用域里，所以「在声明之前引用」不一定报错 ——
                 <strong>但只提升声明，不提升赋值</strong>。
               </p>
               <p>
@@ -2507,8 +2406,7 @@ const tax = (n, rate) => n * rate;`,
                 <strong>「<code>let</code> 不提升」是个常见错误说法。</strong>
                 它<strong>确实提升了</strong>——
                 否则内层的 <code>let x</code>
-                不会遮蔽外层的 <code>x</code>。
-                只是它被标成「未初始化」，访问就抛错。
+                不会遮蔽外层的 <code>x</code>。只是它被标成「未初始化」，访问就抛错。
                 <strong>能纠正这个说法很加分。</strong>
               </p>
               <p>
@@ -2516,11 +2414,9 @@ const tax = (n, rate) => n * rate;`,
                 「函数声明和函数表达式呢？」——
                 <code>{"function f(){}"}</code> 整体提升；
                 <code>{"var f = function(){}"}</code>
-                只提升 <code>f</code>（值是 <code>undefined</code>），
-                提前调用会得到
+                只提升 <code>f</code>（值是 <code>undefined</code>），提前调用会得到
                 <code>TypeError: f is not a function</code>。
-                <strong>注意这两个报错不一样</strong>，
-                这个细节常用来分辨背没背过。
+                <strong>注意这两个报错不一样</strong>，这个细节常用来分辨背没背过。
               </p>
             </>
           ),
@@ -2632,10 +2528,8 @@ let bar = function () {};`,
             <>
               <p>
                 <strong>一句话：</strong>找一个变量时，
-                <strong>先在当前作用域找，找不到就往外一层，
-                一直找到全局，还没有就报
-                <code>ReferenceError</code></strong>。
-                这条「由内到外」的路径就是作用域链。
+                <strong>先在当前作用域找，找不到就往外一层，一直找到全局，还没有就报
+                <code>ReferenceError</code></strong>。这条「由内到外」的路径就是作用域链。
               </p>
               <p>
                 <strong>两个关键性质：</strong>
@@ -2646,10 +2540,8 @@ let bar = function () {};`,
                   外层看不见内层的变量。
                 </li>
                 <li>
-                  <strong>链在函数「定义」时就定下来了，
-                  和在哪里「调用」无关</strong>——
-                  这叫<strong>词法作用域（静态作用域）</strong>。
-                  这一句是本题的真考点，也是闭包的原理。
+                  <strong>链在函数「定义」时就定下来了，和在哪里「调用」无关</strong>——
+                  这叫<strong>词法作用域（静态作用域）</strong>。这一句是本题的真考点，也是闭包的原理。
                 </li>
               </ul>
               <p>
@@ -2657,11 +2549,8 @@ let bar = function () {};`,
                 「那 <code>this</code> 也是这样吗？」——
                 <strong>不是</strong>，这是最容易混的地方。
                 <strong>变量查找是词法的（看定义在哪），
-                <code>this</code> 是动态的（看怎么调用的）</strong>。
-                箭头函数的 <code>this</code>
-                之所以「像变量一样」，
-                正因为它<strong>不自己定义 <code>this</code></strong>，
-                而是顺着作用域链去外层拿。
+                <code>this</code> 是动态的（看怎么调用的）</strong>。箭头函数的 <code>this</code>
+                之所以「像变量一样」，正因为它<strong>不自己定义 <code>this</code></strong>，而是顺着作用域链去外层拿。
               </p>
             </>
           ),
@@ -2772,24 +2661,18 @@ run();`,
               <p>
                 <strong>一句话：</strong>
                 <strong>函数记住了它定义时所在的作用域</strong>——
-                即使外层函数已经执行完了，
-                里面的变量也还活着，因为这个函数还在引用它们。
+                即使外层函数已经执行完了，里面的变量也还活着，因为这个函数还在引用它们。
               </p>
               <p>
                 <strong>为什么会这样？</strong>
-                因为作用域链在定义时就绑好了（#297）。
-                外层函数返回后，
-                它的变量本该被回收，
-                但<strong>只要还有函数引用着，
-                垃圾回收就不会动它</strong>。
+                因为作用域链在定义时就绑好了（#297）。外层函数返回后，它的变量本该被回收，但<strong>只要还有函数引用着，垃圾回收就不会动它</strong>。
               </p>
               <p>
                 <strong>四个真实用途</strong>（面试要的是用途，不是定义）：
               </p>
               <ul>
                 <li>
-                  <strong>私有状态</strong>—— 计数器、缓存。
-                  外部拿不到那个变量，只能通过你暴露的方法改。
+                  <strong>私有状态</strong>—— 计数器、缓存。外部拿不到那个变量，只能通过你暴露的方法改。
                 </li>
                 <li>
                   <strong>防抖 / 节流</strong>—— 用闭包存 timer。
@@ -2799,8 +2682,7 @@ run();`,
                 </li>
                 <li>
                   <strong>React 的 Hooks 全靠它</strong>——
-                  <code>useEffect</code> 的回调、事件处理函数里读到的 state 和 props，
-                  都是闭包捕获的那一次渲染的值（<code>setState</code> 本身是稳定的）。
+                  <code>useEffect</code> 的回调、事件处理函数里读到的 state 和 props，都是闭包捕获的那一次渲染的值（<code>setState</code> 本身是稳定的）。
                   <strong>「过期闭包」这个 bug 就是它的副作用。</strong>
                 </li>
               </ul>
@@ -2809,16 +2691,13 @@ run();`,
               </p>
               <p>
                 ① <strong>循环里的 setTimeout</strong>（见 #282）。
-                <code>var</code> 全程只有一个 <code>i</code>，
-                三个闭包共享它；<code>let</code>
+                <code>var</code> 全程只有一个 <code>i</code>，三个闭包共享它；<code>let</code>
                 每次迭代新建一个绑定，所以各自记住自己那份。
               </p>
               <p>
                 ② <strong>闭包会不会造成内存泄漏？</strong>
-                会 —— 如果闭包一直存活（比如挂在全局或未移除的事件监听里），
-                它引用的整个作用域都回收不了。
-                <strong>解法是及时解绑</strong>，
-                这也是 React 里 <code>useEffect</code>
+                会 —— 如果闭包一直存活（比如挂在全局或未移除的事件监听里），它引用的整个作用域都回收不了。
+                <strong>解法是及时解绑</strong>，这也是 React 里 <code>useEffect</code>
                 必须写清理函数的原因之一。
               </p>
             </>
@@ -2945,14 +2824,11 @@ f();              // [3, 3, 3]  —— the three closures share one i
           body: (
             <>
               <p>
-                <strong>一句话：</strong>把「一次收 n 个参数」的函数
-                改成「<strong>每次收一个、返回一个新函数</strong>」，
-                收满了才真正计算。
+                <strong>一句话：</strong>把「一次收 n 个参数」的函数改成「<strong>每次收一个、返回一个新函数</strong>」，收满了才真正计算。
               </p>
               <p>
                 <code>{"add(1, 2, 3)"}</code> 变成
-                <code>{"add(1)(2)(3)"}</code>。
-                实现靠<strong>闭包记住已经收到的参数</strong>。
+                <code>{"add(1)(2)(3)"}</code>。实现靠<strong>闭包记住已经收到的参数</strong>。
               </p>
               <p>
                 <strong>有什么用（别只说「炫技」）：</strong>
@@ -2964,22 +2840,18 @@ f();              // [3, 3, 3]  —— the three closures share one i
                   ，然后 <code>const warn = log(&quot;WARN&quot;)</code>。
                 </li>
                 <li>
-                  <strong>延迟执行</strong>—— 参数没收齐就不干活，
-                  适合配置式 API。
+                  <strong>延迟执行</strong>—— 参数没收齐就不干活，适合配置式 API。
                 </li>
                 <li>
                   <strong>函数组合</strong>——
-                  组合要求每个函数只收一个参数，
-                  柯里化正好把多参函数改造成这个形状。
+                  组合要求每个函数只收一个参数，柯里化正好把多参函数改造成这个形状。
                 </li>
               </ul>
               <p>
                 <strong>会追问：</strong>
                 「柯里化和偏函数（partial application）什么区别？」——
-                柯里化<strong>严格一次一个</strong>；
-                偏函数是<strong>一次固定几个、剩下的以后给</strong>
-                （<code>bind</code> 就是偏函数）。
-                这个区分问得不少。
+                柯里化<strong>严格一次一个</strong>；偏函数是<strong>一次固定几个、剩下的以后给</strong>
+                （<code>bind</code> 就是偏函数）。这个区分问得不少。
               </p>
               <p>
                 <strong>还会让你手写一个通用 curry</strong>——
@@ -3092,43 +2964,34 @@ warn("disk almost full");   // [WARN] disk almost full`,
           body: (
             <>
               <p>
-                <strong>一句话：</strong>立即执行函数表达式
-                （Immediately Invoked Function Expression）——
+                <strong>一句话：</strong>立即执行函数表达式（Immediately Invoked Function Expression）——
                 定义完马上调用，用来<strong>造一个隔离的作用域</strong>。
               </p>
               <p>
                 <strong>为什么要包一层括号？</strong>
                 因为以 <code>function</code> 开头的语句会被解析成
-                <strong>函数声明</strong>，而声明不能直接调用。
-                外面套括号（或者前面加
+                <strong>函数声明</strong>，而声明不能直接调用。外面套括号（或者前面加
                 <code>!</code>、<code>+</code>、
                 <code>void</code>）把它变成<strong>表达式</strong>。
               </p>
               <p>
                 <strong>当年解决什么问题：</strong>
-                ES5 没有块作用域和模块，
-                所有 <code>&lt;script&gt;</code> 共享全局命名空间。
-                IIFE 是<strong>唯一的隔离手段</strong>——
+                ES5 没有块作用域和模块，所有 <code>&lt;script&gt;</code> 共享全局命名空间。IIFE 是<strong>唯一的隔离手段</strong>——
                 jQuery 插件、UMD 打包产物全是这么写的。
               </p>
               <p>
                 <strong>会追问（这才是这题的重点）：</strong>
                 「现在还需要吗？」——
-                <strong>基本不需要了</strong>：
-                块作用域 + <code>let</code> 能隔离变量，
-                ES 模块天然有自己的作用域。
+                <strong>基本不需要了</strong>：块作用域 + <code>let</code> 能隔离变量，ES 模块天然有自己的作用域。
                 <br />
-                <strong>还剩两个场合会用到</strong>：
-                ① 需要在顶层 <code>await</code>
+                <strong>还剩两个场合会用到</strong>：① 需要在顶层 <code>await</code>
                 而环境不支持时，包一个
-                <code>{"(async () => { … })()"}</code>；
-                ② 打包工具生成的产物里。
+                <code>{"(async () => { … })()"}</code>；② 打包工具生成的产物里。
                 <br />
                 我们那道 fetch 变式题里
                 <code>useEffect</code> 内部包的
                 <code>{"(async () => {…})()"}</code>
-                就是场合 ①—— effect 不能是 async，
-                所以用 IIFE 开一个异步作用域。
+                就是场合 ①—— effect 不能是 async，所以用 IIFE 开一个异步作用域。
               </p>
             </>
           ),

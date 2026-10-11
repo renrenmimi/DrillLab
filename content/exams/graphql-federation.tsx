@@ -1411,11 +1411,7 @@ const reviewsMock: MockExam = {
           </div>
           <p>
             <strong>八个考点里五个原样保留、三个是新的。</strong>
-            如果你在真实 Task 1 里是靠背答案过的，那三个新考点会全丢；
-            如果你理解了「schema 的可空性决定兜底策略」
-            「parent 来自 __resolveReference」
-            「batch 函数的长度顺序是硬契约」这三条原理，
-            这道题只是换了名词。
+            如果你在真实 Task 1 里是靠背答案过的，那三个新考点会全丢；如果你理解了「schema 的可空性决定兜底策略」「parent 来自 __resolveReference」「batch 函数的长度顺序是硬契约」这三条原理，这道题只是换了名词。
           </p>
         </>
       ),
@@ -1629,13 +1625,11 @@ __resolveReference(book) {
           </p>
           <p>
             <code>??</code> 只在左边是 <code>null</code> 或{" "}
-            <code>undefined</code> 时取右边；<code>||</code> 在左边是任何假值时
-            都取右边 —— 包括 <code>0</code>。
+            <code>undefined</code> 时取右边；<code>||</code> 在左边是任何假值时都取右边 —— 包括 <code>0</code>。
             <strong>对可能合法为 0 的数值字段，<code>||</code> 是个 bug。</strong>
           </p>
           <p>
-            测试用 <code>expect(avg).toBeNull()</code> 查它。
-            数据源的 <code>computeAverage</code> 在没有评论时返回{" "}
+            测试用 <code>expect(avg).toBeNull()</code> 查它。数据源的 <code>computeAverage</code> 在没有评论时返回{" "}
             <code>null</code>，所以原样返回就对了。
           </p>
         </>
@@ -1715,9 +1709,7 @@ return avg || null;`,
             <code>return reviewers.filter(r =&gt; r !== null)</code>。
           </p>
           <p>
-            <strong>看起来很合理</strong> ——「过滤掉没有资料的」。
-            但它<strong>破坏了 DataLoader 的核心契约</strong>：
-            返回数组必须与 keys 一一对应。
+            <strong>看起来很合理</strong> ——「过滤掉没有资料的」。但它<strong>破坏了 DataLoader 的核心契约</strong>：返回数组必须与 keys 一一对应。
           </p>
           <p>
             传 <code>[&apos;a-7&apos;, &apos;a-999&apos;, &apos;a-9&apos;]</code>
@@ -1739,12 +1731,10 @@ return avg || null;`,
             同样这三个 key，batch 函数如果返回 <code>reviewers.reverse()</code>（长度没变），
             <code>load(&apos;a-7&apos;)</code> 拿到的是 a-9 的资料，
             <code>load(&apos;a-9&apos;)</code> 拿到 a-7 的资料（a-999 在正中间，位置没动），
-            <strong>一声不响</strong>。契约是「长度相同 <em>且</em> 顺序一致」，
-            两条里长度那条有人替你查，顺序那条没人查。
+            <strong>一声不响</strong>。契约是「长度相同 <em>且</em> 顺序一致」，两条里长度那条有人替你查，顺序那条没人查。
           </p>
           <p>
-            另外方法名也是错的 —— 数据源上是 <code>lookupReviewer</code>，
-            不是 <code>getReviewer</code>。
+            另外方法名也是错的 —— 数据源上是 <code>lookupReviewer</code>，不是 <code>getReviewer</code>。
           </p>
         </>
       ),
@@ -1842,11 +1832,7 @@ function createReviewerLoader(reviewerDataSource) {
             <strong>签名</strong>（一个对象 → 五个位置参数）。
           </p>
           <p>
-            第三处是<strong>「缺一个字段」</strong>模式的变体。
-            真实项目里是 <code>OrderItemInput</code> 缺 <code>price</code>；
-            这里是测试直接调用 <code>resolvers.Mutation.createReview</code>，
-            并断言返回对象上有 <code>reviewer.displayName</code>，
-            而 <code>insertReview</code> 只返回评论本身，mutation 的参数里也没有 reviewer。
+            第三处是<strong>「缺一个字段」</strong>模式的变体。真实项目里是 <code>OrderItemInput</code> 缺 <code>price</code>；这里是测试直接调用 <code>resolvers.Mutation.createReview</code>，并断言返回对象上有 <code>reviewer.displayName</code>，而 <code>insertReview</code> 只返回评论本身，mutation 的参数里也没有 reviewer。
           </p>
           <p>
             <strong>所以要先用 reviewerLoader 查出 reviewer，再附到返回值上。</strong>
@@ -1855,12 +1841,10 @@ function createReviewerLoader(reviewerDataSource) {
             会自己去取；这一步是为了让直接调用 resolver 的调用方也拿到完整对象。
           </p>
           <p>
-            第四处在 <code>catch</code> 里，也是 rubric 里单独占 6 分的那条：
-            starter 的 <code>catch</code> 无条件把错误重新包成{" "}
+            第四处在 <code>catch</code> 里，也是 rubric 里单独占 6 分的那条：starter 的 <code>catch</code> 无条件把错误重新包成{" "}
             <code>SERVICE_ERROR</code>，于是上面那个自己抛的{" "}
             <code>INVALID_INPUT</code>
-            <strong>刚出门就被自己的 catch 改名了</strong>。
-            测试 <code>expect(error.extensions.code).toBe(&apos;INVALID_INPUT&apos;)</code>{" "}
+            <strong>刚出门就被自己的 catch 改名了</strong>。测试 <code>expect(error.extensions.code).toBe(&apos;INVALID_INPUT&apos;)</code>{" "}
             因此失败。
             <strong>
               修法是 catch 第一行先放行已经结构化的 <code>GraphQLError</code>。

@@ -1868,8 +1868,7 @@ export const ivCoding: Module = {
           body: (
             <>
               <p>
-                <strong>「已覆盖」的判断标准是</strong>：
-                能不能用本站某一节课里
+                <strong>「已覆盖」的判断标准是</strong>：能不能用本站某一节课里
                 <strong>真跑过测试的那套解法</strong>
                 原样解决。只是「概念讲过」不算。
               </p>
@@ -1917,8 +1916,7 @@ export const ivCoding: Module = {
                       <td><strong>Tabs Component</strong></td>
                       <td>—</td>
                       <td>
-                        <strong>补</strong>：只存「哪个激活」，
-                        面板是派生的；顺带 ARIA
+                        <strong>补</strong>：只存「哪个激活」，面板是派生的；顺带 ARIA
                       </td>
                     </tr>
                     <tr>
@@ -1926,8 +1924,7 @@ export const ivCoding: Module = {
                       <td><strong>Star Rating</strong></td>
                       <td>—</td>
                       <td>
-                        <strong>补</strong>：hover 预览 + 已选值
-                        两个状态叠加，受控/非受控双模式
+                        <strong>补</strong>：hover 预览 + 已选值两个状态叠加，受控/非受控双模式
                       </td>
                     </tr>
                     <tr>
@@ -2157,47 +2154,35 @@ export const ivCoding: Module = {
                   <strong>受控输入 + 列表 CRUD</strong>——
                   363 / 364 / 365 / 371 / 374 / 376 / 377。
                   <strong>七道题一个考点</strong>：
-                  <code>value</code> + <code>onChange</code>、
-                  三种不可变更新、派生数据。
+                  <code>value</code> + <code>onChange</code>、三种不可变更新、派生数据。
                   <strong>Q1 那道真题就是它的完整版。</strong>
                 </li>
                 <li>
-                  <strong>异步取数三态</strong>—— 369 / 370 / 374。
-                  loading / error / data，
-                  加上 <code>res.ok</code> 和竞态。
+                  <strong>异步取数三态</strong>—— 369 / 370 / 374。loading / error / data，加上 <code>res.ok</code> 和竞态。
                   <strong>变式三覆盖。</strong>
                 </li>
                 <li>
-                  <strong>跨层共享状态</strong>—— 372 / 371。
-                  Context 或状态库。
+                  <strong>跨层共享状态</strong>—— 372 / 371。Context 或状态库。
                   <strong>变式五覆盖 Context，371 补 Redux。</strong>
                 </li>
                 <li>
                   <strong>组件内部的交互状态机</strong>——
-                  366 / 367 / 368。
-                  开关、激活项、hover 预览。
+                  366 / 367 / 368。开关、激活项、hover 预览。
                   <strong>这一类之前完全没有，是最大的缺口。</strong>
                 </li>
                 <li>
                   <strong>命令式逃逸口</strong>—— 373。
-                  <code>useRef</code> 拿 DOM 节点。
-                  React 里唯一「不走声明式」的地方。
+                  <code>useRef</code> 拿 DOM 节点。React 里唯一「不走声明式」的地方。
                 </li>
               </ol>
               <p>
-                <strong>378（Kanban）是第 1 类的升级版</strong>：
-                普通 CRUD 改一个数组，
-                跨列移动要<strong>同时改两个数组</strong>，
-                这一步很多人会写成先删再加两次
-                <code>setState</code> —— React 18 会把两次合并成一次渲染，
-                表面上看不出问题，但逻辑上仍是两个独立操作，
-                中间一旦加校验或提前 return，卡片就会凭空消失。
+                <strong>378（Kanban）是第 1 类的升级版</strong>：普通 CRUD 改一个数组，跨列移动要<strong>同时改两个数组</strong>，这一步很多人会写成先删再加两次
+                <code>setState</code> —— React 18 会把两次合并成一次渲染，表面上看不出问题，但逻辑上仍是两个独立操作，中间一旦加校验或提前 return，卡片就会凭空消失。
               </p>
               <p>
                 <strong>怎么用这一节：</strong>
                 如果你能独立写出 Q1、变式三、变式五，
-                <strong>1 / 2 / 3 三类的九道题都不用再刷</strong>。
-                直接做下面四节补的题。
+                <strong>1 / 2 / 3 三类的九道题都不用再刷</strong>。直接做下面四节补的题。
               </p>
             </>
           ),
@@ -2262,8 +2247,7 @@ export const ivCoding: Module = {
           generated: true,
           prompt: (
             <p>
-              面试官出题：「实现一个 Kanban 看板，卡片可以在三列之间移动。」
-              这道题<strong>最核心</strong>的考点是哪一个？
+              面试官出题：「实现一个 Kanban 看板，卡片可以在三列之间移动。」这道题<strong>最核心</strong>的考点是哪一个？
             </p>
           ),
           promptEn: (
@@ -2284,28 +2268,19 @@ export const ivCoding: Module = {
             <>
               <p>
                 <strong>B。</strong>拖拽只是交互外壳 ——
-                面试里用两个箭头按钮代替拖拽，
-                考点一点没少（而且更好测）。
+                面试里用两个箭头按钮代替拖拽，考点一点没少（而且更好测）。
               </p>
               <p>
-                真正的难点是：<strong>移动一张卡要同时改「源列」和「目标列」</strong>。
-                写成两次 <code>setState</code>
-                （先从源列删、再往目标列加）
-                在 React 18 里虽然会被批处理，
-                但<strong>逻辑上是两个独立操作</strong>——
-                一旦中间加了校验或提前 return，
-                就会出现「卡片凭空消失」。
+                真正的难点是：<strong>移动一张卡要同时改「源列」和「目标列」</strong>。写成两次 <code>setState</code>
+                （先从源列删、再往目标列加）在 React 18 里虽然会被批处理，但<strong>逻辑上是两个独立操作</strong>——
+                一旦中间加了校验或提前 return，就会出现「卡片凭空消失」。
               </p>
               <p>
                 <strong>正解是写一个纯函数
-                <code>moveCard(board, from, to, id)</code>，
-                一次返回完整的新 board</strong>。
-                这样它可以脱离 React 单测，
-                也不可能产生中间态。
+                <code>moveCard(board, from, to, id)</code>，一次返回完整的新 board</strong>。这样它可以脱离 React 单测，也不可能产生中间态。
               </p>
               <p>
-                顺带一个加分点：<strong>没被碰到的那一列应该复用原数组引用</strong>，
-                这样用了 <code>React.memo</code> 的列不会白重渲染 ——
+                顺带一个加分点：<strong>没被碰到的那一列应该复用原数组引用</strong>，这样用了 <code>React.memo</code> 的列不会白重渲染 ——
                 和评论树那道题「只重建路径」是同一个思路。
               </p>
             </>
@@ -2409,8 +2384,7 @@ export const ivCoding: Module = {
                 </li>
                 <li>
                   在 <code>document</code> 上监听
-                  <code>mousedown</code>，
-                  用 <code>ref.current.contains(e.target)</code>
+                  <code>mousedown</code>，用 <code>ref.current.contains(e.target)</code>
                   判断点击是否发生在自己内部。
                 </li>
                 <li>
@@ -2424,8 +2398,7 @@ export const ivCoding: Module = {
                 <li>
                   <strong>用 <code>mousedown</code> 而不是
                   <code>click</code></strong>。
-                  <code>click</code> 在按下和松开之间如果 DOM 变了
-                  会有诡异行为；而且 <code>mousedown</code>
+                  <code>click</code> 在按下和松开之间如果 DOM 变了会有诡异行为；而且 <code>mousedown</code>
                   更早，关闭反应更快。
                 </li>
                 <li>
@@ -2441,18 +2414,14 @@ export const ivCoding: Module = {
                 </li>
                 <li>
                   <strong>Escape 也要能关</strong>——
-                  这是可访问性的基本要求，
-                  面试官经常拿它当加分项。
+                  这是可访问性的基本要求，面试官经常拿它当加分项。
                 </li>
               </ul>
               <p>
-                <strong>不写清理函数的后果</strong>和计时器那道题一样：
-                每次展开多绑一对监听器；组件卸载后监听器还在，
-                回调里 <code>setOpen</code> 会对已卸载的组件操作。
+                <strong>不写清理函数的后果</strong>和计时器那道题一样：每次展开多绑一对监听器；组件卸载后监听器还在，回调里 <code>setOpen</code> 会对已卸载的组件操作。
                 <strong>测试里我直接 spy 了
                 <code>document.addEventListener</code> 和
-                <code>removeEventListener</code>，
-                断言两边次数相等</strong>——
+                <code>removeEventListener</code>，断言两边次数相等</strong>——
                 漏了清理这条会红。
               </p>
             </>
@@ -2546,8 +2515,7 @@ export const ivCoding: Module = {
                 </li>
                 <li>
                   <strong>全部渲染、用 CSS 隐藏</strong>——
-                  能保住面板内部状态，
-                  但一上来就要渲染所有内容。
+                  能保住面板内部状态，但一上来就要渲染所有内容。
                   <strong>面试里主动说出这个取舍会加分。</strong>
                 </li>
               </ul>
@@ -2556,22 +2524,17 @@ export const ivCoding: Module = {
                 <code>role=&quot;tablist&quot;</code> /
                 <code>role=&quot;tab&quot;</code> +
                 <code>aria-selected</code> /
-                <code>role=&quot;tabpanel&quot;</code>，
-                再用 <code>aria-controls</code> 和
-                <code>aria-labelledby</code> 把 tab 和 panel 关联起来。
-                注意：本实现只渲染激活的面板，未激活 tab 的 <code>aria-controls</code>
-                指向的 id 在 DOM 里并不存在；严格的做法是把所有面板都渲染出来、
-                未激活的加 <code>hidden</code>，或者只给激活的 tab 写 <code>aria-controls</code>。
+                <code>role=&quot;tabpanel&quot;</code>，再用 <code>aria-controls</code> 和
+                <code>aria-labelledby</code> 把 tab 和 panel 关联起来。注意：本实现只渲染激活的面板，未激活 tab 的 <code>aria-controls</code>
+                指向的 id 在 DOM 里并不存在；严格的做法是把所有面板都渲染出来、未激活的加 <code>hidden</code>，或者只给激活的 tab 写 <code>aria-controls</code>。
                 <strong>写了这几行，题目就从「能跑」变成「像个前端写的」。</strong>
               </p>
               <p>
                 <strong>会追问：</strong>
                 「键盘左右箭头切换怎么做？」——
                 在 <code>tablist</code> 上监听
-                <code>keydown</code>，
-                按 <code>ArrowRight</code> / <code>ArrowLeft</code>
-                改 <code>activeId</code>，
-                并把非激活 tab 的
+                <code>keydown</code>，按 <code>ArrowRight</code> / <code>ArrowLeft</code>
+                改 <code>activeId</code>，并把非激活 tab 的
                 <code>tabIndex</code> 设成 <code>-1</code>
                 （让 Tab 键只进入激活项）。
               </p>
@@ -2650,8 +2613,7 @@ export const ivCoding: Module = {
                 <code>hover</code> 可能是 <code>0</code>
                 （虽然本实现从 1 开始，但如果你支持 0 星就会出错），
                 <code>||</code> 会把 <code>0</code> 当成「没 hover」。
-                <strong>用 <code>??</code> 才对，
-                而且 <code>hover</code> 的类型是
+                <strong>用 <code>??</code> 才对，而且 <code>hover</code> 的类型是
                 <code>number | null</code> 也正是为了配它。</strong>
               </p>
               <p>
@@ -2659,8 +2621,7 @@ export const ivCoding: Module = {
               </p>
               <ul>
                 <li>
-                  <strong><code>onMouseLeave</code> 放在容器上</strong>，
-                  不是每颗星上 —— 否则在星之间移动会不停触发。
+                  <strong><code>onMouseLeave</code> 放在容器上</strong>，不是每颗星上 —— 否则在星之间移动会不停触发。
                 </li>
                 <li>
                   <strong>再点同一颗清零</strong>——
@@ -2669,20 +2630,15 @@ export const ivCoding: Module = {
                 <li>
                   <strong>用 <code>&lt;button&gt;</code>
                   而不是 <code>&lt;span&gt;</code></strong>——
-                  天然可聚焦、可回车触发。
-                  配上 <code>aria-label=&quot;3 星&quot;</code>
+                  天然可聚焦、可回车触发。配上 <code>aria-label=&quot;3 星&quot;</code>
                   读屏也能用。
                 </li>
               </ul>
               <p>
                 <strong>受控 / 非受控双模式</strong>
-                是这道题的进阶分：
-                传了 <code>value</code> 就以父级为准、
-                自己不存；没传就用内部 state。
-                判断方式是
+                是这道题的进阶分：传了 <code>value</code> 就以父级为准、自己不存；没传就用内部 state。判断方式是
                 <code>value !== undefined</code>——
-                <strong>注意不能用 <code>value != null</code></strong>，
-                否则父级传 <code>null</code> 表示「清空」时会被当成非受控。
+                <strong>注意不能用 <code>value != null</code></strong>，否则父级传 <code>null</code> 表示「清空」时会被当成非受控。
               </p>
             </>
           ),
@@ -2774,8 +2730,7 @@ const shown = hover || current;
           generated: true,
           prompt: (
             <p>
-              四个空。第 2 个用错会导致「点自己内部也关掉」，
-              第 4 个漏了会泄漏监听器。
+              四个空。第 2 个用错会导致「点自己内部也关掉」，第 4 个漏了会泄漏监听器。
             </p>
           ),
           promptEn: (
@@ -2810,10 +2765,8 @@ useEffect(() => {
                 <>
                   <code>useRef</code>。
                   <br />
-                  DOM 节点不是渲染要用的数据，
-                  改它也不该触发重渲染 ——
-                  这正是 <code>useRef</code> 的定位。
-                  用 <code>useState</code> 存 DOM 节点会造成多余渲染。
+                  DOM 节点不是渲染要用的数据，改它也不该触发重渲染 ——
+                  这正是 <code>useRef</code> 的定位。用 <code>useState</code> 存 DOM 节点会造成多余渲染。
                 </>
               ),
               whyEn: (
@@ -2839,8 +2792,7 @@ useEffect(() => {
                   <code>contains</code>。
                   <br />
                   写成 <code>e.target === boxRef.current</code>
-                  的话，<strong>点内部任何元素都会被判成「点了外面」</strong>，
-                  于是刚展开就立刻关掉。
+                  的话，<strong>点内部任何元素都会被判成「点了外面」</strong>，于是刚展开就立刻关掉。
                   <br />
                   这和事件委托里用
                   <code>e.target.closest()</code> 是同一个道理：
@@ -2871,15 +2823,12 @@ useEffect(() => {
               hintEn: "The mouse event that comes before click is the better fit.",
               why: (
                 <>
-                  <code>mousedown</code>（<code>click</code> 也能过，
-                  但不如它）。
+                  <code>mousedown</code>（<code>click</code> 也能过，但不如它）。
                   <br />
                   用 <code>click</code> 的问题：它在
-                  <strong>按下和松开之间</strong>触发，
-                  如果这期间 DOM 变了（比如点的那个元素被移除），
+                  <strong>按下和松开之间</strong>触发，如果这期间 DOM 变了（比如点的那个元素被移除），
                   <code>click</code> 可能不触发。
-                  <code>mousedown</code> 更早、更可靠，
-                  关闭反应也更快。
+                  <code>mousedown</code> 更早、更可靠，关闭反应也更快。
                 </>
               ),
               whyEn: (
@@ -2905,12 +2854,10 @@ useEffect(() => {
                 <>
                   <code>removeEventListener</code>。
                   <br />
-                  <strong>而且第一个参数必须和绑定时完全一致</strong>，
-                  第二个参数必须是<strong>同一个函数引用</strong>——
+                  <strong>而且第一个参数必须和绑定时完全一致</strong>，第二个参数必须是<strong>同一个函数引用</strong>——
                   传一个新的箭头函数是解不掉的，这是经典错误。
                   <br />
-                  漏了它：每次展开多绑一对，
-                  卸载后监听器还活着并对已卸载组件 setState。
+                  漏了它：每次展开多绑一对，卸载后监听器还活着并对已卸载组件 setState。
                 </>
               ),
               whyEn: (
@@ -2941,8 +2888,7 @@ useEffect(() => {
           generated: true,
           prompt: (
             <p>
-              hover 预览 + 点击选中 + 再点清零。
-              检查器会查 <code>??</code>、
+              hover 预览 + 点击选中 + 再点清零。检查器会查 <code>??</code>、
               <code>onMouseLeave</code> 的位置和无障碍。
             </p>
           ),
@@ -3113,11 +3059,9 @@ const onDocClick = (e: MouseEvent) => {
           ),
           why: (
             <>
-              点内部的选项也会被判成「点了外面」，
-              于是<strong>刚展开就关，或者选不中任何东西</strong>。
+              点内部的选项也会被判成「点了外面」，于是<strong>刚展开就关，或者选不中任何东西</strong>。
               <br />
-              要用 <code>contains()</code>，
-              它会检查整棵子树。
+              要用 <code>contains()</code>，它会检查整棵子树。
             </>
           ),
           whyEn: (
@@ -3188,8 +3132,7 @@ const [tabs, setTabs] = useState(
           ),
           why: (
             <>
-              同一个事实存了 n 份，
-              切换时要遍历全部改一遍，
+              同一个事实存了 n 份，切换时要遍历全部改一遍，
               <strong>而且很容易出现「两个都激活」或「一个都不激活」</strong>。
               <br />
               只存一个 <code>activeId</code>，其余全算出来。
@@ -3312,8 +3255,7 @@ const [tabs, setTabs] = useState(
                     <tr>
                       <td>① 存值</td>
                       <td>
-                        存<strong>不参与渲染</strong>、
-                        改了也不该触发重渲染的东西
+                        存<strong>不参与渲染</strong>、改了也不该触发重渲染的东西
                       </td>
                       <td>定时器 id、上一次的值、次数计数</td>
                     </tr>
@@ -3325,8 +3267,7 @@ const [tabs, setTabs] = useState(
                       <td>
                         <code>focus()</code>、
                         <code>play()</code>、
-                        <code>scrollIntoView()</code>、
-                        测量尺寸、
+                        <code>scrollIntoView()</code>、测量尺寸、
                         <code>contains()</code>
                       </td>
                     </tr>
@@ -3338,25 +3279,20 @@ const [tabs, setTabs] = useState(
                 的改动不会触发重渲染。</strong>
                 所以想让界面跟着变，
                 <strong>还是得配一个 state</strong>——
-                播放器里 <code>playing</code> 是 state
-                （按钮文字要变），
+                播放器里 <code>playing</code> 是 state（按钮文字要变），
                 <code>audioRef</code> 是 ref（只是拿来调方法）。
               </p>
               <p>
                 <strong>什么时候必须用命令式：</strong>
                 当「要做的事」不能用「界面应该长什么样」表达时。
-                <strong>播放、暂停、聚焦、滚动、
-                选中文本、测量宽高、播放动画</strong>——
+                <strong>播放、暂停、聚焦、滚动、选中文本、测量宽高、播放动画</strong>——
                 这些都是动作，不是状态。
                 <strong>React 承认这一点，所以留了 ref 这个口子。</strong>
               </p>
               <p>
                 <strong>会追问：</strong>
                 「为什么不能用 <code>document.querySelector</code>？」——
-                能跑，但① 组件多实例时会选错；
-                ② 渲染时机不确定，可能取到 null；
-                ③ 绕过了 React 的抽象，
-                SSR 和 React Native 下直接失效。
+                能跑，但① 组件多实例时会选错；② 渲染时机不确定，可能取到 null；③ 绕过了 React 的抽象，SSR 和 React Native 下直接失效。
                 <strong>ref 是 React 给的那条合法通道。</strong>
               </p>
             </>
@@ -3439,16 +3375,12 @@ const [tabs, setTabs] = useState(
             <>
               <p>
                 <strong>① <code>play()</code> 返回 Promise 而且可能被拒绝。</strong>
-                浏览器的自动播放策略会拒绝「用户没交互过就播放」，
-                所以严谨的写法要
-                <code>try/catch</code>（面试里说出来就够，
-                不一定要写）。
+                浏览器的自动播放策略会拒绝「用户没交互过就播放」，所以严谨的写法要
+                <code>try/catch</code>（面试里说出来就够，不一定要写）。
               </p>
               <p>
-                <strong>② <code>currentTime</code> 直接改 DOM，
-                不经过 state。</strong>
-                <code>el.currentTime = 0</code> 是命令式操作；
-                界面上显示的秒数由
+                <strong>② <code>currentTime</code> 直接改 DOM，不经过 state。</strong>
+                <code>el.currentTime = 0</code> 是命令式操作；界面上显示的秒数由
                 <code>onTimeUpdate</code> 事件同步到 state。
                 <strong>「事实在 DOM 里，state 只是镜像」</strong>——
                 这是所有媒体和 canvas 组件的共同模式。
@@ -3460,14 +3392,11 @@ const [tabs, setTabs] = useState(
               </p>
               <p>
                 <strong>怎么测（这一条本身是加分知识）：</strong>
-                jsdom <strong>没有实现媒体播放</strong>，
-                调 <code>play()</code> 会抛
-                <code>Not implemented</code>。
-                所以要
+                jsdom <strong>没有实现媒体播放</strong>，调 <code>play()</code> 会抛
+                <code>Not implemented</code>。所以要
                 <code>vi.spyOn(HTMLMediaElement.prototype, &quot;play&quot;)</code>
                 替掉。
-                <strong>这也顺便让你能断言「play 到底被调了几次」</strong>，
-                比检查界面更直接。
+                <strong>这也顺便让你能断言「play 到底被调了几次」</strong>，比检查界面更直接。
               </p>
             </>
           ),
@@ -3555,31 +3484,26 @@ test("clicking Play calls audio.play(), clicking again calls pause()", async () 
             <>
               <p>
                 <code>useLocalStorage</code>
-                是最常被要求现场写的一个，
-                因为它同时考四件事：
+                是最常被要求现场写的一个，因为它同时考四件事：
               </p>
               <ul>
                 <li>
                   <strong>惰性初始化</strong>——
                   <code>useState(() =&gt; …)</code>
-                  传<strong>函数</strong>而不是值。
-                  写成 <code>useState(读localStorage())</code>
+                  传<strong>函数</strong>而不是值。写成 <code>useState(读localStorage())</code>
                   的话，<strong>每次渲染都会读一次
-                  localStorage</strong>（虽然结果被丢掉，
-                  但同步 I/O 的开销照样付出了）。
+                  localStorage</strong>（虽然结果被丢掉，但同步 I/O 的开销照样付出了）。
                 </li>
                 <li>
                   <strong>错误兜底</strong>——
                   隐私模式下
-                  <code>localStorage</code> 会抛，
-                  存的脏数据 <code>JSON.parse</code> 会抛。
+                  <code>localStorage</code> 会抛，存的脏数据 <code>JSON.parse</code> 会抛。
                   <strong>不 try/catch 整个组件就白屏了。</strong>
                 </li>
                 <li>
                   <strong>返回值形状</strong>——
                   <code>as const</code> 让类型是元组
-                  <code>[T, setter]</code> 而不是数组联合，
-                  调用方才能
+                  <code>[T, setter]</code> 而不是数组联合，调用方才能
                   <code>const [a, setA] = …</code>
                   拿到正确类型。
                 </li>
@@ -3591,14 +3515,11 @@ test("clicking Play calls audio.play(), clicking again calls pause()", async () 
               <p>
                 <strong>最重要的一句：复用逻辑，不复用状态。</strong>
                 两个组件各调一次
-                <code>useLocalStorage(&quot;theme&quot;, …)</code>，
-                得到的是<strong>两份独立的 state</strong>——
-                虽然它们写的是同一个 localStorage 键，
-                但<strong>一边改了另一边的 state 不会更新</strong>
+                <code>useLocalStorage(&quot;theme&quot;, …)</code>，得到的是<strong>两份独立的 state</strong>——
+                虽然它们写的是同一个 localStorage 键，但<strong>一边改了另一边的 state 不会更新</strong>
                 （要跨组件同步得监听
                 <code>storage</code> 事件，或者上 Context）。
-                <strong>测试里专门有一条抓这个</strong>，
-                因为这是最常见的误解。
+                <strong>测试里专门有一条抓这个</strong>，因为这是最常见的误解。
               </p>
             </>
           ),
@@ -3689,17 +3610,12 @@ return [value, setValue];        // as const is missing`,
               <p>
                 注意测试自定义 hook 用的是
                 <strong><code>renderHook</code></strong>——
-                Testing Library 提供的，
-                不用为了测 hook 专门造一个组件。
-                改状态要包 <code>act()</code>。
+                Testing Library 提供的，不用为了测 hook 专门造一个组件。改状态要包 <code>act()</code>。
               </p>
               <p>
-                <strong>Dropdown 那四条里最值得学的是最后一条</strong>：
-                直接 spy <code>document.addEventListener</code>
-                和 <code>removeEventListener</code>，
-                断言绑了几次就解了几次。
-                <strong>这是验证「清理函数写了没有」最直接的办法</strong>，
-                比观察行为可靠。
+                <strong>Dropdown 那四条里最值得学的是最后一条</strong>：直接 spy <code>document.addEventListener</code>
+                和 <code>removeEventListener</code>，断言绑了几次就解了几次。
+                <strong>这是验证「清理函数写了没有」最直接的办法</strong>，比观察行为可靠。
               </p>
             </>
           ),
@@ -3750,8 +3666,7 @@ return [value, setValue];        // as const is missing`,
           generated: true,
           prompt: (
             <p>
-              四个考点全都会被检查：惰性初始化、try/catch 兜底、
-              依赖带 key、<code>as const</code>。
+              四个考点全都会被检查：惰性初始化、try/catch 兜底、依赖带 key、<code>as const</code>。
             </p>
           ),
           promptEn: (
@@ -3909,12 +3824,9 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
           ),
           why: (
             <>
-              能跑，但<strong>每次拿到节点都会触发一次重渲染</strong>，
-              而 DOM 节点根本不参与渲染输出。
+              能跑，但<strong>每次拿到节点都会触发一次重渲染</strong>，而 DOM 节点根本不参与渲染输出。
               <br />
-              <strong>用 <code>useRef</code></strong>。
-              （例外：确实需要「节点出现时触发一次逻辑」时，
-              回调 ref 是合理的。）
+              <strong>用 <code>useRef</code></strong>。（例外：确实需要「节点出现时触发一次逻辑」时，回调 ref 是合理的。）
             </>
           ),
           whyEn: (
@@ -3945,13 +3857,11 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
           ),
           why: (
             <>
-              媒体播放结束是<strong>DOM 自己发生的事</strong>，
-              React 不知道。
+              媒体播放结束是<strong>DOM 自己发生的事</strong>，React 不知道。
               <strong>必须监听 <code>onEnded</code>
               把 state 同步回来。</strong>
               <br />
-              这是「事实在 DOM 里、state 是镜像」这类组件
-              的通用注意点。
+              这是「事实在 DOM 里、state 是镜像」这类组件的通用注意点。
             </>
           ),
           whyEn: (
@@ -4063,43 +3973,31 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
           body: (
             <>
               <p>
-                <strong>老写法要写三份</strong>：
-                action types 常量、
-                action creators、
-                一个大 <code>switch</code> 的 reducer。
+                <strong>老写法要写三份</strong>：action types 常量、action creators、一个大 <code>switch</code> 的 reducer。
                 <code>createSlice</code>
                 <strong>把三份合成一份</strong>——
-                你只写 <code>reducers</code> 对象，
-                它自动生成对应的 action creator 和 type
-                （type 是 <code>&quot;todos/added&quot;</code>
+                你只写 <code>reducers</code> 对象，它自动生成对应的 action creator 和 type（type 是 <code>&quot;todos/added&quot;</code>
                 这样的 <code>切片名/reducer 名</code>）。
               </p>
               <p>
                 <strong>Immer 那一点必须说清</strong>：
                 <code>state.items.push(...)</code>
-                看起来违反了「state 只读」，
-                其实<strong>你拿到的是一个草稿代理（draft proxy）</strong>——
-                你的修改被记录下来，
-                Immer 最终<strong>产出一个新对象</strong>，
-                原 state 一个字节没动。
+                看起来违反了「state 只读」，其实<strong>你拿到的是一个草稿代理（draft proxy）</strong>——
+                你的修改被记录下来，Immer 最终<strong>产出一个新对象</strong>，原 state 一个字节没动。
                 <strong>测试里我用
                 <code>expect(next).not.toBe(empty)</code>
                 和「原 state 长度仍是 0」两条断言证明了这一点。</strong>
               </p>
               <p>
-                <strong>但有个边界要记住</strong>：
-                这个「能 mutate」的特权
+                <strong>但有个边界要记住</strong>：这个「能 mutate」的特权
                 <strong>只在 <code>createSlice</code> /
-                <code>createReducer</code> 里成立</strong>。
-                在组件里、在 selector 里、
-                在自己写的普通函数里，
+                <code>createReducer</code> 里成立</strong>。在组件里、在 selector 里、在自己写的普通函数里，
                 <strong>该守的不可变规则一条都不能少</strong>。
               </p>
               <p>
                 <strong><code>prepare</code> 是这道题的加分点。</strong>
                 生成 id 要用
-                <code>nanoid()</code>，
-                而 <strong>reducer 必须是纯函数 ——
+                <code>nanoid()</code>，而 <strong>reducer 必须是纯函数 ——
                 不能出现随机数和时间</strong>
                 （否则同样的 state + action
                 会得到不同结果，时间旅行就废了）。
@@ -4176,42 +4074,32 @@ const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
           body: (
             <>
               <p>
-                组件里写了三个 <code>useSelector</code>：
-                可见列表、剩余条数、当前筛选。
+                组件里写了三个 <code>useSelector</code>：可见列表、剩余条数、当前筛选。
                 <strong>每一个只在自己那部分变化时触发重渲染。</strong>
               </p>
               <p>
-                <strong>对比 Context</strong>（变式五那道题）：
-                context value 一变，
+                <strong>对比 Context</strong>（变式五那道题）：context value 一变，
                 <strong>所有</strong> <code>useTheme()</code>
-                的组件全部重渲染，
-                哪怕它只用了 <code>theme</code>
+                的组件全部重渲染，哪怕它只用了 <code>theme</code>
                 而变的是 <code>toggleTheme</code>。
-                <strong>这就是八股 #349 里说的「Context 缺精细订阅」，
-                在这里能具体看到。</strong>
+                <strong>这就是八股 #349 里说的「Context 缺精细订阅」，在这里能具体看到。</strong>
               </p>
               <p>
-                <strong>一个必须知道的陷阱：
-                selector 不要返回新对象。</strong>
+                <strong>一个必须知道的陷阱：selector 不要返回新对象。</strong>
                 <code>useSelector</code>
-                默认用 <code>===</code> 比较结果，
-                返回 <code>{"{ a, b }"}</code>
-                这样的新对象<strong>每次都不相等</strong>，
-                于是每次 store 有任何变化都重渲染 ——
+                默认用 <code>===</code> 比较结果，返回 <code>{"{ a, b }"}</code>
+                这样的新对象<strong>每次都不相等</strong>，于是每次 store 有任何变化都重渲染 ——
                 等于优化没起作用。
                 <br />
                 <strong>解法</strong>：拆成多个
-                <code>useSelector</code>（本实现的做法，最简单），
-                或者用 <code>createSelector</code>
+                <code>useSelector</code>（本实现的做法，最简单），或者用 <code>createSelector</code>
                 做记忆化，或者传
                 <code>shallowEqual</code> 当第二个参数。
               </p>
               <p>
                 <strong>注意 <code>selectVisible</code>
-                是从 <code>items</code> 派生的</strong>，
-                筛选<strong>不改底层数据</strong>——
-                和变式一里「写操作必须作用于完整数据」
-                是同一条规矩。它筛选时会生成新数组，所以用
+                是从 <code>items</code> 派生的</strong>，筛选<strong>不改底层数据</strong>——
+                和变式一里「写操作必须作用于完整数据」是同一条规矩。它筛选时会生成新数组，所以用
                 <code>createSelector</code> 记忆化，否则同样会落进上面这个陷阱。
                 <strong>测试里专门有一条验证「筛完底层仍是两条」。</strong>
               </p>
@@ -4347,21 +4235,14 @@ const remaining = useSelector(selectRemaining);`,
                 <strong>这道题的规模用 Redux 是过度设计</strong>——
                 一个组件自己的列表，
                 <code>useState</code> 就够。
-                <strong>Redux 的价值要在
-                「同一份状态被很多不相关的组件读写」
-                或者「需要按 action 追溯 bug」
-                的时候才兑现。</strong>
+                <strong>Redux 的价值要在「同一份状态被很多不相关的组件读写」或者「需要按 action 追溯 bug」的时候才兑现。</strong>
                 <br />
-                能主动说出「这题我会用 useState，
-                但如果需求是 XX 我会上 Redux」，
-                比闷头写完 Redux 更能显示判断力。
+                能主动说出「这题我会用 useState，但如果需求是 XX 我会上 Redux」，比闷头写完 Redux 更能显示判断力。
               </p>
               <p>
-                <strong>顺带看得出的一个真实收益</strong>：
-                因为 reducer 是纯函数，
+                <strong>顺带看得出的一个真实收益</strong>：因为 reducer 是纯函数，
                 <strong>八条测试里有五条完全不需要渲染任何组件</strong>——
-                直接 <code>reducer(state, action)</code> 断言。
-                测试跑得更快、失败信息更准。
+                直接 <code>reducer(state, action)</code> 断言。测试跑得更快、失败信息更准。
               </p>
             </>
           ),
@@ -4473,8 +4354,7 @@ $ npx vitest run
           generated: true,
           prompt: (
             <p>
-              四个空。第 3 个空是这道题的加分点，
-              第 4 个空写错会让 reducer 不纯。
+              四个空。第 3 个空是这道题的加分点，第 4 个空写错会让 reducer 不纯。
             </p>
           ),
           promptEn: (
@@ -4516,8 +4396,7 @@ $ npx vitest run
                   <br />
                   它同时产出 <code>slice.reducer</code>、
                   <code>slice.actions</code>
-                  和 action types
-                  （形如 <code>&quot;todos/added&quot;</code>）——
+                  和 action types（形如 <code>&quot;todos/added&quot;</code>）——
                   <strong>老写法要手写的三份样板全省了</strong>。
                 </>
               ),
@@ -4546,14 +4425,11 @@ $ npx vitest run
                   <code>push</code>。
                   <br />
                   <strong>这里不违反不可变原则</strong>——
-                  <code>createSlice</code> 内置 Immer，
-                  你拿到的是<strong>草稿代理</strong>，
-                  修改被记录后产出新对象，原 state 没动。
+                  <code>createSlice</code> 内置 Immer，你拿到的是<strong>草稿代理</strong>，修改被记录后产出新对象，原 state 没动。
                   <br />
                   <strong>但这个特权只在
                   <code>createSlice</code> /
-                  <code>createReducer</code> 里有</strong>。
-                  组件里、普通函数里照样得
+                  <code>createReducer</code> 里有</strong>。组件里、普通函数里照样得
                   <code>[...arr, x]</code>。
                 </>
               ),
@@ -4587,15 +4463,11 @@ $ npx vitest run
                   <code>prepare</code>。
                   <br />
                   它让 action creator 只收
-                  <code>text</code>，
-                  但 payload 里带上完整的 <code>Todo</code>。
+                  <code>text</code>，但 payload 里带上完整的 <code>Todo</code>。
                   <br />
-                  <strong>为什么必须这样</strong>：
-                  id 要用随机数生成，
-                  而 <strong>reducer 必须是纯函数</strong>——
+                  <strong>为什么必须这样</strong>：id 要用随机数生成，而 <strong>reducer 必须是纯函数</strong>——
                   出现 <code>nanoid()</code> 或
-                  <code>Date.now()</code> 就不纯了，
-                  同样的 state + action 会得到不同结果，
+                  <code>Date.now()</code> 就不纯了，同样的 state + action 会得到不同结果，
                   <strong>时间旅行调试直接失效</strong>。
                 </>
               ),
@@ -4623,8 +4495,7 @@ $ npx vitest run
               hintEn: "The id generator that comes with Redux Toolkit.",
               why: (
                 <>
-                  <code>nanoid</code>（RTK 直接导出，
-                  不用额外装包）。
+                  <code>nanoid</code>（RTK 直接导出，不用额外装包）。
                   <br />
                   <code>crypto.randomUUID()</code> 也行。
                   <strong>关键是它在
@@ -4665,8 +4536,7 @@ added(state, action: PayloadAction<string>) {
           ),
           why: (
             <>
-              reducer 不再是纯函数：
-              同样的 state 和 action 会产出不同结果。
+              reducer 不再是纯函数：同样的 state 和 action 会产出不同结果。
               <br />
               <strong>后果是时间旅行调试和 action 重放都失效</strong>——
               这正是 Redux 三大原则第 3 条要防的。
@@ -4707,13 +4577,10 @@ const { visible, remaining } = useSelector((s) => ({
           why: (
             <>
               <code>useSelector</code> 用
-              <code>===</code> 比结果，
-              新对象永远不相等 ——
-              <strong>store 里任何东西变了这个组件都重渲染</strong>，
-              selector 的意义完全没了。
+              <code>===</code> 比结果，新对象永远不相等 ——
+              <strong>store 里任何东西变了这个组件都重渲染</strong>，selector 的意义完全没了。
               <br />
-              拆成多个 <code>useSelector</code>，
-              或者用 <code>createSelector</code> /
+              拆成多个 <code>useSelector</code>，或者用 <code>createSelector</code> /
               <code>shallowEqual</code>。
             </>
           ),
@@ -4752,8 +4619,7 @@ export function addTodo(state: TodosState, todo: Todo) {
               <strong>Immer 只在
               <code>createSlice</code> /
               <code>createReducer</code> 内部生效。</strong>
-              在普通函数里这就是实实在在的 mutate，
-              而且返回的还是同一个引用 —— React 不会重渲染。
+              在普通函数里这就是实实在在的 mutate，而且返回的还是同一个引用 —— React 不会重渲染。
             </>
           ),
           whyEn: (
@@ -4857,23 +4723,15 @@ export function addTodo(state: TodosState, todo: Todo) {
               <p>
                 <code>Record&lt;ColumnId, Card[]&gt;</code>
                 比 <code>Column[]</code>
-                （每个 column 里有 <code>cards</code>）好用，
-                因为<strong>按列 id 直接取</strong>，
-                不用先 <code>find</code> 找到列再改。
+                （每个 column 里有 <code>cards</code>）好用，因为<strong>按列 id 直接取</strong>，不用先 <code>find</code> 找到列再改。
               </p>
               <p>
-                <strong>而且展开语法配计算属性名
-                正好能一次改两个键</strong>：
-                <code>{"{ ...board, [from]: …, [to]: … }"}</code>。
-                如果是数组套数组，
-                同样的事要写两次 <code>map</code>，
-                明显更绕。
+                <strong>而且展开语法配计算属性名正好能一次改两个键</strong>：
+                <code>{"{ ...board, [from]: …, [to]: … }"}</code>。如果是数组套数组，同样的事要写两次 <code>map</code>，明显更绕。
               </p>
               <p>
                 <strong>列的顺序单独放一个常量数组</strong>
-                （<code>COLUMNS</code>），
-                因为「顺序」是展示逻辑，
-                不该混进数据结构里 ——
+                （<code>COLUMNS</code>），因为「顺序」是展示逻辑，不该混进数据结构里 ——
                 这样加一列只改一处。
               </p>
             </>
@@ -4919,9 +4777,7 @@ export function addTodo(state: TodosState, todo: Todo) {
               <ul>
                 <li>
                   <code>if (from === to) return board</code>——
-                  <strong>返回原引用</strong>，
-                  React 直接跳过重渲染。
-                  写成 <code>{"return { ...board }"}</code>
+                  <strong>返回原引用</strong>，React 直接跳过重渲染。写成 <code>{"return { ...board }"}</code>
                   会白渲染一次。
                 </li>
                 <li>
@@ -4940,16 +4796,12 @@ export function addTodo(state: TodosState, todo: Todo) {
               </ul>
               <p>
                 <strong>关键性质：<code>{"{ ...board }"}</code>
-                只浅拷贝顶层</strong>，
-                所以<strong>没被列出来的列（比如
-                <code>done</code>）复用的是原来那个数组引用</strong>。
-                这正是我们想要的 ——
-                和评论树那道题「只重建路径上的节点」
-                是<strong>完全同一个思路</strong>。
+                只浅拷贝顶层</strong>，所以<strong>没被列出来的列（比如
+                <code>done</code>）复用的是原来那个数组引用</strong>。这正是我们想要的 ——
+                和评论树那道题「只重建路径上的节点」是<strong>完全同一个思路</strong>。
               </p>
               <p>
-                <strong>测试里专门验证了这三件事</strong>：
-                原 board 深冻结后调用不抛错、
+                <strong>测试里专门验证了这三件事</strong>：原 board 深冻结后调用不抛错、
                 <code>next.done === b.done</code>（未动的复用）、
                 <code>next.todo !== b.todo</code>（动过的是新的）。
               </p>
@@ -4962,17 +4814,11 @@ export function addTodo(state: TodosState, todo: Todo) {
                   六条测试里三条根本不渲染组件。
                 </li>
                 <li>
-                  <strong>不可能产生中间态</strong>。
-                  写成「先 <code>setBoard</code> 删、
-                  再 <code>setBoard</code> 加」，
-                  虽然 React 18 会批处理，
-                  但<strong>一旦中间插入任何提前
-                  <code>return</code> 或校验，
-                  卡片就凭空消失了</strong>。
+                  <strong>不可能产生中间态</strong>。写成「先 <code>setBoard</code> 删、再 <code>setBoard</code> 加」，虽然 React 18 会批处理，但<strong>一旦中间插入任何提前
+                  <code>return</code> 或校验，卡片就凭空消失了</strong>。
                 </li>
                 <li>
-                  以后要接真拖拽、撤销、
-                  或者服务端同步，
+                  以后要接真拖拽、撤销、或者服务端同步，
                   <strong>这个函数原样能用</strong>。
                 </li>
               </ul>
@@ -5086,8 +4932,7 @@ if (from === to) return { ...board };`,
           generated: true,
           prompt: (
             <p>
-              一次操作同时改两个数组，而且不许碰原 board。
-              检查器会查两个边界和「未动的列复用引用」。
+              一次操作同时改两个数组，而且不许碰原 board。检查器会查两个边界和「未动的列复用引用」。
             </p>
           ),
           promptEn: (

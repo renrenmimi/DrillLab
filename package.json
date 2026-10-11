@@ -9,6 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "audit:code": "node scripts/audit-code-lines.mjs",
+    "audit:zh": "node scripts/audit-zh-spacing.mjs",
     "gen:nav": "node scripts/gen-nav.mjs",
     "gen:src": "node scripts/gen-source-files.mjs",
     "e2e": "playwright test",
