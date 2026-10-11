@@ -433,6 +433,9 @@ Sandpack 在浏览器 iframe 里没有 Node，那套确实跑不了）。
 4. **进度盘读 `content/track-manifest.ts`，不读 `content/nav.ts`。**
    它只要课程名、一句话、按顺序排好的课文（80 节，22 KB）。拉 nav（134 KB）
    进首屏实测会把 First Load JS 从 152 顶回两百多。
+   **外壳同样不许在首屏读 nav**：〔继续〕读 track-manifest，上下文侧栏用
+   `next/dynamic` 懒加载（SSR 保留），搜索索引在第一次打开时才 `import()`（PR #27、#30）。
+   在那之前外壳一直静态 import nav，这一条形同虚设；`tests/e2e/perf.spec.ts` 守着首页。
    也不能复用 plan-manifest —— 那一份只覆盖 65 / 80 节。
 5. **没有「读到第几节」这回事的东西，不给进度条。** 八股按掌握状态排队、
    coding 是 25 道独立题、考场是 7 场各自计时的考试 —— 给它们画一条
@@ -977,14 +980,25 @@ conceptLedes / exerciseTitles / sourcePaths / recap / transfer，共 130 KB 出�
 **禁用的控件**（排序题那两个上下移按钮禁用时是 `opacity: .4`）和
 **纯装饰**（`aria-hidden`）。
 
-### 【重要】主题跟随系统，`color-scheme` 要一起写
+### 【重要】主题默认深色、不跟系统，`color-scheme` 要一起写
 
-`THEME_BOOTSTRAP` 曾经在没有 localStorage 值时**硬写 `"light"`**，
-系统开着深色的人打开会被一整屏米白闪一下。现在：有存过就用存的，
-没存过就问 `matchMedia("(prefers-color-scheme: dark)")`。
+`THEME_BOOTSTRAP`：有存过就用存的，没存过就是**深色**，不问
+`prefers-color-scheme`。这是 UI v2 的决定（理由写在 `lib/theme.tsx` 开头：
+深色才是这个产品设计好的那一版）。更早的版本曾硬写 `"light"`，后来又跟随过系统，
+两者都已不再如此 —— 别照着旧说法把 `matchMedia` 加回去。
 
 切换时除了 `data-theme` 还要写 `documentElement.style.colorScheme` ——
 滚动条、输入框、date picker 这些原生控件只认它，不认 CSS 变量。
+
+### 【重要】两段首帧脚本放在 `<body>` 最前面，不放 `<head>`
+
+`THEME_BOOTSTRAP` 和 `LOCALE_BOOTSTRAP` 是 React 要逐个对齐的普通节点。
+放在 `<head>` 里时，hydration 要一路走过 head 的子节点，而 webpack 在 chunk
+加载完时会把它接管的那个 `<script>` 从 head 里删掉 —— 线上 chunk 晚到一点，
+hydration 走到一半 head 被改，就报 React #418、整页在客户端重渲染一遍。
+审查实测冷加载约 11% 出一次（30 / 270）；挪到 `<body>` 开头（PR #29）后，
+线上 `/path` 冷加载 {中英} × {明暗} 各 30 次，0 / 120。放在 body 开头照样在
+任何内容画出来之前执行，不会闪。`tests/e2e/hydration.spec.ts` 守着这一条。
 
 ### 【重要】样式文件可能是空的 —— 加类名之后要扫一遍
 
@@ -1179,12 +1193,12 @@ npm run build          # 应预渲染 260 个页面（252 + /plans + /plans/choo
                        # content/plans-assert.ts 由两个计划页面 import：
                        # 引用了不存在的课文 / coding / 考场 / 模拟考，
                        # 或者某一档解析出 0 条 —— 构建直接失败
-                       # 首屏 JS 的基准（UI v2 之后实测）：
-                       #   /              153 kB     课程页        144 kB
-                       #   /plans         145 kB     /plans/[id]   176 kB
-                       #   /plans/choose  141 kB
+                       # 首屏 JS 的基准（2026-10 审查修复之后，next build 实测）：
+                       #   /              122 kB     课程页        144 kB
+                       #   /plans         146 kB     /plans/[id]   179 kB
+                       #   /plans/choose  142 kB
                        #   /code/[id]     122 kB     /drill/[id]   117 kB
-                       #   /drill         150 kB     /practice     175 kB
+                       #   /drill         153 kB     /practice     178 kB
                        # —— 若 /code/[id] 涨到 300 kB+，说明 Sandpack 泄漏进首屏了
 ```
 

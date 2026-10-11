@@ -51,7 +51,7 @@ export const TRACKS: Track[] = [
     "zh": "地基 · 项目与语言",
     "en": "Foundations · project and language",
     "category": "基础",
-    "blurbZh": "在动 React 和 GraphQL 之前，先把「一个 JavaScript 项目是怎么运行的」搞清楚：Node、npm、package.json、scripts、目录结构、怎么跑测试、报错该从哪看起。然后只补两门考试真正会用到的 JavaScript 与 TypeScript。",
+    "blurbZh": "在动 React 和 GraphQL 之前，先把「一个 JavaScript 项目是怎么运行的」弄清楚：Node、npm、package.json、scripts、目录结构、怎么跑测试、报错该从哪看起。然后只补两门考试真正会用到的 JavaScript 与 TypeScript。",
     "blurbEn": "Before starting React or GraphQL, get clear on how a JavaScript project runs: Node, npm, package.json, scripts, the directory layout, how to run the tests, and where to look first when something fails. After that, only the JavaScript and TypeScript that the two exam projects actually use.",
     "lessons": [
       {
@@ -93,7 +93,7 @@ export const TRACKS: Track[] = [
       {
         "id": "js-modules",
         "href": "/exams/foundations/js-modules",
-        "zh": "ESM:import / export 与那些莫名其妙的报错",
+        "zh": "ESM：import / export 与那些莫名其妙的报错",
         "en": "ESM: import / export, and the errors that look strange at first"
       },
       {
@@ -363,8 +363,8 @@ export const TRACKS: Track[] = [
     "zh": "面试八股",
     "en": "Interview questions",
     "category": "全栈",
-    "blurbZh": "一份作者做过的前端面试题整理，按 HTML / CSS / JavaScript / React / Node / 数据库 / 网络分好组，每道题给「一句话答案 + 展开 + 会被追问什么」。最后一节把 16 道 coding 题逐题对照本站已有的练习，指出哪些已经写过、哪些是缺口。",
-    "blurbEn": "A set of frontend interview questions the author went through, grouped by HTML / CSS / JavaScript / React / Node / databases / networking. Every question gets a one-sentence answer, a longer explanation, and the follow-up questions to expect. The last part compares the 16 coding problems one by one against the exercises already on this site, and points out which ones are already written up and which ones are gaps.",
+    "blurbZh": "一份作者做过的前端面试题整理，按 HTML / CSS / JavaScript / React / Node / 数据库 / 网络分好组，每道题给「一句话答案 + 展开 + 会被追问什么」。coding 部分把 16 道 coding 题逐题对照本站已有的练习，指出哪些已经写过、哪些是缺口；之后是 8 道手写题，以及 DrillLab 自出的 TypeScript 深度一组（6 题）。",
+    "blurbEn": "A set of frontend interview questions the author went through, grouped by HTML / CSS / JavaScript / React / Node / databases / networking. Every question gets a one-sentence answer, a longer explanation, and the follow-up questions to expect. The coding part compares the 16 coding problems one by one against the exercises already on this site, and points out which ones are already written up and which ones are gaps; after it come 8 implement-it-yourself problems and a TypeScript-in-depth group of 6 questions written by DrillLab.",
     "parallel": true,
     "lessons": [
       {
@@ -536,7 +536,7 @@ export const TRACKS: Track[] = [
       {
         "id": "cb-provider-layer",
         "href": "/exams/cab-booking/cb-provider-layer",
-        "zh": "Context 放在哪一层 —— 这道题最容易死的地方",
+        "zh": "Context 放在哪一层 —— 这道题最常见的失分点",
         "en": "Which level the Context goes on — the most common way to fail this task"
       },
       {

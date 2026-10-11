@@ -267,8 +267,8 @@ export const EXERCISES: NavExerciseRef[] = [
     "examId": "react",
     "lessonId": "r-useeffect",
     "id": "r-debug-effect-loop",
-    "title": "Debug Lab · 点 Edit 之后页面卡死",
-    "titleEn": "Debug Lab · the page freezes after you press Edit",
+    "title": "Debug Lab · 输入框敲不进字",
+    "titleEn": "Debug Lab · the inputs will not take any typing",
     "kind": "debug",
     "level": 3
   },
@@ -303,7 +303,7 @@ export const EXERCISES: NavExerciseRef[] = [
     "examId": "react",
     "lessonId": "r-read-q1",
     "id": "r-q1-forbidden",
-    "title": "哪一处改动会让测试挂掉",
+    "title": "哪一处改动会让测试失败",
     "titleEn": "Which change makes a test fail",
     "kind": "recognition",
     "level": 1
@@ -393,8 +393,8 @@ export const EXERCISES: NavExerciseRef[] = [
     "examId": "react",
     "lessonId": "r-task3-edit",
     "id": "r-debug-new-id",
-    "title": "Debug Lab · 点 Update 之后毫无反应",
-    "titleEn": "Debug Lab · nothing happens after you click Update",
+    "title": "Debug Lab · 点 Update 之后列表没有变化",
+    "titleEn": "Debug Lab · the list does not change after you click Update",
     "kind": "debug",
     "level": 3
   },
@@ -725,8 +725,8 @@ export const EXERCISES: NavExerciseRef[] = [
     "examId": "graphql-federation",
     "lessonId": "g-nullable",
     "id": "g-nullable-blanks",
-    "title": "给四个 TODO 各自选对兜底策略",
-    "titleEn": "Pick the right fallback for each of the four TODOs",
+    "title": "给三个 resolver 各自选对兜底策略",
+    "titleEn": "Pick the right fallback for each of the three resolvers",
     "kind": "fill-blank",
     "level": 2
   },
@@ -1301,8 +1301,8 @@ export const EXERCISES: NavExerciseRef[] = [
     "examId": "cab-booking",
     "lessonId": "cb-loading-timer",
     "id": "cb-timer-debug",
-    "title": "Debug Lab：定时器永远不到期",
-    "titleEn": "Debug Lab: the timer never fires",
+    "title": "Debug Lab：测试全绿，浏览器里却卡在 Loading",
+    "titleEn": "Debug Lab: the tests are green, but the browser sits on Loading",
     "kind": "debug",
     "level": 2
   },

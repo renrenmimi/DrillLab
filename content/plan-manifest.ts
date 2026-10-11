@@ -429,7 +429,7 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
   {
     "id": "complete",
     "zh": "从零完整学习",
-    "en": "Complete DrillLab",
+    "en": "The full course, from zero",
     "outcomeZh": "从「npm install 做了什么」走到在空文件夹里重写三个项目，并把 105 道八股过一遍。",
     "outcomeEn": "From what npm install actually does, to rebuilding three projects in an empty folder, with all 105 questions covered.",
     "forZh": "刚开始接触 npm、React、GraphQL，想要一条完整的路。",
@@ -517,8 +517,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "practice",
         "zh": "React 的课内练习",
         "en": "The React exercises",
-        "whyZh": "填空、写整块、Debug Lab —— 挖好了空等你填，是从「认得出」到「写得对」的过渡。",
-        "whyEn": "Blanks, whole blocks and debug labs: the step between recognising the code and writing it correctly.",
+        "whyZh": "填空、写整块、Debug Lab —— 代码大体给好，关键处由你完成，是从「认得出」到「写得对」的过渡。",
+        "whyEn": "Fill-in-the-blank, write-a-block and debug labs. Most of the code is there and the key parts are yours: the step between recognising the code and writing it correctly.",
         "items": [
           46,
           47,
@@ -783,8 +783,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "Cab Booking 的 Coding 题",
         "en": "The Cab Booking coding problem",
-        "whyZh": "整个应用在浏览器里写一遍，四个测试全绿。",
-        "whyEn": "Write the whole app in the browser and take all four tests green.",
+        "whyZh": "整个应用在浏览器里写一遍，沙箱里的十个测试全绿。",
+        "whyEn": "Write the whole app in the browser and take all ten sandbox tests green.",
         "items": [
           202
         ]
@@ -806,7 +806,7 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "zh": "面试八股：105 道问答",
         "en": "Interview questions: all 105",
         "whyZh": "这条支线不依赖前面任何一门课，任何时候都能开始 —— 放在最后只是因为它最长。",
-        "whyEn": "This track has no prerequisites and can start at any time. It sits last only because it is the longest.",
+        "whyEn": "This part has no prerequisites and can start at any time. It sits last only because it is the longest.",
         "items": [
           204,
           205,
@@ -918,10 +918,10 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
       {
         "id": "iv-learn",
         "phase": "learn",
-        "zh": "手写题与组件题的讲解",
-        "en": "The walkthroughs for the hand-written and component problems",
-        "whyZh": "这 10 节课不是问答题，它们是下面那 15 道 coding 题的讲解。",
-        "whyEn": "These ten lessons are not questions; they are the walkthroughs for the fifteen coding problems below.",
+        "zh": "手写题、组件题与 TypeScript 深度的讲解",
+        "en": "Walkthroughs: hand-written problems, components and TypeScript in depth",
+        "whyZh": "这 10 节里，8 节是下面 15 道 coding 题的讲解，另外 2 节展开讲 TypeScript 深度那 6 道问答。",
+        "whyEn": "Of these ten lessons, eight are the walkthroughs for the fifteen coding problems below, and two expand on the six in-depth TypeScript questions.",
         "items": [
           309,
           310,
@@ -1164,7 +1164,7 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "zh": "写：React 的 Coding 题",
         "en": "Code: the React coding problems",
         "whyZh": "整块写完并跑绿。第二遍点「空白重来」—— 实现文件全清空、只留测试，那一遍才算验收。",
-        "whyEn": "Write the whole thing and take the tests green. On the second pass hit start blank: every implementation file is emptied and only the tests remain. That pass is the one that counts.",
+        "whyEn": "Write the whole thing and take the tests green. On the second pass hit Blank slate: every implementation file is emptied and only the tests remain. That pass is the one that counts.",
         "items": [
           100,
           101,
@@ -1262,7 +1262,7 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "zh": "背：Node、数据库、网络与安全",
         "en": "Review: Node, databases, networking and security",
         "whyZh": "题库里没有 GraphQL 这个方向，但这 12 道正好是 subgraph 和 Spring 服务真正会被追问的东西 —— 事件循环、连接、状态码。",
-        "whyEn": "The bank has no GraphQL track, but these 12 are exactly what a subgraph and a Spring service get asked about: the event loop, connections, status codes.",
+        "whyEn": "The bank has no GraphQL topic, but these 12 are exactly what a subgraph and a Spring service get asked about: the event loop, connections, status codes.",
         "items": [
           291,
           292,
@@ -1352,8 +1352,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "rebuild",
         "zh": "空手做：从零重写两道",
         "en": "Rebuild: both tasks from an empty folder",
-        "whyZh": "自己写 schema、自己接 DataLoader、自己配 Spring 骨架。基线是 6 failed / 4 passed，而那 4 个通过里有 3 个是「空实现恰好满足断言」。",
-        "whyEn": "Write the schema yourself, wire DataLoader yourself, set up the Spring skeleton yourself. The baseline is 6 failed / 4 passed, and three of those four passes are empty implementations that happen to satisfy the assertion.",
+        "whyZh": "schema 照抄源项目的，resolver 和 DataLoader 自己接，Spring 骨架自己配。基线是 6 failed / 4 passed，而那 4 个通过里有 3 个是「空实现恰好满足断言」。",
+        "whyEn": "The schema is copied from the source project; the resolvers, the DataLoader wiring and the Spring skeleton are yours. The baseline is 6 failed / 4 passed, and three of those four passes are empty implementations that happen to satisfy the assertion.",
         "items": [
           176,
           177
@@ -1764,8 +1764,8 @@ export const PLAN_MANIFEST: ManifestPlan[] = [
         "phase": "code",
         "zh": "写：Context 版 Cab Booking",
         "en": "Code: the Context version",
-        "whyZh": "带脚手架写一遍，四个测试跑绿。第二遍点「空白重来」才算验收。",
-        "whyEn": "Write it once with the scaffold and take the four tests green. The pass that counts is the second one, with start blank.",
+        "whyZh": "带脚手架写一遍，沙箱里的十个测试跑绿。第二遍点「空白重来」才算验收。",
+        "whyEn": "Write it once with the scaffold and take the ten sandbox tests green. The pass that counts is the second one, on Blank slate.",
         "items": [
           202
         ]
