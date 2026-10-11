@@ -281,13 +281,13 @@ export const reactQ1: Module = {
             real(
               "text",
               `## Q1: Notes Manager (CRUD)
-文件： src/components/**
+文件: src/components/**
 按代码里的 TODO 完成三个任务：
 - Task 1  Add:    提交表单 -> 新 note 进入表格
 - Task 2  Delete: 点 Delete -> 该行按 id 被移除
 - Task 3  Edit:   点 Edit -> 内容回填进表单、按钮变 Update ->
                   提交 -> 原位置更新该 note、退出编辑模式
-约束： 不得修改任何 data-testid。`,
+约束: 不得修改任何 data-testid。`,
               {
                 filename: "README.md（Q1 原文）",
                 filenameEn: "README.md (the original text of Q1)",
@@ -365,7 +365,7 @@ Rule:  do not change any data-testid.`,
                 <strong>「按 id」和「原位置」是这道题真正的分水岭。</strong>
                 两个要求都指向同一件事：出题人想看你会不会用
                 <code>filter</code> 和 <code>map</code> 精确操作数组，
-                而不是用「删掉再塞回去」这种糊弄过去的写法。
+                而不是用「删掉再塞回去」这种取巧的写法。
               </p>
             </>
           ),
@@ -425,8 +425,8 @@ Rule:  do not change any data-testid.`,
                 dividing lines here.</strong>{" "}
                 Both point at the same thing: the author wants to see whether you can
                 work on an array precisely with <code>filter</code> and{" "}
-                <code>map</code>, instead of fudging it with &ldquo;delete it and stuff
-                it back in&rdquo;.
+                <code>map</code>, instead of working around it by deleting the item and
+                adding it back.
               </p>
             </>
           ),
@@ -660,7 +660,7 @@ $ npx vitest run
 
 # Two more things worth checking while you are here:
 $ npm test
-npm error Missing script: "test"        ← 没有这个 script，用 npx
+npm error Missing script: "test"        ← no such script; use npx
 
 $ npm run build
 src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
@@ -731,7 +731,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
         {
           kind: "recognition",
           id: "r-q1-forbidden",
-          title: "哪一处改动会让测试挂掉",
+          title: "哪一处改动会让测试失败",
           titleEn: "Which change makes a test fail",
           level: 1,
           prompt: (
@@ -925,13 +925,26 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           titleEn: "The code on disk for this project is already the finished version",
           body: (
             <p>
-              审计发现：<code>react-notes-app/src/components/</code> 里
+              编写本课时发现：<code>react-notes-app/src/components/</code> 里
               <strong>一个 TODO 都不剩</strong>，三个任务已经全部实现，
               4 个测试全过。README 说「按代码里的 TODO 完成」，但那些 TODO
               已经被填掉了。<br />
               所以接下来三节的做法是：<strong>把这份答案当成参考解法来推导</strong>，
-              而不是让你去项目里找 TODO。想真正练手，走本模块最后的
+              而不是让你去项目里找 TODO。想真正练手，走本课程最后（第 6 部分）的
               <strong>「从零重写」</strong>—— 那里会给你空白起点。
+            </p>
+          ),
+          bodyEn: (
+            <p>
+              When this course was written, <code>react-notes-app/src/components/</code>{" "}
+              had <strong>no TODO left at all</strong>: all three tasks were already
+              implemented and the 4 tests passed. The README says to finish the TODOs in
+              the code, but they have already been filled in.<br />
+              So the next three lessons <strong>work backwards from this code as the
+              reference solution</strong>, rather than sending you to look for TODOs in
+              the project. For real practice, take the{" "}
+              <strong>rebuild from scratch</strong> at the end of this course (part 6) —
+              it gives you a blank start.
             </p>
           ),
         },
@@ -1115,7 +1128,8 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
                 注意 <code>id: noteToEdit ? noteToEdit.id : Date.now()</code>：
                 新增时 <code>noteToEdit</code> 是 <code>null</code>，
                 所以走 <code>Date.now()</code> —— 当前毫秒时间戳，
-                作为 id 足够唯一（同一毫秒内连点两次才会撞，实际上做不到）。
+                作为 id 一般够用：人手点不出同一毫秒；但测试代码连续添加两条时可能落在同一毫秒而撞号
+                （本站在浏览器沙箱里实测撞过），写测试时要留意。
               </p>
               <p>
                 还有 <code>.trim()</code>：前后空格被去掉了。
@@ -1140,8 +1154,10 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
                 Look at <code>id: noteToEdit ? noteToEdit.id : Date.now()</code>:
                 when adding, <code>noteToEdit</code> is <code>null</code>,
                 so it takes <code>Date.now()</code> — the current millisecond timestamp,
-                unique enough for an id (you would have to click twice inside one
-                millisecond to collide, which you cannot).
+                usually good enough for an id: a person cannot click twice within one
+                millisecond, but test code that adds two notes back to back can, and the
+                ids then collide (this site has seen it happen in the browser sandbox).
+                Keep that in mind when you write tests.
               </p>
               <p>
                 And <code>.trim()</code>: the surrounding spaces are gone.
@@ -1250,7 +1266,7 @@ onSubmit(newNote);`,
               <p>
                 <strong>第二步：改成函数式更新。</strong>
                 <code>setNotes([...notes, submittedNote])</code> 也能过测试，
-                但项目里统一用 <code>prev</code> 形式。理由在上一模块讲过：
+                但项目里统一用 <code>prev</code> 形式。理由在第 1 部分 useState 那一节讲过：
                 连续调用时不会拿到过期的值。
               </p>
               <p>
@@ -1271,7 +1287,7 @@ onSubmit(newNote);`,
                 <strong>Step two: switch to the functional update.</strong>
                 <code>setNotes([...notes, submittedNote])</code> passes the tests too,
                 but the project uses the <code>prev</code> form throughout. The reason
-                came up in the previous module: back-to-back calls never read a stale
+                came up in the useState lesson of part 1: back-to-back calls never read a stale
                 value.
               </p>
               <p>
@@ -1347,7 +1363,7 @@ const handleSubmitNote = (submittedNote: Note) => {
                 </li>
               </ul>
               <p>
-                之后就是上一模块那张图的流程：state 更新 → <code>NoteManager</code>
+                之后就是第 1 部分 useState 那一节那张图的流程：state 更新 → <code>NoteManager</code>
                 重新执行 → <code>notes</code> 多了一条 →
                 <code>NoteTable</code> 收到新数组 →
                 <code>notes.map(...)</code> 多产出一个 <code>NoteItem</code> →
@@ -1376,7 +1392,7 @@ const handleSubmitNote = (submittedNote: Note) => {
                 </li>
               </ul>
               <p>
-                After that it is the flow from the diagram in the previous module:
+                After that it is the flow from the diagram in the useState lesson of part 1:
                 state updates → <code>NoteManager</code> runs again →{" "}
                 <code>notes</code> has one more item →{" "}
                 <code>NoteTable</code> receives the new array →{" "}
@@ -1479,7 +1495,8 @@ const handleSubmitNote = (submittedNote: Note) => {
               hintEn: "The parameter of the functional-update callback. React hands the latest value to it.",
               why: (
                 <>
-                  <code>prev</code>（名字随你，项目里用的是 <code>prev</code>）。
+                  <code>prev</code>（这里按项目写法填 <code>prev</code>；真实代码里名字随你起，
+                  这道填空只接受 <code>prev</code> / <code>prevNotes</code> / <code>p</code>）。
                   它是 React 交给你的「此刻最新的 notes」。
                   用它而不是直接用外层的 <code>notes</code> 变量，
                   可以避免拿到过期快照。
@@ -1487,8 +1504,9 @@ const handleSubmitNote = (submittedNote: Note) => {
               ),
               whyEn: (
                 <>
-                  <code>prev</code> (the name is up to you; the project uses{" "}
-                  <code>prev</code>). It is the newest value of notes, handed to
+                  <code>prev</code> (write <code>prev</code> here, as the project does; in
+                  real code any name works, but this blank accepts <code>prev</code>,{" "}
+                  <code>prevNotes</code> or <code>p</code>). It is the newest value of notes, handed to
                   you by React. Using it instead of the outer{" "}
                   <code>notes</code> variable keeps you from reading a value that
                   is already out of date.
@@ -1538,7 +1556,7 @@ const handleSubmitNote = (submittedNote: Note) => {
           prompt: (
             <p>
               只给你函数签名和要求。自己写完整实现。
-              写完点「检查我的代码」，它会用文本规则检查你有没有踩坑。
+              写完点「检查我的代码」，它会用文本规则检查你有没有犯这些常见错误。
             </p>
           ),
           promptEn: (
@@ -1687,16 +1705,16 @@ setNotes((prev) => [prev, submittedNote]);`,
           why: (
             <>
               这会造出 <code>[[...旧数组], 新note]</code> —— 一个嵌套数组。
-              TypeScript 会报
-              <code>Type &apos;Note[]&apos; is not assignable to type &apos;Note&apos;</code>。
+              TypeScript 会报 TS2345，展开后能看到
+              <code>Type &apos;Note | Note[]&apos; is not assignable to type &apos;Note&apos;</code>。
               好在这个错编译期就被抓到了。
             </>
           ),
           whyEn: (
             <>
               This builds <code>[[...old array], new note]</code>, an array inside
-              an array. TypeScript reports
-              <code>Type &apos;Note[]&apos; is not assignable to type &apos;Note&apos;</code>.
+              an array. TypeScript reports TS2345, and further down the message you find{" "}
+              <code>Type &apos;Note | Note[]&apos; is not assignable to type &apos;Note&apos;</code>.
               At least this mistake is caught at compile time.
             </>
           ),
@@ -1718,19 +1736,20 @@ const handleSubmitNote = (submittedNote: Note) => {
           why: (
             <>
               <code>NoteForm</code> 已经给好 id 了，这里再造一个纯属多余。
-              更糟的是<strong>它会直接毁掉 Task 3</strong> ——
-              编辑提交时 <code>NoteForm</code> 特意复用了旧 id，
-              而这行会把它覆盖成新 id，于是 <code>map</code> 找不到匹配项，
+              更要紧的是<strong>别把这个习惯带进 Task 3</strong>：
+              编辑分支里如果也写 <code>{"{ ...submittedNote, id: Date.now() }"}</code> 再去 map，
+              新 id 跟谁都对不上，<code>map</code> 找不到匹配项，
               更新静默失败（列表毫无变化）。
             </>
           ),
           whyEn: (
             <>
               <code>NoteForm</code> already set the id, so building another one
-              here is pointless. Worse, <strong>it breaks Task 3</strong>: on an
-              edit submit <code>NoteForm</code> deliberately reuses the old id, and
-              this line overwrites it with a new one. Then <code>map</code> finds no
-              match and the update fails silently, with no change in the list.
+              here is pointless. More importantly,{" "}
+              <strong>do not carry the habit into Task 3</strong>: if the edit branch
+              also builds <code>{"{ ...submittedNote, id: Date.now() }"}</code> before the
+              map, the new id matches nothing, <code>map</code> finds no match, and the
+              update fails silently, with no change in the list.
             </>
           ),
         },
@@ -2294,11 +2313,11 @@ const handleDelete = (id: number) => {
               labelEn: "A functional update is used",
               must: "setNotes\\s*\\(\\s*\\(?\\s*\\w+\\s*\\)?\\s*=>",
             },
-            { label: "按 id 比较", labelEn: "The comparison is by id", must: "\\.id\\s*!==?\\s*id" },
+            { label: "按 id 比较", labelEn: "The comparison is by id", must: "(\\.id\\s*!==?\\s*id\\b|\\bid\\s*!==?\\s*\\w+\\.id)" },
             {
               label: "条件用的是不等号（保留不匹配的）",
               labelEn: "The condition uses not-equal (it keeps the ones that do not match)",
-              must: "!==?\\s*id",
+              must: "!==?\\s*(id\\b|\\w+\\.id)",
             },
             { label: "没有 splice / push", labelEn: "No splice / push", mustNot: "\\.(splice|push)\\s*\\(" },
             { label: "没有按 title 比较", labelEn: "No comparison by title", mustNot: "\\.title\\s*[!=]==?" },
@@ -2468,7 +2487,7 @@ const handleDelete = (id: number) => {
         {
           signal: "「删除某一条」",
           signalEn: "Delete one item",
-          reachFor: "filter + 保留不匹配的（！==）",
+          reachFor: "filter + 保留不匹配的（!==）",
           reachForEn: "filter, keeping the items that do not match (!==)",
         },
         {
@@ -2696,8 +2715,8 @@ const handleDelete = (id: number) => {
               <p>
                 所以 <code>setNoteToEdit(null)</code> 这一行也同时做了四件事的收尾：
                 清空表单、按钮变回 Add、下次提交生成新 id、下次提交走追加分支。
-                <strong>漏了这一行，症状是「更新成功了，但表单还留着内容、
-                按钮还写着 Update，再改一次又更新同一条」。</strong>
+                <strong>漏了这一行，症状是「更新成功了，表单也清空了，但按钮还写着
+                Update；再输入内容提交，又会去更新同一条，而不是新增」。</strong>
               </p>
             </>
           ),
@@ -2732,9 +2751,9 @@ const handleDelete = (id: number) => {
                 So the single line <code>setNoteToEdit(null)</code> also closes out all
                 four: clear the form, flip the button back to Add, generate a fresh id
                 next time, take the append branch next time.{" "}
-                <strong>Miss that line and the symptom is &ldquo;the update worked, but
-                the form still holds the text, the button still says Update, and editing
-                again updates the same note&rdquo;.</strong>
+                <strong>Miss that line and the symptom is &ldquo;the update worked and
+                the form cleared, but the button still says Update; type something new and
+                submit, and it updates the same note again instead of adding one&rdquo;.</strong>
               </p>
             </>
           ),
@@ -2772,7 +2791,7 @@ const handleDelete = (id: number) => {
           heading: "为什么必须复用旧 id",
           headingEn: "Why the old id has to be reused",
           lede: "这一行是整道题的枢纽。",
-          ledeEn: "This one line is the center of the whole task.",
+          ledeEn: "This one line is the centre of the whole task.",
           body: (
             <>
               <p>
@@ -2794,7 +2813,7 @@ const handleDelete = (id: number) => {
                 既没出现 &quot;New&quot;，&quot;Old&quot; 也还在。
               </p>
               <p>
-                这也解释了 Task 1 那节提到的一个坑：
+                这也解释了 Task 1 那节提到的一个陷阱：
                 如果你在 <code>handleSubmitNote</code> 里自己给 note 重新生成 id，
                 Task 1 照样能过，但 Task 3 会静默失败。
                 <strong>两道题共享一个函数，一处多余的改动会跨题传染。</strong>
@@ -3004,14 +3023,14 @@ const handleEdit = (note: Note) => {
                   这条直接验证「按钮变 Update」。
                 </li>
                 <li>
-                  10–12 行：<code>clear</code> 输入框再打 <code>New</code>。
-                  <strong>clear 能生效说明输入框必须是受控的</strong>，
-                  而且 effect 必须已经把旧值填进去了（不然 clear 也没东西可清）。
+                  10–12 行：<code>clear</code> 标题输入框再打 <code>New</code>。
+                  <strong>注意 content 没有重打</strong> —— 如果 effect 没把旧内容{" "}
+                  <code>c1</code> 回填进去，content 为空、按钮禁用，提交不会发生，第 15 行就会失败。
                 </li>
                 <li>
-                  14–15 行：断言列表里有 <code>New</code> 且没有 <code>Old</code>。
+                  15–16 行：断言列表里有 <code>New</code> 且没有 <code>Old</code>。
                   这验证「替换而不是新增」—— 如果你写成追加，
-                  <code>Old</code> 还在，第二条断言就挂。
+                  <code>Old</code> 还在，第二条断言就失败。
                 </li>
               </ol>
             </>
@@ -3033,13 +3052,13 @@ const handleEdit = (note: Note) => {
                   That checks &ldquo;the button turns into Update&rdquo; directly.
                 </li>
                 <li>
-                  Lines 10-12: <code>clear</code> the input, then type <code>New</code>.{" "}
-                  <strong>The fact that clear does something means the input has to be
-                  controlled</strong>, and the effect must already have put the old value
-                  in (otherwise there is nothing to clear).
+                  Lines 10-12: <code>clear</code> the title input, then type{" "}
+                  <code>New</code>. <strong>Note that content is not retyped</strong>: if
+                  the effect did not refill <code>c1</code>, content stays empty, the button
+                  is disabled, nothing is submitted, and line 15 fails.
                 </li>
                 <li>
-                  Lines 14-15: assert the list contains <code>New</code> and not{" "}
+                  Lines 15-16: assert the list contains <code>New</code> and not{" "}
                   <code>Old</code>.
                   That checks &ldquo;replace, not add&rdquo; — write an append and{" "}
                   <code>Old</code> is still there, so the second assertion fails.
@@ -3094,7 +3113,7 @@ const handleEdit = (note: Note) => {
             <p>
               Four blanks across two functions. The fourth is the line people
               forget most often — without it{" "}
-              <strong>the tests still pass</strong>, but the behavior is clearly
+              <strong>the tests still pass</strong>, but the behaviour is clearly
               wrong.
             </p>
           ),
@@ -3211,7 +3230,7 @@ const handleEdit = (note: Note) => {
                   <br />
                   <strong>漏了它，第 4 个测试依然会通过</strong>
                   （它没检查提交后的状态），但行为明显是坏的：
-                  表单还留着内容、按钮还写 Update、再改一次还是更新同一条。
+                  表单虽然会被 NoteForm 清空，按钮却还写着 Update，再提交还是更新同一条，而不是新增。
                 </>
               ),
               whyEn: (
@@ -3224,10 +3243,10 @@ const handleEdit = (note: Note) => {
                   new id; 4. the next submit takes the append branch.
                   <br />
                   <strong>Leave it out and the fourth test still passes</strong>{" "}
-                  (it never checks the state after the submit), but the behavior
-                  is plainly broken: the form still holds the old content, the
-                  button still says Update, and the next edit updates the same
-                  note again.
+                  (it never checks the state after the submit), but the behaviour
+                  is plainly broken: NoteForm still clears the form, but the button
+                  still says Update, and the next submit updates the same note again
+                  instead of adding one.
                 </>
               ),
               width: 22,
@@ -3367,22 +3386,22 @@ const handleEdit = (note: Note) => {
         {
           kind: "debug",
           id: "r-debug-new-id",
-          title: "Debug Lab · 点 Update 之后毫无反应",
-          titleEn: "Debug Lab · nothing happens after you click Update",
+          title: "Debug Lab · 点 Update 之后列表没有变化",
+          titleEn: "Debug Lab · the list does not change after you click Update",
           level: 3,
           prompt: (
             <p>
               点 Edit，输入框正常回填，按钮变成 Update。
-              改完内容点 Update —— <strong>列表一点变化都没有</strong>，
-              表单也没清空。控制台干净。
+              改完内容点 Update —— 表单被清空、按钮回到 Add，看起来像提交成功了，
+              可<strong>列表一点变化都没有</strong>。控制台干净。
             </p>
           ),
           promptEn: (
             <p>
               Click Edit and the inputs prefill correctly, and the button becomes
-              Update. Change the content and click Update —{" "}
-              <strong>the list does not change at all</strong>, and the form does
-              not clear either. The console is clean.
+              Update. Change the content and click Update — the form clears and the
+              button goes back to Add, so it looks as if the update worked, but{" "}
+              <strong>the list does not change at all</strong>. The console is clean.
             </p>
           ),
           errorOutput: `# 没有任何报错。
@@ -3391,28 +3410,32 @@ const handleEdit = (note: Note) => {
 #   2. 点 Edit → 输入框显示 Old / c1，按钮变 Update  ✓ 这两步正常
 #   3. 把标题改成 "New"，点 Update
 # 期望：列表里那条变成 New，表单清空，按钮回到 Add
-# 实际：列表还是 Old，表单还留着 New，按钮还是 Update
+# 实际：表单清空了，按钮也回到了 Add，但列表还是 Old
 
 # 测试结果：
 #   ✓ adds a note
 #   ✓ submit button disabled when inputs empty
 #   ✓ deletes a note
 #   ✕ edits a note in place
-#       Unable to find text content "New" in element [data-testid="notes-list"]`,
+#       expect(element).toHaveTextContent()
+#       Expected element to have text content: New
+#       Received: Oldc1EditDelete`,
           errorOutputEn: `# No error at all.
 # Repro:
 #   1. Add "Old / c1"
 #   2. Click Edit → the inputs show Old / c1, the button reads Update  ✓ both fine
 #   3. Change the title to "New" and click Update
 # Expected: that row becomes New, the form clears, the button goes back to Add
-# Actual: the row is still Old, the form still holds New, the button still reads Update
+# Actual: the form is cleared and the button is back to Add, but the row is still Old
 
 # Test results:
 #   ✓ adds a note
 #   ✓ submit button disabled when inputs empty
 #   ✓ deletes a note
 #   ✕ edits a note in place
-#       Unable to find text content "New" in element [data-testid="notes-list"]`,
+#       expect(element).toHaveTextContent()
+#       Expected element to have text content: New
+#       Received: Oldc1EditDelete`,
           broken: demo(
             "tsx",
             `const handleSubmitNote = (submittedNote: Note) => {
@@ -3493,14 +3516,11 @@ const handleEdit = (note: Note) => {
                 于是 map 遍历整个数组，拿着一个全新的 id 去比，
                 <strong>一个都匹配不上</strong>，原样返回一份内容相同的新数组。
                 React 确实重新渲染了（数组是新的），但内容没变，
-                所以屏幕上看不出任何动静。
+                所以列表上看不出任何变化。
               </p>
               <p>
-                <strong>表单没清空又是为什么？</strong>
-                <code>setNoteToEdit(null)</code> 明明调了。
-                但注意报错顺序 —— 这里表单其实<strong>会</strong>清空。
-                如果你观察到表单也没清，那说明你还漏了这一行。
-                两个 bug 常常一起出现。
+                <strong>注意表单清空、按钮复原都正常</strong>，这正是它迷惑人的地方：
+                界面像是提交成功了，只有列表没变。
               </p>
               <p>
                 <strong>最值得记的一点：这个 bug 只有 Task 3 会挂，
@@ -3524,15 +3544,12 @@ const handleEdit = (note: Note) => {
                 So map walks the whole array comparing against a brand new id and{" "}
                 <strong>matches nothing</strong>. It returns a new array with the
                 same content. React does re-render, because the array is new, but
-                the content is unchanged, so nothing moves on screen.
+                the content is unchanged, so nothing changes in the list.
               </p>
               <p>
-                <strong>And why does the form not clear?</strong>{" "}
-                <code>setNoteToEdit(null)</code> is clearly called. Look at the
-                order of events: the form actually{" "}
-                <strong>does</strong> clear here. If you see a form that does not
-                clear, then that line is missing too. The two bugs often show up
-                together.
+                <strong>Note that the form clears and the button resets as normal</strong>{" "}
+                — that is exactly what makes it misleading: the UI looks as if the submit
+                succeeded, and only the list did not change.
               </p>
               <p>
                 <strong>
@@ -3606,8 +3623,8 @@ if (noteToEdit) {
             <>
               <strong>第 4 个测试照样会过</strong> ——
               它在提交后只检查了列表内容，没检查表单和按钮。
-              但行为是坏的：表单还留着刚才的内容、按钮还写着 Update、
-              再点一次提交还是在更新同一条。
+              但行为是坏的：表单虽然会被 NoteForm 清空，按钮却还写着 Update，
+              再点一次提交还是在更新同一条，而不是新增。
               <br />
               题目原文有「退出编辑模式」四个字，这是明确要求。
             </>
@@ -3616,9 +3633,9 @@ if (noteToEdit) {
             <>
               <strong>The fourth test still passes</strong>, because after the
               submit it only checks the list contents, not the form and not the
-              button. But the behavior is wrong: the form still holds the previous
-              text, the button still says Update, and submitting again updates the
-              same note.
+              button. But the behaviour is wrong: NoteForm still clears the form, but
+              the button still says Update, and submitting again updates the same note
+              instead of adding one.
               <br />
               The task text says to leave edit mode. That is a stated requirement.
             </>
@@ -3784,8 +3801,8 @@ if (noteToEdit) {
                 顺带回答上一门课那个问题：
                 <code>globals: true</code> 让 <code>test</code> 在<strong>运行时</strong>
                 存在，但 TypeScript <strong>编译时</strong>并不知道 ——
-                这正是 <code>npm run build</code> 报 10 个
-                <code>Cannot find name &apos;test&apos;</code> 的原因。
+                这正是 <code>npm run build</code> 报 10 个类型错误
+                （找不到 <code>test</code> / <code>expect</code>）的原因。
                 要修需要在 tsconfig 里加
                 <code>&quot;types&quot;: [&quot;vitest/globals&quot;]</code>，
                 但题目没让你改配置。
@@ -3811,12 +3828,12 @@ if (noteToEdit) {
                 <strong>Without it, those two methods do not exist.</strong>
               </p>
               <p>
-                While we are here, the answer to that question from the previous module:{" "}
+                While we are here, the answer to that question from the previous course:{" "}
                 <code>globals: true</code> makes <code>test</code> exist{" "}
                 <strong>at runtime</strong>, but TypeScript does not know it{" "}
                 <strong>at compile time</strong> — which is exactly why{" "}
-                <code>npm run build</code> reports 10 counts of{" "}
-                <code>Cannot find name &apos;test&apos;</code>.
+                <code>npm run build</code> reports 10 type errors ({" "}
+                <code>test</code> and <code>expect</code> cannot be found).
                 Fixing it would mean adding{" "}
                 <code>&quot;types&quot;: [&quot;vitest/globals&quot;]</code> to tsconfig,
                 and the brief never told you to touch the config.
@@ -4061,7 +4078,7 @@ export default defineConfig({
               `// ✗ 漏了 await：断言跑在渲染之前
 userEvent.click(screen.getByTestId("form-submit-button"));
 expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");
-//  → Unable to find text content "My Title"  （代码其实没错！）
+//  → Expected element to have text content: My Title / Received: (空)  （代码其实没错！）
 
 // ✓
 await userEvent.click(screen.getByTestId("form-submit-button"));
@@ -4070,7 +4087,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
                 codeEn: `// ✗ The await is missing: the assertion runs before the render
 userEvent.click(screen.getByTestId("form-submit-button"));
 expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");
-//  → Unable to find text content "My Title"  (the code is fine!)
+//  → Expected element to have text content: My Title / Received: (empty)  (the code is fine!)
 
 // ✓
 await userEvent.click(screen.getByTestId("form-submit-button"));
@@ -4114,7 +4131,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
                     <tr>
                       <td>Task 3「<strong>退出编辑模式</strong>」</td>
                       <td>提交后没检查表单和按钮状态</td>
-                      <td>更新完看按钮是否回到 Add、表单是否清空</td>
+                      <td>更新完看按钮是否回到 Add（表单总会被 NoteForm 清空，光看表单看不出来）</td>
                     </tr>
                   </tbody>
                 </table>
@@ -4165,7 +4182,7 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
                     <tr>
                       <td>Task 3, &ldquo;<strong>leave edit mode</strong>&rdquo;</td>
                       <td>Nothing checks the form or the button after the submit</td>
-                      <td>After an update, see whether the button is Add again and the form is empty</td>
+                      <td>After an update, see whether the button is Add again (NoteForm always clears the form, so the form alone tells you nothing)</td>
                     </tr>
                   </tbody>
                 </table>
@@ -4183,8 +4200,8 @@ expect(screen.getByTestId("notes-list")).toHaveTextContent("My Title");`,
               <p>
                 Time is tight in the exam, so plenty of people stop after step 1.{" "}
                 <strong>And all three of these are spelled out in the README</strong> —
-                the author did it on purpose: he wants to separate &ldquo;it runs&rdquo;
-                from &ldquo;you read it&rdquo;.
+                the author did this on purpose, to separate &ldquo;it runs&rdquo; from
+                &ldquo;you read it&rdquo;.
               </p>
             </>
           ),

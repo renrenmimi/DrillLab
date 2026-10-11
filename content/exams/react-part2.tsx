@@ -238,7 +238,7 @@ export const reactHooks: Module = {
           id: "missing-onchange",
           heading: "只写 value 不写 onChange 会怎样",
           headingEn: "What happens if you write value but no onChange",
-          lede: "输入框会变成只读的。这是个很容易踩的坑。",
+          lede: "输入框会变成只读的。这是一个很常见的错误。",
           ledeEn: "The input turns read-only. This mistake is very easy to make.",
           body: (
             <>
@@ -410,7 +410,7 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               <p>
                 读的时候留意四处：
                 <strong>两个 state</strong>（第 10–11 行）、
-                <strong>useEffect 同步</strong>（13–21 行，下一节细讲）、
+                <strong>useEffect 同步</strong>（13–21 行，再下一节 useEffect 细讲）、
                 <strong>派生数据 isFormInvalid</strong>（23 行）、
                 <strong>按钮文字随 noteToEdit 变</strong>（70 行）。
               </p>
@@ -421,8 +421,8 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
               <p>
                 Four spots to watch as you read:{" "}
                 <strong>the two pieces of state</strong> (lines 10–11),{" "}
-                <strong>the useEffect that syncs</strong> (lines 13–21, covered in the
-                next lesson),{" "}
+                <strong>the useEffect that syncs</strong> (lines 13–21, covered two
+                lessons on, in the useEffect lesson),{" "}
                 <strong>the derived isFormInvalid</strong> (line 23), and{" "}
                 <strong>the button text following noteToEdit</strong> (line 70).
               </p>
@@ -501,14 +501,15 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
                 <>
                   <code>content</code>。这条把「state → 界面」这半边接上了。
                   写成 <code>setContent</code> 是把函数塞进 value，
-                  React 会警告并显示一堆奇怪的东西。
+                  React 会警告 <code>Invalid value for prop value</code>，输入框显示为空。
                 </>
               ),
               whyEn: (
                 <>
                   <code>content</code>. This connects the &ldquo;state →
                   screen&rdquo; half. Writing <code>setContent</code> here puts a
-                  function into value; React warns and shows something strange.
+                  function into value; React warns{" "}
+                  <code>Invalid value for prop value</code> and the field shows nothing.
                 </>
               ),
               width: 9,
@@ -683,18 +684,19 @@ be mutable use \`defaultValue\`. Otherwise, set either \`onChange\` or \`readOnl
           why: (
             <>
               <code>e.target</code> 是那个 DOM 元素对象，不是字符串。
-              TypeScript 会报
-              <code>Argument of type &apos;EventTarget&apos; is not assignable to
-              parameter of type &apos;string&apos;</code>。
+              TypeScript 会报 TS2345：
+              <code>Argument of type &apos;EventTarget &amp; HTMLInputElement&apos; is not
+              assignable to parameter of type &apos;SetStateAction&lt;string&gt;&apos;</code>。
               这是好事 —— 在 JavaScript 项目里，这个错会一直藏到运行时。
             </>
           ),
           whyEn: (
             <>
               <code>e.target</code> is the DOM element object, not a string.
-              TypeScript reports
-              <code>Argument of type &apos;EventTarget&apos; is not assignable to
-              parameter of type &apos;string&apos;</code>. That is a good thing. In a
+              TypeScript reports TS2345:{" "}
+              <code>Argument of type &apos;EventTarget &amp; HTMLInputElement&apos; is not
+              assignable to parameter of type &apos;SetStateAction&lt;string&gt;&apos;</code>.
+              That is a good thing. In a
               plain JavaScript project this mistake stays hidden until the code runs.
             </>
           ),
@@ -821,7 +823,7 @@ onSubmit(newNote);
                 <strong>JSX 数组</strong>，React 会把它平铺渲染出来。
               </p>
               <p>
-                <strong>箭头函数的两种写法别搞混：</strong>
+                <strong>箭头函数的两种写法别混淆：</strong>
                 <code>(note) =&gt; (&lt;NoteItem ... /&gt;)</code> 用圆括号，
                 是「直接返回」；如果写成花括号
                 <code>(note) =&gt; {"{ <NoteItem /> }"}</code>，
@@ -962,8 +964,9 @@ for more information.`,
               </p>
               <p>
                 症状是「删了第二行，第三行的勾选状态跑到了第二行」这种，
-                极难查。所以规矩很简单：
-                <strong>有稳定 id 就用 id，永远别用 index。</strong>
+                极难查。所以规矩是：
+                <strong>有稳定 id 就用 id；只有列表永远不删除、不插入、不重排时，
+                index 才不会出问题</strong> —— 这道题有删除，所以不能用 index。
               </p>
             </>
           ),
@@ -989,8 +992,10 @@ for more information.`,
               <p>
                 The symptom reads like &ldquo;I deleted the second row and the third
                 row&rsquo;s checkbox jumped up into it&rdquo; — brutal to track down.
-                So the rule is short:{" "}
-                <strong>if there is a stable id, use the id. Never use index.</strong>
+                So the rule is:{" "}
+                <strong>use a stable id when there is one; the index is only safe when
+                the list never deletes, inserts or reorders</strong> — and this task
+                deletes, so the index is out.
               </p>
             </>
           ),
@@ -1165,14 +1170,14 @@ key = note.id:
               <br />
               A 用圆括号是隐式返回，C 用花括号加显式 return，两者等价。
               <br />
-              这是「箭头函数两种写法」最常见的翻车点：
+              这是「箭头函数两种写法」最常见的出错点：
               <strong>看到「列表空白但数据有值」，先去数括号。</strong>
             </>
           ),
           explainEn: (
             <>
               B uses a curly-brace function body with <strong>no return</strong>, so
-              every callback returns <code>undefined</code>. The map produces a row of
+              every callback returns <code>undefined</code>. The map produces a list of
               undefined values and React renders nothing —{" "}
               <strong>and reports no error</strong>.
               <br />
@@ -1215,14 +1220,14 @@ key = note.id:
       recap: [
         "map 把数据数组变成 JSX 数组，React 会平铺渲染。",
         "key 是给 React 认人用的，要求「本串唯一 + 跟着数据走」。",
-        "永远别用 index 当 key，更别用 Math.random()。",
+        "有删除或重排的列表别用 index 当 key，更别用 Math.random()。",
         "空数组 map 出空数组，不需要特殊处理 —— 也不要因此改动 testid 元素的结构。",
         "箭头函数用花括号就必须 return，否则渲染空白且不报错。",
       ],
       recapEn: [
         "map turns an array of data into an array of JSX, and React renders them one after another.",
         "key is how React identifies each item. It must be unique inside that list and must stay with the data.",
-        "Never use the index as key, and never use Math.random().",
+        "In a list that deletes or reorders, do not use the index as the key, and never use Math.random().",
         "An empty array maps to an empty array, so no special handling is needed. Do not change the structure of the elements that carry a data-testid because of it.",
         "An arrow function written with curly braces needs return, or the list renders empty and no error appears.",
       ],
@@ -1303,9 +1308,10 @@ key = note.id:
                 </table>
               </div>
               <p>
-                第三种是无限循环的常见来源：fn 里改了 state → 触发重渲染 →
-                fn 又执行 → 又改 state → …… React 最后会抛
+                第三种是无限循环的常见来源：fn 里把 state 改成一个新值 → 触发重渲染 →
+                fn 又执行 → 又改成一个新值 → …… React 最后会抛
                 <code>Maximum update depth exceeded</code>。
+                （如果 fn 每次设的是同一个值，React 会跳过这次更新，循环一轮就停。）
               </p>
             </>
           ),
@@ -1346,10 +1352,11 @@ key = note.id:
                 </table>
               </div>
               <p>
-                The third one is the usual source of infinite loops: fn changes state
-                → re-render → fn runs again → changes state again → ... and React
-                eventually throws{" "}
-                <code>Maximum update depth exceeded</code>.
+                The third one is the usual source of infinite loops: fn sets state to a
+                new value → re-render → fn runs again → sets yet another new value → ...
+                and React eventually throws{" "}
+                <code>Maximum update depth exceeded</code>. (If fn sets the same value
+                each time, React skips the update and the loop stops after one round.)
               </p>
             </>
           ),
@@ -1436,9 +1443,9 @@ key = note.id:
                 sourceFile: "react-notes-app/src/components/NoteForm/index.tsx",
                 highlight: [9],
                 explanation:
-                  "第 9 行那个 [noteToEdit] 是整段的开关。改成 [] 就只在首次渲染跑一次，点 Edit 永远不回填；去掉它就变成每次渲染都跑，直接死循环。",
+                  "第 9 行那个 [noteToEdit] 是整段的开关。改成 [] 就只在首次渲染跑一次，点 Edit 永远不回填；去掉它就变成每次渲染都跑 —— effect 会把你刚敲的字立刻改回去，输入框敲不进字（不会死循环，因为它每次设的是同一个值）。",
                 explanationEn:
-                  "The [noteToEdit] on line 9 is the switch for the whole block. Change it to [] and the effect runs only on the first render, so Edit never prefills. Remove it and the effect runs on every render, which is an endless loop.",
+                  "The [noteToEdit] on line 9 is the switch for the whole block. Change it to [] and the effect runs only on the first render, so Edit never prefills. Remove it and the effect runs after every render: it puts back whatever you just typed, so the inputs will not take any typing (it does not loop forever, because it sets the same value every time).",
               },
             ),
           ],
@@ -1461,18 +1468,20 @@ key = note.id:
                 </li>
                 <li>
                   <strong>什么都不写</strong> —— 每次渲染后都跑。
-                  effect 里调了 setTitle → 重渲染 → 又跑 → ……
-                  <strong>症状：Maximum update depth exceeded，页面卡死。</strong>
+                  effect 调 setTitle 把 title 改回 noteToEdit 决定的值（或 &quot;&quot;）→
+                  重渲染 → effect 又跑，但这回设的是同一个值，React 跳过更新，循环一轮就停。
+                  <strong>症状：输入框敲不进字 —— 每敲一个字，effect 又把内容改回去；
+                  控制台没有任何报错，4 个测试中 3 个失败。</strong>
                 </li>
                 <li>
                   <strong><code>[noteToEdit, title, content]</code></strong> ——
-                  把自己改的 state 也放进依赖。
-                  setTitle 改了 title → title 变了 → effect 又跑 →
-                  setTitle 又执行 → ……
-                  <strong>症状：同样死循环。</strong>
+                  把自己改的 state 也放进依赖。你一敲字，title 变了 →
+                  effect 又跑 → setTitle 把它改回去。
+                  <strong>症状：和上一种一样，输入框敲不进字，也没有报错。</strong>
                   <br />
                   这条特别值得记：<strong>effect 里改的 state，
-                  不要放进它自己的依赖数组。</strong>
+                  不要放进它自己的依赖数组</strong> —— 轻则把用户输入覆盖掉，
+                  重则（每次设的值都不同时）无限循环。
                 </li>
               </ol>
             </>
@@ -1492,18 +1501,26 @@ key = note.id:
                 </li>
                 <li>
                   <strong>Nothing at all</strong> — runs after every render.
-                  The effect calls setTitle → re-render → runs again → ...{" "}
-                  <strong>Symptom: Maximum update depth exceeded, and the page freezes.</strong>
+                  The effect calls setTitle and puts title back to the value set by
+                  noteToEdit (or &quot;&quot;) → re-render → the effect runs again, but
+                  this time it sets the same value, React skips the update, and the loop
+                  stops after one round.{" "}
+                  <strong>Symptom: you cannot type into the inputs — every keystroke is
+                  undone by the effect; the console shows no error, and 3 of the 4 tests
+                  fail.</strong>
                 </li>
                 <li>
                   <strong><code>[noteToEdit, title, content]</code></strong> —
-                  the state the effect itself writes is in its own dependencies.
-                  setTitle changes title → title changed → the effect runs again →
-                  setTitle again → ...{" "}
-                  <strong>Symptom: the same dead loop.</strong>
+                  the state the effect itself writes is in its own dependencies. As soon
+                  as you type, title changes → the effect runs again → setTitle puts it
+                  back.{" "}
+                  <strong>Symptom: the same as above — the inputs will not take any
+                  typing, and there is no error.</strong>
                   <br />
                   This one is worth committing to memory: <strong>state that an effect
-                  writes does not belong in that effect&rsquo;s dependency array.</strong>
+                  writes does not belong in that effect&rsquo;s dependency array</strong>{" "}
+                  — at best it overwrites what the user types, at worst (when the value
+                  differs every time) it loops forever.
                 </li>
               </ol>
             </>
@@ -1584,9 +1601,10 @@ key = note.id:
                   写 <code>[]</code> → 点 Edit 不回填（按钮文字倒是会变，
                   很误导）。
                   <br />
-                  不写 → 每次渲染都跑，死循环。
+                  不写 → 每次渲染都跑：你敲的字会被 effect 立刻改回去，输入框敲不进字
+                  （它每次设的是同一个值，所以不会死循环，也不报错）。
                   <br />
-                  写 <code>[noteToEdit, title, content]</code> → 也死循环，
+                  写 <code>[noteToEdit, title, content]</code> → 同样敲不进字，
                   因为 effect 自己改了 title 和 content。
                 </>
               ),
@@ -1597,10 +1615,12 @@ key = note.id:
                   Write <code>[]</code> → pressing Edit does not prefill (the button
                   text does change, which is misleading).
                   <br />
-                  Write nothing → the effect runs on every render: an endless loop.
+                  Write nothing → the effect runs after every render: whatever you type
+                  is put back at once, so the inputs will not take any typing (it sets the
+                  same value each time, so there is no loop and no error).
                   <br />
-                  Write <code>[noteToEdit, title, content]</code> → also an endless
-                  loop, because the effect itself changes title and content.
+                  Write <code>[noteToEdit, title, content]</code> → the same: no typing
+                  gets through, because the effect itself changes title and content.
                 </>
               ),
               width: 14,
@@ -1610,29 +1630,29 @@ key = note.id:
         {
           kind: "debug",
           id: "r-debug-effect-loop",
-          title: "Debug Lab · 点 Edit 之后页面卡死",
-          titleEn: "Debug Lab · the page freezes after you press Edit",
+          title: "Debug Lab · 输入框敲不进字",
+          titleEn: "Debug Lab · the inputs will not take any typing",
           level: 3,
           prompt: (
             <p>
-              点某一行的 Edit 按钮，浏览器标签页转圈，控制台刷出大量警告。
-              请判断类型并定位。
+              在 Title 输入框里打字，字符出现一瞬间又消失；点某一行的 Edit，
+              表单能回填，但同样改不动。控制台没有任何报错。请判断类型并定位。
             </p>
           ),
           promptEn: (
             <p>
-              Press the Edit button on any row. The browser tab spins and the console
-              fills up with warnings. Classify the error, then locate it.
+              Type into the Title input and each character appears for an instant,
+              then vanishes; press Edit on a row and the form fills in, but you cannot
+              change it either. The console shows no error at all. Classify the error,
+              then locate it.
             </p>
           ),
-          errorOutput: `Warning: Maximum update depth exceeded. This can happen when a component
-calls setState inside useEffect, but useEffect either doesn't have a dependency
-array, or one of the dependencies changes on every render.
-    at NoteForm (src/components/NoteForm/index.tsx:13:3)
-    at NoteManager (src/components/NoteManager/index.tsx:6:3)
-
-Uncaught Error: Too many re-renders. React limits the number of renders to
-prevent an infinite loop.`,
+          errorOutput: `# 没有任何报错。
+# 现象：在 Title 输入框里打字，字符出现一瞬间又消失；Add 按钮一直是灰的。
+# npx vitest run：3 failed / 1 passed（adds a note / deletes a note / edits a note in place 失败）`,
+          errorOutputEn: `# No error at all.
+# Symptom: type into the Title input and each character appears for an instant, then vanishes; the Add button stays grey.
+# npx vitest run: 3 failed / 1 passed (adds a note / deletes a note / edits a note in place fail)`,
           broken: demo(
             "tsx",
             `useEffect(() => {
@@ -1678,14 +1698,16 @@ prevent an infinite loop.`,
           rootCause: (
             <>
               <p>
-                循环是这样转起来的：effect 执行 → 调 <code>setTitle</code> →
-                <code>title</code> 变了 → 触发重渲染 →
-                React 发现依赖里的 <code>title</code> 变了 →
-                effect 又执行 → 又调 <code>setTitle</code> → ……
+                effect 执行 → 调 <code>setTitle</code> 把 <code>title</code> 改回
+                noteToEdit 的值（或 &quot;&quot;）。你一敲字，<code>title</code> 变了 →
+                React 发现依赖里的 <code>title</code> 变了 → effect 又执行 →
+                又把 <code>title</code> 改回去。改回去的是同一个值，React 跳过这次更新，
+                所以不会死循环，也没有任何报错；但你敲的每个字都被立刻覆盖了。
               </p>
               <p>
                 <strong>规则：effect 内部会修改的 state，
-                绝对不能出现在它自己的依赖数组里。</strong>
+                不能出现在它自己的依赖数组里</strong> —— 轻则像这里一样把用户输入覆盖掉，
+                重则（每次设的值都不同时）无限循环。
                 依赖里只应该放「触发这次同步的原因」——
                 这里就是 <code>noteToEdit</code>。
               </p>
@@ -1700,17 +1722,20 @@ prevent an infinite loop.`,
           rootCauseEn: (
             <>
               <p>
-                This is how the loop starts turning: the effect runs → it calls{" "}
-                <code>setTitle</code> → <code>title</code> changed → a re-render is
-                triggered → React sees that <code>title</code> in the dependency list
-                changed → the effect runs again → it calls <code>setTitle</code> again
-                → and so on.
+                The effect runs → <code>setTitle</code> puts <code>title</code> back to
+                the value from noteToEdit (or &quot;&quot;). The moment you type,{" "}
+                <code>title</code> changes → React sees that <code>title</code> in the
+                dependency list changed → the effect runs again → and puts{" "}
+                <code>title</code> back. It puts back the same value, so React skips the
+                update: there is no infinite loop and no error, but every character you
+                type is overwritten at once.
               </p>
               <p>
-                <strong>The rule: state that an effect changes must never appear in
-                that effect&rsquo;s own dependency array.</strong>{" "}
-                A dependency array should hold only the reason this sync happens —
-                here that is <code>noteToEdit</code>.
+                <strong>The rule: state that an effect changes must not appear in that
+                effect&rsquo;s own dependency array</strong> — at best it overwrites what
+                the user types, as here; at worst (when the value differs every time) it
+                loops forever. A dependency array should hold only the reason this sync
+                happens — here that is <code>noteToEdit</code>.
               </p>
               <p>
                 About option D: the two setters <code>setTitle</code> and{" "}
@@ -1821,6 +1846,12 @@ useEffect(() => {
           reachForEn: "Check the dependency array: it is missing, or it holds the state this effect changes",
         },
         {
+          signal: "输入框敲不进字，控制台却没有报错",
+          signalEn: "The inputs will not take any typing, yet the console shows no error",
+          reachFor: "查依赖数组是不是含了 effect 自己改的 state",
+          reachForEn: "Check whether the dependency array holds state the effect itself changes",
+        },
+        {
           signal: "「点了却没反应，但别的地方变了」",
           signalEn: "Clicking does nothing here, but something else did change",
           reachFor: "查依赖数组是不是写成了 []",
@@ -1832,14 +1863,14 @@ useEffect(() => {
         "[] 只跑一次；[a] 在 a 变化时跑；不写则每次渲染都跑（通常是错的）。",
         "NoteForm 那个 effect 的职责是「把外部的 noteToEdit 同步进内部两个 state」。",
         "else 分支负责在退出编辑时清空表单，不能省。",
-        "effect 里改的 state 不能放进它自己的依赖数组，否则死循环。",
+        "effect 里改的 state 不要放进它自己的依赖数组：轻则把用户输入覆盖掉，重则（每次设的值都不同时）无限循环。",
       ],
       recapEn: [
         "useEffect runs after the render is finished, and the dependency array decides whether it runs at all.",
         "[] runs once. [a] runs when a changes. No array at all runs after every render, which is usually wrong.",
         "The job of that effect in NoteForm is to copy the outside noteToEdit into its two inside state values.",
         "The else branch clears the form when editing ends. Do not leave it out.",
-        "State that the effect itself changes must not be in that effect's dependency array, or it loops forever.",
+        "Do not put the state an effect changes into its own dependency array: at best it overwrites what the user types, at worst (when the value differs every time) it loops forever.",
       ],
     },
 
@@ -1894,7 +1925,7 @@ useEffect(() => {
               </p>
               <p>
                 这种「从已有 state 直接算出来的值」叫
-                <strong>派生数据（derived state）</strong>。
+                <strong>派生数据（derived data）</strong>。
                 它自动就是最新的，因为每次渲染都重算。
               </p>
               <p>
@@ -1921,7 +1952,7 @@ useEffect(() => {
               </p>
               <p>
                 A value computed straight out of state you already have is called{" "}
-                <strong>derived state</strong>.
+                <strong>derived data</strong>.
                 It is always current, because every render recomputes it.
               </p>
               <p>
@@ -2129,8 +2160,8 @@ title        只有 NoteForm 用                 NoteForm（自己留着）
 content      只有 NoteForm 用                 NoteForm（自己留着）
 isFormInvalid 由 title/content 算出           不是 state，当场算`,
               {
-                filename: "四个值的归属",
-                filenameEn: "Where the four values belong",
+                filename: "五个值的归属",
+                filenameEn: "Where the five values belong",
                 codeEn: `who needs it                    →  where it should live
 ─────────────────────────────────────────────────
 notes        NoteTable reads + NoteForm changes  NoteManager (shared ancestor)
@@ -2242,7 +2273,7 @@ isFormInvalid computed from title/content        not state, computed inline`,
               <br />
               Then, inside <code>NoteManager</code>, compute{" "}
               <code>const visible = notes.filter(n =&gt; n.title.includes(keyword))</code>{" "}
-              as <strong>computed data</strong> and pass it to{" "}
+              as <strong>derived data</strong> and pass it to{" "}
               <code>NoteTable</code>. <strong>Do not</strong> open a second{" "}
               <code>filteredNotes</code> state for it.
               <br />
@@ -2324,12 +2355,12 @@ return (
             "Do not change any data-testid",
           ],
           checks: [
-            { label: "isFormInvalid 用了 trim()", labelEn: "isFormInvalid uses trim()", must: "isFormInvalid[^\\n]*trim\\s*\\(\\s*\\)" },
-            { label: "同时检查了 title 和 content", labelEn: "Both title and content are checked", must: "isFormInvalid[^\\n]*title[^\\n]*content" },
+            { label: "isFormInvalid 用了 trim()", labelEn: "isFormInvalid uses trim()", must: "isFormInvalid\\s*=[\\s\\S]{0,120}?trim\\s*\\(\\s*\\)" },
+            { label: "同时检查了 title 和 content", labelEn: "Both title and content are checked", must: "isFormInvalid\\s*=[\\s\\S]{0,160}?title[\\s\\S]{0,160}?content" },
             { label: "没有把 isFormInvalid 做成 state", labelEn: "isFormInvalid was not turned into state", mustNot: "useState[^\\n]*[Ii]nvalid" },
             { label: "按钮上有 disabled={isFormInvalid}", labelEn: "The button carries disabled={isFormInvalid}", must: "disabled\\s*=\\s*\\{\\s*isFormInvalid\\s*\\}" },
             { label: "按钮文字用了三元判断 noteToEdit", labelEn: "The button text uses a ternary on noteToEdit", must: "noteToEdit\\s*\\?" },
-            { label: "文字是 \"Update\" 和 \"Add\"（大小写正确）", labelEn: "The words are \"Update\" and \"Add\" with the right capitals", must: '"Update"[\\s\\S]*"Add"' },
+            { label: "文字是 \"Update\" 和 \"Add\"（大小写正确）", labelEn: "The words are \"Update\" and \"Add\" with the right capitals", must: '("Update"[\\s\\S]*"Add"|"Add"[\\s\\S]*"Update")' },
             { label: "data-testid 没被改动", labelEn: "No data-testid was changed", must: 'data-testid="form-submit-button"' },
           ],
           hints: [

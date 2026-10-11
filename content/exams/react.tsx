@@ -133,6 +133,65 @@ interface TicketFormProps {
 //          显示 subject 和 priority
 //          两个按钮，文字必须正好是 "Reassign" 和 "Close"`;
 
+const MOCK_STARTER_EN = `// src/types/Ticket.ts
+export type Priority = "low" | "medium" | "high";
+
+export type Ticket = {
+  id: number;
+  subject: string;
+  priority: Priority;
+};
+
+// ────────────────────────────────────────────────────
+// src/components/TicketBoard/index.tsx
+import { useState } from "react";
+import type { Priority, Ticket } from "../../types/Ticket";
+import TicketForm from "../TicketForm";
+import TicketList from "../TicketList";
+
+const TicketBoard: React.FC = () => {
+  // TODO 1: the tickets list
+  // TODO 2: the ticket being reassigned (null when there is none)
+  // TODO 3: the priority filter ("all" | Priority)
+
+  // TODO 4: handleSubmitTicket — create, or update in place
+  // TODO 5: handleClose — remove by id
+  // TODO 6: handleReassign — enter reassign mode
+
+  // TODO 7: visibleTickets — derived data, do not make it a state
+
+  return (
+    <div data-testid="ticket-board">
+      {/* the filter select: data-testid="filter-priority", options all / low / medium / high */}
+      {/* <TicketForm ... /> */}
+      {/* <TicketList tickets={visibleTickets} ... /> */}
+    </div>
+  );
+};
+
+export default TicketBoard;
+
+// ────────────────────────────────────────────────────
+// src/components/TicketForm/index.tsx
+interface TicketFormProps {
+  onSubmit: (ticket: Ticket) => void;
+  ticketToEdit: Ticket | null;
+}
+
+// TODO 8:  a controlled subject input (data-testid="ticket-subject")
+// TODO 9:  a controlled priority select (data-testid="ticket-priority", default medium)
+// TODO 10: the submit button (data-testid="ticket-submit")
+//          disabled when subject is empty (only spaces counts as empty)
+//          reads "Save" in reassign mode, otherwise "Create"
+// TODO 11: refill / clear when ticketToEdit changes
+// TODO 12: which id to use on submit
+
+// ────────────────────────────────────────────────────
+// src/components/TicketList/index.tsx
+// TODO 13: <ul data-testid="ticket-list">, one <li> per ticket
+//          show subject and priority
+//          two buttons whose text must be exactly "Reassign" and "Close"`;
+
 const ticketMock: MockExam = {
   id: "support-tickets",
   title: "模拟考 A · Support Ticket Board",
@@ -373,6 +432,7 @@ const ticketMock: MockExam = {
     tested("ts", MOCK_STARTER, {
       filename: "starter 代码骨架（13 个 TODO）",
       filenameEn: "The starter skeleton (13 TODOs)",
+      codeEn: MOCK_STARTER_EN,
       collapsible: true,
       explanation:
         "这是 DrillLab 自出的模拟题，不是源项目内容。把它拆成对应文件后自己实现。注意 data-testid 全部被测试依赖，不能改。",
@@ -383,7 +443,7 @@ const ticketMock: MockExam = {
   tests: [
     tested("tsx", MOCK_TEST_FILE, {
       filename: "src/TicketBoard.test.tsx（判卷器，五个测试）",
-      filenameEn: "src/TicketBoard.test.tsx (the marker, five tests)",
+      filenameEn: "src/TicketBoard.test.tsx (the grader, five tests)",
       collapsible: true,
       explanation:
         "第五个测试是真实 Q1 没有的 —— 它查筛选。注意 userEvent.selectOptions 用来操作 <select>，这是本模拟题新引入的 API。",
@@ -1089,7 +1149,11 @@ const TicketList: React.FC<TicketListProps> = ({
 };
 
 export default TicketList;`,
-      { filename: "src/components/TicketList/index.tsx（参考答案）", collapsible: true },
+      {
+        filename: "src/components/TicketList/index.tsx（参考答案）",
+        filenameEn: "src/components/TicketList/index.tsx (reference answer)",
+        collapsible: true,
+      },
     ),
   ],
 };
@@ -1126,62 +1190,86 @@ const reactExam: Exam = {
   checklist: [
     {
       task: "Q1 Task 1 · Add（提交表单，新笔记进入表格）",
+      taskEn: "Q1 Task 1 · Add (submit the form, the new note appears in the table)",
       covered: "完整讲解 + 填空 + L3 自写 + 从零重写",
+      coveredEn: "Full walkthrough + fill-in-the-blank + L3 write-a-block + rebuild from scratch",
       tested: true,
     },
     {
       task: "Q1 Task 2 · Delete（按 id 移除）",
+      taskEn: "Q1 Task 2 · Delete (remove by id)",
       covered: "完整讲解 + 填空 + L3 自写 + Debug Lab",
+      coveredEn: "Full walkthrough + fill-in-the-blank + L3 write-a-block + Debug Lab",
       tested: true,
     },
     {
       task: "Q1 Task 3 · Edit（回填 / 变 Update / 原位置更新 / 退出编辑）",
+      taskEn: "Q1 Task 3 · Edit (refill / switch to Update / update in place / leave edit mode)",
       covered: "完整讲解 + 数据流图 + 填空 + L3 自写 + Debug Lab",
+      coveredEn: "Full walkthrough + data-flow diagram + fill-in-the-blank + L3 write-a-block + Debug Lab",
       tested: true,
     },
     {
       task: "Q1 表单校验（空输入时按钮 disabled）",
+      taskEn: "Q1 form validation (the button is disabled while the inputs are empty)",
       covered: "派生数据那节 + L3 自写",
+      coveredEn: "The derived-data lesson + L3 write-a-block",
       tested: true,
     },
     {
       task: "Q1 约束 · 不得修改 data-testid",
+      taskEn: "Q1 constraint · do not change any data-testid",
       covered: "读题那节逐条列出 6 个 testid 及其用途 + Debug Lab",
+      coveredEn: "The reading lesson lists all 6 testids and what each is for + Debug Lab",
       tested: true,
     },
     {
       task: "Q2 · runTasks 并发上限调度器",
+      taskEn: "Q2 · runTasks, a task runner with a concurrency limit",
       covered: "读题 + worker pool 完整推导 + 填空 + L3 自写 + 从零重写",
+      coveredEn: "Reading the brief + the worker pool worked out in full + fill-in-the-blank + L3 write-a-block + rebuild from scratch",
       tested: false,
     },
     {
       task: "测试怎么跑（项目没有 test script）",
+      taskEn: "How to run the tests (the project has no test script)",
       covered: "Foundations 的 npm scripts 那节 + 本门读题那节",
+      coveredEn: "The npm scripts lesson in Foundations + the reading lesson in this course",
       tested: true,
     },
     {
       task: "npm run build 原生失败（10 个 tsc 错误）",
+      taskEn: "npm run build fails out of the box (10 tsc errors)",
       covered: "Foundations 读 tsc 报错那节，判定为脚手架缺陷",
+      coveredEn: "The Foundations lesson on reading tsc errors, which identifies it as a scaffold defect",
       tested: true,
     },
     {
       task: "useEffect 的清理函数（源项目没考，同类考试常考）",
+      taskEn: "The useEffect cleanup function (not in the source project, common in exams like this)",
       covered: "变式题「计时器」完整讲解 + 填空 + L3 自写 + Debug Lab（DrillLab 自出）",
+      coveredEn: "The timer variation: full walkthrough + fill-in-the-blank + L3 write-a-block + Debug Lab (written by DrillLab)",
       tested: true,
     },
     {
       task: "异步取数的 loading / error / 竞态（原始需求提到但源项目没有）",
+      taskEn: "Loading, errors and race conditions when fetching (named in the original requirements, absent from the source project)",
       covered: "变式题「fetch 取数」完整讲解 + 填空 + L3 自写 + Debug Lab（DrillLab 自出）",
+      coveredEn: "The fetch variation: full walkthrough + fill-in-the-blank + L3 write-a-block + Debug Lab (written by DrillLab)",
       tested: true,
     },
     {
       task: "递归组件与树形数据的不可变更新",
+      taskEn: "Recursive components and immutable updates to tree data",
       covered: "变式题「递归评论树」完整讲解 + 填空 + L3 自写 + Debug Lab（DrillLab 自出）",
+      coveredEn: "The comment-tree variation: full walkthrough + fill-in-the-blank + L3 write-a-block + Debug Lab (written by DrillLab)",
       tested: true,
     },
     {
       task: "Context：createContext / Provider / useContext 与 value 记忆化",
+      taskEn: "Context: createContext / Provider / useContext, and memoising the value",
       covered: "变式题「主题切换」完整讲解 + 填空 + L3 自写 + Debug Lab（DrillLab 自出）",
+      coveredEn: "The theme-switch variation: full walkthrough + fill-in-the-blank + L3 write-a-block + Debug Lab (written by DrillLab)",
       tested: true,
     },
   ],

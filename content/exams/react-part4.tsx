@@ -229,7 +229,7 @@ export const reactQ2: Module = {
                         结果数组的顺序必须和输入一致
                       </td>
                       <td>
-                        排除了 <code>Promise.all</code>（一个失败就整体炸）；
+                        排除了 <code>Promise.all</code>（一个失败就整体 reject）；
                         也排除了「谁先完成谁先 push」（顺序会乱）
                       </td>
                     </tr>
@@ -319,7 +319,7 @@ export const reactQ2: Module = {
           body: (
             <>
               <p>
-                <strong>Promise 一旦被创建，就已经在跑了，没有暂停键。</strong>
+                <strong>拿到 Promise 的时候，产生它的那项工作已经开始了，没法让它暂停。</strong>
               </p>
               <p>
                 所以如果签名是 <code>runTasks(promises: Promise&lt;T&gt;[], limit)</code>，
@@ -330,8 +330,8 @@ export const reactQ2: Module = {
               <p>
                 改成 <code>() =&gt; Promise&lt;T&gt;</code> 之后，
                 调用方交给你的是<strong>「怎么开始」的说明书</strong>，
-                而不是「已经开始的事」。什么时候撕开说明书、
-                撕几张，完全由你决定。<strong>这才有并发控制的余地。</strong>
+                而不是「已经开始的事」。什么时候按说明书开工、
+                同时开几份，完全由你决定。<strong>这才有并发控制的余地。</strong>
               </p>
               <p>
                 这个设计在真实世界里到处都是：批量上传文件时限制同时上传数、
@@ -344,8 +344,8 @@ export const reactQ2: Module = {
           bodyEn: (
             <>
               <p>
-                <strong>Once a Promise exists it is already running. There is no pause
-                button.</strong>
+                <strong>By the time you hold a Promise, the work that produced it has
+                already started, and you cannot pause it.</strong>
               </p>
               <p>
                 So if the signature were{" "}
@@ -360,8 +360,8 @@ export const reactQ2: Module = {
               <p>
                 Switch to <code>() =&gt; Promise&lt;T&gt;</code> and what the caller
                 hands you is <strong>instructions for how to start</strong>,
-                not a thing that already started. When you tear an instruction sheet off,
-                and how many you tear off, is entirely your call.{" "}
+                not a thing that already started. When to act on each set of
+                instructions, and how many to act on at once, is entirely up to you.{" "}
                 <strong>That is what leaves room for concurrency control.</strong>
               </p>
               <p>
@@ -544,7 +544,7 @@ for (const r of results) {
                 <li>
                   <strong>task 3 以 <code>rejected</code> 出现，
                   而且 4、5、6 照样跑完了。</strong>
-                  如果程序在 task 3 之后就崩了，说明没接住错误。
+                  如果程序在 task 3 之后就崩溃了，说明没接住错误。
                 </li>
               </ol>
             </>
@@ -619,8 +619,8 @@ runTasks(tasks, 2).then((results) => {
   results.forEach((r, i) => console.log(\`#\${i + 1}\`, r));
 });`,
               {
-                filename: "q2/demo.ts（全文）",
-                filenameEn: "q2/demo.ts (the whole file)",
+                filename: "q2/demo.ts（节选，省略开头注释与 import）",
+                filenameEn: "q2/demo.ts (excerpt; the opening comments and the import are left out)",
                 sourceFile: "react-notes-app/q2/demo.ts",
                 collapsible: true,
               },
@@ -799,10 +799,10 @@ runTasks(tasks, 2).then((results) => {
       concepts: [
         {
           id: "wrong-idea",
-          heading: "先排除一个直觉上的错解：分批",
+          heading: "先排除一个直觉上的低效解：分批",
           headingEn: "First rule out the answer that feels obvious: fixed batches",
-          lede: "「6 个任务、上限 2，那就切成 3 批」—— 这个想法能跑，但不对。",
-          ledeEn: "Six tasks, a limit of 2, so cut them into 3 batches. That idea runs, but it is wrong.",
+          lede: "「6 个任务、上限 2，那就切成 3 批」—— 这个想法能跑、也不违反题面，但浪费时间。",
+          ledeEn: "Six tasks, a limit of 2, so cut them into 3 batches. That idea runs and breaks no rule, but it wastes time.",
           body: (
             <>
               <p>
@@ -815,11 +815,11 @@ runTasks(tasks, 2).then((results) => {
                 才能开始下一批。用 demo 里的真实耗时算一下：
               </p>
               <p>
-                分批要 650ms，worker pool 只要 450ms。
-                更重要的是它违反了题目原文：
+                分批要 650ms，worker pool 只要 500ms。
+                题面只说 limit 是上限：
                 <em>A new task may only start after one of the running tasks
-                finishes</em> —— 「<strong>其中一个</strong>结束就能开下一个」，
-                不是「这一批都结束」。
+                finishes</em> 限制的是「不能提前开」，并没有要求「一结束就必须立刻补位」。
+                <strong>worker pool 能把上限用满，分批做不到</strong>。
               </p>
               <p>
                 所以要的不是分批，是<strong>「谁空了谁接着干」</strong>。
@@ -839,11 +839,12 @@ runTasks(tasks, 2).then((results) => {
                 real durations from the demo:
               </p>
               <p>
-                Batching needs 650ms; the worker pool needs only 450ms.
-                More importantly it breaks the wording of the brief:{" "}
+                Batching needs 650ms; the worker pool needs only 500ms. The brief only
+                sets limit as a ceiling:{" "}
                 <em>A new task may only start after one of the running tasks
-                finishes</em> — &ldquo;<strong>one of them</strong> finishing lets the
-                next one start&rdquo;, not &ldquo;the whole batch finishes&rdquo;.
+                finishes</em> forbids starting early; it does not demand that a slot be
+                refilled the instant it frees up.{" "}
+                <strong>A worker pool keeps that ceiling full; batching cannot.</strong>
               </p>
               <p>
                 So what you want is not batching, it is{" "}
@@ -868,8 +869,9 @@ runTasks(tasks, 2).then((results) => {
   t=300  1 完 → 立刻开 4         3 还在跑
   t=300  3 完 → 立刻开 5
   t=400  4 完 → 立刻开 6
-  t=450  5、6 陆续完
-  总计 ~450ms，槽位几乎没空过`,
+  t=450  5 完
+  t=500  6 完
+  总计 ~500ms，槽位几乎没空过`,
               {
                 filename: "两种思路的耗时对比",
                 filenameEn: "How long the two approaches take",
@@ -887,8 +889,9 @@ runTasks(tasks, 2).then((results) => {
   t=300  1 done → start 4 at once      3 still running
   t=300  3 done → start 5 at once
   t=400  4 done → start 6 at once
-  t=450  5 and 6 finish one after the other
-  ~450ms in total, and a slot is almost never idle`,
+  t=450  5 done
+  t=500  6 done
+  ~500ms in total, and a slot is almost never idle`,
               },
             ),
           ],
@@ -1570,25 +1573,25 @@ export async function runTasks<T>(
 }`,
           requirements: [
             "同一时刻最多 limit 个任务在运行",
-            "某个任务结束后，立刻启动下一个（不是等一批都结束）",
+            "某个任务结束后，立刻启动下一个（不是等一批都结束；本站要求，比原题更严）",
             "任何任务失败都不能让整体抛错",
             "返回数组的顺序必须与 tasks 一致",
             "成功写 { status: \"fulfilled\", value }，失败写 { status: \"rejected\", reason }",
           ],
           requirementsEn: [
             "At most limit tasks are running at the same time",
-            "As soon as one task finishes, start the next one (do not wait for a whole batch)",
+            "As soon as one task finishes, start the next one (do not wait for a whole batch; a DrillLab requirement, stricter than the original)",
             "No failing task may make the whole call throw",
             "The order of the returned array must match tasks",
             "On success write { status: \"fulfilled\", value }; on failure write { status: \"rejected\", reason }",
           ],
           checks: [
-            { label: "预分配了结果数组（new Array 或等价写法）", labelEn: "Allocates the result array up front (new Array or an equivalent)", must: "new Array\\s*\\(|results\\s*:\\s*SettledResult" },
-            { label: "有一个共享游标（let 声明的下标变量）", labelEn: "Has one shared cursor (an index variable declared with let)", must: "let\\s+\\w*[Ii]ndex" },
+            { label: "预分配了结果数组（new Array 或等价写法）", labelEn: "Allocates the result array up front (new Array or an equivalent)", must: "new Array\\s*\\(|Array\\.from\\s*\\(|\\w+\\s*:\\s*SettledResult" },
+            { label: "有一个共享游标（let 声明、从 0 开始的变量）", labelEn: "Has one shared cursor (a variable declared with let, starting at 0)", must: "let\\s+\\w+\\s*=\\s*0" },
             { label: "调用了任务函数（tasks[...] 后面有括号）", labelEn: "Calls the task function (parentheses after tasks[...])", must: "tasks\\s*\\[[^\\]]+\\]\\s*\\(" },
             { label: "用 try/catch 接住失败", labelEn: "Catches failures with try/catch", must: "try[\\s\\S]*catch" },
-            { label: "按下标写回结果，保证顺序", labelEn: "Writes results back by index, which keeps the order", must: "results\\s*\\[" },
-            { label: "没有用 push 收集结果（会打乱顺序）", labelEn: "Does not collect results with push (that loses the order)", mustNot: "results\\.push" },
+            { label: "按下标写回结果，保证顺序", labelEn: "Writes results back by index, which keeps the order", must: "\\w+\\s*\\[\\s*\\w+\\s*\\]\\s*=\\s*\\{\\s*status" },
+            { label: "没有用 push 收集结果（会打乱顺序）", labelEn: "Does not collect results with push (that loses the order)", mustNot: "\\.push\\s*\\(\\s*\\{\\s*status" },
             { label: "写了 fulfilled 状态", labelEn: "Writes the fulfilled status", must: '"fulfilled"' },
             { label: "写了 rejected 状态", labelEn: "Writes the rejected status", must: '"rejected"' },
             { label: "用 Promise.all 等所有 worker 收工", labelEn: "Waits for every worker with Promise.all", must: "Promise\\.all" },
@@ -1813,7 +1816,7 @@ const worker = async () => {
                 <strong>This bug reports nothing at all</strong>, and
                 TypeScript does not stop it either, because awaiting a
                 non-Promise is legal and only raises a lint note. How to
-                recognize it:{" "}
+                recognise it:{" "}
                 <strong>
                   a [Function] or a Promise object showing up in the results
                   means a pair of parentheses is missing, or one pair too many.
@@ -1936,7 +1939,8 @@ const worker = async () => {
             <>
               游标写在 worker 内部，每个 worker 就有<strong>自己的一份</strong>，
               于是每个 worker 都从 0 开始把所有任务做一遍 ——
-              limit=2 时每个任务被执行两次，并发数冲到 2 倍。
+              limit=2 时每个任务被执行两次：同时在跑的数量没有超标，但总工作量翻倍、
+              副作用（请求、写库）会发生两次，结果数组里每一格也被写了两遍。
               <br />
               <strong>游标必须在 worker 外面声明，
               靠闭包被所有 worker 共享。</strong>
@@ -1946,8 +1950,10 @@ const worker = async () => {
             <>
               With the cursor declared inside the worker, every worker gets{" "}
               <strong>its own copy</strong>, so every worker starts at 0 and runs all the
-              tasks. With limit=2 each task runs twice, and the number running at once is
-              double what it should be.
+              tasks. With limit=2 every task runs twice. The number running at once stays
+              within the limit, but the total work doubles, every side effect (a request,
+              a database write) happens twice, and each slot of the result array is
+              written twice.
               <br />
               <strong>
                 Declare the cursor outside the worker, so the closure shares one cursor
@@ -2054,9 +2060,9 @@ export const reactMastery: Module = {
                       <td>类型定义文件、props 接口</td>
                     </tr>
                     <tr>
-                      <td><strong>渲染循环</strong></td>
-                      <td>Maximum update depth exceeded、页面卡死</td>
-                      <td>useEffect 依赖数组、onClick 是否被立刻调用</td>
+                      <td><strong>渲染中改 state</strong></td>
+                      <td>Maximum update depth exceeded、Too many re-renders、Cannot update a component while rendering a different component</td>
+                      <td>useEffect 依赖数组；渲染期间调用了 setState（包括把 onClick 写成 fn()）</td>
                     </tr>
                     <tr>
                       <td><strong>状态更新</strong></td>
@@ -2103,9 +2109,9 @@ export const reactMastery: Module = {
                       <td>Type definition files, props interfaces</td>
                     </tr>
                     <tr>
-                      <td><strong>Render loop</strong></td>
-                      <td>Maximum update depth exceeded, the page freezes</td>
-                      <td>The useEffect dependency array, whether onClick is called immediately</td>
+                      <td><strong>State set during render</strong></td>
+                      <td>Maximum update depth exceeded, Too many re-renders, Cannot update a component while rendering a different component</td>
+                      <td>The useEffect dependency array; a setState called during render (including onClick written as fn())</td>
                     </tr>
                     <tr>
                       <td><strong>State update</strong></td>
@@ -2149,7 +2155,7 @@ export const reactMastery: Module = {
                       <td>改了原数组/对象（push、splice、直接赋值）</td>
                     </tr>
                     <tr>
-                      <td>组件完全不显示，控制台干净</td>
+                      <td>组件完全不显示，页面也不崩溃（开发模式下控制台有 is unrecognized in this browser 警告）</td>
                       <td>组件名小写开头，被当成 HTML 标签</td>
                     </tr>
                     <tr>
@@ -2185,7 +2191,7 @@ export const reactMastery: Module = {
                       <td>The original array or object was mutated (push, splice, direct assignment)</td>
                     </tr>
                     <tr>
-                      <td>The component does not show at all, console is clean</td>
+                      <td>The component does not show at all and the page does not crash (in development the console warns is unrecognized in this browser)</td>
                       <td>The component name starts lowercase, so it is treated as an HTML tag</td>
                     </tr>
                     <tr>
@@ -2271,19 +2277,29 @@ export const reactMastery: Module = {
           level: 2,
           prompt: (
             <p>
-              新建了组件之后启动开发服务器，Vite 直接报错，页面白屏。
+              新建了组件之后，本地一切正常；可代码推到 CI（Linux）上一跑，
+              Vite 直接报错，构建失败。
             </p>
           ),
           promptEn: (
             <p>
-              You add a new component, start the dev server, and Vite reports an
-              error right away. The page is blank.
+              You add a new component and everything works on your machine, but as
+              soon as the code runs on CI (Linux), Vite reports an error and the build
+              fails.
             </p>
           ),
-          errorOutput: `[plugin:vite:import-analysis] Failed to resolve import
+          errorOutput: `# CI（Linux）上的输出
+[plugin:vite:import-analysis] Failed to resolve import
   "./components/notemanager" from "src/App.tsx". Does the file exist?
 
-  /Users/me/react-notes-app/src/App.tsx:1:24
+  /home/runner/work/react-notes-app/react-notes-app/src/App.tsx:1:24
+  1  |  import NoteManager from "./components/notemanager";
+     |                          ^`,
+          errorOutputEn: `# Output on CI (Linux)
+[plugin:vite:import-analysis] Failed to resolve import
+  "./components/notemanager" from "src/App.tsx". Does the file exist?
+
+  /home/runner/work/react-notes-app/react-notes-app/src/App.tsx:1:24
   1  |  import NoteManager from "./components/notemanager";
      |                          ^`,
           broken: demo(
@@ -2330,11 +2346,11 @@ function App() {
                 目录的真实名字是 <code>NoteManager</code>（大写 N 和 M）。
               </p>
               <p>
-                <strong>这个 bug 在 macOS 上特别阴险</strong>：
+                <strong>这个 bug 在 macOS 上特别隐蔽</strong>：
                 macOS 默认文件系统<strong>不区分大小写</strong>，
-                所以有时候本地能跑；但 Vite 的模块解析、
-                以及 Linux 上的 CI，<strong>都是区分的</strong>。
-                于是出现「我这里好的，一提交就挂」。
+                Vite 在本机能照常解析，所以本地看不出问题；
+                一到<strong>大小写敏感</strong>的 Linux（CI、Docker、部署机）
+                就报 <code>Failed to resolve import</code> —— 本地正常，一提交就失败。
               </p>
               <p>
                 注意选项 C：这个项目走 Vite，
@@ -2356,10 +2372,11 @@ function App() {
                 <strong>This bug is especially easy to miss on macOS</strong>:
                 the default macOS file system{" "}
                 <strong>does not distinguish upper from lower case</strong>, so
-                sometimes it runs locally. But module resolution in Vite, and CI
-                on Linux, <strong>both do distinguish</strong>. That produces
-                the &ldquo;it works here, it fails as soon as I commit&rdquo;
-                situation.
+                Vite resolves the path fine on your machine and nothing looks wrong
+                locally. On a <strong>case-sensitive</strong> Linux file system (CI,
+                Docker, the deploy box) it fails with{" "}
+                <code>Failed to resolve import</code> — it works here, and fails as
+                soon as you commit.
               </p>
               <p>
                 Look at option C: this project uses Vite, so you{" "}
@@ -2405,7 +2422,7 @@ function App() {
 src/components/NoteTable/index.tsx(20,7): error TS2322: Type
   '{ key: number; note: Note; onRemove: (id: number) => void; onEdit: ... }'
   is not assignable to type 'IntrinsicAttributes & NoteItemProps'.
-  Property 'onDelete' is missing in type ... but required in type 'NoteItemProps'.`,
+  Property 'onRemove' does not exist on type 'IntrinsicAttributes & NoteItemProps'.`,
           errorOutputEn: `Uncaught TypeError: onDelete is not a function
     at onClick (NoteItem/index.tsx:18:29)
     at HTMLUnknownElement.callCallback
@@ -2414,7 +2431,7 @@ src/components/NoteTable/index.tsx(20,7): error TS2322: Type
 src/components/NoteTable/index.tsx(20,7): error TS2322: Type
   '{ key: number; note: Note; onRemove: (id: number) => void; onEdit: ... }'
   is not assignable to type 'IntrinsicAttributes & NoteItemProps'.
-  Property 'onDelete' is missing in type ... but required in type 'NoteItemProps'.`,
+  Property 'onRemove' does not exist on type 'IntrinsicAttributes & NoteItemProps'.`,
           broken: demo(
             "tsx",
             `// NoteTable 里传下去的名字：
@@ -2498,14 +2515,15 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
                 再看<strong>报错的顺序</strong>：
                 TypeScript 的 TS2322 在<strong>编译期</strong>就报了，
                 而 <code>onDelete is not a function</code> 是
-                <strong>运行时</strong>才炸。
+                <strong>运行时</strong>才报错。
                 <strong>先看编译期报错</strong> ——
                 它更准确地指出了「哪一行传错了」。
               </p>
               <p>
-                选项 D（把 <code>onDelete</code> 改成可选）是典型的
-                「让编译器闭嘴」式修法：类型错误消失了，
-                但运行时崩溃还在，而且更难查。
+                选项 D（把 <code>onDelete</code> 改成可选）并不能消除这条类型错误 ——
+                <code>onRemove</code> 仍是多余属性；即使再把 <code>onRemove</code>{" "}
+                也加进接口，运行时 <code>onDelete</code> 还是 undefined。
+                这样做是在与编译器对抗。
                 <strong>类型报错是在帮你，别绕过它。</strong>
               </p>
             </>
@@ -2531,9 +2549,10 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
                 more precisely at the line that passes the wrong name.
               </p>
               <p>
-                Option D, making <code>onDelete</code> optional, is the classic
-                fix that just silences the compiler: the type error disappears,
-                the runtime crash stays, and now it is harder to find.{" "}
+                Option D, making <code>onDelete</code> optional, does not silence
+                TypeScript: <code>onRemove</code> is still an unknown prop. Even if you
+                also add <code>onRemove</code> to the interface, <code>onDelete</code>{" "}
+                is still undefined at run time. That is fighting the compiler.{" "}
                 <strong>A type error is helping you. Do not go around it.</strong>
               </p>
             </>
@@ -2550,13 +2569,13 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onDelete, onEdit }) => {`,
           level: 2,
           prompt: (
             <p>
-              代码看起来完全正确，手动点也没问题，但两个测试挂了。
+              代码看起来完全正确，手动点也没问题，但三个测试失败了。
             </p>
           ),
           promptEn: (
             <p>
               The code looks entirely correct and clicking through it by hand
-              works, but two tests fail.
+              works, but three tests fail.
             </p>
           ),
           errorOutput: `FAIL  src/NoteManager.test.tsx > adds a note
@@ -2684,7 +2703,7 @@ Ignored nodes: comments, script, style
           errorOutput: `# 没有任何报错。
 # 复现：添加 "A"、"B" 两条 → 点 B 的 Edit → 改成 "B2" → 点 Update
 # 期望：列表变成 A、B2
-# 实际：列表还是 A、B
+# 实际：列表还是 A、B，按钮还停在 Update
 
 # 在 handleSubmitNote 里插了日志：
 console.log("submitted:", submittedNote);
@@ -2699,7 +2718,7 @@ console.log("after:", notes);
           errorOutputEn: `# No error at all.
 # Repro: add "A" and "B" → click Edit on B → change it to "B2" → click Update
 # Expected: the list becomes A, B2
-# Actual: the list is still A, B
+# Actual: the list is still A, B, and the button is still on Update
 
 # Logs added inside handleSubmitNote:
 console.log("submitted:", submittedNote);
@@ -2718,7 +2737,6 @@ console.log("after:", notes);
     const i = notes.findIndex((n) => n.id === submittedNote.id);
     notes[i] = submittedNote;
     setNotes(notes);
-    setNoteToEdit(null);
   } else {
     setNotes((prev) => [...prev, submittedNote]);
   }
@@ -2744,8 +2762,8 @@ console.log("after:", notes);
             options: [
               { id: "a", label: "第 4、5 行：notes[i] = ... 改了原数组，setNotes(notes) 传的还是同一个引用", labelEn: "Lines 4 and 5: notes[i] = ... changes the original array, and setNotes(notes) passes the same reference" },
               { id: "b", label: "第 3 行：findIndex 应该用 find", labelEn: "Line 3: findIndex should be find" },
-              { id: "c", label: "第 6 行：setNoteToEdit(null) 应该在 setNotes 之前", labelEn: "Line 6: setNoteToEdit(null) should come before setNotes" },
-              { id: "d", label: "第 8 行：新增分支写错了", labelEn: "Line 8: the add branch is written wrong" },
+              { id: "c", label: "漏了 setNoteToEdit(null)：在第 5 行后面补上就好", labelEn: "setNoteToEdit(null) is missing: adding it after line 5 is enough" },
+              { id: "d", label: "第 7 行：新增分支写错了", labelEn: "Line 7: the add branch is written wrong" },
             ],
             answer: "a",
           },
@@ -2796,6 +2814,12 @@ console.log("after:", notes);
                 在有多处引用同一份数据时会引发更难查的问题。
                 <strong>正解是从头到尾都不碰原数组。</strong>
               </p>
+              <p>
+                再说选项 C：补上 <code>setNoteToEdit(null)</code> 会多触发一次重渲染，
+                屏幕上居然就显示 B2 了 —— 但那只是碰巧掩盖：原数组已经被就地修改，
+                哪天只剩 <code>setNotes(notes)</code> 这一个更新，界面就又不动了。
+                退出编辑模式确实要补，但病灶在第 4、5 行。
+              </p>
             </>
           ),
           rootCauseEn: (
@@ -2813,7 +2837,7 @@ console.log("after:", notes);
                 changed, and skips the re-render.
               </p>
               <p>
-                <strong>This combination of symptoms is worth memorizing:</strong>{" "}
+                <strong>This combination of symptoms is worth memorising:</strong>{" "}
                 no error, plus correct data in the logs, plus a screen that does
                 not change, equals{" "}
                 <strong>the original object was changed</strong>. Go look for
@@ -2830,6 +2854,14 @@ console.log("after:", notes);
                   The right answer never touches the original array at all.
                 </strong>
               </p>
+              <p>
+                About option C: adding <code>setNoteToEdit(null)</code> triggers one more
+                re-render, and the screen then shows B2 — but that only hides the
+                problem by accident. The original array has been changed in place, and
+                the day <code>setNotes(notes)</code> is the only update, the screen stops
+                moving again. You do need to leave edit mode, but the cause is lines 4
+                and 5.
+              </p>
             </>
           ),
           verify: "npx vitest run   # 然后 npm run dev 手动加三条，编辑中间那条，确认位置不变",
@@ -2842,7 +2874,8 @@ console.log("after:", notes);
         { signal: "TS2322 Property 'x' is missing", reachFor: "props 名字两边对不上，改调用方", reachForEn: "The prop names do not match on the two sides; fix the caller" },
         { signal: "Unable to find an element by [data-testid=…]", reachFor: "在报错打印的 DOM 里搜相似 testid", reachForEn: "Search the DOM printed with the error for a similar data-testid" },
         { signal: "没报错 + 日志对 + 屏幕不动", signalEn: "No error, the logs look right, and the screen does not change", reachFor: "改了原对象：push / splice / arr[i]= / obj.x=", reachForEn: "You changed the original object: push / splice / arr[i]= / obj.x=" },
-        { signal: "Maximum update depth exceeded", reachFor: "useEffect 依赖，或 onClick 写成了 fn()", reachForEn: "Look at the useEffect dependencies, or an onClick written as fn()" },
+        { signal: "Maximum update depth exceeded / Too many re-renders", reachFor: "useEffect 依赖（每次设的值都不同），或在渲染期间改了自己的 state", reachForEn: "The useEffect dependencies (when the value differs every time), or a component setting its own state during render" },
+        { signal: "Cannot update a component while rendering a different component", reachFor: "渲染期间调用了别的组件的 setState，比如 onClick 写成了 fn()", reachForEn: "Another component's setState called during render, such as an onClick written as fn()" },
       ],
       recap: [
         "先分诊后动手：模块路径 / 类型 / 渲染循环 / 状态更新 / 测试查询。",
@@ -3397,7 +3430,7 @@ export default NoteForm;`,
           ),
           requirements: [
             "runTasks(tasks, limit) 接收一个「函数数组」，每个函数被调用后返回 Promise",
-            "同一时刻最多 limit 个任务在运行；某个结束后立刻启动下一个",
+            "同一时刻最多 limit 个任务在运行；某个结束后立刻启动下一个（本站要求，比原题更严）",
             "任何任务失败都不能让 runTasks 抛错",
             "返回数组顺序必须与 tasks 一致",
             "成功写 { status: \"fulfilled\", value }，失败写 { status: \"rejected\", reason }",
@@ -3405,7 +3438,7 @@ export default NoteForm;`,
           ],
           requirementsEn: [
             "runTasks(tasks, limit) takes an array of functions, and each function returns a Promise when it is called",
-            "At most limit tasks run at the same time; as soon as one finishes, start the next",
+            "At most limit tasks run at the same time; as soon as one finishes, start the next (a DrillLab requirement, stricter than the original)",
             "No failing task may make runTasks throw",
             "The order of the returned array must match tasks",
             "On success write { status: \"fulfilled\", value }; on failure write { status: \"rejected\", reason }",
