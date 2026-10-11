@@ -444,7 +444,7 @@ that may need attention.`,
               codeEn: STARTER_RESOLVERS_EN,
               sourceFile:
                 "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
-              highlight: [23, 36, 43, 51, 56, 71, 78],
+              highlight: [19, 33, 40, 47, 52, 67, 73],
               collapsible: true,
             }),
           ],
@@ -466,7 +466,7 @@ that may need attention.`,
               </p>
               <p>
                 这张表值得在开始写之前<strong>真的抄一遍</strong>。
-                审计发现 starter 代码里有两处名字是错的
+                starter 代码里有两处名字是错的
                 （<code>orderAPI</code>、<code>getOrderById</code>），
                 而它们都是「听起来非常合理」的名字 ——
                 靠直觉写就会中招，靠核对就不会。
@@ -485,8 +485,8 @@ that may need attention.`,
               </p>
               <p>
                 This table is worth <strong>actually copying out</strong> before
-                you write anything. The audit found two wrong names in the
-                starter code (<code>orderAPI</code> and{" "}
+                you write anything. The starter code contains two wrong names (
+                <code>orderAPI</code> and{" "}
                 <code>getOrderById</code>), and both of them sound entirely
                 reasonable — write on instinct and you walk right into them,
                 check the names and you never do.
@@ -531,7 +531,7 @@ that may need attention.`,
                 <code>npm install</code>。然后 <code>npm test</code>
                 （这个项目<strong>有</strong> test script，和 React 那个不同）。
               </p>
-              <p>审计实测结果：</p>
+              <p>编写本课时实测的结果：</p>
             </>
           ),
           bodyEn: (
@@ -543,7 +543,7 @@ that may need attention.`,
                 <code>npm test</code> (this project <strong>does</strong> have a
                 test script, unlike the React one).
               </p>
-              <p>What the audit actually measured:</p>
+              <p>What was measured when this lesson was written:</p>
             </>
           ),
           code: [
@@ -767,7 +767,7 @@ Tests:       6 failed, 4 passed, 10 total`,
                 判卷时这些文件很可能被替换回原版 ——
                 你改了 <code>orderDataSource.js</code> 加一个
                 <code>getOrderById</code> 方法，判卷时那个方法就消失了，
-                你的 loader 又挂了。
+                你的 loader 又会报错。
               </p>
               <p>
                 <strong>所以埋雷 1 的正确修法是改 loader 里的调用，
@@ -937,31 +937,30 @@ Tests:       6 failed, 4 passed, 10 total`,
           ),
           items: [
             { id: "e", label: "逐个实现四个 TODO", labelEn: "Implement the four TODOs one by one" },
-            { id: "b", label: "读 schema.graphql，记下四个返回类型的可空性", labelEn: "Read schema.graphql and note the nullability of the four return types" },
+            { id: "b", label: "读 schema.graphql、index.js 和 dataSources：记下四个返回类型的可空性，抄下 context 键名与方法名", labelEn: "Read schema.graphql, index.js and the dataSources: note the nullability of the four return types, and copy out the context keys and method names" },
             { id: "a", label: "npm install，然后 npm test 拿到 6 failed / 4 passed 的基线", labelEn: "npm install, then npm test to get the 6 failed / 4 passed baseline" },
             { id: "f", label: "npm test 转绿，再写个 verify 脚本查 _service 和 _entities", labelEn: "Once npm test is green, write a verify script that checks _service and _entities" },
-            { id: "c", label: "读 index.js 和 dataSources，抄下 context 键名与方法名", labelEn: "Read index.js and the dataSources, and copy out the context keys and method names" },
             { id: "d", label: "修三处埋雷", labelEn: "Fix the three planted bugs" },
           ],
-          answer: ["a", "b", "c", "d", "e", "f"],
+          answer: ["a", "b", "d", "e", "f"],
           explain: (
             <>
-              先装依赖跑基线 → 读 schema（知道要返回什么形状）→
-              读 index.js 和数据源（知道能调什么）→
+              先装依赖跑基线 → 读 schema、index.js 和数据源
+              （知道要返回什么形状、能调什么）→
               <strong>先修埋雷</strong>（否则你写对了 TODO，测试还是红的，
               会误以为自己写错了）→ 再写 TODO → 最后验证。
               <br />
               <strong>「先修埋雷」这个顺序很重要</strong> ——
-              埋雷 1 会让 DataLoader 测试挂，如果你先写
+              埋雷 1 会让 DataLoader 测试失败，如果你先写
               <code>Query.order</code>（它用 orderLoader），
-              会被埋雷的报错干扰，白花时间怀疑自己的代码。
+              会被埋雷的报错干扰，浪费时间怀疑自己的代码。
             </>
           ),
           explainEn: (
             <>
-              Install the dependencies and get a baseline → read the schema, so
-              you know what shape to return → read index.js and the data
-              sources, so you know what you can call →{" "}
+              Install the dependencies and get a baseline → read the schema,
+              index.js and the data sources, so you know what shape to return
+              and what you can call →{" "}
               <strong>fix the planted bugs first</strong> (otherwise you write
               the TODOs correctly and the tests are still red, and you conclude
               your own code is wrong) → write the TODOs → verify last.
@@ -983,11 +982,25 @@ Tests:       6 failed, 4 passed, 10 total`,
           body: (
             <p>
               这个参考项目是<strong>为练习专门搭的</strong>：结构、TODO、测试、
-              埋的坑都是照着「一个真实的 Federation 服务会长什么样」设计的，
+              埋雷都是照着「一个真实的 Federation 服务会长什么样」设计的，
               目的是让你在尽量接近真实工程的环境里练，而不是在玩具里练。
               <br />
               这不影响学习价值 —— 考点、埋雷类型、验收方式都是真实的。
               但如果你的真题里某个细节不一样，以真题为准。
+            </p>
+          ),
+          bodyEn: (
+            <p>
+              This reference project was <strong>built for practice</strong>:
+              its structure, TODOs, tests and planted bugs were all designed
+              after what a real Federation service looks like, so that you
+              practise in something close to real engineering rather than in a
+              toy.
+              <br />
+              That takes nothing away from what you learn — the tested points,
+              the kinds of planted bugs and the way the work is checked are all
+              real. But if a detail in your actual exam differs, go by the
+              actual exam.
             </p>
           ),
         },
@@ -1435,8 +1448,8 @@ try {
           id: "final",
           heading: "完整答案",
           headingEn: "The full answer",
-          lede: "审计时实测：这样写之后两个相关测试通过。",
-          ledeEn: "Measured during the audit: with this code the two related tests pass.",
+          lede: "编写本课时实测：这样写之后两个相关测试通过。",
+          ledeEn: "Measured when this lesson was written: with this code the two related tests pass.",
           body: (
             <>
               <p>
@@ -1519,7 +1532,7 @@ try {
               <p>
                 <strong>但单元测试绕过了 federation 链路。</strong>
                 想验证「Router 那条路也通」，用 <code>_entities</code> 查询 ——
-                审计时实测输出如下，两个订单都拿到了：
+                编写本课时实测的输出如下，两个订单都拿到了：
               </p>
             </>
           ),
@@ -1532,8 +1545,8 @@ try {
               <p>
                 <strong>But a unit test bypasses the federation path.</strong> To
                 check that the Router&rsquo;s route works as well, use an{" "}
-                <code>_entities</code> query — here is what the audit actually
-                measured, with both orders coming back:
+                <code>_entities</code> query — here is what was measured when
+                this lesson was written, with both orders coming back:
               </p>
             </>
           ),
@@ -1567,7 +1580,7 @@ try {
             ),
             real(
               "text",
-              `# 用 _entities 走一遍 federation 链路（审计实测输出）
+              `# 用 _entities 走一遍 federation 链路（编写本课时实测的输出）
 query($r:[_Any!]!){ _entities(representations:$r){ ... on User { id orders { id status } } } }
 variables: { "r": [{ "__typename": "User", "id": "123" }] }
 
@@ -1578,7 +1591,7 @@ variables: { "r": [{ "__typename": "User", "id": "123" }] }
               {
                 filename: "federation 链路验证",
                 filenameEn: "Checking the federation path",
-                codeEn: `# Walking the federation path with _entities (output measured in the audit)
+                codeEn: `# Walking the federation path with _entities (output measured when this lesson was written)
 query($r:[_Any!]!){ _entities(representations:$r){ ... on User { id orders { id status } } } }
 variables: { "r": [{ "__typename": "User", "id": "123" }] }
 
@@ -1904,9 +1917,9 @@ throw new GraphQLError('Failed to fetch orders for user', {
   }
 }`,
             {
-              filename: "参考答案（审计实测：相关测试通过）",
+              filename: "参考答案（编写本课时实测：相关测试通过）",
               filenameEn:
-                "Reference answer (measured in the audit: the related tests pass)",
+                "Reference answer (measured when this lesson was written: the related tests pass)",
               codeEn: `async orders(user, _, { dataSources, loaders, correlationId }) {
   try {
     console.log(\`[\${correlationId}] Resolving User.orders for userId: \${user.id}\`);
@@ -2056,9 +2069,9 @@ async orders(user, _, { dataSources }) {
         "Know why the tests do not catch a solution that skips the loader",
       ],
       whyForAssessment:
-        "TODO 原文点名了 DataLoader。这是全项目唯一明确指定实现手段的一处 —— 说明出题人就是要看你会不会用它。",
+        "TODO 原文点名了 DataLoader，还写明了目的：prevent N+1 queries。四个 TODO 里点名 DataLoader 的只有这里和 Query.order，写明「防 N+1」的只有这一处 —— 说明出题人就是要看你会不会用它。",
       whyForAssessmentEn:
-        "The TODO names DataLoader directly. It is the only place in the project that says how to implement something, which means the exam wants to see whether you can use it.",
+        "The TODO names DataLoader and states the purpose: prevent N+1 queries. Only this TODO and the one on Query.order name DataLoader, and only this one says it is there to stop N+1, which means the exam wants to see whether you can use it.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js",
@@ -2080,8 +2093,8 @@ async orders(user, _, { dataSources }) {
               </p>
               <p>
                 <strong>「using DataLoader」是硬性指定。</strong>
-                四个 TODO 里只有这一个规定了实现手段 ——
-                别的都只说「实现 + 错误处理」。
+                四个 TODO 里有两个点名了 DataLoader（这里和 Query.order），
+                而这一个还写明了目的：prevent N+1 queries。
                 这说明 N+1 就是这一问的全部考点。
               </p>
               <p>
@@ -2100,10 +2113,10 @@ async orders(user, _, { dataSources }) {
               </p>
               <p>
                 <strong>&ldquo;using DataLoader&rdquo; is a hard
-                requirement.</strong> Of the four TODOs this is the only one that
-                dictates how to implement it — the others just say
-                &ldquo;implement it, handle errors&rdquo;. Which tells you N+1 is
-                the whole point of this question.
+                requirement.</strong> Two of the four TODOs name DataLoader (this
+                one and Query.order), and this one also states the purpose:
+                prevent N+1 queries. Which tells you N+1 is the whole point of
+                this question.
               </p>
               <p>
                 From the schema: <code>shippingInfo: ShippingInfo</code>,{" "}
@@ -2264,8 +2277,8 @@ it('should return null for order without shipping info', async () => {
         },
         {
           id: "null-not-undefined",
-          heading: "为什么必须显式 ?? null",
-          headingEn: "Why you must write ?? null explicitly",
+          heading: "为什么还要显式写 ?? null",
+          headingEn: "Why write ?? null explicitly anyway",
           lede: "第二个测试用的是 toBeNull()，不是 toBeUndefined()。",
           ledeEn: "The second test uses toBeNull(), not toBeUndefined().",
           body: (
@@ -2284,7 +2297,7 @@ it('should return null for order without shipping info', async () => {
                 <li>
                   测试断言的是 <code>toBeNull()</code>。
                   <strong><code>undefined</code> 不等于 <code>null</code></strong>，
-                  这条断言会失败。
+                  一旦有 undefined 漏出去，这条断言就会失败。
                 </li>
                 <li>
                   DataLoader 的 batch 函数如果返回的数组某个位置是
@@ -2317,7 +2330,7 @@ it('should return null for order without shipping info', async () => {
                 <li>
                   The test asserts <code>toBeNull()</code>.{" "}
                   <strong><code>undefined</code> is not <code>null</code></strong>,
-                  so that assertion would fail.
+                  so the moment an undefined slips through, that assertion fails.
                 </li>
                 <li>
                   If a DataLoader batch function ever returns{" "}
@@ -2464,7 +2477,7 @@ it('should return null for order without shipping info', async () => {
 [corr-...] Query.orders userId: 123
 [DataLoader] Batching 2 shipping info requests
 
-# 审计实测的返回（参考解法下）
+# 编写本课时实测的返回（参考解法下）
 {"orders":[
   {"id":"order-456","status":"SHIPPED",
    "shippingInfo":{"status":"IN_TRANSIT","trackingNumber":"TRACK123456"}},
@@ -2477,7 +2490,7 @@ it('should return null for order without shipping info', async () => {
 [corr-...] Query.orders userId: 123
 [DataLoader] Batching 2 shipping info requests
 
-# The response measured in the audit (with the reference answer)
+# The response measured when this lesson was written (with the reference answer)
 {"orders":[
   {"id":"order-456","status":"SHIPPED",
    "shippingInfo":{"status":"IN_TRANSIT","trackingNumber":"TRACK123456"}},
@@ -2603,9 +2616,10 @@ it('should return null for order without shipping info', async () => {
                   <br />
                   ② 测试用的是 <code>expect(shippingInfo).toBeNull()</code> ——
                   <strong><code>undefined</code> 不等于 <code>null</code></strong>，
-                  这条断言会失败。所以必须显式兜成 null。
+                  这里填 undefined，断言就会失败。本项目的数据源找不到时已经返回 null，
+                  <code>?? null</code> 是防御性写法，防的是以后数据源改成返回 undefined。
                   <br />
-                  写成 <code>[]</code> 或 <code>{"{}"}</code> 都会让测试挂。
+                  写成 <code>[]</code> 或 <code>{"{}"}</code> 都会让测试失败。
                 </>
               ),
               whyEn: (
@@ -2619,8 +2633,10 @@ it('should return null for order without shipping info', async () => {
                   <strong>
                     <code>undefined</code> is not <code>null</code>
                   </strong>
-                  , and that assertion would fail. So fall back to null
-                  explicitly.
+                  , so filling in undefined here fails that assertion. This
+                  project&rsquo;s data source already returns null on a miss;{" "}
+                  <code>?? null</code> is a defensive habit in case a data source
+                  ever returns undefined instead.
                   <br />
                   <code>[]</code> or <code>{"{}"}</code> both break the test.
                 </>
@@ -2773,17 +2789,17 @@ async shippingInfo(parent, _, { loaders }) {
         { signal: "想确认 DataLoader 生效", signalEn: "You want to confirm DataLoader is working", reachFor: "数日志里 Batching 的行数和 N", reachForEn: "Count the Batching lines in the log against N" },
       ],
       recap: [
-        "TODO 点名了 DataLoader —— 这是四个 TODO 里唯一指定实现手段的，考点就在这。",
+        "TODO 点名了 DataLoader，还写明了目的是防 N+1 —— 考点就在这。",
         "走 loaders.shippingInfoLoader.load(parent.id)，不是 dataSources.shippingDataSource。",
         "两种写法都能过测试，因为测试一次只调一个 order —— 抓不到合并与否。",
-        "可空字段要显式 ?? null，因为测试断言的是 toBeNull()，undefined 会挂。",
+        "可空字段顺手写 ?? null：测试断言的是 toBeNull()，一旦有 undefined 漏出去就会失败（本项目的数据源已经返回 null，这是防御性写法）。",
         "resolver 里别插多余的 await，会把 load() 推到不同 tick，合并失效。",
       ],
       recapEn: [
-        "The TODO names DataLoader. It is the only one of the four TODOs that says how to implement it, and that is the point being tested.",
+        "The TODO names DataLoader and says it is there to prevent N+1. That is the point being tested.",
         "Use loaders.shippingInfoLoader.load(parent.id), not dataSources.shippingDataSource.",
         "Both versions pass, because each test calls only one order, so the tests cannot tell whether the calls were merged.",
-        "A nullable field needs an explicit ?? null, because the test asserts toBeNull() and undefined fails it.",
+        "Give a nullable field an explicit ?? null: the test asserts toBeNull(), so an undefined slipping through fails it (this project's data source already returns null; the fallback is defensive).",
         "Do not add an extra await in the resolver. It pushes load() into a different tick and the merging stops working.",
       ],
     },
@@ -2893,7 +2909,7 @@ async shippingInfo(parent, _, { loaders }) {
                 「这个字段不用 loader」。<strong>参数签名本身就是提示。</strong>
               </p>
               <p>
-                <strong>为什么 orders 不用 loader?</strong>
+                <strong>为什么 orders 不用 loader？</strong>
                 因为 <code>orderLoader</code> 是按 <strong>order id</strong>
                 批量取单个订单的。而这里要的是「某个 user 的所有订单」——
                 key 不一样，用不上。想用 loader 就得再造一个
@@ -2992,7 +3008,7 @@ async shippingInfo(parent, _, { loaders }) {
           body: (
             <>
               <p>
-                <strong>为什么这里用 loader?</strong>
+                <strong>为什么这里用 loader？</strong>
                 这个字段本身只取一条，看起来不需要合并。
                 但 loader 的<strong>另一个作用是同请求内缓存</strong> ——
                 如果一次查询里多处引用同一个 order
@@ -3012,7 +3028,9 @@ async shippingInfo(parent, _, { loaders }) {
                 四个 code 里有一个（<code>INVENTORY_ERROR</code>）
                 在参考答案里没用到，
                 <code>ORDER_NOT_FOUND</code> 只有这里用。
-                <strong>准备好的常量就是在告诉你「这里该抛什么」。</strong>
+                <strong>准备好的常量往往是提示</strong>（本例 <code>ORDER_NOT_FOUND</code>
+                只为 Query.order 准备）；但也可能只是预留 ——
+                <code>INVENTORY_ERROR</code> 参考答案就没用，别为了用上它硬造场景。
               </p>
             </>
           ),
@@ -3039,8 +3057,11 @@ async shippingInfo(parent, _, { loaders }) {
                 read:</strong> one of its four codes
                 (<code>INVENTORY_ERROR</code>) is never used in the reference
                 answer, and <code>ORDER_NOT_FOUND</code> is used only here.{" "}
-                <strong>A constant somebody prepared for you is telling you what
-                to throw where.</strong>
+                <strong>A prepared constant is often a hint</strong> (
+                <code>ORDER_NOT_FOUND</code> exists only for Query.order), but it
+                can also be a spare — the reference answer never uses{" "}
+                <code>INVENTORY_ERROR</code>, so do not invent a case just to use
+                it.
               </p>
             </>
           ),
@@ -3161,12 +3182,12 @@ async shippingInfo(parent, _, { loaders }) {
                 <strong>加上那一行之后：</strong>
                 <code>ORDER_NOT_FOUND</code> 原样传出去，
                 客户端知道「这个 id 不存在，别重试了」；
-                而数据源真的挂了（比如网络超时）时，
+                而数据源真的出故障（比如网络超时）时，
                 才会得到 <code>SERVICE_ERROR</code>。
                 <strong>两种情况被正确区分了。</strong>
               </p>
               <p>
-                审计时用 <code>order(id: &quot;order-999&quot;)</code>
+                编写本课时用 <code>order(id: &quot;order-999&quot;)</code>
                 实测过，返回的 code 确实是 <code>ORDER_NOT_FOUND</code>。
               </p>
             </>
@@ -3197,7 +3218,7 @@ async shippingInfo(parent, _, { loaders }) {
                 <strong>The two cases are told apart correctly.</strong>
               </p>
               <p>
-                The audit measured this with{" "}
+                A run made when this lesson was written used{" "}
                 <code>order(id: &quot;order-999&quot;)</code>, and the code that
                 came back really was <code>ORDER_NOT_FOUND</code>.
               </p>
@@ -3430,6 +3451,37 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
     });
   }
 }`,
+          templateEn: `// schema: order(id: ID!): Order   (nullable)
+async order(_, { id }, { dataSources, loaders, correlationId }) {
+  try {
+    const order = await loaders.___1___.load(id);
+
+    if (!order) {
+      throw new GraphQLError(\`Order not found: \${id}\`, {
+        extensions: { code: ErrorCodes.___2___, correlationId }
+      });
+    }
+    return order;
+  } catch (error) {
+    if (error instanceof GraphQLError) throw error;
+    throw new GraphQLError('Failed to fetch order', {
+      extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId }
+    });
+  }
+}
+
+// schema: orders(userId: ID!): [Order!]!   (doubly non-null)
+async orders(_, { ___3___ }, { dataSources, correlationId }) {
+  try {
+    const orders = await dataSources.orderDataSource.getOrdersByUserId(userId);
+    return orders ?? ___4___;
+  } catch (error) {
+    if (error instanceof GraphQLError) throw error;
+    throw new GraphQLError('Failed to fetch orders', {
+      extensions: { code: ErrorCodes.SERVICE_ERROR, correlationId }
+    });
+  }
+}`,
           blanks: [
             {
               n: 1,
@@ -3469,8 +3521,9 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   <code>ErrorCodes</code> 表里准备好了它，而且
                   <strong>只有这一处会用到</strong>。
                   <br />
-                  <strong>给好的常量就是在提示你该抛什么。</strong>
-                  看到一个没用上的错误码，就该想「它是为哪个场景准备的」。
+                  <strong>给好的常量往往是在提示你该抛什么。</strong>
+                  看到一个没用上的错误码，先想「它是为哪个场景准备的」；
+                  找不到对应场景（比如 <code>INVENTORY_ERROR</code>），也可能只是预留。
                 </>
               ),
               whyEn: (
@@ -3480,11 +3533,12 @@ async orders(_, { ___3___ }, { dataSources, correlationId }) {
                   uses it</strong>.
                   <br />
                   <strong>
-                    A constant someone prepared for you is a hint about what to
-                    throw.
+                    A constant someone prepared for you is often a hint about what
+                    to throw.
                   </strong>{" "}
                   When you see an unused error code, ask which case it was
-                  prepared for.
+                  prepared for; if no case fits (<code>INVENTORY_ERROR</code>, for
+                  one), it may simply be a spare.
                 </>
               ),
               width: 18,
@@ -3778,9 +3832,9 @@ async orders(_, { userId }, { dataSources, correlationId }) {
   }
 }`,
             {
-              filename: "参考答案（审计实测：Query.orders 两条测试通过；Query.order 用 order-999 实测返回 ORDER_NOT_FOUND）",
+              filename: "参考答案（编写本课时实测：Query.orders 两条测试通过；Query.order 用 order-999 实测返回 ORDER_NOT_FOUND）",
               filenameEn:
-                "Reference answer (measured in the audit: both Query.orders tests pass, and Query.order returns ORDER_NOT_FOUND for order-999)",
+                "Reference answer (measured when this lesson was written: both Query.orders tests pass, and Query.order returns ORDER_NOT_FOUND for order-999)",
               collapsible: true,
             },
           ),
@@ -3847,11 +3901,11 @@ return order ?? null;`,
           why: (
             <>
               这<strong>不违反 schema</strong>（<code>order</code> 是可空的），
-              而且没有测试会挂。
+              而且没有测试会失败。
               <br />
               但 TODO 要求 <em>structured error handling</em>，
               而 <code>ErrorCodes.ORDER_NOT_FOUND</code> 明摆着是为这里准备的。
-              <strong>给好但没用上的常量，就是没做完的信号。</strong>
+              <strong>不用它，就没满足 TODO 要求的 structured error handling。</strong>
             </>
           ),
           whyEn: (
@@ -3862,7 +3916,7 @@ return order ?? null;`,
               But the TODO asks for <em>structured error handling</em>, and{" "}
               <code>ErrorCodes.ORDER_NOT_FOUND</code> is clearly there for this spot.{" "}
               <strong>
-                A constant that is given but never used means the work is not finished.
+                Leaving it out fails the TODO&rsquo;s structured error handling.
               </strong>
             </>
           ),
@@ -3870,7 +3924,7 @@ return order ?? null;`,
       ],
       transfer: [
         { signal: "参数签名里没有解构某个东西", signalEn: "The argument list does not destructure something", reachFor: "那是提示：这个字段不需要它", reachForEn: "That is a hint: this field does not need it" },
-        { signal: "starter 给了没用上的常量", signalEn: "The starter code defines a constant nothing uses", reachFor: "找它对应的场景，那里大概有个 TODO", reachForEn: "Find the case it belongs to; there is probably a TODO there" },
+        { signal: "starter 给了没用上的常量", signalEn: "The starter code defines a constant nothing uses", reachFor: "找它对应的场景，那里往往有个 TODO；找不到就可能只是预留，别硬造场景", reachForEn: "Find the case it belongs to; there is often a TODO there. If none fits, it may just be a spare, so do not invent a case for it" },
         { signal: "同一个 try 里既抛业务错又要接系统错", signalEn: "One try block both throws a business error and catches system errors", reachFor: "catch 第一行 instanceof 判断", reachForEn: "Put an instanceof check on the first line of catch" },
         { signal: "字段可空 vs 非空列表", signalEn: "A nullable field versus a non-null list", reachFor: "前者可以抛错/返 null，后者必须 ?? []", reachForEn: "The first may throw or return null; the second must use ?? []" },
         { signal: "某个 TODO 没有测试", signalEn: "A TODO has no test", reachFor: "照样实现 —— 人工 review 会看", reachForEn: "Implement it anyway; a person will read the code" },
@@ -3962,7 +4016,7 @@ return order ?? null;`,
               </p>
               <p>
                 更快的办法：<strong>先跑测试，看报错指向哪一行。</strong>
-                三处埋雷各自挂一个测试，报错信息都很直接。
+                三处埋雷各让一个测试失败：前两处的报错很直接，第三处只是错误码不对。
                 但你得能看懂报错说的是什么。
               </p>
             </>
@@ -3999,9 +4053,9 @@ return order ?? null;`,
               </p>
               <p>
                 The faster route: <strong>run the tests first and see which line
-                the errors point at.</strong> Each planted bug takes down one
-                test, and the messages are direct. But you have to be able to
-                read what they are saying.
+                the errors point at.</strong> Each planted bug fails one test.
+                The first two errors are direct; the third only shows the wrong
+                error code. But you have to be able to read what they are saying.
               </p>
             </>
           ),
@@ -4374,7 +4428,7 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
                 「给你参考」不等于「它是对的」——
                 这也是这个项目的一个小陷阱。
               </p>
-              <p>审计实测：这样改完之后 10 个测试全部通过。</p>
+              <p>编写本课时实测：这样改完之后 10 个测试全部通过。</p>
             </>
           ),
           bodyEn: (
@@ -4387,7 +4441,7 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
                 correct&rdquo; — another small trap in this project.
               </p>
               <p>
-                Measured in the audit: with these changes all ten tests pass.
+                Measured when this lesson was written: with these changes all ten tests pass.
               </p>
             </>
           ),
@@ -4517,9 +4571,9 @@ const order = await dataSources.orderDataSource.createOrder(userId, pricedItems)
 Test Suites: 1 passed, 1 total
 Tests:       10 passed, 10 total`,
               {
-                filename: "审计时的真实输出（参考解法）",
+                filename: "编写本课时的真实输出（参考解法）",
                 filenameEn:
-                  "The real output from the audit (with the reference answer)",
+                  "The real output measured when this lesson was written (with the reference answer)",
               },
             ),
           ],
@@ -4605,7 +4659,7 @@ Tests:       10 passed, 10 total`,
           level: 3,
           prompt: (
             <p>
-              <code>Mutation.createOrder</code> 的测试挂了。
+              <code>Mutation.createOrder</code> 的测试失败了。
               报错说在读一个 undefined 的属性。自己分诊。
             </p>
           ),
@@ -4697,8 +4751,8 @@ const pricedItems = await Promise.all(
 // 键名 orderDataSource，签名 (userId, items) 两个位置参数
 const order = await dataSources.orderDataSource.createOrder(userId, pricedItems);`,
             {
-              filename: "改对之后（审计实测通过）",
-              filenameEn: "After the fix (measured to pass in the audit)",
+              filename: "改对之后（编写本课时实测通过）",
+              filenameEn: "After the fix (measured to pass when this lesson was written)",
               codeEn: `// Fetch price first: OrderItemInput has no price, but the data source needs it
 const pricedItems = await Promise.all(
   items.map(async item => ({

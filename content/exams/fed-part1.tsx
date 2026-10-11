@@ -488,7 +488,7 @@ export const gqlBasics: Module = {
         "Know what it means that the client decides the shape of the response",
       ],
       whyForAssessment:
-        "这份 schema 决定了你的 resolver 必须返回什么形状。审计发现有两处细节（双重非空、input 里没有 price）直接决定实现对错 —— 不读 schema 就写 resolver，必错。",
+        "这份 schema 决定了你的 resolver 必须返回什么形状。其中有两处细节（双重非空、input 里没有 price）直接决定实现对错 —— 不读 schema 就写 resolver，必错。",
       whyForAssessmentEn:
         "The schema decides what shape each resolver must return. Two details in it (a doubly non-null type, and an input with no price field) decide whether your code is right or wrong. If you write resolvers without reading the schema, you will get them wrong.",
       sourceFiles: [
@@ -519,10 +519,12 @@ export const gqlBasics: Module = {
                 resolver 负责真的去物流服务把它取回来。
               </p>
               <p>
-                两半必须对得上。<strong>schema 里有的字段没有 resolver
-                → 返回 null；resolver 的名字和 schema 里的字段名不一致 →
+                两半必须对得上。schema 里有、但没写 resolver 的字段，交给
+                <strong>默认 resolver</strong>：它直接读上一层返回对象里同名的属性，
+                对象里也没有这个属性时才得到 null。
+                <strong>resolver 的名字和 schema 里的字段名不一致 →
                 这个 resolver 永远不会被调用，而且不报错。</strong>
-                后者是 GraphQL 最难查的一类 bug，后面 Debug Lab 会专门练。
+                这是 GraphQL 最难查的一类 bug，后面 Debug Lab 会专门练。
               </p>
             </>
           ),
@@ -543,12 +545,14 @@ export const gqlBasics: Module = {
                 it.
               </p>
               <p>
-                The two halves have to line up. <strong>A field that exists in
-                the schema with no resolver returns null; a resolver whose name
-                does not match the schema field name is never called at all —
-                and nothing complains.</strong> The second one is the hardest
-                class of GraphQL bug to track down, and a later Debug Lab drills
-                it.
+                The two halves have to line up. A schema field with no resolver
+                falls back to the <strong>default resolver</strong>, which reads
+                the property of the same name on the parent object; only when
+                that property is missing too does the field come back null.{" "}
+                <strong>A resolver whose name does not match the schema field
+                name is never called at all — and nothing complains.</strong>{" "}
+                That is the hardest class of GraphQL bug to track down, and a
+                later Debug Lab drills it.
               </p>
             </>
           ),
@@ -722,7 +726,7 @@ export const gqlBasics: Module = {
                 <code>input OrderItemInput</code> 是<strong>输入类型</strong>。
                 它和 <code>type</code> 的区别是：input 只能当参数用，
                 字段只能是标量、enum 或别的 input，不能有 resolver。
-                <strong>这个 input 后面会成为一个大坑</strong>，
+                <strong>这个 input 在后面会成为一个主要陷阱</strong>，
                 下一节专门讲。
               </p>
             </>
@@ -872,9 +876,9 @@ export const gqlBasics: Module = {
   }
 }`,
                 explanation:
-                  "第二个查询是审计时进程内真实执行过的，返回了 order-456（IN_TRANSIT / TRACK123456）和 order-457（DELIVERED / TRACK123457）。",
+                  "第二个查询在编写本课时于进程内真实执行过，返回了 order-456（IN_TRANSIT / TRACK123456）和 order-457（DELIVERED / TRACK123457）。",
                 explanationEn:
-                  "The second query really ran in-process during the audit. It returned order-456 (IN_TRANSIT / TRACK123456) and order-457 (DELIVERED / TRACK123457).",
+                  "The second query really ran in-process when this lesson was written. It returned order-456 (IN_TRANSIT / TRACK123456) and order-457 (DELIVERED / TRACK123457).",
               },
             ),
           ],
@@ -1019,7 +1023,7 @@ export const gqlBasics: Module = {
               <br />
               ② <strong>执行语义不同</strong>：Query 的多个顶层字段
               <strong>并行</strong>执行，Mutation 的<strong>串行</strong>执行。
-              写操作放 Query 里，同一个请求里的多个写会并发跑，可能互相踩。
+              写操作放 Query 里，同一个请求里的多个写会并发执行，可能互相干扰。
             </>
           ),
           explainEn: (
@@ -1138,7 +1142,7 @@ ___3___ OrderItemInput {
                   <br />
                   <strong>顺便记住这个 input 只有两个字段 ——
                   没有 <code>price</code>。</strong>
-                  这个细节后面会坑死很多人。
+                  这个细节在后面会让很多人出错。
                 </>
               ),
               whyEn: (
@@ -1174,7 +1178,7 @@ ___3___ OrderItemInput {
       ],
       recapEn: [
         "GraphQL = schema (what exists) + resolver (how to fetch it). The two halves must match.",
-        "Field types are scalar, object or enum. ID is serialized as a string, so do not treat it as a number.",
+        "Field types are scalar, object or enum. ID is serialised as a string, so do not treat it as a number.",
         "Query is the read entry point (its fields run in parallel). Mutation is the write entry point (its fields run one after another).",
         "An input can only be used as an argument and cannot have resolvers. In this project OrderItemInput has no price.",
         "The client decides the shape of the response, so resolvers are called only when needed. That is also where the N+1 problem comes from.",
@@ -1570,12 +1574,12 @@ ___3___ OrderItemInput {
               filenameEn: "src/index.js (full file)",
               sourceFile:
                 "graphql-federation-practice/node-subgraph/src/index.js",
-              highlight: [33, 40, 41, 42, 44, 45, 47, 48, 49, 50, 51],
+              highlight: [33, 34, 36, 37, 38, 40, 41, 43, 44, 45, 46, 47],
               collapsible: true,
             }),
             real(
               "js",
-              `// context 的确切结构（从 index.js 第 47–51 行读出来的）
+              `// context 的确切结构（从 index.js 第 43–47 行读出来的）
 {
   dataSources: {
     orderDataSource,       // getOrder(id) / getOrdersByUserId(userId) / createOrder(userId, items)
@@ -1591,7 +1595,7 @@ ___3___ OrderItemInput {
               {
                 filename: "抄在纸上的那张表",
                 filenameEn: "The table to copy onto paper",
-                codeEn: `// The exact shape of context (read off lines 47–51 of index.js)
+                codeEn: `// The exact shape of context (read off lines 43–47 of index.js)
 {
   dataSources: {
     orderDataSource,       // getOrder(id) / getOrdersByUserId(userId) / createOrder(userId, items)
@@ -1895,9 +1899,9 @@ ___3___ OrderItemInput {
         "Know how the error moves upward when a non-null field returns null",
       ],
       whyForAssessment:
-        "这一节讲的两处细节，是这门考试最典型的「不读 schema 就必错」的地方。审计时实测确认：createOrder 不补 price，测试直接失败。",
+        "这一节讲的两处细节，是这门考试最典型的「不读 schema 就必错」的地方。编写本课时实测确认：createOrder 不补 price，测试直接失败。",
       whyForAssessmentEn:
-        "The two details in this lesson are the clearest case of what you get wrong by not reading the schema. Measured during the audit: if createOrder does not fill in price, the test fails.",
+        "The two details in this lesson are the clearest case of what you get wrong by not reading the schema. Measured when this lesson was written: if createOrder does not fill in price, the test fails.",
       sourceFiles: [
         {
           path: "graphql-federation-practice/node-subgraph/src/schema.graphql",
@@ -2213,7 +2217,7 @@ type Order {
                 <strong>测试怎么抓这个的？</strong>
                 <code>expect(order.items[0].price).toBeDefined()</code> 和
                 <code>expect(order.totalAmount).toBeGreaterThan(0)</code>。
-                审计时实测：不补 price，这个测试失败。
+                编写本课时实测：不补 price，这个测试失败。
               </p>
             </>
           ),
@@ -2254,7 +2258,7 @@ type Order {
                 <strong>How does the test catch this?</strong>{" "}
                 <code>expect(order.items[0].price).toBeDefined()</code> and{" "}
                 <code>expect(order.totalAmount).toBeGreaterThan(0)</code>.
-                Measured during the audit: skip the price lookup and this test
+                Measured when this lesson was written: skip the price lookup and this test
                 fails.
               </p>
             </>
@@ -2474,8 +2478,8 @@ type Order {
         {
           kind: "fill-blank",
           id: "g-nullable-blanks",
-          title: "给四个 TODO 各自选对兜底策略",
-          titleEn: "Pick the right fallback for each of the four TODOs",
+          title: "给三个 resolver 各自选对兜底策略",
+          titleEn: "Pick the right fallback for each of the three resolvers",
           level: 2,
           prompt: (
             <p>
@@ -2507,6 +2511,28 @@ async shippingInfo(parent, _, { loaders }) {
 }
 
 // schema: order(id: ID!): Order   （可空，但题目要求找不到时抛结构化错误）
+async order(_, { id }, { loaders, correlationId }) {
+  const order = await loaders.orderLoader.load(id);
+  if (___3___) {
+    throw new GraphQLError(\`Order not found: \${id}\`, {
+      extensions: { code: ErrorCodes.ORDER_NOT_FOUND, correlationId }
+    });
+  }
+  return order;
+}`,
+          templateEn: `// schema: orders: [Order!]!
+async orders(user, _, { dataSources }) {
+  const orders = await dataSources.orderDataSource.getOrdersByUserId(user.id);
+  return orders ___1___ [];
+}
+
+// schema: shippingInfo: ShippingInfo   (nullable)
+async shippingInfo(parent, _, { loaders }) {
+  const info = await loaders.shippingInfoLoader.load(parent.id);
+  return info ?? ___2___;
+}
+
+// schema: order(id: ID!): Order   (nullable, but the task wants a structured error when nothing is found)
 async order(_, { id }, { loaders, correlationId }) {
   const order = await loaders.orderLoader.load(id);
   if (___3___) {
@@ -2564,8 +2590,9 @@ async order(_, { id }, { loaders, correlationId }) {
                   测试直接断言了这一点：
                   <code>should return null for order without shipping info</code>，
                   用 <code>expect(shippingInfo).toBeNull()</code>。
-                  <strong>注意是 toBeNull 而不是 toBeUndefined</strong> ——
-                  所以必须显式 <code>?? null</code>，不能让 undefined 漏出去。
+                  <strong>注意是 toBeNull 而不是 toBeUndefined</strong>。
+                  本项目的数据源找不到时已经返回 null，所以不写 <code>?? null</code> 这条测试也能过；
+                  写上它是防御性写法，防的是以后数据源改成返回 undefined。
                 </>
               ),
               whyEn: (
@@ -2578,9 +2605,11 @@ async order(_, { id }, { loaders, correlationId }) {
                   A test asserts exactly this:{" "}
                   <code>should return null for order without shipping info</code>
                   , using <code>expect(shippingInfo).toBeNull()</code>.{" "}
-                  <strong>Note it is toBeNull, not toBeUndefined</strong> — so
-                  you must write <code>?? null</code> explicitly and not let
-                  undefined through.
+                  <strong>Note it is toBeNull, not toBeUndefined</strong>. This
+                  project&rsquo;s data source already returns null on a miss, so
+                  the test passes even without <code>?? null</code>; writing it is
+                  a defensive habit in case a data source ever returns undefined
+                  instead.
                 </>
               ),
               width: 6,
@@ -2625,7 +2654,7 @@ async order(_, { id }, { loaders, correlationId }) {
       ],
       transfer: [
         { signal: "字段类型是 [T!]!", signalEn: "The field type is [T!]!", reachFor: "resolver 必须 ?? [] 兜底，绝不返回 null", reachForEn: "The resolver must fall back with ?? [] and never return null" },
-        { signal: "字段类型没有 !", signalEn: "The field type has no !", reachFor: "返回 null 是合法的，但要显式写 ?? null", reachForEn: "Returning null is allowed, but write ?? null explicitly" },
+        { signal: "字段类型没有 !", signalEn: "The field type has no !", reachFor: "返回 null 是合法的；顺手写上 ?? null，防数据源返回 undefined", reachForEn: "Returning null is allowed; add ?? null as a guard in case the data source returns undefined" },
         { signal: "input 里少了某个字段但下游需要它", signalEn: "An input is missing a field that later code needs", reachFor: "resolver 负责补齐，去对应数据源查", reachForEn: "The resolver fills it in by asking the right data source" },
         { signal: "整个 data 变成了 null", signalEn: "The whole data object came back null", reachFor: "某个非空字段返回了 null，往上冒泡了", reachForEn: "Some non-null field returned null and the error moved upward" },
       ],
@@ -2633,14 +2662,14 @@ async order(_, { id }, { loaders, correlationId }) {
         "GraphQL 默认可空，加上 ! 才不可空；列表和元素各有自己的可空性。",
         "[Order!]! 的 resolver 必须 ?? [] —— 「没有」的正确表达是空数组。",
         "非空字段返回 null 会向上冒泡，可能让整个 data 变成 null。",
-        "shippingInfo 可空，测试断言 toBeNull —— 所以要显式 ?? null，别让 undefined 漏出去。",
+        "shippingInfo 可空，测试断言 toBeNull；数据源已经返回 null，?? null 是防御性写法，防的是以后有 undefined 漏出去。",
         "OrderItemInput 没有 price，而数据源要用它算总价 → resolver 必须先查 getProductPrice。",
       ],
       recapEn: [
         "GraphQL fields are nullable by default; ! makes them non-null. The list and its elements each have their own nullability.",
         "A resolver for [Order!]! must use ?? []. Here an empty array is how you say there is nothing.",
         "When a non-null field returns null the error moves upward and can turn the whole data object into null.",
-        "shippingInfo is nullable and the test asserts toBeNull, so write ?? null explicitly and do not let undefined through.",
+        "shippingInfo is nullable and the test asserts toBeNull. The data source already returns null; ?? null is a defensive habit in case an undefined ever slips through.",
         "OrderItemInput has no price, but the data source needs it to compute the total, so the resolver must call getProductPrice first.",
       ],
     },
@@ -2678,16 +2707,16 @@ export const fedMentalModel: Module = {
         "Identify the subgraph this project refers to but does not contain",
       ],
       whyForAssessment:
-        "书面题 1 直接问「User subgraph 高延迟时如何影响依赖它的 subgraph」。答这道题的前提是理解 Router 的查询计划是串行的。",
+        "书面题 1 直接问「User subgraph 高延迟时如何影响依赖它的 subgraph」。答这道题的前提是理解 Router 的查询计划里，依赖上一步结果的那些步骤必须串行。",
       whyForAssessmentEn:
-        "Written question 1 asks directly how high latency in the User subgraph affects the subgraphs that depend on it. To answer it you need to know that the Router runs parts of its query plan one after another.",
+        "Written question 1 asks directly how high latency in the User subgraph affects the subgraphs that depend on it. To answer it you need to know that the steps of the Router's query plan that depend on an earlier result have to run one after another.",
       concepts: [
         {
           id: "the-pain",
           heading: "单体 GraphQL 的痛点",
           headingEn: "The problems with one single GraphQL service",
           lede: "不是技术问题，是组织问题。",
-          ledeEn: "This is not a technical problem. It is an organizational one.",
+          ledeEn: "This is not a technical problem. It is an organisational one.",
           body: (
             <>
               <p>
@@ -2705,7 +2734,7 @@ export const fedMentalModel: Module = {
                   任何一个团队的 bug 会拖垮所有查询。
                 </li>
                 <li>
-                  <strong>技术栈被绑死。</strong>
+                  <strong>技术栈被锁定。</strong>
                   订单团队想用 Java，账号团队想用 Node —— 单体做不到。
                 </li>
               </ul>
@@ -2820,25 +2849,43 @@ export const fedMentalModel: Module = {
           code: [
             demo(
               "text",
-              `Accounts 服务          Products 服务          Reviews 服务
+              `# Accounts 服务        # Products 服务        # Reviews 服务
 ─────────────          ─────────────          ─────────────
 type User {            type Product {         type Review {
   id                     id                     id
   name                   name                   body
-  email                  price                  author: User    ← 别人的类型
-}                      }                        product: Product ← 别人的类型
+  email                  price                  author: User      # 别人的类型
+}                      }                        product: Product  # 别人的类型
                                               }
 
-客户端看到的（supergraph）：
+# Reviews 服务还声明了两个只带 id 的「别人的类型」，reviews 是它贡献的字段：
+type User @key(fields: "id") { id reviews: [Review] }
+type Product @key(fields: "id") { id reviews: [Review] }
+
+# 客户端看到的（supergraph）：
 type User { id name email reviews: [Review] }
 type Product { id name price reviews: [Review] }
 type Review { id body author: User product: Product }`,
-              // No codeEn: this block is pure ASCII layout with no comments and no
-              // string literals, so a translated version fails the "code structure
-              // must match" check in audit:code. Only the title gets English.
               {
                 filename: "三个服务，一张图",
                 filenameEn: "Three services, one picture",
+                codeEn: `# Accounts service     # Products service     # Reviews service
+─────────────          ─────────────          ─────────────
+type User {            type Product {         type Review {
+  id                     id                     id
+  name                   name                   body
+  email                  price                  author: User      # a type owned elsewhere
+}                      }                        product: Product  # a type owned elsewhere
+                                              }
+
+# The Reviews service also declares the two types it does not own, with only an id; reviews is the field it adds:
+type User @key(fields: "id") { id reviews: [Review] }
+type Product @key(fields: "id") { id reviews: [Review] }
+
+# What the client sees (the supergraph):
+type User { id name email reviews: [Review] }
+type Product { id name price reviews: [Review] }
+type Review { id body author: User product: Product }`,
               },
             ),
             real(
@@ -2872,7 +2919,7 @@ type Review { id body author: User product: Product }`,
             <>
               <p>
                 客户端也可以先请求 Accounts 拿 user，再请求 Orders 拿订单，
-                自己拼起来。为什么要 Router?
+                自己拼起来。为什么要 Router？
               </p>
               <ul>
                 <li>
@@ -2949,7 +2996,7 @@ type Review { id body author: User product: Product }`,
           ledeEn: "This has to be said plainly, or you will spend time looking for files that do not exist.",
           body: (
             <>
-              <p>审计确认的事实：</p>
+              <p>编写本课时核对过的事实：</p>
               <div className="table-wrap">
                 <table className="table">
                   <thead>
@@ -3010,7 +3057,7 @@ type Review { id body author: User product: Product }`,
           ),
           bodyEn: (
             <>
-              <p>Facts confirmed by the audit:</p>
+              <p>Facts checked when this lesson was written:</p>
               <div className="table-wrap">
                 <table className="table">
                   <thead>
@@ -3109,7 +3156,7 @@ type Review { id body author: User product: Product }`,
           explainEn: (
             <>
               Federation is first of all a{" "}
-              <strong>technical answer to an organizational problem</strong>:
+              <strong>technical answer to an organisational problem</strong>:
               splitting up who owns which part of the schema.
               <br />
               A is the opposite of the truth — one extra Router hop and a query
@@ -3177,7 +3224,7 @@ type Review { id body author: User product: Product }`,
       ],
       transfer: [
         { signal: "「多团队共享一个 API」", signalEn: "Several teams share one API", reachFor: "Federation：各自 subgraph + Router 组合", reachForEn: "Federation: one subgraph per team, combined by a Router" },
-        { signal: "「我这个服务要引用别人的类型」", signalEn: "Your service needs to refer to a type owned by another service", reachFor: "声明一个只有 @key 字段的类型，标 @external", reachForEn: "Declare that type with only its @key field and mark the field @external" },
+        { signal: "「我这个服务要引用别人的类型」", signalEn: "Your service needs to refer to a type owned by another service", reachFor: "声明一个只有 @key 字段的类型；Federation 2 里 key 字段不必标 @external（本项目沿用了 @external 写法，考试里照项目写）", reachForEn: "Declare that type with only its @key field. In Federation 2 the key field does not need @external (this project keeps the @external style, so follow the project in the exam)" },
         { signal: "找不到某个「应该存在」的文件", signalEn: "You cannot find a file that seems like it should exist", reachFor: "先确认它是不是本来就不在仓库里", reachForEn: "First check whether it was ever in the repository" },
         { signal: "书面题问「某个 subgraph 慢了会怎样」", signalEn: "A written question asks what happens when one subgraph is slow", reachFor: "从「查询计划可能串行」入手", reachForEn: "Start from the fact that the query plan may run steps one after another" },
       ],
@@ -3189,7 +3236,7 @@ type Review { id body author: User product: Product }`,
         "本地验证 Federation 的两个办法：{ _service { sdl } } 和 _entities 查询。",
       ],
       recapEn: [
-        "Federation first solves an organizational problem about who owns which part of the schema, not a performance problem.",
+        "Federation first solves an organisational problem about who owns which part of the schema, not a performance problem.",
         "Each subgraph deploys on its own and can use a different language. The Router combines them into one supergraph.",
         "This repository contains only the Orders subgraph. The Accounts subgraph and the Router are not here.",
         "java-service is plain REST. It is not a subgraph, and no subgraph calls it.",
@@ -3410,8 +3457,8 @@ const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);`,
           id: "verify-locally",
           heading: "本地验证：两种办法",
           headingEn: "Checking it locally: two ways",
-          lede: "审计时端口 4000 被占，所以我用了第二种 —— 它其实更好用。",
-          ledeEn: "During the audit port 4000 was taken, so I used the second way. It turns out to be the more useful one.",
+          lede: "编写本课时端口 4000 被占用，所以本课用的是第二种 —— 它其实更好用。",
+          ledeEn: "When this lesson was written, port 4000 was taken, so the lesson uses the second way. It turns out to be the more useful one.",
           body: (
             <>
               <p>
@@ -3427,7 +3474,7 @@ const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);`,
                 可以在一个脚本里跑一串查询。</strong>
               </p>
               <p>
-                下面这个脚本是审计时我实际写的验证工具。
+                下面这个脚本是编写本课时实际用来验证的工具。
                 它把 federation 的关键路径全跑了一遍 ——
                 包括 <code>_entities</code>，也就是 Router 会发的那个请求。
                 <strong>做完 Task 1 之后强烈建议你也写一个类似的。</strong>
@@ -3449,8 +3496,9 @@ const schema = buildSubgraphSchema([{ typeDefs, resolvers }]);`,
                 whole series of queries from one script.</strong>
               </p>
               <p>
-                The script below is the verification tool I actually wrote during
-                the audit. It walks every important federation path — including{" "}
+                The script below is the verification tool actually used when this
+                lesson was written. It walks every important federation path —
+                including{" "}
                 <code>_entities</code>, the request the Router would send.{" "}
                 <strong>After you finish Task 1, write yourself something like
                 it.</strong>
@@ -3530,8 +3578,8 @@ const q2 = await run(
 );
 console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
               {
-                filename: "办法二（审计时实际用的脚本）",
-                filenameEn: "Way two (the script actually used in the audit)",
+                filename: "办法二：进程内验证脚本",
+                filenameEn: "Way two: an in-process check script",
                 codeEn: `// verify-schema.mjs — put it in node-subgraph/, run: node verify-schema.mjs
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { graphql } from 'graphql';
@@ -3576,37 +3624,27 @@ const q2 = await run(
 console.log('_entities:', JSON.stringify(q2.data), q2.errors ?? '');`,
                 collapsible: true,
                 explanation:
-                  "注意 _entities 的参数类型是 [_Any!]!，每个 representation 必须带 __typename 和 @key 声明的字段。这段脚本在审计时真实跑通了全部三项。",
+                  "注意 _entities 的参数类型是 [_Any!]!，每个 representation 必须带 __typename 和 @key 声明的字段。这段脚本在编写本课时真实跑通了全部三项。",
                 explanationEn:
-                  "Note the argument type of _entities is [_Any!]!, and every representation must carry __typename plus the fields named in @key. This script really ran all three checks during the audit.",
+                  "Note the argument type of _entities is [_Any!]!, and every representation must carry __typename plus the fields named in @key. This script really ran all three checks when this lesson was written.",
               },
             ),
-            real(
+            demo(
               "text",
               `$ node verify-schema.mjs
-
-== SDL emitted: true | errors: 0
-== SDL has @key: true
-== Query.orders + Order.shippingInfo: {"orders":[
-     {"id":"order-456","status":"SHIPPED","totalAmount":299.99,
-      "shippingInfo":{"status":"IN_TRANSIT","trackingNumber":"TRACK123456"}},
-     {"id":"order-457","status":"DELIVERED","totalAmount":89.99,
-      "shippingInfo":{"status":"DELIVERED","trackingNumber":"TRACK123457"}}]} | errors: []
-== Query.order not found code: [ 'ORDER_NOT_FOUND' ]
-== _entities User.orders: {"_entities":[{"id":"123","orders":[
-     {"id":"order-456","status":"SHIPPED"},{"id":"order-457","status":"DELIVERED"}]}]} | errors: []
-== Mutation.createOrder: {"createOrder":{"id":"order-1785737900978","userId":"789",
-     "status":"PENDING","totalAmount":299.98,
-     "items":[{"productId":"prod-789","quantity":2,"price":149.99}]}} | errors: []
-== createOrder empty items code: [ 'INVALID_INPUT' ]`,
+SDL: true | errors: 0
+orders: {"orders":[
+     {"id":"order-456","status":"SHIPPED","shippingInfo":{"status":"IN_TRANSIT"}},
+     {"id":"order-457","status":"DELIVERED","shippingInfo":{"status":"DELIVERED"}}]}
+_entities: {"_entities":[{"id":"123","orders":[{"id":"order-456"},{"id":"order-457"}]}]}`,
               {
-                filename: "审计时的真实输出（参考解法下）",
+                filename: "这个脚本的输出（参考解法下；resolver 自己的日志从略）",
                 filenameEn:
-                  "The real output from the audit (with the reference answer)",
+                  "What this script prints (with the reference answer; the resolvers' own logs left out)",
                 explanation:
-                  "这是 DrillLab 用来确认参考答案正确的证据。做完 Task 1 之后，你的实现应该能得到同样的输出。",
+                  "三行结果依次对应脚本里的 ①②③。resolver 自己打印的日志（例如 [DataLoader] Batching 2 shipping info requests）会穿插在这三行之间，这里略去。做完 Task 1 之后，你的实现应该打印出同样的三行结果。完整的八项检查版本（它会先静音 resolver 日志）和编写本课时实测的输出，在「Debug Lab · Federation 十种典型故障」一课。",
                 explanationEn:
-                  "This is the evidence DrillLab used to confirm the reference answer is right. After you finish Task 1, your implementation should print the same thing.",
+                  "The three result lines match ①②③ in the script. The resolvers print their own log lines (such as [DataLoader] Batching 2 shipping info requests) in between; they are left out here. After you finish Task 1, your implementation should print the same three results. The full eight-check version, which mutes the resolver logs first, and the output measured when this lesson was written are in the Debug Lab lesson on ten common Federation failures.",
               },
             ),
           ],
@@ -3969,7 +4007,7 @@ type Order {                     # ← not an entity: no @key
                 <code>@external</code> 更多是 Federation 1 的遗留写法。
                 <strong>但这个项目就是这么写的，而且
                 <code>buildSubgraphSchema</code> 接受它</strong> ——
-                审计时实测 SDL 正常生成、<code>_entities</code> 查询正常工作。
+                编写本课时实测 SDL 正常生成、<code>_entities</code> 查询正常工作。
                 <strong>考试里照着项目已有的写法走，别自己改 schema 风格。</strong>
               </p>
             </>
@@ -3998,9 +4036,9 @@ type Order {                     # ← not an entity: no @key
                 <code>id: ID!</code>, with no <code>@external</code>.{" "}
                 <code>@external</code> is mostly a Federation 1 leftover.{" "}
                 <strong>But this project writes it that way, and{" "}
-                <code>buildSubgraphSchema</code> accepts it</strong> — the audit
-                confirmed the SDL is emitted fine and <code>_entities</code>{" "}
-                queries work. <strong>In the exam, follow the style already in
+                <code>buildSubgraphSchema</code> accepts it</strong> — a run made
+                when this lesson was written confirmed the SDL is emitted fine and{" "}
+                <code>_entities</code> queries work. <strong>In the exam, follow the style already in
                 the project; do not rewrite the schema to your own taste.</strong>
               </p>
             </>
@@ -4422,7 +4460,7 @@ type User ___1___(fields: "id") {
       ],
       transfer: [
         { signal: "看到 @key", signalEn: "You see @key", reachFor: "先问「别的服务用哪个字段找到这个对象」", reachForEn: "First ask which field another service uses to find this object" },
-        { signal: "「我要给别人的类型加字段」", signalEn: "You want to add a field to a type owned by another service", reachFor: "声明 @key + 把借来的字段标 @external", reachForEn: "Declare @key and mark the borrowed field @external" },
+        { signal: "「我要给别人的类型加字段」", signalEn: "You want to add a field to a type owned by another service", reachFor: "声明 @key；Federation 2 里 key 字段不必标 @external（本项目沿用了 @external 写法，考试里照项目写）", reachForEn: "Declare @key. In Federation 2 the key field does not need @external (this project keeps the @external style, so follow the project in the exam)" },
         { signal: "字段 resolver 拿不到某个属性", signalEn: "A field resolver cannot see a property it expected", reachFor: "看 __resolveReference 返回了什么", reachForEn: "Check what __resolveReference returned" },
         { signal: "想验证 entity 解析", signalEn: "You want to check entity resolution", reachFor: "查 _entities，representation 要带 __typename", reachForEn: "Query _entities; each representation must carry __typename" },
       ],
@@ -4674,14 +4712,14 @@ async shippingInfo(parent, _, { dataSources }) {
           id: "two-hard-rules",
           heading: "batch 函数的两条硬约束",
           headingEn: "The two hard rules for a batch function",
-          lede: "违反了会出现「A 拿到 B 的数据」这种最难查的 bug。",
-          ledeEn: "Break them and you get the hardest kind of bug to find: A receives B's data.",
+          lede: "长度错了整批报错；顺序错了会出现「A 拿到 B 的数据」这种最难查的 bug。",
+          ledeEn: "Get the length wrong and the whole batch fails; get the order wrong and you get the hardest kind of bug to find: A receives B's data.",
           body: (
             <>
               <ol>
                 <li>
                   <strong>返回数组的长度必须等于 keys 的长度。</strong>
-                  短了，多出来的 <code>load()</code> 会永远 pending 或报错。
+                  长度不等时 DataLoader 直接报错，这一批的 <code>load()</code> 全部失败。
                 </li>
                 <li>
                   <strong>返回数组的顺序必须与 keys 一一对应。</strong>
@@ -4716,8 +4754,8 @@ async shippingInfo(parent, _, { dataSources }) {
               <ol>
                 <li>
                   <strong>The returned array must be exactly as long as
-                  keys.</strong> Come up short and the extra <code>load()</code>{" "}
-                  calls hang forever or throw.
+                  keys.</strong> If the lengths differ, DataLoader throws and
+                  every <code>load()</code> in that batch fails.
                 </li>
                 <li>
                   <strong>The order of the returned array must match keys, one
@@ -4927,7 +4965,7 @@ export const resolvers = {
               <p>
                 所以这个 loader 一被使用就会抛
                 <code>TypeError: orderDataSource.getOrderById is not a function</code>。
-                审计实测：测试 <code>should batch multiple order requests</code>
+                编写本课时实测：测试 <code>should batch multiple order requests</code>
                 就是因为这个失败的。
               </p>
               <p>
@@ -4954,7 +4992,7 @@ export const resolvers = {
               <p>
                 So the moment this loader is used it throws{" "}
                 <code>TypeError: orderDataSource.getOrderById is not a function</code>
-                . Measured in the audit: the test{" "}
+                . Measured when this lesson was written: the test{" "}
                 <code>should batch multiple order requests</code> fails for
                 exactly this reason.
               </p>
@@ -5058,7 +5096,7 @@ export const resolvers = {
           prompt: (
             <p>
               batch 函数收到 <code>ids = [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;]</code>，
-              其中 b 在数据库里不存在。下面哪种返回是<strong>错的</strong>?
+              其中 b 在数据库里不存在。下面哪种返回是<strong>错的</strong>？
             </p>
           ),
           promptEn: (
@@ -5079,10 +5117,14 @@ export const resolvers = {
           explain: (
             <>
               B 违反了「长度必须等于 keys 长度」这条硬约束。
-              更糟的是<strong>顺序也错位了</strong> ——
-              DataLoader 会把 <code>rowC</code> 分发给 <code>b</code> 的
-              <code>load()</code>，于是「b 拿到了 c 的数据」。
-              <strong>这种 bug 不报错，只是数据串了，极难查。</strong>
+              DataLoader 分发结果之前会先检查长度，不相等就直接抛 TypeError
+              （<code>… the same length as the Array of keys</code>），
+              这一批三个 <code>load()</code> 全部失败。
+              <br />
+              更隐蔽的是<strong>长度对、顺序错</strong>：比如返回
+              <code>[rowA, rowC, null]</code>，DataLoader 会把 <code>rowC</code>
+              分发给 <code>b</code> 的 <code>load()</code>，于是「b 拿到了 c 的数据」。
+              <strong>那种 bug 不报错，只是数据串了，极难查。</strong>
               <br />
               A 和 C 都合法：<code>null</code> 表示「没有」，
               <code>Error</code> 对象会让那个 <code>load()</code> 的 Promise reject。
@@ -5093,9 +5135,15 @@ export const resolvers = {
           explainEn: (
             <>
               B breaks the hard rule that the length must equal the length of
-              keys. Worse, <strong>the order is now shifted</strong> —
+              keys. DataLoader checks the length before it hands anything out,
+              so it throws a TypeError (
+              <code>… the same length as the Array of keys</code>) and all
+              three <code>load()</code> calls in the batch fail.
+              <br />
+              The sneakier case is <strong>the right length in the wrong
+              order</strong>: return <code>[rowA, rowC, null]</code>, say, and
               DataLoader hands <code>rowC</code> to the <code>load()</code> that
-              asked for <code>b</code>, so b receives c&apos;s data.{" "}
+              asked for <code>b</code>, so b silently receives c&apos;s data.{" "}
               <strong>
                 That kind of bug raises no error; the data is just wrong, and it
                 is very hard to track down.
@@ -5142,6 +5190,20 @@ export const resolvers = {
 }
 
 // Order.shippingInfo —— 必须走 loader，否则 N+1 考点没答到
+async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
+  const shippingInfo = await loaders.___2___.load(parent.id);
+  return shippingInfo ?? null;
+}`,
+          templateEn: `function createOrderLoader(orderDataSource) {
+  return new DataLoader(async orderIds => {
+    const orders = await Promise.all(
+      orderIds.map(id => orderDataSource.___1___(id))
+    );
+    return orders;
+  });
+}
+
+// Order.shippingInfo — it must go through the loader, or you miss the N+1 point
 async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
   const shippingInfo = await loaders.___2___.load(parent.id);
   return shippingInfo ?? null;
@@ -5232,7 +5294,7 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
           level: 2,
           prompt: (
             <p>
-              跑 <code>npm test</code>，其中一个 DataLoader 相关的测试挂了。
+              跑 <code>npm test</code>，其中一个 DataLoader 相关的测试失败了。
               报错指向 loader 内部。
             </p>
           ),
@@ -5329,9 +5391,9 @@ async shippingInfo(parent, _, { dataSources, loaders, correlationId }) {
   });
 }`,
             {
-              filename: "改对之后（审计时实测这样改后 10/10 通过）",
+              filename: "改对之后（编写本课时实测：参考解法里这样写，10 个测试全部通过）",
               filenameEn:
-                "After the fix (measured in the audit: 10/10 tests pass)",
+                "After the fix (measured when this lesson was written: with this in the reference answer, all 10 tests pass)",
               codeEn: `function createOrderLoader(orderDataSource) {
   return new DataLoader(async orderIds => {
     console.log(\`[DataLoader] Batching \${orderIds.length} order requests\`);

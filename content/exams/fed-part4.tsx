@@ -490,9 +490,9 @@ export const fedMastery: Module = {
       id: "g-debug-lab",
       title: "Debug Lab · Federation 十种典型故障",
       titleEn: "Debug Lab · ten common Federation failures",
-      blurb: "从「resolver 写了但返回 null」到「composition 失败」，每一种都给真实报错。",
+      blurb: "从「resolver 写了但返回 null」到「composition 失败」，每一种都给出报错的样子和根因。",
       blurbEn:
-        "From a resolver that runs but returns null, to a composition failure. Every case comes with the real error text.",
+        "From a resolver that runs but returns null, to a composition failure. Each case comes with what the error looks like and its root cause.",
       minutes: 22,
       objectives: [
         "看到 GraphQL 报错能先归类，再决定去哪个文件找",
@@ -502,7 +502,7 @@ export const fedMastery: Module = {
       ],
       objectivesEn: [
         "Sort a GraphQL error into a category first, then decide which file to open",
-        "Recognize the hardest failure type: nothing is reported, but the field comes back null",
+        "Recognise the hardest failure type: nothing is reported, but the field comes back null",
         "Know the order in which to check a composition failure",
         "Build a reliable mapping from each error message to its root cause",
       ],
@@ -707,10 +707,13 @@ export const fedMastery: Module = {
               </ol>
               <p>
                 <strong>排查手法：</strong>
-                在 resolver 第一行放一个 <code>console.log</code>。
-                <strong>如果那行日志根本没打印</strong>，
+                在 resolver 第一行放一个探针
+                <code>console.error(&apos;&gt;&gt;&gt; shippingInfo called&apos;)</code>。
+                <strong>如果它根本没打印</strong>，
                 就是第 1 或第 2 种；打印了但结果是 null，
                 就是第 3 种或数据源真的没数据。
+                （用 console.error 而不是 console.log：本课后面的 verify-schema.mjs
+                在第 30 行把 console.log 静音了；npm test 下两种都会打印。）
               </p>
               <p>
                 这个手法很朴素，但它能在十秒内区分
@@ -744,11 +747,14 @@ export const fedMastery: Module = {
                 </li>
               </ol>
               <p>
-                <strong>How to find out which:</strong> drop a{" "}
-                <code>console.log</code> on the first line of the resolver.{" "}
-                <strong>If that line never prints</strong>, it is case 1 or 2. If
-                it prints but the result is null, it is case 3 — or the data
-                source genuinely has no data.
+                <strong>How to find out which:</strong> drop a probe,{" "}
+                <code>console.error(&apos;&gt;&gt;&gt; shippingInfo called&apos;)</code>,
+                on the first line of the resolver.{" "}
+                <strong>If it never prints</strong>, it is case 1 or 2. If it
+                prints but the result is null, it is case 3 — or the data source
+                genuinely has no data. (Use console.error rather than
+                console.log: the verify-schema.mjs script later in this lesson
+                mutes console.log on line 30; under npm test both print.)
               </p>
               <p>
                 It is a crude trick, but it tells you within ten seconds whether
@@ -778,7 +784,7 @@ export const fedMastery: Module = {
                   <thead>
                     <tr>
                       <th>原因</th>
-                      <th>报错长什么样</th>
+                      <th>报错的大意</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -831,7 +837,7 @@ export const fedMastery: Module = {
               <p>
                 <strong>本地能测出一半：</strong>
                 前四类里有三类会在 <code>buildSubgraphSchema</code>
-                这一步就炸（服务起不来），或者让
+                这一步就报错（服务起不来），或者让
                 <code>{"{ _service { sdl } }"}</code> 报错。
                 所以<strong>「服务能起来 + SDL 查得出来」
                 已经排除了大部分 composition 问题。</strong>
@@ -855,7 +861,7 @@ export const fedMastery: Module = {
                   <thead>
                     <tr>
                       <th>Cause</th>
-                      <th>What the error looks like</th>
+                      <th>Roughly what the error says</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -938,12 +944,12 @@ export const fedMastery: Module = {
             <>
               <p>
                 <code>npm test</code> 只覆盖了单元层面。
-                下面这个脚本（审计时实际用的）在<strong>进程内</strong>
+                下面这个脚本（编写本课时实际用的）在<strong>进程内</strong>
                 把 federation 的关键路径全走一遍，
                 不需要起服务器、不占端口：
               </p>
               <p>
-                <strong>期望输出</strong>（参考解法下审计实测）：
+                <strong>期望输出</strong>（参考解法下，编写本课时实测）：
               </p>
               <p>
                 八行输出对应八件事：SDL 出得来、@key 在里面、
@@ -958,13 +964,13 @@ export const fedMastery: Module = {
             <>
               <p>
                 <code>npm test</code> only covers the unit level. The script
-                below (the one actually used during the audit) walks every
+                below (the one actually used when this lesson was written) walks every
                 important federation path <strong>in-process</strong> — no server
                 to start, no port to occupy:
               </p>
               <p>
                 <strong>Expected output</strong> (measured against the reference
-                solution during the audit):
+                solution when this lesson was written):
               </p>
               <p>
                 Eight lines of output cover: the SDL comes out, @key is in it, a
@@ -999,8 +1005,8 @@ Mutation.createOrder: {"createOrder":{"id":"order-1785737900978","totalAmount":2
   "items":[{"productId":"prod-789","quantity":2,"price":149.99}]}} | errors: []
 createOrder empty items code: [ 'INVALID_INPUT' ]`,
               {
-                filename: "审计时的真实输出",
-                filenameEn: "The real output from the audit",
+                filename: "编写本课时的真实输出",
+                filenameEn: "The real output measured when this lesson was written",
               },
             ),
           ],
@@ -1017,7 +1023,7 @@ createOrder empty items code: [ 'INVALID_INPUT' ]`,
             <p>
               你确信写了 <code>shippingInfo</code> 的实现，
               测试也不报错，但查询返回的 <code>shippingInfo</code> 是
-              <code>null</code>。控制台里连你加的 log 都没打印。
+              <code>null</code>。控制台里连你加的 console.error 探针都没打印。
             </p>
           ),
           promptEn: (
@@ -1025,33 +1031,35 @@ createOrder empty items code: [ 'INVALID_INPUT' ]`,
               You are sure you wrote an implementation for{" "}
               <code>shippingInfo</code>, and no test reports anything, but the
               query returns <code>shippingInfo</code> as <code>null</code>. Not
-              even the log line you added prints on the console.
+              even the console.error probe you added prints on the console.
             </p>
           ),
           errorOutput: `# 没有任何报错。
 $ node verify-schema.mjs
+...
 Query.orders + shippingInfo: {"orders":[
-  {"id":"order-456","status":"SHIPPED","shippingInfo":null},
-  {"id":"order-457","status":"DELIVERED","shippingInfo":null}]}
-errors: []
+  {"id":"order-456","status":"SHIPPED","totalAmount":299.99,"shippingInfo":null},
+  {"id":"order-457","status":"DELIVERED","totalAmount":89.99,"shippingInfo":null}]} | errors: []
+...
 
-# 你在 resolver 第一行加的 console.log('>>> shippingInfo called')
+# 你在 resolver 第一行加的 console.error('>>> shippingInfo called')
 # 一次都没打印。`,
           errorOutputEn: `# No error at all.
 $ node verify-schema.mjs
+...
 Query.orders + shippingInfo: {"orders":[
-  {"id":"order-456","status":"SHIPPED","shippingInfo":null},
-  {"id":"order-457","status":"DELIVERED","shippingInfo":null}]}
-errors: []
+  {"id":"order-456","status":"SHIPPED","totalAmount":299.99,"shippingInfo":null},
+  {"id":"order-457","status":"DELIVERED","totalAmount":89.99,"shippingInfo":null}]} | errors: []
+...
 
-# The console.log('>>> shippingInfo called') you added as the resolver's first line
+# The console.error('>>> shippingInfo called') you added as the resolver's first line
 # never printed, not once.`,
           broken: demo(
             "js",
             `export const resolvers = {
   Order: {
     async shipping(parent, _, { loaders }) {          // ← 名字
-      console.log('>>> shippingInfo called');
+      console.error('>>> shippingInfo called');
       return loaders.shippingInfoLoader.load(parent.id);
     }
   },
@@ -1069,7 +1077,7 @@ errors: []
               codeEn: `export const resolvers = {
   Order: {
     async shipping(parent, _, { loaders }) {          // ← the name
-      console.log('>>> shippingInfo called');
+      console.error('>>> shippingInfo called');
       return loaders.shippingInfoLoader.load(parent.id);
     }
   },
@@ -1133,11 +1141,12 @@ errors: []
                 <strong>字段可空，所以不报错。</strong>
               </p>
               <p>
-                <strong>「log 一次都没打印」是决定性线索。</strong>
+                <strong>「探针一次都没打印」是决定性线索。</strong>
                 它说明这个函数从未被调用 —— 排除了「逻辑写错」，
                 直接指向「名字或位置不对」。
                 <strong>遇到静默 null 时，第一件事就是在 resolver
-                第一行放 log 确认它有没有被调用。</strong>
+                第一行放一个 console.error 探针，确认它有没有被调用。</strong>
+                （verify-schema.mjs 第 30 行把 console.log 静音了，所以探针别用 console.log。）
               </p>
               <p>
                 <strong>选项 B（改 schema）为什么不行？</strong>
@@ -1160,21 +1169,23 @@ errors: []
                 And the order object the data source returns{" "}
                 <strong>has no</strong> <code>shippingInfo</code> property,
                 because shipping lives in another service. So the value is{" "}
-                <code>undefined</code>, which serializes as <code>null</code>.{" "}
+                <code>undefined</code>, which serialises as <code>null</code>.{" "}
                 <strong>The field is nullable, so nothing reports an
                 error.</strong>
               </p>
               <p>
                 <strong>
-                  &ldquo;The log never printed&rdquo; is the decisive clue.
+                  &ldquo;The probe never printed&rdquo; is the decisive clue.
                 </strong>{" "}
                 It says the function was never called, which rules out a logic
                 mistake and points straight at a wrong name or wrong place.{" "}
                 <strong>
                   When a field is silently null, the first thing to do is put a
-                  log on the first line of the resolver and confirm whether it
-                  runs at all.
-                </strong>
+                  console.error probe on the first line of the resolver and
+                  confirm whether it runs at all.
+                </strong>{" "}
+                (verify-schema.mjs mutes console.log on line 30, so do not use
+                console.log for the probe.)
               </p>
               <p>
                 <strong>Why is option B, editing the schema, not allowed?</strong>{" "}
@@ -1183,9 +1194,9 @@ errors: []
               </p>
             </>
           ),
-          verify: "node verify-schema.mjs   # shippingInfo 应该有值，且日志出现 Batching",
+          verify: "node verify-schema.mjs   # shippingInfo 应该有值；要看 Batching 日志，先注释掉脚本第 30 行",
           verifyEn:
-            "node verify-schema.mjs   # shippingInfo should have a value, and the log should show Batching",
+            "node verify-schema.mjs   # shippingInfo should have a value; to see the Batching log, comment out line 30 of the script first",
         },
         {
           kind: "debug",
@@ -1207,25 +1218,27 @@ errors: []
             </p>
           ),
           errorOutput: `$ node verify-schema.mjs
-Query.orders: {"orders":null}
+Query.orders: null
 
 errors: [{
   "message": "Cannot return null for non-nullable field Query.orders.",
-  "path": ["orders"],
-  "extensions": { "code": "INTERNAL_SERVER_ERROR" }
+  "locations": [{ "line": 1, "column": 3 }],
+  "path": ["orders"]
 }]
 
-# 更严重的情况：如果查询是嵌套的，整个 data 会变成 null`,
+# orders 是 Query 上的非空字段：null 一路冒泡到根，整个 data 都没了
+# （经 Apollo Server 请求时，这条错误还会带上 extensions.code: INTERNAL_SERVER_ERROR）`,
           errorOutputEn: `$ node verify-schema.mjs
-Query.orders: {"orders":null}
+Query.orders: null
 
 errors: [{
   "message": "Cannot return null for non-nullable field Query.orders.",
-  "path": ["orders"],
-  "extensions": { "code": "INTERNAL_SERVER_ERROR" }
+  "locations": [{ "line": 1, "column": 3 }],
+  "path": ["orders"]
 }]
 
-# Worse case: if the query is nested, the whole data object turns into null`,
+# orders is a non-null field on Query, so the null bubbles all the way to the root and the whole data is gone
+# (through Apollo Server the error also carries extensions.code: INTERNAL_SERVER_ERROR)`,
           broken: demo(
             "js",
             `async orders(_, { userId }, { dataSources, correlationId }) {
@@ -1304,7 +1317,7 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
                 「这个用户没有订单」的正确表达就是 <code>[]</code>。
               </p>
               <p>
-                <strong>为什么整个 data 会变成 null?</strong>
+                <strong>为什么整个 data 会变成 null？</strong>
                 非空字段返回 null 时，GraphQL 执行器会
                 <strong>向上冒泡</strong>：把这个字段设为 null，
                 如果父字段也非空，父字段也变 null，
@@ -1386,7 +1399,7 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
           prompt: (
             <p>
               查两个订单的物流，返回的数据<strong>对上了错的订单</strong>。
-              没有任何报错。这是 DataLoader 最阴险的一类误用。
+              没有任何报错。这是 DataLoader 最隐蔽的一类误用。
             </p>
           ),
           promptEn: (
@@ -1405,9 +1418,10 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
 #
 # 实际：
 #   order-456 -> TRACK123457     ← 串了！
-#   order-457 -> null
+#   order-457 -> TRACK123456     ← 也串了
 
-# 日志：[DataLoader] Batching 2 shipping info requests   ← 合并是生效的`,
+# 日志：[DataLoader] Batching 2 shipping info requests   ← 合并是生效的
+# （用 verify-schema.mjs 跑时，先注释掉它的第 30 行才看得到这行日志）`,
           errorOutputEn: `# No error at all.
 # Query: { orders(userId:"123") { id shippingInfo { trackingNumber } } }
 #
@@ -1417,9 +1431,10 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
 #
 # Actual:
 #   order-456 -> TRACK123457     ← got the other one's number!
-#   order-457 -> null
+#   order-457 -> TRACK123456     ← and so did this one
 
-# Log: [DataLoader] Batching 2 shipping info requests   ← the batching does work`,
+# Log: [DataLoader] Batching 2 shipping info requests   ← the batching does work
+# (with verify-schema.mjs you only see this line after commenting out its line 30)`,
           broken: demo(
             "js",
             `function createShippingInfoLoader(shippingDataSource) {
@@ -1430,8 +1445,8 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
       orderIds.map(id => shippingDataSource.getShippingInfo(id))
     );
 
-    // 「过滤掉没有物流信息的」—— 看起来很合理
-    return all.filter(info => info !== null);
+    // 「按状态排个序，已送达的排前面」—— 看起来无害
+    return all.sort((a, b) => a.status.localeCompare(b.status));
   });
 }`,
             {
@@ -1445,8 +1460,8 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
       orderIds.map(id => shippingDataSource.getShippingInfo(id))
     );
 
-    // "drop the ones with no shipping info" — this looks reasonable
-    return all.filter(info => info !== null);
+    // "sort by status so delivered ones come first" — looks harmless
+    return all.sort((a, b) => a.status.localeCompare(b.status));
   });
 }`,
             },
@@ -1475,16 +1490,20 @@ return orders ?? [];        // non-null twice -> say "none" with an empty array`
             options: [
               {
                 id: "a",
-                label: "不能 filter —— 会改变长度，导致结果按下标错位分发",
+                label: "不能 sort —— 长度没变但顺序变了，结果按下标错位分发",
                 labelEn:
-                  "filter is not allowed here — it changes the length, so results are handed out to the wrong index",
+                  "sorting is not allowed here — the length stays the same but the order changes, so results are handed out to the wrong index",
               },
-              { id: "b", label: "应该改成 all.filter(info => info)", labelEn: "It should be all.filter(info => info)" },
-              { id: "c", label: "应该改成 all.sort()", labelEn: "It should be all.sort()" },
+              { id: "b", label: "应该改成 all.reverse()", labelEn: "It should be all.reverse()" },
+              {
+                id: "c",
+                label: "比较函数应该写成 (a, b) => (a.status > b.status ? 1 : -1)",
+                labelEn: "The comparator should be (a, b) => (a.status > b.status ? 1 : -1)",
+              },
               {
                 id: "d",
-                label: "应该在 filter 后面加 .reverse()",
-                labelEn: "It should have .reverse() after filter",
+                label: "应该在 sort 后面再加 .filter(info => info !== null)",
+                labelEn: "It should add .filter(info => info !== null) after the sort",
               },
             ],
             answer: "a",
@@ -1516,19 +1535,22 @@ return shippingInfos;`,
                 <code>results[1]</code> 给 <code>keys[1]</code>。
               </p>
               <p>
-                <code>filter</code> 把 <code>[info456, null]</code> 变成
-                <code>[info456]</code>（假设 457 没物流）——
-                或者在本例中把
-                <code>[null, info457]</code> 变成 <code>[info457]</code>，
-                于是 <code>info457</code> 被分发给了
-                <code>orderIds[0]</code>（也就是 order-456），
-                而 order-457 因为数组越界拿到 <code>undefined</code>。
+                <code>sort</code> 把 <code>[info456, info457]</code> 排成
+                <code>[info457, info456]</code>（457 是 DELIVERED，按字母排在
+                IN_TRANSIT 前面），DataLoader 按下标把 <code>info457</code>
+                交给 <code>orderIds[0]</code>（也就是 order-456），
+                <code>info456</code> 交给 order-457。长度没变，DataLoader 发现不了。
               </p>
               <p>
-                <strong>为什么这是最阴险的一类？</strong>
+                如果用 <code>filter</code> 改变了长度，DataLoader 反而会直接抛 TypeError
+                （<code>…the same length as the Array of keys</code>），这一批全部失败
+                —— 那是会报错的一种。
+              </p>
+              <p>
+                <strong>为什么这是最隐蔽的一类？</strong>
                 因为它<strong>不报错，只是数据错了</strong>。
-                而且「过滤掉空值」看起来是个再合理不过的操作 ——
-                在别的地方它确实合理，只有在 batch 函数里是致命的。
+                而且「排个序」看起来是个再无害不过的操作 ——
+                在别的地方它确实无害，只有在 batch 函数里是致命的。
               </p>
               <p>
                 <strong>batch 函数的两条硬约束，背下来：</strong>
@@ -1557,24 +1579,29 @@ return shippingInfos;`,
                 <code>results[1]</code> goes to <code>keys[1]</code>.
               </p>
               <p>
-                <code>filter</code> turns <code>[info456, null]</code> into{" "}
-                <code>[info456]</code> if 457 has no shipping info — or, in this
-                example, turns <code>[null, info457]</code> into{" "}
-                <code>[info457]</code>, so <code>info457</code> is handed to{" "}
-                <code>orderIds[0]</code>, which is order-456, while order-457
-                reads past the end of the array and gets{" "}
-                <code>undefined</code>.
+                <code>sort</code> turns <code>[info456, info457]</code> into{" "}
+                <code>[info457, info456]</code> (457 is DELIVERED, which sorts
+                before IN_TRANSIT), and DataLoader, going by index, hands{" "}
+                <code>info457</code> to <code>orderIds[0]</code>, which is
+                order-456, and <code>info456</code> to order-457. The length has
+                not changed, so DataLoader cannot notice.
+              </p>
+              <p>
+                If a <code>filter</code> changed the length instead, DataLoader
+                would throw a TypeError (
+                <code>…the same length as the Array of keys</code>) and fail the
+                whole batch — that is the kind that does report an error.
               </p>
               <p>
                 <strong>Why is this the hardest kind to notice?</strong> Because{" "}
                 <strong>nothing reports an error; only the data is wrong.</strong>{" "}
-                And &ldquo;drop the empty values&rdquo; looks like a perfectly
-                reasonable thing to do. Elsewhere it is reasonable. Inside a batch
-                function it is fatal.
+                And &ldquo;sort them&rdquo; looks like a perfectly harmless thing
+                to do. Elsewhere it is harmless. Inside a batch function it is
+                fatal.
               </p>
               <p>
                 <strong>
-                  Two hard rules for a batch function; memorize them:
+                  Two hard rules for a batch function; memorise them:
                 </strong>
                 <br />① the length of the returned array === the length of keys;
                 <br />② result number i belongs to key number i.
@@ -1820,8 +1847,8 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
         {
           signal: "数据串了但不报错",
           signalEn: "Values land on the wrong records, with no error",
-          reachFor: "查 DataLoader batch 函数有没有 filter 或改顺序",
-          reachForEn: "Check whether the DataLoader batch function filters or reorders the results",
+          reachFor: "查 batch 函数有没有改变结果顺序（sort、按数据库返回顺序直接返回）；长度不对时 DataLoader 会直接报错",
+          reachForEn: "Check whether the batch function reorders its results (a sort, or returning rows in database order); a wrong length makes DataLoader throw",
         },
         {
           signal: "xxx is not a function",
@@ -1845,15 +1872,15 @@ return ResponseEntity.ok(orderService.updateOrderStatus(id, status));`,
       recap: [
         "GraphQL 故障六类：schema 校验 / 非空违约 / 跨模块契约 / 名字不匹配 / 错误语义 / composition。",
         "「名字不匹配」是 GraphQL 特有的静默故障 —— resolver 键名错了就等于不存在。",
-        "排查静默 null 的第一步：在 resolver 第一行 log，看它有没有被调用。",
-        "DataLoader 的 batch 函数永远不要 filter —— 长度和顺序都是硬契约。",
+        "排查静默 null 的第一步：在 resolver 第一行放一个 console.error 探针，看它有没有被调用。",
+        "DataLoader 的 batch 函数里不要 filter，也不要 sort —— 长度错了整批报错，顺序错了数据静默串位。",
         "「服务能起来 + _service 查得出 SDL」已经排除了大部分 composition 问题。",
       ],
       recapEn: [
         "Six categories of GraphQL failure: schema validation, non-null violation, cross-module contract, name mismatch, error semantics, composition.",
         "A name mismatch is the silent failure that is specific to GraphQL: a wrong resolver key means the resolver does not exist at all.",
-        "First step for a silent null: log on the first line of the resolver and check whether it is called.",
-        "Never filter inside a DataLoader batch function. Both the length and the order are a strict contract.",
+        "First step for a silent null: put a console.error probe on the first line of the resolver and check whether it is called.",
+        "Never filter or sort inside a DataLoader batch function: a wrong length fails the whole batch, and a wrong order silently puts data on the wrong records.",
         "If the service starts and _service returns the SDL, most composition problems are already ruled out.",
       ],
     },
@@ -2266,7 +2293,7 @@ if (error instanceof GraphQLError) throw error;`,
               codeEn: FULL_RESOLVERS_EN,
               collapsible: true,
             }),
-            real(
+            demo(
               "json",
               `{
   "name": "my-order-subgraph",
@@ -2295,10 +2322,9 @@ if (error instanceof GraphQLError) throw error;`,
   }
 }`,
               {
-                filename: "package.json（与源项目一致）",
-                filenameEn: "package.json (identical to the source project)",
-                sourceFile:
-                  "graphql-federation-practice/node-subgraph/package.json",
+                filename: "package.json（除 name 外与源项目一致，省略了 description 和 test:watch）",
+                filenameEn:
+                  "package.json (same as the source project apart from the name; description and test:watch left out)",
                 collapsible: true,
               },
             ),

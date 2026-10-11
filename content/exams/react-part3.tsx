@@ -868,33 +868,28 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           promptEn: <p>You just received this project. What is the most sensible order to work in?</p>,
           items: [
             { id: "e", label: "写代码：三个 handler 逐个实现", labelEn: "Write the code: implement the three handlers one at a time" },
-            { id: "a", label: "npm install，然后 npx vitest run 拿到基线", labelEn: "npm install, then npx vitest run to get a baseline" },
             {
               id: "c",
-              label: "读 NoteForm / NoteTable / NoteItem，确认它们已经完整、不用改",
-              labelEn: "Read NoteForm / NoteTable / NoteItem and confirm they are already complete and need no change",
+              label: "读测试文件、types/Note.ts 和 NoteForm / NoteTable / NoteItem：抄下所有验收标准，确认数据形状、id 的类型，以及这几个组件已经完整、不用改",
+              labelEn:
+                "Read the test file, types/Note.ts and NoteForm / NoteTable / NoteItem: write down every acceptance criterion, and confirm the shape of the data, the type of id, and that those components are complete and need no change",
             },
             {
-              id: "b",
-              label: "读 README + 读测试文件，抄下所有验收标准",
-              labelEn: "Read the README and the test file, and write down every acceptance criterion",
+              id: "a",
+              label: "读 README，照它 npm install，再用 npx vitest run 拿到基线",
+              labelEn: "Read the README, run npm install as it says, then get a baseline with npx vitest run",
             },
             {
               id: "f",
               label: "npx vitest run 验证，再 npm run dev 手动点一遍",
               labelEn: "Verify with npx vitest run, then npm run dev and click through it by hand",
             },
-            {
-              id: "d",
-              label: "读 types/Note.ts，确认数据形状和 id 的类型",
-              labelEn: "Read types/Note.ts to confirm the shape of the data and the type of id",
-            },
           ],
-          answer: ["a", "b", "d", "c", "e", "f"],
+          answer: ["a", "c", "e", "f"],
           explain: (
             <>
-              先装依赖跑基线（知道起点）→ 读题和测试（知道终点）→
-              读类型（知道数据长什么样）→ 读现有组件（知道哪些不用碰）→
+              读 README、装依赖、跑基线（知道起点）→
+              读测试、类型和现有组件（知道终点、数据长什么样、哪些不用碰）→
               才动手写 → 最后测试 + 手动验证。
               <br />
               <strong>最后那步「手动点一遍」不能省</strong> ——
@@ -904,11 +899,11 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
           ),
           explainEn: (
             <>
-              Install and run the baseline first, so you know the starting point.
-              Then read the task and the tests, so you know the end point. Then
-              read the types, so you know what the data looks like. Then read the
-              existing components, so you know what not to touch. Only then write
-              the code, and finish with the tests plus a manual check.
+              Read the README, install and run the baseline first, so you know the
+              starting point. Then read the tests, the types and the existing
+              components, so you know the end point, what the data looks like and
+              what not to touch. Only then write the code, and finish with the
+              tests plus a manual check.
               <br />
               <strong>That last manual pass is not optional.</strong> The tests
               use a single note, so they cannot check &quot;update in place&quot;
