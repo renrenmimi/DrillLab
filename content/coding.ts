@@ -35,8 +35,8 @@ interface Spec {
   /** 「展开讲解」引用哪一节 */
   explain: string;
   runnable: boolean;
-  /** 不可运行时的本机命令 */
-  commands?: { cmd: string; expect: string }[];
+  /** 没有沙箱时的本机命令 */
+  commands?: { cmd: string; expect: string; expectEn?: string }[];
   /**
    * 自带题面。Tabs 和 useRef 播放器没有独立练习，
    * 题面推不出来，所以在这里直接写一句。
@@ -288,10 +288,10 @@ const SB_HAND_DEBOUNCE: SandboxSpec = {
 
 const SB_HAND_THROTTLE: SandboxSpec = {
     "files": {
-      "/throttle.ts": "/**\n * throttle(fn, interval)：不管调用多密，每 interval 毫秒最多执行一次。\n *\n * 验收标准（leading + trailing 版）：\n * 1. 第一次调用立刻执行（leading）。\n * 2. 窗口内的后续调用不执行。\n * 3. 窗口结束时，把窗口内**最后一次**调用的参数补执行（trailing）。\n * 4. 窗口过了之后再调用，又立刻执行。\n *\n * 现在这个版本是「每次都直接透传」的半成品。\n */\nexport function throttle<T extends (...args: never[]) => void>(\n  fn: T,\n  interval: number,\n): (...args: Parameters<T>) => void {\n  void interval;\n  // TODO: 记 lastTime 和一个 trailing timer。\n  //       没到点 -> 存下参数，挂一个「窗口结束时补一枪」的 timer。\n  return (...args: Parameters<T>) => {\n    fn(...args);\n  };\n}\n",
+      "/throttle.ts": "/**\n * throttle(fn, interval)：不管调用多密，每 interval 毫秒最多执行一次。\n *\n * 验收标准（leading + trailing 版）：\n * 1. 第一次调用立刻执行（leading）。\n * 2. 窗口内的后续调用不执行。\n * 3. 窗口结束时，把窗口内**最后一次**调用的参数补执行（trailing）。\n * 4. 窗口过了之后再调用，又立刻执行。\n *\n * 现在这个版本是「每次都直接透传」的半成品。\n */\nexport function throttle<T extends (...args: never[]) => void>(\n  fn: T,\n  interval: number,\n): (...args: Parameters<T>) => void {\n  void interval;\n  // TODO: 记 lastTime 和一个 trailing timer。\n  //       没到点 -> 存下参数，挂一个「窗口结束时再执行一次」的 timer。\n  return (...args: Parameters<T>) => {\n    fn(...args);\n  };\n}\n",
       "/App.tsx": "// 手写题没有可看的界面 —— 判分看下面的测试面板。\nexport default function App() {\n  return (\n    <div style={{ fontFamily: \"system-ui\", padding: 16, fontSize: 13, lineHeight: 1.6 }}>\n      <p>这道是手写工具函数题：改左边的文件，然后到下面的测试面板点「跑测试」。</p>\n      <p>Pure-function problem: edit the file on the left, then run the tests below.</p>\n    </div>\n  );\n}\n"
     },
-    "tests": "// Test names are in English on purpose (Sandpack decodes failure snippets as\n// Latin-1). Leading-edge behavior is synchronous, so it can be asserted without\n// waiting; trailing-edge assertions only run after generous waits.\n\nimport { throttle } from \"./throttle\";\n\nconst wait = (ms: number) => new Promise((r) => setTimeout(r, ms));\n\ndescribe(\"throttle (leading + trailing)\", () => {\n  test(\"the first call fires immediately\", () => {\n    const calls: number[] = [];\n    const t = throttle((n: number) => calls.push(n), 200);\n    t(1);\n    expect(calls).toEqual([1]);\n  });\n\n  test(\"calls inside the window do not fire synchronously\", () => {\n    const calls: number[] = [];\n    const t = throttle((n: number) => calls.push(n), 200);\n    t(1);\n    t(2);\n    t(3);\n    expect(calls).toEqual([1]);\n  });\n\n  test(\"the last suppressed call fires on the trailing edge with its arguments\", async () => {\n    const calls: number[] = [];\n    const t = throttle((n: number) => calls.push(n), 200);\n    t(1);\n    t(2);\n    t(3);\n    await wait(600);\n    expect(calls).toEqual([1, 3]);\n  });\n\n  test(\"after the window has passed, the next call fires immediately again\", async () => {\n    const calls: number[] = [];\n    const t = throttle((n: number) => calls.push(n), 200);\n    t(1);\n    await wait(600);\n    t(2);\n    expect(calls).toEqual([1, 2]);\n  });\n});\n",
+    "tests": "// Test names are in English on purpose (Sandpack decodes failure snippets as\n// Latin-1). Leading-edge behaviour is synchronous, so it can be asserted without\n// waiting; trailing-edge assertions only run after generous waits.\n\nimport { throttle } from \"./throttle\";\n\nconst wait = (ms: number) => new Promise((r) => setTimeout(r, ms));\n\ndescribe(\"throttle (leading + trailing)\", () => {\n  test(\"the first call fires immediately\", () => {\n    const calls: number[] = [];\n    const t = throttle((n: number) => calls.push(n), 200);\n    t(1);\n    expect(calls).toEqual([1]);\n  });\n\n  test(\"calls inside the window do not fire synchronously\", () => {\n    const calls: number[] = [];\n    const t = throttle((n: number) => calls.push(n), 200);\n    t(1);\n    t(2);\n    t(3);\n    expect(calls).toEqual([1]);\n  });\n\n  test(\"the last suppressed call fires on the trailing edge with its arguments\", async () => {\n    const calls: number[] = [];\n    const t = throttle((n: number) => calls.push(n), 200);\n    t(1);\n    t(2);\n    t(3);\n    await wait(600);\n    expect(calls).toEqual([1, 3]);\n  });\n\n  test(\"after the window has passed, the next call fires immediately again\", async () => {\n    const calls: number[] = [];\n    const t = throttle((n: number) => calls.push(n), 200);\n    t(1);\n    await wait(600);\n    t(2);\n    expect(calls).toEqual([1, 2]);\n  });\n});\n",
     "dependencies": {
       "react": "19.0.0",
       "react-dom": "19.0.0"
@@ -583,7 +583,19 @@ const SPECS: Spec[] = [
     from: "r-var-todo-write",
     explain: "r-var-todo",
     runnable: true,
+    // 来源练习只写可见列表和「清除已完成」两段；这里是整个 TodoList，题面自己写
+    brief:
+      "实现一个完整的 Todo List：新增、勾选、删除、按 all / active / done 筛选、全选 / 全不选、清除已完成。可见列表、剩余条数和「是否全部完成」都是派生数据，不许再开 state；筛选只改显示，不改底层数据。",
+    briefEn:
+      "Build a complete Todo List: add, check off, delete, filter by all / active / done, check or uncheck everything, and clear the completed ones. The visible list, the remaining count and whether everything is done are all derived values, so add no state for them; filtering changes only what is shown, never the underlying data.",
     sandbox: SB_TODO,
+    // 课里那份答案的文件划分和导出跟沙箱不同，答案门后放按沙箱写、换进去就能变绿的版本（见 Spec.solution）
+    solution: [
+    tested("tsx", "import React, { useRef, useState } from \"react\";\nimport type { Filter, Todo } from \"./types\";\n\nconst TodoList: React.FC = () => {\n  const [todos, setTodos] = useState<Todo[]>([]);\n  const [text, setText] = useState(\"\");\n  const [filter, setFilter] = useState<Filter>(\"all\");\n  const nextId = useRef(1);\n\n  // 三个派生数据：都能从 todos 算出来，都不该做成 state\n  const visible =\n    filter === \"all\"\n      ? todos\n      : todos.filter((t) => (filter === \"done\" ? t.done : !t.done));\n  const remaining = todos.filter((t) => !t.done).length;\n  const allDone = todos.length > 0 && remaining === 0;\n\n  const isInvalid = text.trim() === \"\";\n\n  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {\n    event.preventDefault();\n    if (isInvalid) return;\n    const id = nextId.current++;\n    setTodos((prev) => [...prev, { id, text: text.trim(), done: false }]);\n    setText(\"\");\n  };\n\n  // 就地翻转一条：map + 对象展开，不改原对象\n  const toggle = (id: number) => {\n    setTodos((prev) =>\n      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),\n    );\n  };\n\n  const remove = (id: number) => {\n    setTodos((prev) => prev.filter((t) => t.id !== id));\n  };\n\n  // 全选/全不选：以「当前是否已全部完成」为准整体反转\n  const toggleAll = () => {\n    const next = !allDone;\n    setTodos((prev) => prev.map((t) => ({ ...t, done: next })));\n  };\n\n  const clearDone = () => {\n    setTodos((prev) => prev.filter((t) => !t.done));\n  };\n\n  return (\n    <div data-testid=\"todo-app\">\n      <form onSubmit={handleSubmit} data-testid=\"todo-form\">\n        <input\n          type=\"text\"\n          value={text}\n          onChange={(e) => setText(e.target.value)}\n          data-testid=\"todo-input\"\n        />\n        <button type=\"submit\" disabled={isInvalid} data-testid=\"todo-submit\">\n          Add\n        </button>\n      </form>\n\n      <div>\n        <button onClick={toggleAll} data-testid=\"toggle-all\">\n          {allDone ? \"Uncheck all\" : \"Check all\"}\n        </button>\n        <button onClick={clearDone} data-testid=\"clear-done\">\n          Clear completed\n        </button>\n        <span data-testid=\"remaining\">{remaining} left</span>\n      </div>\n\n      <div>\n        {([\"all\", \"active\", \"done\"] as Filter[]).map((f) => (\n          <button key={f} onClick={() => setFilter(f)} data-testid={`filter-${f}`}\n                  aria-pressed={filter === f}>\n            {f}\n          </button>\n        ))}\n      </div>\n\n      <ul data-testid=\"todo-list\">\n        {visible.map((todo) => (\n          <li key={todo.id} data-done={todo.done}>\n            <input\n              type=\"checkbox\"\n              checked={todo.done}\n              onChange={() => toggle(todo.id)}\n              aria-label={`toggle ${todo.text}`}\n            />\n            <span>{todo.text}</span>\n            <button onClick={() => remove(todo.id)} aria-label={`delete ${todo.text}`}>\n              Delete\n            </button>\n          </li>\n        ))}\n      </ul>\n    </div>\n  );\n};\n\nexport { TodoList };\nexport default TodoList;", {
+      filename: "/TodoList.tsx",
+      codeEn: "import React, { useRef, useState } from \"react\";\nimport type { Filter, Todo } from \"./types\";\n\nconst TodoList: React.FC = () => {\n  const [todos, setTodos] = useState<Todo[]>([]);\n  const [text, setText] = useState(\"\");\n  const [filter, setFilter] = useState<Filter>(\"all\");\n  const nextId = useRef(1);\n\n  // Three derived values: each computed from todos, none of them a state\n  const visible =\n    filter === \"all\"\n      ? todos\n      : todos.filter((t) => (filter === \"done\" ? t.done : !t.done));\n  const remaining = todos.filter((t) => !t.done).length;\n  const allDone = todos.length > 0 && remaining === 0;\n\n  const isInvalid = text.trim() === \"\";\n\n  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {\n    event.preventDefault();\n    if (isInvalid) return;\n    const id = nextId.current++;\n    setTodos((prev) => [...prev, { id, text: text.trim(), done: false }]);\n    setText(\"\");\n  };\n\n  // Toggle one item in place: map plus an object spread, original untouched\n  const toggle = (id: number) => {\n    setTodos((prev) =>\n      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),\n    );\n  };\n\n  const remove = (id: number) => {\n    setTodos((prev) => prev.filter((t) => t.id !== id));\n  };\n\n  // Check all / uncheck all: one shared target value from whether all are done\n  const toggleAll = () => {\n    const next = !allDone;\n    setTodos((prev) => prev.map((t) => ({ ...t, done: next })));\n  };\n\n  const clearDone = () => {\n    setTodos((prev) => prev.filter((t) => !t.done));\n  };\n\n  return (\n    <div data-testid=\"todo-app\">\n      <form onSubmit={handleSubmit} data-testid=\"todo-form\">\n        <input\n          type=\"text\"\n          value={text}\n          onChange={(e) => setText(e.target.value)}\n          data-testid=\"todo-input\"\n        />\n        <button type=\"submit\" disabled={isInvalid} data-testid=\"todo-submit\">\n          Add\n        </button>\n      </form>\n\n      <div>\n        <button onClick={toggleAll} data-testid=\"toggle-all\">\n          {allDone ? \"Uncheck all\" : \"Check all\"}\n        </button>\n        <button onClick={clearDone} data-testid=\"clear-done\">\n          Clear completed\n        </button>\n        <span data-testid=\"remaining\">{remaining} left</span>\n      </div>\n\n      <div>\n        {([\"all\", \"active\", \"done\"] as Filter[]).map((f) => (\n          <button key={f} onClick={() => setFilter(f)} data-testid={`filter-${f}`}\n                  aria-pressed={filter === f}>\n            {f}\n          </button>\n        ))}\n      </div>\n\n      <ul data-testid=\"todo-list\">\n        {visible.map((todo) => (\n          <li key={todo.id} data-done={todo.done}>\n            <input\n              type=\"checkbox\"\n              checked={todo.done}\n              onChange={() => toggle(todo.id)}\n              aria-label={`toggle ${todo.text}`}\n            />\n            <span>{todo.text}</span>\n            <button onClick={() => remove(todo.id)} aria-label={`delete ${todo.text}`}>\n              Delete\n            </button>\n          </li>\n        ))}\n      </ul>\n    </div>\n  );\n};\n\nexport { TodoList };\nexport default TodoList;",
+    }),
+    ],
     // 沙箱里的测试查的是整道题，来源练习只是其中一块 —— 所以显式写全。
     requirements: [
       "输入框为空或只有空格时，Add 按钮 disabled",
@@ -617,6 +629,13 @@ const SPECS: Spec[] = [
     explain: "r-var-timer",
     runnable: true,
     sandbox: SB_TIMER,
+    // 课里那份答案的文件划分和导出跟沙箱不同，答案门后放按沙箱写、换进去就能变绿的版本（见 Spec.solution）
+    solution: [
+    tested("tsx", "import React, { useEffect, useState } from \"react\";\n\nconst pad = (n: number) => String(n).padStart(2, \"0\");\nexport const format = (totalSeconds: number) =>\n  `${pad(Math.floor(totalSeconds / 60))}:${pad(totalSeconds % 60)}`;\n\nconst Timer: React.FC = () => {\n  const [seconds, setSeconds] = useState(0);\n  const [running, setRunning] = useState(false);\n\n  useEffect(() => {\n    if (!running) return;          // 没在跑就不建定时器\n\n    const id = setInterval(() => {\n      // 必须用函数式更新。这个回调是在 effect 那一次渲染里创建的，\n      // 写成 setSeconds(seconds + 1) 会永远读到当时那个 seconds（过期闭包），\n      // 于是秒数卡在 1 不动。\n      setSeconds((s) => s + 1);\n    }, 1000);\n\n    // 清理函数：running 变化时、以及组件卸载时都会跑。\n    // 少了它 -> 每次 running 变 true 就多一个 interval，秒数越跳越快；\n    //          组件卸载后 interval 还在跑 -> 内存泄漏。\n    return () => clearInterval(id);\n  }, [running]);\n\n  const reset = () => {\n    setRunning(false);\n    setSeconds(0);\n  };\n\n  return (\n    <div data-testid=\"timer\">\n      <output data-testid=\"display\">{format(seconds)}</output>\n      <button onClick={() => setRunning((r) => !r)} data-testid=\"toggle\">\n        {running ? \"Pause\" : \"Start\"}\n      </button>\n      <button onClick={reset} data-testid=\"reset\">\n        Reset\n      </button>\n    </div>\n  );\n};\n\nexport { Timer };\nexport default Timer;", {
+      filename: "/Timer.tsx",
+      codeEn: "import React, { useEffect, useState } from \"react\";\n\nconst pad = (n: number) => String(n).padStart(2, \"0\");\nexport const format = (totalSeconds: number) =>\n  `${pad(Math.floor(totalSeconds / 60))}:${pad(totalSeconds % 60)}`;\n\nconst Timer: React.FC = () => {\n  const [seconds, setSeconds] = useState(0);\n  const [running, setRunning] = useState(false);\n\n  useEffect(() => {\n    if (!running) return;          // not running, so build no interval\n\n    const id = setInterval(() => {\n      // The updater form is required. This callback was created in one render of\n      // the effect, so setSeconds(seconds + 1) would always read that render's\n      // seconds (a stale closure) and the count would freeze at 1.\n      setSeconds((s) => s + 1);\n    }, 1000);\n\n    // Cleanup: runs when running changes, and again when the component unmounts.\n    // Without it -> every switch to true adds one more interval and the count\n    //             speeds up; after unmount the interval runs on -> a memory leak.\n    return () => clearInterval(id);\n  }, [running]);\n\n  const reset = () => {\n    setRunning(false);\n    setSeconds(0);\n  };\n\n  return (\n    <div data-testid=\"timer\">\n      <output data-testid=\"display\">{format(seconds)}</output>\n      <button onClick={() => setRunning((r) => !r)} data-testid=\"toggle\">\n        {running ? \"Pause\" : \"Start\"}\n      </button>\n      <button onClick={reset} data-testid=\"reset\">\n        Reset\n      </button>\n    </div>\n  );\n};\n\nexport { Timer };\nexport default Timer;",
+    }),
+    ],
     // 沙箱里的测试查的是整道题，来源练习只是其中一块 —— 所以显式写全。
     requirements: [
       "显示 format(seconds)，初始 00:00；按钮在 Start / Pause 之间切",
@@ -645,6 +664,13 @@ const SPECS: Spec[] = [
     from: "r-var-fetch-write",
     explain: "r-var-fetch",
     runnable: true,
+    commands: [
+      {
+        cmd: "npx vitest run src/UserCard.test.tsx",
+        expect: "6 passed（测试文件在「展开讲解」那一课：src/UserCard.test.tsx，含竞态与 abort 两条）",
+        expectEn: "6 passed (the test file is in the walkthrough lesson: src/UserCard.test.tsx, including the race and abort cases)",
+      },
+    ],
     // 沙箱里的测试查的是整道题，来源练习只是其中一块 —— 所以显式写全。
     requirements: [
       "三态：loading / error / 成功显示 name 与 email",
@@ -672,6 +698,13 @@ const SPECS: Spec[] = [
     explain: "r-var-comment-tree",
     runnable: true,
     sandbox: SB_COMMENTTREE,
+    // 课里那份答案的文件划分和导出跟沙箱不同，答案门后放按沙箱写、换进去就能变绿的版本（见 Spec.solution）
+    solution: [
+    tested("ts", "export interface Comment {\n  id: number;\n  author: string;\n  body: string;\n  replies: Comment[];\n}\n\n/** 递归统计总条数（含所有层级的回复） */\nexport function countComments(nodes: Comment[]): number {\n  return nodes.reduce((sum, n) => sum + 1 + countComments(n.replies), 0);\n}\n\n/**\n * 往树里某个节点下面加一条回复，返回全新的树。\n *\n * 关键点：从根到目标那条路径上的每个节点都要造新对象，\n * 但**不要**深拷贝整棵树 —— 没被碰到的分支应该复用原来的对象。\n */\nexport function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {\n  let changed = false;\n  const next = nodes.map((node) => {\n    if (node.id === parentId) {\n      changed = true;\n      return { ...node, replies: [...node.replies, reply] };\n    }\n    // 目标可能在更深处，继续往下找\n    const replies = addReply(node.replies, parentId, reply);\n    if (replies === node.replies) return node; // 目标不在这棵子树里：原样复用\n    changed = true;\n    return { ...node, replies };\n  });\n  return changed ? next : nodes; // 这一层没变就把原数组还回去\n}\n\n/** 最深那条路径有几层。空数组是 0。 */\nexport function maxDepth(nodes: Comment[]): number {\n  return nodes.reduce((deepest, n) => Math.max(deepest, 1 + maxDepth(n.replies)), 0);\n}", {
+      filename: "/commentTree.ts",
+      codeEn: "export interface Comment {\n  id: number;\n  author: string;\n  body: string;\n  replies: Comment[];\n}\n\n/** Count every comment recursively, replies at every level included */\nexport function countComments(nodes: Comment[]): number {\n  return nodes.reduce((sum, n) => sum + 1 + countComments(n.replies), 0);\n}\n\n/**\n * Add one reply under a node of the tree, and return a brand new tree.\n *\n * The key point: every node on the path from the root to the target becomes a\n * new object, but **do not** deep-copy the tree. Untouched branches are reused.\n */\nexport function addReply(nodes: Comment[], parentId: number, reply: Comment): Comment[] {\n  let changed = false;\n  const next = nodes.map((node) => {\n    if (node.id === parentId) {\n      changed = true;\n      return { ...node, replies: [...node.replies, reply] };\n    }\n    // the target may be deeper down, so keep looking\n    const replies = addReply(node.replies, parentId, reply);\n    if (replies === node.replies) return node; // the target is not in this subtree: reuse it as is\n    changed = true;\n    return { ...node, replies };\n  });\n  return changed ? next : nodes; // nothing changed at this level: hand back the original array\n}\n\n/** How many levels the deepest path has. An empty array is 0. */\nexport function maxDepth(nodes: Comment[]): number {\n  return nodes.reduce((deepest, n) => Math.max(deepest, 1 + maxDepth(n.replies)), 0);\n}",
+    }),
+    ],
     // 沙箱里那 8 条测试查的是整道题，不只是来源练习的那一块。
     requirements: [
       "countComments 递归数出总条数 —— 不是 nodes.length（那只数了顶层）",
@@ -705,6 +738,13 @@ const SPECS: Spec[] = [
     explain: "r-var-theme-context",
     runnable: true,
     sandbox: SB_THEME,
+    // 课里那份答案的文件划分和导出跟沙箱不同，答案门后放按沙箱写、换进去就能变绿的版本（见 Spec.solution）
+    solution: [
+    tested("tsx", "import { createContext, useCallback, useContext, useMemo, useState } from \"react\";\nimport type { ReactNode } from \"react\";\n\nexport type Theme = \"light\" | \"dark\";\n\nexport interface ThemeContextValue {\n  theme: Theme;\n  toggleTheme: () => void;\n}\n\n// 默认值给 undefined，配合下面 useTheme 里的守卫：\n// 「忘了套 Provider」会立刻报错，而不是静默用一个假的默认主题。\nconst ThemeContext = createContext<ThemeContextValue | undefined>(undefined);\n\nexport function ThemeProvider({ children }: { children: ReactNode }) {\n  const [theme, setTheme] = useState<Theme>(\"light\");\n\n  // 函数式更新：一次事件里连调两次也能正确地翻回来\n  const toggleTheme = useCallback(() => {\n    setTheme((prev) => (prev === \"light\" ? \"dark\" : \"light\"));\n  }, []);\n\n  // value 必须记忆化。不然每次 Provider 渲染都是一个新对象，\n  // 所有 useTheme() 的组件都会重渲染 —— 哪怕 theme 根本没变。\n  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);\n\n  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;\n}\n\nexport function useTheme(): ThemeContextValue {\n  const ctx = useContext(ThemeContext);\n  if (!ctx) throw new Error(\"useTheme 必须在 <ThemeProvider> 里面用\");\n  return ctx;\n}\n\nexport function ThemeToggleButton() {\n  const { theme, toggleTheme } = useTheme();\n  return (\n    <button data-testid=\"theme-toggle\" onClick={toggleTheme} type=\"button\">\n      {theme === \"light\" ? \"Switch to Dark\" : \"Switch to Light\"}\n    </button>\n  );\n}\n\nexport function ThemedCard({ children }: { children?: ReactNode }) {\n  const { theme } = useTheme();\n  return (\n    <div\n      data-testid=\"themed-card\"\n      data-theme={theme}\n      style={{\n        background: theme === \"dark\" ? \"#222\" : \"#fff\",\n        color: theme === \"dark\" ? \"#eee\" : \"#222\",\n        border: \"1px solid #ccc\",\n        padding: 16,\n      }}\n    >\n      <span data-testid=\"theme-name\">{theme}</span>\n      {children}\n    </div>\n  );\n}", {
+      filename: "/ThemeContext.tsx",
+      codeEn: "import { createContext, useCallback, useContext, useMemo, useState } from \"react\";\nimport type { ReactNode } from \"react\";\n\nexport type Theme = \"light\" | \"dark\";\n\nexport interface ThemeContextValue {\n  theme: Theme;\n  toggleTheme: () => void;\n}\n\n// The default value is undefined, to pair with the guard inside useTheme below:\n// a missing Provider fails at once instead of quietly using a made-up theme.\nconst ThemeContext = createContext<ThemeContextValue | undefined>(undefined);\n\nexport function ThemeProvider({ children }: { children: ReactNode }) {\n  const [theme, setTheme] = useState<Theme>(\"light\");\n\n  // Updater form: called twice inside one event, it still flips back correctly\n  const toggleTheme = useCallback(() => {\n    setTheme((prev) => (prev === \"light\" ? \"dark\" : \"light\"));\n  }, []);\n\n  // The value has to be memoized. Otherwise every Provider render builds a new\n  // object and every component calling useTheme() re-renders, theme unchanged.\n  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);\n\n  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;\n}\n\nexport function useTheme(): ThemeContextValue {\n  const ctx = useContext(ThemeContext);\n  if (!ctx) throw new Error(\"useTheme has to be used inside <ThemeProvider>\");\n  return ctx;\n}\n\nexport function ThemeToggleButton() {\n  const { theme, toggleTheme } = useTheme();\n  return (\n    <button data-testid=\"theme-toggle\" onClick={toggleTheme} type=\"button\">\n      {theme === \"light\" ? \"Switch to Dark\" : \"Switch to Light\"}\n    </button>\n  );\n}\n\nexport function ThemedCard({ children }: { children?: ReactNode }) {\n  const { theme } = useTheme();\n  return (\n    <div\n      data-testid=\"themed-card\"\n      data-theme={theme}\n      style={{\n        background: theme === \"dark\" ? \"#222\" : \"#fff\",\n        color: theme === \"dark\" ? \"#eee\" : \"#222\",\n        border: \"1px solid #ccc\",\n        padding: 16,\n      }}\n    >\n      <span data-testid=\"theme-name\">{theme}</span>\n      {children}\n    </div>\n  );\n}",
+    }),
+    ],
     // 沙箱里的测试查的是整道题，来源练习只是其中一块 —— 所以显式写全。
     requirements: [
       "默认 light：卡片显示 light，按钮文字是 Switch to Dark；切到 dark 后变 Switch to Light",
@@ -738,6 +778,13 @@ const SPECS: Spec[] = [
     explain: "iv-coding-widgets",
     runnable: true,
     sandbox: SB_STARS,
+    // 课里那份答案的文件划分和导出跟沙箱不同，答案门后放按沙箱写、换进去就能变绿的版本（见 Spec.solution）
+    solution: [
+    tested("tsx", "import React, { useState } from \"react\";\n\ninterface Props {\n  max?: number;\n  value?: number;                 // 传了就是受控\n  onChange?: (v: number) => void;\n}\n\nconst StarRating: React.FC<Props> = ({ max = 5, value, onChange }) => {\n  const [inner, setInner] = useState(0);\n  const [hover, setHover] = useState<number | null>(null);\n\n  const isControlled = value !== undefined;\n  const current = isControlled ? value : inner;\n\n  // 有 hover 就显示 hover 的，否则显示已选的 —— 这是派生数据\n  const shown = hover ?? current;\n\n  const set = (v: number) => {\n    if (!isControlled) setInner(v);\n    onChange?.(v);\n  };\n\n  return (\n    <div\n      data-testid=\"stars\"\n      data-value={current}\n      onMouseLeave={() => setHover(null)}\n    >\n      {Array.from({ length: max }, (_, i) => i + 1).map((n) => (\n        <button\n          key={n}\n          type=\"button\"\n          aria-label={`${n} star`}\n          aria-pressed={n === current}\n          data-filled={n <= shown}\n          onMouseEnter={() => setHover(n)}\n          onClick={() => set(n === current ? 0 : n)}   // 再点同一颗就清零\n          data-testid={`star-${n}`}\n        >\n          {n <= shown ? \"★\" : \"☆\"}\n        </button>\n      ))}\n      <output data-testid=\"stars-value\">{current}</output>\n    </div>\n  );\n};\n\nexport { StarRating };\nexport default StarRating;", {
+      filename: "/StarRating.tsx",
+      codeEn: "import React, { useState } from \"react\";\n\ninterface Props {\n  max?: number;\n  value?: number;                 // Pass it and the component is controlled\n  onChange?: (v: number) => void;\n}\n\nconst StarRating: React.FC<Props> = ({ max = 5, value, onChange }) => {\n  const [inner, setInner] = useState(0);\n  const [hover, setHover] = useState<number | null>(null);\n\n  const isControlled = value !== undefined;\n  const current = isControlled ? value : inner;\n\n  // Show the hovered star if there is a hover, otherwise the picked one — this is derived data\n  const shown = hover ?? current;\n\n  const set = (v: number) => {\n    if (!isControlled) setInner(v);\n    onChange?.(v);\n  };\n\n  return (\n    <div\n      data-testid=\"stars\"\n      data-value={current}\n      onMouseLeave={() => setHover(null)}\n    >\n      {Array.from({ length: max }, (_, i) => i + 1).map((n) => (\n        <button\n          key={n}\n          type=\"button\"\n          aria-label={`${n} star`}\n          aria-pressed={n === current}\n          data-filled={n <= shown}\n          onMouseEnter={() => setHover(n)}\n          onClick={() => set(n === current ? 0 : n)}   // Clicking the same star again resets to zero\n          data-testid={`star-${n}`}\n        >\n          {n <= shown ? \"★\" : \"☆\"}\n        </button>\n      ))}\n      <output data-testid=\"stars-value\">{current}</output>\n    </div>\n  );\n};\n\nexport { StarRating };\nexport default StarRating;",
+    }),
+    ],
     // 沙箱里的测试查的是整道题，来源练习只是其中一块 —— 所以显式写全。
     requirements: [
       "hover 到第 n 颗时前 n 颗显示为亮 —— 这只是预览，不改已选值",
@@ -781,7 +828,7 @@ const SPECS: Spec[] = [
     ],
     requirementsEn: [
       "The name must start with use. ESLint only applies the hooks rules to functions with that prefix",
-      "Lazy initialization: read localStorage once on the first render, not on every render",
+      "Lazy initialisation: read localStorage once on the first render, not on every render",
       "When the key is not there, fall back to initial",
       "What you store is JSON, and you read it back with JSON.parse, so objects and arrays come back unchanged",
       "Two failures must be caught so the component keeps working: data that JSON.parse cannot read, and setItem throwing in private mode",
@@ -813,7 +860,15 @@ const SPECS: Spec[] = [
     runnable: true,
     brief:
       "实现一个 Tabs：点标签切换面板。只允许用一个 state 记「哪个是激活的」，当前面板和高亮全部派生出来。ARIA 三件套（tablist / tab + aria-selected / tabpanel）不能漏。",
+    briefEn:
+      "Build a Tabs component: clicking a tab switches the panel. Only one piece of state may record which tab is active; the visible panel and the highlight are both derived from it. The three ARIA pieces (tablist / tab + aria-selected / tabpanel) must all be there.",
     sandbox: SB_TABS,
+    // 课里那份答案的文件划分和导出跟沙箱不同，答案门后放按沙箱写、换进去就能变绿的版本（见 Spec.solution）
+    solution: [
+    tested("tsx", "import { useState } from \"react\";\n\nexport interface TabItem {\n  id: string;\n  label: string;\n  content: string;\n}\n\nexport function Tabs({\n  items,\n  initialId,\n}: {\n  items: TabItem[];\n  initialId?: string;\n}) {\n  const [activeId, setActiveId] = useState(initialId ?? items[0]?.id);\n  const active = items.find((t) => t.id === activeId) ?? items[0];\n\n  return (\n    <div data-testid=\"tabs\">\n      <div role=\"tablist\">\n        {items.map((t) => (\n          <button\n            key={t.id}\n            type=\"button\"\n            role=\"tab\"\n            aria-selected={t.id === active.id}\n            aria-controls={`panel-${t.id}`}\n            id={`tab-${t.id}`}\n            onClick={() => setActiveId(t.id)}\n            data-testid={`tab-${t.id}`}\n          >\n            {t.label}\n          </button>\n        ))}\n      </div>\n      <div\n        role=\"tabpanel\"\n        id={`panel-${active.id}`}\n        aria-labelledby={`tab-${active.id}`}\n        data-testid=\"panel\"\n      >\n        {active.content}\n      </div>\n    </div>\n  );\n}", {
+      filename: "/Tabs.tsx",
+    }),
+    ],
   },
   {
     id: "player",
@@ -827,6 +882,15 @@ const SPECS: Spec[] = [
     runnable: true,
     brief:
       "用 useRef 拿到 <audio> 节点，实现播放 / 暂停 / 停止。play() 返回 Promise 且可能被浏览器策略拒绝；currentTime 直接改 DOM 不经过 state；播完要靠 onEnded 把 state 同步回来。",
+    briefEn:
+      "Use useRef to reach the <audio> node and build play / pause / stop. play() returns a Promise that the browser may refuse; currentTime is written straight to the DOM, not through state; when playback ends, onEnded has to bring the state back in sync.",
+    commands: [
+      {
+        cmd: "npx vitest run src/Coding.test.tsx -t 373",
+        expect: "2 passed（「展开讲解」那一课的 src/Coding.test.tsx 里，[373] 那两条测的是播放器；单独跑时只抄这两条和它们的 import）",
+        expectEn: "2 passed (in src/Coding.test.tsx from the walkthrough lesson, the two [373] tests cover the player; to run them alone, copy just those two and their imports)",
+      },
+    ],
     // 沙箱里的测试查的是整道题，来源练习只是其中一块 —— 所以显式写全。
     requirements: [
       "用 useRef 拿到 <audio> 节点，点按钮调它的 play() / pause()",
@@ -855,7 +919,19 @@ const SPECS: Spec[] = [
     from: "iv-coding-dropdown-blank",
     explain: "iv-coding-widgets",
     runnable: true,
+    // 来源是填空题，它的题干说的是「四个空」；这里是完整的沙箱题，题面自己写
+    brief:
+      "实现一个 Dropdown：点触发器展开、选中后收起并显示选中项；点外面或按 Escape 关闭；只在展开时挂 document 监听器，并在卸载时解绑；ARIA 属性齐全。",
+    briefEn:
+      "Build a Dropdown: clicking the trigger opens it, picking an option closes it and shows the choice; a click outside or Escape closes it; the document listener is attached only while it is open and removed on unmount; the ARIA attributes are all in place.",
     sandbox: SB_DROPDOWN,
+    // 课里那份答案的文件划分和导出跟沙箱不同，答案门后放按沙箱写、换进去就能变绿的版本（见 Spec.solution）
+    solution: [
+    tested("tsx", "import React, { useEffect, useRef, useState } from \"react\";\n\nexport interface Option { id: string; label: string }\n\ninterface Props {\n  options: Option[];\n  onSelect?: (id: string) => void;\n}\n\nconst Dropdown: React.FC<Props> = ({ options, onSelect }) => {\n  const [open, setOpen] = useState(false);\n  const [picked, setPicked] = useState<Option | null>(null);\n  // useRef 存 DOM 节点：用来判断「这次点击是不是发生在我身上」\n  const boxRef = useRef<HTMLDivElement>(null);\n\n  useEffect(() => {\n    if (!open) return;                   // 没展开就不用监听，省一个监听器\n\n    const onDocClick = (e: MouseEvent) => {\n      // e.target 是真正被点的那个节点；contains 判断它在不在我这棵子树里\n      if (boxRef.current && !boxRef.current.contains(e.target as Node)) {\n        setOpen(false);\n      }\n    };\n    const onKey = (e: KeyboardEvent) => {\n      if (e.key === \"Escape\") setOpen(false);\n    };\n\n    document.addEventListener(\"mousedown\", onDocClick);\n    document.addEventListener(\"keydown\", onKey);\n    // 清理：不解绑的话每次展开都多一对监听器，卸载后还会对已卸载组件 setState\n    return () => {\n      document.removeEventListener(\"mousedown\", onDocClick);\n      document.removeEventListener(\"keydown\", onKey);\n    };\n  }, [open]);\n\n  const choose = (o: Option) => {\n    setPicked(o);\n    setOpen(false);\n    onSelect?.(o.id);\n  };\n\n  return (\n    <div ref={boxRef} data-testid=\"dropdown\">\n      <button\n        onClick={() => setOpen((v) => !v)}\n        aria-haspopup=\"listbox\"\n        aria-expanded={open}\n        data-testid=\"dropdown-trigger\"\n      >\n        {picked ? picked.label : \"请选择\"}\n      </button>\n\n      {open && (\n        <ul role=\"listbox\" data-testid=\"dropdown-list\">\n          {options.map((o) => (\n            <li key={o.id}>\n              <button\n                role=\"option\"\n                aria-selected={picked?.id === o.id}\n                onClick={() => choose(o)}\n                data-testid={`option-${o.id}`}\n              >\n                {o.label}\n              </button>\n            </li>\n          ))}\n        </ul>\n      )}\n    </div>\n  );\n};\n\nexport { Dropdown };\nexport default Dropdown;", {
+      filename: "/Dropdown.tsx",
+      codeEn: "import React, { useEffect, useRef, useState } from \"react\";\n\nexport interface Option { id: string; label: string }\n\ninterface Props {\n  options: Option[];\n  onSelect?: (id: string) => void;\n}\n\nconst Dropdown: React.FC<Props> = ({ options, onSelect }) => {\n  const [open, setOpen] = useState(false);\n  const [picked, setPicked] = useState<Option | null>(null);\n  // useRef holds the DOM node: used to tell whether a click landed on me\n  const boxRef = useRef<HTMLDivElement>(null);\n\n  useEffect(() => {\n    if (!open) return;                   // Closed, so no listener needed — that saves one\n\n    const onDocClick = (e: MouseEvent) => {\n      // e.target is the node that was really clicked; contains asks whether it is inside my subtree\n      if (boxRef.current && !boxRef.current.contains(e.target as Node)) {\n        setOpen(false);\n      }\n    };\n    const onKey = (e: KeyboardEvent) => {\n      if (e.key === \"Escape\") setOpen(false);\n    };\n\n    document.addEventListener(\"mousedown\", onDocClick);\n    document.addEventListener(\"keydown\", onKey);\n    // Cleanup: without it, every open adds another pair of listeners, and after unmount they would setState on an unmounted component\n    return () => {\n      document.removeEventListener(\"mousedown\", onDocClick);\n      document.removeEventListener(\"keydown\", onKey);\n    };\n  }, [open]);\n\n  const choose = (o: Option) => {\n    setPicked(o);\n    setOpen(false);\n    onSelect?.(o.id);\n  };\n\n  return (\n    <div ref={boxRef} data-testid=\"dropdown\">\n      <button\n        onClick={() => setOpen((v) => !v)}\n        aria-haspopup=\"listbox\"\n        aria-expanded={open}\n        data-testid=\"dropdown-trigger\"\n      >\n        {picked ? picked.label : \"Select…\"}\n      </button>\n\n      {open && (\n        <ul role=\"listbox\" data-testid=\"dropdown-list\">\n          {options.map((o) => (\n            <li key={o.id}>\n              <button\n                role=\"option\"\n                aria-selected={picked?.id === o.id}\n                onClick={() => choose(o)}\n                data-testid={`option-${o.id}`}\n              >\n                {o.label}\n              </button>\n            </li>\n          ))}\n        </ul>\n      )}\n    </div>\n  );\n};\n\nexport { Dropdown };\nexport default Dropdown;",
+    }),
+    ],
     // 沙箱里的测试查的是整道题，来源练习只是其中一块 —— 所以显式写全。
     requirements: [
       "点触发器展开，选中后收起并把触发器文字换成选中项的 label",
@@ -882,6 +958,11 @@ const SPECS: Spec[] = [
     from: "iv-coding-rtk-blank",
     explain: "iv-coding-rtk",
     runnable: true,
+    // 来源是填空题，它的题干说的是「四个空」；这里是完整的沙箱题，题面自己写
+    brief:
+      "用 Redux Toolkit 写 Todo 的 slice：createSlice 写出五个 reducer，id 在 prepare 里生成以保持 reducer 纯；可见列表、剩余条数用 selector 派生，筛选不改底层数据。测试直接调 reducer 和 selector，不经过 React。",
+    briefEn:
+      "Write the Todo slice with Redux Toolkit: createSlice with five reducers, ids generated in prepare so the reducer stays pure, and the visible list and the remaining count derived with selectors, with filtering never touching the underlying data. The tests call the reducer and the selectors directly, with no React involved.",
     sandbox: SB_RTK,
     // 沙箱里的测试查的是整道题，来源练习只是其中一块 —— 所以显式写全。
     requirements: [
@@ -919,6 +1000,10 @@ const SPECS: Spec[] = [
       "一个四页面的打车应用。给定数据、卡片和选车页，要你写的是 Context 那一层加三个页面：" +
       "Context 存「当前预订」和「行程历史」，一个 action 同时改两个 state，" +
       "四个页面用一个字符串状态机切换，历史只留最新三条且最新在最上。",
+    briefEn:
+      "A four-page cab booking app. The data, the cards and the cab list are given; what you write is the Context layer plus three pages. " +
+      "The Context holds the current booking and the ride history, and one action updates both; " +
+      "the four pages switch through a single string state machine, and the history keeps only the newest three rides, newest first.",
     requirements: [
       "Context 存两样：bookedCabDetails（当前预订，初始 null）、rideHistory（全部行程，初始 []）",
       "updateBookedCabDetails(cab) 一次干两件事：设成当前预订 + 追加进历史。追加要造新数组，不许 push",
@@ -977,12 +1062,23 @@ const SPECS: Spec[] = [
     explain: "r-task1-add",
     runnable: true,
     sandbox: SB_NOTES,
+    // 课里那份答案的文件划分和导出跟沙箱不同，答案门后放按沙箱写、换进去就能变绿的版本（见 Spec.solution）
+    solution: [
+    tested("tsx", "import { useState } from \"react\";\nimport type { Note } from \"./types\";\nimport NoteForm from \"./NoteForm\";\nimport NoteTable from \"./NoteTable\";\n\nconst NoteManager: React.FC = () => {\n  const [notes, setNotes] = useState<Note[]>([]);\n  const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);\n\n  const handleSubmitNote = (submittedNote: Note) => {\n    if (noteToEdit) {\n      setNotes((prev) =>\n        prev.map((note) =>\n          note.id === submittedNote.id ? submittedNote : note,\n        ),\n      );\n      setNoteToEdit(null);\n    } else {\n      setNotes((prev) => [...prev, submittedNote]);\n    }\n  };\n\n  const handleDelete = (id: number) => {\n    setNotes((prev) => prev.filter((note) => note.id !== id));\n  };\n\n  const handleEdit = (note: Note) => {\n    setNoteToEdit(note);\n  };\n\n  return (\n    <div\n      className=\"layout-column align-items-center justify-content-start\"\n      data-testid=\"note-manager\"\n    >\n      <NoteForm onSubmit={handleSubmitNote} noteToEdit={noteToEdit} />\n      <NoteTable notes={notes} onDelete={handleDelete} onEdit={handleEdit} />\n    </div>\n  );\n};\n\nexport default NoteManager;", {
+      filename: "/NoteManager.tsx",
+    }),
+    tested("tsx", "import React, { useState, useEffect } from \"react\";\nimport type { Note } from \"./types\";\n\ninterface NoteFormProps {\n  onSubmit: (note: Note) => void;\n  noteToEdit: Note | null;\n}\n\nconst NoteForm: React.FC<NoteFormProps> = ({ onSubmit, noteToEdit }) => {\n  const [title, setTitle] = useState(\"\");\n  const [content, setContent] = useState(\"\");\n\n  useEffect(() => {\n    if (noteToEdit) {\n      setTitle(noteToEdit.title);\n      setContent(noteToEdit.content);\n    } else {\n      setTitle(\"\");\n      setContent(\"\");\n    }\n  }, [noteToEdit]);\n\n  const isFormInvalid = title.trim() === \"\" || content.trim() === \"\";\n\n  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {\n    event.preventDefault();\n    if (isFormInvalid) return;\n    const newNote = {\n      id: noteToEdit ? noteToEdit.id : Date.now(),\n      title: title.trim(),\n      content: content.trim(),\n    };\n    onSubmit(newNote);\n    setTitle(\"\");\n    setContent(\"\");\n  };\n\n  return (\n    <div className=\"card\">\n      <form onSubmit={handleSubmit} data-testid=\"note-form\">\n        <section>\n          <label>Title:</label>\n          <input\n            type=\"text\"\n            placeholder=\"Title\"\n            value={title}\n            onChange={(e) => setTitle(e.target.value)}\n            data-testid=\"form-input\"\n          />\n        </section>\n        <section>\n          <label>Content:</label>\n          <textarea\n            placeholder=\"Content\"\n            value={content}\n            onChange={(e) => setContent(e.target.value)}\n            data-testid=\"form-textarea\"\n          />\n        </section>\n        <section>\n          <button type=\"submit\" disabled={isFormInvalid} data-testid=\"form-submit-button\">\n            {noteToEdit ? \"Update\" : \"Add\"}\n          </button>\n        </section>\n      </form>\n    </div>\n  );\n};\n\nexport default NoteForm;", {
+      filename: "/NoteForm.tsx",
+    }),
+    ],
     // 来源练习（考场版）说的是「让下面那四个测试全过」—— 那是源项目自己的
     // 四个测试。沙箱这边把它扩到八条（多查了「追加到末尾」、「提交后清空」、
     // 「原地替换不挪位」、「切换编辑对象要重载表单」），所以题面要自己写，
     // 不能沿用练习里那句，否则页面上「四个」和面板里「8 passed」对不上。
     brief:
       "在下面的工作区里实现 Notes Manager 的增删改，让八个测试全过。两个文件要自己写：NoteManager.tsx（数据和三个 handler）和 NoteForm.tsx（受控输入、校验、编辑态同步）。types.ts / NoteItem.tsx / NoteTable.tsx 给定，不用改。想练「连项目一起从零搭」，去考场那一版。",
+    briefEn:
+      "Build add, edit and delete for the Notes Manager in the workspace below until all eight tests pass. You write two files: NoteManager.tsx (the data and three handlers) and NoteForm.tsx (controlled inputs, validation, keeping the edit state in sync). types.ts, NoteItem.tsx and NoteTable.tsx are given and need no change. To practise building the project from nothing as well, go to the arena version.",
     // 沙箱查的是整道题（八条），来源练习只是其中一块 —— 所以显式写全。
     requirements: [
       "两个框都得有真实内容才能提交 —— 只有空格不算，按钮 disabled",
@@ -1016,6 +1112,12 @@ const SPECS: Spec[] = [
     explain: "r-q2-implement",
     runnable: true,
     sandbox: SB_RUNTASKS,
+    // 课里那份答案的文件划分和导出跟沙箱不同，答案门后放按沙箱写、换进去就能变绿的版本（见 Spec.solution）
+    solution: [
+    tested("ts", "export type Task<T> = () => Promise<T>;\n\nexport type SettledResult<T> =\n  | { status: \"fulfilled\"; value: T }\n  | { status: \"rejected\"; reason: unknown };\n\nexport async function runTasks<T>(\n  tasks: Task<T>[],\n  limit: number,\n): Promise<SettledResult<T>[]> {\n  const results: SettledResult<T>[] = new Array(tasks.length);\n\n  let nextIndex = 0;\n\n  const worker = async () => {\n    while (nextIndex < tasks.length) {\n      const i = nextIndex;\n      nextIndex++;\n\n      try {\n        const value = await tasks[i]();\n        results[i] = { status: \"fulfilled\", value };\n      } catch (reason) {\n        results[i] = { status: \"rejected\", reason };\n      }\n    }\n  };\n  if (tasks.length === 0) return [];\n\n  const workerCount = Math.min(limit, tasks.length);\n  const workers: Promise<void>[] = [];\n  for (let w = 0; w < workerCount; w++) {\n    workers.push(worker());\n  }\n  await Promise.all(workers);\n  return results;\n}", {
+      filename: "/runTasks.ts",
+    }),
+    ],
   },
 
   /* ---- 手写题（面试 · 第 8 部分，DrillLab 自出，8 道全带沙箱）---- */
@@ -1128,8 +1230,12 @@ const SPECS: Spec[] = [
     explain: "g-read-task1",
     runnable: false,
     commands: [
-      { cmd: "npm test", expect: "10 passed" },
-      { cmd: "npm start", expect: "服务起在 4000，_service 能返回 SDL" },
+      { cmd: "npm test", expect: "10 passed", expectEn: "10 passed" },
+      {
+        cmd: "npm start",
+        expect: "服务起在 4000，_service 能返回 SDL",
+        expectEn: "The service starts on 4000 and _service returns the SDL",
+      },
     ],
   },
   {
@@ -1143,8 +1249,12 @@ const SPECS: Spec[] = [
     explain: "g-endpoints",
     runnable: false,
     commands: [
-      { cmd: "mvn test", expect: "Tests run: 5, Failures: 0" },
-      { cmd: "mvn spring-boot:run", expect: "BUILD SUCCESS，服务起在 8080" },
+      { cmd: "mvn test", expect: "Tests run: 5, Failures: 0", expectEn: "Tests run: 5, Failures: 0" },
+      {
+        cmd: "mvn spring-boot:run",
+        expect: "服务起在 8080，日志里出现 Started OrderServiceApplication",
+        expectEn: "The service starts on 8080 and the log shows Started OrderServiceApplication",
+      },
     ],
   },
 ];
@@ -1351,9 +1461,9 @@ if (PROBLEMS.length !== EXPECTED) {
 }
 
 for (const p of PROBLEMS) {
-  if (!p.runnable && (!p.commands || p.commands.length === 0)) {
+  if (!p.sandbox && (!p.commands || p.commands.length === 0)) {
     throw new Error(
-      `[coding] ${p.id} 标了不可运行，但没给本机命令 —— 那用户就不知道怎么验收了。`,
+      `[coding] ${p.id} 没有沙箱，也没给本机命令 —— 那用户就不知道怎么验收了。`,
     );
   }
   if (p.runnable && p.sandbox && !p.sandbox.expect) {
