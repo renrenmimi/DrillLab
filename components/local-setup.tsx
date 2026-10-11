@@ -33,7 +33,7 @@ export interface LocalSetupProps {
   /** 做对之后实测看到什么 */
   target: LocalizedString;
   /** 验收命令（模拟考和考场各自已有的那一份） */
-  commands?: { cmd: string; expect: string }[];
+  commands?: { cmd: string; expect: string; expectEn?: string }[];
   /**
    * 这套题能不能在 StackBlitz 里跑。
    * 本站用的 Sandpack 跑在浏览器 iframe 里，没有 Node —— Node 项目它跑不了。
@@ -293,7 +293,10 @@ export function LocalSetup({
             <T zh="验收命令 —— 逐条跑" en="Acceptance commands" />
           </div>
           <TerminalCommand
-            steps={commands.map((c) => ({ cmd: c.cmd, out: c.expect }))}
+            steps={commands.map((c) => ({
+              cmd: c.cmd,
+              out: c.expectEn ? { zh: c.expect, en: c.expectEn } : c.expect,
+            }))}
           />
         </>
       )}

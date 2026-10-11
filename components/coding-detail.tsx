@@ -80,12 +80,12 @@ const LOCAL_WHY: Record<string, LocalizedString> = {
   // fetch-user 和 player 的原因不一样：不是跑不了服务端，是测试文件里的猴子补丁
   // 拦不到 fetch 和媒体元素原型（实测，见 content/coding.ts 的坑五）。
   "fetch-user": L(
-    "这道题要 stub fetch 才能测竞态，而 Sandpack 的测试环境拦不住 fetch（globalThis / window / self 都试过）。测试本身是对的 —— 在本机 vitest 下 9/9 通过。所以这里只给命令。",
-    "Testing the race condition needs a stubbed fetch, and Sandpack's test environment cannot intercept fetch (globalThis, window and self were all tried). The tests themselves are fine — 9/9 under vitest locally. So you get the commands instead.",
+    "这道题要 stub fetch 才能测竞态，而 Sandpack 的测试环境拦不住 fetch（globalThis / window / self 都试过）。测试本身是对的 —— 在本机 vitest 下全部通过。所以这里只给命令。",
+    "Testing the race condition needs a stubbed fetch, and Sandpack's test environment cannot intercept fetch (globalThis, window and self were all tried). The tests themselves are fine — they all pass under vitest locally. So you get the commands instead.",
   ),
   player: L(
-    "这道题要 stub HTMLMediaElement 的 play / currentTime，而 Sandpack 的测试环境拦不住媒体元素原型。测试本身是对的 —— 在本机 vitest 下 7/7 通过。所以这里只给命令。",
-    "Testing this needs stubs on HTMLMediaElement's play and currentTime, and Sandpack's test environment cannot intercept the media element prototype. The tests themselves are fine — 7/7 under vitest locally. So you get the commands instead.",
+    "这道题要 stub HTMLMediaElement 的 play / currentTime，而 Sandpack 的测试环境拦不住媒体元素原型。测试本身是对的 —— 在本机 vitest 下全部通过。所以这里只给命令。",
+    "Testing this needs stubs on HTMLMediaElement's play and currentTime, and Sandpack's test environment cannot intercept the media element prototype. The tests themselves are fine — they all pass under vitest locally. So you get the commands instead.",
   ),
 };
 
