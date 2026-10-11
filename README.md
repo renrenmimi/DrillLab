@@ -34,12 +34,12 @@ an empty folder.
 
 | Plan | Stages | Items | Ends with |
 | --- | --- | --- | --- |
-| Complete DrillLab | 20 | 350 | every rebuild, every mock, all 105 questions |
+| The full course, from zero | 20 | 350 | every rebuild, every mock, all 105 questions |
 | React Assessment | 7 | 130 | Support Ticket Board, from an empty folder |
 | GraphQL Federation Assessment | 7 | 90 | Book Reviews subgraph, 14 / 14 |
 | Spring Boot Controller | 4 | 12 | the controller rewritten in 75 minutes |
-| Frontend Interview Review | 8 | 234 | 105 questions answered aloud, 15 problems written |
-| Cab Booking | 6 | 38 | the whole app from four tests and one data file |
+| Frontend Interview Review | 8 | 144 | 105 questions answered aloud, 15 problems written |
+| Cab Booking | 6 | 39 | the whole app from four tests and one data file |
 
 Plans reference existing material only — no lesson, question or problem is duplicated
 into them, and **completion is derived from the progress you already have**. Questions
@@ -78,12 +78,13 @@ points at the first Foundations lesson. The two pages whose main content *is* th
 action — the home page and a plan's own page — hand it to the page and drop the
 sidebar copy, so you never see two large buttons pointing at the same place.
 
-A first-time visitor is asked one question with three answers — learn everything in
-order, prepare for a specific assessment, or prepare for interviews — rather than being
-shown six dense plan cards at once. Choosing "prepare for an assessment" is what reveals
-the four assessments. Once a plan is active the home page becomes a small dashboard:
-plan, stage, progress, time left, and one card describing the next task and why it is
-next.
+On the plans page, a first-time visitor is asked one question with three answers —
+learn everything in order, prepare for a specific assessment, or prepare for
+interviews — rather than being shown six dense plan cards at once. Choosing "prepare
+for an assessment" is what reveals the four assessments. Once a plan is active, that
+page becomes a small dashboard: plan, stage, progress, time left, and one card
+describing the next task and why it is next. The home page then leads with the plan's
+next item.
 
 ## Four tracks
 
@@ -92,7 +93,7 @@ The tracks differ by **how much you are given** — each one hands you less than
 | Track | What it is | What you get | Goal |
 | --- | --- | --- | --- |
 | `/drill` | 105 short questions | A question; you answer out loud | Be able to say it |
-| `/practice` | 148 in-lesson exercises | Blanks already cut, waiting to be filled | Be able to recognise it |
+| `/practice` | 148 in-lesson exercises | Most of the code is there; the key parts are yours | Be able to recognise it |
 | `/code` | 25 coding problems | Files, dependencies and tests all provided | Be able to write it correctly |
 | `/arena` | 7 timed sittings (2 full mocks) | An empty folder, a clock, no hints | Be able to do it from nothing |
 
@@ -120,7 +121,7 @@ with diffs and line numbers. Each of those 21 was verified from both ends — th
 files genuinely fail, and the reference implementation genuinely passes.
 
 This needs network access: the bundler and npm dependencies run on CodeSandbox's remote
-service. Offline, it falls back to a "run it locally" card.
+service. Offline, the workspace says so and suggests running the same tests locally.
 
 The remaining 4 have no sandbox, and each page says why — Node/JVM projects cannot start a
 server process inside a browser iframe, and two of them need `fetch` or
@@ -144,6 +145,8 @@ npm run dev        # port 3000 by default
 
 npm run build      # production build
 npm run typecheck  # tsc --noEmit
+npm run audit:zh   # no stray spaces in Chinese copy (also run in CI)
+npm run e2e        # Playwright against next start, after a build
 npm run gen:nav    # regenerate content/nav.ts after editing course content
 npm run gen:src    # re-snapshot reference projects after editing sourceFiles
 ```
@@ -161,7 +164,7 @@ npm run gen:src    # re-snapshot reference projects after editing sourceFiles
 | Coding problems | 25 (21 runnable in the browser) |
 | Arena problems | 7 (5 rebuilds + 2 mocks) |
 | Guided plans | 6 |
-| Prerendered pages | 259 |
+| Prerendered pages | 260 |
 
 ## Content integrity rules
 
