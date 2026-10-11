@@ -77,8 +77,11 @@ to one screen width or only need one of the two browser projects.
 
 - `content/nav` left the shell's first-load JavaScript: Continue reads the
   track manifest, the context sidebar loads lazily, and the search index
-  loads when search first opens. Transferred first-load JS (gzip): `/` 164 →
-  125 KB, lessons 189 → 157 KB, `/code/[id]` 168 → 135 KB ([#27], [#30]).
+  loads when search first opens. The page's initial scripts (gzip): `/`
+  164 → 125 KB, and pages without a context sidebar (`/plans`, `/guide`,
+  `/reference`) no longer download nav at all. Lessons go from 189 to 157 KB;
+  they still fetch nav for their sidebar, but after the initial scripts
+  ([#27], [#30]).
 
 ### Tooling and dependencies
 
