@@ -152,7 +152,7 @@ const PAYLOAD: NavPayload = {
       "shortTitle": "地基 · 项目与语言",
       "shortTitleEn": "Foundations · project and language",
       "descriptionEn": "Before starting React or GraphQL, get clear on how a JavaScript project runs: Node, npm, package.json, scripts, the directory layout, how to run the tests, and where to look first when something fails. After that, only the JavaScript and TypeScript that the two exam projects actually use.",
-      "description": "在动 React 和 GraphQL 之前，先把「一个 JavaScript 项目是怎么运行的」搞清楚：Node、npm、package.json、scripts、目录结构、怎么跑测试、报错该从哪看起。然后只补两门考试真正会用到的 JavaScript 与 TypeScript。",
+      "description": "在动 React 和 GraphQL 之前，先把「一个 JavaScript 项目是怎么运行的」弄清楚：Node、npm、package.json、scripts、目录结构、怎么跑测试、报错该从哪看起。然后只补两门考试真正会用到的 JavaScript 与 TypeScript。",
       "category": "基础",
       "tests": "这一门本身不是考试，是另外两门的地基。考场上真正会卡住新手的往往不是 React 语法，而是「测试怎么跑」「这个报错是我写错了还是项目本来就坏的」「dependencies 和 devDependencies 有什么区别」这类问题。",
       "testsEn": "This course is not an exam itself. It is the base the other two stand on. What usually stops a beginner in an exam is not React syntax. It is questions like how to run the tests, whether an error is your own mistake or a defect that was already in the project, and what the difference is between dependencies and devDependencies.",
@@ -268,7 +268,7 @@ const PAYLOAD: NavPayload = {
             },
             {
               "id": "js-modules",
-              "title": "ESM:import / export 与那些莫名其妙的报错",
+              "title": "ESM：import / export 与那些莫名其妙的报错",
               "titleEn": "ESM: import / export, and the errors that look strange at first",
               "blurb": "为什么 subgraph 里 import 要写 .js 后缀，为什么 jest 要加一个实验性参数。",
               "blurbEn": "Why an import in the subgraph needs the .js ending, and why jest needs an experimental flag.",
@@ -636,62 +636,86 @@ const PAYLOAD: NavPayload = {
       "checklist": [
         {
           "task": "Q1 Task 1 · Add（提交表单，新笔记进入表格）",
+          "taskEn": "Q1 Task 1 · Add (submit the form, the new note appears in the table)",
           "covered": "完整讲解 + 填空 + L3 自写 + 从零重写",
+          "coveredEn": "Full walkthrough + fill-in-the-blank + L3 write-a-block + rebuild from scratch",
           "tested": true
         },
         {
           "task": "Q1 Task 2 · Delete（按 id 移除）",
+          "taskEn": "Q1 Task 2 · Delete (remove by id)",
           "covered": "完整讲解 + 填空 + L3 自写 + Debug Lab",
+          "coveredEn": "Full walkthrough + fill-in-the-blank + L3 write-a-block + Debug Lab",
           "tested": true
         },
         {
           "task": "Q1 Task 3 · Edit（回填 / 变 Update / 原位置更新 / 退出编辑）",
+          "taskEn": "Q1 Task 3 · Edit (refill / switch to Update / update in place / leave edit mode)",
           "covered": "完整讲解 + 数据流图 + 填空 + L3 自写 + Debug Lab",
+          "coveredEn": "Full walkthrough + data-flow diagram + fill-in-the-blank + L3 write-a-block + Debug Lab",
           "tested": true
         },
         {
           "task": "Q1 表单校验（空输入时按钮 disabled）",
+          "taskEn": "Q1 form validation (the button is disabled while the inputs are empty)",
           "covered": "派生数据那节 + L3 自写",
+          "coveredEn": "The derived-data lesson + L3 write-a-block",
           "tested": true
         },
         {
           "task": "Q1 约束 · 不得修改 data-testid",
+          "taskEn": "Q1 constraint · do not change any data-testid",
           "covered": "读题那节逐条列出 6 个 testid 及其用途 + Debug Lab",
+          "coveredEn": "The reading lesson lists all 6 testids and what each is for + Debug Lab",
           "tested": true
         },
         {
           "task": "Q2 · runTasks 并发上限调度器",
+          "taskEn": "Q2 · runTasks, a task runner with a concurrency limit",
           "covered": "读题 + worker pool 完整推导 + 填空 + L3 自写 + 从零重写",
+          "coveredEn": "Reading the brief + the worker pool worked out in full + fill-in-the-blank + L3 write-a-block + rebuild from scratch",
           "tested": false
         },
         {
           "task": "测试怎么跑（项目没有 test script）",
+          "taskEn": "How to run the tests (the project has no test script)",
           "covered": "Foundations 的 npm scripts 那节 + 本门读题那节",
+          "coveredEn": "The npm scripts lesson in Foundations + the reading lesson in this course",
           "tested": true
         },
         {
           "task": "npm run build 原生失败（10 个 tsc 错误）",
+          "taskEn": "npm run build fails out of the box (10 tsc errors)",
           "covered": "Foundations 读 tsc 报错那节，判定为脚手架缺陷",
+          "coveredEn": "The Foundations lesson on reading tsc errors, which identifies it as a scaffold defect",
           "tested": true
         },
         {
           "task": "useEffect 的清理函数（源项目没考，同类考试常考）",
+          "taskEn": "The useEffect cleanup function (not in the source project, common in exams like this)",
           "covered": "变式题「计时器」完整讲解 + 填空 + L3 自写 + Debug Lab（DrillLab 自出）",
+          "coveredEn": "The timer variation: full walkthrough + fill-in-the-blank + L3 write-a-block + Debug Lab (written by DrillLab)",
           "tested": true
         },
         {
           "task": "异步取数的 loading / error / 竞态（原始需求提到但源项目没有）",
+          "taskEn": "Loading, errors and race conditions when fetching (named in the original requirements, absent from the source project)",
           "covered": "变式题「fetch 取数」完整讲解 + 填空 + L3 自写 + Debug Lab（DrillLab 自出）",
+          "coveredEn": "The fetch variation: full walkthrough + fill-in-the-blank + L3 write-a-block + Debug Lab (written by DrillLab)",
           "tested": true
         },
         {
           "task": "递归组件与树形数据的不可变更新",
+          "taskEn": "Recursive components and immutable updates to tree data",
           "covered": "变式题「递归评论树」完整讲解 + 填空 + L3 自写 + Debug Lab（DrillLab 自出）",
+          "coveredEn": "The comment-tree variation: full walkthrough + fill-in-the-blank + L3 write-a-block + Debug Lab (written by DrillLab)",
           "tested": true
         },
         {
           "task": "Context：createContext / Provider / useContext 与 value 记忆化",
+          "taskEn": "Context: createContext / Provider / useContext, and memoising the value",
           "covered": "变式题「主题切换」完整讲解 + 填空 + L3 自写 + Debug Lab（DrillLab 自出）",
+          "coveredEn": "The theme-switch variation: full walkthrough + fill-in-the-blank + L3 write-a-block + Debug Lab (written by DrillLab)",
           "tested": true
         }
       ]
@@ -949,8 +973,8 @@ const PAYLOAD: NavPayload = {
               "id": "g-debug-lab",
               "title": "Debug Lab · Federation 十种典型故障",
               "titleEn": "Debug Lab · ten common Federation failures",
-              "blurb": "从「resolver 写了但返回 null」到「composition 失败」，每一种都给真实报错。",
-              "blurbEn": "From a resolver that runs but returns null, to a composition failure. Every case comes with the real error text.",
+              "blurb": "从「resolver 写了但返回 null」到「composition 失败」，每一种都给出报错的样子和根因。",
+              "blurbEn": "From a resolver that runs but returns null, to a composition failure. Each case comes with what the error looks like and its root cause.",
               "minutes": 22,
               "exerciseCount": 4
             },
@@ -991,69 +1015,91 @@ const PAYLOAD: NavPayload = {
       "checklist": [
         {
           "task": "Task 1 · User.orders",
+          "taskEn": "Task 1 · User.orders",
           "covered": "完整讲解 + entity 数据流图 + 填空 + L3 自写 + 从零重写",
+          "coveredEn": "Full walkthrough + entity data-flow diagram + fill-in-the-blank + L3 write-a-block + rebuild from scratch",
           "tested": true
         },
         {
           "task": "Task 1 · Order.shippingInfo（要求用 DataLoader）",
+          "taskEn": "Task 1 · Order.shippingInfo (DataLoader required)",
           "covered": "N+1 与 DataLoader 专章 + 填空 + Debug Lab",
+          "coveredEn": "A lesson on N+1 and DataLoader + fill-in-the-blank + Debug Lab",
           "tested": true
         },
         {
           "task": "Task 1 · Query.orders",
+          "taskEn": "Task 1 · Query.orders",
           "covered": "与 Query.order 对比讲解 + 填空 + L3 自写",
+          "coveredEn": "Explained side by side with Query.order + fill-in-the-blank + L3 write-a-block",
           "tested": true
         },
         {
           "task": "Task 1 · Query.order（README 没提、也没有测试）",
+          "taskEn": "Task 1 · Query.order (not in the README, and no test)",
           "covered": "专门指出并完整实现，用上了给好的 ORDER_NOT_FOUND",
+          "coveredEn": "Pointed out explicitly and implemented in full, using the ORDER_NOT_FOUND code already provided",
           "tested": false
         },
         {
           "task": "埋雷 1 · createOrderLoader 调了不存在的 getOrderById",
+          "taskEn": "Planted bug 1 · createOrderLoader calls getOrderById, which does not exist",
           "covered": "DataLoader 那节点出 + 独立 Debug Lab",
+          "coveredEn": "Pointed out in the DataLoader lesson + a Debug Lab of its own",
           "tested": true
         },
         {
           "task": "埋雷 2 · createOrder 用了不存在的 orderAPI、签名错、缺 price",
+          "taskEn": "Planted bug 2 · createOrder uses orderAPI, which does not exist, the wrong signature, and no price",
           "covered": "埋雷专章逐条拆解 + Debug Lab",
+          "coveredEn": "Taken apart point by point in the planted-bugs lesson + Debug Lab",
           "tested": true
         },
         {
           "task": "埋雷 3 · catch 把 INVALID_INPUT 吞成 SERVICE_ERROR",
+          "taskEn": "Planted bug 3 · catch turns INVALID_INPUT into SERVICE_ERROR",
           "covered": "贯穿四个 resolver 的模式讲解 + 独立 Debug Lab",
+          "coveredEn": "The pattern explained across all four resolvers + a Debug Lab of its own",
           "tested": true
         },
         {
           "task": "Task 2 · 六个 Spring 端点（含 201 / 204 / 400 / 404）",
+          "taskEn": "Task 2 · the six Spring endpoints (including 201 / 204 / 400 / 404)",
           "covered": "Spring 基础 + 逐端点讲解 + 填空 + L3 自写 + 从零重写",
+          "coveredEn": "Spring basics + an endpoint-by-endpoint walkthrough + fill-in-the-blank + L3 write-a-block + rebuild from scratch",
           "tested": true
         },
         {
           "task": "Task 2 · 六个端点全 return null 也能过 3/5 测试",
+          "taskEn": "Task 2 · all six endpoints returning null still pass 3 of the 5 tests",
           "covered": "实测数据 + 手动 curl 自检清单 + Debug Lab",
+          "coveredEn": "Measured results + a manual curl checklist + Debug Lab",
           "tested": true
         },
         {
           "task": "书面题 1 · User subgraph 高延迟的影响与缓存策略",
+          "taskEn": "Written question 1 · what a slow User subgraph does to the rest, and a caching strategy",
           "covered": "传导路径分析 + 完整参考答案 + 答题结构模板",
+          "coveredEn": "How the delay spreads + a full reference answer + a template for structuring the answer",
           "tested": false
         },
         {
           "task": "书面题 2 · application.properties 的生产隐患",
+          "taskEn": "Written question 2 · the production risks in application.properties",
           "covered": "六面排查清单 + 六个问题的完整参考答案 + L3 练习",
+          "coveredEn": "A six-area checklist + full reference answers for six problems + an L3 exercise",
           "tested": false
         }
       ]
     },
     {
       "id": "interview",
-      "title": "前端面试八股 · 99 问 + 16 道 coding",
-      "titleEn": "Frontend interview preparation · 99 questions + 16 coding problems",
+      "title": "前端面试八股 · 105 问 + 24 道 coding",
+      "titleEn": "Frontend interview preparation · 105 questions + 24 coding problems",
       "shortTitle": "面试八股",
       "shortTitleEn": "Interview questions",
-      "descriptionEn": "A set of frontend interview questions the author went through, grouped by HTML / CSS / JavaScript / React / Node / databases / networking. Every question gets a one-sentence answer, a longer explanation, and the follow-up questions to expect. The last part compares the 16 coding problems one by one against the exercises already on this site, and points out which ones are already written up and which ones are gaps.",
-      "description": "一份作者做过的前端面试题整理，按 HTML / CSS / JavaScript / React / Node / 数据库 / 网络分好组，每道题给「一句话答案 + 展开 + 会被追问什么」。最后一节把 16 道 coding 题逐题对照本站已有的练习，指出哪些已经写过、哪些是缺口。",
+      "descriptionEn": "A set of frontend interview questions the author went through, grouped by HTML / CSS / JavaScript / React / Node / databases / networking. Every question gets a one-sentence answer, a longer explanation, and the follow-up questions to expect. The coding part compares the 16 coding problems one by one against the exercises already on this site, and points out which ones are already written up and which ones are gaps; after it come 8 implement-it-yourself problems and a TypeScript-in-depth group of 6 questions written by DrillLab.",
+      "description": "一份作者做过的前端面试题整理，按 HTML / CSS / JavaScript / React / Node / 数据库 / 网络分好组，每道题给「一句话答案 + 展开 + 会被追问什么」。coding 部分把 16 道 coding 题逐题对照本站已有的练习，指出哪些已经写过、哪些是缺口；之后是 8 道手写题，以及 DrillLab 自出的 TypeScript 深度一组（6 题）。",
       "category": "全栈",
       "tests": "八股考的是「你有没有想过为什么」。同一道题，说出结论是及格，说出取舍和边界才是好答案 —— 所以每道题都写了「会追问什么」，那才是真正拉开差距的地方。coding 题考的东西和另外两门的真题高度重合，所以这里只补真正的缺口，不重复出题。",
       "testsEn": "These questions test whether you have thought about why, not only what. On any single question, stating the conclusion is a pass; naming the trade-offs and the edge cases is a good answer. That is why every question also lists what the interviewer will ask next — that is where answers really differ. The coding problems overlap heavily with the real tasks in the other two exams, so this course only fills the real gaps instead of repeating problems.",
@@ -1409,43 +1455,73 @@ const PAYLOAD: NavPayload = {
       "checklist": [
         {
           "task": "HTML 5 题（#269、#380 ~ #385）",
+          "taskEn": "HTML, 5 questions (#269, #380 to #385)",
           "covered": "块级/行内、事件冒泡与捕获、meta、语义化、无障碍",
+          "coveredEn": "Block and inline, event bubbling and capture, meta, semantic HTML, accessibility",
           "tested": false
         },
         {
           "task": "CSS 8 题（#270 ~ #275、#383、#384）",
+          "taskEn": "CSS, 8 questions (#270 to #275, #383, #384)",
           "covered": "盒模型、margin/padding、Flex vs Grid、选择器与优先级、SCSS、预处理器、响应式",
+          "coveredEn": "The box model, margin and padding, Flex vs Grid, selectors and specificity, SCSS, preprocessors, responsive design",
           "tested": false
         },
         {
           "task": "JavaScript 38 题（#276 ~ #312、#386、#387）",
+          "taskEn": "JavaScript, 38 questions (#276 to #312, #386, #387)",
           "covered": "引擎与类型、函数与作用域、this 与 OOP、异步与事件循环、DOM 与工具链，共 5 节",
+          "coveredEn": "Five lessons: the engine and types, functions and scope, this and OOP, async and the event loop, the DOM and tooling",
           "tested": false
         },
         {
           "task": "React 与生态 36 题（#319 ~ #356）",
+          "taskEn": "React and its ecosystem, 36 questions (#319 to #356)",
           "covered": "虚拟 DOM 与 diff、组件与通信、Hooks、性能与 React 18、Redux 与 TypeScript，共 5 节",
+          "coveredEn": "Five lessons: the virtual DOM and diffing, components and how they communicate, Hooks, performance and React 18, Redux and TypeScript",
           "tested": false
         },
         {
           "task": "Node / Express 4 题（#313 ~ #316）",
+          "taskEn": "Node / Express, 4 questions (#313 to #316)",
           "covered": "Node 事件循环、请求响应周期、参数选择、CRUD 与幂等",
+          "coveredEn": "The Node event loop, the request and response cycle, choosing a parameter type, CRUD and idempotency",
           "tested": false
         },
         {
           "task": "数据库 2 题（#317、#318）",
+          "taskEn": "Databases, 2 questions (#317, #318)",
           "covered": "关系型 vs 非关系型选型、主键与外键及删除行为",
+          "coveredEn": "Choosing relational or non-relational, primary and foreign keys, and what happens on delete",
           "tested": false
         },
         {
           "task": "网络、安全与测试 6 题（#357 ~ #362）",
+          "taskEn": "Networking, security and testing, 6 questions (#357 to #362)",
           "covered": "CORS、HTTPS、JWT、session vs cookie、状态码、测试金字塔",
+          "coveredEn": "CORS, HTTPS, JWT, session vs cookie, status codes, the testing pyramid",
           "tested": false
         },
         {
           "task": "Coding 16 题（#363 ~ #378）",
+          "taskEn": "Coding, 16 problems (#363 to #378)",
           "covered": "逐题对照现有练习，9 道已被覆盖，7 道作为缺口补进来（参考解法在本机跑过测试）",
+          "coveredEn": "Compared one by one with the existing exercises: 9 are already covered, 7 are added as gaps (the reference solutions were run against tests locally)",
           "tested": true
+        },
+        {
+          "task": "手写题 8 道（debounce、throttle、deepClone、flatten、curry、Promise.all、EventEmitter、LRU）",
+          "taskEn": "8 implement-it-yourself problems (debounce, throttle, deepClone, flatten, curry, Promise.all, EventEmitter, LRU)",
+          "covered": "三节讲解 + 每道一个 L3 自写（参考解法在本机跑过测试）",
+          "coveredEn": "Three lessons + an L3 write-a-block for each (the reference solutions were run against tests locally)",
+          "tested": true
+        },
+        {
+          "task": "TypeScript 深度 6 题（DrillLab 自出）",
+          "taskEn": "TypeScript in depth, 6 questions (written by DrillLab)",
+          "covered": "Utility Types 与手写实现、泛型与收窄两节，各带一道识别题",
+          "coveredEn": "Two lessons, on utility types and writing them yourself, and on generics and narrowing, each with a recognition exercise",
+          "tested": false
         }
       ]
     },
@@ -1520,7 +1596,7 @@ const PAYLOAD: NavPayload = {
             },
             {
               "id": "cb-provider-layer",
-              "title": "Context 放在哪一层 —— 这道题最容易死的地方",
+              "title": "Context 放在哪一层 —— 这道题最常见的失分点",
               "titleEn": "Which level the Context goes on — the most common way to fail this task",
               "blurb": "Provider 必须包在 App 外面。包在里面，App 自己就用不了 Context。",
               "blurbEn": "The Provider has to wrap App from the outside. Put it inside App and App itself cannot read the Context.",
@@ -1550,7 +1626,7 @@ const PAYLOAD: NavPayload = {
               "id": "cb-options-grid",
               "title": "按类型分组渲染六张卡",
               "titleEn": "Rendering the six cards grouped by type",
-              "blurb": "两层 map：外层 Object.keys 出三个类型，内层出每组的车。key 有个坑。",
+              "blurb": "两层 map：外层 Object.keys 出三个类型，内层出每组的车。key 有个陷阱。",
               "blurbEn": "Two nested maps: Object.keys gives the three types on the outside, the cabs of each group on the inside. The key needs care.",
               "minutes": 13,
               "exerciseCount": 2
@@ -1577,7 +1653,7 @@ const PAYLOAD: NavPayload = {
         },
         {
           "id": "cab-verify",
-          "title": "验收：脚手架的坑、面试追问、从零重写",
+          "title": "验收：脚手架的缺陷、面试追问、从零重写",
           "titleEn": "Checking your work: the defect in the provided project, interview follow-up questions, and rewriting in an empty folder",
           "summary": "三件事：修掉那个让「完整答案」原样跑不起来的缺陷；把源项目两处「测试能过但面试会被问」的写法说清楚；然后在空文件夹里重写一遍。",
           "summaryEn": "Three things: fix the defect that stops the complete answer from running as given; explain two places in the source project where the code passes the tests but an interviewer would still ask about it; then write the whole app again in an empty folder.",
@@ -1608,52 +1684,72 @@ const PAYLOAD: NavPayload = {
       "checklist": [
         {
           "task": "首页 + 空历史提示",
+          "taskEn": "The home page and the empty-history message",
           "covered": "第 1 部分 · 先读四个测试",
+          "coveredEn": "Part 1 · reading the four tests first",
           "tested": true
         },
         {
           "task": "Context 三件套 + Provider 层级",
+          "taskEn": "The three parts of Context, and the level of the Provider",
           "covered": "第 1 部分 · Context 放在哪一层",
+          "coveredEn": "Part 1 · which level the Context goes on",
           "tested": true
         },
         {
           "task": "一个 action 改两个 state",
+          "taskEn": "One action updating two pieces of state",
           "covered": "第 1 部分 · 一次更新两个 state",
+          "coveredEn": "Part 1 · updating two pieces of state at once",
           "tested": true
         },
         {
           "task": "四个页面的切换",
+          "taskEn": "Switching between the four pages",
           "covered": "第 2 部分 · 页面状态机",
+          "coveredEn": "Part 2 · the page state machine",
           "tested": true
         },
         {
           "task": "按类型分组 + 六张卡的字段",
+          "taskEn": "Grouping by type, and the fields of the six cards",
           "covered": "第 2 部分 · 分组渲染与 testid 契约",
+          "coveredEn": "Part 2 · grouped rendering and the testid contract",
           "tested": true
         },
         {
           "task": "Loading 一秒后自动跳转",
+          "taskEn": "Loading moves on by itself after one second",
           "covered": "第 2 部分 · setTimeout 与清理函数",
+          "coveredEn": "Part 2 · setTimeout and the cleanup function",
           "tested": true
         },
         {
           "task": "历史只留最新三条、最新在最上",
+          "taskEn": "The history keeps only the newest three, newest first",
           "covered": "第 2 部分 · slice(-3).reverse()",
+          "coveredEn": "Part 2 · slice(-3).reverse()",
           "tested": true
         },
         {
           "task": "脚手架缺陷：.js 里写 JSX",
+          "taskEn": "Scaffold defect: JSX in a .js file",
           "covered": "第 3 部分 · Debug Lab",
+          "coveredEn": "Part 3 · Debug Lab",
           "tested": true
         },
         {
           "task": "两处能更好的写法（面试会问）",
+          "taskEn": "Two places that could be written better (interviewers ask)",
           "covered": "第 3 部分 · 面试官会追问的两点",
+          "coveredEn": "Part 3 · the two points interviewers follow up on",
           "tested": false
         },
         {
           "task": "空文件夹里从零重写",
+          "taskEn": "Rewriting it from an empty folder",
           "covered": "第 3 部分 · 从零重写",
+          "coveredEn": "Part 3 · rewriting from scratch",
           "tested": true
         }
       ]
@@ -3255,8 +3351,8 @@ const PAYLOAD: NavPayload = {
       "id": "g-rebuild-subgraph",
       "title": "从零重建 Task 1 · Orders subgraph",
       "titleEn": "Rebuild Task 1 · the Orders subgraph",
-      "scenarioEn": "An empty folder. Build an Apollo Federation subgraph yourself: write the schema, write the four resolvers, use DataLoader to avoid N+1, put extensions.code on errors, and make all ten tests pass.",
-      "scenario": "空文件夹。自己搭一个 Apollo Federation subgraph：写 schema、写四个 resolver、用 DataLoader 防 N+1、错误带上 extensions.code，并让十个测试全过。",
+      "scenarioEn": "An empty folder. Build an Apollo Federation subgraph yourself: read the schema (copied from the source project), write the four resolvers, use DataLoader to avoid N+1, put extensions.code on errors, and make all ten tests pass.",
+      "scenario": "空文件夹。自己搭一个 Apollo Federation subgraph：读 schema（照抄源项目的）、写四个 resolver、用 DataLoader 防 N+1、错误带上 extensions.code，并让十个测试全过。",
       "minutes": 90,
       "examId": "graphql-federation",
       "fromMock": false,

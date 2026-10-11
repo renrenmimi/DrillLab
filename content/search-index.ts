@@ -106,7 +106,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "transfer": [
       "不知道项目怎么跑 读 package.json 的 scripts",
       "不知道这题要考什么 读 dependencies，特殊的包就是考点",
-      "找不到 jest / eslint 配置文件 看 package.json 里有没有同名内嵌字段",
+      "找不到 jest / eslint 配置文件 看 package.json 里有没有对应的内嵌字段（jest 用 \"jest\"，Prettier 用 \"prettier\"，旧版 ESLint 用 \"eslintConfig\"）",
       "import 报 Cannot use import statement 检查 \"type\": \"module\""
     ]
   },
@@ -181,10 +181,10 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "graphql-federation-practice/"
     ],
     "recap": [
-      "react-notes-app 有两道独立的题：src/ 是 React 的 Q1,q2/ 是纯 TS 的 Q2。",
+      "react-notes-app 有两道独立的题：src/ 是 React 的 Q1，q2/ 是纯 TS 的 Q2。",
       "前端启动链：index.html → main.tsx → App.tsx → NoteManager → 子组件。",
       "兄弟组件不能直接通话，所以共享数据必须放在共同父组件里。",
-      "Federation 项目只有两个文件要改：orderResolvers.js 和 OrderController.java。",
+      "Federation 项目要改的代码文件只有两个：orderResolvers.js 和 OrderController.java；另外在 QUESTIONS.md 里写书面答案。",
       "orders.db、@shareable、getInventoryStatus、MetricsConfig 都是干扰项。"
     ],
     "transfer": [
@@ -245,7 +245,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "知道「函数」和「函数的返回值」在异步里为什么必须分清",
       "会用 try/catch 包住 await"
     ],
-    "whyForAssessment": "Q2 要你手写一个「allSettled + 并发上限」；Federation 的每个 resolver 都是 async 且要求 try/catch。这一节是两道题共同的地基。",
+    "whyForAssessment": "Q2 要你手写一个「allSettled + 并发上限」；Federation 的 resolver 都是 async，四个 TODO 里有三个明确要求错误处理。这一节是两道题共同的地基。",
     "conceptHeadings": [
       "Promise：一张「以后会给你结果」的凭据",
       "最关键的一个区分：函数，还是函数的返回值",
@@ -293,7 +293,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "whyForAssessment": "两个项目都是 ESM。subgraph 的 import 少一个 .js 就跑不起来；React 项目里 import type 用错会让构建失败。这类错误的报错信息通常很不友好。",
     "conceptHeadings": [
       "default 和 named：一个模块只能有一个 default",
-      "ESM 里相对路径必须带 .js —— 哪怕源文件是 .ts",
+      "原生 ESM 里相对路径必须写完整扩展名",
       "import type：只要类型，不要运行时代码",
       "为什么 subgraph 的 test script 那么长"
     ],
@@ -348,13 +348,13 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "读项目先读类型定义：Note 的 3 行决定了 Q1 全部的数据操作。",
       "type 和 interface 大多可互换；联合类型只能用 type。",
       "(note: Note) => void 是函数类型；Note | null 是联合类型。",
-      "strict: true 打开后，null 必须显式处理、参数必须有类型。",
-      "! 是非空断言，是你在替编译器担保，用错了运行时才炸。"
+      "strict: true 打开后，null 必须显式处理，推断不出类型的参数必须标注。",
+      "! 是非空断言，是你在替编译器担保；用错了，错误要到运行时才出现。"
     ],
     "transfer": [
       "读一个陌生项目 先找 types/ 或 *.d.ts，类型比 README 准",
       "「要么是 X 要么没有」 X | null，用之前先 if 判断",
-      "需要联合类型 只能用 type,interface 做不到",
+      "需要联合类型 只能用 type，interface 做不到",
       "Object is possibly 'null' 先判断，或者确实安全时用 !"
     ]
   },
@@ -389,15 +389,15 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "recap": [
       "泛型是「留洞的类型」，尖括号是你在填洞。",
       "初始值看不出类型（空数组、null）时必须显式写泛型参数。",
-      "tsc 报错四件套：文件、行列、错误码、说明。永远先看第一条。",
+      "tsc 报错四件套：文件、行列、错误码、说明。先看第一条，再看其余是否同因。",
       "react-notes-app 的 npm run build 原生失败，10 个错全在测试文件，与你的实现无关。",
       "分辨「我的错」和「项目的错」：看报错位置、报的是谁的名字、测试跑不跑得过。"
     ],
     "transfer": [
       "useState 初始值是 [] 或 null 显式写泛型参数",
-      "一堆 tsc 报错 只看第一条，后面可能是连锁",
+      "一堆 tsc 报错 先看第一条，再看后面几条是不是同一个原因",
       "报错全在测试文件、说全局名字找不到 缺测试框架类型，不是你的逻辑问题",
-      "TS2345 参数类型不匹配 回去看类型定义，通常是 id 的 number/string 搞混"
+      "TS2345 参数类型不匹配 回去看类型定义，通常是 id 的 number 与 string 混淆"
     ]
   },
   {
@@ -436,7 +436,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "NoteManager 是唯一能同时影响表单和表格的地方，三道题都落在它里面。"
     ],
     "transfer": [
-      "组件不显示但控制台干净 检查组件名是否大写开头",
+      "组件不显示，控制台提示 is unrecognized in this browser 检查组件名是否大写开头",
       "变量名原样显示在页面上 漏了花括号",
       "不知道逻辑该写在哪个组件 找持有相关 state 的那个组件",
       "JSX expressions must have one parent 用 <>…</> 包住多个同级元素"
@@ -460,7 +460,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "conceptLedes": [
       "组件是函数，props 是传给它的那个对象。",
-      "这是 React 里子组件影响父组件的唯一正当方式。",
+      "这是只用 props 时，子组件影响父组件的标准方式。",
       "这是新手最高频的错误之一，而且症状很奇怪。"
     ],
     "exerciseTitles": [
@@ -481,7 +481,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "transfer": [
       "子组件要影响父组件的数据 父组件传一个 onXxx 函数下去",
       "事件处理器要传参数 包一层箭头函数 () => fn(arg)",
-      "Maximum update depth exceeded 先查有没有在渲染时调用了处理函数",
+      "Cannot update a component while rendering a different component 先查有没有在渲染时调用了处理函数（同一个组件在渲染中改自己的 state，React 报的是 Too many re-renders）",
       "点了按钮毫无反应 查 onClick 里是不是写成了 fn() 而不是 fn"
     ]
   },
@@ -545,7 +545,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "conceptLedes": [
       "输入框自己不做主，它只显示 state 告诉它的东西。",
-      "输入框会变成只读的。这是个很容易踩的坑。",
+      "输入框会变成只读的。这是一个很常见的错误。",
       "这是这道题最密集的一个文件。上面讲的四件事都在里面。"
     ],
     "exerciseTitles": [
@@ -599,7 +599,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "recap": [
       "map 把数据数组变成 JSX 数组，React 会平铺渲染。",
       "key 是给 React 认人用的，要求「本串唯一 + 跟着数据走」。",
-      "永远别用 index 当 key，更别用 Math.random()。",
+      "有删除或重排的列表别用 index 当 key，更别用 Math.random()。",
       "空数组 map 出空数组，不需要特殊处理 —— 也不要因此改动 testid 元素的结构。",
       "箭头函数用花括号就必须 return，否则渲染空白且不报错。"
     ],
@@ -631,7 +631,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "exerciseTitles": [
       "补全编辑回填的 useEffect",
-      "Debug Lab · 点 Edit 之后页面卡死"
+      "Debug Lab · 输入框敲不进字"
     ],
     "sourcePaths": [
       "react-notes-app/src/components/NoteForm/index.tsx"
@@ -641,12 +641,13 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "[] 只跑一次；[a] 在 a 变化时跑；不写则每次渲染都跑（通常是错的）。",
       "NoteForm 那个 effect 的职责是「把外部的 noteToEdit 同步进内部两个 state」。",
       "else 分支负责在退出编辑时清空表单，不能省。",
-      "effect 里改的 state 不能放进它自己的依赖数组，否则死循环。"
+      "effect 里改的 state 不要放进它自己的依赖数组：轻则把用户输入覆盖掉，重则（每次设的值都不同时）无限循环。"
     ],
     "transfer": [
       "「外部数据变了，内部状态要跟上」 useEffect(fn, [那个外部数据])",
       "「组件加载时做一次某事」 useEffect(fn, [])",
       "Maximum update depth exceeded 查依赖数组：是不是漏了，或含了自己改的 state",
+      "输入框敲不进字，控制台却没有报错 查依赖数组是不是含了 effect 自己改的 state",
       "「点了却没反应，但别的地方变了」 查依赖数组是不是写成了 []"
     ]
   },
@@ -716,7 +717,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "先把要改的地方框出来，再动手。"
     ],
     "exerciseTitles": [
-      "哪一处改动会让测试挂掉",
+      "哪一处改动会让测试失败",
       "题目没写但测试在查的是哪一条",
       "把上手顺序排对"
     ],
@@ -821,7 +822,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "验证「按 id」的办法是手动加三条同名笔记，删中间那条。"
     ],
     "transfer": [
-      "「删除某一条」 filter + 保留不匹配的（！==）",
+      "「删除某一条」 filter + 保留不匹配的（!==）",
       "题目强调「按 X」 比较依据只能是 X",
       "回调参数只给了 id 说明设计上就要求你按 id 操作",
       "测试过了但心里没底 手动造一个测试覆盖不到的场景（同名、多条、空列表）"
@@ -854,7 +855,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "exerciseTitles": [
       "补全编辑逻辑的四个关键位置",
       "不看答案，自己写出完整的 Task 3",
-      "Debug Lab · 点 Update 之后毫无反应"
+      "Debug Lab · 点 Update 之后列表没有变化"
     ],
     "sourcePaths": [
       "react-notes-app/src/components/NoteManager/index.tsx",
@@ -975,7 +976,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "whyForAssessment": "这是 Q2 的完整答案。而且 worker pool 是一个可迁移的模式 —— 任何「限制并发」的题都是这个骨架。",
     "conceptHeadings": [
-      "先排除一个直觉上的错解：分批",
+      "先排除一个直觉上的低效解：分批",
       "worker pool 的四个零件",
       "游标不会被抢乱吗",
       "分步写出来",
@@ -983,7 +984,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "验证：读懂这段输出"
     ],
     "conceptLedes": [
-      "「6 个任务、上限 2，那就切成 3 批」—— 这个想法能跑，但不对。",
+      "「6 个任务、上限 2，那就切成 3 批」—— 这个想法能跑、也不违反题面，但浪费时间。",
       "拆开看，一共只有四样东西。",
       "不会。JavaScript 是单线程的。",
       "这就是项目里的实现，已实测跑通。"
@@ -1073,8 +1074,8 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "conceptLedes": [
       "useEffect 里 return 出去的那个函数，React 会在「下一次执行之前」和「卸载时」调用它。",
-      "写成 setSeconds(seconds + 1) 会卡在 1 不动。这个坑叫「过期闭包」。",
-      "我把 clearInterval 那行删掉真跑了一遍，8 个测试挂了 4 个。",
+      "写成 setSeconds(seconds + 1) 会卡在 1 不动。这个陷阱叫「过期闭包」。",
+      "编写本课时把 clearInterval 那行删掉真跑了一遍，8 个测试失败了 4 个。",
       "8 个测试全过，其中两条专门验证清理生效。",
       "定时器怎么测？把时间也 mock 掉。"
     ],
@@ -1112,7 +1113,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "whyForAssessment": "原始需求里就写了「API request / loading state / error state」，但源项目里没有任何网络请求，所以前面没讲。这道题补上，而且直接给到「竞态」这一层 —— 只写三态谁都会，竞态才是区分度所在。",
     "conceptHeadings": [
       "三态骨架",
-      "fetch 的第一个坑：404 不会 reject",
+      "fetch 的第一个陷阱：404 不会 reject",
       "真正的考点：竞态",
       "AbortController 和 ignore 解决的不是同一件事",
       "完整答案",
@@ -1232,7 +1233,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "recap": [
       "Context 解决跨层传值，适合「整棵树都读、又不常变」的东西；它不是状态管理器。",
       "三个动作：createContext 造管道、Provider 灌值、useContext 取值；第四步自己包 hook 加守卫。",
-      "默认值给 undefined + hook 里 throw，比给个假默认值好 —— 宁可炸也别静默地对。",
+      "默认值给 undefined + hook 里 throw，比给个假默认值好 —— 宁可直接报错，也别悄无声息地「看起来正常」。",
       "toggleTheme 用函数式更新 + useCallback([])；一次事件连调两次也能正确翻回来。",
       "value 必须 useMemo，否则所有消费者每次都重渲染，而功能测试全绿查不出来。",
       "按钮文字是「要切到哪」，不是「现在是哪」—— 这是读题分。"
@@ -1286,7 +1287,8 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "TS2322 Property 'x' is missing props 名字两边对不上，改调用方",
       "Unable to find an element by [data-testid=…] 在报错打印的 DOM 里搜相似 testid",
       "没报错 + 日志对 + 屏幕不动 改了原对象：push / splice / arr[i]= / obj.x=",
-      "Maximum update depth exceeded useEffect 依赖，或 onClick 写成了 fn()"
+      "Maximum update depth exceeded / Too many re-renders useEffect 依赖（每次设的值都不同），或在渲染期间改了自己的 state",
+      "Cannot update a component while rendering a different component 渲染期间调用了别的组件的 setState，比如 onClick 写成了 fn()"
     ]
   },
   {
@@ -1336,7 +1338,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "分清 Query 和 Mutation",
       "知道「客户端决定返回形状」意味着什么"
     ],
-    "whyForAssessment": "这份 schema 决定了你的 resolver 必须返回什么形状。审计发现有两处细节（双重非空、input 里没有 price）直接决定实现对错 —— 不读 schema 就写 resolver，必错。",
+    "whyForAssessment": "这份 schema 决定了你的 resolver 必须返回什么形状。其中有两处细节（双重非空、input 里没有 price）直接决定实现对错 —— 不读 schema 就写 resolver，必错。",
     "conceptHeadings": [
       "GraphQL 服务只有两半",
       "读真实的 schema.graphql",
@@ -1425,7 +1427,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "看出 OrderItemInput 少了 price 会导致什么",
       "知道非空字段返回 null 时错误会怎样向上冒泡"
     ],
-    "whyForAssessment": "这一节讲的两处细节，是这门考试最典型的「不读 schema 就必错」的地方。审计时实测确认：createOrder 不补 price，测试直接失败。",
+    "whyForAssessment": "这一节讲的两处细节，是这门考试最典型的「不读 schema 就必错」的地方。编写本课时实测确认：createOrder 不补 price，测试直接失败。",
     "conceptHeadings": [
       "! 和 [] 的四种组合",
       "非空字段返回 null 会怎样：错误向上冒泡",
@@ -1439,7 +1441,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "exerciseTitles": [
       "这个 resolver 找不到数据时该返回什么",
       "createOrder 为什么必须查价格",
-      "给四个 TODO 各自选对兜底策略"
+      "给三个 resolver 各自选对兜底策略"
     ],
     "sourcePaths": [
       "graphql-federation-practice/node-subgraph/src/schema.graphql",
@@ -1449,12 +1451,12 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "GraphQL 默认可空，加上 ! 才不可空；列表和元素各有自己的可空性。",
       "[Order!]! 的 resolver 必须 ?? [] —— 「没有」的正确表达是空数组。",
       "非空字段返回 null 会向上冒泡，可能让整个 data 变成 null。",
-      "shippingInfo 可空，测试断言 toBeNull —— 所以要显式 ?? null，别让 undefined 漏出去。",
+      "shippingInfo 可空，测试断言 toBeNull；数据源已经返回 null，?? null 是防御性写法，防的是以后有 undefined 漏出去。",
       "OrderItemInput 没有 price，而数据源要用它算总价 → resolver 必须先查 getProductPrice。"
     ],
     "transfer": [
       "字段类型是 [T!]! resolver 必须 ?? [] 兜底，绝不返回 null",
-      "字段类型没有 ! 返回 null 是合法的，但要显式写 ?? null",
+      "字段类型没有 ! 返回 null 是合法的；顺手写上 ?? null，防数据源返回 undefined",
       "input 里少了某个字段但下游需要它 resolver 负责补齐，去对应数据源查",
       "整个 data 变成了 null 某个非空字段返回了 null，往上冒泡了"
     ]
@@ -1468,7 +1470,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "说清 Federation 相比「客户端自己拼」好在哪",
       "认出本项目里那个不在仓库里的第三方 subgraph"
     ],
-    "whyForAssessment": "书面题 1 直接问「User subgraph 高延迟时如何影响依赖它的 subgraph」。答这道题的前提是理解 Router 的查询计划是串行的。",
+    "whyForAssessment": "书面题 1 直接问「User subgraph 高延迟时如何影响依赖它的 subgraph」。答这道题的前提是理解 Router 的查询计划里，依赖上一步结果的那些步骤必须串行。",
     "conceptHeadings": [
       "单体 GraphQL 的痛点",
       "经典例子：Users / Products / Reviews",
@@ -1493,7 +1495,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "transfer": [
       "「多团队共享一个 API」 Federation：各自 subgraph + Router 组合",
-      "「我这个服务要引用别人的类型」 声明一个只有 @key 字段的类型，标 @external",
+      "「我这个服务要引用别人的类型」 声明一个只有 @key 字段的类型；Federation 2 里 key 字段不必标 @external（本项目沿用了 @external 写法，考试里照项目写）",
       "找不到某个「应该存在」的文件 先确认它是不是本来就不在仓库里",
       "书面题问「某个 subgraph 慢了会怎样」 从「查询计划可能串行」入手"
     ]
@@ -1516,7 +1518,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "conceptLedes": [
       "这是 subgraph 和普通 GraphQL 服务唯一的技术差别。",
-      "审计时端口 4000 被占，所以我用了第二种 —— 它其实更好用。"
+      "编写本课时端口 4000 被占用，所以本课用的是第二种 —— 它其实更好用。"
     ],
     "exerciseTitles": [
       "_entities 这个字段是谁加的",
@@ -1578,7 +1580,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "transfer": [
       "看到 @key 先问「别的服务用哪个字段找到这个对象」",
-      "「我要给别人的类型加字段」 声明 @key + 把借来的字段标 @external",
+      "「我要给别人的类型加字段」 声明 @key；Federation 2 里 key 字段不必标 @external（本项目沿用了 @external 写法，考试里照项目写）",
       "字段 resolver 拿不到某个属性 看 __resolveReference 返回了什么",
       "想验证 entity 解析 查 _entities，representation 要带 __typename"
     ]
@@ -1603,7 +1605,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "conceptLedes": [
       "不是谁写错了。是 GraphQL 的执行模型天然如此。",
       "靠 JavaScript 事件循环的一个特性：同一个 tick 里的调用可以攒起来。",
-      "违反了会出现「A 拿到 B 的数据」这种最难查的 bug。",
+      "长度错了整批报错；顺序错了会出现「A 拿到 B 的数据」这种最难查的 bug。",
       "现在你已经有能力看出来了。"
     ],
     "exerciseTitles": [
@@ -1700,7 +1702,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "conceptLedes": [
       "这是本门考试贯穿三处的一个模式，值得单独理解。",
-      "审计时实测：这样写之后两个相关测试通过。"
+      "编写本课时实测：这样写之后两个相关测试通过。"
     ],
     "exerciseTitles": [
       "补全 User.orders",
@@ -1733,12 +1735,12 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "说清为什么这里要 ?? null 而不是 ?? []",
       "知道测试为什么抓不到「绕过 loader」这个错"
     ],
-    "whyForAssessment": "TODO 原文点名了 DataLoader。这是全项目唯一明确指定实现手段的一处 —— 说明出题人就是要看你会不会用它。",
+    "whyForAssessment": "TODO 原文点名了 DataLoader，还写明了目的：prevent N+1 queries。四个 TODO 里点名 DataLoader 的只有这里和 Query.order，写明「防 N+1」的只有这一处 —— 说明出题人就是要看你会不会用它。",
     "conceptHeadings": [
       "这一问在要求什么",
       "先想再写",
       "两种写法都能过测试，但只有一种答对了",
-      "为什么必须显式 ?? null",
+      "为什么还要显式写 ?? null",
       "完整答案",
       "验证合并真的发生了"
     ],
@@ -1754,10 +1756,10 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "graphql-federation-practice/node-subgraph/src/resolvers/orderResolvers.js"
     ],
     "recap": [
-      "TODO 点名了 DataLoader —— 这是四个 TODO 里唯一指定实现手段的，考点就在这。",
+      "TODO 点名了 DataLoader，还写明了目的是防 N+1 —— 考点就在这。",
       "走 loaders.shippingInfoLoader.load(parent.id)，不是 dataSources.shippingDataSource。",
       "两种写法都能过测试，因为测试一次只调一个 order —— 抓不到合并与否。",
-      "可空字段要显式 ?? null，因为测试断言的是 toBeNull()，undefined 会挂。",
+      "可空字段顺手写 ?? null：测试断言的是 toBeNull()，一旦有 undefined 漏出去就会失败（本项目的数据源已经返回 null，这是防御性写法）。",
       "resolver 里别插多余的 await，会把 load() 推到不同 tick，合并失效。"
     ],
     "transfer": [
@@ -1803,7 +1805,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "transfer": [
       "参数签名里没有解构某个东西 那是提示：这个字段不需要它",
-      "starter 给了没用上的常量 找它对应的场景，那里大概有个 TODO",
+      "starter 给了没用上的常量 找它对应的场景，那里往往有个 TODO；找不到就可能只是预留，别硬造场景",
       "同一个 try 里既抛业务错又要接系统错 catch 第一行 instanceof 判断",
       "字段可空 vs 非空列表 前者可以抛错/返 null，后者必须 ?? []",
       "某个 TODO 没有测试 照样实现 —— 人工 review 会看"
@@ -1915,7 +1917,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "解释为什么 return null 能骗过三个测试",
       "写出 PATCH 端点里字符串转 enum 的安全处理"
     ],
-    "whyForAssessment": "审计实测：baseline 状态下六个端点全部 return null，五个测试通过了三个。只有 201 和 204 那两条抓住了错。这是整门考试「测试通过 ≠ 做对了」最夸张的一个实例。",
+    "whyForAssessment": "编写本课时实测：baseline 状态下六个端点全部 return null，五个测试通过了三个。只有 201 和 204 那两条抓住了错。这是整门考试「测试通过 ≠ 做对了」最夸张的一个实例。",
     "conceptHeadings": [
       "题面与 starter",
       "实测：六个端点全返回 null，五个测试过了三个",
@@ -1929,7 +1931,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "conceptLedes": [
       "这是本项目最值得记住的一个事实。",
       "这个端点收 Map 而不是 DTO，所以没有 Bean Validation 保护。",
-      "审计实测：这样写之后 5 个测试全过，BUILD SUCCESS。"
+      "编写本课时实测：这样写之后 5 个测试全过，BUILD SUCCESS。"
     ],
     "exerciseTitles": [
       "POST 创建成功该返回什么",
@@ -1996,7 +1998,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "第 1 题的核心是「Router 的查询计划里 @key 那一步是前置依赖，所以串行」。",
       "缓存答案要包含四件事：缓存键、TTL、主动失效、一致性代价。",
       "第 2 题按六个面扫：暴露面 / 凭据 / 传输 / 资源韧性 / 可观测性 / 配置管理。",
-      "actuator 全开是最严重的（/actuator/env 直接泄漏口令）；server.address=0.0.0.0 在容器里不是问题。"
+      "actuator 全开是最严重的（/actuator/heapdump 能直接下载含口令的堆内存）；server.address=0.0.0.0 在容器里不是问题。"
     ],
     "transfer": [
       "「某个服务慢了会怎样」 先找串行依赖，再讲资源放大",
@@ -2040,14 +2042,14 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "recap": [
       "GraphQL 故障六类：schema 校验 / 非空违约 / 跨模块契约 / 名字不匹配 / 错误语义 / composition。",
       "「名字不匹配」是 GraphQL 特有的静默故障 —— resolver 键名错了就等于不存在。",
-      "排查静默 null 的第一步：在 resolver 第一行 log，看它有没有被调用。",
-      "DataLoader 的 batch 函数永远不要 filter —— 长度和顺序都是硬契约。",
+      "排查静默 null 的第一步：在 resolver 第一行放一个 console.error 探针，看它有没有被调用。",
+      "DataLoader 的 batch 函数里不要 filter，也不要 sort —— 长度错了整批报错，顺序错了数据静默串位。",
       "「服务能起来 + _service 查得出 SDL」已经排除了大部分 composition 问题。"
     ],
     "transfer": [
       "字段静默返回 null 在 resolver 第一行 log，确认它有没有被调用",
       "Cannot return null for non-nullable field ?? [] 兜底，别改 schema",
-      "数据串了但不报错 查 DataLoader batch 函数有没有 filter 或改顺序",
+      "数据串了但不报错 查 batch 函数有没有改变结果顺序（sort、按数据库返回顺序直接返回）；长度不对时 DataLoader 会直接报错",
       "xxx is not a function 核对方法名与 context 键名",
       "Unknown directive @link 的 import 列表里漏了它",
       "客户端输入问题返回 500 在最靠近的地方转成 400，别加 catch-all"
@@ -2120,7 +2122,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "事件三阶段：捕获（外→内）→ 目标 → 冒泡（内→外）；默认监听冒泡。",
       "stopPropagation 管传播，preventDefault 管默认行为，两回事。",
       "meta 里真正重要的是 charset（防乱码）和 viewport（移动端前提）。",
-      "语义化的收益是读屏导航和搜索权重，不是「代码好看」。",
+      "语义化的收益是读屏导航和让机器认出正文，不是「代码好看」。",
       "无障碍 ⊂ 包容性；答题一定要给具体例子和测试工具。"
     ],
     "transfer": [
@@ -2169,7 +2171,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "Flex 一维内容驱动，Grid 二维布局驱动；实战是 Grid 搭骨架 + Flex 排内容。",
       "优先级按 (id, class, 标签) 三位比大小，高位压倒低位；同分后写的赢。",
       "@import 会串行请求拖慢首屏，用 link 或构建工具合并。",
-      "SCSS 的变量和嵌套已被原生 CSS 取代，mixin 和循环生成还有价值。",
+      "SCSS 的变量（断点这类值除外）和嵌套已被原生 CSS 取代，mixin 和循环生成还有价值。",
       "响应式四件套：viewport meta、弹性单位、媒体查询、弹性布局；断点按内容定。"
     ],
     "transfer": [
@@ -2220,21 +2222,21 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "sourcePaths": [],
     "recap": [
       "七种原始类型存值，其余存地址；typeof null 是 \"object\"（历史 bug），判数组用 Array.isArray。",
-      "隐式转换记两条：+ 有字符串就拼接，其他转数字；六个假值 false/0/\"\"/null/undefined/NaN。",
+      "隐式转换记两条：+ 有字符串就拼接，其他转数字；假值 false/0（含 -0）/0n/\"\"/null/undefined/NaN。",
       "一律用 ===，唯一例外是 x == null；NaN 和自己不相等，React 用 Object.is。",
       "&&、|| 返回操作数本身；要默认值用 ??，React 条件渲染写 length > 0 &&。",
       "var 函数作用域会提升成 undefined，let/const 块作用域有 TDZ；const 锁绑定不锁内容。",
       "JS 永远传值，对象传的是地址值 —— 所以改属性外面变、换指向外面不变。",
-      "Set 查找 O(1) 但去不掉重复对象；Map 键可任意类型、保序、无原型污染，但不能直接 JSON。"
+      "Set 查找 O(1) 但去不掉重复对象；Map 键可任意类型、保序、没有继承来的键也不会被原型污染，但不能直接 JSON。"
     ],
     "transfer": [
       "「改了对象外面也变」 引用值只复制地址；先浅拷贝或 structuredClone",
       "「界面不更新但 log 是对的」 React 比引用，必须造新对象",
-      "看到 [] == false 这类怪题 + 看字符串、其他看数字、六个假值",
+      "看到 [] == false 这类怪题 + 看字符串、其他看数字、记住假值表",
       "「count 是 0 却拿到了默认值」 把 || 换成 ??",
       "循环里 setTimeout 拿到最后一个值 var 只有一个绑定，换 let",
       "循环里反复 includes 换 Set.has，O(n²) 变 O(n)",
-      "拿对象当字典且键来自用户输入 用 Map，避免原型污染"
+      "拿对象当字典且键来自用户输入 用 Map（或 Object.create(null)），避开继承来的键和原型污染"
     ]
   },
   {
@@ -2321,16 +2323,16 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "exerciseTitles": [],
     "sourcePaths": [],
     "recap": [
-      "OOP 四特征：封装、继承、多态、抽象；JS 是原型继承，class 只是语法糖。",
+      "OOP 四特征：封装、继承、多态、抽象；JS 是原型继承，class 主要是语法糖。",
       "this 四条规则按优先级：new > call/apply/bind > obj.fn() > 默认；箭头函数不参与。",
-      "隐式丢失是最常见的坑，也是 React 类组件要 bind 的原因。",
+      "隐式丢失是最常见的陷阱，也是 React 类组件要 bind 的原因。",
       "Apply 收 Array、Call 用 Comma；bind 返回新函数、能预置参数、绑一次锁死但 new 能突破。"
     ],
     "transfer": [
       "「this 是 undefined」 隐式丢失 —— 点号没了；用 bind 或箭头包一层",
       "给你代码问 this 是什么 按 new > 显式 > 隐式 > 默认 四条走；箭头看外层",
       "要转发不定参数和 this fn.apply(this, args)",
-      "问 class 和原型的关系 class 是语法糖，底下是原型链"
+      "问 class 和原型的关系 class 主要是语法糖，底下是原型链"
     ]
   },
   {
@@ -2364,7 +2366,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "recap": [
       "事件循环一轮：同步跑完 → 微任务一次全清 → 渲染 → 取一个宏任务；异步能力来自宿主环境不是引擎。",
       "async 函数体在第一个 await 前是同步的；await 之后等价于 .then，属微任务。",
-      "async/await 是 Promise 语法糖，最大好处是错误处理和同步代码统一；最大坑是把并行写成串行。",
+      "async/await 是 Promise 语法糖，最大好处是错误处理和同步代码统一；最大的陷阱是把并行写成串行。",
       "回调地狱真正的问题是错误处理要写 n 遍和无法组合，不只是缩进深。",
       "finally 拿不到值、原样透传、但里面抛错会覆盖结果；关 loading 就该放这儿。",
       "try/catch 抓不到回调里的异步错误；抛 Error 对象不抛字符串；最外层要有兜底。",
@@ -2389,7 +2391,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "分清 CommonJS 和 ES 模块在时机与语法上的差别",
       "说出 Webpack 的四个核心概念和构建流程"
     ],
-    "whyForAssessment": "事件委托是唯一有区分度的一道 —— 它连着 React 的事件机制。模块和 Webpack 属于工程题，答得出「为什么需要打包」比背配置项更重要。fetch vs axios 是很实用的一道，我们那道 fetch 变式题的第一个坑就在这里。",
+    "whyForAssessment": "事件委托是唯一有区分度的一道 —— 它连着 React 的事件机制。模块和 Webpack 属于工程题，答得出「为什么需要打包」比背配置项更重要。fetch vs axios 是很实用的一道，我们那道 fetch 变式题的第一个陷阱就在这里。",
     "conceptHeadings": [
       "什么是 DOM，什么是 DOM 事件",
       "事件传播 vs 事件委托",
@@ -2422,9 +2424,9 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "transfer": [
       "列表每一项都绑监听器 事件委托，挂父元素 + e.target.closest()",
       "「动态插入的元素没有行为」 委托，天然覆盖后来的元素",
-      "问 React 事件机制 委托到 root + 合成事件；拦不住原生监听器",
+      "问 React 事件机制 委托到 root + 合成事件；拦不住 root 以内的原生监听器",
       "问为什么要打包 模块化、转译、合并压缩、tree shaking",
-      "问 Vite 为什么快 开发不打包用原生 ESM，依赖预构建用 esbuild",
+      "问 Vite 为什么快 开发不打包用原生 ESM、按需转换（依赖预构建：Vite 7 及以前用 esbuild，Vite 8 起用 Rolldown）",
       "CI 里装依赖 npm ci，严格按 lock",
       "从 axios 转到 fetch 记得补 res.ok 检查和超时"
     ]
@@ -2570,7 +2572,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "transfer": [
       "hook 写在 if 里 React 按调用顺序存链表，会错位；条件放 effect 内部",
-      "问 useMemo vs useCallback 一个缓存值一个缓存函数；后者是前者的语法糖",
+      "问 useMemo vs useCallback 一个缓存值一个缓存函数；useCallback 是 useMemo 的语法糖",
       "加了 memo 没效果 三个必须配套；context 变化 memo 拦不住",
       "同一组 state+effect 出现两次 抽自定义 hook，use 开头",
       "以为自定义 hook 能共享状态 复用的是逻辑，状态各自独立"
@@ -2699,7 +2701,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "exerciseTitles": [],
     "sourcePaths": [],
     "recap": [
-      "Node 六个阶段：timers → pending → idle → poll → check → close；每阶段之间清微任务，nextTick 最优先。",
+      "Node 六个阶段：timers → pending → idle → poll → check → close；自 Node 11 起每个回调之后都清微任务；CommonJS 里 nextTick 先于 Promise，ES 模块顶层则相反。",
       "主模块里 setTimeout(0) 和 setImmediate 顺序不保证，I/O 回调里 setImmediate 一定更早。",
       "Express 请求流程：解析 → 通用中间件 → 认证 → 路由 → 业务 → 响应 → 404/错误兜底。",
       "中间件按注册顺序、必须 next()；一个请求只能响应一次；错误中间件必须四个参数。",
@@ -2782,7 +2784,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "HTTPS 给三样：加密、身份验证、完整性；非对称交换密钥、对称传数据。",
       "JWT 的 payload 只是 Base64 不是加密；最大缺点是没法主动失效，标准解法是短过期 + refresh token。",
       "cookie 是浏览器存储机制，session 是服务端状态方案，后者靠前者传 id；四个安全属性要会。",
-      "401 没认证、403 没授权；201 创建、204 删除；GraphQL 一律 200 把错误放 errors。",
+      "401 没认证、403 没授权；201 创建、204 删除；GraphQL 执行错误返回 200、放进 errors（解析或校验失败时 Apollo Server 4 返回 400）。",
       "测试金字塔单元→集成→E2E；覆盖率不代表断言强 ——「空实现恰好通过」是实测过的。"
     ],
     "transfer": [
@@ -3029,7 +3031,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "手写 flatten，depth 语义与 Array.prototype.flat 一致",
       "手写 curry，部分应用可复用、互不污染"
     ],
-    "whyForAssessment": "deepClone 是「递归 + 分支 + 防循环」三合一的经典题，面试官用它一次看三个能力。flatten 考递归出口的干净程度。curry 考闭包攒参数 —— 写成共享数组就会在「复用部分应用」这一问上当场翻车。",
+    "whyForAssessment": "deepClone 是「递归 + 分支 + 防循环」三合一的经典题，面试官用它一次看三个能力。flatten 考递归出口的干净程度。curry 考闭包攒参数 —— 写成共享数组，在「复用部分应用」这一问上就会当场出错。",
     "conceptHeadings": [
       "deepClone：先登记，再递归",
       "flatten：递归的出口就是 depth",
@@ -3088,7 +3090,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "recap": [
       "Promise.all 三件套：下标写入、空数组先判、reject 直接当 then 的第二参 —— 短路失败。",
       "allSettled = 每项包成「永远成功带 status」再交给 all；场景差别要用例子答。",
-      "EventEmitter 唯一的坑：emit 拷贝列表再遍历，once 的自删才不会挤掉邻居。",
+      "EventEmitter 唯一的陷阱：emit 拷贝列表再遍历，once 的自删才不会挤掉邻居。",
       "LRU 用 Map 的插入序：删掉再放回 = 刷新，迭代器第一个键 = 最旧。",
       "教科书版哈希表 + 双向链表是语言无关的答案 —— 两个版本都要会讲。"
     ],
@@ -3144,7 +3146,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "objectives": [
       "写出 getProp<T, K extends keyof T>(obj: T, key: K): T[K]，并解释约束和返回类型各解决什么",
       "用判别联合、switch 收窄和 never 兜底写出编译期的穷尽检查",
-      "说清 as 断言为什么是逃生舱：它让编译器闭嘴，不产生任何运行时检查",
+      "说清 as 断言为什么是逃生舱：它只是让编译器不再报错，不产生任何运行时检查",
       "分清 unknown / any / never，并写出 catch (e) 的标准处理"
     ],
     "whyForAssessment": "senior 面试的泛型题多半长成 getProp 的样子：先让你写，再追问「不写约束行不行」「返回 any 行不行」。收窄和 unknown 两道验的是同一件事 —— 不靠 any 也能过编译。代码里 any 的密度，面试官是真的会看。",
@@ -3166,7 +3168,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "泛型约束一举两得：obj[key] 合法化，返回类型精确到 T[K]。",
       "T[K] 的精确来自 K 被推断成字面量类型，而不是 string。",
       "判别联合 = 同名字段、不同字面量；switch 收窄，default 赋给 never 做穷尽检查。",
-      "as 是闭嘴不是证明：不产生运行时检查，错误被推迟到别处爆发。",
+      "as 只消除报错、不是证明：不产生运行时检查，错误被推迟到别处爆发。",
       "unknown 是顶、never 是底、any 在层级外还会传染；边界一律 unknown。",
       "catch (e) 的 e 是 unknown：instanceof Error 收窄，String(e) 兜底。"
     ],
@@ -3186,7 +3188,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "说清为什么测试 4 是这道题真正的分水岭",
       "知道 `vi.useFakeTimers()` 让 Loading 的 1 秒变成可控的"
     ],
-    "whyForAssessment": "这道题的判分完全由 data-testid 驱动 —— 页面长得对但 testid 错一个，那一片全红。先读测试再写代码，能省掉一半的返工。测试 4「只留最新三条」是分水岭：slice 方向写反、忘了 reverse、或者原地改了 state，都会挂在这一条。",
+    "whyForAssessment": "这道题的判分完全由 data-testid 驱动 —— 页面长得对但 testid 错一个，那一片全红。先读测试再写代码，能省掉一半的返工。测试 4「只留最新三条」是分水岭：slice 方向写反、忘了 reverse、或者原地改了 state，都会在这一条失败。",
     "conceptHeadings": [
       "四个测试各查什么",
       "13 个 data-testid 就是契约"
@@ -3226,7 +3228,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "知道自定义 hook 里那个 throw 守卫在防什么",
       "看懂测试为什么也要自己包一层 CabProvider"
     ],
-    "whyForAssessment": "这是这道题最容易一次死透的地方。App 里的 handleSelectCab 要调 updateBookedCabDetails，所以 App 本身就是一个消费者 —— 如果你把 Provider 写在 App 的 return 里，App 自己拿不到 context，那个 throw 守卫会立刻炸，四个测试全红。",
+    "whyForAssessment": "这是这道题最容易导致整体失败的地方。App 里的 handleSelectCab 要调 updateBookedCabDetails，所以 App 本身就是一个消费者 —— 如果你把 Provider 写在 App 的 return 里，App 自己拿不到 context，那个 throw 守卫会立刻报错，四个测试全红。",
     "conceptHeadings": [
       "Context 三件套",
       "Provider 必须在 App 外面",
@@ -3268,7 +3270,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "知道为什么 handleSelectCab 必须写在 App 里，而不是 CabCard 里",
       "看懂四个页面之间的转移图"
     ],
-    "whyForAssessment": "题目没给路由，所以你得自己决定「页面」怎么表示。写成四个 boolean（isHome / isLoading …）能跑，但两个同时为 true 时会同时渲染两个页面，测试 3 的 getByTestId 会因为找到多个而抛错。一个字符串 state 从根上排除了这种状态。",
+    "whyForAssessment": "题目没给路由，所以你得自己决定「页面」怎么表示。写成四个 boolean（isHome / isLoading …）能跑，但两个同时为 true 时两个页面会同时出现在屏幕上；只要它们有同名的 testid 或文字，getByTestId / getByText 就会因为匹配到多个而抛错，即使没有，界面也已经错了。一个字符串 state 从根上排除了这种状态。",
     "conceptHeadings": [
       "四个页面 = 一个字符串 state",
       "为什么 handleSelectCab 在 App 里"
@@ -3289,7 +3291,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "四个页面用一个 currentPage 字符串管，四个 && 各判一次。",
       "先画转移表：四条转移就是四个回调，代码照抄。",
       "handleSelectCab 放在 App 里，因为「切页面」只有 App 做得到。",
-      "onSelectCab={handleSelectCab} 不能加括号 —— 加了会在渲染时执行并无限重渲染。",
+      "onSelectCab={handleSelectCab} 不能加括号 —— 加了会在渲染时执行：直接跳到 loading，历史多一条空记录。",
       "RideHistory 挂在首页里，所以点完确认回首页就能看到新记录。"
     ],
     "transfer": [
@@ -3311,7 +3313,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "whyForAssessment": "测试 2 一次查九个断言：一个容器、三个分组标题（有序）、五种卡片字段各 6 个。这一节把这九个断言一次性满足。分组顺序是送分题 —— 老实用 Object.keys 就对了，自己排序反而会错。",
     "conceptHeadings": [
       "Object.keys 加两层 map",
-      "五个字段，和 key 的那个坑"
+      "五个字段，和 key 的那个陷阱"
     ],
     "conceptLedes": [
       "数据长什么样，代码就长什么样",
@@ -3349,7 +3351,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "看懂测试为什么要 vi.useFakeTimers() + advanceTimersByTime(1000)",
       "知道 act() 包住时间推进的原因"
     ],
-    "whyForAssessment": "这是 effect 清理的标准考法，也是本站 React 变式二「计时器」的同一个考点。测试用 fake timer 把 1 秒变成一行代码，所以延迟数字必须正好是 1000 —— 写 900 或 1200，advanceTimersByTime(1000) 之后页面状态就不对了。",
+    "whyForAssessment": "这是 effect 清理的标准考法，也是本站 React 变式二「计时器」的同一个考点。测试用 fake timer 把 1 秒变成一行代码，所以延迟不能超过 1000 —— 写 1200 的话，advanceTimersByTime(1000) 之后页面还停在 loading；写 1000 最贴题。",
     "conceptHeadings": [
       "为什么定时器必须在 useEffect 里",
       "清理函数在防什么"
@@ -3360,7 +3362,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "exerciseTitles": [
       "补齐 Loading 的四个空",
-      "Debug Lab：定时器永远不到期"
+      "Debug Lab：测试全绿，浏览器里却卡在 Loading"
     ],
     "sourcePaths": [
       "cab-booking-context/src/components/Loading/Loading.jsx",
@@ -3368,10 +3370,10 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "recap": [
       "setTimeout 是副作用，必须在 useEffect 里；写组件体里每渲染一次开一个。",
-      "延迟必须是 1000 —— 测试拨的正好是 1000ms。",
+      "延迟不能超过 1000 —— 测试只拨 1000ms，写 1000 最贴题。",
       "清理函数在这道题里不影响测试结果，但加个「取消」按钮它就是可见 bug。",
       "React 18 起不再警告「在已卸载组件上 setState」，所以漏清理毫无提示。",
-      "漏写依赖数组 = 每次渲染都重开定时器，那 1 秒永远数不完。"
+      "漏写依赖数组 = 每次渲染都重开定时器；只要组件在这 1 秒里一直重渲染（比如加载动画），那 1 秒就永远数不完 —— 测试却照样全过。"
     ],
     "transfer": [
       "组件里要开定时器 / 订阅 / 加监听 放进 useEffect，并在 return 里成对清掉",
@@ -3411,7 +3413,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "recap": [
       "slice(-3) 是最后三条，slice(0, 3) 是最前三条 —— 方向写反测试 4 才抓得住。",
       "reverse() 原地修改；slice(-3).reverse() 安全是因为 slice 先给了新数组。",
-      "直接 rideHistory.reverse() 会翻掉 state，且 StrictMode 下开发时看不出来。",
+      "直接 rideHistory.reverse() 会翻掉 state：StrictMode 开发模式下一直最旧在前，生产里顺序越来越乱。",
       "sort / reverse / splice / push 都是原地改；slice / map / filter / concat 返回新数组。",
       "bookedCabDetails 初始 null，所以 ?.name 那个问号不能省。"
     ],
@@ -3432,9 +3434,9 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "在两种修法里选对的那个，并说出为什么",
       "养成「先跑一次基线」的习惯"
     ],
-    "whyForAssessment": "这是本站主线 ③「脚手架本身也会有问题」的又一个实例，而且这次踩得最狠 —— 不是某个测试失败，是 0 个测试跑起来。真实考试里遇到这种情况，能不能在两分钟内判断出「是环境问题不是我写错了」，直接决定你剩下的时间怎么花。",
+    "whyForAssessment": "这是本站主线 ③「脚手架本身也会有问题」的又一个实例，而且这次最严重 —— 不是某个测试失败，是 0 个测试跑起来。真实考试里遇到这种情况，能不能在两分钟内判断出「是环境问题不是我写错了」，直接决定你剩下的时间怎么花。",
     "conceptHeadings": [
-      "为什么 .js 里的 JSX 会炸",
+      "为什么 .js 里的 JSX 会报错",
       "两种修法，选哪个",
       "两处「测试能过但面试会问」的写法"
     ],
@@ -3459,7 +3461,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
       "两处「能过但可更好」：非函数式更新、value 未记忆化。它们不是 bug，要说清边界条件。"
     ],
     "transfer": [
-      "报错里出现「Tests no tests」/「0 test」 挂在收集阶段，别改业务代码 —— 去看构建/转换层",
+      "报错里出现「Tests no tests」/「0 test」 失败在收集阶段，别改业务代码 —— 去看构建 / 转换层",
       "「Failed to parse source for import analysis」 十有八九是 .js 里写了 JSX，改扩展名",
       "报错最后一句给了具体建议 先照着做 —— 这类工具报错常常直接给答案",
       "想加一条全局配置来救一个文件 先问「改那个文件行不行」",
@@ -3472,7 +3474,7 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     "objectives": [
       "在空文件夹里搭出 Vite + React + Vitest 的测试环境",
       "凭四个测试的要求写出 Context 和六个组件",
-      "自己发现并修掉 .js / .jsx 那个坑",
+      "自己发现并修掉 .js / .jsx 那个缺陷",
       "跑到 4 passed / 4 total"
     ],
     "whyForAssessment": "真实考试就是这样：一个仓库、一份 README、一套测试，没有答案。前面三个部分你都是「跟着看」，这一节是「自己做」。做不出来不代表白学了 —— 卡在哪一步，那一步就是你真正的薄弱点。",
@@ -3491,8 +3493,8 @@ export const SEARCH_LESSONS: SearchLesson[] = [
     ],
     "recap": [
       "按测试顺序写：测试 1 绿了再写测试 2 需要的东西，每步只有一个变量。",
-      "第一步是「让测试能跑起来并且全红」—— 这就已经好过源项目的基线了。",
-      "带 JSX 的文件从一开始就叫 .jsx，别重复那个坑。",
+      "第一步是「让测试能跑起来并且全红」（先给 CabContext 建个占位）—— 这就已经好过源项目的基线了。",
+      "带 JSX 的文件从一开始就叫 .jsx，别再犯那个错误。",
       "两个最容易错的点：slice(-3).reverse() 的顺序、确认页的 ?.name。",
       "提示分四级，先自己想 15 分钟 —— 你练的是没提示时自己找路。"
     ],
