@@ -252,7 +252,7 @@ export const reactQ1: Module = {
           role: "四个判卷测试",
           roleEn: "The four tests that decide the marks",
         },
-        { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "三道题的落点", edit: true },
+        { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "三道题的落点", roleEn: "Where all three tasks land", edit: true },
       ],
       concepts: [
         {
@@ -1011,7 +1011,7 @@ src/NoteManager.test.tsx(5,1): error TS2582: Cannot find name 'test'.
       whyForAssessmentEn:
         "The first test checks it directly. It also sets up the chain where the child reports through onSubmit and the parent changes notes. The second half of Task 3 reuses the same function.",
       sourceFiles: [
-        { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleSubmitNote 的 else 分支", edit: true },
+        { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleSubmitNote 的 else 分支", roleEn: "The else branch of handleSubmitNote", edit: true },
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
           role: "note 在这里被构造并上报",
@@ -2545,7 +2545,7 @@ const handleDelete = (id: number) => {
       whyForAssessmentEn:
         "The fourth test checks it, and it is the longest of the four. It verifies both that the button text becomes Update and that the new content replaces the old one. No test covers the in place requirement, but the task text states it clearly.",
       sourceFiles: [
-        { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleEdit + handleSubmitNote 的 if 分支", edit: true },
+        { path: "react-notes-app/src/components/NoteManager/index.tsx", role: "handleEdit + handleSubmitNote 的 if 分支", roleEn: "handleEdit + the if branch of handleSubmitNote", edit: true },
         {
           path: "react-notes-app/src/components/NoteForm/index.tsx",
           role: "useEffect 回填 + id 复用 + 按钮文字（已给好）",
