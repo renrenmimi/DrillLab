@@ -1613,17 +1613,12 @@ const worker = async () => {
 let nextIndex = 0;
 const worker = async () => {
   while (nextIndex < tasks.length) {
-    const i = nextIndex;
+    const i = nextIndex;   // 先占住下标再 await：这两句之间没有 await，别的 worker 插不进来
     nextIndex++;
-    try {
-      const value = await tasks[i]();
-      results[i] = { status: "fulfilled", value };
-    } catch (reason) {
-      results[i] = { status: "rejected", reason };
-    }
+    // 在 try 里 await tasks[i]()（注意括号：调用它才开始跑），按 i 写回 results；catch 里同样按 i 写回
   }
 };
-// 剩下的：开 worker、Promise.all、return`,
+// 剩下的：开 min(limit, tasks.length) 个 worker、Promise.all、return results`,
           ],
           hintsEn: [
             "How does the concurrency limit come out on its own? If you start only limit workers, and each worker does one thing at a time, then the number of tasks running at once can never go above limit.",
@@ -1641,17 +1636,12 @@ start min(limit, length) workers, await Promise.all, return results`,
 let nextIndex = 0;
 const worker = async () => {
   while (nextIndex < tasks.length) {
-    const i = nextIndex;
+    const i = nextIndex;   // take the index before any await: with no await between these two lines, no other worker can cut in
     nextIndex++;
-    try {
-      const value = await tasks[i]();
-      results[i] = { status: "fulfilled", value };
-    } catch (reason) {
-      results[i] = { status: "rejected", reason };
-    }
+    // inside try, await tasks[i]() (mind the parentheses: calling it is what starts it) and write the result back at i; the catch writes back at i too
   }
 };
-// what is left: start the workers, Promise.all, return`,
+// what is left: start min(limit, tasks.length) workers, Promise.all, return results`,
           ],
           solution: real("ts", TASK_RUNNER_SOLUTION, {
             filename: "参考答案（与项目实现一致，npm run q2 实测通过）",
@@ -3167,21 +3157,10 @@ NoteForm:
     无效则返回
     造 note，id = 正在编辑 ? 复用旧 id : Date.now()
     上报，然后清空两个输入框`,
-            `// NoteManager 的三个 handler（这是 Q1 的核心，其余都是骨架）
-const handleSubmitNote = (submittedNote: Note) => {
-  if (noteToEdit) {
-    setNotes((prev) =>
-      prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),
-    );
-    setNoteToEdit(null);
-  } else {
-    setNotes((prev) => [...prev, submittedNote]);
-  }
-};
-const handleDelete = (id: number) => {
-  setNotes((prev) => prev.filter((note) => note.id !== id));
-};
-const handleEdit = (note: Note) => setNoteToEdit(note);
+            `// Q1 的核心是 handleSubmitNote 里这一句：按 id 原位替换，顺序不变；替换完把 noteToEdit 设回 null
+setNotes((prev) =>
+  prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),
+);
 
 // NoteForm 里最关键的两处
 useEffect(() => { /* 有就填，没有就清 */ }, [noteToEdit]);
@@ -3210,21 +3189,10 @@ NoteForm:
     return if invalid
     build the note, id = editing ? reuse the old id : Date.now()
     report it upward, then clear both inputs`,
-            `// The three handlers of NoteManager (this is the core of Q1; the rest is skeleton)
-const handleSubmitNote = (submittedNote: Note) => {
-  if (noteToEdit) {
-    setNotes((prev) =>
-      prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),
-    );
-    setNoteToEdit(null);
-  } else {
-    setNotes((prev) => [...prev, submittedNote]);
-  }
-};
-const handleDelete = (id: number) => {
-  setNotes((prev) => prev.filter((note) => note.id !== id));
-};
-const handleEdit = (note: Note) => setNoteToEdit(note);
+            `// The core of Q1 is this statement in handleSubmitNote: replace in place by id so the order holds; afterwards set noteToEdit back to null
+setNotes((prev) =>
+  prev.map((note) => (note.id === submittedNote.id ? submittedNote : note)),
+);
 
 // The two most important places in NoteForm
 useEffect(() => { /* fill it in if there is one, clear it if there is not */ }, [noteToEdit]);
@@ -3484,17 +3452,12 @@ return results`,
 let nextIndex = 0;
 const worker = async () => {
   while (nextIndex < tasks.length) {
-    const i = nextIndex;
+    const i = nextIndex;   // 先占住下标再 await：这两句之间没有 await，别的 worker 插不进来
     nextIndex++;
-    try {
-      const value = await tasks[i]();   // ← 括号！
-      results[i] = { status: "fulfilled", value };
-    } catch (reason) {
-      results[i] = { status: "rejected", reason };
-    }
+    // 在 try 里 await tasks[i]()（注意括号：调用它才开始跑），按 i 写回 results；catch 里同样按 i 写回
   }
 };
-// 剩下的：开 worker、Promise.all、return results`,
+// 剩下的：开 min(limit, tasks.length) 个 worker、Promise.all、return results`,
           ],
           hintsEn: [
             "Ask yourself first: why is the parameter an array of functions and not an array of Promises? Once that is clear, the way to enforce the concurrency limit appears on its own.",
@@ -3515,17 +3478,12 @@ return results`,
 let nextIndex = 0;
 const worker = async () => {
   while (nextIndex < tasks.length) {
-    const i = nextIndex;
+    const i = nextIndex;   // take the index before any await: with no await between these two lines, no other worker can cut in
     nextIndex++;
-    try {
-      const value = await tasks[i]();   // ← the parentheses!
-      results[i] = { status: "fulfilled", value };
-    } catch (reason) {
-      results[i] = { status: "rejected", reason };
-    }
+    // inside try, await tasks[i]() (mind the parentheses: calling it is what starts it) and write the result back at i; the catch writes back at i too
   }
 };
-// what is left: start the workers, Promise.all, return results`,
+// what is left: start min(limit, tasks.length) workers, Promise.all, return results`,
           ],
           solution: [
             real("ts", TASK_RUNNER_SOLUTION, {
