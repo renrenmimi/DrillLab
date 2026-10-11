@@ -196,7 +196,9 @@ export const ivJsCore: Module = {
                 （数组和函数本质都是对象）。
               </p>
               <p>
-                <strong>三个可观察的差别：</strong>
+                <strong>栈 / 堆是便于理解的模型</strong>（规范并不规定，V8
+                里字符串这类原始值也放在堆上）；
+                <strong>真正可观察的差别是值语义与引用语义，有三条：</strong>
               </p>
               <ul>
                 <li>
@@ -248,7 +250,11 @@ export const ivJsCore: Module = {
                 regexes… (arrays and functions are objects underneath).
               </p>
               <p>
-                <strong>Three differences you can observe:</strong>
+                <strong>The stack / heap picture is a mental model</strong> (the spec
+                does not prescribe it, and V8 keeps strings and other primitives on
+                the heap too);{" "}
+                <strong>what you can actually observe is value semantics versus
+                reference semantics, in three ways:</strong>
               </p>
               <ul>
                 <li>
@@ -392,9 +398,9 @@ console.log(Array.isArray([]));  // true  ← use this to test for an array`,
                 </li>
               </ul>
               <p>
-                <strong>六个假值背下来</strong>（其余全是真）：
-                <code>false</code>、<code>0</code>、
-                <code>&quot;&quot;</code>、<code>null</code>、
+                <strong>假值背下来</strong>（其余全是真）：
+                <code>false</code>、<code>0</code>（含 <code>-0</code>）、
+                <code>0n</code>、<code>&quot;&quot;</code>、<code>null</code>、
                 <code>undefined</code>、<code>NaN</code>。
                 <br />
                 <strong>注意 <code>[]</code> 和 <code>{"{}"}</code> 都是真值</strong>——
@@ -478,10 +484,10 @@ console.log(Array.isArray([]));  // true  ← use this to test for an array`,
                 </li>
               </ul>
               <p>
-                <strong>Memorise the six falsy values</strong> (everything else is
-                truthy): <code>false</code>, <code>0</code>,{" "}
-                <code>&quot;&quot;</code>, <code>null</code>, <code>undefined</code>,{" "}
-                <code>NaN</code>.
+                <strong>Memorise the falsy values</strong> (everything else is
+                truthy): <code>false</code>, <code>0</code> (and <code>-0</code>),{" "}
+                <code>0n</code>, <code>&quot;&quot;</code>, <code>null</code>,{" "}
+                <code>undefined</code>, <code>NaN</code>.
                 <br />
                 <strong>
                   Watch out — <code>[]</code> and <code>{"{}"}</code> are both truthy
@@ -537,9 +543,9 @@ parseInt("42px") // 42      reads until it cannot read further
 Number("")       // 0   ← note: an empty string converts to 0
 Number(" ")      // 0   ← whitespace is 0 too, so validate input carefully`,
                 explanation:
-                  "面试不会让你背全表，但会给两三个式子让你推。掌握「+ 看字符串、其他看数字」和「六个假值」就够推。",
+                  "面试不会让你背全表，但会给两三个式子让你推。掌握「+ 看字符串、其他看数字」和「那几个假值」就够推。",
                 explanationEn:
-                  "An interview will not ask you to recite the whole table, but it will give you two or three expressions to work out. Remember that + looks for a string while every other operator converts to number, plus the six falsy values, and that is enough.",
+                  "An interview will not ask you to recite the whole table, but it will give you two or three expressions to work out. Remember that + looks for a string while every other operator converts to number, plus the list of falsy values, and that is enough.",
               },
             ),
           ],
@@ -733,7 +739,7 @@ Object.is(NaN, NaN) // true  ← React uses this to decide whether state changed
               <p>
                 <strong>React 里最常见的用法</strong>是条件渲染：
                 <code>{"{loading && <Spinner />}"}</code>。
-                <strong>坑在这儿</strong>：如果左边是
+                <strong>陷阱在这儿</strong>：如果左边是
                 <code>list.length</code> 而列表为空，
                 <code>0 &amp;&amp; …</code> 返回 <code>0</code>，
                 而 React <strong>会把 <code>0</code> 渲染出来</strong>——
@@ -806,12 +812,12 @@ const count = 0;
 count || 10                 // 10  ✗ 0 被当成「没传」
 count ?? 10                 // 0   ✓
 
-// React 条件渲染的经典坑
+// React 条件渲染的经典陷阱
 {list.length && <List />}       // ✗ 空列表时页面上多一个 0
 {list.length > 0 && <List />}   // ✓
 {list.length ? <List /> : null} // ✓ 也可以`,
               {
-                filename: "短路的三个实际用法与两个坑",
+                filename: "短路的三个实际用法与两个陷阱",
                 filenameEn: "Three real uses of short-circuiting, and two traps",
                 codeEn: `// Short-circuiting returns the operand itself
 console.log(1 && 2);          // 2
@@ -1403,10 +1409,10 @@ const deduped = [...byId.values()];`,
                       <td>本身可迭代，直接 <code>for…of</code></td>
                     </tr>
                     <tr>
-                      <td>原型污染</td>
+                      <td>继承来的键 / 原型污染</td>
                       <td>
                         有风险 —— <code>o[&quot;toString&quot;]</code>
-                        本来就有值
+                        本来就有值；用户输入的 <code>__proto__</code> 能改原型
                       </td>
                       <td>没有，<code>Map</code> 是干净的</td>
                     </tr>
@@ -1434,13 +1440,15 @@ const deduped = [...byId.values()];`,
               </ul>
               <p>
                 <strong>会追问：</strong>
-                「为什么说对象有原型污染风险？」——
-                因为空对象也「有」<code>toString</code>、
-                <code>constructor</code> 这些继承来的键。
-                拿对象当字典时，
-                <code>if (dict[key])</code> 遇到用户输入
-                <code>&quot;constructor&quot;</code> 会误判成存在。
-                <strong>Map 没这个问题</strong>，
+                「拿对象当字典有什么风险？」—— 有两个。
+                ①继承来的键：空对象也「有」<code>toString</code>、
+                <code>constructor</code>，<code>if (dict[key])</code> 遇到用户输入
+                <code>&quot;constructor&quot;</code> 会误判成存在
+                （用 <code>Object.hasOwn</code> 判断）；
+                ②原型污染：键来自用户输入时，
+                <code>dict[&quot;__proto__&quot;] = …</code> 改的是对象的原型，
+                递归合并时还能改到 <code>Object.prototype</code>，影响全局。
+                <strong>Map 两个问题都没有</strong>，
                 非要用对象就 <code>Object.create(null)</code>。
                 <br />
                 「<code>WeakMap</code> 呢？」—— 键必须是对象，
@@ -1489,10 +1497,11 @@ const deduped = [...byId.values()];`,
                       <td>Iterable itself — <code>for…of</code> just works</td>
                     </tr>
                     <tr>
-                      <td>Prototype pollution</td>
+                      <td>Inherited keys / prototype pollution</td>
                       <td>
                         A risk — <code>o[&quot;toString&quot;]</code> already has a
-                        value
+                        value, and a user-supplied <code>__proto__</code> can change
+                        the prototype
                       </td>
                       <td>None; a <code>Map</code> is clean</td>
                     </tr>
@@ -1519,14 +1528,17 @@ const deduped = [...byId.values()];`,
                 </li>
               </ul>
               <p>
-                <strong>Follow-up:</strong> &ldquo;Why is an object a prototype
-                pollution risk?&rdquo; — because even an empty object
-                &ldquo;has&rdquo; inherited keys like <code>toString</code> and{" "}
-                <code>constructor</code>. Use an object as a dictionary and{" "}
-                <code>if (dict[key])</code> reports a hit when the user types{" "}
-                <code>&quot;constructor&quot;</code>.{" "}
-                <strong>A Map does not have this problem</strong>; if you must use an
-                object, build it with <code>Object.create(null)</code>.
+                <strong>Follow-up:</strong> &ldquo;What is risky about using an object
+                as a dictionary?&rdquo; — two things. ① Inherited keys: even an empty
+                object &ldquo;has&rdquo; <code>toString</code> and{" "}
+                <code>constructor</code>, so <code>if (dict[key])</code> reports a hit
+                when the user types <code>&quot;constructor&quot;</code> (check with{" "}
+                <code>Object.hasOwn</code>). ② Prototype pollution: with
+                user-supplied keys, <code>dict[&quot;__proto__&quot;] = …</code>{" "}
+                changes the prototype, and a recursive merge can reach{" "}
+                <code>Object.prototype</code> and affect everything.{" "}
+                <strong>A Map has neither problem</strong>; if you must use an object,
+                build it with <code>Object.create(null)</code>.
                 <br />
                 &ldquo;And <code>WeakMap</code>?&rdquo; — its keys must be objects, and
                 it <strong>does not hold off garbage collection</strong>. Good for
@@ -1547,7 +1559,7 @@ const m = new Map();
 m.set(1, "a").set("1", "b");
 console.log(m.size);     // 2 ← 数字 1 和字符串 "1" 是不同的键
 
-// 原型污染
+// 继承来的键
 const dict = {};
 console.log(dict["toString"]);   // ƒ toString() ← 凭空有值
 console.log(new Map().get("toString")); // undefined ✓ 干净
@@ -1556,7 +1568,7 @@ console.log(new Map().get("toString")); // undefined ✓ 干净
 JSON.stringify(m);                    // "{}" ← 全丢了
 JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
               {
-                filename: "两个真实会踩的差别",
+                filename: "两个实际会遇到的差别",
                 filenameEn: "Two differences you will actually hit",
                 codeEn: `// Object keys are converted to strings
 const o = {};
@@ -1568,7 +1580,7 @@ const m = new Map();
 m.set(1, "a").set("1", "b");
 console.log(m.size);     // 2 ← the number 1 and the string "1" are different keys
 
-// Prototype pollution
+// Inherited keys
 const dict = {};
 console.log(dict["toString"]);   // ƒ toString() ← a value appears from nowhere
 console.log(new Map().get("toString")); // undefined ✓ clean
@@ -1597,8 +1609,8 @@ JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
         {
           signal: "看到 [] == false 这类怪题",
           signalEn: "A puzzle question such as [] == false",
-          reachFor: "+ 看字符串、其他看数字、六个假值",
-          reachForEn: "With +, one string makes it concatenation; every other operator converts to number; six values are falsy",
+          reachFor: "+ 看字符串、其他看数字、记住假值表",
+          reachForEn: "With +, one string makes it concatenation; every other operator converts to number; know the falsy values",
         },
         {
           signal: "「count 是 0 却拿到了默认值」",
@@ -1621,27 +1633,27 @@ JSON.stringify([...m]);               // '[[1,"a"],["1","b"]]' ✓`,
         {
           signal: "拿对象当字典且键来自用户输入",
           signalEn: "An object used as a dictionary, with keys that come from user input",
-          reachFor: "用 Map，避免原型污染",
-          reachForEn: "Use Map; it avoids prototype pollution",
+          reachFor: "用 Map（或 Object.create(null)），避开继承来的键和原型污染",
+          reachForEn: "Use a Map (or Object.create(null)); it avoids both inherited keys and prototype pollution",
         },
       ],
       recap: [
         "七种原始类型存值，其余存地址；typeof null 是 \"object\"（历史 bug），判数组用 Array.isArray。",
-        "隐式转换记两条：+ 有字符串就拼接，其他转数字；六个假值 false/0/\"\"/null/undefined/NaN。",
+        "隐式转换记两条：+ 有字符串就拼接，其他转数字；假值 false/0（含 -0）/0n/\"\"/null/undefined/NaN。",
         "一律用 ===，唯一例外是 x == null；NaN 和自己不相等，React 用 Object.is。",
         "&&、|| 返回操作数本身；要默认值用 ??，React 条件渲染写 length > 0 &&。",
         "var 函数作用域会提升成 undefined，let/const 块作用域有 TDZ；const 锁绑定不锁内容。",
         "JS 永远传值，对象传的是地址值 —— 所以改属性外面变、换指向外面不变。",
-        "Set 查找 O(1) 但去不掉重复对象；Map 键可任意类型、保序、无原型污染，但不能直接 JSON。",
+        "Set 查找 O(1) 但去不掉重复对象；Map 键可任意类型、保序、没有继承来的键也不会被原型污染，但不能直接 JSON。",
       ],
       recapEn: [
         "The seven primitive types hold the value itself, everything else holds an address; typeof null is \"object\", which is an old bug, so test for an array with Array.isArray.",
-        "Two rules for implicit conversion: with + one string makes it concatenation, every other operator converts to number; the six falsy values are false/0/\"\"/null/undefined/NaN.",
+        "Two rules for implicit conversion: with + one string makes it concatenation, every other operator converts to number; the falsy values are false/0 (and -0)/0n/\"\"/null/undefined/NaN.",
         "Always use ===, with x == null as the only exception; NaN is not equal to itself, and React compares with Object.is.",
         "&& and || return one of the operands, not a boolean; for a default value use ??, and for conditional rendering in React write length > 0 &&.",
         "var is function scoped and is hoisted as undefined; let and const are block scoped and have a temporal dead zone; const locks the binding, not the contents.",
         "JavaScript always passes a value, and for an object that value is an address — so changing a property is visible outside, but reassigning the parameter is not.",
-        "A Set looks up in O(1) but will not remove duplicate objects; a Map takes any type as a key, keeps insertion order and has no prototype pollution, but cannot go straight into JSON.",
+        "A Set looks up in O(1) but will not remove duplicate objects; a Map takes any type as a key, keeps insertion order and has neither inherited keys nor a prototype to pollute, but cannot go straight into JSON.",
       ],
     },
 
@@ -1825,13 +1837,13 @@ var sayHey = function () {};          // 只提升了变量名，此刻还是 un
 // 箭头函数的 this 是定义时的外层 this
 const obj = {
   name: "A",
-  arrow: () => console.log(this.name),      // undefined ← 外层是模块/window
+  arrow: () => console.log(this.name),      // 不是 "A"：外层 this 在模块里是 undefined（直接抛 TypeError），普通 <script> 里是 window（打印空字符串）
   normal() { console.log(this.name); },     // "A"       ← 调用时决定
 };`,
               {
                 filename: "三种写法的实际差别",
                 filenameEn: "How the three forms actually differ",
-                codeEn: `sayHi();                              // ✓ runs —— a function declaration is hoisted whole
+                codeEn: `sayHi();                              // ✓ runs — a function declaration is hoisted whole
 function sayHi() { console.log("hi"); }
 
 sayHey();                             // ✗ TypeError: sayHey is not a function
@@ -1840,7 +1852,7 @@ var sayHey = function () {};          // only the name was hoisted; it is still 
 // An arrow function's this is the outer this at the place it was defined
 const obj = {
   name: "A",
-  arrow: () => console.log(this.name),      // undefined ← the outside is the module/window
+  arrow: () => console.log(this.name),      // not "A": the outer this is undefined in a module (it throws a TypeError) and window in a classic <script> (it prints an empty string)
   normal() { console.log(this.name); },     // "A"       ← decided at call time
 };`,
               },
@@ -2787,10 +2799,8 @@ run();`,
                 </li>
                 <li>
                   <strong>React 的 Hooks 全靠它</strong>——
-                  <code>useState</code> 返回的
-                  <code>setState</code>、
-                  <code>useEffect</code> 里的回调，
-                  都是闭包捕获了那一次渲染的值。
+                  <code>useEffect</code> 的回调、事件处理函数里读到的 state 和 props，
+                  都是闭包捕获的那一次渲染的值（<code>setState</code> 本身是稳定的）。
                   <strong>「过期闭包」这个 bug 就是它的副作用。</strong>
                 </li>
               </ul>
@@ -2848,10 +2858,10 @@ run();`,
                   arguments received so far (#299).
                 </li>
                 <li>
-                  <strong>Every React Hook rests on it</strong> — the{" "}
-                  <code>setState</code> returned by <code>useState</code>, and the
-                  callback inside <code>useEffect</code>, are closures that captured the
-                  values of one particular render.{" "}
+                  <strong>Every React Hook rests on it</strong> — the state and props
+                  read inside a <code>useEffect</code> callback or an event handler are
+                  values a closure captured from one particular render (
+                  <code>setState</code> itself is stable).{" "}
                   <strong>
                     The &ldquo;stale closure&rdquo; bug is the flip side of that.
                   </strong>
@@ -3166,7 +3176,7 @@ warn("disk almost full");   // [WARN] disk almost full`,
               "js",
               `// 经典写法
 (function () {
-  var private = "外面看不到";
+  var secret = "外面看不到";
 })();
 
 // 现在真正还会用到的场合：需要一个异步作用域
@@ -3188,7 +3198,7 @@ void function () {}();// ✓`,
                 filenameEn: "The IIFE and where it fits today",
                 codeEn: `// The classic form
 (function () {
-  var private = "not visible from outside";
+  var secret = "not visible from outside";
 })();
 
 // Where it is still genuinely used: when you need an async scope

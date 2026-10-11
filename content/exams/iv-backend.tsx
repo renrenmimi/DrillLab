@@ -89,24 +89,21 @@ export const ivBackend: Module = {
                 </li>
               </ol>
               <p>
-                <strong>关键：每个阶段之间都会把微任务清空。</strong>
-                而 Node 的微任务分两级：
-                <strong><code>process.nextTick</code>
-                的优先级比 Promise 更高</strong>——
-                它有自己的队列，
-                <strong>在所有 Promise 微任务之前执行</strong>。
+                <strong>关键：自 Node 11 起，每执行完一个回调（不论哪个阶段），
+                都会先清空 nextTick 队列和 Promise 微任务，再执行下一个回调</strong>——
+                这一点已和浏览器一致（Node 10 及以前才是「整个阶段跑完再清」，
+                旧的面试资料里常见这个说法）。
+                Node 的微任务分两级：<code>process.nextTick</code>
+                有自己的队列，和 Promise 微任务分开排。
               </p>
               <p>
                 <strong>和浏览器的差别（这是考点）：</strong>
-                浏览器只有「宏任务 / 微任务」两档，
-                每次<strong>只取一个</strong>宏任务；
-                Node 分了六个阶段，
-                同一阶段里的<strong>队列会一次取完</strong>。
-                <br />
-                另外 Node 多了
+                Node 把宏任务分成六个阶段，多了
                 <code>setImmediate</code>
                 和 <code>process.nextTick</code>
-                这两个浏览器没有的东西。
+                这两个浏览器没有的东西；
+                <strong>CommonJS 里 nextTick 队列先于 Promise 微任务</strong>，
+                ES 模块的顶层代码里则是 Promise 先执行。
               </p>
               <p>
                 <strong>会追问：</strong>
@@ -121,7 +118,7 @@ export const ivBackend: Module = {
                 <strong>能答出「主模块里不确定」很加分。</strong>
                 <br />
                 「CPU 密集任务怎么办？」——
-                单线程会被卡死。
+                单线程会被长时间占住，其他请求都得等。
                 用 <code>worker_threads</code>、
                 子进程，或者干脆交给别的服务。
               </p>
@@ -162,24 +159,23 @@ export const ivBackend: Module = {
                 </li>
               </ol>
               <p>
-                <strong>The key point: microtasks are drained between every
-                phase.</strong>{" "}
-                And Node has two levels of them —{" "}
-                <strong>
-                  <code>process.nextTick</code> outranks Promises
-                </strong>
-                . It gets its own queue and{" "}
-                <strong>runs before any Promise microtask</strong>.
+                <strong>The key point: since Node 11, after every single callback
+                (in any phase) Node drains the nextTick queue and the Promise
+                microtasks before running the next callback</strong> — the same as
+                browsers. (Only Node 10 and earlier drained them once per phase,
+                which is what many older interview notes still say.) Node has two
+                levels of microtask: <code>process.nextTick</code> has its own queue,
+                separate from the Promise microtasks.
               </p>
               <p>
                 <strong>How this differs from the browser (this is the part they
                 are testing):</strong>{" "}
-                the browser has just two tiers, macrotask and microtask, and takes{" "}
-                <strong>one</strong> macrotask per turn. Node has six phases, and
-                within a phase it <strong>drains the whole queue</strong>.
-                <br />
-                Node also has <code>setImmediate</code> and{" "}
-                <code>process.nextTick</code>, neither of which exists in a browser.
+                Node splits macrotasks into six phases and adds{" "}
+                <code>setImmediate</code> and <code>process.nextTick</code>, neither
+                of which exists in a browser;{" "}
+                <strong>in CommonJS the nextTick queue runs before Promise
+                microtasks</strong>, while in the top-level code of an ES module the
+                Promises run first.
               </p>
               <p>
                 <strong>Follow-up:</strong> &ldquo;Which fires first,{" "}
@@ -217,7 +213,7 @@ console.log("6 同步");
 // 输出：1 同步 -> 6 同步 -> 5 nextTick -> 4 promise 微任务
 //       -> 2 timers 和 3 check（这两个的相对顺序在主模块里不保证）
 //
-// 记住：nextTick 比 Promise 更优先，这是 Node 独有的`,
+// 这是存成 .cjs（CommonJS）运行的结果；存成 .mjs 运行时，4 promise 会排在 5 nextTick 前面`,
               {
     codeEn: `console.log("1 sync");
 
@@ -231,7 +227,7 @@ console.log("6 sync");
 // Output: 1 sync -> 6 sync -> 5 nextTick -> 4 promise microtask
 //         -> 2 timers and 3 check (their relative order is not guaranteed in the main module)
 //
-// Remember: nextTick runs before Promise, and that part is specific to Node`, filename: "Node 的执行顺序" },
+// This is the output saved as .cjs (CommonJS); saved as .mjs, 4 promise comes before 5 nextTick`, filename: "Node 的执行顺序", filenameEn: "The order Node runs things in" },
             ),
           ],
         },
@@ -311,7 +307,7 @@ console.log("6 sync");
                   <strong>错误处理中间件有四个参数</strong>
                   <code>(err, req, res, next)</code>——
                   <strong>少一个参数 Express 就认不出它是错误处理器</strong>，
-                  这个坑很经典。
+                  这是很经典的陷阱。
                 </li>
               </ul>
               <p>
@@ -319,7 +315,7 @@ console.log("6 sync");
                 「异步函数里抛的错误
                 Express 会自动捕获吗？」——
                 <strong>Express 4 里不会</strong>，
-                会变成未处理的 rejection，请求挂死。
+                会变成未处理的 rejection，请求一直挂起，得不到响应。
                 要么自己 <code>try/catch</code>
                 后 <code>next(err)</code>，
                 要么包一层 asyncHandler。
@@ -457,7 +453,7 @@ app.use((req, res) => res.status(404).json({ error: "no route" }));
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: "internal" });
-});`, filename: "一个请求经过的全部环节" },
+});`, filename: "一个请求经过的全部环节", filenameEn: "Every stage a request passes through" },
             ),
           ],
         },
@@ -925,7 +921,7 @@ app.use((err, req, res, next) => {
         },
       ],
       recap: [
-        "Node 六个阶段：timers → pending → idle → poll → check → close；每阶段之间清微任务，nextTick 最优先。",
+        "Node 六个阶段：timers → pending → idle → poll → check → close；自 Node 11 起每个回调之后都清微任务；CommonJS 里 nextTick 先于 Promise，ES 模块顶层则相反。",
         "主模块里 setTimeout(0) 和 setImmediate 顺序不保证，I/O 回调里 setImmediate 一定更早。",
         "Express 请求流程：解析 → 通用中间件 → 认证 → 路由 → 业务 → 响应 → 404/错误兜底。",
         "中间件按注册顺序、必须 next()；一个请求只能响应一次；错误中间件必须四个参数。",
@@ -934,7 +930,7 @@ app.use((err, req, res, next) => {
         "GET/PUT/DELETE 幂等，POST 不幂等 —— 防重复下单要用幂等键。",
       ],
       recapEn: [
-        "Six phases in Node.js: timers, pending, idle, poll, check, close. Microtasks are drained between phases, and nextTick goes first of all.",
+        "Six phases in Node.js: timers, pending, idle, poll, check, close. Since Node 11 microtasks are drained after every callback; in CommonJS nextTick runs before Promises, and at the top level of an ES module it is the other way round.",
         "In the main module the order of setTimeout(0) and setImmediate is not guaranteed; inside an I/O callback setImmediate always runs first.",
         "The Express request path: parse, then general middleware, then authentication, then routing, then your handler, then the response, with a 404 and an error handler at the end.",
         "Middleware runs in the order you register it and must call next(); one request can be answered only once; an error handler must take four parameters.",
@@ -1442,7 +1438,7 @@ CREATE TABLE orders (
 );
 
 -- PostgreSQL does not index a foreign key column for you, and the JOIN gets slow
-CREATE INDEX idx_orders_user_id ON orders(user_id);`, filename: "建表时的三个要点" },
+CREATE INDEX idx_orders_user_id ON orders(user_id);`, filename: "建表时的三个要点", filenameEn: "Three points when creating a table" },
             ),
           ],
         },
@@ -1733,7 +1729,7 @@ app.use(cors({
 server: {
   proxy: { "/api": { target: "http://localhost:4000", changeOrigin: true } },
 }
-// The browser sees /api/... on the same origin, so CORS is never triggered`, filename: "两种最常用的解法" },
+// The browser sees /api/... on the same origin, so CORS is never triggered`, filename: "两种最常用的解法", filenameEn: "The two most common fixes" },
             ),
           ],
         },
@@ -1758,8 +1754,8 @@ server: {
                 <li>
                   <strong>身份验证</strong>——
                   证书证明「你连的确实是这个域名的服务器」，
-                  <strong>这一条常被忽略，
-                  但它才是防钓鱼的关键</strong>
+                  防的是中间人冒充；<strong>它不防钓鱼</strong>：
+                  钓鱼站点用自己的域名，照样能拿到合法证书
                 </li>
                 <li>
                   <strong>完整性</strong>——
@@ -1818,10 +1814,9 @@ server: {
                 <li>
                   <strong>Authentication</strong> — the certificate proves{" "}
                   &ldquo;you really are talking to the server for this
-                  domain&rdquo;.{" "}
-                  <strong>
-                    People forget this one, and it is the part that stops phishing
-                  </strong>
+                  domain&rdquo;, which stops a man in the middle from impersonating
+                  it. <strong>It does not stop phishing</strong>: a phishing site uses
+                  its own domain and can get a perfectly valid certificate
                 </li>
                 <li>
                   <strong>Integrity</strong> — tampering is detected
@@ -1945,7 +1940,7 @@ server: {
                 </li>
               </ul>
               <p>
-                <strong>安全上还有一个经典坑：</strong>
+                <strong>安全上还有一个经典陷阱：</strong>
                 验证时<strong>必须指定期望的算法</strong>，
                 不能信 header 里写的 ——
                 否则攻击者把 <code>alg</code>
@@ -2348,7 +2343,7 @@ server: {
                     <tr>
                       <td>502 / 503 / 504</td>
                       <td>网关错 / 不可用 / 超时</td>
-                      <td>上游挂了、在维护、上游太慢</td>
+                      <td>上游故障、在维护、上游太慢</td>
                     </tr>
                   </tbody>
                 </table>
@@ -2367,10 +2362,11 @@ server: {
                 <strong>REST 风格用 4xx</strong>
                 （让 HTTP 语义承载错误），
                 但要注意<strong>有些老网关会吞掉 4xx 的响应体</strong>。
-                <strong>GraphQL 则一律返 200</strong>，
+                <strong>GraphQL 执行阶段的错误则一律返回 200</strong>，
                 错误放在 <code>errors</code> 字段里 ——
                 因为一个请求可能<strong>部分成功</strong>，
-                没法用单个状态码表达。
+                没法用单个状态码表达；请求本身语法或校验不通过时，
+                Apollo Server 4 会返回 400。
                 <strong>这个对比答出来很加分</strong>，
                 Federation 那门课里 <code>extensions.code</code>
                 就是干这个的。
@@ -2508,10 +2504,11 @@ server: {
                 a 200 with an error code?&rdquo; — <strong>REST says 4xx</strong>, so
                 the HTTP semantics carry the error, but watch out:{" "}
                 <strong>some older gateways swallow the body of a 4xx</strong>.{" "}
-                <strong>GraphQL always returns 200</strong> and puts errors in the{" "}
-                <code>errors</code> field, because one request can be{" "}
+                <strong>Errors during GraphQL execution come back with 200</strong>{" "}
+                and sit in the <code>errors</code> field, because one request can be{" "}
                 <strong>partially successful</strong> and no single status code says
-                that. <strong>Drawing that contrast earns you points</strong> — in the
+                that; a request that fails to parse or validate gets a 400 from Apollo
+                Server 4. <strong>Drawing that contrast earns you points</strong> — in the
                 Federation course, <code>extensions.code</code> is exactly this.
               </p>
             </>
@@ -2712,7 +2709,7 @@ server: {
         "HTTPS 给三样：加密、身份验证、完整性；非对称交换密钥、对称传数据。",
         "JWT 的 payload 只是 Base64 不是加密；最大缺点是没法主动失效，标准解法是短过期 + refresh token。",
         "cookie 是浏览器存储机制，session 是服务端状态方案，后者靠前者传 id；四个安全属性要会。",
-        "401 没认证、403 没授权；201 创建、204 删除；GraphQL 一律 200 把错误放 errors。",
+        "401 没认证、403 没授权；201 创建、204 删除；GraphQL 执行错误返回 200、放进 errors（解析或校验失败时 Apollo Server 4 返回 400）。",
         "测试金字塔单元→集成→E2E；覆盖率不代表断言强 ——「空实现恰好通过」是实测过的。",
       ],
       recapEn: [
@@ -2721,7 +2718,7 @@ server: {
         "HTTPS gives you three things: encryption, proof of identity, and integrity. Keys are exchanged with asymmetric cryptography, then data is sent with symmetric.",
         "The payload of a JWT is only Base64, not encrypted. Its biggest weakness is that you cannot revoke it, and the standard answer is a short expiry plus a refresh token.",
         "A cookie is browser storage, a session is a server-side approach to state, and the session uses the cookie to carry its id. Know the four security attributes.",
-        "401 means not signed in, 403 means signed in but not allowed; 201 for created, 204 for deleted; GraphQL always returns 200 and puts problems in errors.",
+        "401 means not signed in, 403 means signed in but not allowed; 201 for created, 204 for deleted; GraphQL execution errors come back with 200 inside errors (a request that fails to parse or validate gets a 400 from Apollo Server 4).",
         "The testing pyramid goes unit, then integration, then end-to-end. Coverage does not measure how strong the assertions are: an empty function passing the test has really happened.",
       ],
     },

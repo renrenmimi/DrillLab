@@ -76,8 +76,10 @@ export const ivJsAsync: Module = {
                 <strong>JS 的特别之处（这才是考点）：</strong>
                 它是<strong>基于原型（prototype）的</strong>，
                 不是基于类的。
-                <code>class</code> 是 ES6 加的
-                <strong>语法糖</strong>，
+                <code>class</code> 是 ES6 加的，
+                <strong>主要是原型继承的语法糖</strong>
+                （但 <code>#private</code> 字段、必须用 <code>new</code> 调用、
+                <code>super</code> 这些是原型写法做不到的），
                 底下还是原型链 ——
                 <code>class A extends B</code> 编译后就是设置
                 <code>A.prototype.__proto__ = B.prototype</code>。
@@ -132,8 +134,11 @@ export const ivJsAsync: Module = {
               <p>
                 <strong>What makes JS different, and this is the real question:</strong>{" "}
                 it is <strong>prototype-based</strong>, not class-based.{" "}
-                <code>class</code> is <strong>syntax sugar</strong> added in ES6; the
-                prototype chain is still underneath —{" "}
+                <code>class</code>, added in ES6, is{" "}
+                <strong>mostly syntax sugar over prototypes</strong> (private{" "}
+                <code>#fields</code>, the rule that it must be called with{" "}
+                <code>new</code>, and <code>super</code> are things the prototype style
+                cannot do); the prototype chain is still underneath —{" "}
                 <code>class A extends B</code> compiles down to setting{" "}
                 <code>A.prototype.__proto__ = B.prototype</code>.
               </p>
@@ -170,7 +175,7 @@ class Dog extends Animal {
 
 new Dog("旺财").speak();          // "旺财 汪汪"
 
-// class 只是语法糖，底下是原型链
+// class 主要是语法糖，底下是原型链
 Object.getPrototypeOf(Dog.prototype) === Animal.prototype;   // true
 new Dog("x") instanceof Animal;                              // true`,
               {
@@ -179,7 +184,7 @@ new Dog("x") instanceof Animal;                              // true`,
                 codeEn: `class Animal {
   #secret = "a private field, unreachable from outside";   // encapsulation
   constructor(name) { this.name = name; }
-  speak() { return \`\${this.name} makes a sound\`; }   // encapsulation
+  speak() { return \`\${this.name} makes a sound\`; }
 }
 
 class Dog extends Animal {
@@ -188,7 +193,7 @@ class Dog extends Animal {
 
 new Dog("旺财").speak();          // the name is data, so it stays: <name> woof
 
-// class is only syntax sugar; a prototype chain sits underneath
+// class is mostly syntax sugar; a prototype chain sits underneath
 Object.getPrototypeOf(Dog.prototype) === Animal.prototype;   // true
 new Dog("x") instanceof Animal;                              // true`,
               },
@@ -242,7 +247,7 @@ new Dog("x") instanceof Animal;                              // true`,
                 <strong>改不了它</strong>。
               </p>
               <p>
-                <strong>最经典的坑：隐式丢失。</strong>
+                <strong>最经典的陷阱：隐式丢失。</strong>
                 <code>const fn = obj.method</code> 之后单独调
                 <code>fn()</code>，点号没了，
                 <code>this</code> 就丢了。
@@ -334,14 +339,14 @@ new Dog("x") instanceof Animal;                              // true`,
             demo(
               "js",
               `const obj = {
-  name: "obj",
-  show() { console.log(this.name); },
+  label: "obj",
+  show() { console.log(this.label); },
 };
 
 obj.show();                    // "obj"      隐式绑定，看点号左边
 const f = obj.show;
-f();                           // undefined  隐式丢失
-f.call({ name: "call" });      // "call"     显式绑定
+f();                           // 不是 "obj"：严格模式（模块、class）下 this 是 undefined，直接抛 TypeError；非严格时是全局对象，打印 undefined
+f.call({ label: "call" });     // "call"     显式绑定
 setTimeout(obj.show, 0);       // undefined  传出去就丢了
 setTimeout(() => obj.show(), 0); // "obj"    包一层就保住了
 
@@ -361,14 +366,14 @@ class Btn extends React.Component {
                 filename: "四条规则与隐式丢失",
                 filenameEn: "The four rules, and losing the implicit binding",
                 codeEn: `const obj = {
-  name: "obj",
-  show() { console.log(this.name); },
+  label: "obj",
+  show() { console.log(this.label); },
 };
 
 obj.show();                    // "obj"      implicit binding: look left of the dot
 const f = obj.show;
-f();                           // undefined  the implicit binding is lost
-f.call({ name: "call" });      // "call"     explicit binding
+f();                           // not "obj": in strict mode (modules, classes) this is undefined and it throws a TypeError; in sloppy mode this is the global object and it prints undefined
+f.call({ label: "call" });     // "call"     explicit binding
 setTimeout(obj.show, 0);       // undefined  pass it out and the binding is gone
 setTimeout(() => obj.show(), 0); // "obj"    one wrapper keeps it
 
@@ -556,11 +561,14 @@ hi("？");                            // "你好, 小明？"
 // 手写一个 bind（高频现场题）
 Function.prototype.myBind = function (ctx, ...preset) {
   const fn = this;
-  return function bound(...args) {
+  function bound(...args) {
     // new 调用时 this 是新对象，此时不该用 ctx —— 这是 bind 的规范行为
     const isNew = this instanceof bound;
     return fn.apply(isNew ? this : ctx, [...preset, ...args]);
-  };
+  }
+  // 让 new 出来的实例继承原函数的 prototype（箭头函数没有 prototype，跳过）
+  if (fn.prototype) bound.prototype = Object.create(fn.prototype);
+  return bound;
 };`,
               {
                 filename: "三者对比与手写 bind",
@@ -578,16 +586,19 @@ hi("？");                            // the same string, ending in a question m
 // Write bind by hand (a very common live-coding question)
 Function.prototype.myBind = function (ctx, ...preset) {
   const fn = this;
-  return function bound(...args) {
-    // With new, this is the new object and ctx must be ignored —— the spec requires it
+  function bound(...args) {
+    // With new, this is the new object and ctx must be ignored — the spec requires it
     const isNew = this instanceof bound;
     return fn.apply(isNew ? this : ctx, [...preset, ...args]);
-  };
+  }
+  // instances made with new inherit from the original prototype (arrow functions have none)
+  if (fn.prototype) bound.prototype = Object.create(fn.prototype);
+  return bound;
 };`,
                 explanation:
-                  "手写 bind 的加分项就是那个 isNew 判断：规范规定 new 一个 bound 函数时，绑定的 this 应该被忽略。多数人会漏。",
+                  "手写 bind 的加分项是 new 的两件事：new 调用时忽略绑定的 this（isNew 判断），并且让实例继承原函数的 prototype（bound.prototype 那一行）。多数人会漏。",
                 explanationEn:
-                  "What earns extra credit when you write bind by hand is that isNew check: the spec says that when a bound function is called with new, the bound this must be ignored. Most people leave it out.",
+                  "What earns extra credit when you write bind by hand is the two things new needs: ignore the bound this under new (the isNew check), and make the instance inherit from the original function's prototype (the bound.prototype line). Most people leave them out.",
               },
             ),
           ],
@@ -615,18 +626,18 @@ Function.prototype.myBind = function (ctx, ...preset) {
         {
           signal: "问 class 和原型的关系",
           signalEn: "Asked how class relates to prototypes",
-          reachFor: "class 是语法糖，底下是原型链",
-          reachForEn: "class is syntax sugar; what it builds is a prototype chain",
+          reachFor: "class 主要是语法糖，底下是原型链",
+          reachForEn: "class is mostly syntax sugar; what it builds is a prototype chain",
         },
       ],
       recap: [
-        "OOP 四特征：封装、继承、多态、抽象；JS 是原型继承，class 只是语法糖。",
+        "OOP 四特征：封装、继承、多态、抽象；JS 是原型继承，class 主要是语法糖。",
         "this 四条规则按优先级：new > call/apply/bind > obj.fn() > 默认；箭头函数不参与。",
-        "隐式丢失是最常见的坑，也是 React 类组件要 bind 的原因。",
+        "隐式丢失是最常见的陷阱，也是 React 类组件要 bind 的原因。",
         "Apply 收 Array、Call 用 Comma；bind 返回新函数、能预置参数、绑一次锁死但 new 能突破。",
       ],
       recapEn: [
-        "OOP has four traits: encapsulation, inheritance, polymorphism and abstraction; JavaScript inherits through prototypes, and class is only syntax sugar.",
+        "OOP has four traits: encapsulation, inheritance, polymorphism and abstraction; JavaScript inherits through prototypes, and class is mostly syntax sugar.",
         "The four rules for this, in priority order: new > call/apply/bind > obj.fn() > default; an arrow function follows none of them.",
         "Losing the implicit binding is the most common mistake, and it is why a React class component has to call bind.",
         "Apply takes an Array, Call takes Commas; bind returns a new function, can preset arguments, and binds once for good — only new can override it.",
@@ -715,17 +726,18 @@ Function.prototype.myBind = function (ctx, ...preset) {
                 <br />
                 「<code>setTimeout(fn, 0)</code>
                 真的 0 毫秒吗？」——
-                不是，浏览器最小约 4ms，
-                而且要等主线程空闲。
+                不是「立刻」：它要等当前同步代码和全部微任务跑完、主线程空出来才轮到；
+                另外定时器嵌套超过 5 层后，浏览器会把延迟钳到至少 4ms。
                 <strong>所以它只是「尽快，但不是现在」。</strong>
               </p>
               <p>
                 <strong>Node 的差别</strong>（问到就是加分）：
                 Node 的宏任务分了六个阶段
                 （timers / pending / poll / check / close…），
-                <code>setImmediate</code> 在 check 阶段，
-                <code>process.nextTick</code>
-                <strong>比所有微任务都优先</strong>。
+                <code>setImmediate</code> 在 check 阶段；
+                CommonJS 里 <code>process.nextTick</code> 队列
+                <strong>先于 Promise 微任务</strong>，
+                ES 模块的顶层代码里则是 Promise 先执行。
               </p>
             </>
           ),
@@ -776,8 +788,10 @@ Function.prototype.myBind = function (ctx, ...preset) {
                 in Node). The engine only runs JS. This one pairs with #276.
                 <br />
                 &ldquo;Is <code>setTimeout(fn, 0)</code> really zero
-                milliseconds?&rdquo; — no. Browsers clamp it to roughly 4ms, and it still
-                waits for a free main thread.{" "}
+                milliseconds?&rdquo; — not &ldquo;right now&rdquo;: it waits until the
+                synchronous code and every microtask have finished and the main thread is
+                free; and once timers are nested more than five levels deep, browsers clamp
+                the delay to at least 4ms.{" "}
                 <strong>
                   So it means &ldquo;as soon as possible, but not now&rdquo;.
                 </strong>
@@ -785,9 +799,10 @@ Function.prototype.myBind = function (ctx, ...preset) {
               <p>
                 <strong>How Node differs</strong> (a bonus point if it comes up): Node
                 splits macrotasks into six phases (timers / pending / poll / check /
-                close…), <code>setImmediate</code> lands in the check phase, and{" "}
-                <code>process.nextTick</code>{" "}
-                <strong>jumps ahead of every microtask</strong>.
+                close…), <code>setImmediate</code> lands in the check phase, and in
+                CommonJS the <code>process.nextTick</code> queue{" "}
+                <strong>runs before the Promise microtasks</strong>, while in the
+                top-level code of an ES module the Promises run first.
               </p>
             </>
           ),
@@ -902,7 +917,7 @@ console.log("6 sync");
                 </table>
               </div>
               <p>
-                <strong>那个「容易写成串行」的坑值得单独说</strong>：
+                <strong>那个「容易写成串行」的陷阱值得单独说</strong>：
                 两个互不依赖的请求，
                 写成两行 <code>await</code>
                 就变成了「等第一个回来再发第二个」，
@@ -1443,7 +1458,7 @@ Promise.resolve(1).finally(() => { throw new Error("x"); }).catch(e => console.l
               "js",
               `// ✗ 抓不到 —— 回调在下一轮事件循环里跑
 try {
-  setTimeout(() => { throw new Error("炸了"); }, 0);
+  setTimeout(() => { throw new Error("出错了"); }, 0);
 } catch (e) {
   console.log("抓不到这里");
 }
@@ -1563,7 +1578,7 @@ window.addEventListener("unhandledrejection", (e) => report(e.reason));`,
                 </table>
               </div>
               <p>
-                <strong><code>all</code> 的坑</strong>：
+                <strong><code>all</code> 的陷阱</strong>：
                 它是 fail-fast 的 ——
                 一个失败，其他已经在飞的请求
                 <strong>不会被取消</strong>，
@@ -1756,7 +1771,7 @@ await fetch(url, { signal: c.signal });`,
       recap: [
         "事件循环一轮：同步跑完 → 微任务一次全清 → 渲染 → 取一个宏任务；异步能力来自宿主环境不是引擎。",
         "async 函数体在第一个 await 前是同步的；await 之后等价于 .then，属微任务。",
-        "async/await 是 Promise 语法糖，最大好处是错误处理和同步代码统一；最大坑是把并行写成串行。",
+        "async/await 是 Promise 语法糖，最大好处是错误处理和同步代码统一；最大的陷阱是把并行写成串行。",
         "回调地狱真正的问题是错误处理要写 n 遍和无法组合，不只是缩进深。",
         "finally 拿不到值、原样透传、但里面抛错会覆盖结果；关 loading 就该放这儿。",
         "try/catch 抓不到回调里的异步错误；抛 Error 对象不抛字符串；最外层要有兜底。",
@@ -1797,7 +1812,7 @@ await fetch(url, { signal: c.signal });`,
         "Name Webpack's four core concepts and describe the build steps",
       ],
       whyForAssessment:
-        "事件委托是唯一有区分度的一道 —— 它连着 React 的事件机制。模块和 Webpack 属于工程题，答得出「为什么需要打包」比背配置项更重要。fetch vs axios 是很实用的一道，我们那道 fetch 变式题的第一个坑就在这里。",
+        "事件委托是唯一有区分度的一道 —— 它连着 React 的事件机制。模块和 Webpack 属于工程题，答得出「为什么需要打包」比背配置项更重要。fetch vs axios 是很实用的一道，我们那道 fetch 变式题的第一个陷阱就在这里。",
       whyForAssessmentEn:
         "Event delegation is the only question here that separates candidates, because it connects to the way React handles events. Modules and Webpack are engineering questions; answering why bundling is needed matters more than reciting config options. fetch vs axios is a practical one — the first trap in our fetch variant exercise comes from it.",
       concepts: [
@@ -1944,11 +1959,12 @@ await fetch(url, { signal: c.signal });`,
                 然后用<strong>合成事件（SyntheticEvent）</strong>
                 模拟一套跨浏览器一致的事件系统。
                 <br />
-                <strong>推论</strong>：所以在 React 里
+                <strong>推论</strong>：React 17 起，
                 <code>e.stopPropagation()</code>
                 拦得住 React 组件之间的传播，
-                但<strong>拦不住原生监听器</strong>——
-                因为原生的已经先跑完了。
+                也拦得住挂在 root 之外（<code>document</code>、<code>window</code>）的原生监听器；
+                <strong>拦不住的是挂在目标和 root 之间的原生监听器</strong>——
+                它们在事件冒到 root 之前就执行完了。
                 这个点答出来会很加分。
               </p>
             </>
@@ -1996,10 +2012,13 @@ await fetch(url, { signal: c.signal });`,
                 ), then wraps them in a <strong>SyntheticEvent</strong> to present one
                 event system that behaves the same across browsers.
                 <br />
-                <strong>The consequence</strong>: inside React,{" "}
-                <code>e.stopPropagation()</code> does stop propagation between React
-                components, but it <strong>cannot stop a native listener</strong> — the
-                native one already ran. Landing this point scores well.
+                <strong>The consequence</strong>: since React 17,{" "}
+                <code>e.stopPropagation()</code> stops propagation between React
+                components and also stops native listeners above the root (
+                <code>document</code>, <code>window</code>); what it{" "}
+                <strong>cannot stop are native listeners between the target and the
+                root</strong>, because they run before the event bubbles up to the
+                root. Landing this point scores well.
               </p>
             </>
           ),
@@ -2111,8 +2130,9 @@ table.addEventListener("click", (e) => {
                 <code>??</code>（ES2020）、
                 <code>Object.entries</code>（ES2017）、
                 <code>Array.flat</code>（ES2019）、
-                <code>at(-1)</code>（ES2022）、
-                <code>structuredClone</code>。
+                <code>at(-1)</code>（ES2022）；
+                另外 <code>structuredClone</code> 也常被提到，
+                但它是浏览器和 Node 提供的 Web API，不属于 ECMAScript。
                 <br />
                 <strong>可选链和 <code>??</code>
                 这两个尤其值得提</strong>，
@@ -2178,7 +2198,9 @@ table.addEventListener("click", (e) => {
                 <code>async/await</code> (ES2017), optional chaining <code>?.</code> and
                 nullish coalescing <code>??</code> (ES2020),{" "}
                 <code>Object.entries</code> (ES2017), <code>Array.flat</code> (ES2019),{" "}
-                <code>at(-1)</code> (ES2022), <code>structuredClone</code>.
+                <code>at(-1)</code> (ES2022); <code>structuredClone</code> often comes up
+                too, though it is a Web API provided by browsers and Node, not part of
+                ECMAScript.
                 <br />
                 <strong>
                   Optional chaining and <code>??</code> are the two most worth naming
@@ -2583,8 +2605,9 @@ table.addEventListener("click", (e) => {
                 直接用浏览器原生 ESM 按需提供模块，
                 所以启动是<strong>常数时间</strong>，
                 不随项目变大而变慢；
-                依赖预构建用 esbuild（Go 写的，快一个量级）；
-                生产才用 Rollup 打包。
+                Vite 7 及以前，依赖预构建用 esbuild（Go 写的，快一个量级）、
+                生产打包用 Rollup；Vite 8 起两者统一换成 Rust 写的 Rolldown。
+                不管哪一版，「开发时不打包、按需转换」这一点不变。
                 <br />
                 <strong>Webpack 是「先全量打包再服务」，
                 Vite 是「先服务再按需转换」</strong>——
@@ -2640,8 +2663,10 @@ table.addEventListener("click", (e) => {
                 constantly now. In development Vite <strong>does not bundle</strong>; it
                 serves modules on demand over the browser&rsquo;s native ESM, so startup
                 is <strong>constant time</strong> and does not degrade as the project
-                grows. Dependency pre-bundling runs on esbuild (written in Go, an order of
-                magnitude faster), and only production goes through Rollup.
+                grows. Up to Vite 7, dependency pre-bundling used esbuild (written in Go,
+                an order of magnitude faster) and production builds used Rollup; from Vite
+                8 both are handled by Rolldown, written in Rust. In every version the core
+                idea — no bundling in development, transform on demand — is the same.
                 <br />
                 <strong>
                   Webpack bundles everything and then serves it; Vite serves first and
@@ -2905,8 +2930,8 @@ async function request(url, opts = {}) {
         {
           signal: "问 React 事件机制",
           signalEn: "Asked how React handles events",
-          reachFor: "委托到 root + 合成事件；拦不住原生监听器",
-          reachForEn: "React delegates to the root and uses synthetic events; it cannot stop a native listener",
+          reachFor: "委托到 root + 合成事件；拦不住 root 以内的原生监听器",
+          reachForEn: "React delegates to the root and uses synthetic events; it cannot stop native listeners inside the root",
         },
         {
           signal: "问为什么要打包",
@@ -2917,8 +2942,8 @@ async function request(url, opts = {}) {
         {
           signal: "问 Vite 为什么快",
           signalEn: "Asked why Vite is fast",
-          reachFor: "开发不打包用原生 ESM，依赖预构建用 esbuild",
-          reachForEn: "In development it does not bundle, it serves native ESM, and it pre-builds dependencies with esbuild",
+          reachFor: "开发不打包用原生 ESM、按需转换（依赖预构建：Vite 7 及以前用 esbuild，Vite 8 起用 Rolldown）",
+          reachForEn: "In development it does not bundle; it serves native ESM and transforms on demand (dependencies are pre-bundled with esbuild up to Vite 7, with Rolldown from Vite 8)",
         },
         {
           signal: "CI 里装依赖",

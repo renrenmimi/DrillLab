@@ -218,7 +218,7 @@ function Good({ show }) {
     if (!show) return;           // put the condition inside the effect
     // ...
   }, [show]);
-}`, filename: "为什么不能写在条件里" },
+}`, filename: "为什么不能写在条件里", filenameEn: "Why a hook cannot go inside a condition" },
             ),
           ],
         },
@@ -240,7 +240,7 @@ function Good({ show }) {
                 实际上 <code>useCallback(fn, deps)</code>
                 完全等价于
                 <code>useMemo(() =&gt; fn, deps)</code>——
-                <strong>后者是前者的语法糖</strong>。
+                <strong>useCallback 是 useMemo 的语法糖</strong>。
                 这句能答出来会加分。
               </p>
               <div className="table-wrap">
@@ -291,8 +291,8 @@ function Good({ show }) {
               </p>
               <p>
                 <strong>会追问：</strong>
-                「React 19 的编译器会怎样？」——
-                React Compiler 能自动插入记忆化，
+                「React Compiler 会怎样？」——
+                它是独立的编译插件（不是 React 19 自带的），能自动插入记忆化，
                 <strong>大部分手写的
                 <code>useMemo</code> /
                 <code>useCallback</code> 将不再必要</strong>。
@@ -312,7 +312,7 @@ function Good({ show }) {
               <p>
                 In fact <code>useCallback(fn, deps)</code> is exactly the same thing
                 as <code>useMemo(() =&gt; fn, deps)</code> —{" "}
-                <strong>the former is sugar for the latter</strong>. Saying this
+                <strong>useCallback is sugar for useMemo</strong>. Saying this
                 scores points.
               </p>
               <div className="table-wrap">
@@ -362,8 +362,9 @@ function Good({ show }) {
                 for the comparison on top.
               </p>
               <p>
-                <strong>Follow-up:</strong> &ldquo;What changes with the React 19
-                compiler?&rdquo; — React Compiler can insert memoisation for you, so{" "}
+                <strong>Follow-up:</strong> &ldquo;What about React Compiler?&rdquo; — it
+                is a separate build plugin (not part of React 19 itself) that can insert
+                memoisation for you, so{" "}
                 <strong>most hand-written <code>useMemo</code> and{" "}
                 <code>useCallback</code> will stop being necessary</strong>. Knowing
                 the direction shows you are keeping up.
@@ -374,7 +375,7 @@ function Good({ show }) {
             demo(
               "jsx",
               `// useMemo：缓存值
-const sorted = useMemo(() => items.sort(cmp), [items]);
+const sorted = useMemo(() => [...items].sort(cmp), [items]);
 
 // useCallback：缓存函数
 const onPick = useCallback((id) => setPicked(id), []);
@@ -387,7 +388,7 @@ const onSave = useCallback(() => save(config), [{ ...config }]);
 //                                              ↑ 每次都是新对象`,
               {
     codeEn: `// useMemo caches a value
-const sorted = useMemo(() => items.sort(cmp), [items]);
+const sorted = useMemo(() => [...items].sort(cmp), [items]);
 
 // useCallback caches a function
 const onPick = useCallback((id) => setPicked(id), []);
@@ -397,7 +398,7 @@ useCallback(fn, deps) === useMemo(() => fn, deps)
 
 // ✗ a common mistake: the dependency changes every time, so nothing is cached
 const onSave = useCallback(() => save(config), [{ ...config }]);
-//                                              ↑ a new object every render`, filename: "两者的区别与等价关系" },
+//                                              ↑ a new object every render`, filename: "两者的区别与等价关系", filenameEn: "How the two differ, and how they are equivalent" },
             ),
           ],
         },
@@ -699,7 +700,7 @@ function useLocalStorage(key, initial) {
 // Using it
 const [theme, setTheme] = useLocalStorage("theme", "light");
 
-// Note: two components each calling it get two separate states, not a shared one`, filename: "自定义 hook 的形状" },
+// Note: two components each calling it get two separate states, not a shared one`, filename: "自定义 hook 的形状", filenameEn: "The shape of a custom hook" },
             ),
           ],
         },
@@ -714,7 +715,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
         {
           signal: "问 useMemo vs useCallback",
           signalEn: "Asked about useMemo vs useCallback",
-          reachFor: "一个缓存值一个缓存函数；后者是前者的语法糖",
+          reachFor: "一个缓存值一个缓存函数；useCallback 是 useMemo 的语法糖",
           reachForEn: "One caches a value, the other caches a function; useCallback is a shorter way to write useMemo",
         },
         {
@@ -1090,7 +1091,7 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
 <div className="bar" style={{ "--pct": \`\${percent}%\` }} />
 
 /* CSS 里 */
-.bar::after { width: var(--pct); }        /* 伪类照样能用 */
+.bar::after { width: var(--pct); }        /* 伪元素照样能用 */
 @media (max-width: 480px) { .bar { height: 4px; } }
 
 // ✗ 行内写全套：没法写伪类和媒体查询，还每次新对象
@@ -1100,11 +1101,11 @@ const [theme, setTheme] = useLocalStorage("theme", "light");
 <div className="bar" style={{ "--pct": \`\${percent}%\` }} />
 
 /* In the CSS */
-.bar::after { width: var(--pct); }        /* pseudo-classes still work */
+.bar::after { width: var(--pct); }        /* pseudo-elements still work */
 @media (max-width: 480px) { .bar { height: 4px; } }
 
 // ✗ everything inline: no pseudo-classes, no media queries, and a new object each time
-<div style={{ width: \`\${percent}%\`, background: "#2b6" }} />`, filename: "动态样式的正确做法" },
+<div style={{ width: \`\${percent}%\`, background: "#2b6" }} />`, filename: "动态样式的正确做法", filenameEn: "Dynamic styles done right" },
             ),
           ],
         },
@@ -1269,7 +1270,7 @@ function onChange(e) {
   setQuery(e.target.value);                 // urgent: the input responds at once
   startTransition(() => setList(filter(e.target.value)));  // not urgent
 }
-{isPending && <span>Updating…</span>}`, filename: "两个最能感知的变化" },
+{isPending && <span>Updating…</span>}`, filename: "两个最能感知的变化", filenameEn: "The two changes you notice most" },
             ),
           ],
         },
@@ -1405,7 +1406,7 @@ const preload = () => import("./pages/Settings");
 
 // Preloading: start downloading on hover
 const preload = () => import("./pages/Settings");
-<Link to="/settings" onMouseEnter={preload}>Settings</Link>`, filename: "lazy 的完整用法（含失败兜底）" },
+<Link to="/settings" onMouseEnter={preload}>Settings</Link>`, filename: "lazy 的完整用法（含失败兜底）", filenameEn: "lazy in full (with a fallback for failures)" },
             ),
           ],
         },
@@ -1461,10 +1462,11 @@ const preload = () => import("./pages/Settings");
                 生产不会。
                 <br />
                 「请求被发两次呢？」——
-                <strong>这个要认真看</strong>：
-                说明你的 effect 没有正确处理清理 ——
-                虽然对幂等的 GET 无害，
-                但它同时提示你「竞态防护写了没有」。
+                开发模式下这是预期行为：StrictMode 让 effect 先挂载、卸载、再挂载，
+                清理写对了也会发两次。
+                <strong>要检查的是结果</strong>：写了 <code>ignore</code> 标志或
+                <code>abort</code> 时，第一次的结果会被丢掉或请求被取消，
+                界面只用第二次的结果；没写清理，才会出现两次结果都写进 state、以及竞态。
                 <strong>我们那道 fetch 变式题里
                 <code>ignore</code> 标志 +
                 <code>abort</code> 的写法，
@@ -1513,10 +1515,13 @@ const preload = () => import("./pages/Settings");
                 <strong>because the render function ran twice</strong>; it will not in
                 production.
                 <br />
-                &ldquo;What about my request firing twice?&rdquo; —{" "}
-                <strong>take that one seriously</strong>: it means your effect is not
-                cleaning up properly. Harmless for an idempotent GET, but it is also
-                telling you to ask whether you guarded against races.{" "}
+                &ldquo;What about my request firing twice?&rdquo; — in development
+                that is expected: StrictMode mounts, unmounts and remounts the effect,
+                so even correct cleanup sends two requests.{" "}
+                <strong>What you check is the outcome</strong>: with an{" "}
+                <code>ignore</code> flag or <code>abort</code>, the first result is
+                discarded or the request is cancelled and the UI uses only the second;
+                without cleanup both results land in state and races appear.{" "}
                 <strong>The <code>ignore</code> flag plus <code>abort</code> pattern
                 from our fetch variant is exactly what makes it behave correctly under
                 StrictMode too.</strong>
@@ -1571,7 +1576,7 @@ const preload = () => import("./pages/Settings");
                 <strong>放哪：</strong>
                 <strong>粒度要合适。</strong>
                 只在根节点放一个，
-                一个小组件挂了整页还是没了；
+                一个小组件出错，整页还是没了；
                 <strong>推荐按「独立区块」放</strong>——
                 每个路由页面、
                 每个可独立失败的挂件
@@ -1698,7 +1703,7 @@ const preload = () => import("./pages/Settings");
 
 // Put one per region rather than a single one at the root
 <ErrorBoundary><Sidebar /></ErrorBoundary>
-<ErrorBoundary><Chart /></ErrorBoundary>`, filename: "错误边界" },
+<ErrorBoundary><Chart /></ErrorBoundary>`, filename: "错误边界", filenameEn: "Error boundaries" },
             ),
           ],
         },
@@ -2300,8 +2305,8 @@ const preload = () => import("./pages/Settings");
                   所以你可以<strong>写起来像在改
                   <code>state.list.push(x)</code>，
                   实际产出的是新对象</strong>——
-                  但要注意这只在
-                  <code>createSlice</code> 里成立。
+                  但要注意这只在 RTK 的
+                  <code>createSlice</code> / <code>createReducer</code> 里成立。
                 </li>
                 <li>
                   默认装好 thunk 和 DevTools。
@@ -2372,8 +2377,8 @@ const preload = () => import("./pages/Settings");
                   <strong>Immer</strong> is built in, so you can{" "}
                   <strong>write what looks like a mutation —{" "}
                   <code>state.list.push(x)</code> — and still get a new object
-                  out</strong>. Just remember this only holds inside{" "}
-                  <code>createSlice</code>.
+                  out</strong>. Just remember this only holds inside RTK&rsquo;s{" "}
+                  <code>createSlice</code> and <code>createReducer</code>.
                 </li>
                 <li>
                   thunk and DevTools are wired up by default.
@@ -2438,7 +2443,7 @@ export const { add, toggle } = todos.actions;
 // In the component
 const list = useSelector((s) => s.todos);        // subscribes to this part only
 const dispatch = useDispatch();
-dispatch(add({ id: Date.now(), text, done: false }));`, filename: "现在真正会写的 Redux" },
+dispatch(add({ id: Date.now(), text, done: false }));`, filename: "现在真正会写的 Redux", filenameEn: "Redux as it is written today" },
             ),
           ],
         },
@@ -2718,7 +2723,7 @@ const fetchUser = (id) => async (dispatch) => {
   } catch (e) {
     dispatch({ type: "user/failed", payload: e.message });
   }
-};`, filename: "中间件的形状与 thunk" },
+};`, filename: "中间件的形状与 thunk", filenameEn: "The shape of middleware, and thunk" },
             ),
           ],
         },
@@ -2747,7 +2752,7 @@ const fetchUser = (id) => async (dispatch) => {
                   <tbody>
                     <tr>
                       <td>类型检查</td>
-                      <td>运行时才炸</td>
+                      <td>运行时才报错</td>
                       <td><strong>编译期就报</strong></td>
                     </tr>
                     <tr>
